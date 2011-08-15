@@ -25,6 +25,23 @@ my @tests = (
       [ {splat => [1]}, 33] 
     ],
 
+    [ ['get', '/file/*.*', sub { 44 }], 
+      '/file/dist.ini', 
+      [ {splat => ['dist', 'ini']}, 44] 
+    ],
+
+    [ ['get', qr{stuff(\d+)}, sub { 44 }], 
+      '/stuff48', 
+      [ {splat => [48]}, 44] 
+    ],
+
+# FIXME: does not pass yet, does it pass in Dancer?
+#    [ ['get', qr{stuff(\d+)}, sub { 44 }, '/foo'], 
+#      '/foo/stuff48', 
+#      [ {splat => [48]}, 44] 
+#    ],
+
+
 );
 
 plan tests => scalar(@tests) * 4;
