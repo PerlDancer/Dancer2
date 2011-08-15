@@ -16,18 +16,21 @@ sub raise_type_exception {
 
 sub Str {
     my ($value) = @_;
+    return if ! defined $value;
     raise_type_exception Str => $value
         unless _is_defined_scalar($value);
 }
 
 sub Num {
     my ($value) = @_;
+    return if ! defined $value;
     raise_type_exception Num => $value
       unless looks_like_number($value);
 }
 
 sub Bool {
     my ($value) = @_;
+    return if ! defined $value;
 
     raise_type_exception Num => $value
       if !  _is_defined_scalar($value) 
@@ -36,6 +39,7 @@ sub Bool {
 
 sub Regexp {
     my ($value) = @_;
+    return if ! defined $value;
     raise_type_exception Regexp => $value
       if  ! ref($value)
          || (ref($value) ne 'Regexp');
@@ -43,6 +47,7 @@ sub Regexp {
 
 sub HashRef {
     my ($value) = @_;
+    return if ! defined $value;
     raise_type_exception HashRef => $value
       if  ! ref($value)
          || (ref($value) ne 'HASH');
@@ -58,6 +63,7 @@ sub CodeRef {
 
 sub ArrayRef {
     my ($value) = @_;
+    return if ! defined $value;
     raise_type_exception ArrayRef => $value
       if  ! ref($value)
          || (ref($value) ne 'ARRAY');
@@ -65,6 +71,7 @@ sub ArrayRef {
 
 sub ObjectOf {
     my ($class, $value) = @_;
+    return if ! defined $value;
     raise_type_exception "ObjectOf(${class})" => $value
       if !  blessed($value) 
          || (ref($value) ne $class);
@@ -74,6 +81,7 @@ sub ObjectOf {
 
 sub DancerPrefix {
     my ($value) = @_;
+    return if ! defined $value;
 
     # a prefix must start with the char '/'
     # index is much faster than =~ /^\//
@@ -84,6 +92,7 @@ sub DancerPrefix {
 
 sub DancerAppName {
     my ($value) = @_;
+    return if ! defined $value;
 
     # TODO need a real check of valid app names
     raise_type_exception DancerAppName => $value
@@ -93,6 +102,7 @@ sub DancerAppName {
 
 sub DancerMethod {
     my ($value) = @_;
+    return if ! defined $value;
 
     raise_type_exception DancerMethod => $value
       unless grep { /^$value$/ } qw(get head post put delete options);
