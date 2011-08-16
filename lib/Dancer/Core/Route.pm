@@ -240,7 +240,7 @@ sub _init_regexp {
     my ($compiled, $params, $should_capture) =
       @{_build_regexp_from_string($value)};
 
-    $self->_should_capture(defined $should_capture ? $should_capture : 0);
+    $self->_should_capture($should_capture);
     $self->_params($params || []);
     $self->regexp( $compiled );
 }

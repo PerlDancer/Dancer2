@@ -18,7 +18,7 @@ sub Str {
     my ($value) = @_;
     return if ! defined $value;
     raise_type_exception Str => $value
-        unless _is_defined_scalar($value);
+        unless _is_scalar($value);
 }
 
 sub Num {
@@ -32,8 +32,8 @@ sub Bool {
     my ($value) = @_;
     return if ! defined $value;
 
-    raise_type_exception Num => $value
-      if !  _is_defined_scalar($value) 
+    raise_type_exception Bool => $value
+      if !  _is_scalar($value) 
          || ($value != 0 && $value != 1);
 }
 
@@ -55,6 +55,7 @@ sub HashRef {
 
 sub CodeRef {
     my ($value) = @_;
+    return if ! defined $value;
     raise_type_exception CodeRef => $value
       if  ! ref($value)
          || (ref($value) ne 'CODE');
@@ -86,7 +87,7 @@ sub DancerPrefix {
     # a prefix must start with the char '/'
     # index is much faster than =~ /^\//
     raise_type_exception DancerPrefix => $value
-      if !  _is_defined_scalar($value) 
+      if !  _is_scalar($value) 
          || (index($value, '/') != 0); 
 }
 
@@ -96,8 +97,8 @@ sub DancerAppName {
 
     # TODO need a real check of valid app names
     raise_type_exception DancerAppName => $value
-      if !  _is_defined_scalar($value)
-         || ($value =~ /\s/); 
+      if !  _is_scalar($value)
+         || ($value !~ /\w/); 
 }
 
 sub DancerMethod {
@@ -110,12 +111,9 @@ sub DancerMethod {
 
 # private
 
-sub _is_defined_scalar {
+sub _is_scalar {
     my ($value) = @_;
-
-    return if !defined $value;
-    return if ref($value);
-    return 1;
+    return ! ref($value);
 }
 
 
