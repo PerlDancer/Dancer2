@@ -17,10 +17,10 @@ has name => (
 has prefix => (
     is => 'rw', 
     isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
-    trigger => sub {
-        my ($self, $prefix) = @_;
-        return undef $self->{prefix} 
-          if defined($prefix) and $prefix eq "/";
+    coerce => sub {
+        my ($prefix) = @_;
+        return undef if defined($prefix) and $prefix eq "/";
+        return $prefix;
     },
 );
 
