@@ -12,52 +12,69 @@ use Dancer::Core::Route;
 has name => (
     is => 'ro',
     isa => sub { Dancer::Moo::Types::Str(@_) },
-    trigger => sub {
-        my ($self, $name) = @_;
-        warn "App $name is created ($self)";
-    },
 );
 
 has prefix => (
     is => 'rw', 
     isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
     trigger => sub {
-        my ($self, @attrs) = @_;
-        $self->_set_prefix(@attrs);
+        my ($self, $prefix) = @_;
+        return undef $self->{prefix} 
+          if defined($prefix) and $prefix eq "/";
     },
 );
 
-sub _set_prefix {
-    my ($self, $prefix, $cb) = @_;
-    
-    # reject '/' 
-    return undef $self->{prefix} 
-        if defined($prefix) and $prefix eq "/";
+=head2 lexical_prefix
 
-    # handle lexical prefixes
-    # eg: any route defined in $cb should have the prefix append to the current one
-    return if ref($cb) ne 'CODE';
-    
+Allow for setting a lexical prefix
+
+    $app->lexical_prefix('/blog', sub {
+        ...
+    });
+
+All the route defined within the callback will have a prefix appended to the
+current one.
+
+=cut
+
+sub lexical_prefix {
+    my ($self, $prefix, $cb) = @_;
+    undef $prefix if $prefix eq '/';
+
     # save the app prefix
     my $app_prefix = $self->prefix;
-    $self->{prefix} = $app_prefix.$prefix;
-    
+
+    # alter the prefix for the callback
+    my $new_prefix =
+        (defined $app_prefix ? $app_prefix : '')
+      . (defined $prefix     ? $prefix     : '');
+
+    # if the new prefix is empty, it's a meaningless prefix, just ignore it
+    $self->prefix($new_prefix) if length $new_prefix;
+
     eval { $cb->() };
     my $e = $@;
     
     # restore app prefix
-    $self->{prefix} = $app_prefix;
+    $self->prefix( $app_prefix );
     
     croak "Unable to run the callback for prefix '$prefix': $e" 
         if $e;
 }
 
 # routes registry, stored by method:
-# { get => [ ], ... }
 has routes => (
-    is => 'rw', 
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
-    default => sub { {} },
+    is      => 'rw',
+    isa     => sub { Dancer::Moo::Types::HashRef(@_) },
+    default => sub {
+        {   get     => [],
+            head    => [],
+            post    => [],
+            put     => [],
+            del     => [],
+            options => [],
+        };
+    },
 );
 
 =head2 add_route
@@ -74,18 +91,12 @@ Register a new route handler.
 sub add_route {
     my ($self, %route_attrs) = @_;
 
-        my $route;
-        eval { 
-            $route = Dancer::Core::Route->new(
-                %route_attrs, 
-                prefix => $self->prefix,
-            ); 
-        };
-        croak "Unable to register route: $@"
-          if $@;
+        my $route = Dancer::Core::Route->new(
+            %route_attrs, 
+            prefix => $self->prefix,
+        ); 
         
         my $method = $route->method;
-        my $reg = $self->routes->{$method} ||= [];
         push @{ $self->routes->{$method} }, $route;
 }
 
