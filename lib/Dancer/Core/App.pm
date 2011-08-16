@@ -7,6 +7,8 @@ use Moo;
 use Dancer::Moo::Types;
 use Carp;
 
+use Dancer::Core::Route;
+
 has name => (
     is => 'ro',
     isa => sub { Dancer::Moo::Types::Str(@_) },
@@ -62,19 +64,46 @@ has routes => (
 
 Register a new route handler.
 
-    $app->add_route($route);
-
-Input: a list of L<Dancer::Core::Route> objects to add in the given order.
+    $app->add_route(
+        method => 'get',
+        regexp => '/somewhere',
+        code => sub { ... });
 
 =cut
 
 sub add_route {
-    my ($self, @routes) = @_;
-    for my $r (@routes) {
-        my $method = $r->method;
+    my ($self, %route_attrs) = @_;
+
+        my $route;
+        eval { 
+            $route = Dancer::Core::Route->new(
+                %route_attrs, 
+                prefix => $self->prefix,
+            ); 
+        };
+        croak "Unable to register route: $@"
+          if $@;
+        
+        my $method = $route->method;
         my $reg = $self->routes->{$method} ||= [];
-        push @{ $self->routes->{$method} }, $r;
-    }
+        push @{ $self->routes->{$method} }, $route;
+}
+
+=head2 routes_regexps_for
+
+Sugar for getting the ordered list of all registered route regexps by method.
+
+    my $regexps = $app->routes_regexps_for( 'get' );
+
+Returns an ArrayRef with the results.
+
+=cut
+
+sub routes_regexps_for {
+    my ($self, $method) = @_;
+    return [ 
+        map { $_->regexp } @{ $self->routes->{$method} }
+    ];
 }
 
 =head2 find_route_for_request
@@ -104,9 +133,9 @@ sub find_route_for_request {
 #        }
 #    }
 
-    my @routes = @{ $self->routes->{$method} };
     my $method = $request->method;
     my $path   = $request->path_info;
+    my @routes = @{ $self->routes->{$method} };
 
     for my $r (@routes) {
         my $match = $r->match($method, $path);
