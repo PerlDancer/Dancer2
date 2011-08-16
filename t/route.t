@@ -9,6 +9,10 @@ my @tests = (
       '/', 
       [ {}, 11] 
     ],
+    [ ['get', '/', sub { 11 }], 
+      '/failure', 
+      [ undef, 11] 
+    ],
 
     [ ['get', '/hello/:name', sub { 22 }], 
       '/hello/sukria', 
@@ -22,6 +26,10 @@ my @tests = (
     [ ['get', '/', sub { 33 }, '/forum'], 
       '/forum/', 
       [ {splat => [1]}, 33] 
+    ],
+    [ ['get', '/mywebsite', sub { 33 }, '/forum'], 
+      '/forum/mywebsite', 
+      [ {}, 33] 
     ],
 
     # splat test
@@ -48,7 +56,7 @@ my @tests = (
     ],
 );
 
-plan tests => 30;
+plan tests => 38;
 
 for my $t (@tests) {
     my ($route, $path, $expected) = @$t;
@@ -78,7 +86,7 @@ for my $t (@tests) {
         is $r->execute, $expected->[1], "got expected result for '$path'";
 
         # failing request
-        my $m = $r->match(get => '/something_that_doesnt_exist');
+        $m = $r->match(get => '/something_that_doesnt_exist');
         is $m, undef, "dont match failing request";
     }
 }
