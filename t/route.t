@@ -42,40 +42,45 @@ my @tests = (
       [ {splat => [48]}, 44] 
     ],
 
-# FIXME: does not pass yet, does it pass in Dancer?
-#    [ ['get', qr{stuff(\d+)}, sub { 44 }, '/foo'], 
-#      '/foo/stuff48', 
-#      [ {splat => [48]}, 44] 
-#    ],
-
-
+    [ ['get', qr{stuff(\d+)}, sub { 44 }, '/foo'], 
+      '/foo/stuff48', 
+      qr {Cannot combine a prefix \(/foo\) with a regular expression},
+    ],
 );
 
-plan tests => scalar(@tests) * 4 + 1;
+plan tests => 30;
 
 for my $t (@tests) {
     my ($route, $path, $expected) = @$t;
 
-    # successful request
-    my $r = Dancer::Core::Route->new(
-        method => $route->[0],
-        regexp => $route->[1],
-        code   => $route->[2],
-        prefix => $route->[3],
-    );
+    if (ref($expected) eq 'Regexp') {
+        eval {
+            my $r = Dancer::Core::Route->new(
+                method => $route->[0],
+                regexp => $route->[1],
+                code   => $route->[2],
+                prefix => $route->[3],
+            );
+        };
+        like $@, $expected, "got expected exception for $path";
+    }
+    else {
+        my $r = Dancer::Core::Route->new(
+            method => $route->[0],
+            regexp => $route->[1],
+            code   => $route->[2],
+            prefix => $route->[3],
+        );
+        isa_ok $r, 'Dancer::Core::Route';
 
-    note "regexp built: ".$r->regexp;
-    isa_ok $r, 'Dancer::Core::Route';
+        my $m = $r->match($route->[0] => $path);
+        is_deeply $m, $expected->[0], "got expected data for '$path'";
+        is $r->execute, $expected->[1], "got expected result for '$path'";
 
-    my $m = $r->match($route->[0] => $path);
-    is_deeply $m, $expected->[0],
-        "got expected data for '$path'";
-    is $r->execute, $expected->[1],
-        "got expected result for '$path'";
-
-    # failing request
-    $m = $r->match(get => '/something_that_doesnt_exist');
-    is $m, undef, "dont match failing request";
+        # failing request
+        my $m = $r->match(get => '/something_that_doesnt_exist');
+        is $m, undef, "dont match failing request";
+    }
 }
 
 # captures test

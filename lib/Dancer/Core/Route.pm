@@ -67,23 +67,24 @@ has options => (
     trigger => \&_check_options,
 );
 
-sub _check_options {
-    my ($self, $options) = @_;
-
-#  TODO  my @_supported_options = Dancer::Request->get_attributes();
-    my @_supported_options;
-    my %_options_aliases = (agent => 'user_agent');
-
-    return 1 unless defined $options;
-
-    for my $opt (keys %{$options}) {
-        croak "Not a valid option for route matching: `$opt'"
-          if not(    (grep {/^$opt$/} @{$_supported_options[0]})
-                  || (grep {/^$opt$/} keys(%_options_aliases)));
-    }
-    return 1;
-}
-
+# TODO this should be done elsewhere
+#sub _check_options {
+#    my ($self, $options) = @_;
+#
+##  TODO  my @_supported_options = Dancer::Request->get_attributes();
+#    my @_supported_options;
+#    my %_options_aliases = (agent => 'user_agent');
+#
+#    return 1 unless defined $options;
+#
+#    for my $opt (keys %{$options}) {
+#        croak "Not a valid option for route matching: `$opt'"
+#          if not(    (grep {/^$opt$/} @{$_supported_options[0]})
+#                  || (grep {/^$opt$/} keys(%_options_aliases)));
+#    }
+#    return 1;
+#}
+#
 # private attributes
 
 has _should_capture => (
@@ -198,12 +199,16 @@ sub _init_prefix {
     
     my $prefix = $self->prefix;
     my $regexp = $self->regexp;
-    return unless defined $prefix;
 
+# NOTE apparently this cannot work
+#    if (ref($regexp) eq 'Regexp') {
+#        return $self->regexp(qr{${prefix}${regexp}}) 
+#          if $regexp !~ /^$prefix/;
+#        return;
+#    }
+    
     if (ref($regexp) eq 'Regexp') {
-        return $self->regexp(qr{${prefix}${regexp}}) 
-          if $regexp !~ /^$prefix/;
-        return;
+        croak "Cannot combine a prefix ($prefix) with a regular expression ($regexp)";
     }
 
     if ($self->regexp eq '/') {
