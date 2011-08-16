@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 
-
 use Dancer::Core::Route;
 
 my @tests = (
@@ -25,10 +24,18 @@ my @tests = (
       [ {splat => [1]}, 33] 
     ],
 
+    # splat test
     [ ['get', '/file/*.*', sub { 44 }], 
       '/file/dist.ini', 
       [ {splat => ['dist', 'ini']}, 44] 
     ],
+
+    # megasplat test
+    [ ['get', '/file/**/*', sub { 44 }], 
+      '/file/some/where/42', 
+      [ {splat => [ ['some', 'where'], '42' ]}, 44] 
+    ],
+
 
     [ ['get', qr{stuff(\d+)}, sub { 44 }], 
       '/stuff48', 
@@ -44,7 +51,7 @@ my @tests = (
 
 );
 
-plan tests => scalar(@tests) * 4;
+plan tests => scalar(@tests) * 4 + 1;
 
 for my $t (@tests) {
     my ($route, $path, $expected) = @$t;
@@ -71,4 +78,30 @@ for my $t (@tests) {
     is $m, undef, "dont match failing request";
 }
 
-done_testing;
+# captures test
+SKIP: {
+    skip "Need perl >= 5.10", 1 unless $] >= 5.010;
+
+    my $route_regex =
+      qr{/(?<class> user | content | post )/(?<action> delete | find )/(?<id> \d+ )}x;
+
+    my $r = Dancer::Core::Route->new(
+        regexp => $route_regex,
+        code   => sub {
+            'ok';
+        },
+        method => 'get',
+    );
+
+    my $m = $r->match(get => '/user/delete/234');
+
+    is_deeply $m, { 
+        captures => {
+            class => 'user', 
+            action => 'delete', 
+            id => 234
+          }
+    },
+    "named captures work";
+}
+
