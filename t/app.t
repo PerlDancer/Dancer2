@@ -2,18 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Dancer::Core::App;
-
-# mock a request to avoid using Dancer::Request here
-{
-    package FakeRequest;
-
-    sub method { $_[0]->{method} }
-    sub path_info { $_[0]->{path_info} }
-    sub new {
-        my ($class, %attrs) = @_;
-        bless \%attrs, 'FakeRequest';
-    }
-}
+use Dancer::Core::Request;
 
 # our app object
 my $app = Dancer::Core::App->new(
@@ -47,7 +36,9 @@ my $routes_regexps = $app->routes_regexps_for('get');
 is (scalar(@$routes_regexps), 4, "route regexps are OK");
 
 for my $path ('/', '/blog', '/mywebsite', '/mywebsite/blog',) {
-    my $req = FakeRequest->new(method => 'get', path_info => $path);
+    my $req = Dancer::Core::Request->new(env => {
+        REQUEST_METHOD => 'GET',
+        PATH_INFO => $path });
 
     my $route = $app->find_route_for_request($req);
     isa_ok $route, 'Dancer::Core::Route';
@@ -105,7 +96,9 @@ $app->lexical_prefix( '/' => sub {
 });
 
 for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere') {
-    my $req = FakeRequest->new(method => 'get', path_info => $path);
+    my $req = Dancer::Core::Request->new(env => {
+        REQUEST_METHOD => 'GET',
+        PATH_INFO => $path });
 
     my $route = $app->find_route_for_request($req);
     ok(defined($route), "got a route for $path");
