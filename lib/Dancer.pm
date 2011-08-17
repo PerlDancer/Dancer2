@@ -25,19 +25,21 @@ our @EXPORT = qw(
 # Dancer's syntax
 
 sub prefix { 
+    my $app = shift;
     @_ == 1 
-      ? (caller)->dancer_app->prefix(@_)
-      : (caller)->dancer_app->lexical_prefix(@_);
+      ? $app->prefix(@_)
+      : $app->lexical_prefix(@_);
 }
 
 sub get { 
-    my $caller = caller;
-    $caller->dancer_app->add_route(method => 'get',  regexp => $_[0], code => $_[1]);
-    $caller->dancer_app->add_route(method => 'head', regexp => $_[0], code => $_[1]);
+    my $app = shift;
+    $app->add_route(method => 'get',  regexp => $_[0], code => $_[1]);
+    $app->add_route(method => 'head', regexp => $_[0], code => $_[1]);
 }
 
 sub post {
-    (caller)->dancer_app->add_route(
+    my $app = shift;
+    $app->add_route(
         method => 'post',
         regexp => $_[0],
         code   => $_[1]
@@ -45,7 +47,8 @@ sub post {
 }
 
 sub put {
-    (caller)->dancer_app->add_route(
+    my $app = shift;
+    $app->add_route(
         method => 'put',
         regexp => $_[0],
         code   => $_[1]
@@ -53,7 +56,8 @@ sub put {
 }
 
 sub del {
-    (caller)->dancer_app->add_route(
+    my $app = shift;
+    $app->add_route(
         method => 'delete',
         regexp => $_[0],
         code   => $_[1]
@@ -61,7 +65,8 @@ sub del {
 }
 
 sub options {
-    (caller)->dancer_app->add_route(
+    my $app = shift;
+    $app->add_route(
         method => 'options',
         regexp => $_[0],
         code   => $_[1]
@@ -69,40 +74,34 @@ sub options {
 }
 
 sub start {
-    my $caller = caller;
-    my $app = $caller->dancer_app;
+    my $app = shift;
     my $server = Dancer::Core::Server::Standalone->new(app => $app);
     $server->start;
 }
 
 sub status { 
-    my $app = (caller)->dancer_app;
-    _assert_is_running_context($app);
+    my $app = shift;
     $app->running_context->response_attributes->{status} = $_[0];
 }
 
 sub header {
-    my $app = (caller)->dancer_app;
-    _assert_is_running_context($app);
+    my $app = shift;
     push @{ $app->running_context->response_attributes->{headers} }, @_;
 }
 
 sub content_type {
-    my $app = (caller)->dancer_app;
-    _assert_is_running_context($app);
+    my $app = shift;
     push @{ $app->running_context->response_attributes->{headers} }, 
         'Content-Type' => $_[0] ;
 }
 
 sub params {
-    my $app = (caller)->dancer_app;
-    _assert_is_running_context($app);
+    my $app = shift;
     $app->running_context->request->params(@_);
 }
 
 sub param { 
-    my $app = (caller)->dancer_app;
-    _assert_is_running_context($app);
+    my $app = shift;
     $app->running_context->request->params->{$_[0]};
 }
 
@@ -111,10 +110,9 @@ sub dance { goto &start }
 # private
 
 sub _assert_is_running_context {
-    my ($app) = @_;
-    my $subroutine = (caller(1))[3];
+    my ($symbol, $app) = @_;
 
-    croak "Function '$subroutine' must be called from a route handler"
+    croak "Function '$symbol' must be called from a route handler"
       unless defined $app->running_context;
 }
 
@@ -155,6 +153,35 @@ sub import {
         *{"${caller}::dancer_app"} = sub { $app };
     }
 
+    # compile the DSL symbols to make them receive the $app
+    # also, all the symbols meant to be used within a route handler
+    # will check that there is a context running. 
+    my @global_dsl = qw(
+        start dance setting set
+        get put post del options
+        prefix
+    );
+    for my $symbol (@EXPORT) {
+        {
+            no strict 'refs';
+            no warnings 'redefine';
+
+            # save the original symbol first
+            my $orig = *{"Dancer::${symbol}"}{CODE};
+            
+            # then alter it with our black magic
+            *{"Dancer::${symbol}"} = sub {
+                my $app = caller->dancer_app;
+
+                _assert_is_running_context($symbol, $app)
+                    unless grep {/^$symbol$/} @global_dsl;
+                 
+                $orig->($app, @_);
+            };
+        }
+    }
+    
+    # now we can export them
     $class->export_to_level(1, $class, @final_args);
 
     # if :syntax option exists, don't change settings
