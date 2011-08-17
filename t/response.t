@@ -10,7 +10,10 @@ is $r->content, 'hello';
 note "content_type";
 $r = Dancer::Core::Response->new(
     headers => [ 'Content-Type' => 'text/html' ], 
+    content => 'foo',
 );
+
+is_deeply $r->to_psgi, [200, ['Content-Type', 'text/html'], ['foo']];
 
 isa_ok $r->headers, 'HTTP::Headers';
 is $r->content_type, 'text/html';
@@ -38,5 +41,6 @@ is $r->header('X-Bar'), '234';
 is $r->push_header('X-Bar'), '234';
 
 is scalar(@{ $r->headers_to_array }), 8;
+
 
 done_testing;

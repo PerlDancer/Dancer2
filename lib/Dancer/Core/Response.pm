@@ -49,6 +49,16 @@ has content => (
     default => '',
 );
 
+sub to_psgi {
+    my ($self) = @_;
+
+    return [
+        $self->status,
+        $self->headers_to_array,
+        [ $self->content ],
+    ];
+}
+
 # sugar for accessing the content_type header, with mimetype care
 sub content_type {
     my $self = shift;

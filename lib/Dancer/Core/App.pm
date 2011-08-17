@@ -14,6 +14,12 @@ has name => (
     isa => sub { Dancer::Moo::Types::Str(@_) },
 );
 
+# holds a context whenever a request is processed
+has running_context => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Context', @_) },
+);
+
 has prefix => (
     is => 'rw', 
     isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
@@ -144,7 +150,7 @@ sub find_route_for_request {
 #        }
 #    }
 
-    my $method = $request->method;
+    my $method = lc($request->method);
     my $path   = $request->path_info;
     my @routes = @{ $self->routes->{$method} };
 
@@ -152,6 +158,9 @@ sub find_route_for_request {
         my $match = $r->match($method, $path);
 
         if ($match) {
+            # save the match data in the request params
+            $request->_set_route_params($match);
+            
             # TODO next if $r->has_options && (not $r->validate_options($request));
 
 #            # if we have a route cache, store the result
@@ -194,5 +203,26 @@ sub find_route_for_request {
 #          Dancer::Config->normalize_setting($name => $value);
 #    }
 #}
+
+#has server => (
+#    is      => 'ro',
+#    isa     => sub { 
+#        croak "server should be composed by Dancer::Core::Server"
+#          if not $_[0]->does('Dancer::Core::Server');
+#    },
+#    default => sub { Dancer::Core::Server::Standalone->new() },
+#);
+
+sub response_internal_error {
+    my ($self, $error) = @_;
+    
+    my $r = Dancer::Core::Response->new(
+        status => 500,
+        content => "Internal Server Error\n\n$@\n",
+        content_type => 'text/plain',
+    );
+
+    return $r->to_psgi;
+}
 
 1;

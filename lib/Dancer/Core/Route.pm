@@ -97,7 +97,6 @@ has _match_data => (
     isa => sub { Dancer::Moo::Types::HashRef( @_) },
     trigger => sub {
         my ($self, $value) = @_;
-        # TODO $request->_set_route_params($match_data);
     },
 );
 
@@ -175,8 +174,8 @@ Runs the coderef of the route
 =cut
 
 sub execute {
-    my ($self) = @_;
-    return $self->code->();
+    my ($self, @args) = @_;
+    return $self->code->(@args);
 }
 
 # private subs

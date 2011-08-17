@@ -20,6 +20,9 @@ has headers => (
         return $value if ref($value) eq 'HTTP::Headers';
         HTTP::Headers->new(@{ $value });
     },
+    default => sub {
+        HTTP::Headers->new();
+    },
 );
 
 sub header {
@@ -66,4 +69,3 @@ sub headers_to_array {
 }
 
 1;
-
