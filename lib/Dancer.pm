@@ -11,7 +11,7 @@ our $AUTHORITY = 'SUKRIA';
 sub core_debug {
     my $msg = shift;
     chomp $msg;
-    print "core: $msg\n";
+    print STDERR "core: $msg\n";
 }
 # TEMP REMOVE ME WHEN DANCER 2 IS READY
 
@@ -25,6 +25,7 @@ our @EXPORT = qw(
     header
     param
     params
+    pass
     prefix
     redirect
     start
@@ -123,6 +124,11 @@ sub header {
 sub content_type {
     my $app = shift;
     _header($app, 'Content-Type' => $_[0]);
+}
+
+sub pass {
+    my $app = shift;
+    $app->context->response->{has_passed} = 1;
 }
 
 #
