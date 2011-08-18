@@ -7,6 +7,14 @@ use Carp;
 our $VERSION   = '1.9999_01';
 our $AUTHORITY = 'SUKRIA';
 
+# TEMP REMOVE ME WHEN DANCER 2 IS READY
+sub core_debug {
+    my $msg = shift;
+    chomp $msg;
+    print "core: $msg\n";
+}
+# TEMP REMOVE ME WHEN DANCER 2 IS READY
+
 use Dancer::Core::App;
 use Dancer::Core::Server::Standalone;
 
@@ -86,9 +94,14 @@ sub options {
 # Server startup
 #
 
+# access to the server singleton (and this is the only one singleton you will
+# find in Dancer 2, if you wonder).
+# will be populated on-the-fly when needed
+sub server { }
+
+# start the server
 sub start {
-    my $app = shift;
-    my $server = Dancer::Core::Server::Standalone->new(app => $app);
+    my $server = Dancer->server;
     $server->start;
 }
 sub dance { goto &start }
@@ -196,15 +209,33 @@ sub import {
         }
     }
 
+    # look if we already have a server instanciated
+    my $server = Dancer->server; 
+
+    # never instanciated the server, should do it now
+    if (not defined $server) {
+        # TODO : should support multiple servers there, when the config is ready
+        $server = Dancer::Core::Server::Standalone->new();
+
+        # now bind that instance to the server symbol, for ever! 
+        { no strict 'refs'; no warnings 'redefine';
+            *{"Dancer::server"} = sub { $server };
+        }
+    }
+
     # the app object
     my $app = Dancer::Core::App->new( name => $caller );
 
+    core_debug "binding app to $caller";
     # bind the app to the caller
     {
         no strict 'refs';
         no warnings 'redefine';
         *{"${caller}::dancer_app"} = sub { $app };
     }
+
+    # register the app within the server instance
+    $server->register_application($app);
 
     # compile the DSL symbols to make them receive the $app
     # also, all the symbols meant to be used within a route handler
@@ -215,25 +246,23 @@ sub import {
         prefix
     );
     for my $symbol (@EXPORT) {
+        my $orig_sub = _get_orig_symbol($symbol);
+        my $new_sub  = sub {
+            my $caller = caller;
+            my $app = $caller->dancer_app;
+            
+            core_debug "[$caller] running '$symbol' with ".
+                join(', ', map { defined $_ ? $_ : 'undef' } @_);
+            
+            _assert_is_context($symbol, $app)
+                unless grep {/^$symbol$/} @global_dsl;
+            
+            $orig_sub->($app, @_);
+        };
         {
             no strict 'refs';
             no warnings 'redefine';
-
-            # save the original symbol first
-            # we keep the orig symbol with a prefix '_' 
-            # that way we can use it within Dancer
-            my $orig = *{"Dancer::${symbol}"}{CODE};
-            *{"Dancer::_${symbol}"} = $orig;
-
-            # then alter it with our black magic
-            *{"Dancer::${symbol}"} = sub {
-                my $app = caller->dancer_app;
-
-                _assert_is_context($symbol, $app)
-                    unless grep {/^$symbol$/} @global_dsl;
-                 
-                $orig->($app, @_);
-            };
+            *{"Dancer::${symbol}"} = $new_sub;
         }
     }
     
@@ -249,6 +278,31 @@ sub import {
 
     # TODO : should be in Dancer::App _init_script_dir($script);
 #    Dancer::Config->load;
+}
+
+# we have to cache the original symbols, if Dancer is imported more
+# than once, it's going to be bogus
+my $_orig_dsl_symbols = {};
+sub _get_orig_symbol {
+    my ($symbol) = @_;
+    
+    # already saved this one, return it
+    return $_orig_dsl_symbols->{$symbol}
+        if exists $_orig_dsl_symbols->{$symbol};
+
+    # first time, save the symbol
+    my $orig;
+    { 
+        no strict 'refs';
+        $orig = *{"Dancer::${symbol}"}{CODE};
+    
+        # also bind the original symbol to a private name
+        # in order to be able to call it manually from within Dancer.pm
+        *{"Dancer::_${symbol}"} = $orig;
+    }
+
+    # return the newborn cache version
+    return $_orig_dsl_symbols->{$symbol} = $orig;
 }
 
 1;
