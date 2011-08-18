@@ -1,6 +1,11 @@
 use Dancer;
 use Data::Dumper;
 
+use lib 'contrib::lib';
+
+use contrib::lib::Foo;
+use contrib::lib::Bar;
+
 get '/' => sub {
     my $c = shift;
     use Data::Dumper;
