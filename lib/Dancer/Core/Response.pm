@@ -13,7 +13,8 @@ use Dancer::Exception qw(:all);
 
 with 'Dancer::Core::Role::Headers';
 
-has pass => (
+# boolean to tell if the route passes or not
+has has_passed => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
     default => 0,
