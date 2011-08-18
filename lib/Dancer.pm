@@ -21,6 +21,8 @@ our @EXPORT = qw(
     redirect
     start
     status
+    var
+    vars
 );
 
 #
@@ -144,6 +146,18 @@ sub redirect {
     _header($app, 'Location' => $destination);
 }
 
+sub vars {
+    my $app = shift;
+    $app->context->buffer;
+}
+
+sub var {
+    my $app = shift;
+    @_ == 2
+      ? $app->context->buffer->{$_[0]} = $_[1]
+      : $app->context->buffer->{$_[0]};
+}
+
 #
 # private
 #
@@ -225,12 +239,12 @@ sub import {
     
     # now we can export them
     $class->export_to_level(1, $class, @final_args);
-
-    # if :syntax option exists, don't change settings
-    return if $syntax_only;
-
-    $as_script = 1 if $ENV{PLACK_ENV};
-
+#
+#    # if :syntax option exists, don't change settings
+#    return if $syntax_only;
+#
+#    $as_script = 1 if $ENV{PLACK_ENV};
+#
 #    Dancer::GetOpt->process_args() if !$as_script;
 
     # TODO : should be in Dancer::App _init_script_dir($script);
