@@ -12,17 +12,23 @@ use Dancer::Core::Server::Standalone;
 
 use base 'Exporter';
 our @EXPORT = qw(
+    dance
     get
+    header
+    param
+    params
+    prefix
     start
     status
-    params
-    param
-    header
-    prefix
-    dance
 );
 
+#
 # Dancer's syntax
+#
+
+#
+# route handlers & friends
+#
 
 sub prefix { 
     my $app = shift;
@@ -73,11 +79,20 @@ sub options {
     );
 }
 
+#
+# Server startup
+#
+
 sub start {
     my $app = shift;
     my $server = Dancer::Core::Server::Standalone->new(app => $app);
     $server->start;
 }
+sub dance { goto &start }
+
+#
+# Response alterations
+#
 
 sub status { 
     my $app = shift;
@@ -95,6 +110,10 @@ sub content_type {
         'Content-Type' => $_[0] ;
 }
 
+#
+# Route handler helpers
+#
+
 sub params {
     my $app = shift;
     $app->running_context->request->params(@_);
@@ -105,9 +124,10 @@ sub param {
     $app->running_context->request->params->{$_[0]};
 }
 
-sub dance { goto &start }
 
+#
 # private
+#
 
 sub _assert_is_running_context {
     my ($symbol, $app) = @_;
@@ -194,6 +214,5 @@ sub import {
     # TODO : should be in Dancer::App _init_script_dir($script);
 #    Dancer::Config->load;
 }
-
 
 1;
