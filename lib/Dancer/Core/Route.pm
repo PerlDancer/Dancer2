@@ -44,6 +44,21 @@ has regexp => (
     required => 1,
 );
 
+# route handlers are chained, this is very handy for the pass feature 
+has next => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Route', @_) },
+);
+
+has previous => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Route', @_) },
+    trigger => sub {
+        my ($self, $previous) = @_;
+        $previous->next($self);
+    },
+);
+
 =attr prefix
 
 The prefix to prepend to the C<regexp>. Optional.
