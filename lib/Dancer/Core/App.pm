@@ -103,6 +103,12 @@ sub add_route {
         ); 
         
         my $method = $route->method;
+
+        # chain the route handlers, will be handy for the pass
+        # feature
+        my $previous = $self->routes->{$method}->[-1];
+        $route->previous($previous) if defined $previous;
+
         push @{ $self->routes->{$method} }, $route;
 }
 
