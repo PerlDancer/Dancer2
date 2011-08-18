@@ -212,17 +212,4 @@ sub find_route_for_request {
 #    },
 #    default => sub { Dancer::Core::Server::Standalone->new() },
 #);
-
-sub response_internal_error {
-    my ($self, $error) = @_;
-    
-    my $r = Dancer::Core::Response->new(
-        status => 500,
-        content => "Internal Server Error\n\n$error\n",
-        content_type => 'text/plain',
-    );
-
-    return $r->to_psgi;
-}
-
 1;

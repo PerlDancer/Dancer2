@@ -94,9 +94,14 @@ sub options {
 # Server startup
 #
 
+# access to the server singleton (and this is the only one singleton you will
+# find in Dancer 2, if you wonder).
+# will be populated on-the-fly when needed
+sub server { }
+
+# start the server
 sub start {
-    my $app = shift;
-    my $server = Dancer::Core::Server::Standalone->new(app => $app);
+    my $server = Dancer->server;
     $server->start;
 }
 sub dance { goto &start }
@@ -204,6 +209,20 @@ sub import {
         }
     }
 
+    # look if we already have a server instanciated
+    my $server = Dancer->server; 
+
+    # never instanciated the server, should do it now
+    if (not defined $server) {
+        # TODO : should support multiple servers there, when the config is ready
+        $server = Dancer::Core::Server::Standalone->new();
+
+        # now bind that instance to the server symbol, for ever! 
+        { no strict 'refs'; no warnings 'redefine';
+            *{"Dancer::server"} = sub { $server };
+        }
+    }
+
     # the app object
     my $app = Dancer::Core::App->new( name => $caller );
 
@@ -214,6 +233,9 @@ sub import {
         no warnings 'redefine';
         *{"${caller}::dancer_app"} = sub { $app };
     }
+
+    # register the app within the server instance
+    $server->register_application($app);
 
     # compile the DSL symbols to make them receive the $app
     # also, all the symbols meant to be used within a route handler
