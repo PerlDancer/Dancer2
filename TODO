@@ -1,0 +1,30 @@
+
+[X] Dancer::Core::App
+[X] Dancer::Core::Route
+[X] Dancer::Core::Response
+[X] Dancer::Core::Context
+[X] Dancer::Core::Server
+[X] Dancer::Core::Server::Standalone
+[ ] Dancer::Core::Server::PSGI
+[ ] Dancer::Core::Server::Debug
+[ ] Dancer::Core::Config
+[ ] Dancer::Core::Hook
+
+[ ] Dancer::Template
+[ ] Dancer::Template::Simple
+[ ] Dancer::Template::Toolkit
+
+[ ] Dancer::Logger
+[ ] Dancer::Logger::File
+[ ] Dancer::Logger::Console
+
+[ ] Dancer::Session
+[ ] Dancer::Session::YAML
+[ ] Dancer::Session::Simple
+
+[ ] Dancer::Serializer
+[ ] Dancer::Serializer::JSON
+[ ] Dancer::Serializer::YAML
+[ ] Dancer::Serializer::Dumper
+
+
