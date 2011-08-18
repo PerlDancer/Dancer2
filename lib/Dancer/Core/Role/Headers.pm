@@ -1,14 +1,6 @@
-package Dancer::Core::ObjectWithHeaders;
+package Dancer::Core::Role::Headers;
 
-# since both Dancer::Core::Request and Dancer::Core::Response have headers to
-# deal with (and in exactly the same manner), I've refactored all the headers
-# bits in this class.
-# A role would even be better, but as far as I can understand, I cant use 'has'
-# with Role::Tiny.
-# Since we wont have multiple inheritance, I suppose that's not an issue
-# there...
-
-use Moo;
+use Moo::Role;
 use Dancer::Moo::Types;
 use HTTP::Headers;
 

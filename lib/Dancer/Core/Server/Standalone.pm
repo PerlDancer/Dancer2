@@ -1,7 +1,7 @@
 package Dancer::Core::Server::Standalone;
 
 use Moo;
-extends 'Dancer::Core::Server';
+with 'Dancer::Core::Role::Server';
 
 use HTTP::Server::Simple::PSGI;
 
