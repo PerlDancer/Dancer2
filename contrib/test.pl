@@ -5,6 +5,7 @@ use lib 'contrib::lib';
 
 use contrib::lib::Foo;
 use contrib::lib::Bar;
+use contrib::lib::Pass;
 
 get '/' => sub {
     my $c = shift;
