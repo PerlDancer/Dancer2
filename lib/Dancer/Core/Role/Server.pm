@@ -1,6 +1,7 @@
-package Dancer::Core::Server;
+package Dancer::Core::Role::Server;
+use Moo::Role;
+
 use Carp 'croak';
-use Moo;
 use Dancer::Moo::Types;
 
 use Dancer::Core::App;
@@ -36,8 +37,6 @@ has is_daemon => (
     isa => sub { Dancer::Moo::Types::Bool(@_) },
     default => sub { 0 },
 );
-
-sub backend { croak "backend attribute must be implemented" }
 
 sub handle_request {
     my ($self, $request) = @_;
@@ -99,7 +98,5 @@ sub response_not_found {
 
     return $r->to_psgi;
 }
-
-
 
 1;
