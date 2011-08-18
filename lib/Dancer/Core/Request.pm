@@ -11,7 +11,7 @@ use HTTP::Body;
 use URI;
 use URI::Escape;
 
-extends 'Dancer::Core::ObjectWithHeaders';
+with 'Dancer::Core::Role::Headers';
 
 # add an attribute for each HTTP_* variables
 my @http_env_keys = (

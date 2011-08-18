@@ -11,8 +11,7 @@ use Dancer::HTTP;
 use Dancer::MIME;
 use Dancer::Exception qw(:all);
 
-# we want a 'headers' attribute with all complex HTTP::Headers cooking
-extends 'Dancer::Core::ObjectWithHeaders';
+with 'Dancer::Core::Role::Headers';
 
 has pass => (
     is => 'rw',
