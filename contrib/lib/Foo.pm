@@ -2,9 +2,9 @@ package contrib::lib::Foo;
 
 use Dancer;
 
-prefix "/foo";
+prefix "/contrib/foo";
 
-get '/' => sub { "/foo" };
-get '/hello' => sub { "/foo/hello" };
+get '/' => sub { "in contrib::lib::Foo" };
+get '/hello' => sub { "in contrib::lib::Foo /foo/hello" };
 
 1;
