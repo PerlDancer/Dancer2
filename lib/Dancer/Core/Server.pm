@@ -42,7 +42,7 @@ sub handle_request {
     return $app->response_not_found() if ! defined $route; # 404
 
     my $context = Dancer::Core::Context->new(request => $request);
-    $app->running_context($context);
+    $app->context($context);
 
     my $content;
     eval { $content = $route->execute($context) };
@@ -50,10 +50,10 @@ sub handle_request {
 
     my $response = Dancer::Core::Response->new(
         content => $content,
-        %{ $context->response_attributes },
+        %{ $context->response },
     );
     
-    $app->running_context(undef);
+    $app->context(undef);
     return $response->to_psgi;
 }
 

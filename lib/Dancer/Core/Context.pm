@@ -18,7 +18,7 @@ has request => (
 
 # a set of changes to apply to the response
 # that HashRef will should be passed as attributes to a response object
-has response_attributes => (
+has response => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::HashRef(@_) },
     default => sub { { headers => [] } },

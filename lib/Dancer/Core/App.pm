@@ -15,7 +15,7 @@ has name => (
 );
 
 # holds a context whenever a request is processed
-has running_context => (
+has context => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Context', @_) },
 );

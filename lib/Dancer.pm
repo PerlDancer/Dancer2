@@ -18,6 +18,7 @@ our @EXPORT = qw(
     param
     params
     prefix
+    redirect
     start
     status
 );
@@ -96,18 +97,17 @@ sub dance { goto &start }
 
 sub status { 
     my $app = shift;
-    $app->running_context->response_attributes->{status} = $_[0];
+    $app->context->response->{status} = $_[0];
 }
 
 sub header {
     my $app = shift;
-    push @{ $app->running_context->response_attributes->{headers} }, @_;
+    push @{ $app->context->response->{headers} }, @_;
 }
 
 sub content_type {
     my $app = shift;
-    push @{ $app->running_context->response_attributes->{headers} }, 
-        'Content-Type' => $_[0] ;
+    _header($app, 'Content-Type' => $_[0]);
 }
 
 #
@@ -116,24 +116,43 @@ sub content_type {
 
 sub params {
     my $app = shift;
-    $app->running_context->request->params(@_);
+    $app->context->request->params(@_);
 }
 
 sub param { 
     my $app = shift;
-    $app->running_context->request->params->{$_[0]};
+    _params($app)->{$_[0]};
 }
 
+sub redirect {
+    my $app = shift;
+    my ($destination, $status) = @_;
+
+    # RFC 2616 requires an absolute URI with a scheme,
+    # turn the URI into that if it needs it
+
+    # Scheme grammar as defined in RFC 2396
+    #  scheme = alpha *( alpha | digit | "+" | "-" | "." )
+    my $scheme_re = qr{ [a-z][a-z0-9\+\-\.]* }ix;
+    if ($destination !~ m{^ $scheme_re : }x) {
+        my $request = $app->context->request;
+        $destination = $request->uri_for($destination, {}, 1);
+    }
+
+    # now we just have to wrap status and header:
+    _status($app, $status || 302);
+    _header($app, 'Location' => $destination);
+}
 
 #
 # private
 #
 
-sub _assert_is_running_context {
+sub _assert_is_context {
     my ($symbol, $app) = @_;
 
     croak "Function '$symbol' must be called from a route handler"
-      unless defined $app->running_context;
+      unless defined $app->context;
 }
 
 sub import {
@@ -187,13 +206,16 @@ sub import {
             no warnings 'redefine';
 
             # save the original symbol first
+            # we keep the orig symbol with a prefix '_' 
+            # that way we can use it within Dancer
             my $orig = *{"Dancer::${symbol}"}{CODE};
-            
+            *{"Dancer::_${symbol}"} = $orig;
+
             # then alter it with our black magic
             *{"Dancer::${symbol}"} = sub {
                 my $app = caller->dancer_app;
 
-                _assert_is_running_context($symbol, $app)
+                _assert_is_context($symbol, $app)
                     unless grep {/^$symbol$/} @global_dsl;
                  
                 $orig->($app, @_);
