@@ -218,7 +218,7 @@ sub response_internal_error {
     
     my $r = Dancer::Core::Response->new(
         status => 500,
-        content => "Internal Server Error\n\n$@\n",
+        content => "Internal Server Error\n\n$error\n",
         content_type => 'text/plain',
     );
 
