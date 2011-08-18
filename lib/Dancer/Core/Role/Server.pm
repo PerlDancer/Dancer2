@@ -46,18 +46,36 @@ sub handle_request {
         my $route = $app->find_route_for_request($request);
         next if not defined $route; # might be in the next app
 
-        # route handler found, execute the request to get a response
+        # initialize a context for the current request
         my $context = Dancer::Core::Context->new(request => $request);
         $app->context($context);
 
         my $content;
-        eval { $content = $route->execute($context) };
-        return $self->response_internal_error($@) if $@; # 500
+        my $response;
 
-        my $response = Dancer::Core::Response->new(
-            content => $content,
-            %{$context->response},
-        );
+        # try to execute the route until we find one that did not pass
+        while (1) {
+            eval { $content = $route->execute($context) };
+            return $self->response_internal_error($@) if $@; # 500
+
+            # build a response with the return value of the route
+            # and the response context
+            $response = Dancer::Core::Response->new(
+                content => $content,
+                %{$context->response},
+            );
+            last unless $response->has_passed;
+
+            # the route handler passed, play again with the next one...
+            my $next = $route->next;
+            return $self->response_not_found("last route passed") unless defined $next;
+
+            # of course, we purge the response 'has_passed' flag in the context
+            # (but not the rest of it, because we want all the context to
+            # persist among all route handlers that pass.
+            $context->response->{has_passed} = 0;
+            $route = $next;
+        }
 
         $app->context(undef);
         return $response->to_psgi;
