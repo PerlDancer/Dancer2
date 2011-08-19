@@ -28,7 +28,7 @@ is $p, '/';
 my $tmp = File::Temp->new();
 write_file($tmp, "one$/two");
 
-my $content = read_file_content($tmp);
+$content = read_file_content($tmp);
 ok $content = "one$/two";
 
 my @content = read_file_content($tmp);
