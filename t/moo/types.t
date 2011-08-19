@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 34;
+use Test::More tests => 37;
 use Dancer::Moo::Types;
 
 eval { Dancer::Moo::Types::Str(undef) };
@@ -109,10 +109,20 @@ like $@, qr{does not pass the type constraint check for type `DancerAppName'},
 eval { Dancer::Moo::Types::DancerMethod('post') };
 is $@, '', 'DancerMethod';
 
-eval { Dancer::Moo::Types::DancerMethod('FAIL') };
+eval { Dancer::Moo::Types::DancerMethod('POST') };
 like $@, qr{does not pass the type constraint check for type `DancerMethod'}, 
     'DancerMethod fail';
 
 eval { Dancer::Moo::Types::DancerMethod(undef) };
+is $@, '', 'DancerMethod accepts undef value';
+
+eval { Dancer::Moo::Types::DancerHTTPMethod('POST') };
+is $@, '', 'DancerMethod';
+
+eval { Dancer::Moo::Types::DancerHTTPMethod('post') };
+like $@, qr{does not pass the type constraint check for type `DancerMethod'}, 
+    'DancerMethod fail';
+
+eval { Dancer::Moo::Types::DancerHTTPMethod(undef) };
 is $@, '', 'DancerMethod accepts undef value';
 
