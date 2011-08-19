@@ -1,15 +1,12 @@
 package Dancer::Core::Request;
-
-use strict;
-use warnings;
 use Moo;
-use Carp;
 
-use Dancer::Core::Request::Upload;
+use Carp;
 use Encode;
 use HTTP::Body;
 use URI;
 use URI::Escape;
+use Dancer::Core::Request::Upload;
 
 with 'Dancer::Core::Role::Headers';
 
@@ -43,8 +40,8 @@ has path_info => (
 );
 
 has method => (
-    is => 'ro',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::DancerHTTPMethod(@_) },
 );
 
 has content_type => (
@@ -162,7 +159,7 @@ sub BUILD {
 
     $self->{_chunk_size}    = 4096;
     $self->{_read_position} = 0;
-    $self->{_body_params}   = {};
+    $self->{_body_params}   = undef;
     $self->{_query_params}  = undef;
     $self->{_route_params}  = {};
 
@@ -187,26 +184,9 @@ sub to_string {
     return "[#" . $self->id . "] " . $self->method . " " . $self->path;
 }
 
-# helper for building a request object by hand
-# with the given method, path, params, body and headers.
-sub new_for_request {
-    my ($class, $method, $path, $params, $body, $headers) = @_;
-    $params ||= {};
-    $method = uc($method);
-
-    my $req = $class->new(env => { %ENV,
-                                    PATH_INFO      => $path,
-                                    REQUEST_METHOD => $method});
-    $req->{params}        = {%{$req->{params}}, %{$params}};
-    $req->{_query_params} = $req->{params};
-    $req->{body}          = $body    if defined $body;
-    $req->{headers}       = $headers if $headers;
-
-    return $req;
-}
-
-#Create a new request which is a clone of the current one, apart
-#from the path location, which points instead to the new location
+# Create a new request which is a clone of the current one, apart
+# from the path location, which points instead to the new location
+# TODO this could be written in a more clean manner with a clone mechanism
 sub forward {
     my ($class, $request, $to_data) = @_;
 
@@ -218,24 +198,18 @@ sub forward {
                                     $to_data->{params} || {});
 
     if (exists($to_data->{options}{method})) {
-        die unless _valid_method($to_data->{options}{method});
-        $new_request->{method} = uc $to_data->{options}{method};
+        $new_request->method(uc $to_data->{options}{method});
     }
 
     $new_request->{params}  = $new_params;
-    $new_request->{_body_params}  = $request->{_body_params};
-    $new_request->{_query_params} = $request->{_query_params};
-    $new_request->{_route_params} = $request->{_route_params};
+    $new_request->_set_body_params($request->{_body_params});
+    $new_request->_set_query_params($request->{_query_params});
+    $new_request->_set_route_params($request->{_route_params});
     $new_request->{_params_are_decoded} = 1;
     $new_request->{body}    = $request->body;
     $new_request->{headers} = $request->headers;
 
     return $new_request;
-}
-
-sub _valid_method {
-    my $method = shift;
-    return $method =~ /^(?:head|post|get|put|delete)$/i;
 }
 
 sub _merge_params {
