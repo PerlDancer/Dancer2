@@ -9,6 +9,42 @@ use Carp;
 
 use Dancer::Core::Route;
 
+# we have hooks here
+with 'Dancer::Core::Role::Hookable';
+
+sub supported_hooks { 
+    qw/before after before_serializer after_serializer before_file_render after_file_render/
+}
+
+sub BUILD {
+    my ($self) = @_;
+    $self->install_hooks($self->supported_hooks);
+}
+
+sub compile_hooks {
+    my ($self) = @_;
+    
+    for my $position ($self->supported_hooks) {
+        my $compiled_hooks = [];
+        for my $hook (@{ $self->hooks->{$position} }) {
+            my $compiled = sub {
+                # don't run the filter if halt has been used
+                return if $self->context->response->{is_halted};
+                
+                # TODO: log entering the hook '$position'
+                warn "entering hook '$position'";
+                eval { $hook->(@_) };
+                
+                # TODO : do something with exception there
+                croak "Exception caught in '$position' filter: $@" if $@;
+            };
+
+            push @{$compiled_hooks}, $compiled;
+        }
+        $self->replace_hooks($position, $compiled_hooks);
+    }
+}
+
 has name => (
     is => 'ro',
     isa => sub { Dancer::Moo::Types::Str(@_) },
@@ -209,13 +245,4 @@ sub find_route_for_request {
 #          Dancer::Config->normalize_setting($name => $value);
 #    }
 #}
-
-#has server => (
-#    is      => 'ro',
-#    isa     => sub { 
-#        croak "server should be composed by Dancer::Core::Server"
-#          if not $_[0]->does('Dancer::Core::Server');
-#    },
-#    default => sub { Dancer::Core::Server::Standalone->new() },
-#);
 1;
