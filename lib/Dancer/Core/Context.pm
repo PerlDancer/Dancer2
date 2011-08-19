@@ -2,6 +2,8 @@ package Dancer::Core::Context;
 use Moo;
 use Dancer::Moo::Types;
 
+use Dancer::Core::Request;
+
 # the PSGI-env to use for building the request to process
 # this is the only mandatory argument to a context
 has env => (
