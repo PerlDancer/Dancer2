@@ -39,16 +39,16 @@ has is_daemon => (
 );
 
 sub handle_request {
-    my ($self, $request) = @_;
+    my ($self, $env) = @_;
 
     foreach my $app (@{$self->apps}) {
-
-        my $route = $app->find_route_for_request($request);
-        next if not defined $route; # might be in the next app
-
+        
         # initialize a context for the current request
-        my $context = Dancer::Core::Context->new(request => $request);
+        my $context = Dancer::Core::Context->new(env => $env);
         $app->context($context);
+
+        my $route = $app->find_route_for_request($context->request);
+        next if not defined $route; # might be in the next app
 
         my $content;
         my $response;
@@ -81,15 +81,14 @@ sub handle_request {
         return $response->to_psgi;
     }
 
-    return $self->response_not_found($request->path_info) ; # 404
+    return $self->response_not_found($env->{REQUEST_URI}) ; # 404
 }
 
 sub psgi_app {
     my ($self) = @_;
     sub {
         my ($env) = @_;
-        my $request = Dancer::Core::Request->new(env => $env);
-        $self->handle_request($request);
+        $self->handle_request($env);
     };
 }
 
