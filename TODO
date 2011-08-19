@@ -3,7 +3,6 @@
 [X] Dancer::Core::Route
 [X] Dancer::Core::Response
 [X] Dancer::Core::Context
-[X] Dancer::Core::Server
 [X] Dancer::Core::Server::Standalone
 [ ] Dancer::Core::Server::PSGI
 [ ] Dancer::Core::Server::Debug
