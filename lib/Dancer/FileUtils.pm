@@ -49,7 +49,7 @@ sub open_file {
     my ( $mode, $filename ) = @_;
 
     open my $fh, $mode, $filename
-      or croak "$! while opening '$filename' using mode '$mode'";
+      or croak "Can't open '$filename' using mode '$mode'";
 
     return set_file_mode($fh);
 }

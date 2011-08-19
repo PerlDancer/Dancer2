@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 use Dancer::Core::Request;
 
@@ -93,6 +93,8 @@ do {
     is $test_upload_file6[0]->content, 'SHOGUN6',
       "content for upload #6 is good";
 
+    is $test_upload_file6[0]->content(':raw'), 'SHOGUN6';
+
     my $upload = $req->upload('test_upload_file6');
     isa_ok $upload, 'Dancer::Core::Request::Upload';
     is $upload->filename, 'yappo6.txt', 'filename is ok';
@@ -118,6 +120,19 @@ do {
         skip "Win32 can't remove file/link while open, deadlock with HTTP::Body", 1 if ($^O eq 'MSWin32');
         ok( ( !-f $file ), 'temp file is removed when HTTP::Body object dies' );
     }
+
+
+    note "testing failing open for tempfile";
+
+    # mocking open_file to make it fail
+    {
+        no strict 'refs'; no warnings 'redefine';
+        *{"Dancer::FileUtils::open_file"} = sub { 0 };
+    }
+    $upload->{_fh} = undef;
+    eval { $upload->file_handle };
+    like $@, qr{Can't open.* using mode '<'};
+    
 
     unlink($file) if ($^O eq 'MSWin32');
 };

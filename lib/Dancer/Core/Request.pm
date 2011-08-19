@@ -165,16 +165,16 @@ sub BUILD {
 
     $self->_init_request_headers();
     $self->_build_request_env();
-    $self->_build_path()      unless $self->path;
-    $self->_build_path_info() unless $self->path_info;
-    $self->_build_method()    unless $self->method;
+    $self->_build_path();      
+    $self->_build_path_info() ;
+    $self->_build_method();    
 
     $self->{_http_body} =
       HTTP::Body->new($self->content_type, $self->content_length);
     $self->{_http_body}->cleanup(1);
     
     $self->_build_params();
-    $self->_build_uploads unless $self->uploads;
+    $self->_build_uploads();
     
     $self->{ajax} = $self->is_ajax;
 }
@@ -215,7 +215,6 @@ sub forward {
 sub _merge_params {
     my ($params, $to_add) = @_;
 
-    die unless ref $to_add eq "HASH";
     for my $key (keys %$to_add) {
         $params->{$key} = $to_add->{$key};
     }

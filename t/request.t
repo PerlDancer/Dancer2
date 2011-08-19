@@ -121,6 +121,15 @@ is(
     'keeping trailing slash if not only',
 );
 
+$env->{'PATH_INFO'} = '/';
+$env->{'SCRIPT_NAME'} = '';
+$req = Dancer::Core::Request->new(env => $env);
+is(
+    $req->uri_base,
+    'http://localhost:5000',
+);
+
+
 note "testing forward";
 $env = {
           'REQUEST_METHOD' => 'GET',
