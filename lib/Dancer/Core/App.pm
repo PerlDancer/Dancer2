@@ -9,6 +9,9 @@ use Carp;
 
 use Dancer::Core::Route;
 
+# we have hooks here
+with 'Dancer::Core::Role::Hookable';
+
 has name => (
     is => 'ro',
     isa => sub { Dancer::Moo::Types::Str(@_) },
