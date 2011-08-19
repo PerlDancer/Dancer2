@@ -1,0 +1,13 @@
+This is the prototype for Dancer2
+
+Please keep it secret for now, weodn't want to advertise it before it's more
+mature.
+
+You can test it with:
+
+  $ perl -Ilib ./contrib/test.pl
+
+Also the progress of the DSL migration can be checked with ./progress.sh
+
+And the coverage ./coverage.sh
+
