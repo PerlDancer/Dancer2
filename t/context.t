@@ -3,7 +3,6 @@ use warnings;
 
 use Test::More;
 use Dancer::Core::Context;
-use Dancer::Core::Request;
 
 my $env = {
     'psgi.url_scheme' => 'http',
@@ -22,9 +21,9 @@ my $env = {
     REMOTE_USER => 'sukria',
 };
 
-my $r = Dancer::Core::Request->new(env => $env);
-my $c = Dancer::Core::Context->new(request => $r);
+my $c = Dancer::Core::Context->new(env => $env);
 
+isa_ok $c->request, 'Dancer::Core::Request';
 is $c->request->method, 'GET';
 
 done_testing;
