@@ -4,6 +4,10 @@ use strict;
 use warnings;
 use Carp;
 
+use Dancer::Core::App;
+use Dancer::Core::Server::Standalone;
+use Dancer::Core::Hook;
+
 our $VERSION   = '1.9999_01';
 our $AUTHORITY = 'SUKRIA';
 
@@ -15,11 +19,9 @@ sub core_debug {
 }
 # TEMP REMOVE ME WHEN DANCER 2 IS READY
 
-use Dancer::Core::App;
-use Dancer::Core::Server::Standalone;
-
 use base 'Exporter';
 our @EXPORT = qw(
+    before
     dance
     get
     header
@@ -41,6 +43,11 @@ our @EXPORT = qw(
 #
 # route handlers & friends
 #
+
+sub before {
+    my $app = shift;
+    $app->add_hook(Dancer::Core::Hook->new(name => 'before', code => $_[0]));
+}
 
 sub prefix { 
     my $app = shift;
@@ -103,6 +110,7 @@ sub server { }
 # start the server
 sub start {
     my $server = Dancer->server;
+    $_->compile_hooks for @{ $server->apps };
     $server->start;
 }
 sub dance { goto &start }
@@ -247,9 +255,17 @@ sub import {
     # also, all the symbols meant to be used within a route handler
     # will check that there is a context running. 
     my @global_dsl = qw(
-        start dance setting set
-        get put post del options
+        before 
+        dance 
+        del 
+        get 
+        options 
+        post 
         prefix
+        put 
+        set 
+        setting 
+        start 
     );
     for my $symbol (@EXPORT) {
         my $orig_sub = _get_orig_symbol($symbol);
