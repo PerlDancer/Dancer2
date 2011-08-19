@@ -18,7 +18,7 @@ has hooks => (
 
 # This lets you define a list of possible hook names
 # for the registry
-sub install_hook {
+sub install_hooks {
     my ($self, @hook_names) = @_;
     for my $h (@hook_names) {
         croak "Hook '$h' is already registered, please use another name" 
@@ -38,6 +38,18 @@ sub add_hook {
         unless $self->has_hook($name);
     
     push @{ $self->hooks->{$name} }, $code;
+}
+
+# allows the caller to replace the current list of hooks at the given position
+# this is useful if the object where this role is composed wants to compile the
+# hooks.
+sub replace_hooks {
+    my ($self, $position, $hooks) = @_;
+
+    croak "Hook '$position' must be installed first"
+        unless $self->has_hook($position);
+    
+    $self->hooks->{$position} = $hooks;
 }
 
 # Boolean flag to tells if the hook is registered or not

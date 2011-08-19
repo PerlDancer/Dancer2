@@ -49,6 +49,14 @@ sub handle_request {
 
         my $route = $app->find_route_for_request($context->request);
         next if not defined $route; # might be in the next app
+        
+        # run the before filters
+        $app->execute_hooks('before', $context);
+
+        # NOTE : here, Dancer 1 used to support request alterations by the before filters, I'm
+        # not sure this is a good idea since we have forward for that now...
+        # since this really makes the code complicated, I'd like not to support
+        # it anymore, we'll see later if that's a good idea or not.
 
         my $content;
         my $response;
@@ -76,7 +84,8 @@ sub handle_request {
             $context->response->{has_passed} = 0;
             $route = $next;
         }
-
+        
+        $app->execute_hooks('after', $response);
         $app->context(undef);
         return $response->to_psgi;
     }
