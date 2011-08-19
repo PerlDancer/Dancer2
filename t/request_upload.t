@@ -1,11 +1,8 @@
-use Test::More tests => 1;
 use strict;
 use warnings FATAL => 'all';
+use Test::More tests => 17;
+
 use Dancer::Core::Request;
-
-ok(1);
-
-__END__
 
 use File::Temp 0.22;
 use File::Basename qw/dirname basename/;
@@ -53,7 +50,6 @@ SHOGUN6
 $content =~ s/\r\n/\n/g;
 $content =~ s/\n/\r\n/g;
 
-plan tests => 21;
 
 do {
     open my $in, '<', \$content;
