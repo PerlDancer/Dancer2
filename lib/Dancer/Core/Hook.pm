@@ -11,6 +11,7 @@ use Dancer::Exception qw(:all);
 has name => (
     is => 'ro',
     isa => sub { Str(@_) },
+    required => 1,
     coerce => sub {
         my ($hook_name) = @_;
         # XXX at the moment, we have a filer position named "before_template".
@@ -25,8 +26,10 @@ has name => (
 has code => (
     is => 'ro',
     isa => sub { CodeRef(@_) },
+    required => 1,
     coerce => sub {
         my ($filter) = @_;
+        return $filter;
 #        
 #        my $compiled_filter = sub {
 #            return if Dancer::SharedData->response->halted;
