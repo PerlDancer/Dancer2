@@ -33,9 +33,9 @@ my $some_hook = Dancer::Core::Hook->new(
 eval { $f->add_hook($some_hook)};
 like $@, qr{Hook 'foobar' must be installed first};
 
-$f->install_hook('foobar');
+$f->install_hooks('foobar');
 
-eval { $f->install_hook('foobar') };
+eval { $f->install_hooks('foobar') };
 like $@, qr{Hook 'foobar' is already registered, please use another name};
 
 eval { $f->add_hook($some_hook)};
