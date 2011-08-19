@@ -109,6 +109,14 @@ sub DancerMethod {
       unless grep { /^$value$/ } qw(get head post put delete options);
 }
 
+sub DancerHTTPMethod {
+    my ($value) = @_;
+    return if ! defined $value;
+
+    raise_type_exception DancerMethod => $value
+      unless grep { /^$value$/ } qw(GET HEAD POST PUT DELETE OPTIONS);
+}
+
 # private
 
 sub _is_scalar {
