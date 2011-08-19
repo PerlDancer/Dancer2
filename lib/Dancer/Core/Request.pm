@@ -162,7 +162,7 @@ sub BUILD {
 
     $self->{_chunk_size}    = 4096;
     $self->{_read_position} = 0;
-    $self->{_body_params}   = {};
+    $self->{_body_params}   = undef;
     $self->{_query_params}  = undef;
     $self->{_route_params}  = {};
 
