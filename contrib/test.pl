@@ -7,6 +7,18 @@ use contrib::lib::Foo;
 use contrib::lib::Bar;
 use contrib::lib::Pass;
 
+my $count = 0;
+
+before sub {
+    warn "in before filter";
+    Foooo->bar;
+    $count++;
+};
+
+get '/count' => sub {
+    "count is $count\n";
+};
+
 get '/' => sub {
     my $c = shift;
     use Data::Dumper;
