@@ -209,13 +209,4 @@ sub find_route_for_request {
 #          Dancer::Config->normalize_setting($name => $value);
 #    }
 #}
-
-#has server => (
-#    is      => 'ro',
-#    isa     => sub { 
-#        croak "server should be composed by Dancer::Core::Server"
-#          if not $_[0]->does('Dancer::Core::Server');
-#    },
-#    default => sub { Dancer::Core::Server::Standalone->new() },
-#);
 1;
