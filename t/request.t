@@ -79,4 +79,62 @@ is $req->path_info, '/bar/baz';
     local $env->{HTTP_HOST} = 'oddhostname:5000';
     is $req->base, 'http://oddhostname:5000/foo';
 }
+
+note "testing uri_base";
+$env = {
+    'psgi.url_scheme' => 'http',
+    REQUEST_METHOD    => 'GET',
+    SCRIPT_NAME       => '/',
+    PATH_INFO         => '/bar/baz',
+    REQUEST_URI       => '/foo/bar/baz',
+    QUERY_STRING      => '',
+    SERVER_NAME       => 'localhost',
+    SERVER_PORT       => 5000,
+    SERVER_PROTOCOL   => 'HTTP/1.1',
+};
+
+$req = Dancer::Core::Request->new(env => $env);
+is(
+    $req->uri_base,
+    'http://localhost:5000',
+    'remove trailing slash if only one',
+);
+
+$env->{'SCRIPT_NAME'} = '/foo/';
+$req = Dancer::Core::Request->new(env => $env);
+is(
+    $req->uri_base,
+    'http://localhost:5000/foo/',
+    'keeping trailing slash if not only',
+);
+
+note "testing forward";
+$env = {
+          'REQUEST_METHOD' => 'GET',
+          'REQUEST_URI' => '/',
+          'PATH_INFO' => '/',
+          'QUERY_STRING' => 'foo=bar&number=42',
+          };
+
+$req = Dancer::Core::Request->new(env => $env);
+is $req->path, '/', 'path is /';
+is $req->method, 'GET', 'method is get';
+is_deeply scalar($req->params), {foo => 'bar', number => 42},
+    'params are parsed';
+
+$req = Dancer::Core::Request->forward($req, { to_url => "/new/path"} );
+is $req->path, '/new/path', 'path is changed';
+is $req->method, 'GET', 'method is unchanged';
+is_deeply scalar($req->params), {foo => 'bar', number => 42},
+    'params are not touched';
+
+$req = Dancer::Core::Request->forward($req, { 
+        to_url => "/new/path",
+        options => { method => 'POST' },
+});
+is $req->path, '/new/path', 'path is changed';
+is $req->method, 'POST', 'method is changed';
+is_deeply scalar($req->params), {foo => 'bar', number => 42},
+    'params are not touched';
+
 done_testing;
