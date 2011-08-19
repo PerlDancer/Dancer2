@@ -49,14 +49,14 @@ sub before {
     $app->add_hook(Dancer::Core::Hook->new(name => 'before', code => $_[0]));
 }
 
-sub prefix { 
+sub prefix {
     my $app = shift;
-    @_ == 1 
+    @_ == 1
       ? $app->prefix(@_)
       : $app->lexical_prefix(@_);
 }
 
-sub get { 
+sub get {
     my $app = shift;
     $app->add_route(method => 'get',  regexp => $_[0], code => $_[1]);
     $app->add_route(method => 'head', regexp => $_[0], code => $_[1]);
@@ -119,7 +119,7 @@ sub dance { goto &start }
 # Response alterations
 #
 
-sub status { 
+sub status {
     my $app = shift;
     $app->context->response->{status} = $_[0];
 }
@@ -148,7 +148,7 @@ sub params {
     $app->context->request->params(@_);
 }
 
-sub param { 
+sub param {
     my $app = shift;
     _params($app)->{$_[0]};
 }
@@ -224,14 +224,14 @@ sub import {
     }
 
     # look if we already have a server instanciated
-    my $server = Dancer->server; 
+    my $server = Dancer->server;
 
     # never instanciated the server, should do it now
     if (not defined $server) {
         # TODO : should support multiple servers there, when the config is ready
         $server = Dancer::Core::Server::Standalone->new();
 
-        # now bind that instance to the server symbol, for ever! 
+        # now bind that instance to the server symbol, for ever!
         { no strict 'refs'; no warnings 'redefine';
             *{"Dancer::server"} = sub { $server };
         }
@@ -253,7 +253,7 @@ sub import {
 
     # compile the DSL symbols to make them receive the $app
     # also, all the symbols meant to be used within a route handler
-    # will check that there is a context running. 
+    # will check that there is a context running.
     my @global_dsl = qw(
         before 
         dance 
@@ -272,13 +272,13 @@ sub import {
         my $new_sub  = sub {
             my $caller = caller;
             my $app = $caller->dancer_app;
-            
+
             core_debug "[$caller] running '$symbol' with ".
                 join(', ', map { defined $_ ? $_ : 'undef' } @_);
-            
+
             _assert_is_context($symbol, $app)
                 unless grep {/^$symbol$/} @global_dsl;
-            
+
             $orig_sub->($app, @_);
         };
         {
@@ -287,7 +287,7 @@ sub import {
             *{"Dancer::${symbol}"} = $new_sub;
         }
     }
-    
+
     # now we can export them
     $class->export_to_level(1, $class, @final_args);
 #
@@ -307,17 +307,17 @@ sub import {
 my $_orig_dsl_symbols = {};
 sub _get_orig_symbol {
     my ($symbol) = @_;
-    
+
     # already saved this one, return it
     return $_orig_dsl_symbols->{$symbol}
         if exists $_orig_dsl_symbols->{$symbol};
 
     # first time, save the symbol
     my $orig;
-    { 
+    {
         no strict 'refs';
         $orig = *{"Dancer::${symbol}"}{CODE};
-    
+
         # also bind the original symbol to a private name
         # in order to be able to call it manually from within Dancer.pm
         *{"Dancer::_${symbol}"} = $orig;

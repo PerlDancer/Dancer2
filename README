@@ -9,5 +9,5 @@ You can test it with:
 
 Also the progress of the DSL migration can be checked with ./progress.sh
 
-And the coverage ./coverage.sh
+And the test coverage ./cover.sh
 
