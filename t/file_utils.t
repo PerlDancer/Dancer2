@@ -1,9 +1,10 @@
-use Test::More import => ['!pass'];
+use Test::More tests => 8;
 use strict;
 use warnings;
 use File::Spec;
-use Dancer::FileUtils qw/read_file_content path_or_empty/;
 use File::Temp 0.22;
+
+use Dancer::FileUtils qw/read_file_content path_or_empty/;
 
 sub write_file {
     my ($file, $content) = @_;
@@ -13,7 +14,16 @@ sub write_file {
     close CONF;
 }
 
-plan tests => 3;
+eval { Dancer::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') };
+like $@, qr{/slfkjsdlkfjsdlf' using mode '<'};
+
+my $content = Dancer::FileUtils::read_file_content();
+is $content, undef;
+
+is Dancer::FileUtils::normalize_path(), undef;
+
+my $p = Dancer::FileUtils::dirname('/somewhere');
+is $p, '/';
 
 my $tmp = File::Temp->new();
 write_file($tmp, "one$/two");
@@ -33,3 +43,5 @@ if (! -e $path) {
         'path_or_empty on non-existent path',
     );
 }
+
+is(path_or_empty('/tmp'), '/tmp');
