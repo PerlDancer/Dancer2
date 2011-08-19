@@ -16,6 +16,8 @@ my $env = {
     SERVER_PROTOCOL   => 'HTTP/1.1',
     REMOTE_ADDR       => '127.0.0.1',
     X_FORWARDED_FOR => '127.0.0.2',
+    X_FORWARDED_HOST  => 'secure.frontend',
+    X_FORWARDED_PROTOCOL => 'https',
     REMOTE_HOST       => 'localhost',
     HTTP_USER_AGENT        => 'Mozilla',
     REMOTE_USER => 'sukria',
@@ -80,6 +82,17 @@ is $req->path_info, '/bar/baz';
     is $req->base, 'http://oddhostname:5000/foo';
 }
 
+{
+    note "testing begind proxy";
+    $req = Dancer::Core::Request->new(
+        env             => $env,
+        is_behind_proxy => 1
+    );
+    is $req->secure, 1;
+    is $req->host,   $env->{X_FORWARDED_HOST};
+    is $req->scheme, 'https';
+}
+
 note "testing uri_base";
 $env = {
     'psgi.url_scheme' => 'http',
@@ -107,6 +120,15 @@ is(
     'http://localhost:5000/foo/',
     'keeping trailing slash if not only',
 );
+
+$env->{'PATH_INFO'} = '/';
+$env->{'SCRIPT_NAME'} = '';
+$req = Dancer::Core::Request->new(env => $env);
+is(
+    $req->uri_base,
+    'http://localhost:5000',
+);
+
 
 note "testing forward";
 $env = {

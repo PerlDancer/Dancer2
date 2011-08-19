@@ -29,8 +29,7 @@ has size => (
 sub file_handle {
     my ($self) = @_;
     return $self->{_fh} if defined $self->{_fh};
-    my $fh = open_file('<', $self->tempname) 
-      or croak "Can't open `" . $self->tempname . "' for reading: $!";
+    my $fh = open_file('<', $self->tempname);
     $self->{_fh} = $fh;
 }
 
