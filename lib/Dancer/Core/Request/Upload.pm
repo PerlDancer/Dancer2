@@ -1,17 +1,29 @@
 package Dancer::Core::Request::Upload;
+use Moo;
+use Dancer::Moo::Types;
 
-use File::Spec;
 use Carp;
-
-use strict;
-use warnings;
-use base 'Dancer::Object';
+use File::Spec;
 use Dancer::FileUtils qw(open_file);
 
-__PACKAGE__->attributes(
-    qw(
-      filename tempname headers size
-      )
+has filename => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::Str(@_) },
+);
+
+has tempname => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::Str(@_) },
+);
+
+has headers => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::HashRef(@_) },
+);
+
+has size => (
+    is => 'rw',
+    isa => sub { Dancer::Moo::Types::Num(@_) },
 );
 
 sub file_handle {
@@ -60,14 +72,11 @@ sub basename {
 
 sub type {
     my $self = shift;
-
     return $self->headers->{'Content-Type'};
 }
 
-
-
-# private
-
+1;
+__END__
 =pod
 
 =head1 NAME 
@@ -144,5 +153,3 @@ L<Plack::Request::Upload>. Kudos to Plack authors.
 L<Dancer>
 
 =cut
-
-1;

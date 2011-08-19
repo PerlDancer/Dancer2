@@ -184,26 +184,9 @@ sub to_string {
     return "[#" . $self->id . "] " . $self->method . " " . $self->path;
 }
 
-# helper for building a request object by hand
-# with the given method, path, params, body and headers.
-sub new_for_request {
-    my ($class, $method, $path, $params, $body, $headers) = @_;
-    $params ||= {};
-    $method = uc($method);
-
-    my $req = $class->new(env => { %ENV,
-                                    PATH_INFO      => $path,
-                                    REQUEST_METHOD => $method});
-    $req->{params}        = {%{$req->{params}}, %{$params}};
-    $req->{_query_params} = $req->{params};
-    $req->{body}          = $body    if defined $body;
-    $req->{headers}       = $headers if $headers;
-
-    return $req;
-}
-
 # Create a new request which is a clone of the current one, apart
 # from the path location, which points instead to the new location
+# TODO this could be written in a more clean manner with a clone mechanism
 sub forward {
     my ($class, $request, $to_data) = @_;
 
