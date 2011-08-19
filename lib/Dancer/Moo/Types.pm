@@ -5,6 +5,14 @@ use warnings;
 use Carp 'croak';
 use Scalar::Util 'blessed', 'looks_like_number';
 
+use base 'Exporter';
+use vars '@EXPORT';
+
+@EXPORT = qw(
+    Str Num HashRef ArrayRef CodeRef Regexp ObjectOf Bool 
+    DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
+);
+
 sub raise_type_exception {
     my ($type, $value) = @_;
 
