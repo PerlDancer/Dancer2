@@ -14,6 +14,17 @@ before sub {
     $count++;
 };
 
+before sub {
+    if (request->path_info eq '/admin') {
+        redirect '/';
+        halt;
+    }
+};
+
+get '/admin' => sub {
+    "should not get there";
+};
+
 get '/count' => sub {
     "count is $count\n";
 };
