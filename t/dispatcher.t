@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Carp 'croak';
 
 use Dancer::Core::App;
 use Dancer::Core::Route;
@@ -16,6 +17,13 @@ $app->add_route(
     method => 'get',
     regexp => '/',
     code => sub { "home" },
+);
+
+# an error route
+$app->add_route (
+    method => 'get',
+    regexp => '/error',
+    code => sub { Fail->fail; },
 );
 
 # A chain of two route for /user/$foo 
@@ -58,6 +66,14 @@ my @tests = (
         },
         expected => [404, [], ["404 Not Found\n\n/user/Johnny\n"]]
     },
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/error',
+        },
+        expected => [500, [], [qq{Internal Server Error\n\nCan't locate object method "fail" via package "Fail" (perhaps you forgot to load "Fail"?) at t/dispatcher.t line 26.\n\n}]]
+    },
+
+
 # NOT SUPPORTED YET
 #    {   env => {
 #            REQUEST_METHOD => 'GET',
