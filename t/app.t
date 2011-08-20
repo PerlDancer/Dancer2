@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Dancer::Core::App;
 use Dancer::Core::Dispatcher;
+use Dancer::Core::Hook;
 
 # our app/dispatcher object
 my $app = Dancer::Core::App->new(
@@ -119,5 +120,33 @@ eval {
 };
 like $@, qr{Unable to run the callback for prefix '/test': Can't locate object method "game_over" via package "Failure"}, 
     "caught an exception in the lexical prefix callback";
+
+$app->add_hook(Dancer::Core::Hook->new(
+    name => 'before',
+    code => sub { 1 },
+));
+
+$app->add_hook(Dancer::Core::Hook->new(
+    name => 'before',
+    code => sub { Foo->failure; },
+));
+
+$app->compile_hooks;
+my $env = {
+    REQUEST_METHOD => 'GET',
+    PATH_INFO => '/',
+};
+
+eval { my $resp = $dispatcher->dispatch($env) };
+like $@, qr{Exception caught in 'before' filter: Hook error: Can't locate object method "failure"};
+
+$app->replace_hooks('before', [ sub { 1 } ]);
+$app->compile_hooks;
+$env = {
+    REQUEST_METHOD => 'GET',
+    PATH_INFO => '/',
+};
+eval { my $resp = $dispatcher->dispatch($env) };
+is $@, '';
 
 done_testing;
