@@ -44,21 +44,6 @@ has regexp => (
     required => 1,
 );
 
-# route handlers are chained, this is very handy for the pass feature 
-has next => (
-    is => 'rw',
-    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Route', @_) },
-);
-
-has previous => (
-    is => 'rw',
-    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Route', @_) },
-    trigger => sub {
-        my ($self, $previous) = @_;
-        $previous->next($self);
-    },
-);
-
 =attr prefix
 
 The prefix to prepend to the C<regexp>. Optional.
@@ -293,65 +278,3 @@ sub _build_regexp_from_string {
 
 1;
 __END__
-
-# TODO this should be moved in an upper layer
- 
-sub run {
-    my ($self, $request, $response) = @_;
-
-    my $content  = $self->execute();
-
-    if ( $response && $response->is_forwarded ) {
-        my $new_req =
-            Dancer::Request->forward($request, $response->{forward});
-        my $marshalled = Dancer::Handler->handle_request($new_req);
-
-        return Dancer::Response->new(
-            encoded => 1,
-            status  => $marshalled->[0],
-            headers => $marshalled->[1],
-            # if the forward failed with 404, marshalled->[2] is not an array, but a GLOB
-            content => ref($marshalled->[2]) eq "ARRAY" ? @{ $marshalled->[2] } : $marshalled->[2]
-        );
-    }
-
-    if ($response && $response->has_passed) {
-        $response->pass(0);
-        if ($self->next) {
-            my $next_route = $self->find_next_matching_route($request);
-            return $next_route->run($request, $response);
-        }
-        else {
-            Dancer::Logger::core('Last matching route passed!');
-            return undef;
-        }
-    }
-
-    # coerce undef content to empty string to
-    # prevent warnings
-    $content = (defined $content) ? $content : '';
-
-    my $ct =
-      ( defined $response && defined $response->content_type )
-      ? $response->content_type()
-      : setting('content_type');
-
-    my $st = defined $response ? $response->status : 200;
-
-    my $headers = [];
-    push @$headers, @{ $response->headers_to_array } if defined $response;
-
-    # content type may have already be set earlier
-    # (eg: with send_error)
-    push(@$headers, 'Content-Type' => $ct)
-      unless grep {/Content-Type/} @$headers;
-
-    return $content if ref($content) eq 'Dancer::Response';
-    return Dancer::Response->new(
-        status       => $st,
-        headers      => $headers,
-        content      => $content,
-    );
-}
-
-
