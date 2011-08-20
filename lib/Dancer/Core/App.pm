@@ -32,7 +32,7 @@ sub compile_hooks {
                 return if $self->context->response->{is_halted};
                 
                 # TODO: log entering the hook '$position'
-                warn "entering hook '$position'";
+                #warn "entering hook '$position'";
                 eval { $hook->(@_) };
                 
                 # TODO : do something with exception there
@@ -139,12 +139,6 @@ sub add_route {
         ); 
         
         my $method = $route->method;
-
-        # chain the route handlers, will be handy for the pass
-        # feature
-        my $previous = $self->routes->{$method}->[-1];
-        $route->previous($previous) if defined $previous;
-
         push @{ $self->routes->{$method} }, $route;
 }
 
@@ -163,58 +157,6 @@ sub routes_regexps_for {
     return [ 
         map { $_->regexp } @{ $self->routes->{$method} }
     ];
-}
-
-=head2 find_route_for_request
-
-Search for the first matching route handler in the application's registry for
-the given request.
-
-    my $route = $app->find_route_for_request($request);
-
-Return a L<Dancer::Core::Route> object if found, undef if not.
-
-=cut
-
-sub find_route_for_request {
-    my ($self, $request) = @_;
-
-# TODO
-#    # if route cache is enabled, we check if we handled this path before
-#    if (Dancer::Config::setting('route_cache')) {
-#        my $route = Dancer::Route::Cache->get->route_from_path($method,
-#            $request->path_info);
-#
-#        # NOTE maybe we should cache the match data as well
-#        if ($route) {
-#            $route->match($request);
-#            return $route;
-#        }
-#    }
-
-    my $method = lc($request->method);
-    my $path   = $request->path_info;
-    my @routes = @{ $self->routes->{$method} };
-
-    for my $r (@routes) {
-        my $match = $r->match($method, $path);
-
-        if ($match) {
-            # save the match data in the request params
-            $request->_set_route_params($match);
-            
-            # TODO next if $r->has_options && (not $r->validate_options($request));
-
-#            # if we have a route cache, store the result
-#            if (Dancer::Config::setting('route_cache')) {
-#                Dancer::Route::Cache->get->store_path($method,
-#                    $request->path_info => $r);
-#            }
-
-            return $r;
-        }
-    }
-    return;
 }
 
 #sub setting {

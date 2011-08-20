@@ -2,12 +2,13 @@ use strict;
 use warnings;
 use Test::More;
 use Dancer::Core::App;
-use Dancer::Core::Request;
+use Dancer::Core::Dispatcher;
 
-# our app object
+# our app/dispatcher object
 my $app = Dancer::Core::App->new(
     name => 'main',
 );
+my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 
 # first basic tests
 isa_ok $app, 'Dancer::Core::App';
@@ -16,11 +17,11 @@ isa_ok $app, 'Dancer::Core::App';
 my @routes = (
     {   method => 'get',
         regexp => '/',
-        code   => sub {'home'},
+        code   => sub {'/'},
     },
     {   method => 'get',
         regexp => '/blog',
-        code   => sub {'blog'},
+        code   => sub {'/blog'},
     },
 );
 
@@ -32,19 +33,25 @@ for my $p ('/', '/mywebsite') {
     }
 }
 
+
 my $routes_regexps = $app->routes_regexps_for('get');
 is (scalar(@$routes_regexps), 4, "route regexps are OK");
 
 for my $path ('/', '/blog', '/mywebsite', '/mywebsite/blog',) {
-    my $req = Dancer::Core::Request->new(env => {
+    my $env = {
         REQUEST_METHOD => 'GET',
-        PATH_INFO => $path });
+        PATH_INFO => $path };
 
-    my $route = $app->find_route_for_request($req);
-    isa_ok $route, 'Dancer::Core::Route';
+    my $expected = {
+        '/' => '/',
+        '/blog' => '/blog',
+        '/mywebsite' => '/',
+        '/mywebsite/blog' => '/blog',
+    };
 
-    my $regexp = $route->regexp;
-    like $path, qr{$regexp}, "path '$path' matches route '$regexp'";
+    my $resp = $dispatcher->dispatch($env);
+    is $resp->[0], 200, 'got a 200';
+    is $resp->[2][0], $expected->{$path}, 'got expected route';
 }
 
 note "testing lexical prefixes";
@@ -96,16 +103,14 @@ $app->lexical_prefix( '/' => sub {
 });
 
 for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere') {
-    my $req = Dancer::Core::Request->new(env => {
+    my $env = {
         REQUEST_METHOD => 'GET',
-        PATH_INFO => $path });
+        PATH_INFO => $path,
+    };
 
-    my $route = $app->find_route_for_request($req);
-    ok(defined($route), "got a route for $path");
-
-    my $regexp = $route->regexp;
-    like $path, qr{$regexp}, "path '$path' matches route '$regexp'";
-    is $route->execute, $path, 'got expected route';
+    my $resp = $dispatcher->dispatch($env);
+    is $resp->[0], 200, 'got a 200';
+    is $resp->[2][0], $path, 'got expected route';
 }
 
 note "test a failure in the callback of a lexical prefix";
