@@ -72,7 +72,12 @@ my @tests = (
         },
         expected => [500, [], [qq{Internal Server Error\n\nCan't locate object method "fail" via package "Fail" (perhaps you forgot to load "Fail"?) at t/dispatcher.t line 26.\n\n}]]
     },
-
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/haltme',
+        },
+        expected => [302, [Location => 'http://perldancer.org'], [undef]]
+    },
 
 # NOT SUPPORTED YET
 #    {   env => {
@@ -85,18 +90,38 @@ my @tests = (
 
 );
 
-# before hook that produces a manual forward
+# simulates a redirect with halt
 $app->add_hook(Dancer::Core::Hook->new(
     name => 'before', 
     code => sub {
         my $ctx = shift;
-        if ($ctx->request->path_info eq '/admin') {
-            $ctx->request->path_info('/');
+        if ($ctx->request->path_info eq '/haltme') {
+            $ctx->response->{headers} = [Location => 'http://perldancer.org',];
+            $ctx->response->{status} = 302;
+            $ctx->response->{is_halted} = 1;
         }
-    },
+      },
 ));
 
-plan tests => scalar(@tests);
+my $was_in_second_filter = 0;
+$app->add_hook(Dancer::Core::Hook->new(
+    name => 'before', 
+    code => sub {
+        my $ctx = shift;
+        if ($ctx->request->path_info eq '/haltme') {
+            $was_in_second_filter = 1; # should not happen because first filter halted the flow
+        }
+      },
+));
+
+$app->add_route(
+    method => 'get',
+    regexp => '/haltme',
+    code => sub { "should not get there" },
+);
+$app->compile_hooks;
+
+plan tests => scalar(@tests) + 1;
 
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 foreach my $test (@tests) {
@@ -107,3 +132,4 @@ foreach my $test (@tests) {
     is_deeply $resp, $expected;
 }
 
+is $was_in_second_filter, 0, "didnt enter the second filter, because of halt";

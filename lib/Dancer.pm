@@ -24,12 +24,14 @@ our @EXPORT = qw(
     before
     dance
     get
+    halt
     header
     param
     params
     pass
     prefix
     redirect
+    request
     start
     status
     var
@@ -54,6 +56,11 @@ sub prefix {
     @_ == 1
       ? $app->prefix(@_)
       : $app->lexical_prefix(@_);
+}
+
+sub halt {
+    my $app = shift;
+    $app->context->response->{is_halted} = 1;
 }
 
 sub get {
@@ -142,6 +149,11 @@ sub pass {
 #
 # Route handler helpers
 #
+
+sub request {
+    my $app = shift;
+    $app->context->request;
+}
 
 sub params {
     my $app = shift;
