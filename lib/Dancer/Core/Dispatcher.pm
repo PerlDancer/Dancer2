@@ -46,8 +46,8 @@ sub dispatch {
             # if the request has been altered by a before filter, we should not continue
             # with this route handler, we should continue to walk through the
             # rest
-            next if $context->request->path_info ne $path_info 
-                 || $context->request->method ne uc($http_method);
+#            next if $context->request->path_info ne $path_info 
+#                 || $context->request->method ne uc($http_method);
             
             # go to the next route if no match
             next if !$match;
@@ -55,15 +55,18 @@ sub dispatch {
             my $content;
             my $response;
 
-            eval { $content = $route->execute($context) };
-            return $self->response_internal_error($@) if $@; # 500
+            if (!$context->response->{is_halted}) {
+                eval { $content = $route->execute($context) };
+                return $self->response_internal_error($@) if $@;    # 500
+            }
 
             # build a response with the return value of the route
             # and the response context
             $response = Dancer::Core::Response->new(
-                content => $content,
+                content => (defined $content ? $content : ''),
                 %{$context->response},
             );
+            return $response->to_psgi if $context->response->{is_halted};
 
             # pass the baton if the response says so... 
             if ($response->has_passed) {
