@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 8;
+use Test::More tests => 10;
 
 use Dancer::Core::Hook;
 
@@ -44,3 +44,10 @@ is $@, '';
 $f->execute_hooks('foobar');
 is $count, 1;
 
+eval { $f->replace_hooks('doesnotexist', []) };
+like $@, qr{Hook 'doesnotexist' must be installed first};
+
+my $new_hooks = [sub {$count--}, sub {$count--}, sub {$count--}];
+$f->replace_hooks('foobar',$new_hooks);
+$f->execute_hooks('foobar');
+is $count, -2;
