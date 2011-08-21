@@ -76,7 +76,7 @@ my @tests = (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/haltme',
         },
-        expected => [302, [Location => 'http://perldancer.org'], [undef]]
+        expected => [302, [Location => 'http://perldancer.org'], ['']]
     },
 
 # NOT SUPPORTED YET
