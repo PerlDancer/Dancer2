@@ -34,6 +34,9 @@ for my $p ('/', '/mywebsite') {
     }
 }
 
+# an app has an empty config registry by default
+is_deeply $app->config, {};
+is $app->get_environment, undef;
 
 my $routes_regexps = $app->routes_regexps_for('get');
 is (scalar(@$routes_regexps), 4, "route regexps are OK");

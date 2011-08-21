@@ -77,6 +77,9 @@ is $f->config->{main}, 1;
 is $f->config->{charset}, 'utf-8', 
     "normalized UTF-8 to utf-8";
 
+ok($f->has_setting('charset'));
+ok(!$f->has_setting('foobarbaz'));
+
 note "default values";
 is $f->setting('apphandler'), 'Standalone';
 is $f->setting('content_type'), 'text/html';
