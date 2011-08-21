@@ -19,7 +19,6 @@ sub BUILD {
     my $server_name  = $self->config->{apphandler};
     my $server_class = "Dancer::Core::Server::${server_name}";
 
-    warn "creating a server from $server_class";
     eval "use $server_class";
     croak "Unable to load $server_class : $@" if $@;
 
@@ -98,7 +97,6 @@ sub _build_location {
             if File::Basename::basename($location) eq 'bin' 
             || File::Basename::basename($location) eq 'public';
 
-    warn "location is $location";
     $self->location($location);
 }
 
