@@ -10,7 +10,6 @@ use contrib::lib::Pass;
 my $count = 0;
 
 before sub {
-    warn "in before filter";
     $count++;
 };
 
