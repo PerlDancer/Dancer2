@@ -40,4 +40,8 @@ has response => (
     default => sub { { headers => [] } },
 );
 
+sub response_is_halted {
+    return $_[0]->response->{'is_halted'};
+}
+
 1;

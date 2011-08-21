@@ -16,7 +16,7 @@ our $AUTHORITY = 'SUKRIA';
 sub core_debug {
     my $msg = shift;
     chomp $msg;
-    print STDERR "core: $msg\n";
+#    print STDERR "core: $msg\n";
 }
 # TEMP REMOVE ME WHEN DANCER 2 IS READY
 
@@ -26,14 +26,18 @@ our @EXPORT = qw(
     before
     config
     dance
+    del
     dirname
     get
     halt
     header
+    options
     param
     params
     pass
+    post
     prefix
+    put
     redirect
     request
     set
@@ -159,10 +163,20 @@ sub runner { }
 
 # start the server
 sub start {
+    my $app = shift;
     my $dancer = Dancer->runner;
     my $server = $dancer->server;
 
     $_->compile_hooks for @{ $server->apps };
+
+    # update the server config if needed
+    my $port = _setting($app, 'server_port'); 
+    my $host = _setting($app, 'server_host');
+    my $is_daemon = _setting($app, 'server_is_daemon');
+    
+    $server->port($port) if defined $port;
+    $server->host($host) if defined $host;
+    $server->is_daemon($is_daemon) if defined $is_daemon;
     $server->start;
 }
 sub dance { goto &_start }

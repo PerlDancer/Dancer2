@@ -26,19 +26,19 @@ sub register_application {
 }
 
 has host => (
-    is => 'ro',
+    is => 'rw',
     isa => sub { Dancer::Moo::Types::Str(@_) },
     required => 1,
 );
 
 has port => (
-    is => 'ro',
+    is => 'rw',
     isa => sub { Dancer::Moo::Types::Num(@_) },
     required => 1,
 );
 
 has is_daemon => (
-    is => 'ro',
+    is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
 );
 

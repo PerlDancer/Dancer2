@@ -11,6 +11,12 @@ has apps => (
     default  => sub { [] },
 );
 
+has default_content_type => (
+    is => 'ro',
+    isa => sub { Str(@_) },
+    default => sub { 'text/html' },
+);
+
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
     my ($self, $env) = @_;
@@ -55,7 +61,7 @@ sub dispatch {
             my $content;
             my $response;
 
-            if (!$context->response->{is_halted}) {
+            if (! $context->response_is_halted) {
                 eval { $content = $route->execute($context) };
                 return $self->response_internal_error($@) if $@;    # 500
             }
@@ -66,7 +72,7 @@ sub dispatch {
                 content => (defined $content ? $content : ''),
                 %{$context->response},
             );
-            return $response->to_psgi if $context->response->{is_halted};
+            return $response->to_psgi if $context->response_is_halted;
 
             # pass the baton if the response says so... 
             if ($response->has_passed) {
