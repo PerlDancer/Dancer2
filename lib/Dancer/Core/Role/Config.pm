@@ -61,6 +61,36 @@ sub _build_config {
         $config = {%{$config}, %{$current}};
     }
 
+    return $self->_normalize_config($config);
+}
+
+my $_normalizers = {
+    charset => sub {
+        my ($charset) = @_;
+        return $charset if !length($charset || '');
+
+        require Encode;
+        my $encoding = Encode::find_encoding($charset);
+        croak "Charset defined in configuration is wrong : couldn't identify '$charset'"
+            unless defined $encoding;
+        my $name = $encoding->name;
+
+        # Perl makes a distinction between the usual perl utf8, and the strict
+        # utf8 charset. But we don't want to make this distinction
+        $name = 'utf-8' if $name eq 'utf-8-strict';
+        return $name;
+    },
+};
+
+sub _normalize_config {
+    my ($self, $config) = @_;
+    
+    foreach my $key (keys %{$config}) {
+        my $value = $config->{$key};
+        $config->{$key} = $_normalizers->{$key}->($value)
+            if exists $_normalizers->{$key};
+    }
+
     return $config;
 }
 

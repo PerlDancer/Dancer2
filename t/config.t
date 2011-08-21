@@ -69,5 +69,9 @@ note "config parsing";
 
 is $f->config->{show_errors}, 0;
 is $f->config->{main}, 1;
+is $f->config->{charset}, 'utf-8', 
+    "normalized UTF-8 to utf-8";
 
+eval { $f->_normalize_config({charset => 'BOGUS'}) };
+like $@, qr{Charset defined in configuration is wrong : couldn't identify 'BOGUS'};
 done_testing;
