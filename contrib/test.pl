@@ -21,6 +21,16 @@ before sub {
     }
 };
 
+set something_set_live => 42;
+
+get '/config' => sub {
+    my $a = app;
+    return Dumper({
+        app => $a,
+        config => config(),
+    });
+};
+
 get '/admin' => sub {
     "should not get there";
 };
