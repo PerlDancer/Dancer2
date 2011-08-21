@@ -16,18 +16,10 @@ with 'Dancer::Core::Role::Config';
 
 sub default_config { {} }
 
-# we want to have access to the server that powers us
-# so it must be given at instanciation-time
-has server => (
-    is => 'ro',
-    required => 1,
-    isa => sub { ConsumerOf('Dancer::Core::Role::Server', @_) },
-);
-
 # we dont support per-app config files yet (but that could be easy to do in the
 # future)
 sub config_location { undef }
-sub get_environment { $_[0]->server->environment }
+sub get_environment { undef }
 
 sub supported_hooks { 
     qw/before after before_serializer after_serializer before_file_render after_file_render/

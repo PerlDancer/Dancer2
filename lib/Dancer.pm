@@ -296,7 +296,7 @@ sub import {
     }
 
     # the app object
-    my $app = Dancer::Core::App->new( name => $caller, server => $server );
+    my $app = Dancer::Core::App->new( name => $caller );
 
     core_debug "binding app to $caller";
     # bind the app to the caller
