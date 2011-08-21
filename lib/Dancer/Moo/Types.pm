@@ -9,7 +9,7 @@ use base 'Exporter';
 use vars '@EXPORT';
 
 @EXPORT = qw(
-    Str Num HashRef ArrayRef CodeRef Regexp ObjectOf Bool 
+    Str Num HashRef ArrayRef CodeRef Regexp ObjectOf Bool ConsumerOf
     DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
 );
 
@@ -43,6 +43,14 @@ sub Bool {
     raise_type_exception Bool => $value
       if !  _is_scalar($value) 
          || ($value != 0 && $value != 1);
+}
+
+sub ConsumerOf {
+    my ($role, $value) = @_;
+    return if ! defined $value;
+
+    raise_type_exception Consumes => $value
+      if ! $value->does($role);
 }
 
 sub Regexp {

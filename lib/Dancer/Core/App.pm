@@ -4,13 +4,22 @@ use strict;
 use warnings;
 
 use Moo;
-use Dancer::Moo::Types;
 use Carp;
+use Dancer::FileUtils 'path';
+use Dancer::Moo::Types;
 
 use Dancer::Core::Route;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
+with 'Dancer::Core::Role::Config';
+
+sub default_config { {} }
+
+# we dont support per-app config files yet (but that could be easy to do in the
+# future)
+sub config_location { undef }
+sub get_environment { undef }
 
 sub supported_hooks { 
     qw/before after before_serializer after_serializer before_file_render after_file_render/
@@ -159,32 +168,4 @@ sub routes_regexps_for {
     ];
 }
 
-#sub setting {
-#    my $self = shift;
-#
-#    if ($self->name eq 'main') {
-#        return (@_ > 1)
-#          ? Dancer::Config::setting( @_ )
-#          : Dancer::Config::setting( $_[0] );
-#    }
-#
-#    if (@_ > 1) {
-#        $self->_set_settings(@_)
-#    } else {
-#        my $name = shift;
-#        exists($self->settings->{$name}) ? $self->settings->{$name}
-#          : Dancer::Config::setting($name);
-#    }
-#}
-
-#sub _set_settings {
-#    my $self = shift;
-#    die "Odd number of elements in set" unless @_ % 2 == 0;
-#    while (@_) {
-#        my $name = shift;
-#        my $value = shift;
-#        $self->settings->{$name} =
-#          Dancer::Config->normalize_setting($name => $value);
-#    }
-#}
 1;
