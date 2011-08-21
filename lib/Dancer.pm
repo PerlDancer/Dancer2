@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 
+use Dancer::Core::Runner;
 use Dancer::Core::App;
 use Dancer::Core::Server::Standalone;
 use Dancer::Core::Hook;
@@ -59,27 +60,27 @@ sub path    { shift and Dancer::FileUtils::path(@_)    }
 
 sub config { 
     my $app = shift;
-    my $server = Dancer->server;
+    my $runner = Dancer->runner;
 
     return { 
-        %{ $server->config },
+        %{ $runner->config },
         %{ $app->config },
     };
 }
 
 sub setting { 
     my $app = shift;
-    my $server = Dancer->server;
+    my $dancer = Dancer->runner;
 
     # reader
     if (@_ == 1) {
-        # we should ask the app first, and then the server
+        # we should ask the app first, and then the runner
         return $app->setting(@_) if $app->has_setting(@_);
-        return $server->setting(@_);
+        return $dancer->setting(@_);
     }
 
     # writer: we always write to the app registry, only config files can write
-    # into server's configuration (which is global as such)
+    # into dancer's configuration (which is global as such)
     $app->setting(@_);
 }
 
@@ -152,18 +153,20 @@ sub options {
 # Server startup
 #
 
-# access to the server singleton (and this is the only one singleton you will
-# find in Dancer 2, if you wonder).
+# access to the runner singleton
 # will be populated on-the-fly when needed
-sub server { }
+# this singleton contains anything needed to start the application server
+sub runner { }
 
 # start the server
 sub start {
-    my $server = Dancer->server;
+    my $dancer = Dancer->runner;
+    my $server = $dancer->server;
+
     $_->compile_hooks for @{ $server->apps };
     $server->start;
 }
-sub dance { goto &start }
+sub dance { goto &_start }
 
 #
 # Response alterations
@@ -278,20 +281,20 @@ sub import {
         }
     }
 
-    # look if we already have a server instanciated
-    my $server = Dancer->server;
+    # look if we already have a runner instance living
+    my $runner = Dancer->runner;
 
-    # never instanciated the server, should do it now
-    if (not defined $server) {
+    # never instanciated the runner, should do it now
+    if (not defined $runner) {
         # TODO should support commandline options as well
 
-        $server = Dancer::Core::Server::Standalone->new(
-            location => Dancer::FileUtils::dirname($script),
+        $runner = Dancer::Core::Runner->new(
+            caller => $script,
         );
 
-        # now bind that instance to the server symbol, for ever!
+        # now bind that instance to the runner symbol, for ever!
         { no strict 'refs'; no warnings 'redefine';
-            *{"Dancer::server"} = sub { $server };
+            *{"Dancer::runner"} = sub { $runner };
         }
     }
 
@@ -306,8 +309,8 @@ sub import {
         *{"${caller}::dancer_app"} = sub { $app };
     }
 
-    # register the app within the server instance
-    $server->register_application($app);
+    # register the app within the runner instance
+    $runner->server->register_application($app);
 
     # compile the DSL symbols to make them receive the $app
     # also, all the symbols meant to be used within a route handler
