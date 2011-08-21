@@ -12,6 +12,7 @@ use Carp 'croak';
 
 requires 'config_location';
 requires 'get_environment';
+requires 'default_config';
 
 has config => (
     is => 'rw',
@@ -29,13 +30,20 @@ sub setting {
         : $self->_set_config_entry(@args);
 }
 
+sub has_setting {
+    my ($self, $name) = @_;
+    return exists $self->config->{$name};
+}
+
 sub config_files {
     my ($self) = @_;
-    my @files;
-
     my $location = $self->config_location;
-    my $running_env = $self->get_environment;
+    
+    # an undef location means no config files for the caller
+    return unless defined $location;
 
+    my $running_env = $self->get_environment;
+    my @files;
     foreach my $file (
         ['config.yml'], 
         ['environments', "$running_env.yml"]) {
@@ -67,17 +75,7 @@ sub _build_config {
     my ($self) = @_;
     my $location = $self->config_location;
     
-    my $_default_config = {
-        apphandler   => ($ENV{DANCER_APPHANDLER} || 'Standalone'),
-        content_type => ($ENV{DANCER_CONTENT_TYPE} || 'text/html'),
-        charset      => ($ENV{DANCER_CHARSET} || ''),
-        warnings     => ($ENV{DANCER_WARNINGS} || 0),
-        traces       => ($ENV{DANCER_TRACES} || 0),
-        logger       => ($ENV{DANCER_LOGGER} || 'file'),
-        import_warnings => 1,
-    };
-
-    my $config = $_default_config;
+    my $config = $self->default_config;
     foreach my $file ($self->config_files) {
         my $current = $self->load_config_file($file);
         $config = {%{$config}, %{$current}};
