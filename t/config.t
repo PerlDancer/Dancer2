@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Carp 'croak';
 
 use Dancer::Core::Role::Config;
 use Dancer::FileUtils qw/dirname path/;
@@ -62,7 +63,7 @@ is_deeply [$fail->config_files],
     "config_files() works";
 
 
-eval { $fail->config->{stuff} };
+eval { $fail->config };
 like $@, qr{Unable to parse the configuration file};
 
 note "config parsing";
@@ -72,6 +73,27 @@ is $f->config->{main}, 1;
 is $f->config->{charset}, 'utf-8', 
     "normalized UTF-8 to utf-8";
 
+note "default values";
+is $f->setting('apphandler'), 'Standalone';
+is $f->setting('content_type'), 'text/html';
+
 eval { $f->_normalize_config({charset => 'BOGUS'}) };
 like $@, qr{Charset defined in configuration is wrong : couldn't identify 'BOGUS'};
+
+{ 
+    package Foo;
+    use Carp 'croak';
+    sub foo { croak "foo" };
+}
+
+is $f->setting('traces'), 0;
+eval { Foo->foo() };
+unlike $@, qr{Foo::foo}, 
+    "traces are not enabled";
+
+$f->setting(traces => 1);
+eval { Foo->foo() };
+like $@, qr{Foo::foo},
+    "traces are enabled";
+
 done_testing;
