@@ -74,3 +74,11 @@ use feature 'say';
 my $percent = sprintf('%02.2f', ($done / $target * 100));
 say "Dancer 2.0 is at $percent% ($done symbols supported on $target)";
 
+my $dancer1_lines=11999;
+my $dancer2_lines=`wc -l \`find lib -name '*.pm'\` | grep 'total' | awk '{print \$1}'`;
+chomp $dancer2_lines;
+
+my $lines_percent = sprintf('%02.2f', ($dancer2_lines / $dancer1_lines * 100));
+say "Dancer 2.0 code-lines ratio: $lines_percent% ($dancer2_lines/$dancer1_lines)";
+
+
