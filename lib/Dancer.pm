@@ -7,6 +7,7 @@ use Carp;
 use Dancer::Core::App;
 use Dancer::Core::Server::Standalone;
 use Dancer::Core::Hook;
+use Dancer::FileUtils;
 
 our $VERSION   = '1.9999_01';
 our $AUTHORITY = 'SUKRIA';
@@ -21,8 +22,11 @@ sub core_debug {
 
 use base 'Exporter';
 our @EXPORT = qw(
+    app
     before
+    config
     dance
+    dirname
     get
     halt
     header
@@ -32,6 +36,8 @@ our @EXPORT = qw(
     prefix
     redirect
     request
+    set
+    setting
     start
     status
     var
@@ -41,6 +47,43 @@ our @EXPORT = qw(
 #
 # Dancer's syntax
 #
+
+#
+# Handy helpers
+#
+
+sub app { shift }
+
+sub dirname { shift and Dancer::FileUtils::dirname(@_) }
+sub path    { shift and Dancer::FileUtils::path(@_)    }
+
+sub config { 
+    my $app = shift;
+    my $server = Dancer->server;
+
+    return { 
+        %{ $server->config },
+        %{ $app->config },
+    };
+}
+
+sub setting { 
+    my $app = shift;
+    my $server = Dancer->server;
+
+    # reader
+    if (@_ == 1) {
+        # we should ask the app first, and then the server
+        return $app->setting(@_) if $app->has_setting(@_);
+        return $server->setting(@_);
+    }
+
+    # writer: we always write to the app registry, only config files can write
+    # into server's configuration (which is global as such)
+    $app->setting(@_);
+}
+
+sub set { goto &_setting }
 
 #
 # route handlers & friends
@@ -240,8 +283,11 @@ sub import {
 
     # never instanciated the server, should do it now
     if (not defined $server) {
-        # TODO : should support multiple servers there, when the config is ready
-        $server = Dancer::Core::Server::Standalone->new();
+        # TODO should support commandline options as well
+
+        $server = Dancer::Core::Server::Standalone->new(
+            location => Dancer::FileUtils::dirname($script),
+        );
 
         # now bind that instance to the server symbol, for ever!
         { no strict 'refs'; no warnings 'redefine';
@@ -250,7 +296,7 @@ sub import {
     }
 
     # the app object
-    my $app = Dancer::Core::App->new( name => $caller );
+    my $app = Dancer::Core::App->new( name => $caller, server => $server );
 
     core_debug "binding app to $caller";
     # bind the app to the caller
@@ -267,11 +313,14 @@ sub import {
     # also, all the symbols meant to be used within a route handler
     # will check that there is a context running.
     my @global_dsl = qw(
-        before 
+        before
+        config
         dance 
+        dirname
         del 
         get 
-        options 
+        options
+        path
         post 
         prefix
         put 
