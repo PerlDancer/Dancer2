@@ -6,7 +6,6 @@ use Carp;
 
 use Dancer::Core::Runner;
 use Dancer::Core::App;
-use Dancer::Core::Server::Standalone;
 use Dancer::Core::Hook;
 use Dancer::FileUtils;
 
