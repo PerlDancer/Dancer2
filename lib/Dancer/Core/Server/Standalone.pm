@@ -3,6 +3,8 @@ package Dancer::Core::Server::Standalone;
 use Moo;
 with 'Dancer::Core::Role::Server';
 
+sub name { 'Standalone' }
+
 use HTTP::Server::Simple::PSGI;
 
 has backend => (

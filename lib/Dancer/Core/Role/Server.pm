@@ -12,6 +12,8 @@ use Dancer::Core::Response;
 use Dancer::Core::Request;
 use Dancer::Core::Context;
 
+requires 'name';
+
 has apps => (
     is => 'ro',
     isa => sub { Dancer::Moo::Types::ArrayRef(@_) },
