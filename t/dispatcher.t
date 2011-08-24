@@ -70,7 +70,7 @@ my @tests = (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/error',
         },
-        expected => [500, [], [qq{Internal Server Error\n\nCan't locate object method "fail" via package "Fail" (perhaps you forgot to load "Fail"?) at t/dispatcher.t line 26.\n\n}]]
+        expected => [500, [], qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
@@ -92,7 +92,7 @@ my @tests = (
 
 # simulates a redirect with halt
 $app->add_hook(Dancer::Core::Hook->new(
-    name => 'before', 
+    name => 'before',
     code => sub {
         my $ctx = shift;
         if ($ctx->request->path_info eq '/haltme') {
@@ -105,7 +105,7 @@ $app->add_hook(Dancer::Core::Hook->new(
 
 my $was_in_second_filter = 0;
 $app->add_hook(Dancer::Core::Hook->new(
-    name => 'before', 
+    name => 'before',
     code => sub {
         my $ctx = shift;
         if ($ctx->request->path_info eq '/haltme') {
@@ -121,7 +121,7 @@ $app->add_route(
 );
 $app->compile_hooks;
 
-plan tests => scalar(@tests) + 1;
+plan tests => scalar(@tests) * 3 + 1;
 
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 foreach my $test (@tests) {
@@ -129,7 +129,14 @@ foreach my $test (@tests) {
     my $expected = $test->{expected};
 
     my $resp = $dispatcher->dispatch($env);
-    is_deeply $resp, $expected;
+
+    is $resp->[0] => $expected->[0], "Return code ok.";
+    is_deeply $resp->[1] => $expected->[1], "Headers ok.";
+    if (ref($expected->[2]) eq "Regexp") {
+        like $resp->[2][0] => $expected->[2], "Contents ok.";
+    } else {
+        is_deeply $resp->[2] => $expected->[2], "Contents ok.";
+    }
 }
 
 is $was_in_second_filter, 0, "didnt enter the second filter, because of halt";
