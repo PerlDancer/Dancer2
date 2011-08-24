@@ -1,3 +1,3 @@
 #!/bin/bash
 
-perl -Ilib ./contrib/progress.pl
+perl -s -Ilib ./contrib/progress.pl $@

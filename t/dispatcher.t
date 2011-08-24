@@ -130,10 +130,11 @@ foreach my $test (@tests) {
 
     my $resp = $dispatcher->dispatch($env);
 
-    is $resp->[0] => $expected->[0], "Return code ok.";
+    is        $resp->[0] => $expected->[0], "Return code ok.";
     is_deeply $resp->[1] => $expected->[1], "Headers ok.";
+
     if (ref($expected->[2]) eq "Regexp") {
-        like $resp->[2][0] => $expected->[2], "Contents ok.";
+        like   $resp->[2][0] => $expected->[2], "Contents ok.";
     } else {
         is_deeply $resp->[2] => $expected->[2], "Contents ok.";
     }
