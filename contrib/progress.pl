@@ -76,10 +76,8 @@ use feature 'say';
 
 if ($v) {
     my @missing;
-    my %cache;
-    @cache{@done} = @done;
     for my $c (@expected) {
-        push @missing, $c unless exists $cache{$c};
+        push @missing, $c unless grep { $_ eq $c } @done;
     }
     say "Dancer 2.0 DSL is missing: ", join (", ", sort @missing);
 }
