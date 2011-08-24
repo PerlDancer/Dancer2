@@ -10,52 +10,52 @@ plan skip_all => "need Test::TCP" if $@;
 use Dancer::Core::Server::Standalone;
 
 my @tests = (
-    [ 
-        [get => '/'], 
-        [ 
-            200, 
-            [], 
-            ['t::lib::TestApp'] 
+    [
+        [get => '/'],
+        [
+            200,
+            [],
+            ['t::lib::TestApp']
         ]
     ],
-    [ 
+    [
         [get => '/haltme'],
         [
-            200, 
-            [ ], 
-            ['t::lib::TestApp'] 
+            200,
+            [ ],
+            ['t::lib::TestApp']
         ]
     ],
-    [ 
+    [
         [post => '/dirname'],
         [
-            200, 
-            [ ], 
-            ['/etc'] 
+            200,
+            [ ],
+            ['/etc']
         ]
     ],
-    [ 
+    [
         [get => '/user/sukria/home'],
         [
-            200, 
-            [ ], 
-            ['hello sukria'] 
+            200,
+            [ ],
+            ['hello sukria']
         ]
     ],
-    [ 
+    [
         [get => '/config'],
         [
-            200, 
-            [ ], 
-            ['1 1'] 
+            200,
+            [ ],
+            ['1 1']
         ]
     ],
-    [ 
+    [
         [get => '/header/X-Test/42'],
         [
-            200, 
-            [ 'X-Test' => 42 ], 
-            ['1'] 
+            200,
+            [ 'X-Test' => 42 ],
+            ['1']
         ]
     ],
     [
@@ -81,7 +81,7 @@ test_tcp(
             my $ua     = LWP::UserAgent->new;
             my $res    = $ua->$method("http://localhost:${port}${path}");
 
-            is $res->code, $expected->[0], 
+            is $res->code, $expected->[0],
                 "status is ok for $method $path";
             is $res->content, $expected->[2][0],
               "content is ok for $method $path";
@@ -101,7 +101,7 @@ test_tcp(
 
         use Dancer;
         use t::lib::TestApp;
-        
+
         set server_port => $port;
         start;
     },
