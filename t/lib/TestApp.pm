@@ -45,4 +45,14 @@ get '/header/:name/:value' => sub {
     1;
 };
 
+# any
+any ['get','post'], '/any' => sub {
+    "Called with method ".request->method;
+};
+
+# true and false
+get '/booleans' => sub {
+    join(":", true, false);
+};
+
 1;
