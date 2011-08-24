@@ -28,6 +28,7 @@ our @EXPORT = qw(
     config
     dance
     dirname
+    false
     get
     halt
     header
@@ -41,6 +42,7 @@ our @EXPORT = qw(
     setting
     start
     status
+    true
     var
     vars
 );
@@ -55,20 +57,23 @@ our @EXPORT = qw(
 
 sub app { shift }
 
+sub true  { 1 }
+sub false { 0 }
+
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
 sub path    { shift and Dancer::FileUtils::path(@_)    }
 
-sub config { 
+sub config {
     my $app = shift;
     my $runner = Dancer->runner;
 
-    return { 
+    return {
         %{ $runner->config },
         %{ $app->config },
     };
 }
 
-sub setting { 
+sub setting {
     my $app = shift;
     my $dancer = Dancer->runner;
 
@@ -318,18 +323,18 @@ sub import {
     my @global_dsl = qw(
         before
         config
-        dance 
+        dance
         dirname
-        del 
-        get 
+        del
+        get
         options
         path
-        post 
+        post
         prefix
-        put 
-        set 
-        setting 
-        start 
+        put
+        set
+        setting
+        start
     );
     for my $symbol (@EXPORT) {
         my $orig_sub = _get_orig_symbol($symbol);
