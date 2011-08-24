@@ -2,36 +2,32 @@
 use strict;
 use warnings;
 
-
-
 use ExtUtils::MakeMaker 6.30;
 
-
-
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Core libraries for Dancer 2.0',
-  'AUTHOR' => 'Dancer Core Developers',
-  'BUILD_REQUIRES' => {
-    'File::Find' => '0',
-    'File::Temp' => '0',
-    'Test::More' => '0'
+  'ABSTRACT'           => 'Core libraries for Dancer 2.0',
+  'AUTHOR'             => 'Dancer Core Developers',
+  'BUILD_REQUIRES'     => {
+                           'File::Find' => '0',
+                           'File::Temp' => '0',
+                           'Test::More' => '0'
   },
   'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30'
+                           'ExtUtils::MakeMaker' => '6.30'
   },
-  'DISTNAME' => 'Dancer-Core',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'Dancer::Core',
-  'PREREQ_PM' => {
-    'Carp' => '0',
-    'Moo' => '0',
-    'Scalar::Util' => '0'
+  'DISTNAME'           => 'Dancer-Core',
+  'EXE_FILES'          => [],
+  'LICENSE'            => 'perl',
+  'NAME'               => 'Dancer::Core',
+  'PREREQ_PM'          => {
+                           'Carp'         => '0',
+                           'Moo'          => '0',
+                           'Scalar::Util' => '0'
   },
-  'VERSION' => '2.0',
-  'test' => {
-    'TESTS' => 't/*.t t/moo/*.t'
-  }
+  'VERSION'            => '2.0',
+  'test'               => {
+                           'TESTS' => 't/*.t t/moo/*.t'
+   },
 );
 
 
