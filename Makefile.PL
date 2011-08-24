@@ -20,6 +20,7 @@ my %WriteMakefileArgs = (
   'LICENSE'            => 'perl',
   'NAME'               => 'Dancer::Core',
   'PREREQ_PM'          => {
+                           'URI'          => '1.59',
                            'Carp'         => '0',
                            'Moo'          => '0',
                            'Scalar::Util' => '0'
