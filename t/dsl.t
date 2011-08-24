@@ -66,6 +66,30 @@ my @tests = (
             ['1:0']
         ]
     ],
+    [
+        [get => '/any'],
+        [
+            200,
+            [ ],
+            ['Called with method GET']
+        ]
+    ],
+    [
+        [post => '/any'],
+        [
+            200,
+            [ ],
+            ['Called with method POST']
+        ]
+    ],
+    [
+        [head => '/any'],
+        [
+            200,
+            [ ],
+            ['']
+        ]
+    ],
 );
 
 test_tcp(
@@ -76,6 +100,7 @@ test_tcp(
             my $req      = $t->[0];
             my $expected = $t->[1];
 
+            # Using this approach it is not possible to test get/put
             my $method = $req->[0];
             my $path   = $req->[1];
             my $ua     = LWP::UserAgent->new;

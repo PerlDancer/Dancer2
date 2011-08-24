@@ -22,6 +22,7 @@ sub core_debug {
 
 use base 'Exporter';
 our @EXPORT = qw(
+    any
     app
     before
     config
@@ -128,6 +129,19 @@ sub post {
         regexp => $_[0],
         code   => $_[1]
     );
+}
+
+sub any {
+    my $app = shift;
+    for my $method (@{$_[0]}) {
+        next unless $method =~ m/^(?:get|put|del|post|head)$/;
+        $app->add_route(method => $method,
+                        regexp => $_[1],
+                        code   => $_[2]);
+        ($method eq "get") and $app->add_route(method => 'head',
+                                               regexp => $_[1],
+                                               code   => $_[2]);
+    }
 }
 
 sub put {
@@ -334,6 +348,7 @@ sub import {
     # also, all the symbols meant to be used within a route handler
     # will check that there is a context running.
     my @global_dsl = qw(
+        any
         before
         config
         dance
