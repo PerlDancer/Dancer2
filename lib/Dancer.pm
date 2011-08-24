@@ -133,8 +133,12 @@ sub post {
 
 sub any {
     my $app = shift;
-    for my $method (@{$_[0]}) {
-        next unless $method =~ m/^(?:get|put|del|post|head)$/;
+
+    my $methods = $_[0];
+    croak "any must be given an ArrayRef of HTTP methods"
+        unless ref($methods) eq 'ARRAY';
+
+    for my $method (@{$methods}) {
         $app->add_route(method => $method,
                         regexp => $_[1],
                         code   => $_[2]);
