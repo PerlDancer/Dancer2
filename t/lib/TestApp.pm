@@ -45,4 +45,9 @@ get '/header/:name/:value' => sub {
     1;
 };
 
+# true and false
+get '/booleans' => sub {
+    join(":", true, false);
+};
+
 1;
