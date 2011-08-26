@@ -45,6 +45,20 @@ get '/header/:name/:value' => sub {
     1;
 };
 
+# header
+get '/header/:name/:valueA/:valueB' => sub {
+    push_header param('name') => param('valueA');
+    push_header param('name') => param('valueB');
+    1;
+};
+
+# header
+get '/header_twice/:name/:valueA/:valueB' => sub {
+    header param('name') => param('valueA');
+    header param('name') => param('valueB');
+    1;
+};
+
 # any
 any ['get','post'], '/any' => sub {
     "Called with method ".request->method;

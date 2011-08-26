@@ -33,12 +33,14 @@ our @EXPORT = qw(
     get
     halt
     header
+    headers
     options
     param
     params
     pass
     post
     prefix
+    push_header
     put
     redirect
     request
@@ -193,10 +195,10 @@ sub start {
     $_->compile_hooks for @{ $server->apps };
 
     # update the server config if needed
-    my $port = _setting($app, 'server_port'); 
+    my $port = _setting($app, 'server_port');
     my $host = _setting($app, 'server_host');
     my $is_daemon = _setting($app, 'server_is_daemon');
-    
+
     $server->port($port) if defined $port;
     $server->host($host) if defined $host;
     $server->is_daemon($is_daemon) if defined $is_daemon;
@@ -212,6 +214,9 @@ sub status {
     my $app = shift;
     $app->context->response->{status} = $_[0];
 }
+
+sub headers     { header(@_) };
+sub push_header { header(@_) };
 
 sub header {
     my $app = shift;
@@ -358,11 +363,14 @@ sub import {
         dance
         dirname
         del
+        header
+        headers
         get
         options
         path
         post
         prefix
+        push_header
         put
         set
         setting
