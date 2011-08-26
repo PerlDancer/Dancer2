@@ -45,7 +45,7 @@ get '/header/:name/:value' => sub {
     1;
 };
 
-# header
+# push_header
 get '/header/:name/:valueA/:valueB' => sub {
     push_header param('name') => param('valueA');
     push_header param('name') => param('valueB');
