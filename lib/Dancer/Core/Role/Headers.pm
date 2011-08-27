@@ -22,10 +22,10 @@ sub header {
     my $header = shift;
 
     if (@_) {
-        $self->{headers}->header( $header => @_ );
+        $self->headers->header( $header => @_ );
     }
     else {
-        return $self->{headers}->header($header);
+        return $self->headers->header($header);
     }
 }
 
@@ -35,11 +35,11 @@ sub push_header {
 
     if (@_) {
         foreach my $h(@_) {
-            $self->{headers}->push_header( $header => $h );
+            $self->headers->push_header( $header => $h );
         }
     }
     else {
-        return $self->{headers}->header($header);
+        return $self->headers->header($header);
     }
 }
 
@@ -53,8 +53,8 @@ sub headers_to_array {
                 my $v = $_;
                 $v =~ s/^(.+)\r?\n(.*)$/$1\r\n $2/;
                 ( $k => $v )
-            } $self->{headers}->header($_);
-          } $self->{headers}->header_field_names
+            } $self->headers->header($_);
+          } $self->headers->header_field_names
     ];
 
     return $headers;

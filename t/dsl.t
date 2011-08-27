@@ -59,6 +59,22 @@ my @tests = (
         ]
     ],
     [
+        [get => '/header/X-Test/42/21'],
+        [
+            200,
+            [ 'X-Test' => '42, 21' ],
+            ['1']
+        ]
+    ],
+    [
+        [get => '/header_twice/X-Test/42/21'],
+        [
+            200,
+            [ 'X-Test' => '21' ],
+            ['1']
+        ]
+    ],
+    [
         [get => '/booleans'],
         [
             200,

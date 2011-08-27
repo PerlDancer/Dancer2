@@ -33,7 +33,7 @@ $app->add_route(
     code => sub {
         my $ctx = shift;
         $buffer->{user} = $ctx->request->params->{'name'};
-        $ctx->response->{has_passed} = 1;
+        $ctx->response->has_passed(1);
     },
 );
 
@@ -96,9 +96,9 @@ $app->add_hook(Dancer::Core::Hook->new(
     code => sub {
         my $ctx = shift;
         if ($ctx->request->path_info eq '/haltme') {
-            $ctx->response->{headers} = [Location => 'http://perldancer.org',];
-            $ctx->response->{status} = 302;
-            $ctx->response->{is_halted} = 1;
+            $ctx->response->headers([Location => 'http://perldancer.org',]);
+            $ctx->response->status(302);
+            $ctx->response->is_halted(1);
         }
       },
 ));

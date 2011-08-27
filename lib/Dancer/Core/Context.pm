@@ -3,6 +3,7 @@ use Moo;
 use Dancer::Moo::Types;
 
 use Dancer::Core::Request;
+use Dancer::Core::Response;
 
 # the PSGI-env to use for building the request to process
 # this is the only mandatory argument to a context
@@ -36,12 +37,12 @@ has buffer => (
 # that HashRef will should be passed as attributes to a response object
 has response => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
-    default => sub { { headers => [] } },
+    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Response', @_) },
+    default => sub { Dancer::Core::Response->new },
 );
 
 sub response_is_halted {
-    return $_[0]->response->{'is_halted'};
+    return $_[0]->response->is_halted;
 }
 
 1;
