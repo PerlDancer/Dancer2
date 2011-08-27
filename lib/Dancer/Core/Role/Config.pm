@@ -74,7 +74,7 @@ sub load_config_file {
 sub _build_config {
     my ($self) = @_;
     my $location = $self->config_location;
-    
+
     my $config = $self->default_config;
     foreach my $file ($self->config_files) {
         my $current = $self->load_config_file($file);
@@ -111,7 +111,7 @@ sub _normalize_config {
 
 sub _compile_config {
     my ($self, $config) = @_;
- 
+
     foreach my $key (keys %{$config}) {
         my $value = $config->{$key};
         $config->{$key} = $self->_compile_config_entry($key, $value);

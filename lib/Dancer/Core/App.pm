@@ -32,7 +32,7 @@ sub BUILD {
 
 sub compile_hooks {
     my ($self) = @_;
-    
+
     for my $position ($self->supported_hooks) {
         my $compiled_hooks = [];
         for my $hook (@{ $self->hooks->{$position} }) {
@@ -105,11 +105,11 @@ sub lexical_prefix {
 
     eval { $cb->() };
     my $e = $@;
-    
+
     # restore app prefix
     $self->prefix( $app_prefix );
-    
-    croak "Unable to run the callback for prefix '$prefix': $e" 
+
+    croak "Unable to run the callback for prefix '$prefix': $e"
         if $e;
 }
 
@@ -145,8 +145,8 @@ sub add_route {
         my $route = Dancer::Core::Route->new(
             %route_attrs, 
             prefix => $self->prefix,
-        ); 
-        
+        );
+
         my $method = $route->method;
         push @{ $self->routes->{$method} }, $route;
 }
@@ -163,7 +163,7 @@ Returns an ArrayRef with the results.
 
 sub routes_regexps_for {
     my ($self, $method) = @_;
-    return [ 
+    return [
         map { $_->regexp } @{ $self->routes->{$method} }
     ];
 }
