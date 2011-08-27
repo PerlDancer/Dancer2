@@ -115,7 +115,7 @@ sub prefix {
 
 sub halt {
     my $app = shift;
-    $app->context->response->{is_halted} = 1;
+    $app->context->response->is_halted(1);
 }
 
 sub get {
@@ -212,16 +212,20 @@ sub dance { goto &_start }
 
 sub status {
     my $app = shift;
-    $app->context->response->{status} = $_[0];
+    $app->context->response->status($_[0]);
 }
 
-sub headers     { header(@_) };
-sub push_header { header(@_) };
+sub push_header { 
+    my $app = shift;
+    $app->context->response->push_header(@_) 
+};
 
 sub header {
     my $app = shift;
-    push @{ $app->context->response->{headers} }, @_;
+    $app->context->response->header(@_);
 }
+
+sub headers { goto &header };
 
 sub content_type {
     my $app = shift;
@@ -230,7 +234,7 @@ sub content_type {
 
 sub pass {
     my $app = shift;
-    $app->context->response->{has_passed} = 1;
+    $app->context->response->has_passed(1);
 }
 
 #
