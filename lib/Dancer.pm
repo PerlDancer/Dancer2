@@ -21,37 +21,44 @@ sub core_debug {
 # TEMP REMOVE ME WHEN DANCER 2 IS READY
 
 use base 'Exporter';
-our @EXPORT = qw(
-    any
+
+our @global_dsl = qw(
+        after
+        any
+        before
+        config
+        dance
+        dirname
+        del
+        header
+        headers
+        get
+        options
+        path
+        post
+        prefix
+        push_header
+        put
+        set
+        setting
+        start
+    );
+our @EXPORT = (
+  @global_dsl,
+  qw(
     app
-    before
-    config
-    dance
-    del
-    dirname
     false
-    get
     halt
-    header
-    headers
-    options
     param
     params
     pass
-    post
-    prefix
-    push_header
-    put
     redirect
     request
-    set
-    setting
-    start
     status
     true
     var
     vars
-);
+));
 
 #
 # Dancer's syntax
@@ -104,6 +111,11 @@ sub set { goto &_setting }
 sub before {
     my $app = shift;
     $app->add_hook(Dancer::Core::Hook->new(name => 'before', code => $_[0]));
+}
+
+sub after {
+    my $app = shift;
+    $app->add_hook(Dancer::Core::Hook->new(name => 'after', code => $_[0]));
 }
 
 sub prefix {
@@ -360,26 +372,6 @@ sub import {
     # compile the DSL symbols to make them receive the $app
     # also, all the symbols meant to be used within a route handler
     # will check that there is a context running.
-    my @global_dsl = qw(
-        any
-        before
-        config
-        dance
-        dirname
-        del
-        header
-        headers
-        get
-        options
-        path
-        post
-        prefix
-        push_header
-        put
-        set
-        setting
-        start
-    );
     for my $symbol (@EXPORT) {
         my $orig_sub = _get_orig_symbol($symbol);
         my $new_sub  = sub {
