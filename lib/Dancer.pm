@@ -215,10 +215,10 @@ sub status {
     $app->context->response->status($_[0]);
 }
 
-sub push_header { 
+sub push_header {
     my $app = shift;
-    $app->context->response->push_header(@_) 
-};
+    $app->context->response->push_header(@_);
+}
 
 sub header {
     my $app = shift;
