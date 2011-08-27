@@ -67,7 +67,7 @@ Manipulate hooks with Dancer
     hook 'before', {apps => ['main']}, sub {...};
 
     hook 'before' => sub {...};
-    
+
 Attaches a hook at some point, with a possible list of properties.
 
 Currently supported properties:
@@ -93,7 +93,7 @@ Test if a hook with this name has already been registered.
 
 =head2 execute_hooks
 
-Execute a list of hooks for some position    
+Execute a list of hooks for some position
 
 =head2 get_hooks_for
 

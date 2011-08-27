@@ -16,12 +16,12 @@ with 'Dancer::Core::Role::Config';
 
 sub default_config { {} }
 
-# we dont support per-app config files yet (but that could be easy to do in the
-# future)
+# we dont support per-app config files yet
+# (but that could be easy to do in the future)
 sub config_location { undef }
 sub get_environment { undef }
 
-sub supported_hooks { 
+sub supported_hooks {
     qw/before after before_serializer after_serializer before_file_render after_file_render/
 }
 

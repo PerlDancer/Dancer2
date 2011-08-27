@@ -32,6 +32,7 @@ our @global_dsl = qw(
         del
         header
         headers
+        hook
         get
         options
         path
@@ -107,6 +108,11 @@ sub set { goto &_setting }
 #
 # route handlers & friends
 #
+
+sub hook {
+    my $app = shift;
+    $app->add_hook(Dancer::Core::Hook->new(name => $_[0], code => $_[1]));
+}
 
 sub before {
     my $app = shift;
