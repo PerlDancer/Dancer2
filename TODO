@@ -8,6 +8,7 @@
 [ ] Dancer::Core::Server::Debug
 [ ] Dancer::Core::Config
 [ ] Dancer::Core::Hook
+[X] Dancer::Core::Cookie
 
 [ ] Dancer::Template
 [ ] Dancer::Template::Simple
