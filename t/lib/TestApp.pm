@@ -14,12 +14,23 @@ before sub {
 };
 get '/haltme' => sub { "should not be there" };
 
+after sub {
+    my $response = shift;
+    if (request->path_info eq '/rewrite_me') {
+        $response->content("rewritten!");
+    }
+};
+get '/rewrite_me' => sub { "body should not be this one" };
+
+
 # some settings
 set some_var => 1;
 setting some_other_var => 1;
+set multiple_vars => 4, can_be_set => 2;
 
 get '/config' => sub {
-    return config->{some_var}.' '.config->{some_other_var};
+    return config->{some_var}.' '.config->{some_other_var}.' and '.
+      setting('multiple_vars').setting('can_be_set');
 };
 
 # chained routes with pass

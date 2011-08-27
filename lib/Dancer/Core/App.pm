@@ -39,11 +39,11 @@ sub compile_hooks {
             my $compiled = sub {
                 # don't run the filter if halt has been used
                 return if $self->context->response->is_halted;
-                
+
                 # TODO: log entering the hook '$position'
                 #warn "entering hook '$position'";
                 eval { $hook->(@_) };
-                
+
                 # TODO : do something with exception there
                 croak "Exception caught in '$position' filter: $@" if $@;
             };

@@ -13,8 +13,9 @@ with 'Dancer::Core::Role::Headers';
 # add an attribute for each HTTP_* variables
 my @http_env_keys = (
     'user_agent',      'accept_language', 'accept_charset',
-    'accept_encoding', 'keep_alive', 'connection',      'accept',
-    'accept_type',     'referer',  #'host', managed manually
+    'accept_encoding', 'keep_alive',      'connection',
+    'accept',          'accept_type',     'referer',
+    # 'host' is managed manually
 );
 
 has $_ => (

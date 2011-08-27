@@ -27,7 +27,7 @@ sub setting {
 
     return (scalar @args == 1)
         ? $self->config->{$args[0]}
-        : $self->_set_config_entry(@args);
+        : $self->_set_config_entries(@args);
 }
 
 sub has_setting {
@@ -38,7 +38,7 @@ sub has_setting {
 sub config_files {
     my ($self) = @_;
     my $location = $self->config_location;
-    
+
     # an undef location means no config files for the caller
     return unless defined $location;
 
@@ -85,6 +85,13 @@ sub _build_config {
     return  $self->_compile_config($config);
 }
 
+sub _set_config_entries {
+    my ($self, @args) = @_;
+    while (@args) {
+        $self->_set_config_entry(shift(@args), shift(@args));
+    }
+}
+
 sub _set_config_entry {
     my ($self, $name, $value) = @_;
     $value = $self->_normalize_config_entry($name, $value);
@@ -94,7 +101,7 @@ sub _set_config_entry {
 
 sub _normalize_config {
     my ($self, $config) = @_;
-    
+
     foreach my $key (keys %{$config}) {
         my $value = $config->{$key};
         $config->{$key} = $self->_normalize_config_entry($key, $value);
