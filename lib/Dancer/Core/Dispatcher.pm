@@ -59,24 +59,20 @@ sub dispatch {
             next if !$match;
 
             my $content;
-            my $response;
 
-            if (! $context->response_is_halted) {
+            if (! $context->response->is_halted) {
                 eval { $content = $route->execute($context) };
                 return $self->response_internal_error($@) if $@;    # 500
             }
 
-            # build a response with the return value of the route
-            # and the response context
-            $response = Dancer::Core::Response->new(
-                content => (defined $content ? $content : ''),
-                %{$context->response},
-            );
-            return $response->to_psgi if $context->response_is_halted;
+            # TODO : content type
+            my $response = $context->response;
+            $response->content(defined $content ? $content : '');
+            return $response->to_psgi if $context->response->is_halted;
 
             # pass the baton if the response says so... 
             if ($response->has_passed) {
-                $context->response->{has_passed} = 0;
+                $context->response->has_passed(0);
                 next;
             }
         
