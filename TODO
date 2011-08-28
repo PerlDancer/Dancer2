@@ -28,3 +28,11 @@
 [ ] Dancer::Serializer::Dumper
 
 
+...
+ - The following keywords are deprecated actually on Dancer 1.
+   Should we deprecate them for ever and ever in Dancer 2?
+   - layout  (set layout instead)
+   - logger  (set logger instead)
+   - mime_type (use mime)
+   - render_with_layout (use engine(template)->apply_layout
+   - set_cookie (use cookie)
