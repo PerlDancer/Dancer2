@@ -1,8 +1,8 @@
 package Dancer::Core::Cookie;
 use Moo;
-use Dancer::Moo::Types;
+use URI::Escape;
 
-use Carp;
+use Dancer::Moo::Types;
 use Dancer::Exception qw(:all);
 
 sub to_header {
@@ -22,19 +22,27 @@ sub to_header {
     return join '; ', @headers;
 }
 
-# not sure if this one can be written as a Moo attribute (would love to)
-sub value {
-    my ($self, $value) = @_;
-
-    if (defined($value)) {
+has value => (
+    is       => 'rw',
+    isa      => sub { ArrayRef(@_) },
+    required => 0,
+    coerce   => sub {
+        my $value = shift;
         my @values =
             ref $value eq 'ARRAY' ? @$value
           : ref $value eq 'HASH'  ? %$value
           :                         ($value);
-        $self->{'value'} = [@values];
-    }
-    return wantarray ? @{ $self->{'value'} } : $self->{'value'}->[0];
-}
+        return [@values];
+    },
+);
+
+around value => sub {
+    my $orig = shift;
+    my $self = shift;
+    my $array = $orig->($self, @_);
+    return wantarray ? @$array : $array->[0];
+};
+
 
 has name => (
     is       => 'rw',
