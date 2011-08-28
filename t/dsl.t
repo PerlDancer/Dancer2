@@ -10,6 +10,10 @@ plan skip_all => "need Test::TCP" if $@;
 use Dancer::Core::Server::Standalone;
 
 my @tests = (
+   $] >= 5.010  ?
+     [ [get => '/usr/delete/234'],
+       [ 200, [], [join(':', sort (qw'class usr action delete id 234'))] ] ] :
+             (),
     [
         [get => '/'],
         [

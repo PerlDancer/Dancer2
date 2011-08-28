@@ -54,7 +54,7 @@ sub dispatch {
             # rest
 #            next if $context->request->path_info ne $path_info 
 #                 || $context->request->method ne uc($http_method);
-            
+
             # go to the next route if no match
             next if !$match;
 

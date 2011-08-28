@@ -25,6 +25,7 @@ use base 'Exporter';
 our @EXPORT = qw(
     any
     before
+    captures
     config
     cookie
     cookies
@@ -260,6 +261,11 @@ sub pass {
 sub request {
     my $app = shift;
     $app->context->request;
+}
+
+sub captures {
+     my $app = shift;
+     $app->context->request->params->{captures};
 }
 
 sub params {

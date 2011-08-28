@@ -143,7 +143,7 @@ sub add_route {
     my ($self, %route_attrs) = @_;
 
         my $route = Dancer::Core::Route->new(
-            %route_attrs, 
+            %route_attrs,
             prefix => $self->prefix,
         );
 

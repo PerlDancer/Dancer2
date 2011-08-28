@@ -33,6 +33,13 @@ get '/config' => sub {
       setting('multiple_vars').setting('can_be_set');
 };
 
+if ($] >= 5.010) {
+    # named captures
+    get qr{/(?<class> usr | content | post )/(?<action> delete | find )/(?<id> \d+ )}x => sub {
+        join(":",sort %{captures()});
+    };
+};
+
 # chained routes with pass
 get '/user/**' => sub {
     my $user = params->{splat};
