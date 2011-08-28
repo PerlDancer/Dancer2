@@ -22,31 +22,28 @@ sub core_debug {
 
 use base 'Exporter';
 
-our @global_dsl = qw(
-        after
-        any
-        before
-        config
-        dance
-        dirname
-        del
-        header
-        headers
-        hook
-        get
-        options
-        path
-        post
-        prefix
-        push_header
-        put
-        set
-        setting
-        start
-    );
-our @EXPORT = (
-  @global_dsl,
-  qw(
+our @EXPORT = qw(
+    any
+    before
+    config
+    cookie
+    cookies
+    dance
+    del
+    dirname
+    get
+    header
+    headers
+    hook
+    options
+    path
+    post
+    prefix
+    push_header
+    put
+    set
+    setting
+    start
     app
     false
     halt
@@ -59,7 +56,8 @@ our @EXPORT = (
     true
     var
     vars
-));
+   after
+);
 
 #
 # Dancer's syntax
@@ -306,6 +304,23 @@ sub var {
       : $app->context->buffer->{$_[0]};
 }
 
+sub cookies {
+    my $app = shift;
+    return $app->context->cookies;
+}
+
+sub cookie {
+    my $app = shift;
+    
+    # reader
+    return $app->context->cookies->{$_[0]} if @_ == 1;
+
+    # writer
+    my ($name, $value, %options) = @_;
+    my $c = Dancer::Core::Cookie->new(name => $name, value => $value, %options);
+    $app->context->response->push_header('Set-Cookie' => $c->to_header);
+}
+
 #
 # private
 #
@@ -374,6 +389,29 @@ sub import {
 
     # register the app within the runner instance
     $runner->server->register_application($app);
+
+    my @global_dsl = qw(
+        after
+        any
+        before
+        config
+        dance
+        dirname
+        del
+        header
+        headers
+        hook
+        get
+        options
+        path
+        post
+        prefix
+        push_header
+        put
+        set
+        setting
+        start
+    );
 
     # compile the DSL symbols to make them receive the $app
     # also, all the symbols meant to be used within a route handler
