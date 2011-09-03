@@ -1,5 +1,12 @@
 our ($v); # verbose
 
+# deprecated:
+# - layout
+# - logger
+# - mime_type
+# - render_with_layout
+# - set_cookie
+
 my @expected = qw(
   after
   any
@@ -26,10 +33,8 @@ my @expected = qw(
   header
   headers
   hook
-  layout
   load
   load_app
-  logger
   mime
   options
   param
@@ -41,13 +46,11 @@ my @expected = qw(
   push_header
   put
   redirect
-  render_with_layout
   request
   send_file
   send_error
   set
   setting
-  set_cookie
   session
   splat
   status
