@@ -36,6 +36,7 @@ our @EXPORT = qw(
     header
     headers
     hook
+    mime
     options
     path
     post
@@ -137,17 +138,13 @@ sub halt {
 
 sub get {
     my $app = shift;
-    $app->add_route(method => 'get',  regexp => $_[0], code => $_[1]);
-    $app->add_route(method => 'head', regexp => $_[0], code => $_[1]);
+    $app->add_route( method => 'get',  regexp => $_[0], code => $_[1] );
+    $app->add_route( method => 'head', regexp => $_[0], code => $_[1] );
 }
 
 sub post {
     my $app = shift;
-    $app->add_route(
-        method => 'post',
-        regexp => $_[0],
-        code   => $_[1]
-    );
+    $app->add_route( method => 'post', regexp => $_[0], code => $_[1] );
 }
 
 sub any {
@@ -169,29 +166,17 @@ sub any {
 
 sub put {
     my $app = shift;
-    $app->add_route(
-        method => 'put',
-        regexp => $_[0],
-        code   => $_[1]
-    );
+    $app->add_route( method => 'put', regexp => $_[0], code   => $_[1] );
 }
 
 sub del {
     my $app = shift;
-    $app->add_route(
-        method => 'delete',
-        regexp => $_[0],
-        code   => $_[1]
-    );
+    $app->add_route( method => 'delete', regexp => $_[0], code   => $_[1] );
 }
 
 sub options {
     my $app = shift;
-    $app->add_route(
-        method => 'options',
-        regexp => $_[0],
-        code   => $_[1]
-    );
+    $app->add_route( method => 'options', regexp => $_[0], code   => $_[1] );
 }
 
 #
@@ -315,9 +300,21 @@ sub cookies {
     return $app->context->cookies;
 }
 
+sub mime {
+    my $app = shift;
+
+    # we can be called outside a route (see TestApp.pm for an example)
+    if ($app && exists($app->config->{default_mime_type})) {
+        runner->mime_type->default($app->config->{default_mime_type});
+    } else {
+        runner->mime_type->reset_default;
+    }
+    runner->mime_type
+}
+
 sub cookie {
     my $app = shift;
-    
+
     # reader
     return $app->context->cookies->{$_[0]} if @_ == 1;
 
@@ -408,6 +405,7 @@ sub import {
         headers
         hook
         get
+        mime
         options
         path
         post

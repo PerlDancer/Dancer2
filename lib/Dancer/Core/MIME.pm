@@ -33,9 +33,13 @@ has custom_types => (
 has default => (
     is      => 'rw',
     isa     => sub { Dancer::Moo::Types::Str(@_) },
-    default => sub { "application/data" },
+    builder => "reset_default",
 );
 
+sub reset_default {
+    my ($self) = @_;
+    $self->default("application/data");
+}
 
 sub add_type {
     my ($self, $name, $type) = @_;

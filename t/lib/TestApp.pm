@@ -2,6 +2,12 @@ package t::lib::TestApp;
 use Dancer;
 # this app is intended to cover 100% of the DSL!
 
+# set some MIME aliases...
+mime->add_type( foo => 'text/foo' );
+mime->add_alias( f => 'foo' );
+
+set 'default_mime_type' => 'text/bar';
+
 # hello route
 get '/' => sub { app->name };
 
@@ -85,6 +91,11 @@ any ['get','post'], '/any' => sub {
 # true and false
 get '/booleans' => sub {
     join(":", true, false);
+};
+
+# mimes
+get '/mime/:name' => sub {
+    mime->for_name(param('name'));
 };
 
 1;

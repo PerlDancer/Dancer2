@@ -23,12 +23,20 @@ my @tests = (
         ]
     ],
     [
-        [get => '/haltme'],
-        [
-            200,
-            [ ],
-            ['t::lib::TestApp']
-        ]
+        [ get => '/mime/f'],
+        [ 200, [ ], ['text/foo'] ]
+    ],
+    [
+        [ get => '/mime/foo'],
+        [ 200, [ ], ['text/foo'] ]
+    ],
+    [
+        [ get => '/mime/something'],
+        [ 200, [ ], ['text/bar'] ]
+    ],
+    [
+        [ get => '/haltme'],
+        [ 200, [ ], ['t::lib::TestApp'] ]
     ],
     [
         [get => '/rewrite_me'],
