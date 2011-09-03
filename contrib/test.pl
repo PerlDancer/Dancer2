@@ -7,10 +7,13 @@ use contrib::lib::Foo;
 use contrib::lib::Bar;
 use contrib::lib::Pass;
 
+debug "starting to parse the app...";
+
 my $count = 0;
 
 before sub {
     $count++;
+    debug "in before filter, count is $count";
 };
 
 before sub {
@@ -35,6 +38,7 @@ get '/admin' => sub {
 };
 
 get '/count' => sub {
+    debug "in route /count";
     "count is $count\n";
 };
 
