@@ -14,7 +14,11 @@ use Dancer::Core::Route;
 with 'Dancer::Core::Role::Hookable';
 with 'Dancer::Core::Role::Config';
 
-sub default_config { {} }
+has default_config => (
+    is => 'ro',
+    isa => sub { HashRef(@_) },
+    default => sub { {} },
+);
 
 # we dont support per-app config files yet
 # (but that could be easy to do in the future)

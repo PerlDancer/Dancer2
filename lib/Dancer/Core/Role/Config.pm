@@ -12,7 +12,6 @@ use Carp 'croak';
 
 requires 'config_location';
 requires 'get_environment';
-requires 'default_config';
 
 has config => (
     is => 'rw',
@@ -75,7 +74,10 @@ sub _build_config {
     my ($self) = @_;
     my $location = $self->config_location;
 
-    my $config = $self->default_config;
+    my $config = {};
+    $config = $self->default_config 
+        if $self->can('default_config');
+
     foreach my $file ($self->config_files) {
         my $current = $self->load_config_file($file);
         $config = {%{$config}, %{$current}};

@@ -380,7 +380,10 @@ sub import {
     }
 
     # the app object
-    my $app = Dancer::Core::App->new( name => $caller );
+    my $app = Dancer::Core::App->new( 
+        name => $caller, 
+        default_config => runner->config,
+    );
 
     core_debug "binding app to $caller";
     # bind the app to the caller
