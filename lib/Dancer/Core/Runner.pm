@@ -3,6 +3,7 @@ package Dancer::Core::Runner;
 
 use Moo;
 use Dancer::Moo::Types;
+use Dancer::Core::MIME;
 use Carp 'croak';
 
 use Dancer::FileUtils;
@@ -44,6 +45,12 @@ has caller => (
 has server => (
     is => 'rw',
     isa => sub { ConsumerOf('Dancer::Core::Role::Server', @_) },
+);
+
+has mime_type => (
+    is => 'rw',
+    isa => sub { ObjectOf("Dancer::Core::MIME", @_) },
+    default => sub { Dancer::Core::MIME->new(); },
 );
 
 has environment => (

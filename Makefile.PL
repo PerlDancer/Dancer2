@@ -23,7 +23,8 @@ my %WriteMakefileArgs = (
                            'URI'          => '1.59',
                            'Carp'         => '0',
                            'Moo'          => '0',
-                           'Scalar::Util' => '0'
+                           'Scalar::Util' => '0',
+                           'MIME::Types'  => '0',
   },
   'VERSION'            => '2.0',
   'test'               => {
