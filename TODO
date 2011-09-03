@@ -6,17 +6,18 @@
 [X] Dancer::Core::Server::Standalone
 [ ] Dancer::Core::Server::PSGI
 [ ] Dancer::Core::Server::Debug
-[ ] Dancer::Core::Config
-[ ] Dancer::Core::Hook
+[X] Dancer::Core::Config
+[X] Dancer::Core::Hook
 [X] Dancer::Core::Cookie
+[X] Dancer::Core::MIME
 
 [ ] Dancer::Template
 [ ] Dancer::Template::Simple
 [ ] Dancer::Template::Toolkit
 
-[ ] Dancer::Logger
+[X] Dancer::Role::Logger
 [ ] Dancer::Logger::File
-[ ] Dancer::Logger::Console
+[X] Dancer::Logger::Console
 
 [ ] Dancer::Session
 [ ] Dancer::Session::YAML
