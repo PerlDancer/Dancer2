@@ -18,7 +18,7 @@ my @tests = (
 
     [
      [ get => '/' ],
-     [ 200, [], ['t::lib::TestApp'] ]
+     [ 200, [ 'Content-Type' => 'text/html' ], ['t::lib::TestApp'] ]
     ],
     [
      [ get => '/mime/f' ],

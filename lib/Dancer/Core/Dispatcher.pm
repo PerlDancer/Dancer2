@@ -65,17 +65,26 @@ sub dispatch {
                 return $self->response_internal_error($@) if $@;    # 500
             }
 
-            # TODO : content type
             my $response = $context->response;
+
+            # routes should use 'content_type' as default, or 'text/html'
+            if (!$response->header('Content-type')) {
+                if (exists($app->config->{content_type})) {
+                    $response->header( 'Content-Type' => $app->config->{content_type} );
+                } else {
+                    $response->header( 'Content-Type' => $self->default_content_type );
+                }
+            }
+
             $response->content(defined $content ? $content : '');
             return $response->to_psgi if $context->response->is_halted;
 
-            # pass the baton if the response says so... 
+            # pass the baton if the response says so...
             if ($response->has_passed) {
                 $context->response->has_passed(0);
                 next;
             }
-        
+
             $app->execute_hooks('after', $response);
             $app->context(undef);
             return $response->to_psgi;

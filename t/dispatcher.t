@@ -52,13 +52,13 @@ my @tests = (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/',
         },
-        expected => [200, [], ["home"]]
+        expected => [200, [ 'Content-Type' => 'text/html' ], ["home"]]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/user/Johnny',
         },
-        expected => [200, [], ["Hello Johnny"]]
+        expected => [200, [ 'Content-Type' => 'text/html' ], ["Hello Johnny"]]
     },
     {   env => {
             REQUEST_METHOD => 'POST',
@@ -76,7 +76,8 @@ my @tests = (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/haltme',
         },
-        expected => [302, [Location => 'http://perldancer.org'], ['']]
+        expected => [302, [ 'Location'     => 'http://perldancer.org',
+                            'Content-Type' => 'text/html',], ['']]
     },
 
 # NOT SUPPORTED YET
