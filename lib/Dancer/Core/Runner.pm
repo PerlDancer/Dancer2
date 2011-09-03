@@ -71,7 +71,7 @@ sub default_config {
         charset      => ($ENV{DANCER_CHARSET}      || ''),
         warnings     => ($ENV{DANCER_WARNINGS}     || 0),
         traces       => ($ENV{DANCER_TRACES}       || 0),
-        logger       => ($ENV{DANCER_LOGGER}       || 'file'),
+        logger       => ($ENV{DANCER_LOGGER}       || 'console'),
         host         => ($ENV{DANCER_SERVER}       || '0.0.0.0'),
         port         => ($ENV{DANCER_PORT}         || '3000'),
         is_daemon    => ($ENV{DANCER_DAEMON}       || 0),
