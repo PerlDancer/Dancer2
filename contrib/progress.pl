@@ -78,6 +78,14 @@ my $done   = scalar(@done);
 use feature 'say';
 
 if ($v) {
+
+    print "TODO and FIXME:\n", "-" x 40, "\n";
+    my @lines = `ack -i '(fixme|todo)' | grep -v 'progress.pl'`;
+    # I would use s///r but... :)
+    print join("", map { s/:(\d+):\s*/:$1:\n   /; $_ } @lines);
+    print "\n";
+
+    print "Statistics:\n", "-" x 40, "\n";
     my @missing;
     for my $c (@expected) {
         push @missing, $c unless grep { $_ eq $c } @done;
