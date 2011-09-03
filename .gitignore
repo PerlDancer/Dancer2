@@ -4,3 +4,6 @@ blib
 cover_db
 pm_to_blib
 Makefile.old
+*~
+MYMETA.json
+MYMETA.yml
