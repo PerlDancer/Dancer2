@@ -14,117 +14,79 @@ my @tests = (
      [ [get => '/usr/delete/234'],
        [ 200, [], [join(':', sort (qw'class usr action delete id 234'))] ] ] :
              (),
+
+
     [
-        [get => '/'],
-        [
-            200,
-            [],
-            ['t::lib::TestApp']
-        ]
+     [ get => '/' ],
+     [ 200, [], ['t::lib::TestApp'] ]
     ],
     [
-        [ get => '/mime/f'],
-        [ 200, [ ], ['text/foo'] ]
+     [ get => '/mime/f' ],
+     [ 200, [ ], ['text/foo'] ]
     ],
     [
-        [ get => '/mime/foo'],
-        [ 200, [ ], ['text/foo'] ]
+     [ get => '/mime/foo' ],
+     [ 200, [ ], ['text/foo'] ]
     ],
     [
-        [ get => '/mime/something'],
-        [ 200, [ ], ['text/bar'] ]
+     [ get => '/mime/something' ],
+     [ 200, [ ], ['text/bar'] ]
     ],
     [
-        [ get => '/haltme'],
-        [ 200, [ ], ['t::lib::TestApp'] ]
+     [ get => '/haltme' ],
+     [ 200, [ ], ['t::lib::TestApp'] ]
     ],
     [
-        [get => '/rewrite_me'],
-        [
-            200,
-            [ ],
-            ['rewritten!']
-        ]
+     [ get => '/content_type/svg' ],
+     [ 200, [ 'Content-Type' => 'image/svg+xml' ], ['1'] ]
     ],
     [
-        [post => '/dirname'],
-        [
-            200,
-            [ ],
-            ['/etc']
-        ]
+     [ get => '/content_type/f' ],
+     [ 200, [ 'Content-Type' => 'text/foo' ], ['1'] ]
     ],
     [
-        [get => '/user/sukria/home'],
-        [
-            200,
-            [ ],
-            ['hello sukria']
-        ]
+     [ get => '/rewrite_me' ],
+     [ 200, [ ], ['rewritten!'] ]
     ],
     [
-        [get => '/config'],
-        [
-            200,
-            [ ],
-            ['1 1 and 42']
-        ]
+     [ post => '/dirname' ],
+     [ 200, [ ], ['/etc'] ]
     ],
     [
-        [get => '/header/X-Test/42'],
-        [
-            200,
-            [ 'X-Test' => 42 ],
-            ['1']
-        ]
+     [ get => '/user/sukria/home' ],
+     [ 200, [ ], ['hello sukria'] ]
     ],
     [
-        [get => '/header/X-Test/42/21'],
-        [
-            200,
-            [ 'X-Test' => '42, 21' ],
-            ['1']
-        ]
+     [ get => '/config' ],
+     [ 200, [ ], ['1 1 and 42'] ]
     ],
     [
-        [get => '/header_twice/X-Test/42/21'],
-        [
-            200,
-            [ 'X-Test' => '21' ],
-            ['1']
-        ]
+     [ get => '/header/X-Test/42' ],
+     [ 200, [ 'X-Test' => 42 ], ['1'] ]
     ],
     [
-        [get => '/booleans'],
-        [
-            200,
-            [ ],
-            ['1:0']
-        ]
+     [ get => '/header/X-Test/42/21' ],
+     [ 200, [ 'X-Test' => '42, 21' ], ['1'] ]
     ],
     [
-        [get => '/any'],
-        [
-            200,
-            [ ],
-            ['Called with method GET']
-        ]
+     [ get => '/header_twice/X-Test/42/21' ],
+     [ 200, [ 'X-Test' => '21' ], ['1'] ]
     ],
     [
-        [post => '/any'],
-        [
-            200,
-            [ ],
-            ['Called with method POST']
-        ]
+     [ get => '/booleans' ],
+     [ 200, [ ], ['1:0'] ]
     ],
     [
-        [head => '/any'],
-        [
-            200,
-            [ ],
-            ['']
-        ]
+     [ get => '/any' ],
+     [ 200, [ ], ['Called with method GET'] ]
+    ],
+    [
+     [ post => '/any' ],
+     [ 200, [ ], ['Called with method POST'] ]
+    ],
+    [
+     [ head => '/any' ],
+     [ 200, [ ], [''] ]
     ],
 );
 

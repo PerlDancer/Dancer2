@@ -98,4 +98,10 @@ get '/mime/:name' => sub {
     mime->for_name(param('name'));
 };
 
+# content_type
+get '/content_type/:type' => sub {
+    content_type param('type');
+    1;
+};
+
 1;
