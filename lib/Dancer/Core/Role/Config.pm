@@ -6,6 +6,7 @@ use Moo::Role;
 # also provides a setting() method which is supposed to be used by externals to
 # read/write config entries.
 
+use Dancer::Factory::Engine;
 use Dancer::Moo::Types;
 use Dancer::FileUtils qw/dirname path/;
 use Carp 'croak';
@@ -147,10 +148,14 @@ sub _normalize_config_entry {
 }
 
 my $_setters = {
-#    logger => sub {
-#        my ($setting, $value) = @_;
-#        Dancer::Logger->init($value, settings());
-#    },
+    logger => sub {
+        my ($value) = @_;
+        
+        return (ref $value)
+          ? $value
+          : Dancer::Factory::Engine->build(logger => $value);
+    },
+
 #    log_file => sub {
 #        Dancer::Logger->init(setting("logger"), setting());
 #    },

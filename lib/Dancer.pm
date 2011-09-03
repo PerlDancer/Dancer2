@@ -30,6 +30,7 @@ our @EXPORT = qw(
     cookie
     cookies
     dance
+    debug
     del
     dirname
     get
@@ -70,6 +71,10 @@ our @EXPORT = qw(
 #
 
 sub app { shift }
+
+sub debug   { _log(shift, debug   => @_) }
+sub warning { _log(shift, warning => @_) }
+sub error   { _log(shift, error   => @_) }
 
 sub true  { 1 }
 sub false { 0 }
@@ -403,7 +408,9 @@ sub import {
         config
         dance
         dirname
+        debug
         del
+        error
         header
         headers
         hook
@@ -418,6 +425,7 @@ sub import {
         set
         setting
         start
+        warning
     );
 
     # compile the DSL symbols to make them receive the $app
@@ -481,6 +489,16 @@ sub _get_orig_symbol {
 
     # return the newborn cache version
     return $_orig_dsl_symbols->{$symbol} = $orig;
+}
+
+sub _log {
+    my $app = shift;
+    my $level = shift;
+
+    my $logger = $app->config->{logger};
+    croak "No logger defined" if ! defined $logger;
+
+    $logger->$level(@_);
 }
 
 1;
