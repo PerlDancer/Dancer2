@@ -27,6 +27,7 @@ our @EXPORT = qw(
     before
     captures
     config
+    content_type
     cookie
     cookies
     dance
@@ -236,7 +237,7 @@ sub headers { goto &header };
 
 sub content_type {
     my $app = shift;
-    _header($app, 'Content-Type' => $_[0]);
+    _header($app, 'Content-Type' => _mime($app)->name_or_type($_[0]));
 }
 
 sub pass {
@@ -406,6 +407,7 @@ sub import {
         any
         before
         config
+        content_type
         dance
         dirname
         debug
