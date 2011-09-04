@@ -6,11 +6,6 @@ use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 with 'Dancer::Core::Role::Hookable';
 
-has context => (
-    is => 'rw',
-    isa => sub { ObjectOf('Dancer::Core::Context'),
-);
-
 sub supported_hooks {
     qw/before_template_render after_template_render before_layout_render after_layout_render/
 }
