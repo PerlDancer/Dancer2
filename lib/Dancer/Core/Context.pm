@@ -7,6 +7,11 @@ use Dancer::Core::Request;
 use Dancer::Core::Response;
 use Dancer::Core::Cookie;
 
+has app => (
+    is => 'ro',
+    isa => sub { ObjectOf('Dancer::Core::App') },
+);
+
 # the PSGI-env to use for building the request to process
 # this is the only mandatory argument to a context
 has env => (

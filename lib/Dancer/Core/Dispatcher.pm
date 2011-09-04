@@ -27,7 +27,7 @@ sub dispatch {
         # warn "walking through routes of ".$app->name;
 
         # initialize a context for the current request
-        my $context = Dancer::Core::Context->new(env => $env);
+        my $context = Dancer::Core::Context->new(app => $app, env => $env);
         $app->context($context);
 
         my $http_method = lc $context->request->method;

@@ -6,6 +6,11 @@ use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 with 'Dancer::Core::Role::Hookable';
 
+has context => (
+    is => 'rw',
+    isa => sub { ObjectOf('Dancer::Core::Context'),
+);
+
 sub supported_hooks {
     qw/before_template_render after_template_render before_layout_render after_layout_render/
 }
@@ -63,7 +68,7 @@ sub render_layout {
 sub apply_renderer {
     my ($self, $view, $tokens) = @_;
 
-    ($tokens, undef) = _prepare_tokens_options($tokens);
+    $tokens = $self->_prepare_tokens_options($tokens);
 
     $view = $self->view($view);
 
@@ -81,7 +86,7 @@ sub apply_renderer {
 sub apply_layout {
     my ($self, $content, $tokens, $options) = @_;
 
-    ($tokens, $options) = _prepare_tokens_options($tokens, $options);
+    $tokens = $self->_prepare_tokens_options($tokens);
 
     # If 'layout' was given in the options hashref, use it if it's a true value,
     # or don't use a layout if it was false (0, or undef); if layout wasn't
@@ -109,30 +114,22 @@ sub apply_layout {
 }
 
 sub _prepare_tokens_options {
-    my ($tokens, $options) = @_;
-
-    $options ||= {};
+    my ($self, $tokens) = @_;
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
     $tokens->{perl_version}   = $];
     $tokens->{dancer_version} = $Dancer::VERSION;
 
-    ## FIXME - Need to recheck how to get this information.
-    ## $tokens->{settings}       = Dancer::Config->settings;
-    ## 
-    ## # If we're processing a request, also add the request object, params and
-    ## # vars as tokens:
-    ## if (my $request = Dancer::SharedData->request) {
-    ##    $tokens->{request}        = $request;
-    ##    $tokens->{params}         = $request->params;
-    ##    $tokens->{vars}           = Dancer::SharedData->vars;
-    ## }
-    ## 
-    ## Dancer::App->current->setting('session')
-    ##   and $tokens->{session} = Dancer::Session->get;
+    $tokens->{settings}       = $self->context->app->config;
+    $tokens->{request}        = $self->context->request;
+    $tokens->{params}         = $self->context->request->params;
+    $tokens->{vars}           = $self->context->buffer;
+    
+    $tokens->{session} = $self->context->app->config->{session}->get
+        if defined $self->context->app->config->{session};
 
-    return ($tokens, $options);
+    return $tokens;
 }
 
 sub template {
