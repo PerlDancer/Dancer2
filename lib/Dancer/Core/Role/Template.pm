@@ -29,11 +29,13 @@ has default_tmpl_ext => (
     isa => sub { Str(@_) },
     default => 'tt',
 );
+
 has views => (
     is => 'rw',
     isa => sub { Str(@_) },
     default => '/views',
 );
+
 has layout => (
     is => 'rw',
     isa => sub { Str(@_) },
@@ -125,7 +127,7 @@ sub _prepare_tokens_options {
     $tokens->{request}        = $self->context->request;
     $tokens->{params}         = $self->context->request->params;
     $tokens->{vars}           = $self->context->buffer;
-    
+
     $tokens->{session} = $self->context->app->config->{session}->get
         if defined $self->context->app->config->{session};
 
