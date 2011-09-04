@@ -88,6 +88,18 @@ my @tests = (
      [ head => '/any' ],
      [ 200, [ ], [''] ]
     ],
+    [
+     [ get => '/prefix/bar' ],
+     [ 200, [ ], ['/prefix/bar'] ]
+    ],
+    [
+     [ get => '/prefix/prefix1/bar' ],
+     [ 200, [ ], ['/prefix/prefix1/bar'] ]
+    ],
+    [
+     [ get => '/prefix/prefix2/foo' ],
+     [ 200, [ ], ['/prefix/prefix2/foo'] ]
+    ],
 );
 
 test_tcp(

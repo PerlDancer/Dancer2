@@ -70,7 +70,7 @@ has context => (
 );
 
 has prefix => (
-    is => 'rw', 
+    is => 'rw',
     isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
     coerce => sub {
         my ($prefix) = @_;

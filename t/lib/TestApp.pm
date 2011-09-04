@@ -104,4 +104,15 @@ get '/content_type/:type' => sub {
     1;
 };
 
+# prefix
+prefix '/prefix' => sub {
+    get '/bar' => sub { '/prefix/bar' };
+    prefix '/prefix1' => sub {
+        get '/bar' => sub { '/prefix/prefix1/bar' };
+    };
+
+    prefix '/prefix2';
+    get '/foo' => sub { '/prefix/prefix2/foo' };
+};
+
 1;
