@@ -22,19 +22,19 @@ requires 'render';
 has default_tmpl_ext => (
     is => 'rw',
     isa => sub { Str(@_) },
-    default => 'tt',
+    default => sub { 'tt' },
 );
 
 has views => (
     is => 'rw',
     isa => sub { Str(@_) },
-    default => '/views',
+    default => sub { '/views' },
 );
 
 has layout => (
     is => 'rw',
     isa => sub { Str(@_) },
-    default => 'main',
+    default => sub { 'main' },
 );
 
 
