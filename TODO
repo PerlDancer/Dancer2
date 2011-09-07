@@ -11,23 +11,24 @@
 [X] Dancer::Core::Cookie
 [X] Dancer::Core::MIME
 
-[ ] Dancer::Template
+[X] Dancer::Core::Role::Template
 [ ] Dancer::Template::Simple
 [ ] Dancer::Template::Toolkit
 
-[X] Dancer::Role::Logger
+[X] Dancer::Core::Role::Logger
 [ ] Dancer::Logger::File
 [X] Dancer::Logger::Console
 
-[ ] Dancer::Session
+[X] Dancer::Core::Role::Session
 [ ] Dancer::Session::YAML
 [ ] Dancer::Session::Simple
 
-[ ] Dancer::Serializer
+[ ] Dancer::Core::Role::Serializer
 [ ] Dancer::Serializer::JSON
 [ ] Dancer::Serializer::YAML
 [ ] Dancer::Serializer::Dumper
 
+[ ] Dancer::Core::Role::Plugin
 
 ...
  - The following keywords are deprecated actually on Dancer 1.
