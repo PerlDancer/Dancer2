@@ -23,12 +23,12 @@
 [ ] Dancer::Session::YAML
 [ ] Dancer::Session::Simple
 
-[ ] Dancer::Core::Role::Serializer
+[X] Dancer::Core::Role::Serializer
 [ ] Dancer::Serializer::JSON
 [ ] Dancer::Serializer::YAML
 [ ] Dancer::Serializer::Dumper
 
-[ ] Dancer::Core::Role::Plugin
+[ ] Dancer::Core::Role::Plugin (??)
 
 ...
  - The following keywords are deprecated actually on Dancer 1.
