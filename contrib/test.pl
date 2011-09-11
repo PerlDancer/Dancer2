@@ -9,6 +9,10 @@ use contrib::lib::Pass;
 
 debug "starting to parse the app...";
 
+get '/index' => sub {
+    template 'index', { var => 42 };
+};
+
 my $count = 0;
 
 before sub {

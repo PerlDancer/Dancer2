@@ -12,6 +12,7 @@ has context => (
 has config => (
     is => 'rw',
     isa  => sub { HashRef(@_) },
+    default => sub  { {} },
 );
 
 1;
