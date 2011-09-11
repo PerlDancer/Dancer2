@@ -1,7 +1,9 @@
 package Dancer::Core::Role::Template;
 use Dancer::Moo::Types;
 use Dancer::FileUtils qw'path';
-
+use Carp 'croak';
+    
+use Data::Dumper;
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 with 'Dancer::Core::Role::Hookable';
@@ -13,11 +15,18 @@ sub supported_hooks {
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);
+    $self->init if $self->can('init');
 }
 
 sub type { 'Template' }
 
 requires 'render';
+
+has charset => (
+    is => 'ro',
+    isa => sub { Str(@_) },
+    default => sub { '' },
+);
 
 has default_tmpl_ext => (
     is => 'rw',
@@ -28,15 +37,13 @@ has default_tmpl_ext => (
 has views => (
     is => 'rw',
     isa => sub { Str(@_) },
-    default => sub { '/views' },
+    default => sub { 'views' },
 );
 
 has layout => (
     is => 'rw',
     isa => sub { Str(@_) },
-    default => sub { 'main' },
 );
-
 
 sub _template_name {
     my ($self, $view) = @_;
@@ -69,6 +76,7 @@ sub apply_renderer {
 
     $view = $self->view($view);
 
+    warn "hooks are : ".Dumper($self->hooks);
     $self->execute_hooks('before_template_render', $tokens);
 
     my $content = $self->render($view, $tokens);
@@ -129,8 +137,8 @@ sub _prepare_tokens_options {
     return $tokens;
 }
 
-sub template {
-    my ($class, $view, $tokens, $options) = @_;
+sub process {
+    my ($self, $view, $tokens, $options) = @_;
     my ($content, $full_content);
 
     # it's important that $tokens is not undef, so that things added to it via
@@ -149,12 +157,7 @@ sub template {
     defined $full_content
       and return $full_content;
 
-    ## FIXME - should the template return 404 error at any given time?
-    ## Dancer::Error->new(
-    ##     code    => 404,
-    ##     message => "Page not found",
-    ## )->render();
+    croak "Template did not produce any content";
 }
-
 
 1;

@@ -149,7 +149,7 @@ sub _normalize_config_entry {
 
 my $_setters = {
     logger => sub {
-        my ($value) = @_;
+        my ($self, $value) = @_;
         
         return (ref $value)
           ? $value
@@ -163,10 +163,16 @@ my $_setters = {
 #        my ($setting, $value) = @_;
 #        Dancer::Session->init($value, settings());
 #    },
-#    template => sub {
-#        my ($setting, $value) = @_;
-#        Dancer::Template->init($value, settings());
-#    },
+    template => sub {
+        my ($self, $value) = @_;
+        return $value if ref($value);
+        
+        my $location = $self->config_location;
+        my $template = Dancer::Factory::Engine->build(template => $value);
+        $template->views(path($location, 'views'));
+
+        return $template;
+    },
 #    route_cache => sub {
 #        my ($setting, $value) = @_;
 #        require Dancer::Route::Cache;
@@ -199,7 +205,7 @@ my $_setters = {
 #        }
 #    },
     traces => sub {
-        my ($traces) = @_;
+        my ($self, $traces) = @_;
         require Carp;
         $Carp::Verbose = $traces ? 1 : 0;
     },
@@ -212,7 +218,7 @@ sub _compile_config_entry {
     my $trigger = $_setters->{$name};
     return $value unless defined $trigger;
 
-    return $trigger->($value);
+    return $trigger->($self, $value);
 }
 
 1;
