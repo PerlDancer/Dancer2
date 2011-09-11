@@ -16,13 +16,14 @@ our $AUTHORITY = 'SUKRIA';
 sub core_debug {
     my $msg = shift;
     chomp $msg;
-#    print STDERR "core: $msg\n";
+    print STDERR "core: $msg\n";
 }
 # TEMP REMOVE ME WHEN DANCER 2 IS READY
 
 use base 'Exporter';
 
 our @EXPORT = qw(
+    after
     any
     before
     captures
@@ -57,10 +58,10 @@ our @EXPORT = qw(
     redirect
     request
     status
+    template
     true
     var
     vars
-   after
 );
 
 #
@@ -110,6 +111,20 @@ sub setting {
 }
 
 sub set { goto &_setting }
+
+sub template {
+    my $app = shift;
+
+    my $template = _config($app)->{'template'};
+    croak "No template engine defined" 
+        if not defined $template;
+
+    $template->context($app->context);
+    my $content = $template->process(@_);
+    $template->context(undef);
+
+    return $content;
+}
 
 #
 # route handlers & friends
