@@ -138,6 +138,8 @@ sub template {
     $tokens  ||= {};
     $options ||= {};
 
+    ## FIXME - Look into PR 654 so we fix the problem here as well!
+
     $content = $view ? $self->apply_renderer($view, $tokens)
                      : delete $options->{content};
 
