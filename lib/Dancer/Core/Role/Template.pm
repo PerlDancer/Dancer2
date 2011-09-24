@@ -124,13 +124,15 @@ sub _prepare_tokens_options {
     $tokens->{perl_version}   = $];
     $tokens->{dancer_version} = $Dancer::VERSION;
 
-    $tokens->{settings}       = $self->context->app->config;
-    $tokens->{request}        = $self->context->request;
-    $tokens->{params}         = $self->context->request->params;
-    $tokens->{vars}           = $self->context->buffer;
+    if (defined $self->context) {
+        $tokens->{settings} = $self->context->app->config;
+        $tokens->{request}  = $self->context->request;
+        $tokens->{params}   = $self->context->request->params;
+        $tokens->{vars}     = $self->context->buffer;
 
-    $tokens->{session} = $self->context->app->config->{session}->get
-        if defined $self->context->app->config->{session};
+        $tokens->{session} = $self->context->app->config->{session}->get
+          if defined $self->context->app->config->{session};
+    }
 
     return $tokens;
 }
