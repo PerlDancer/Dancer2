@@ -75,8 +75,6 @@ sub apply_renderer {
     $tokens = $self->_prepare_tokens_options($tokens);
 
     $view = $self->view($view);
-
-    warn "hooks are : ".Dumper($self->hooks);
     $self->execute_hooks('before_template_render', $tokens);
 
     my $content = $self->render($view, $tokens);
