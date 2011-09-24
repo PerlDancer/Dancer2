@@ -1,0 +1,5 @@
+[index]
+var = [% var %]
+
+before_layout_render = [% before_layout_render %]
+before_template_render = [% before_template_render %]
