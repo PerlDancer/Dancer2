@@ -64,6 +64,7 @@ our @EXPORT = qw(
     true
     var
     vars
+    warning
 );
 
 #
