@@ -2,3 +2,5 @@ This is a view
 
 Token "var" is [% var %]
 
+inbefore: [% inbefore %]
+

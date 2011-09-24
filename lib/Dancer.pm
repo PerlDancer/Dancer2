@@ -26,6 +26,7 @@ our @EXPORT = qw(
     after
     any
     before
+    before_template
     captures
     config
     content_type
@@ -35,6 +36,7 @@ our @EXPORT = qw(
     debug
     del
     dirname
+    engine
     get
     header
     headers
@@ -62,6 +64,7 @@ our @EXPORT = qw(
     true
     var
     vars
+    warning
 );
 
 #
@@ -94,6 +97,16 @@ sub config {
     };
 }
 
+sub engine {
+    my $app = shift;
+    my ($name) = @_;
+
+    my $e = _config($app)->{$name};
+    croak "No '$name' engine defined" if not defined $e;
+
+    return $e;
+}
+
 sub setting {
     my $app = shift;
     my $dancer = Dancer->runner;
@@ -114,16 +127,23 @@ sub set { goto &_setting }
 
 sub template {
     my $app = shift;
-
-    my $template = _config($app)->{'template'};
-    croak "No template engine defined" 
-        if not defined $template;
+    my $template = _engine($app, 'template');
 
     $template->context($app->context);
     my $content = $template->process(@_);
     $template->context(undef);
 
     return $content;
+}
+
+sub before_template {
+    my $app = shift;
+    my $template = _engine($app, 'template');
+
+    $template->add_hook(Dancer::Core::Hook->new(
+        name => 'before_template_render',
+        code => $_[0],
+    ));
 }
 
 #
@@ -421,6 +441,7 @@ sub import {
         after
         any
         before
+        before_template
         config
         content_type
         dance

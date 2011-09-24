@@ -9,6 +9,11 @@ use contrib::lib::Pass;
 
 debug "starting to parse the app...";
 
+before_template sub {
+    my $tokens = shift;
+    $tokens->{inbefore} = 'alexis';
+};
+
 get '/index' => sub {
     template 'index', { var => 42 };
 };
