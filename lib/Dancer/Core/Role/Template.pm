@@ -101,7 +101,6 @@ sub apply_layout {
       : $self->layout;
 
     defined $content or return;
-
     defined $layout or return $content;
 
     $self->execute_hooks('before_layout_render', $tokens, \$content);

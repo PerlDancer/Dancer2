@@ -98,7 +98,7 @@ sub _set_config_entries {
 sub _set_config_entry {
     my ($self, $name, $value) = @_;
     $value = $self->_normalize_config_entry($name, $value);
-    $value = $self->_compile_config_entry($name, $value);
+    $value = $self->_compile_config_entry($name, $value, $self->config);
     $self->config->{$name} = $value;
 }
 
@@ -117,7 +117,7 @@ sub _compile_config {
 
     foreach my $key (keys %{$config}) {
         my $value = $config->{$key};
-        $config->{$key} = $self->_compile_config_entry($key, $value);
+        $config->{$key} = $self->_compile_config_entry($key, $value, $config);
     }
     return $config;
 }
@@ -164,14 +164,15 @@ my $_setters = {
 #        Dancer::Session->init($value, settings());
 #    },
     template => sub {
-        my ($self, $value) = @_;
+        my ($self, $value, $config) = @_;
         return $value if ref($value);
         
-        my $location = $self->config_location;
-        my $template = Dancer::Factory::Engine->build(template => $value);
-        $template->views(path($location, 'views'));
+        my $engine_options = $self->_get_config_for_engine(template => $value, $config);
+        my $engine_attrs = {config => $engine_options};
+        $engine_attrs->{layout} ||= $config->{layout};
+        $engine_attrs->{views}  ||= path($self->config_location, 'views');
 
-        return $template;
+        return Dancer::Factory::Engine->build(template => $value, %{$engine_attrs});
     },
 #    route_cache => sub {
 #        my ($setting, $value) = @_;
@@ -213,12 +214,21 @@ my $_setters = {
 $_setters->{log_path} = $_setters->{log_file};
 
 sub _compile_config_entry {
-    my ($self, $name, $value) = @_;
+    my ($self, $name, $value, $config) = @_;
 
     my $trigger = $_setters->{$name};
     return $value unless defined $trigger;
 
-    return $trigger->($self, $value);
+    return $trigger->($self, $value, $config);
+}
+
+sub _get_config_for_engine {
+    my ($self, $engine, $name, $config) = @_;
+
+    return {} unless defined $config->{engines};
+    return {} unless defined $config->{engines}{$engine};
+
+    return $config->{engines}{$engine}{$name} || {};
 }
 
 1;
