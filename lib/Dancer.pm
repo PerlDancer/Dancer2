@@ -235,7 +235,7 @@ sub start {
     my $dancer = Dancer->runner;
     my $server = $dancer->server;
 
-    $_->compile_hooks for @{ $server->apps };
+    $_->finish for @{ $server->apps };
 
     # update the server config if needed
     my $port = _setting($app, 'server_port');

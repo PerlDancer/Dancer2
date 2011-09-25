@@ -9,6 +9,7 @@ use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Moo::Types;
 use Dancer::Core::MIME;
 use Dancer::Core::Route;
+use File::Spec;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
@@ -17,6 +18,7 @@ with 'Dancer::Core::Role::Config';
 has location => (
     is => 'ro',
     isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
+    default => sub { File::Spec->rel2abs('.') },
 );
 
 has mime => (
@@ -43,7 +45,12 @@ sub supported_hooks {
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);
+}
+
+sub finish {
+    my ($self) = @_;
     $self->add_default_routes;
+    $self->compile_hooks;
 }
 
 sub add_default_routes {
@@ -57,7 +64,7 @@ sub add_default_routes {
           || path($self->location, 'public');
         my $public = $self->config->{public} || $default_public;
         my @tokens = split '/', $path;
-        my $file_path = File::Spec->catfile($public, @tokens);
+        my $file_path = path($public, @tokens);
 
         if (! -r $file_path || ! -f $file_path) {
             $ctx->response->has_passed(1);
