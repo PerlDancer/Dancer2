@@ -428,6 +428,7 @@ sub import {
     # the app object
     my $app = Dancer::Core::App->new( 
         name => $caller, 
+        location => runner->location,
         default_config => runner->config,
     );
 
