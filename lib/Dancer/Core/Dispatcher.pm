@@ -76,6 +76,12 @@ sub dispatch {
                 }
             }
 
+            # serialize if needed
+            if (defined $app->config->{serializer}) {
+                $content = $app->config->{serializer}->serialize($content) 
+                    if ref($content); 
+            }
+
             $response->content(defined $content ? $content : '');
             return $response->to_psgi if $context->response->is_halted;
 

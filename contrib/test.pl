@@ -1,6 +1,24 @@
 use Dancer;
 use Data::Dumper;
 
+set serializer => 'JSON';
+
+get '/' => sub {
+    { foo => 42, bar => [ 1 .. 5]};
+};
+
+get '/s' => sub { 
+    to_json({x => 42});
+};
+
+get '/d' => sub {
+    my $text = '{"bar":[1,2,3,4,5],"foo":42}';
+    my $obj = from_json($text);
+    Dumper($obj);
+};
+
+dance;
+__END__
 use lib 'contrib::lib';
 
 use contrib::lib::Foo;
