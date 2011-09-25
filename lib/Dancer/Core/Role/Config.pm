@@ -179,15 +179,20 @@ my $_setters = {
 #        require Dancer::Route::Cache;
 #        Dancer::Route::Cache->reset();
 #    },
-#    serializer => sub {
-#        my ($setting, $value) = @_;
-#        require Dancer::Serializer;
-#        Dancer::Serializer->init($value);
-#    },
-#    import_warnings => sub {
-#        my ($setting, $value) = @_;
-#        $^W = $value ? 1 : 0;
-#    },
+    serializer => sub {
+        my ($self, $value, $config) = @_;
+        
+        my $engine_options = $self->_get_config_for_engine(
+            serializer => $value, $config);
+
+        return Dancer::Factory::Engine->build(
+            serializer => $value, 
+            config => $engine_options);
+    },
+    import_warnings => sub {
+        my ($self, $value) = @_;
+        $^W = $value ? 1 : 0;
+    },
     traces => sub {
         my ($self, $traces) = @_;
         require Carp;

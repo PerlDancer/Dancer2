@@ -1,7 +1,6 @@
 package Dancer::Serializer::JSON;
-
 use Moo;
-
+use Carp 'croak';
 with 'Dancer::Core::Role::Serializer';
 
 
@@ -19,7 +18,8 @@ sub to_json {
 
 # class definition
 
-sub loaded { Dancer::ModuleLoader->Load('JSON') }
+sub BUILD { eval "use JSON ()"; croak "Fail to load JSON: $@" if $@ }
+sub loaded { 1 }
 
 sub serialize {
     my ($self, $entity, $options) = @_;
@@ -32,10 +32,6 @@ sub serialize {
     }
     if ( $config->{convert_blessed} ) {
         $options->{convert_blessed} = $config->{convert_blessed};
-    }
-
-    if (setting('environment') eq 'development' and not defined $options->{pretty}) {
-        $options->{pretty} = 1;
     }
 
     JSON::to_json( $entity, $options );
