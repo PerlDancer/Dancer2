@@ -4,12 +4,13 @@ use strict;
 use warnings;
 
 use Moo;
+use File::Spec;
 use Carp 'croak';
+
 use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Moo::Types;
-use Dancer::Core::MIME;
 use Dancer::Core::Route;
-use File::Spec;
+use Dancer::Handler::File;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
@@ -19,12 +20,6 @@ has location => (
     is => 'ro',
     isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
     default => sub { File::Spec->rel2abs('.') },
-);
-
-has mime => (
-    is => 'ro',
-    isa => sub { ObjectOf('Dancer::Core::MIME', @_) },
-    default => sub { Dancer::Core::MIME->new },
 );
 
 has default_config => (
@@ -56,34 +51,21 @@ sub finish {
 sub add_default_routes {
     my ($self) = @_;
 
-    my $static_file_route = sub {
-        my $ctx  = shift;
-        my $path = $ctx->request->path_info;
+    # static file serving in public dir
+    my $default_public = $ENV{DANCER_PUBLIC} || path($self->location, 'public');
+    my $public = $self->config->{public} || $default_public;
+    my $file_serving = Dancer::Handler::File->new(public_dir => $public);
 
-        my $default_public = $ENV{DANCER_PUBLIC}
-          || path($self->location, 'public');
-        my $public = $self->config->{public} || $default_public;
-        my @tokens = split '/', $path;
-        my $file_path = path($public, @tokens);
+    #my $auto_page    = Dancer::Handler::AutoPage->new;
 
-        if (! -r $file_path || ! -f $file_path) {
-            $ctx->response->has_passed(1);
-            return;
-        }
-
-        my $content = read_file_content($file_path);
-        $ctx->response->push_header('Content-Type', $self->mime->for_file($file_path));
-        $ctx->response->push_header('Content-Length', length($content));
-
-        return ($ctx->request->method eq 'GET') ? $content : '';
-    };
-
-    # static file serving route
-    $self->add_route(
-        method => $_,
-        regexp => qr{.*},
-        code => $static_file_route,
-    ) for qw(head get);
+    #foreach my $handler ($file_serving, $auto_page) {
+    foreach my $handler ($file_serving) {
+        $self->add_route(
+            method => $_,
+            regexp => $handler->regexp,
+            code => $handler->code,
+        ) for $handler->methods;
+    }
 }
 
 sub compile_hooks {

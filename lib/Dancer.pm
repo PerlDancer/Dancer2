@@ -50,6 +50,7 @@ our @EXPORT = qw(
     put
     set
     setting
+    splat
     start
     app
     false
