@@ -39,7 +39,7 @@ sub set_file_mode {
     my $fh = shift;
 
     require Dancer::Config;
-    my $charset = Dancer::Config::setting('charset') || 'utf-8';
+    my $charset = 'utf-8';
     binmode $fh, ":encoding($charset)";
 
     return $fh;
@@ -65,9 +65,7 @@ sub read_file_content {
 
 sub read_glob_content {
     my $fh = shift;
-
-    # we don't want to do that as we'll encode the stuff later
-    # binmode $fh;
+    binmode $fh;
 
     my @content = <$fh>;
     close $fh;
