@@ -37,6 +37,7 @@ our @EXPORT = qw(
     del
     dirname
     engine
+    from_json
     get
     header
     headers
@@ -63,6 +64,7 @@ our @EXPORT = qw(
     status
     template
     true
+    to_json
     var
     vars
     warning
@@ -369,6 +371,22 @@ sub cookie {
     my ($name, $value, %options) = @_;
     my $c = Dancer::Core::Cookie->new(name => $name, value => $value, %options);
     $app->context->response->push_header('Set-Cookie' => $c->to_header);
+}
+
+#
+# engines
+#
+
+sub from_json {
+    my $app = shift;
+    my $json = _engine($app, 'serializer');
+    $json->deserialize(@_);
+}
+
+sub to_json {
+    my $app = shift;
+    my $json = _engine($app, 'serializer');
+    $json->serialize(@_);
 }
 
 #
