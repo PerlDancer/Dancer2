@@ -11,6 +11,7 @@ use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Moo::Types;
 use Dancer::Core::Route;
 use Dancer::Handler::File;
+use Dancer::Handler::AutoPage;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
@@ -50,22 +51,34 @@ sub finish {
 
 sub add_default_routes {
     my ($self) = @_;
+    $self->add_handler_file;
+    $self->add_handler_autopage if $self->config->{auto_page};
+}
 
-    # static file serving in public dir
-    my $default_public = $ENV{DANCER_PUBLIC} || path($self->location, 'public');
+sub add_handler_file {
+    my ($self) = @_;
+
+    my $default_public = $ENV{DANCER_PUBLIC}
+      || path($self->location, 'public');
     my $public = $self->config->{public} || $default_public;
-    my $file_serving = Dancer::Handler::File->new(public_dir => $public);
+    my $handler = Dancer::Handler::File->new(public_dir => $public);
 
-    #my $auto_page    = Dancer::Handler::AutoPage->new;
+    $self->add_route(
+        method => $_,
+        regexp => $handler->regexp,
+        code   => $handler->code,
+    ) for $handler->methods;
+}
 
-    #foreach my $handler ($file_serving, $auto_page) {
-    foreach my $handler ($file_serving) {
-        $self->add_route(
-            method => $_,
-            regexp => $handler->regexp,
-            code => $handler->code,
-        ) for $handler->methods;
-    }
+sub add_handler_autopage {
+    my ($self) = @_;
+    my $handler = Dancer::Handler::AutoPage->new;
+
+    $self->add_route(
+        method => $_,
+        regexp => $handler->regexp,
+        code   => $handler->code,
+    ) for $handler->methods;
 }
 
 sub compile_hooks {
