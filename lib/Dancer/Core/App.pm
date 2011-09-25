@@ -4,15 +4,28 @@ use strict;
 use warnings;
 
 use Moo;
-use Carp;
-use Dancer::FileUtils 'path';
+use Carp 'croak';
+use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Moo::Types;
-
+use Dancer::Core::MIME;
 use Dancer::Core::Route;
+use File::Spec;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
 with 'Dancer::Core::Role::Config';
+
+has location => (
+    is => 'ro',
+    isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
+    default => sub { File::Spec->rel2abs('.') },
+);
+
+has mime => (
+    is => 'ro',
+    isa => sub { ObjectOf('Dancer::Core::MIME', @_) },
+    default => sub { Dancer::Core::MIME->new },
+);
 
 has default_config => (
     is => 'ro',
@@ -32,6 +45,45 @@ sub supported_hooks {
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);
+}
+
+sub finish {
+    my ($self) = @_;
+    $self->add_default_routes;
+    $self->compile_hooks;
+}
+
+sub add_default_routes {
+    my ($self) = @_;
+
+    my $static_file_route = sub {
+        my $ctx  = shift;
+        my $path = $ctx->request->path_info;
+
+        my $default_public = $ENV{DANCER_PUBLIC}
+          || path($self->location, 'public');
+        my $public = $self->config->{public} || $default_public;
+        my @tokens = split '/', $path;
+        my $file_path = path($public, @tokens);
+
+        if (! -r $file_path || ! -f $file_path) {
+            $ctx->response->has_passed(1);
+            return;
+        }
+
+        my $content = read_file_content($file_path);
+        $ctx->response->push_header('Content-Type', $self->mime->for_file($file_path));
+        $ctx->response->push_header('Content-Length', length($content));
+
+        return ($ctx->request->method eq 'GET') ? $content : '';
+    };
+
+    # static file serving route
+    $self->add_route(
+        method => $_,
+        regexp => qr{.*},
+        code => $static_file_route,
+    ) for qw(head get);
 }
 
 sub compile_hooks {

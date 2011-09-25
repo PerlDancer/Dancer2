@@ -235,7 +235,7 @@ sub start {
     my $dancer = Dancer->runner;
     my $server = $dancer->server;
 
-    $_->compile_hooks for @{ $server->apps };
+    $_->finish for @{ $server->apps };
 
     # update the server config if needed
     my $port = _setting($app, 'server_port');
@@ -428,6 +428,7 @@ sub import {
     # the app object
     my $app = Dancer::Core::App->new( 
         name => $caller, 
+        location => runner->location,
         default_config => runner->config,
     );
 
