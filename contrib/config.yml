@@ -4,3 +4,8 @@ charset: 'UTF8'
 content_type: "text/plain"
 logger: "console"
 template: toolkit
+
+engines:
+  serializer:
+    json:
+      pretty: 1
