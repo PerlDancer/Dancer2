@@ -1,8 +1,5 @@
 This is the prototype for Dancer2
 
-Please keep it secret for now, we don't want to advertise it before it's more
-mature.
-
 You can test it with:
 
   $ perl -Ilib ./contrib/test.pl
@@ -10,4 +7,28 @@ You can test it with:
 Also the progress of the DSL migration can be checked with ./progress.sh
 
 And the test coverage ./cover.sh
+
+*************** FEEDBACK WANTED ******************
+
+The best way to help us with Dancer2 is to test it on existing real-life
+applications.
+
+You will certainly find something that doesnot work out-of-the box with this
+prototype, then send me a report via GitHub's private message service.
+
+Thanks.
+
+
+*************** Progress *************************
+
+Dancer 2.0 is at 79.66% (47 symbols supported on 59)
+Dancer 2.0 code-lines ratio: 39.09% (4691/11999)
+
+Missing keywords: error, forward, from_dumper, from_xml, load, load_app,
+send_error, send_file, session, to_dumper, to_xml, upload, uri_for
+
+Most ot the plugins on CPAN might not be working as well, feedback welcome
+again.
+
+
 
