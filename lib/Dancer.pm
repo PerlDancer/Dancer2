@@ -42,6 +42,7 @@ our @EXPORT = qw(
     false
     from_json
     from_yaml
+    from_dumper
     get
     halt
     header
@@ -67,6 +68,7 @@ our @EXPORT = qw(
     template
     to_json
     to_yaml
+    to_dumper
     true
     upload
     var
