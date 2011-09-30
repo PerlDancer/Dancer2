@@ -3,7 +3,18 @@ use Moo;
 use Carp 'croak';
 use Dancer::Moo::Types;
 
-with 'Dancer::Handler::Role::StandardResponses';
+with 'Dancer::Core::Role::Handler';
+with 'Dancer::Core::Role::StandardResponses';
+
+sub register {
+    my ($self, $app) = @_;
+
+    $app->add_route(
+        method => $_,
+        regexp => $self->regexp,
+        code   => $self->code,
+    ) for $self->methods;
+}
 
 sub code { 
     sub {
@@ -33,4 +44,3 @@ sub regexp { '/:page' }
 sub methods { qw(head get) }
 
 1;
-

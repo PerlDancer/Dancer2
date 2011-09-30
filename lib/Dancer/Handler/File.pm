@@ -6,7 +6,8 @@ use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Core::MIME;
 use Dancer::Moo::Types;
 
-with 'Dancer::Handler::Role::StandardResponses';
+with 'Dancer::Core::Role::Handler';
+with 'Dancer::Core::Role::StandardResponses';
 
 has mime => (
     is => 'ro',
@@ -21,14 +22,38 @@ has encoding => (
 
 has public_dir => (
     is => 'ro',
-    isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
-    default => sub { File::Spec->rel2abs('.') },
 );
 
 has regexp => (
     is => 'ro',
     default => sub { qr{.*} },
 );
+
+sub BUILD {
+    my ($self) = @_;
+
+    if (! defined $self->public_dir) {
+        my $public =
+             $self->app->config->{public}
+          || $ENV{DANCER_PUBLIC}
+          || path($self->app->location, 'public');
+
+        $self->public_dir($public);
+    }
+}
+
+sub register {
+    my ($self, $app) = @_;
+
+    # don't register the handler if no valid public dir
+    return if ! -d $self->public_dir;
+
+    $app->add_route(
+        method => $_,
+        regexp => $self->regexp,
+        code   => $self->code,
+    ) for $self->methods;
+}
 
 sub methods { ('head', 'get') } 
 

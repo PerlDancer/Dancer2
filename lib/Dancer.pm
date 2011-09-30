@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 
+use Data::Dumper;
 use Dancer::Core::Runner;
 use Dancer::Core::App;
 use Dancer::Core::Hook;
