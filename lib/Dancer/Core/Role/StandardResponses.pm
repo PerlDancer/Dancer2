@@ -1,4 +1,4 @@
-package Dancer::Handler::Role::StandardResponses;
+package Dancer::Core::Role::StandardResponses;
 use Moo::Role;
 
 sub response {
@@ -22,4 +22,5 @@ sub response_403 {
     my ($self, $ctx) = @_;
     $self->response($ctx, 403, 'Unauthorized');
 }
+
 1;
