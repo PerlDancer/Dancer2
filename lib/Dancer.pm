@@ -387,14 +387,14 @@ sub cookie {
 
 sub from_json {
     my $app = shift;
-    my $json = _engine($app, 'serializer');
-    $json->deserialize(@_);
+    require 'Dancer/Serializer/JSON.pm';
+    Dancer::Serializer::JSON::from_json(@_);
 }
 
 sub to_json {
     my $app = shift;
-    my $json = _engine($app, 'serializer');
-    $json->serialize(@_);
+    require 'Dancer/Serializer/JSON.pm';
+    Dancer::Serializer::JSON::to_json(@_);
 }
 
 #
@@ -482,6 +482,13 @@ sub import {
         debug
         del
         error
+        false
+        from_json
+        to_json
+        from_yaml
+        to_yaml
+        from_dumper
+        to_dumper
         header
         headers
         hook
@@ -496,6 +503,7 @@ sub import {
         set
         setting
         start
+        true
         warning
     );
 
