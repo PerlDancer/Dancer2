@@ -468,6 +468,9 @@ sub import {
         }
     }
 
+    my $local_libdir = Dancer::FileUtils::path($runner->location, 'lib');
+    _use_lib($local_libdir) if -d $local_libdir;
+
     # the app object
     my $app = Dancer::Core::App->new(
         name          => $caller,
@@ -594,6 +597,17 @@ sub _log {
     croak "No logger defined" if ! defined $logger;
 
     $logger->$level(@_);
+}
+
+sub _use_lib {
+    my (@args) = @_;
+
+    use lib;
+    local $@;
+    lib->import(@args);
+    my $error = $@;
+    $error and return wantarray ? (0, $error) : 0;
+    return 1;
 }
 
 1;
