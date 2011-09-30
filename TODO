@@ -13,7 +13,7 @@
 
 [X] Dancer::Core::Role::Template
 [ ] Dancer::Template::Simple
-[ ] Dancer::Template::Toolkit
+[X] Dancer::Template::Toolkit
 
 [X] Dancer::Core::Role::Logger
 [ ] Dancer::Logger::File
@@ -24,9 +24,9 @@
 [ ] Dancer::Session::Simple
 
 [X] Dancer::Core::Role::Serializer
-[ ] Dancer::Serializer::JSON
-[ ] Dancer::Serializer::YAML
-[ ] Dancer::Serializer::Dumper
+[X] Dancer::Serializer::JSON
+[X] Dancer::Serializer::YAML
+[X] Dancer::Serializer::Dumper
 
 [ ] Dancer::Core::Role::Plugin (??)
 
