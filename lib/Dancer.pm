@@ -155,7 +155,15 @@ sub before_template {
 
 sub hook {
     my $app = shift;
-    $app->add_hook(Dancer::Core::Hook->new(name => $_[0], code => $_[1]));
+    my ($name, $code) = @_;
+    
+    my $hookable = $app;
+    # TODO: better hook dispatching to come
+    if ($name =~ /template/) {
+        $hookable = _engine($app, 'template');
+    }
+
+    $hookable->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
 
 sub before {
@@ -445,10 +453,10 @@ sub import {
     }
 
     # the app object
-    my $app = Dancer::Core::App->new( 
-        name => $caller, 
-        location => runner->location,
-        default_config => runner->config,
+    my $app = Dancer::Core::App->new(
+        name          => $caller,
+        location      => runner->location,
+        runner_config => runner->config,
     );
 
     core_debug "binding app to $caller";
