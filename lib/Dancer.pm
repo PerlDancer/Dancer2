@@ -39,6 +39,7 @@ our @EXPORT = qw(
     dirname
     engine
     from_json
+    from_yaml
     get
     header
     headers
@@ -66,6 +67,7 @@ our @EXPORT = qw(
     template
     true
     to_json
+    to_yaml
     var
     vars
     warning
@@ -397,6 +399,19 @@ sub to_json {
     require 'Dancer/Serializer/JSON.pm';
     Dancer::Serializer::JSON::to_json(@_);
 }
+
+sub from_yaml {
+    my $app = shift;
+    require 'Dancer/Serializer/YAML.pm';
+    Dancer::Serializer::YAML::from_yaml(@_);
+}
+
+sub to_yaml {
+    my $app = shift;
+    require 'Dancer/Serializer/YAML.pm';
+    Dancer::Serializer::YAML::to_yaml(@_);
+}
+
 
 #
 # private
