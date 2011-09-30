@@ -10,8 +10,6 @@ use Carp 'croak';
 use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Moo::Types;
 use Dancer::Core::Route;
-use Dancer::Handler::File;
-use Dancer::Handler::AutoPage;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
@@ -23,11 +21,33 @@ has location => (
     default => sub { File::Spec->rel2abs('.') },
 );
 
-has default_config => (
+has runner_config => (
     is => 'ro',
     isa => sub { HashRef(@_) },
     default => sub { {} },
 );
+
+has default_config => (
+    is => 'ro',
+    isa => sub { HashRef(@_) },
+    lazy => 1,
+    builder => '_build_default_config',
+);
+
+sub _build_default_config {
+    my ($self) = @_;
+
+    return {   
+        %{ $self->runner_config },
+        route_handlers => {
+            File => {
+                public_dir => $ENV{DANCER_PUBLIC}
+                  || path($self->location, 'public')
+            },
+            AutoPage => 1,
+        },
+    };
+}
 
 # we dont support per-app config files yet
 # (but that could be easy to do in the future)
@@ -45,40 +65,20 @@ sub BUILD {
 
 sub finish {
     my ($self) = @_;
-    $self->add_default_routes;
+    $self->register_route_handlers;
     $self->compile_hooks;
 }
 
-sub add_default_routes {
+sub register_route_handlers {
     my ($self) = @_;
-    $self->add_handler_file;
-    $self->add_handler_autopage if $self->config->{auto_page};
-}
-
-sub add_handler_file {
-    my ($self) = @_;
-
-    my $default_public = $ENV{DANCER_PUBLIC}
-      || path($self->location, 'public');
-    my $public = $self->config->{public} || $default_public;
-    my $handler = Dancer::Handler::File->new(public_dir => $public);
-
-    $self->add_route(
-        method => $_,
-        regexp => $handler->regexp,
-        code   => $handler->code,
-    ) for $handler->methods;
-}
-
-sub add_handler_autopage {
-    my ($self) = @_;
-    my $handler = Dancer::Handler::AutoPage->new;
-
-    $self->add_route(
-        method => $_,
-        regexp => $handler->regexp,
-        code   => $handler->code,
-    ) for $handler->methods;
+    for my $handler_name (keys %{ $self->config->{route_handlers} }) {
+        my $config = $self->config->{route_handlers}{$handler_name};
+        $config = {} if !ref($config);
+        $config->{app} = $self;
+        my $handler =
+          Dancer::Factory::Engine->build(Handler => $handler_name, %$config);
+        $handler->register($self);
+    }
 }
 
 sub compile_hooks {

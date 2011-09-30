@@ -66,6 +66,7 @@ has environment => (
 # our Config role needs a get_environment mehtod and a default_config hash
 sub get_environment { $_[0]->environment }
 sub default_config {
+    my ($self) = @_;
     {   apphandler   => ($ENV{DANCER_APPHANDLER}   || 'Standalone'),
         content_type => ($ENV{DANCER_CONTENT_TYPE} || 'text/html'),
         charset      => ($ENV{DANCER_CHARSET}      || ''),
@@ -75,6 +76,7 @@ sub default_config {
         host         => ($ENV{DANCER_SERVER}       || '0.0.0.0'),
         port         => ($ENV{DANCER_PORT}         || '3000'),
         is_daemon    => ($ENV{DANCER_DAEMON}       || 0),
+        appdir       => $self->location,
         import_warnings => 1,
     };
 }

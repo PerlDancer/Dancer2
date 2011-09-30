@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 
+use Data::Dumper;
 use Dancer::Core::Runner;
 use Dancer::Core::App;
 use Dancer::Core::Hook;
@@ -155,7 +156,15 @@ sub before_template {
 
 sub hook {
     my $app = shift;
-    $app->add_hook(Dancer::Core::Hook->new(name => $_[0], code => $_[1]));
+    my ($name, $code) = @_;
+    
+    my $hookable = $app;
+    # TODO: better hook dispatching to come
+    if ($name =~ /template/) {
+        $hookable = _engine($app, 'template');
+    }
+
+    $hookable->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
 
 sub before {
@@ -379,14 +388,14 @@ sub cookie {
 
 sub from_json {
     my $app = shift;
-    my $json = _engine($app, 'serializer');
-    $json->deserialize(@_);
+    require 'Dancer/Serializer/JSON.pm';
+    Dancer::Serializer::JSON::from_json(@_);
 }
 
 sub to_json {
     my $app = shift;
-    my $json = _engine($app, 'serializer');
-    $json->serialize(@_);
+    require 'Dancer/Serializer/JSON.pm';
+    Dancer::Serializer::JSON::to_json(@_);
 }
 
 #
@@ -445,10 +454,10 @@ sub import {
     }
 
     # the app object
-    my $app = Dancer::Core::App->new( 
-        name => $caller, 
-        location => runner->location,
-        default_config => runner->config,
+    my $app = Dancer::Core::App->new(
+        name          => $caller,
+        location      => runner->location,
+        runner_config => runner->config,
     );
 
     core_debug "binding app to $caller";
@@ -474,6 +483,13 @@ sub import {
         debug
         del
         error
+        false
+        from_json
+        to_json
+        from_yaml
+        to_yaml
+        from_dumper
+        to_dumper
         header
         headers
         hook
@@ -488,6 +504,7 @@ sub import {
         set
         setting
         start
+        true
         warning
     );
 
