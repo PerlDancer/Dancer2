@@ -30,5 +30,4 @@ send_error, send_file, session, to_dumper, to_xml, upload, uri_for
 Most ot the plugins on CPAN might not be working as well, feedback welcome
 again.
 
-
-
+See http://www.sukria.net/fr/archives/2011/09/30/dancer2-prototype/
