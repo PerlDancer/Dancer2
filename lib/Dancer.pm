@@ -26,6 +26,7 @@ use base 'Exporter';
 our @EXPORT = qw(
     after
     any
+    app
     before
     before_template
     captures
@@ -38,36 +39,36 @@ our @EXPORT = qw(
     del
     dirname
     engine
+    false
     from_json
     from_yaml
     get
+    halt
     header
     headers
     hook
     mime
     options
+    param
+    params
+    pass
     path
     post
     prefix
     push_header
     put
+    redirect
+    request
     set
     setting
     splat
     start
-    app
-    false
-    halt
-    param
-    params
-    pass
-    redirect
-    request
     status
     template
-    true
     to_json
     to_yaml
+    true
+    upload
     var
     vars
     warning
@@ -301,6 +302,11 @@ sub pass {
 sub request {
     my $app = shift;
     $app->context->request;
+}
+
+sub upload { 
+    my $app = shift;
+    $app->context->request->upload(@_);
 }
 
 sub captures {
