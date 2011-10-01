@@ -8,6 +8,7 @@ use Dancer::Core::Role::Config;
 use Dancer::FileUtils qw/dirname path/;
 use File::Spec;
 
+my $runner = Dancer::Core::Runner->new(caller => 'main');
 my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 
 {
@@ -17,7 +18,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 
     sub get_environment { "production" }
     sub config_location { $location }
-    sub default_config { Dancer::Core::Runner->default_config }
+    sub default_config { $runner->default_config }
 
     package Dev;
     use Moo;
@@ -25,7 +26,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 
     sub get_environment { "development" }
     sub config_location { $location }
-    sub default_config { Dancer::Core::Runner->default_config }
+    sub default_config { $runner->default_config }
 
     package Failure;
     use Moo;
@@ -33,7 +34,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 
     sub get_environment { "failure" }
     sub config_location { $location }
-    sub default_config { Dancer::Core::Runner->default_config }
+    sub default_config { $runner->default_config }
 
 }
 

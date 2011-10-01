@@ -42,6 +42,7 @@ our @EXPORT = qw(
     false
     from_json
     from_yaml
+    from_dumper
     get
     halt
     header
@@ -67,6 +68,7 @@ our @EXPORT = qw(
     template
     to_json
     to_yaml
+    to_dumper
     true
     upload
     var
@@ -418,6 +420,17 @@ sub to_yaml {
     Dancer::Serializer::YAML::to_yaml(@_);
 }
 
+sub from_dumper {
+    my $app = shift;
+    require 'Dancer/Serializer/Dumper.pm';
+    Dancer::Serializer::Dumper::from_dumper(@_);
+}
+
+sub to_dumper {
+    my $app = shift;
+    require 'Dancer/Serializer/Dumper.pm';
+    Dancer::Serializer::Dumper::to_dumper(@_);
+}
 
 #
 # private

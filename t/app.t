@@ -4,6 +4,9 @@ use Test::More;
 use Dancer::Core::App;
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Hook;
+use Dancer::FileUtils;
+use File::Spec;
+use File::Basename 'dirname';
 
 # our app/dispatcher object
 my $app = Dancer::Core::App->new(
@@ -34,8 +37,6 @@ for my $p ('/', '/mywebsite') {
     }
 }
 
-# an app has an empty config registry by default
-is_deeply $app->config, {};
 is $app->get_environment, undef;
 
 my $routes_regexps = $app->routes_regexps_for('get');
