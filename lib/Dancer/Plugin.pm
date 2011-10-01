@@ -7,18 +7,17 @@ use base 'Exporter';
 use vars qw(@EXPORT);
 
 @EXPORT = qw(
-  add_hook
   register
   register_plugin
   plugin_settings
   plugin_setting
 );
 
+# TODO : add_hook (what is it supposed to do?)
+
 sub register($&);
 
 my $_keywords = {};
-
-sub add_hook { Dancer::Hook->new(@_) }
 
 sub plugin_settings {
     my $plugin_orig_name = caller();
