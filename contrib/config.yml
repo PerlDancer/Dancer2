@@ -9,3 +9,7 @@ engines:
   serializer:
     json:
       pretty: 1
+
+plugins:
+  Foo:
+    stuff: 42
