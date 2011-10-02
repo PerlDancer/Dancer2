@@ -442,8 +442,7 @@ sub _build_path_info {
 
 sub _build_method {
     my ($self) = @_;
-    $self->{method} = $self->env->{REQUEST_METHOD}
-      || $self->{request}->request_method();
+    $self->{method} = $self->env->{REQUEST_METHOD};
 }
 
 sub _url_decode {

@@ -318,7 +318,7 @@ sub captures {
 
 sub splat {
      my $app = shift;
-     $app->context->request->params->{splat};
+     @{ $app->context->request->params->{splat} || [] };
 }
 
 sub params {
