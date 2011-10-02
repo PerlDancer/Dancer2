@@ -4,8 +4,6 @@ use Dancer::Moo::Types;
 
 use Carp;
 
-use Dancer::Factory::Hook;
-use Dancer::Hook::Properties;
 use Dancer::Exception qw(:all);
 
 has name => (
@@ -36,11 +34,6 @@ has code => (
             return $res;
         };
     },
-);
-
-has properties => (
-    is => 'ro',
-    isa => sub { ObjectOf('Dancer::Core::Hook::Properties', @_) },
 );
 
 1;
