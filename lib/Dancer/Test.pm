@@ -39,8 +39,8 @@ sub dancer_response {
     # TODO headers
     # TODO files
 
-    use Data::Dumper;
-    warn "Env created : ".Dumper($env);
+    #use Data::Dumper;
+    #warn "Env created : ".Dumper($env);
     $_dispatcher->dispatch($env);
 }
 
