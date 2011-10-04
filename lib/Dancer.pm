@@ -71,6 +71,7 @@ our @EXPORT = qw(
     to_dumper
     true
     upload
+    uri_for
     var
     vars
     warning
@@ -316,6 +317,11 @@ sub captures {
      $app->context->request->params->{captures};
 }
 
+sub uri_for {
+    my $app = shift;
+    $app->context->request->uri_for(@_);
+}
+
 sub splat {
      my $app = shift;
      @{ $app->context->request->params->{splat} || [] };
@@ -541,6 +547,7 @@ sub import {
         set
         setting
         start
+        uri_for
         true
         warning
     );
