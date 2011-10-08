@@ -14,6 +14,11 @@ use Dancer::Exception qw(:all);
 
 with 'Dancer::Core::Role::Headers';
 
+sub BUILD {
+    my ($self) = @_;
+    $self->header('Server' => "Perl Dancer");
+}
+
 # boolean to tell if the route passes or not
 has has_passed => (
     is => 'rw',

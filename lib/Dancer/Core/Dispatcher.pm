@@ -20,7 +20,7 @@ has default_content_type => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ($self, $env) = @_;
+    my ($self, $env, $request) = @_;
     # warn "dispatching ".$env->{PATH_INFO}
     #   . " with ".join(", ", map { $_->name } @{$self->apps });
 
@@ -29,6 +29,7 @@ sub dispatch {
 
         # initialize a context for the current request
         my $context = Dancer::Core::Context->new(app => $app, env => $env);
+        $context->request($request) if defined $request;
         $app->context($context);
 
         my $http_method = lc $context->request->method;
@@ -58,7 +59,6 @@ sub dispatch {
 
             # go to the next route if no match
             next if !$match;
-
             my $content;
 
             if (! $context->response->is_halted) {
@@ -86,7 +86,7 @@ sub dispatch {
             $response->content(defined $content ? $content : '');
             $response->encode_content;
 
-            return $response->to_psgi if $context->response->is_halted;
+            return $response if $context->response->is_halted;
 
             # pass the baton if the response says so...
             if ($response->has_passed) {
@@ -96,7 +96,7 @@ sub dispatch {
 
             $app->execute_hooks('after', $response);
             $app->context(undef);
-            return $response->to_psgi;
+            return $response;
         }
     }
     return $self->response_not_found($env->{PATH_INFO});
@@ -111,7 +111,7 @@ sub response_internal_error {
     $r->content( "Internal Server Error\n\n$error\n" );
     $r->content_type ('text/plain');
 
-    return $r->to_psgi;
+    return $r;
 }
 
 sub response_not_found {
@@ -121,7 +121,7 @@ sub response_not_found {
     $r->content( "404 Not Found\n\n$request\n" );
     $r->content_type( 'text/plain' );
 
-    return $r->to_psgi;
+    return $r;
 }
 
 1;

@@ -63,7 +63,7 @@ sub psgi_app {
     my ($self) = @_;
     sub {
         my ($env) = @_;
-        $self->dispatcher->dispatch($env);
+        $self->dispatcher->dispatch($env)->to_psgi;
     };
 }
 
