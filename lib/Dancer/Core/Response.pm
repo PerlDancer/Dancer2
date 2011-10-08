@@ -55,8 +55,7 @@ has content => (
     },
     trigger => sub { 
         my ($self, $value) = @_;
-        $self->status == 200 and
-          $self->header('Content-Length' => length($value));
+        $self->header('Content-Length' => length($value));
     },
 );
 

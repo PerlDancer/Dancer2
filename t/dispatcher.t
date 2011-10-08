@@ -74,20 +74,29 @@ my @tests = (
             PATH_INFO      => '/user/Johnny',
         },
         expected =>
-          [404, ['Content-Type' => 'text/plain'], ["404 Not Found\n\n/user/Johnny\n"]]
+          [404, ['Content-Length' => 28, 'Content-Type' => 'text/plain'], ["404 Not Found\n\n/user/Johnny\n"]]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/error',
         },
-        expected => [500, ["Content-Type", 'text/plain'], qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
+        expected => [500, 
+            ['Content-Length' => 141, "Content-Type", 'text/plain'], 
+            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/haltme',
         },
-        expected => [302, [ 'Location'     => 'http://perldancer.org',
-                            'Content-Type' => 'text/html',], ['']]
+        expected => [
+            302,
+            [   
+                'Location'       => 'http://perldancer.org',
+                'Content-Length' => '0',
+                'Content-Type'   => 'text/html',
+            ],
+            ['']
+        ]
     },
 
 # NOT SUPPORTED YET
