@@ -46,6 +46,8 @@ $app->add_route(
     },
 );
 
+my @default_headers = (Server => 'Perl Dancer' );
+
 # the tests
 my @tests = (
     {   env => {
@@ -54,7 +56,8 @@ my @tests = (
         },
         expected => [
             200,
-            [   'Content-Length' => 4,
+            [   @default_headers,
+                'Content-Length' => 4,
                 'Content-Type'   => 'text/html'
             ],
             ["home"]
@@ -65,7 +68,7 @@ my @tests = (
             PATH_INFO      => '/user/Johnny',
         },
         expected => [
-            200, ['Content-Length' => 12, 'Content-Type' => 'text/html'],
+            200, [@default_headers, 'Content-Length' => 12, 'Content-Type' => 'text/html'],
             ["Hello Johnny"]
           ]
     },
@@ -74,14 +77,14 @@ my @tests = (
             PATH_INFO      => '/user/Johnny',
         },
         expected =>
-          [404, ['Content-Length' => 28, 'Content-Type' => 'text/plain'], ["404 Not Found\n\n/user/Johnny\n"]]
+          [404, [@default_headers, 'Content-Length' => 28, 'Content-Type' => 'text/plain'], ["404 Not Found\n\n/user/Johnny\n"]]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/error',
         },
         expected => [500, 
-            ['Content-Length' => 141, "Content-Type", 'text/plain'], 
+            [@default_headers, 'Content-Length' => 141, "Content-Type", 'text/plain'], 
             qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
     },
     {   env => {
@@ -92,6 +95,7 @@ my @tests = (
             302,
             [   
                 'Location'       => 'http://perldancer.org',
+                @default_headers, 
                 'Content-Length' => '0',
                 'Content-Type'   => 'text/html',
             ],
@@ -116,7 +120,7 @@ $app->add_hook(Dancer::Core::Hook->new(
     code => sub {
         my $ctx = shift;
         if ($ctx->request->path_info eq '/haltme') {
-            $ctx->response->headers([Location => 'http://perldancer.org',]);
+            $ctx->response->header(Location => 'http://perldancer.org');
             $ctx->response->status(302);
             $ctx->response->is_halted(1);
         }
@@ -148,7 +152,7 @@ foreach my $test (@tests) {
     my $env = $test->{env};
     my $expected = $test->{expected};
 
-    my $resp = $dispatcher->dispatch($env);
+    my $resp = $dispatcher->dispatch($env)->to_psgi;
 
     is        $resp->[0] => $expected->[0], "Return code ok.";
     is_deeply $resp->[1] => $expected->[1], "Headers ok.";
