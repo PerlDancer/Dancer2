@@ -33,6 +33,7 @@ our @EXPORT = qw(
     dirname
     engine
     false
+    forward
     from_json
     from_yaml
     from_dumper
@@ -348,6 +349,17 @@ sub redirect {
     # now we just have to wrap status and header:
     _status($app, $status || 302);
     _header($app, 'Location' => $destination);
+}
+
+sub forward {
+    my $app = shift;
+    my ($url, $params, $options) = @_;
+    
+    my $req = Dancer::Core::Request->forward(
+        $app->context->request,
+        { to_url => $url, params => $params, options => $options},
+    );
+    Dancer->runner->server->dispatcher->dispatch($req->env, $req)->content;
 }
 
 sub vars {
