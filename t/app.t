@@ -54,7 +54,7 @@ for my $path ('/', '/blog', '/mywebsite', '/mywebsite/blog',) {
         '/mywebsite/blog' => '/blog',
     };
 
-    my $resp = $dispatcher->dispatch($env);
+    my $resp = $dispatcher->dispatch($env)->to_psgi;
     is $resp->[0], 200, 'got a 200';
     is $resp->[2][0], $expected->{$path}, 'got expected route';
 }
@@ -113,7 +113,7 @@ for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere') {
         PATH_INFO => $path,
     };
 
-    my $resp = $dispatcher->dispatch($env);
+    my $resp = $dispatcher->dispatch($env)->to_psgi;
     is $resp->[0], 200, 'got a 200';
     is $resp->[2][0], $path, 'got expected route';
 }
@@ -141,7 +141,7 @@ my $env = {
     PATH_INFO => '/',
 };
 
-eval { my $resp = $dispatcher->dispatch($env) };
+eval { my $resp = $dispatcher->dispatch($env)->to_psgi };
 like $@, qr{Exception caught in 'before' filter: Hook error: Can't locate object method "failure"};
 
 $app->replace_hooks('before', [ sub { 1 } ]);
@@ -150,7 +150,7 @@ $env = {
     REQUEST_METHOD => 'GET',
     PATH_INFO => '/',
 };
-eval { my $resp = $dispatcher->dispatch($env) };
+eval { my $resp = $dispatcher->dispatch($env)->to_psgi };
 is $@, '';
 
 done_testing;

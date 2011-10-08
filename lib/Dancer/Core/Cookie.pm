@@ -1,9 +1,7 @@
 package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;
-
 use Dancer::Moo::Types;
-use Dancer::Exception qw(:all);
 
 sub to_header {
     my $self   = shift;
@@ -162,11 +160,11 @@ __END__
 
 =head1 NAME
 
-Dancer::Cookie - class representing cookies
+Dancer::Core::Cookie - class representing cookies
 
 =head1 SYNOPSIS
 
-    use Dancer::Cookie;
+    use Dancer::Core::Cookie;
 
     my $cookie = Dancer::Cookie->new(
         name => $cookie_name, value => $cookie_value

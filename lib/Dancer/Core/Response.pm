@@ -10,9 +10,13 @@ use Dancer::Moo::Types;
 use Scalar::Util qw/looks_like_number blessed/;
 use Dancer::HTTP;
 use Dancer::MIME;
-use Dancer::Exception qw(:all);
 
 with 'Dancer::Core::Role::Headers';
+
+sub BUILD {
+    my ($self) = @_;
+    $self->header('Server' => "Perl Dancer");
+}
 
 # boolean to tell if the route passes or not
 has has_passed => (

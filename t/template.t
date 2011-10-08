@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Dancer::Template::Toolkit;
+use Dancer::Template::TemplateToolkit;
 use Dancer::Core::Hook;
 
 use File::Spec;
@@ -10,12 +10,12 @@ use File::Basename 'dirname';
 my $views = File::Spec->rel2abs(
     File::Spec->catfile(dirname(__FILE__), 'views'));
 
-my $tt = Dancer::Template::Toolkit->new(
+my $tt = Dancer::Template::TemplateToolkit->new(
     views => $views,
     layout => 'main.tt',
 );
 
-isa_ok $tt, 'Dancer::Template::Toolkit';
+isa_ok $tt, 'Dancer::Template::TemplateToolkit';
 ok $tt->does('Dancer::Core::Role::Template');
 
 $tt->add_hook(Dancer::Core::Hook->new(

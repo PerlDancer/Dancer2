@@ -13,13 +13,6 @@ use Dancer::FileUtils;
 our $VERSION   = '1.9999_01';
 our $AUTHORITY = 'SUKRIA';
 
-# TEMP REMOVE ME WHEN DANCER 2 IS READY
-sub core_debug {
-    my $msg = shift;
-    chomp $msg;
-    print STDERR "core: $msg\n";
-}
-# TEMP REMOVE ME WHEN DANCER 2 IS READY
 
 use base 'Exporter';
 
@@ -40,6 +33,7 @@ our @EXPORT = qw(
     dirname
     engine
     false
+    forward
     from_json
     from_yaml
     from_dumper
@@ -357,6 +351,17 @@ sub redirect {
     _header($app, 'Location' => $destination);
 }
 
+sub forward {
+    my $app = shift;
+    my ($url, $params, $options) = @_;
+    
+    my $req = Dancer::Core::Request->forward(
+        $app->context->request,
+        { to_url => $url, params => $params, options => $options},
+    );
+    Dancer->runner->server->dispatcher->dispatch($req->env, $req)->content;
+}
+
 sub vars {
     my $app = shift;
     $app->context->buffer;
@@ -503,7 +508,7 @@ sub import {
         runner_config => runner->config,
     );
 
-    core_debug "binding app to $caller";
+    core_debug("binding app to $caller");
     # bind the app to the caller
     {
         no strict 'refs';
@@ -561,8 +566,8 @@ sub import {
             my $caller = caller;
             my $app = $caller->dancer_app;
 
-            core_debug "[$caller] running '$symbol' with ".
-                join(', ', map { defined $_ ? $_ : 'undef' } @_);
+            core_debug( "[$caller] running '$symbol' with ".
+                join(', ', map { defined $_ ? $_ : 'undef' } @_));
 
             _assert_is_context($symbol, $app)
                 unless grep {/^$symbol$/} @global_dsl;
@@ -634,6 +639,14 @@ sub _use_lib {
     my $error = $@;
     $error and return wantarray ? (0, $error) : 0;
     return 1;
+}
+
+sub core_debug {
+    my $msg = shift;
+    return unless $ENV{DANCER_DEBUG_CORE};
+
+    chomp $msg;
+    print STDERR "core: $msg\n";
 }
 
 1;
