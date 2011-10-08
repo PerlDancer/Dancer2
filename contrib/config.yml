@@ -3,7 +3,7 @@ traces: 1
 charset: 'UTF8'
 content_type: "text/plain"
 logger: "console"
-template: toolkit
+template: "template_toolkit"
 
 engines:
   serializer:
