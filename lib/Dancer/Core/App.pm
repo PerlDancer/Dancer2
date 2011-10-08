@@ -77,6 +77,11 @@ sub register_route_handlers {
         $config->{app} = $self;
         my $handler =
           Dancer::Factory::Engine->build(Handler => $handler_name, %$config);
+
+#        warn "[ ".$self->name."] ("
+#           . ($self->prefix ? $self->prefix : '/')
+#           . ") registering $handler_name";
+
         $handler->register($self);
     }
 }
