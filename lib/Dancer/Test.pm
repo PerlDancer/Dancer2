@@ -28,6 +28,12 @@ sub dancer_response {
     my $env = {
         REQUEST_METHOD  => uc($method),
         PATH_INFO       => $path,
+        QUERY_STRING    => '',
+        'psgi.url_scheme' => 'http',
+        SERVER_PROTOCOL => 'HTTP/1.0',
+        SERVER_NAME     => 'localhost',
+        SERVER_PORT     => 3000,
+        HTTP_HOST       => 'localhost',
         HTTP_USER_AGENT => "Dancer::Test simulator v $Dancer::VERSION",
     };
 
