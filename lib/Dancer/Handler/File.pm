@@ -26,7 +26,7 @@ has public_dir => (
 
 has regexp => (
     is => 'ro',
-    default => sub { qr{.*} },
+    default => sub { '/**' },
 );
 
 sub BUILD {
