@@ -36,6 +36,7 @@ has status => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Num(@_) },
     default => sub { 200 },
+    lazy => 1,
     coerce => sub {
         my ($status) = @_;
         return $status if looks_like_number($status);
@@ -54,7 +55,8 @@ has content => (
     },
     trigger => sub { 
         my ($self, $value) = @_;
-        $self->header('Content-Length' => length($value));
+        $self->status == 200 and
+          $self->header('Content-Length' => length($value));
     },
 );
 
