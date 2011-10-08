@@ -2,6 +2,7 @@ package Dancer::Core::Dispatcher;
 use Moo;
 use Dancer::Moo::Types;
 
+use Encode;
 use Dancer::Core::Context;
 use Dancer::Core::Response;
 
@@ -83,6 +84,8 @@ sub dispatch {
             }
 
             $response->content(defined $content ? $content : '');
+            $response->encode_content;
+
             return $response->to_psgi if $context->response->is_halted;
 
             # pass the baton if the response says so...

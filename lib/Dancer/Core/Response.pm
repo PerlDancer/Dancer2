@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use Moo;
+use Encode;
 use Dancer::Moo::Types;
 
 use Scalar::Util qw/looks_like_number blessed/;
@@ -58,6 +59,14 @@ has content => (
         $self->header('Content-Length' => length($value));
     },
 );
+
+sub encode_content {
+    my ($self) = @_;
+    return if $self->is_encoded;
+    return if $self->content_type !~ /^text/;
+    $self->is_encoded(1);
+    $self->content(Encode::encode('UTF-8', $self->content));
+}
 
 sub to_psgi {
     my ($self) = @_;
