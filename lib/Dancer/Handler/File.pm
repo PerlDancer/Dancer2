@@ -26,7 +26,7 @@ has public_dir => (
 
 has regexp => (
     is => 'ro',
-    default => sub { qr{.*} },
+    default => sub { '/**' },
 );
 
 sub BUILD {
@@ -51,14 +51,14 @@ sub register {
     $app->add_route(
         method => $_,
         regexp => $self->regexp,
-        code   => $self->code,
+        code   => $self->code($app->prefix),
     ) for $self->methods;
 }
 
 sub methods { ('head', 'get') } 
 
 sub code {
-    my ($self) = @_;
+    my ($self, $prefix) = @_;
 
     sub {
         my $ctx  = shift;
@@ -66,6 +66,10 @@ sub code {
 
         if ($path =~ /\0/) {
             return $self->response_400($ctx);
+        }
+
+        if ($prefix && $prefix ne '/') {
+            $path =~ s/^\Q$prefix\E//;
         }
 
         my @tokens = split '/', $path;

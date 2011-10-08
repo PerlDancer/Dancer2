@@ -1,4 +1,4 @@
-package Dancer::Template::Toolkit;
+package Dancer::Template::TemplateToolkit;
 
 use strict;
 use warnings;

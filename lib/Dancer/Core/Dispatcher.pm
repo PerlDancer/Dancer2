@@ -104,11 +104,9 @@ sub response_internal_error {
     
     # warn "got error: $error";
 
-    my $r = Dancer::Core::Response->new(
-        status => 500,
-        content => "Internal Server Error\n\n$error\n",
-        content_type => 'text/plain',
-    );
+    my $r = Dancer::Core::Response->new( status => 500 );
+    $r->content( "Internal Server Error\n\n$error\n" );
+    $r->content_type ('text/plain');
 
     return $r->to_psgi;
 }
@@ -116,11 +114,9 @@ sub response_internal_error {
 sub response_not_found {
     my ($self, $request) = @_;
     
-    my $r = Dancer::Core::Response->new(
-        status => 404,
-        content => "404 Not Found\n\n$request\n",
-        content_type => 'text/plain',
-    );
+    my $r = Dancer::Core::Response->new( status => 404 );
+    $r->content( "404 Not Found\n\n$request\n" );
+    $r->content_type( 'text/plain' );
 
     return $r->to_psgi;
 }

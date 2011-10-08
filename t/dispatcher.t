@@ -52,25 +52,35 @@ my @tests = (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/',
         },
-        expected => [200, [ 'Content-Type' => 'text/html' ], ["home"]]
+        expected => [
+            200,
+            [   'Content-Length' => 4,
+                'Content-Type'   => 'text/html'
+            ],
+            ["home"]
+          ]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/user/Johnny',
         },
-        expected => [200, [ 'Content-Type' => 'text/html' ], ["Hello Johnny"]]
+        expected => [
+            200, ['Content-Length' => 12, 'Content-Type' => 'text/html'],
+            ["Hello Johnny"]
+          ]
     },
     {   env => {
             REQUEST_METHOD => 'POST',
             PATH_INFO      => '/user/Johnny',
         },
-        expected => [404, [], ["404 Not Found\n\n/user/Johnny\n"]]
+        expected =>
+          [404, ['Content-Type' => 'text/plain'], ["404 Not Found\n\n/user/Johnny\n"]]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/error',
         },
-        expected => [500, [], qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
+        expected => [500, ["Content-Type", 'text/plain'], qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
     },
     {   env => {
             REQUEST_METHOD => 'GET',

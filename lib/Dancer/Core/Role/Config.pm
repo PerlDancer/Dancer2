@@ -9,7 +9,7 @@ use Moo::Role;
 use Dancer::Factory::Engine;
 use Dancer::Moo::Types;
 use Dancer::FileUtils qw/dirname path/;
-use Carp 'croak';
+use Carp 'croak', 'carp';
 
 requires 'config_location';
 requires 'get_environment';
@@ -214,7 +214,12 @@ sub _get_config_for_engine {
     my ($self, $engine, $name, $config) = @_;
 
     return {} unless defined $config->{engines};
-    return {} unless defined $config->{engines}{$engine};
+    
+    if (! defined $config->{engines}{$engine}) {
+        carp "No config section for engines/$engine "
+           . "(unable to find configuration for $name)";
+        return {};
+    }
 
     return $config->{engines}{$engine}{$name} || {};
 }
