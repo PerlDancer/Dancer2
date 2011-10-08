@@ -6,6 +6,9 @@ logger: "console"
 template: "template_toolkit"
 
 engines:
+  template:
+    template_toolkit:
+      encoding: 'utf-8'
   serializer:
     json:
       pretty: 1

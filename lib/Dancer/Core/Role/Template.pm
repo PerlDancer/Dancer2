@@ -25,7 +25,7 @@ requires 'render';
 has charset => (
     is => 'ro',
     isa => sub { Str(@_) },
-    default => sub { '' },
+    default => sub { 'UTF-8' },
 );
 
 has default_tmpl_ext => (

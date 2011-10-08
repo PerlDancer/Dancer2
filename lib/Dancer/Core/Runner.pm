@@ -66,6 +66,10 @@ has environment => (
 # our Config role needs a get_environment mehtod and a default_config hash
 sub get_environment { $_[0]->environment }
 sub default_config {
+
+    $ENV{PLACK_ENV} and 
+        $ENV{DANCER_APPHANDLER} = 'PSGI';
+
     my ($self) = @_;
     {   apphandler   => ($ENV{DANCER_APPHANDLER}   || 'Standalone'),
         content_type => ($ENV{DANCER_CONTENT_TYPE} || 'text/html'),
