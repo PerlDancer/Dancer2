@@ -7,6 +7,7 @@ use HTTP::Headers;
 has headers => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::ObjectOf('HTTP::Headers' => @_) },
+    lazy => 1,
     coerce => sub { 
         my ($value) = @_;
         return $value if ref($value) eq 'HTTP::Headers';
