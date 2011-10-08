@@ -107,15 +107,19 @@ sub import {
     my ($class, @args) = @_;
     my ($caller, $script) = caller;
 
-    if (! $caller->can('dancer_app')) {
-        croak "No dancer application for $caller "
-            . "(Dancer::Test must be imported after the application)";
-    }
-    my $app = $caller->dancer_app;
+    my $app;
+    $caller->can('dancer_app') and
+        $app = $caller->dancer_app;
 
     for my $symbol (@EXPORT) {
         my $orig_sub = _get_orig_symbol($symbol);
-        my $new_sub = sub { $orig_sub->($app, @_) };
+        my $new_sub = sub { 
+            if (! defined $app) {
+                my $c = caller;
+                $app = $c->dancer_app;
+            }
+            $orig_sub->($app, @_) 
+        };
         { 
             no strict 'refs'; 
             no warnings 'redefine';
