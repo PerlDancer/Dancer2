@@ -10,7 +10,6 @@ use Dancer::Moo::Types;
 use Scalar::Util qw/looks_like_number blessed/;
 use Dancer::HTTP;
 use Dancer::MIME;
-use Dancer::Exception qw(:all);
 
 with 'Dancer::Core::Role::Headers';
 

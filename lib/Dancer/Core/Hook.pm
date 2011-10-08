@@ -1,10 +1,7 @@
 package Dancer::Core::Hook;
 use Moo;
 use Dancer::Moo::Types;
-
 use Carp;
-
-use Dancer::Exception qw(:all);
 
 has name => (
     is => 'ro',
