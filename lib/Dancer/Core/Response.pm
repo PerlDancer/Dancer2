@@ -46,7 +46,16 @@ has status => (
 has content => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Str(@_) },
-    default => '',
+    default => sub { '' },
+    coerce => sub {
+        my ($value) = @_;
+        $value = "$value" if ref($value);
+        return $value;
+    },
+    trigger => sub { 
+        my ($self, $value) = @_;
+        $self->header('Content-Length' => length($value));
+    },
 );
 
 sub to_psgi {
