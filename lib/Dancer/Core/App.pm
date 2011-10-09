@@ -61,6 +61,7 @@ sub supported_hooks {
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);
+    $self->init_route_handlers();
 }
 
 sub finish {
@@ -69,19 +70,30 @@ sub finish {
     $self->compile_hooks;
 }
 
-sub register_route_handlers {
+has route_handlers => (
+    is => 'rw',
+    isa => sub { HashRef(@_) },
+    default => sub { {} },
+);
+
+sub init_route_handlers {
     my ($self) = @_;
-    for my $handler_name (keys %{ $self->config->{route_handlers} }) {
-        my $config = $self->config->{route_handlers}{$handler_name};
+
+    my $handlers_config = $self->config->{route_handlers};
+    for my $handler_name (keys %{$handlers_config}) {
+        my $config = $handlers_config->{$handler_name};
         $config = {} if !ref($config);
         $config->{app} = $self;
-        my $handler =
-          Dancer::Factory::Engine->build(Handler => $handler_name, %$config);
+        my $handler = Dancer::Factory::Engine->build(
+            Handler => $handler_name, %$config);
+        $self->route_handlers->{$handler_name} = $handler;
+    }
+}
 
-#        warn "[ ".$self->name."] ("
-#           . ($self->prefix ? $self->prefix : '/')
-#           . ") registering $handler_name";
-
+sub register_route_handlers {
+    my ($self) = @_;
+    for my $handler_name (keys %{ $self->route_handlers }) {
+        my $handler = $self->route_handlers->{$handler_name};
         $handler->register($self);
     }
 }
