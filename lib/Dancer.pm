@@ -32,6 +32,7 @@ our @EXPORT = qw(
     del
     dirname
     engine
+    error
     false
     forward
     from_json
@@ -54,6 +55,7 @@ our @EXPORT = qw(
     put
     redirect
     request
+    send_file
     set
     setting
     splat
@@ -148,6 +150,39 @@ sub before_template {
         name => 'before_template_render',
         code => $_[0],
     ));
+}
+
+
+sub send_file {
+    my $app = shift;
+    my ($path, %options) = @_;
+    my $env = $app->context->env;
+
+    ($options{'streaming'} && ! $env->{'psgi.streaming'}) and
+        croak "Streaming is not supported on this server.";
+
+    (exists $options{'content_type'}) and
+        _header($app,
+            'Content-Type' => $options{content_type});
+
+    (exists $options{filename}) and
+        _header($app, 
+            'Content-Disposition' => "attachment; filename=\"$options{filename}\"");
+    
+    # if we're given a SCALAR reference, we're going to send the data
+    # pretending it's a file (on-the-fly file sending)
+    (ref($path) eq 'SCALAR') and
+        return $$path;
+
+    my $file_handler = Dancer::Handler::File->new(
+        app => $app,
+        public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
+    ); 
+
+    $app->context->request->path_info($path);
+    return $file_handler->code->($app->context, $app->prefix);
+    
+    # TODO Streaming support
 }
 
 #
