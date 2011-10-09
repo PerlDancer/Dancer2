@@ -60,7 +60,9 @@ has content => (
     },
     trigger => sub { 
         my ($self, $value) = @_;
-        $self->header('Content-Length' => length($value));
+
+        (! $self->header('Content-Length')) and
+            $self->header('Content-Length' => length($value));
     },
 );
 
