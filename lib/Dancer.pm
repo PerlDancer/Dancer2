@@ -179,6 +179,11 @@ sub send_file {
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
     ); 
 
+    for my $h (keys %{ $app->route_handlers->{File}->hooks} ) {
+        my $hooks = $app->route_handlers->{File}->hooks->{$h};
+        $file_handler->replace_hooks($h, $hooks);
+    }
+
     $app->context->request->path_info($path);
     return $file_handler->code->($app->context, $app->prefix);
     
@@ -192,12 +197,31 @@ sub send_file {
 sub hook {
     my $app = shift;
     my ($name, $code) = @_;
-    
-    my $hookable = $app;
-    # TODO: better hook dispatching to come
-    if ($name =~ /template/) {
-        $hookable = _engine($app, 'template');
+
+    my $template;
+    eval { $template = _engine($app, 'template') };
+
+    my $hookables = {
+        'Dancer::Core::App'            => $app,
+        'Dancer::Core::Role::Template' => $template, 
+        'Dancer::Handler::File' => $app->route_handlers->{File},
+    };
+
+    # a map to find which class owns a hook
+    my $hookable_classes_by_name = {};
+    foreach my $class (keys %{ $hookables }) {
+        eval "use $class";
+        croak "Unable to load class: $class : $@" if $@;
+
+        $hookable_classes_by_name = { 
+            %{$hookable_classes_by_name},
+            map { $_ => $class } $class->supported_hooks
+        };
     }
+    
+    my $hookable = $hookables->{ $hookable_classes_by_name->{$name} };
+    (! defined $hookable) and
+        croak "Unsupported hook `$name'";
 
     $hookable->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
