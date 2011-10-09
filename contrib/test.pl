@@ -3,6 +3,13 @@ use Data::Dumper;
 
 set serializer => 'JSON';
 
+get '/send_file' => sub {
+    # send_file '/etc/passwd', system_path => 1;
+    send_file '/foo.txt', 
+        filename => 'fakefile.txt',
+        content_type => 'application/data';
+};
+
 get '/' => sub {
     { foo => 42, bar => [ 1 .. 5]};
 };
