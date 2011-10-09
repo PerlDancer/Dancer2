@@ -85,6 +85,7 @@ sub code {
         }
 
         my $file_path = path($self->public_dir, @tokens);
+        $self->execute_hooks('before_file_render', $file_path);
 
         if (! -f $file_path) {
             $ctx->response->has_passed(1);
@@ -113,6 +114,8 @@ sub code {
         $ctx->response->header('Last-Modified') or
             $ctx->response->header('Last-Modified', HTTP::Date::time2str($stat[9]));
 
+        $ctx->response->content($content);
+        $self->execute_hooks('after_file_render', $ctx->response);
         return ($ctx->request->method eq 'GET') ? $content : '';
     };
 }
