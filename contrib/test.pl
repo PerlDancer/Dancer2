@@ -3,6 +3,23 @@ use Data::Dumper;
 
 set serializer => 'JSON';
 
+hook 'before_file_render' => sub {
+    my $path = shift;
+    warn "file rendering : $path";
+};
+
+hook 'after_file_render' => sub {
+    my $resp = shift;
+    warn "rendered ".Dumper($resp);
+};
+
+get '/send_file' => sub {
+    # send_file '/etc/passwd', system_path => 1;
+    send_file '/foo.txt', 
+        filename => 'fakefile.txt',
+        content_type => 'application/data';
+};
+
 get '/' => sub {
     { foo => 42, bar => [ 1 .. 5]};
 };

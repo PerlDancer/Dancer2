@@ -32,6 +32,7 @@ our @EXPORT = qw(
     del
     dirname
     engine
+    error
     false
     forward
     from_json
@@ -54,6 +55,7 @@ our @EXPORT = qw(
     put
     redirect
     request
+    send_file
     set
     setting
     splat
@@ -150,6 +152,44 @@ sub before_template {
     ));
 }
 
+
+sub send_file {
+    my $app = shift;
+    my ($path, %options) = @_;
+    my $env = $app->context->env;
+
+    ($options{'streaming'} && ! $env->{'psgi.streaming'}) and
+        croak "Streaming is not supported on this server.";
+
+    (exists $options{'content_type'}) and
+        _header($app,
+            'Content-Type' => $options{content_type});
+
+    (exists $options{filename}) and
+        _header($app, 
+            'Content-Disposition' => "attachment; filename=\"$options{filename}\"");
+    
+    # if we're given a SCALAR reference, we're going to send the data
+    # pretending it's a file (on-the-fly file sending)
+    (ref($path) eq 'SCALAR') and
+        return $$path;
+
+    my $file_handler = Dancer::Handler::File->new(
+        app => $app,
+        public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
+    ); 
+
+    for my $h (keys %{ $app->route_handlers->{File}->hooks} ) {
+        my $hooks = $app->route_handlers->{File}->hooks->{$h};
+        $file_handler->replace_hooks($h, $hooks);
+    }
+
+    $app->context->request->path_info($path);
+    return $file_handler->code->($app->context, $app->prefix);
+    
+    # TODO Streaming support
+}
+
 #
 # route handlers & friends
 #
@@ -157,12 +197,31 @@ sub before_template {
 sub hook {
     my $app = shift;
     my ($name, $code) = @_;
-    
-    my $hookable = $app;
-    # TODO: better hook dispatching to come
-    if ($name =~ /template/) {
-        $hookable = _engine($app, 'template');
+
+    my $template;
+    eval { $template = _engine($app, 'template') };
+
+    my $hookables = {
+        'Dancer::Core::App'            => $app,
+        'Dancer::Core::Role::Template' => $template, 
+        'Dancer::Handler::File' => $app->route_handlers->{File},
+    };
+
+    # a map to find which class owns a hook
+    my $hookable_classes_by_name = {};
+    foreach my $class (keys %{ $hookables }) {
+        eval "use $class";
+        croak "Unable to load class: $class : $@" if $@;
+
+        $hookable_classes_by_name = { 
+            %{$hookable_classes_by_name},
+            map { $_ => $class } $class->supported_hooks
+        };
     }
+    
+    my $hookable = $hookables->{ $hookable_classes_by_name->{$name} };
+    (! defined $hookable) and
+        croak "Unsupported hook `$name'";
 
     $hookable->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }

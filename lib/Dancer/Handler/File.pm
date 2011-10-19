@@ -8,6 +8,11 @@ use Dancer::Moo::Types;
 
 with 'Dancer::Core::Role::Handler';
 with 'Dancer::Core::Role::StandardResponses';
+with 'Dancer::Core::Role::Hookable';
+
+sub supported_hooks {
+    qw(before_file_render after_file_render)
+}
 
 has mime => (
     is => 'ro',
@@ -21,7 +26,7 @@ has encoding => (
 );
 
 has public_dir => (
-    is => 'ro',
+    is => 'rw',
 );
 
 has regexp => (
@@ -31,6 +36,8 @@ has regexp => (
 
 sub BUILD {
     my ($self) = @_;
+
+    $self->install_hooks($self->supported_hooks);
 
     if (! defined $self->public_dir) {
         my $public =
@@ -78,6 +85,7 @@ sub code {
         }
 
         my $file_path = path($self->public_dir, @tokens);
+        $self->execute_hooks('before_file_render', $file_path);
 
         if (! -f $file_path) {
             $ctx->response->has_passed(1);
@@ -96,10 +104,18 @@ sub code {
         }
 
         my @stat = stat $file_path;
-        $ctx->response->push_header('Content-Type', $content_type);
-        $ctx->response->push_header('Content-Length', $stat[7]);
-        $ctx->response->push_header('Last-Modified', HTTP::Date::time2str($stat[9]));
+        
+        $ctx->response->header('Content-Type') or
+            $ctx->response->header('Content-Type', $content_type);
 
+        $ctx->response->header('Content-Length') or
+            $ctx->response->header('Content-Length', $stat[7]);
+
+        $ctx->response->header('Last-Modified') or
+            $ctx->response->header('Last-Modified', HTTP::Date::time2str($stat[9]));
+
+        $ctx->response->content($content);
+        $self->execute_hooks('after_file_render', $ctx->response);
         return ($ctx->request->method eq 'GET') ? $content : '';
     };
 }
