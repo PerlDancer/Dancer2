@@ -8,8 +8,9 @@ use Encode;
 use Dancer::Moo::Types;
 
 use Scalar::Util qw/looks_like_number blessed/;
-use Dancer::HTTP;
-use Dancer::MIME;
+## use Dancer::HTTP;
+use Dancer ();
+use Dancer::Core::MIME;
 
 with 'Dancer::Core::Role::Headers';
 
@@ -87,8 +88,9 @@ sub content_type {
     my $self = shift;
 
     if (scalar @_ > 0) {
-        my $mimetype = Dancer::MIME->instance();
-        $self->header('Content-Type' => $mimetype->name_or_type(shift));
+        my $runner = Dancer->runner;
+        my $mimetype = $runner->mime_type->name_or_type(shift);
+        $self->header('Content-Type' => $mimetype);
     } else {
         return $self->header('Content-Type');
     }

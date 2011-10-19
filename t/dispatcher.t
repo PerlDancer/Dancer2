@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Carp 'croak';
 
+use Dancer (qw':tests');
 use Dancer::Core::App;
 use Dancer::Core::Route;
 use Dancer::Core::Dispatcher;
@@ -84,8 +85,8 @@ my @tests = (
             PATH_INFO      => '/error',
         },
         expected => [500, 
-            [@default_headers, 'Content-Length' => 141, "Content-Type", 'text/plain'], 
-            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line 26.*$}s]
+            [@default_headers, 'Content-Length' => 157, "Content-Type", 'text/plain'], 
+            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s]
     },
     {   env => {
             REQUEST_METHOD => 'GET',

@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Dancer qw':tests';
 use Dancer::Core::Response;
 
 my $r = Dancer::Core::Response->new(content => "hello");
