@@ -69,8 +69,8 @@ my @expected = qw(
   warning
 );
 
-use Dancer;
-my @done = @Dancer::EXPORT;
+use Dancer::Core::DSL;
+my @done = Dancer::Core::DSL->_keyword_list;
 
 my $target = scalar(@expected);
 my $done   = scalar(@done);
