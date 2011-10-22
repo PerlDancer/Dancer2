@@ -91,31 +91,6 @@ sub import {
 #    Dancer::GetOpt->process_args() if !$as_script;
 }
 
-# we have to cache the original symbols, if Dancer is imported more
-# than once, it's going to be bogus
-my $_orig_dsl_symbols = {};
-sub _get_orig_symbol {
-    my ($symbol) = @_;
-
-    # already saved this one, return it
-    return $_orig_dsl_symbols->{$symbol}
-        if exists $_orig_dsl_symbols->{$symbol};
-
-    # first time, save the symbol
-    my $orig;
-    {
-        no strict 'refs';
-        $orig = *{"Dancer::${symbol}"}{CODE};
-
-        # also bind the original symbol to a private name
-        # in order to be able to call it manually from within Dancer.pm
-        *{"Dancer::_${symbol}"} = $orig;
-    }
-
-    # return the newborn cache version
-    return $_orig_dsl_symbols->{$symbol} = $orig;
-}
-
 sub _use_lib {
     my (@args) = @_;
 
