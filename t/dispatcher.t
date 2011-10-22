@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More;
+use Test::More import => ['!pass'];
 use Carp 'croak';
 
 use Dancer (qw':tests');
