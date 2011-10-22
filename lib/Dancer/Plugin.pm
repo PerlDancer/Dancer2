@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp;
 
+use Dancer::Core::DSL;
 use base 'Exporter';
 use vars qw(@EXPORT);
 
@@ -17,6 +18,7 @@ use vars qw(@EXPORT);
 
 sub register($&);
 
+my @_keywords = Dancer::Core::DSL->_keyword_list;
 my $_keywords = {};
 
 sub plugin_settings {
@@ -41,7 +43,7 @@ sub register($&) {
     if (
         grep { $_ eq $keyword } 
         map  { s/^(?:\$|%|&|@|\*)//; $_ } 
-        (@Dancer::EXPORT, @Dancer::EXPORT_OK)
+        (@_keywords)
     ) {
         croak "You can't use '$keyword', this is a reserved keyword";
     }
