@@ -649,9 +649,6 @@ sub import {
 #    $as_script = 1 if $ENV{PLACK_ENV};
 #
 #    Dancer::GetOpt->process_args() if !$as_script;
-
-    # TODO : should be in Dancer::App _init_script_dir($script);
-#    Dancer::Config->load;
 }
 
 # we have to cache the original symbols, if Dancer is imported more

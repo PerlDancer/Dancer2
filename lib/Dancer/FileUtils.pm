@@ -37,11 +37,8 @@ sub dirname { File::Basename::dirname(@_) }
 
 sub set_file_mode {
     my $fh = shift;
-
-    require Dancer::Config;
     my $charset = 'utf-8';
     binmode $fh, ":encoding($charset)";
-
     return $fh;
 }
 
