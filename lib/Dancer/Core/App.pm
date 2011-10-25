@@ -85,6 +85,15 @@ sub supported_hooks {
     qw/before after before_serializer after_serializer before_file_render after_file_render/
 }
 
+sub add_before_template_hook {
+    my ($self, $code) = @_;
+    $self->engine('template')
+         ->add_hook(
+               name => 'before_template_render',
+               code => $code
+           );
+}
+
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);

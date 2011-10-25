@@ -171,15 +171,7 @@ sub set { shift->setting(@_) }
 
 sub template { shift->app->template(@_) }
 
-sub before_template {
-    my ($self, $code) = @_;
-    my $template = $self->engine('template');
-
-    $template->add_hook(Dancer::Core::Hook->new(
-        name => 'before_template_render',
-        code => $code,
-    ));
-}
+sub before_template { shift->app->add_before_template_hook(@_) }
 
 sub send_file {
     my ($self, $path, %options) = @_;
