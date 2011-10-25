@@ -163,31 +163,13 @@ sub config {
     return $self->app->settings;
 }
 
-sub engine {
-    my ($self, $name) = @_;
+sub engine { shift->app->engine(@_) }
 
-    my $e = $self->config->{$name};
-    croak "No '$name' engine defined" if not defined $e;
-
-    return $e;
-}
-
-sub setting {
-    shift->app->setting(@_)
-}
+sub setting { shift->app->setting(@_) }
 
 sub set { shift->setting(@_) }
 
-sub template {
-    my ($self) = @_;
-    my $template = $self->engine('template');
-
-    $template->context($self->app->context);
-    my $content = $template->process(@_);
-    $template->context(undef);
-
-    return $content;
-}
+sub template { shift->app->template(@_) }
 
 sub before_template {
     my ($self, $code) = @_;

@@ -49,6 +49,26 @@ sub _build_default_config {
     };
 }
 
+sub engine {
+    my ($self, $name) = @_;
+
+    my $e = $self->settings->{$name};
+    croak "No '$name' engine defined" if not defined $e;
+
+    return $e;
+}
+
+sub template {
+    my ($self) = @_;
+    my $template = $self->engine('template');
+
+    $template->context($self->context);
+    my $content = $template->process(@_);
+    $template->context(undef);
+
+    return $content;
+}
+
 # we dont support per-app config files yet
 # (but that could be easy to do in the future)
 sub config_location { undef }
