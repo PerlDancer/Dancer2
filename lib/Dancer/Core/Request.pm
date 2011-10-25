@@ -593,6 +593,37 @@ sub _build_uploads {
     $self->_build_params();
 }
 
+has cookies => (
+    is => 'rw',
+    isa => sub { HashRef(@_) },
+    lazy => 1,
+    builder => '_build_cookies',
+);
+
+sub _build_cookies {
+    my ($self) = @_;
+
+    my $env_str = $self->env->{COOKIE} || $self->env->{HTTP_COOKIE};
+    return {} unless defined $env_str;
+
+    my $cookies = {};
+    foreach my $cookie ( split( /[,;]\s/, $env_str ) ) {
+        # here, we don't want more than the 2 first elements
+        # a cookie string can contains something like:
+        # cookie_name="foo=bar"
+        # we want `cookie_name' as the value and `foo=bar' as the value
+        my( $name,$value ) = split(/\s*=\s*/, $cookie, 2);
+        my @values;
+        if ( $value ne '' ) {
+            @values = map { uri_unescape($_) } split( /[&;]/, $value );
+        }
+        $cookies->{$name} =
+          Dancer::Core::Cookie->new( name => $name, value => \@values );
+    }
+    return $cookies;
+}
+
+
 1;
 
 __END__

@@ -104,6 +104,18 @@ sub add_after_hook {
     $self->add_hook(Dancer::Core::Hook->new(name => 'after', code => $code));
 }
 
+sub mime_type {
+    my ($self) = @_;
+    my $runner = Dancer->runner;
+
+    if (exists($self->config->{default_mime_type})) {
+        $runner->mime_type->default($self->config->{default_mime_type});
+    } else {
+        $runner->mime_type->reset_default;
+    }
+    $runner->mime_type
+}
+
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);

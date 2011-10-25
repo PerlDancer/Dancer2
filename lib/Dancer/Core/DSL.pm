@@ -400,47 +400,23 @@ sub forward {
     Dancer->runner->server->dispatcher->dispatch($req->env, $req)->content;
 }
 
-sub vars {
-    my $app = shift->app;
-    $app->context->buffer;
-}
+sub vars { shift->context->vars }
+sub var { shift->context->var(@_) }
 
-sub var {
-    my $app = shift->app;
-    @_ == 2
-      ? $app->context->buffer->{$_[0]} = $_[1]
-      : $app->context->buffer->{$_[0]};
-}
-
-sub cookies {
-    my $app = shift->app;
-    return $app->context->cookies;
-}
+sub cookies { shift->context->cookies }
 
 sub mime {
-    my ($self) = @_;
-    my ($app, $runner) = ($self->app, $self->runner);
-
-    # we can be called outside a route (see TestApp.pm for an example)
-    if ($app && exists($app->config->{default_mime_type})) {
-        $runner->mime_type->default($app->config->{default_mime_type});
+    my $self = shift;
+    if ($self->app) {
+        return $self->app->mime_type
     } else {
+        my $runner = $self->runner;
         $runner->mime_type->reset_default;
+        return $runner->mime_type;
     }
-    $runner->mime_type
 }
 
-sub cookie {
-    my $app = shift->app;
-
-    # reader
-    return $app->context->cookies->{$_[0]} if @_ == 1;
-
-    # writer
-    my ($name, $value, %options) = @_;
-    my $c = Dancer::Core::Cookie->new(name => $name, value => $value, %options);
-    $app->context->response->push_header('Set-Cookie' => $c->to_header);
-}
+sub cookie { shift->context->cookie(@_) }
 
 #
 # engines
