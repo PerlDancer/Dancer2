@@ -49,6 +49,13 @@ sub _build_default_config {
     };
 }
 
+# This method overrides the default one from Role::Config
+
+sub settings {
+    my ($self) = @_;
+    +{ %{Dancer->runner->config}, %{$self->config} }
+}
+
 sub engine {
     my ($self, $name) = @_;
 
