@@ -116,6 +116,16 @@ sub mime_type {
     $runner->mime_type
 }
 
+sub log {
+    my $self = shift;
+    my $level = shift;
+
+    my $logger = $self->setting('logger')
+      or croak "No logger defined";
+
+    $logger->$level(@_);
+}
+
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);

@@ -159,11 +159,7 @@ sub false { 0 }
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
 sub path    { shift and Dancer::FileUtils::path(@_)    }
 
-sub config {
-    my ($self) = @_;
-
-    return $self->app->settings;
-}
+sub config { shift->app->settings }
 
 sub engine { shift->app->engine(@_) }
 
@@ -412,16 +408,7 @@ sub to_dumper {
     Dancer::Serializer::Dumper::to_dumper(@_);
 }
 
-
-sub log {
-    my $app = shift->app;
-    my $level = shift;
-
-    my $logger = $app->config->{logger};
-    croak "No logger defined" if ! defined $logger;
-
-    $logger->$level(@_);
-}
+sub log { shift->app->log(@_) }
 
 sub core_debug {
     my $msg = shift;
