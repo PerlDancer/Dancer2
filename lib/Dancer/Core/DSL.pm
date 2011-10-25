@@ -171,43 +171,7 @@ sub template { shift->app->template(@_) }
 
 sub before_template { shift->app->add_before_template_hook(@_) }
 
-sub send_file {
-    my ($self, $path, %options) = @_;
-    my $app = $self->app;
-    my $env = $app->context->env;
-
-    ($options{'streaming'} && ! $env->{'psgi.streaming'}) and
-        croak "Streaming is not supported on this server.";
-
-    (exists $options{'content_type'}) and
-        $self->header('Content-Type' => $options{content_type});
-
-    (exists $options{filename}) and
-        $self->header(
-            'Content-Disposition' =>
-                "attachment; filename=\"$options{filename}\""
-        );
-    
-    # if we're given a SCALAR reference, we're going to send the data
-    # pretending it's a file (on-the-fly file sending)
-    (ref($path) eq 'SCALAR') and
-        return $$path;
-
-    my $file_handler = Dancer::Handler::File->new(
-        app => $app,
-        public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
-    ); 
-
-    for my $h (keys %{ $app->route_handlers->{File}->hooks} ) {
-        my $hooks = $app->route_handlers->{File}->hooks->{$h};
-        $file_handler->replace_hooks($h, $hooks);
-    }
-
-    $app->context->request->path_info($path);
-    return $file_handler->code->($app->context, $app->prefix);
-    
-    # TODO Streaming support
-}
+sub send_file { shift->app->send_file(@_) }
 
 #
 # route handlers & friends
