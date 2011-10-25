@@ -215,33 +215,7 @@ sub send_file {
 
 sub hook {
     my ($self, $name, $code) = @_;
-
-    my $template;
-    eval { $template = $self->engine('template') };
-
-    my $hookables = {
-        'Dancer::Core::App'            => $self->app,
-        'Dancer::Core::Role::Template' => $template, 
-        'Dancer::Handler::File' => $self->app->route_handlers->{File},
-    };
-
-    # a map to find which class owns a hook
-    my $hookable_classes_by_name = {};
-    foreach my $class (keys %{ $hookables }) {
-        eval "use $class";
-        croak "Unable to load class: $class : $@" if $@;
-
-        $hookable_classes_by_name = { 
-            %{$hookable_classes_by_name},
-            map { $_ => $class } $class->supported_hooks
-        };
-    }
-    
-    my $hookable = $hookables->{ $hookable_classes_by_name->{$name} };
-    (! defined $hookable) and
-        croak "Unsupported hook `$name'";
-
-    $hookable->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
+    $self->app->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
 
 sub before { shift->app->add_before_hook(@_) }

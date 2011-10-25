@@ -82,8 +82,25 @@ sub config_location { undef }
 sub get_environment { undef }
 
 sub supported_hooks {
-    qw/before after before_serializer after_serializer before_file_render after_file_render/
+    qw/before after before_serializer after_serializer/
 }
+
+sub _hook_candidates {
+    my ($self) = @_;
+    my $template = eval { $self->engine('template') };
+    ($self->route_handlers->{File}, $template ? $template : ());
+}
+
+around add_hook => sub {
+    my ($orig, $self) = (shift, shift);
+    my ($hook) = @_;
+    unless ($self->has_hook(my $name = $hook->name)) {
+        foreach my $cand ($self->_hook_candidates) {
+            return $cand->add_hook(@_) if $cand->has_hook($name);
+        }
+    }
+    return $self->$orig(@_);
+};
 
 sub add_before_template_hook {
     my ($self, $code) = @_;

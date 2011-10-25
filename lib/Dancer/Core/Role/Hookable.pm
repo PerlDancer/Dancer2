@@ -34,7 +34,7 @@ sub add_hook {
     my $name = $hook->name;
     my $code = $hook->code;
 
-    croak "Hook '$name' must be installed first"
+    croak "Unsupported hook '$name'"
         unless $self->has_hook($name);
     
     push @{ $self->hooks->{$name} }, $code;
