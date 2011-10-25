@@ -160,10 +160,7 @@ sub path    { shift and Dancer::FileUtils::path(@_)    }
 sub config {
     my ($self) = @_;
 
-    return {
-        %{ $self->runner->config },
-        %{ $self->app->config },
-    };
+    return $self->app->settings;
 }
 
 sub engine {
@@ -176,19 +173,7 @@ sub engine {
 }
 
 sub setting {
-    my $app = shift->app;
-    my $dancer = Dancer->runner;
-
-    # reader
-    if (@_ == 1) {
-        # we should ask the app first, and then the runner
-        return $app->setting(@_) if $app->has_setting(@_);
-        return $dancer->setting(@_);
-    }
-
-    # writer: we always write to the app registry, only config files can write
-    # into dancer's configuration (which is global as such)
-    $app->setting(@_);
+    shift->app->setting(@_)
 }
 
 sub set { shift->setting(@_) }
