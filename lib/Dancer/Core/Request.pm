@@ -305,6 +305,12 @@ sub params {
     }
 }
 
+sub captures { shift->params->{captures} }
+
+sub splat { @{shift->params->{splat}||[]} }
+
+sub param { shift->params->{$_[0]} }
+
 sub _decode {
     my ($h) = @_;
     return if not defined $h;

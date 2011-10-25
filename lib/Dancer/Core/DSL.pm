@@ -30,6 +30,7 @@ use Carp;
         content_type
         cookie
         cookies
+        context
         dance
         dancer_app
         debug
@@ -59,6 +60,7 @@ use Carp;
         put
         redirect
         request
+        response
         send_file
         set
         setting
@@ -350,40 +352,23 @@ sub pass {
 # Route handler helpers
 #
 
-sub request {
-    my $app = shift->app;
-    $app->context->request;
-}
+sub context { shift->app->context }
 
-sub upload { 
-    my $app = shift->app;
-    $app->context->request->upload(@_);
-}
+sub request { shift->context->request }
 
-sub captures {
-     my $app = shift->app;
-     $app->context->request->params->{captures};
-}
+sub response { shift->context->response }
 
-sub uri_for {
-    my $app = shift->app;
-    $app->context->request->uri_for(@_);
-}
+sub upload { shift->request->upload(@_) }
 
-sub splat {
-     my $app = shift->app;
-     @{ $app->context->request->params->{splat} || [] };
-}
+sub captures { shift->request->captures }
 
-sub params {
-    my $app = shift->app;
-    $app->context->request->params(@_);
-}
+sub uri_for { shift->request->uri_for(@_) }
 
-sub param {
-    my $self = shift;
-    $self->params->{$_[0]};
-}
+sub splat { shift->request->splat }
+
+sub params { shift->request->params }
+
+sub param { shift->request->param(@_) }
 
 sub redirect {
     my ($self, $destination, $status) = @_;
