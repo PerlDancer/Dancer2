@@ -38,6 +38,8 @@ has is_halted => (
     default => 0,
 );
 
+sub halt { shift->is_halted(1) }
+
 has status => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Num(@_) },

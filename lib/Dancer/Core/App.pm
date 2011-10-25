@@ -94,6 +94,16 @@ sub add_before_template_hook {
            );
 }
 
+sub add_before_hook { 
+    my ($self, $code) = @_;
+    $self->add_hook(Dancer::Core::Hook->new(name => 'before', code => $code));
+}
+
+sub add_after_hook { 
+    my ($self, $code) = @_;
+    $self->add_hook(Dancer::Core::Hook->new(name => 'after', code => $code));
+}
+
 sub BUILD {
     my ($self) = @_;
     $self->install_hooks($self->supported_hooks);

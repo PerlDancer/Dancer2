@@ -246,15 +246,8 @@ sub hook {
     $hookable->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
 
-sub before {
-    my $app = shift->app;
-    $app->add_hook(Dancer::Core::Hook->new(name => 'before', code => $_[0]));
-}
-
-sub after {
-    my $app = shift->app;
-    $app->add_hook(Dancer::Core::Hook->new(name => 'after', code => $_[0]));
-}
+sub before { shift->app->add_before_hook(@_) }
+sub after { shift->app->add_after_hook(@_) }
 
 sub prefix {
     my $app = shift->app;
@@ -263,10 +256,7 @@ sub prefix {
       : $app->lexical_prefix(@_);
 }
 
-sub halt {
-    my $app = shift->app;
-    $app->context->response->is_halted(1);
-}
+sub halt { shift->app->context->response->halt }
 
 sub get {
     my $app = shift->app;
