@@ -350,35 +350,9 @@ sub params { shift->request->params }
 
 sub param { shift->request->param(@_) }
 
-sub redirect {
-    my ($self, $destination, $status) = @_;
+sub redirect { shift->context->redirect(@_) }
 
-    # RFC 2616 requires an absolute URI with a scheme,
-    # turn the URI into that if it needs it
-
-    # Scheme grammar as defined in RFC 2396
-    #  scheme = alpha *( alpha | digit | "+" | "-" | "." )
-    my $scheme_re = qr{ [a-z][a-z0-9\+\-\.]* }ix;
-    if ($destination !~ m{^ $scheme_re : }x) {
-        my $request = $self->app->context->request;
-        $destination = $request->uri_for($destination, {}, 1);
-    }
-
-    # now we just have to wrap status and header:
-    $self->status($status || 302);
-    $self->header('Location' => $destination);
-}
-
-sub forward {
-    my $app = shift->app;
-    my ($url, $params, $options) = @_;
-    
-    my $req = Dancer::Core::Request->forward(
-        $app->context->request,
-        { to_url => $url, params => $params, options => $options},
-    );
-    Dancer->runner->server->dispatcher->dispatch($req->env, $req)->content;
-}
+sub forward { shift->request->forward(@_) }
 
 sub vars { shift->context->vars }
 sub var { shift->context->var(@_) }

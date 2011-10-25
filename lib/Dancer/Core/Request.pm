@@ -188,29 +188,36 @@ sub to_string {
 # Create a new request which is a clone of the current one, apart
 # from the path location, which points instead to the new location
 # TODO this could be written in a more clean manner with a clone mechanism
-sub forward {
-    my ($class, $request, $to_data) = @_;
+sub make_forward_to {
+    my ($self, $url, $params, $options) = @_;
 
-    my $env = $request->env;
-    $env->{PATH_INFO} = $to_data->{to_url};
+    my $env = $self->env;
+    $env->{PATH_INFO} = $url;
 
-    my $new_request = $class->new(env => $env, body_is_parsed => 1);
-    my $new_params  = _merge_params(scalar($request->params),
-                                    $to_data->{params} || {});
+    my $new_request = (ref $self)->new(env => $env, body_is_parsed => 1);
+    my $new_params  = _merge_params(scalar($self->params),
+                                    $params || {});
 
-    if (exists($to_data->{options}{method})) {
-        $new_request->method(uc $to_data->{options}{method});
+    if (exists($options->{method})) {
+        $new_request->method(uc $options->{method});
     }
 
     $new_request->{params}  = $new_params;
-    $new_request->_set_body_params($request->{_body_params});
-    $new_request->_set_query_params($request->{_query_params});
-    $new_request->_set_route_params($request->{_route_params});
+    $new_request->_set_body_params($self->{_body_params});
+    $new_request->_set_query_params($self->{_query_params});
+    $new_request->_set_route_params($self->{_route_params});
     $new_request->{_params_are_decoded} = 1;
-    $new_request->{body}    = $request->body;
-    $new_request->{headers} = $request->headers;
+    $new_request->{body}    = $self->body;
+    $new_request->{headers} = $self->headers;
 
     return $new_request;
+}
+
+sub forward {
+    my $new_request = shift->make_forward_to(@_);
+    return Dancer->runner->server->dispatcher->dispatch(
+               $new_request->env, $new_request
+           )->content;
 }
 
 sub _merge_params {

@@ -55,7 +55,7 @@ is $req->to_string, '[#1] GET /foo/bar/baz';
 note "tests params";
 is_deeply {$req->params}, { foo => 42, bar => [12, 13, 14]};
 
-my $forward = Dancer::Core::Request->forward($req, {to_url => '/somewhere'});
+my $forward = $req->make_forward_to('/somewhere');
 is $forward->path_info, '/somewhere';
 is $forward->method, 'GET';
 note "tests for uri_for";
@@ -144,16 +144,14 @@ is $req->method, 'GET', 'method is get';
 is_deeply scalar($req->params), {foo => 'bar', number => 42},
     'params are parsed';
 
-$req = Dancer::Core::Request->forward($req, { to_url => "/new/path"} );
+$req = $req->make_forward_to("/new/path");
 is $req->path, '/new/path', 'path is changed';
 is $req->method, 'GET', 'method is unchanged';
 is_deeply scalar($req->params), {foo => 'bar', number => 42},
     'params are not touched';
 
-$req = Dancer::Core::Request->forward($req, { 
-        to_url => "/new/path",
-        options => { method => 'POST' },
-});
+$req = $req->make_forward_to("/new/path", undef, { method => 'POST' });
+
 is $req->path, '/new/path', 'path is changed';
 is $req->method, 'POST', 'method is changed';
 is_deeply scalar($req->params), {foo => 'bar', number => 42},

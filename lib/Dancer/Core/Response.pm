@@ -117,6 +117,12 @@ sub is_forwarded {
     $self->_forward;
 }
 
+sub redirect {
+    my ($self, $destination, $status) = @_;
+    $self->status($status || 302);
+    $self->header('Location' => $destination);
+}
+
 1;
 __END__
 =head1 NAME
