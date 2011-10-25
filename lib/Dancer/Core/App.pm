@@ -333,20 +333,21 @@ Register a new route handler.
     $app->add_route(
         method => 'get',
         regexp => '/somewhere',
-        code => sub { ... });
+        code => sub { ... }
+    );
 
 =cut
 
 sub add_route {
     my ($self, %route_attrs) = @_;
 
-        my $route = Dancer::Core::Route->new(
-            %route_attrs,
-            prefix => $self->prefix,
-        );
+    my $route = Dancer::Core::Route->new(
+        %route_attrs,
+        prefix => $self->prefix,
+    );
 
-        my $method = $route->method;
-        push @{ $self->routes->{$method} }, $route;
+    my $method = $route->method;
+    push @{ $self->routes->{$method} }, $route;
 }
 
 =head2 routes_regexps_for

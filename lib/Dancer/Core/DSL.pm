@@ -213,12 +213,7 @@ sub any {
         unless ref($methods) eq 'ARRAY';
 
     for my $method (@{$methods}) {
-        $app->add_route(method => $method,
-                        regexp => $_[1],
-                        code   => $_[2]);
-        ($method eq "get") and $app->add_route(method => 'head',
-                                               regexp => $_[1],
-                                               code   => $_[2]);
+        $app->$method(@_);
     }
 }
 
@@ -227,7 +222,9 @@ sub put {
     $app->add_route( method => 'put', regexp => $_[0], code   => $_[1] );
 }
 
-sub del {
+sub del { shift->del(@_) }
+
+sub delete {
     my $app = shift->app;
     $app->add_route( method => 'delete', regexp => $_[0], code   => $_[1] );
 }
