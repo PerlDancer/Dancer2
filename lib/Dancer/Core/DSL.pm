@@ -311,23 +311,8 @@ sub options {
 sub runner { Dancer->runner }
 
 # start the server
-sub start {
-    my ($self) = @_;
-    my $dancer = $self->runner;
-    my $server = $dancer->server;
+sub start { shift->runner->start }
 
-    $_->finish for @{ $server->apps };
-
-    # update the server config if needed
-    my $port = $self->setting('server_port');
-    my $host = $self->setting('server_host');
-    my $is_daemon = $self->setting('server_is_daemon');
-
-    $server->port($port) if defined $port;
-    $server->host($host) if defined $host;
-    $server->is_daemon($is_daemon) if defined $is_daemon;
-    $server->start;
-}
 sub dance { shift->start(@_) }
 
 #

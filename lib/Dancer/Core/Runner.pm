@@ -113,4 +113,21 @@ sub _build_location {
     $self->location($location);
 }
 
+sub start {
+    my ($self) = @_;
+    my $server = $self->server;
+
+    $_->finish for @{ $server->apps };
+
+    # update the server config if needed
+    my $port = $self->setting('server_port');
+    my $host = $self->setting('server_host');
+    my $is_daemon = $self->setting('server_is_daemon');
+
+    $server->port($port) if defined $port;
+    $server->host($host) if defined $host;
+    $server->is_daemon($is_daemon) if defined $is_daemon;
+    $server->start;
+}
+
 1;
