@@ -321,32 +321,12 @@ sub dance { shift->start(@_) }
 # Response alterations
 #
 
-sub status {
-    my $app = shift->app;
-    $app->context->response->status($_[0]);
-}
-
-sub push_header {
-    my $app = shift->app;
-    $app->context->response->push_header(@_);
-}
-
-sub header {
-    my $app = shift->app;
-    $app->context->response->header(@_);
-}
-
-sub headers { shift->header(@_) }
-
-sub content_type {
-    my ($self, $type) = @_;
-    $self->header('Content-Type' => $self->mime->name_or_type($type));
-}
-
-sub pass {
-    my $app = shift->app;
-    $app->context->response->has_passed(1);
-}
+sub status { shift->response->status(@_) }
+sub push_header { shift->response->push_header(@_) }
+sub header { shift->response->header(@_) }
+sub headers { shift->response->header(@_) }
+sub content_type { shift->response->content_type(@_) }
+sub pass { shift->response->pass }
 
 #
 # Route handler helpers
