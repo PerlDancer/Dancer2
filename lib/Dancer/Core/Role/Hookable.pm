@@ -3,12 +3,6 @@ use Moo::Role;
 use Dancer::Moo::Types;
 use Carp 'croak';
 
-# Currently the app needs a hook registry
-# but I think it might be useful later to be able to 
-# compose other classes with this generic facility.
-# Like binding hooks to Request objects for instance.
-# We'll see...
-
 # The hooks registry 
 has hooks => (
     is => 'rw',
@@ -20,6 +14,10 @@ has hooks => (
 # for the registry
 sub install_hooks {
     my ($self, @hook_names) = @_;
+
+    # use our supported_hooks by default
+    @hook_names = $self->supported_hooks if !@hook_names;
+
     for my $h (@hook_names) {
         croak "Hook '$h' is already registered, please use another name" 
           if $self->has_hook($h);
