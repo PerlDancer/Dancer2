@@ -19,7 +19,7 @@ sub to_json {
 
 # class definition
 
-sub loaded { require 'JSON'; }
+sub loaded { require 'JSON.pm'; }
 
 sub serialize {
     my ($self, $entity, $options) = @_;
@@ -34,11 +34,13 @@ sub serialize {
         $options->{convert_blessed} = $config->{convert_blessed};
     }
 
+    require 'JSON.pm';
     JSON::to_json( $entity, $options );
 }
 
 sub deserialize {
     my ($self, $entity, $options) = @_;
+    require 'JSON.pm';
     JSON::from_json( $entity, $options );
 }
 
