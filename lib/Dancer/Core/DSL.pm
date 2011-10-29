@@ -118,7 +118,10 @@ sub construct_export_map {
     my %map;
     foreach my $keyword ($self->_keyword_list) {
         if ($self->_is_global_keyword($keyword)) {
-            $map{$keyword} = sub { $self->$keyword(@_) };
+            $map{$keyword} = sub { 
+                core_debug("[".$self->app->name."] -> $keyword(".join(', ', @_).")");
+                $self->$keyword(@_);
+            };
         } else {
             $map{$keyword} = sub {
                 croak "Function '$keyword' must be called from a route handler"
