@@ -83,7 +83,7 @@ sub config_location { undef }
 sub get_environment { undef }
 
 sub supported_hooks {
-    qw/before after/
+    qw/before after before_request after_request/
 }
 
 sub _hook_candidates {
@@ -116,6 +116,19 @@ around add_hook => sub {
             return $cand->add_hook(@_) if $cand->has_hook($name);
         }
     }
+
+    return $self->$orig(@_);
+};
+
+around execute_hooks => sub {
+    my ($orig, $self) = (shift, shift);
+    my ($hook, @args) = @_;
+    unless ($self->has_hook($hook)) {
+        foreach my $cand ($self->_hook_candidates) {
+            return $cand->execute_hooks(@_) if $cand->has_hook($hook);
+        }
+    }
+
     return $self->$orig(@_);
 };
 
