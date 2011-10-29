@@ -49,7 +49,6 @@ sub dispatch {
                 $context->request->_set_route_params($match);
             }
 
-            $app->execute_hooks('before', $context);
 
             # if the request has been altered by a before filter, we should not continue
             # with this route handler, we should continue to walk through the
@@ -60,6 +59,8 @@ sub dispatch {
             # go to the next route if no match
             next if !$match;
             my $content;
+            $app->execute_hooks('before', $context);
+            $app->execute_hooks('before_request', $context);
 
             if (! $context->response->is_halted) {
                 eval { $content = $route->execute($context) };
@@ -95,6 +96,7 @@ sub dispatch {
             }
 
             $app->execute_hooks('after', $response);
+            $app->execute_hooks('after_request', $response);
             $app->context(undef);
             return $response;
         }
