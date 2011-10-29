@@ -15,6 +15,7 @@ use warnings;
     sub name { 'Tiny' }
     sub type { 'Template' }
     sub render { "tiny" }
+    sub supported_hooks { }
 }
 
 my $f = Dancer::Template::Tiny->new();
