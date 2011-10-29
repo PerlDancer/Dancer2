@@ -67,7 +67,7 @@ sub engine {
 }
 
 sub template {
-    my ($self) = @_;
+    my ($self) = shift;
     my $template = $self->engine('template');
 
     $template->context($self->context);
