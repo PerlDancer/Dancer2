@@ -1,6 +1,7 @@
 package Dancer::Serializer::JSON;
 use Moo;
 use Carp 'croak';
+
 with 'Dancer::Core::Role::Serializer';
 
 
@@ -18,8 +19,7 @@ sub to_json {
 
 # class definition
 
-sub BUILD { eval "use JSON ()"; croak "Fail to load JSON: $@" if $@ }
-sub loaded { 1 }
+sub loaded { require 'JSON'; }
 
 sub serialize {
     my ($self, $entity, $options) = @_;
