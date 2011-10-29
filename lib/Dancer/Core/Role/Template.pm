@@ -6,16 +6,9 @@ use Carp 'croak';
 use Data::Dumper;
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
-with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw/before_template_render after_template_render before_layout_render after_layout_render/
-}
-
-sub BUILD {
-    my ($self) = @_;
-    $self->install_hooks($self->supported_hooks);
-    $self->init if $self->can('init');
 }
 
 sub type { 'Template' }

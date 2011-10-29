@@ -83,7 +83,7 @@ sub config_location { undef }
 sub get_environment { undef }
 
 sub supported_hooks {
-    qw/before after/
+    qw/before after before_request after_request/
 }
 
 sub _hook_candidates {
@@ -116,27 +116,21 @@ around add_hook => sub {
             return $cand->add_hook(@_) if $cand->has_hook($name);
         }
     }
+
     return $self->$orig(@_);
 };
 
-sub add_before_template_hook {
-    my ($self, $code) = @_;
-    $self->engine('template')
-         ->add_hook(
-               name => 'before_template_render',
-               code => $code
-           );
-}
+around execute_hooks => sub {
+    my ($orig, $self) = (shift, shift);
+    my ($hook, @args) = @_;
+    unless ($self->has_hook($hook)) {
+        foreach my $cand ($self->_hook_candidates) {
+            return $cand->execute_hooks(@_) if $cand->has_hook($hook);
+        }
+    }
 
-sub add_before_hook { 
-    my ($self, $code) = @_;
-    $self->add_hook(Dancer::Core::Hook->new(name => 'before', code => $code));
-}
-
-sub add_after_hook { 
-    my ($self, $code) = @_;
-    $self->add_hook(Dancer::Core::Hook->new(name => 'after', code => $code));
-}
+    return $self->$orig(@_);
+};
 
 sub mime_type {
     my ($self) = @_;

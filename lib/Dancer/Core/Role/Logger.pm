@@ -5,6 +5,10 @@ use POSIX qw/strftime/;
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 
+sub supported_hooks {
+    qw(before_logger after_logger)
+}
+
 sub type { 'Logger' }
 
 # This is the only method to implement by logger engines.
