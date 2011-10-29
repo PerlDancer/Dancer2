@@ -5,15 +5,6 @@ use Dancer::Core::Hook;
 use Dancer::FileUtils;
 use Moo;
 
-BEGIN {
-    # Moo doesn't have an option to not export these and we need to
-    # define our own. This is my fault. -- mst
-    no strict 'refs';
-    my $pkg = \%{__PACKAGE__.'::'};
-    delete $pkg->{before};
-    delete $pkg->{after};
-}
-
 has app => (is => 'ro', required => 1);
 
 use Carp;
@@ -169,8 +160,6 @@ sub set { shift->setting(@_) }
 
 sub template { shift->app->template(@_) }
 
-sub before_template { shift->app->add_before_template_hook(@_) }
-
 sub send_file { shift->app->send_file(@_) }
 
 #
@@ -181,9 +170,6 @@ sub hook {
     my ($self, $name, $code) = @_;
     $self->app->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
-
-sub before { shift->app->add_before_hook(@_) }
-sub after { shift->app->add_after_hook(@_) }
 
 sub prefix {
     my $app = shift->app;

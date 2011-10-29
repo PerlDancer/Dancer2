@@ -132,25 +132,6 @@ around execute_hooks => sub {
     return $self->$orig(@_);
 };
 
-sub add_before_template_hook {
-    my ($self, $code) = @_;
-    $self->engine('template')
-         ->add_hook(
-               name => 'before_template_render',
-               code => $code
-           );
-}
-
-sub add_before_hook { 
-    my ($self, $code) = @_;
-    $self->add_hook(Dancer::Core::Hook->new(name => 'before', code => $code));
-}
-
-sub add_after_hook { 
-    my ($self, $code) = @_;
-    $self->add_hook(Dancer::Core::Hook->new(name => 'after', code => $code));
-}
-
 sub mime_type {
     my ($self) = @_;
     my $runner = Dancer->runner;
