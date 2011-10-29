@@ -5,6 +5,7 @@ use warnings;
 
 use Moo;
 use File::Spec;
+use Scalar::Util 'blessed';
 use Carp 'croak';
 
 use Dancer::FileUtils 'path', 'read_file_content';
@@ -82,13 +83,29 @@ sub config_location { undef }
 sub get_environment { undef }
 
 sub supported_hooks {
-    qw/before after before_serializer after_serializer/
+    qw/before after/
 }
 
 sub _hook_candidates {
     my ($self) = @_;
-    my $template = eval { $self->engine('template') };
-    ($self->route_handlers->{File}, $template ? $template : ());
+    
+    my @engines;
+    for my $e (qw(logger serializer template logger)) {
+        my $engine = eval { $self->engine($e) };
+        push @engines, $engine if defined $engine;
+    }
+
+    my @route_handlers;
+    for my $handler_name (keys %{$self->route_handlers}) {
+        my $handler = $self->route_handlers->{$handler_name};
+        push @route_handlers, $handler 
+            if blessed($handler) && $handler->can('supported_hooks');
+    }
+
+    # TODO : get the list of all plugins registered
+    my @plugins;
+
+    (@route_handlers, @engines, @plugins);
 }
 
 around add_hook => sub {
