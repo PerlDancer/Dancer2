@@ -5,6 +5,7 @@ use warnings;
 
 use Moo;
 use File::Spec;
+use Scalar::Util 'blessed';
 use Carp 'croak';
 
 use Dancer::FileUtils 'path', 'read_file_content';
@@ -49,14 +50,160 @@ sub _build_default_config {
     };
 }
 
+# This method overrides the default one from Role::Config
+
+sub settings {
+    my ($self) = @_;
+    +{ %{Dancer->runner->config}, %{$self->config} }
+}
+
+sub engine {
+    my ($self, $name) = @_;
+
+    my $e = $self->settings->{$name};
+    croak "No '$name' engine defined" if not defined $e;
+
+    return $e;
+}
+
+sub template {
+    my ($self) = @_;
+    my $template = $self->engine('template');
+
+    $template->context($self->context);
+    my $content = $template->process(@_);
+    $template->context(undef);
+
+    return $content;
+}
+
 # we dont support per-app config files yet
 # (but that could be easy to do in the future)
 sub config_location { undef }
 sub get_environment { undef }
 
 sub supported_hooks {
-    qw/before after before_serializer after_serializer before_file_render after_file_render/
+    qw/before after/
 }
+
+sub _hook_candidates {
+    my ($self) = @_;
+    
+    my @engines;
+    for my $e (qw(logger serializer template logger)) {
+        my $engine = eval { $self->engine($e) };
+        push @engines, $engine if defined $engine;
+    }
+
+    my @route_handlers;
+    for my $handler_name (keys %{$self->route_handlers}) {
+        my $handler = $self->route_handlers->{$handler_name};
+        push @route_handlers, $handler 
+            if blessed($handler) && $handler->can('supported_hooks');
+    }
+
+    # TODO : get the list of all plugins registered
+    my @plugins;
+
+    (@route_handlers, @engines, @plugins);
+}
+
+around add_hook => sub {
+    my ($orig, $self) = (shift, shift);
+    my ($hook) = @_;
+    unless ($self->has_hook(my $name = $hook->name)) {
+        foreach my $cand ($self->_hook_candidates) {
+            return $cand->add_hook(@_) if $cand->has_hook($name);
+        }
+    }
+    return $self->$orig(@_);
+};
+
+sub add_before_template_hook {
+    my ($self, $code) = @_;
+    $self->engine('template')
+         ->add_hook(
+               name => 'before_template_render',
+               code => $code
+           );
+}
+
+sub add_before_hook { 
+    my ($self, $code) = @_;
+    $self->add_hook(Dancer::Core::Hook->new(name => 'before', code => $code));
+}
+
+sub add_after_hook { 
+    my ($self, $code) = @_;
+    $self->add_hook(Dancer::Core::Hook->new(name => 'after', code => $code));
+}
+
+sub mime_type {
+    my ($self) = @_;
+    my $runner = Dancer->runner;
+
+    if (exists($self->config->{default_mime_type})) {
+        $runner->mime_type->default($self->config->{default_mime_type});
+    } else {
+        $runner->mime_type->reset_default;
+    }
+    $runner->mime_type
+}
+
+sub log {
+    my $self = shift;
+    my $level = shift;
+
+    my $logger = $self->setting('logger')
+      or croak "No logger defined";
+
+    $logger->$level(@_);
+}
+
+# XXX I think this should live on the context or response - but
+# we don't currently have backwards links - weak_ref should make
+# those completely doable.
+#   -- mst
+
+sub send_file {
+    my ($self, $path, %options) = @_;
+    my $env = $self->context->env;
+
+    ($options{'streaming'} && ! $env->{'psgi.streaming'}) and
+        croak "Streaming is not supported on this server.";
+
+    (exists $options{'content_type'}) and
+        $self->context->response->header(
+            'Content-Type' => $options{content_type}
+        );
+
+    (exists $options{filename}) and
+        $self->context->response->header(
+            'Content-Disposition' =>
+                "attachment; filename=\"$options{filename}\""
+        );
+    
+    # if we're given a SCALAR reference, we're going to send the data
+    # pretending it's a file (on-the-fly file sending)
+    (ref($path) eq 'SCALAR') and
+        return $$path;
+
+    my $file_handler = Dancer::Handler::File->new(
+        app => $self,
+        public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
+    ); 
+
+    for my $h (keys %{ $self->route_handlers->{File}->hooks } ) {
+        my $hooks = $self->route_handlers->{File}->hooks->{$h};
+        $file_handler->replace_hooks($h, $hooks);
+    }
+
+    $self->context->request->path_info($path);
+    return $file_handler->code->($self->context, $self->prefix);
+    
+    # TODO Streaming support
+}
+
 
 sub BUILD {
     my ($self) = @_;
@@ -203,20 +350,21 @@ Register a new route handler.
     $app->add_route(
         method => 'get',
         regexp => '/somewhere',
-        code => sub { ... });
+        code => sub { ... }
+    );
 
 =cut
 
 sub add_route {
     my ($self, %route_attrs) = @_;
 
-        my $route = Dancer::Core::Route->new(
-            %route_attrs,
-            prefix => $self->prefix,
-        );
+    my $route = Dancer::Core::Route->new(
+        %route_attrs,
+        prefix => $self->prefix,
+    );
 
-        my $method = $route->method;
-        push @{ $self->routes->{$method} }, $route;
+    my $method = $route->method;
+    push @{ $self->routes->{$method} }, $route;
 }
 
 =head2 routes_regexps_for

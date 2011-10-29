@@ -21,12 +21,14 @@ has config => (
     builder => '_build_config',
 );
 
+sub settings { shift->config }
+
 sub setting {
     my $self = shift;
     my @args = @_;
 
     return (scalar @args == 1)
-        ? $self->config->{$args[0]}
+        ? $self->settings->{$args[0]}
         : $self->_set_config_entries(@args);
 }
 

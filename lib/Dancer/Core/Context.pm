@@ -40,6 +40,15 @@ has buffer => (
     default => sub { {} },
 );
 
+sub vars { shift->buffer }
+
+sub var {
+    my $self = shift;
+    @_ == 2
+      ? $self->buffer->{$_[0]} = $_[1]
+      : $self->buffer->{$_[0]};
+}
+
 # a set of changes to apply to the response
 # that HashRef will should be passed as attributes to a response object
 has response => (
@@ -48,34 +57,33 @@ has response => (
     default => sub { Dancer::Core::Response->new },
 );
 
-has cookies => (
-    is => 'rw',
-    isa => sub { HashRef(@_) },
-    lazy => 1,
-    builder => '_build_cookies',
-);
+sub cookies { shift->request->cookies(@_) }
 
-sub _build_cookies {
-    my ($self) = @_;
+sub cookie {
+    my $self = shift;
 
-    my $env_str = $self->env->{COOKIE} || $self->env->{HTTP_COOKIE};
-    return {} unless defined $env_str;
+    return $self->request->cookies->{$_[0]} if @_ == 1;
 
-    my $cookies = {};
-    foreach my $cookie ( split( /[,;]\s/, $env_str ) ) {
-        # here, we don't want more than the 2 first elements
-        # a cookie string can contains something like:
-        # cookie_name="foo=bar"
-        # we want `cookie_name' as the value and `foo=bar' as the value
-        my( $name,$value ) = split(/\s*=\s*/, $cookie, 2);
-        my @values;
-        if ( $value ne '' ) {
-            @values = map { uri_unescape($_) } split( /[&;]/, $value );
-        }
-        $cookies->{$name} =
-          Dancer::Core::Cookie->new( name => $name, value => \@values );
+    # writer
+    my ($name, $value, %options) = @_;
+    my $c = Dancer::Core::Cookie->new(name => $name, value => $value, %options);
+    $self->response->push_header('Set-Cookie' => $c->to_header);
+}
+
+sub redirect {
+    my ($self, $destination, $status) = @_;
+
+    # RFC 2616 requires an absolute URI with a scheme,
+    # turn the URI into that if it needs it
+
+    # Scheme grammar as defined in RFC 2396
+    #  scheme = alpha *( alpha | digit | "+" | "-" | "." )
+    my $scheme_re = qr{ [a-z][a-z0-9\+\-\.]* }ix;
+    if ($destination !~ m{^ $scheme_re : }x) {
+        $destination = $self->request->uri_for($destination, {}, 1);
     }
-    return $cookies;
+
+    $self->response->redirect($destination, $status);
 }
 
 1;

@@ -26,6 +26,8 @@ has has_passed => (
     default => 0,
 );
 
+sub pass { shift->has_passed(1) }
+
 has is_encoded => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
@@ -37,6 +39,8 @@ has is_halted => (
     isa => sub { Dancer::Moo::Types::Bool(@_) },
     default => 0,
 );
+
+sub halt { shift->is_halted(1) }
 
 has status => (
     is => 'rw',
@@ -111,6 +115,12 @@ sub forward {
 sub is_forwarded {
     my $self = shift;
     $self->_forward;
+}
+
+sub redirect {
+    my ($self, $destination, $status) = @_;
+    $self->status($status || 302);
+    $self->header('Location' => $destination);
 }
 
 1;
