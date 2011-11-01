@@ -74,6 +74,4 @@ sub for_name {
       $self->mime_type->mimeTypeOf(lc $name) || $self->default;
 }
 
-42;
-
-
+1;
