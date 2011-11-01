@@ -37,8 +37,6 @@ has regexp => (
 sub BUILD {
     my ($self) = @_;
 
-    $self->install_hooks($self->supported_hooks);
-
     if (! defined $self->public_dir) {
         my $public =
              $self->app->config->{public}

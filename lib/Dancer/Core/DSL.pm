@@ -53,6 +53,7 @@ use Carp;
         request
         response
         send_file
+        session
         set
         setting
         splat
@@ -162,6 +163,8 @@ sub setting { shift->app->setting(@_) }
 sub set { shift->setting(@_) }
 
 sub template { shift->app->template(@_) }
+
+sub session { shift->app->session(@_) }
 
 sub send_file { shift->app->send_file(@_) }
 

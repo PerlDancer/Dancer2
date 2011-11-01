@@ -1,6 +1,17 @@
 use Dancer;
 use Data::Dumper;
 
+get '/' => sub {
+    to_yaml(session());
+};
+
+get '/write/:name/:value' => sub {
+    session param('name') => param('value');
+};
+
+start;
+
+__END__
 set serializer => 'JSON';
 
 hook 'before_file_render' => sub {
