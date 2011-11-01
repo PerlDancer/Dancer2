@@ -66,6 +66,36 @@ sub engine {
     return $e;
 }
 
+sub session {
+    my ($self, $key, $value) = @_;
+    my $engine = $self->engine('session');
+    my $session;
+
+    # fetch any existing session
+    my $session_id = $self->context->cookie($engine->name)->value;
+    if (defined $session_id) {
+        warn "fetching session $session_id";
+        my $existing_session = $engine->retrieve($session_id);
+        $session = $existing_session if defined $existing_session;
+    }
+
+    # create a new session
+    if (! defined $session) {
+        $session = $engine;
+        $session->flush; # NOW?
+        $self->context->response->push_header(
+            'Set-Cookie' => $session->cookie->to_header);
+    }
+    
+    # want the full session?
+    return $session->data if @_ == 1;
+
+    # session accessors
+    return @_ == 3
+        ? $session->write($key => $value)
+        : $session->read($key);
+}
+
 sub template {
     my ($self) = shift;
     my $template = $self->engine('template');
