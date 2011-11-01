@@ -17,14 +17,7 @@ sub create {
     return $engine_class->new(%options);
 }
 
-sub _camelize {
-    my ($value) = @_;
-    
-    my $camelized = '';
-    for my $word (split /_/, $value) {
-        $camelized .= ucfirst($word);
-    }
-    return $camelized;
-}
+sub _camelize { ( my $v = $_[0] ) =~ s/(?:^|_)(.)/uc($1)/ge; $v }
+
 
 1;
