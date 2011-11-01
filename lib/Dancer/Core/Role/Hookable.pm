@@ -3,6 +3,8 @@ use Moo::Role;
 use Dancer::Moo::Types;
 use Carp 'croak';
 
+requires 'supported_hooks';
+
 # The hooks registry 
 has hooks => (
     is => 'rw',
@@ -16,11 +18,6 @@ sub _build_hooks {
     my ($self) = @_;
     my %hooks = map +($_ => []), $self->supported_hooks;
     return \%hooks;
-}
-
-sub install_hooks { 
-    use Carp;
-    carp 'DEPRECATED DONT CALL ME';
 }
 
 # This binds a coderef to an installed hook if not already
