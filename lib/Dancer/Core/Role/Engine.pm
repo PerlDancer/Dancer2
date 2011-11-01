@@ -5,7 +5,6 @@ use Dancer::Moo::Types;
 with 'Dancer::Core::Role::Hookable';
 
 requires 'type';
-requires 'supported_hooks';
 
 has context => (
     is => 'rw',
@@ -17,11 +16,5 @@ has config => (
     isa  => sub { HashRef(@_) },
     default => sub  { {} },
 );
-
-sub BUILD {
-    my ($self) = @_;
-    $self->init if $self->can('init');
-}
-
 
 1;

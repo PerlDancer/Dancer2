@@ -14,7 +14,7 @@ has engine => (
     isa => sub { ObjectOf('Template', @_) },
 );
 
-sub init {
+sub BUILD {
     my ($self) = @_;
 
     my $charset = $self->charset;
