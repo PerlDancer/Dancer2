@@ -231,7 +231,6 @@ sub send_file {
 
 sub BUILD {
     my ($self) = @_;
-    $self->install_hooks($self->supported_hooks);
     $self->init_route_handlers();
 }
 

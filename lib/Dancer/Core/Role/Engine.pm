@@ -20,7 +20,6 @@ has config => (
 
 sub BUILD {
     my ($self) = @_;
-    $self->install_hooks;
     $self->init if $self->can('init');
 }
 
