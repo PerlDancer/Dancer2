@@ -3,27 +3,14 @@ use Moo::Role;
 use Dancer::Moo::Types;
 use Carp 'croak';
 
+requires 'supported_hooks';
+
 # The hooks registry 
 has hooks => (
     is => 'rw',
     isa => sub { HashRef(@_) },
-    default => sub { {} },
+    default => sub { +{ map { $_ => [] } shift->supported_hooks() } },
 );
-
-# This lets you define a list of possible hook names
-# for the registry
-sub install_hooks {
-    my ($self, @hook_names) = @_;
-
-    # use our supported_hooks by default
-    @hook_names = $self->supported_hooks if !@hook_names;
-
-    for my $h (@hook_names) {
-        croak "Hook '$h' is already registered, please use another name" 
-          if $self->has_hook($h);
-        $self->{hooks}->{$h} = [];
-    }
-}
 
 # This binds a coderef to an installed hook if not already
 # existing
