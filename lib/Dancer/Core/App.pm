@@ -254,7 +254,7 @@ sub init_route_handlers {
         my $config = $handlers_config->{$handler_name};
         $config = {} if !ref($config);
         $config->{app} = $self;
-        my $handler = Dancer::Factory::Engine->build(
+        my $handler = Dancer::Factory::Engine->create(
             Handler => $handler_name, %$config);
         $self->route_handlers->{$handler_name} = $handler;
     }

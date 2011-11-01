@@ -156,7 +156,7 @@ my $_setters = {
         
         return (ref $value)
           ? $value
-          : Dancer::Factory::Engine->build(logger => $value);
+          : Dancer::Factory::Engine->create(logger => $value);
     },
 
 #    log_file => sub {
@@ -179,7 +179,7 @@ my $_setters = {
         $engine_attrs->{layout} ||= $config->{layout};
         $engine_attrs->{views}  ||= path($self->config_location, 'views');
 
-        return Dancer::Factory::Engine->build(template => $value, %{$engine_attrs});
+        return Dancer::Factory::Engine->create(template => $value, %{$engine_attrs});
     },
 #    route_cache => sub {
 #        my ($setting, $value) = @_;
@@ -192,7 +192,7 @@ my $_setters = {
         my $engine_options = $self->_get_config_for_engine(
             serializer => $value, $config);
 
-        return Dancer::Factory::Engine->build(
+        return Dancer::Factory::Engine->create(
             serializer => $value, 
             config => $engine_options);
     },

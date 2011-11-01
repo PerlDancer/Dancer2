@@ -4,7 +4,7 @@ use warnings;
 
 use Carp 'croak';
 
-sub build {
+sub create {
     my ($class, $type, $name, %options) = @_;
 
     $type = _camelize($type);
