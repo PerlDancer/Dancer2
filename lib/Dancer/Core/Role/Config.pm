@@ -7,6 +7,7 @@ use Moo::Role;
 # read/write config entries.
 
 use Dancer::Factory::Engine;
+use File::Spec;
 use Dancer::Moo::Types;
 use Dancer::FileUtils qw/dirname path/;
 use Carp 'croak', 'carp';
@@ -161,10 +162,14 @@ my $_setters = {
 #    log_file => sub {
 #        Dancer::Logger->init(setting("logger"), setting());
 #    },
-#    session => sub {
-#        my ($setting, $value) = @_;
-#        Dancer::Session->init($value, settings());
-#    },
+    session => sub {
+        my ($self, $value, $config) = @_;
+        return $value if ref($value);
+
+        my $engine_options = $self->_get_config_for_engine(session => $value, $config);
+        $engine_options->{session_dir} ||= File::Spec->catdir($self->config_location, 'sessions');
+        return Dancer::Factory::Engine->build(session => $value, %{$engine_options});
+    },
     template => sub {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
