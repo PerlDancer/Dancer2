@@ -7,22 +7,20 @@ use Carp 'croak';
 has hooks => (
     is => 'rw',
     isa => sub { HashRef(@_) },
-    default => sub { {} },
+    builder => '_build_hooks',
+    lazy => 1,
 );
 
-# This lets you define a list of possible hook names
-# for the registry
-sub install_hooks {
-    my ($self, @hook_names) = @_;
+# mst++ for the hint
+sub _build_hooks {
+    my ($self) = @_;
+    my %hooks = map +($_ => []), $self->supported_hooks;
+    return \%hooks;
+}
 
-    # use our supported_hooks by default
-    @hook_names = $self->supported_hooks if !@hook_names;
-
-    for my $h (@hook_names) {
-        croak "Hook '$h' is already registered, please use another name" 
-          if $self->has_hook($h);
-        $self->{hooks}->{$h} = [];
-    }
+sub install_hooks { 
+    use Carp;
+    carp 'DEPRECATED DONT CALL ME';
 }
 
 # This binds a coderef to an installed hook if not already
