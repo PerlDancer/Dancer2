@@ -5,6 +5,8 @@ content_type: "text/plain"
 logger: "console"
 template: "template_toolkit"
 
+session: 'YAML'
+
 engines:
   template:
     template_toolkit:
