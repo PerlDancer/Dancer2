@@ -72,10 +72,9 @@ sub session {
     my $session;
 
     # fetch any existing session
-    my $session_id = $self->context->cookie($engine->name)->value;
-    if (defined $session_id) {
-        warn "fetching session $session_id";
-        my $existing_session = $engine->retrieve($session_id);
+    my $cookie = $self->context->cookie($engine->name);
+    if (defined $cookie && defined $cookie->value) {
+        my $existing_session = $engine->retrieve($cookie->value);
         $session = $existing_session if defined $existing_session;
     }
 
