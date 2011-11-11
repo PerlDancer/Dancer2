@@ -198,14 +198,14 @@ sub post {
 }
 
 sub any {
-    my $app = shift->app;
+    my ($self, $methods, @params) = @_;
+    my $app = $self->app;
 
-    my $methods = $_[0];
     croak "any must be given an ArrayRef of HTTP methods"
         unless ref($methods) eq 'ARRAY';
 
     for my $method (@{$methods}) {
-        $app->$method(@_);
+        $self->$method(@params);
     }
 }
 
