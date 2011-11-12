@@ -24,11 +24,13 @@ sub dispatch {
     # warn "dispatching ".$env->{PATH_INFO}
     #   . " with ".join(", ", map { $_->name } @{$self->apps });
 
+    my $body_is_parsed = 0;
     foreach my $app (@{ $self->apps }) {
         # warn "walking through routes of ".$app->name;
 
         # initialize a context for the current request
-        my $context = Dancer::Core::Context->new(app => $app, env => $env);
+        my $context = Dancer::Core::Context->new(app => $app, env => $env, body_is_parsed => $body_is_parsed);
+        $body_is_parsed = 1;
         $context->request($request) if defined $request;
         $app->context($context);
 
