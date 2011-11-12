@@ -214,7 +214,7 @@ sub put {
     $app->add_route( method => 'put', regexp => $_[0], code   => $_[1] );
 }
 
-sub del { shift->del(@_) }
+sub del { shift->delete(@_) }
 
 sub delete {
     my $app = shift->app;
