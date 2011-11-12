@@ -21,14 +21,20 @@ has default_content_type => (
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
     my ($self, $env, $request) = @_;
-    # warn "dispatching ".$env->{PATH_INFO}
-    #   . " with ".join(", ", map { $_->name } @{$self->apps });
+#    warn "dispatching ".$env->{PATH_INFO}
+#       . " with ".join(", ", map { $_->name } @{$self->apps });
+
+    # initialize a context for the current request
+    # Once per didspatching! We should not create one context for each app or we're
+    # going to parse multiple time the request body/
+    my $context = Dancer::Core::Context->new(env => $env);
 
     foreach my $app (@{ $self->apps }) {
         # warn "walking through routes of ".$app->name;
 
-        # initialize a context for the current request
-        my $context = Dancer::Core::Context->new(app => $app, env => $env);
+        # set the current app in the context
+        $context->app($app);
+
         $context->request($request) if defined $request;
         $app->context($context);
 

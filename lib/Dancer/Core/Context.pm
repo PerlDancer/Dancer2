@@ -8,7 +8,7 @@ use Dancer::Core::Response;
 use Dancer::Core::Cookie;
 
 has app => (
-    is => 'ro',
+    is => 'rw',
     isa => sub { ObjectOf('Dancer::Core::App') },
 );
 
@@ -25,7 +25,7 @@ has request => (
     is => 'rw',
     lazy => 1,
     builder => '_build_request',
-    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Request' => @_) },
+    isa => sub { ObjectOf('Dancer::Core::Request' => @_) },
 );
 
 sub _build_request {
