@@ -28,9 +28,13 @@ has request => (
     isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Request' => @_) },
 );
 
+has body_is_parsed => (
+  is => 'rw',
+);
+
 sub _build_request {
     my ($self) = @_;
-    Dancer::Core::Request->new(env => $self->env);
+    Dancer::Core::Request->new(env => $self->env, body_is_parsed => $self->body_is_parsed);
 }
 
 # a buffer for per-request variables
