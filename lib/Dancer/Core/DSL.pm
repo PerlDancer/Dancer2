@@ -7,78 +7,71 @@ use Carp;
 
 with 'Dancer::Core::Role::DSL';
 
-
-#
-# Default Dancer's syntax
-#
-
-#
-# Handy helpers
-#
-
 sub dsl_keywords {
     [   
+        [any          => 1],
+        [captures     => 0],
+        [config       => 1],
+        [content_type => 0],
+        [context      => 0],
+        [cookie       => 0],
+        [cookies      => 0],
+        [core_debug   => 1],
+        [dance        => 1],
         [dancer_app   => 1],
         [debug        => 1],
-        [warning      => 1],
-        [error        => 1],
-        [true         => 1],
-        [false        => 1],
-        [dirname      => 1],
-        [path         => 1],
-        [config       => 1],
-        [engine       => 1],
-        [setting      => 1],
-        [set          => 1],
-        [template     => 0],
-        [session      => 0],
-        [send_file    => 0],
-        [hook         => 1],
-        [prefix       => 1],
-        [halt         => 0],
-        [get          => 1],
-        [post         => 1],
-        [any          => 1],
-        [put          => 1],
         [del          => 1],
-        [options      => 1],
-        [runner       => 1],
-        [start        => 1],
-        [dance        => 1],
-        [status       => 0],
-        [push_header  => 0],
+        [dirname      => 1],
+        [dsl          => 1],
+        [engine       => 1],
+        [error        => 1],
+        [false        => 1],
+        [forward      => 0],
+        [from_dumper  => 1],
+        [from_json    => 1],
+        [from_yaml    => 1],
+        [get          => 1],
+        [halt         => 0],
         [header       => 0],
         [headers      => 0],
-        [content_type => 0],
+        [hook         => 1],
+        [log          => 1],
+        [mime         => 1],
+        [options      => 1],
+        [param        => 0],
+        [params       => 0],
         [pass         => 0],
-        [context      => 0],
+        [path         => 1],
+        [post         => 1],
+        [prefix       => 1],
+        [push_header  => 0],
+        [put          => 1],
+        [redirect     => 0],
         [request      => 0],
         [response     => 0],
-        [upload       => 0],
-        [captures     => 0],
-        [uri_for      => 0],
+        [runner       => 1],
+        [send_file    => 0],
+        [session      => 0],
+        [set          => 1],
+        [setting      => 1],
         [splat        => 0],
-        [params       => 0],
-        [param        => 0],
-        [redirect     => 0],
-        [forward      => 0],
-        [vars         => 0],
-        [var          => 0],
-        [cookies      => 0],
-        [mime         => 1],
-        [cookie       => 0],
-        [from_json    => 1],
-        [to_json      => 1],
-        [from_yaml    => 1],
-        [to_yaml      => 1],
-        [from_dumper  => 1],
+        [start        => 1],
+        [status       => 0],
+        [template     => 0],
         [to_dumper    => 1],
-        [log          => 1],
-        [core_debug   => 1],
+        [to_json      => 1],
+        [to_yaml      => 1],
+        [true         => 1],
+        [upload       => 0],
+        [uri_for      => 0],
+        [var          => 0],
+        [vars         => 0],
+        [warning      => 1],
     ];
 }
 
 sub dancer_app { shift->app }
+sub dsl { shift }
 
 sub debug   { shift->log(debug   => @_) }
 sub warning { shift->log(warning => @_) }
@@ -86,6 +79,7 @@ sub error   { shift->log(error   => @_) }
 
 sub true  { 1 }
 sub false { 0 }
+
 
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
 sub path    { shift and Dancer::FileUtils::path(@_)    }
