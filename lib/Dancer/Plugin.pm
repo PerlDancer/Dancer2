@@ -1,4 +1,26 @@
 package Dancer::Plugin;
+use Moo::Role;
+
+sub register_plugin {
+    my $plugin = caller;
+    my $caller = caller(1);
+
+    my $dsl = $caller->dsl;
+
+    Moo::Role->apply_role_to_package($plugin, 'Dancer::Core::Role::DSL');
+    Moo::Role->apply_roles_to_object($dsl, $plugin);
+
+    for my $k (@{ $plugin->dsl_keywords() }) {
+        my ($keyword, $is_global) = @{ $k };
+        $dsl->register($keyword, $is_global);
+    }
+
+    $dsl->export_symbols_to($caller);
+}
+
+1;
+
+__END__
 use strict;
 use warnings;
 use Carp;
