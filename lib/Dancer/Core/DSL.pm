@@ -1,146 +1,82 @@
 package Dancer::Core::DSL;
 
-use Data::Dumper;
+use Moo;
 use Dancer::Core::Hook;
 use Dancer::FileUtils;
-use Moo;
-
-has app => (is => 'ro', required => 1);
-
 use Carp;
 
-{
-    my %keywords = map +($_ => 1), qw(
-        after
-        any
-        app
-        before
-        before_template
-        captures
-        config
-        content_type
-        cookie
-        cookies
-        context
-        dance
-        dancer_app
-        debug
-        del
-        dirname
-        engine
-        error
-        false
-        forward
-        from_json
-        from_yaml
-        from_dumper
-        get
-        halt
-        header
-        headers
-        hook
-        mime
-        options
-        param
-        params
-        pass
-        path
-        post
-        prefix
-        push_header
-        put
-        redirect
-        request
-        response
-        send_file
-        session
-        set
-        setting
-        splat
-        start
-        status
-        template
-        to_json
-        to_yaml
-        to_dumper
-        true
-        upload
-        uri_for
-        var
-        vars
-        warning
-    );
+with 'Dancer::Core::Role::DSL';
 
-    $keywords{$_} = 1 for qw(
-        after
-        any
-        before
-        before_template
-        config
-        content_type
-        dance
-        dancer_app
-        dirname
-        debug
-        del
-        error
-        false
-        from_json
-        to_json
-        from_yaml
-        to_yaml
-        from_dumper
-        to_dumper
-        header
-        headers
-        hook
-        get
-        mime
-        options
-        path
-        post
-        prefix
-        push_header
-        put
-        set
-        setting
-        start
-        uri_for
-        true
-        warning
-    );
-
-    sub _keyword_list { keys %keywords }
-    sub _is_global_keyword { $keywords{$_[1]} }
-}
-
-sub construct_export_map {
-    my ($self) = @_;
-    my %map;
-    foreach my $keyword ($self->_keyword_list) {
-        if ($self->_is_global_keyword($keyword)) {
-            $map{$keyword} = sub { 
-                core_debug("[".$self->app->name."] -> $keyword(".join(', ', @_).")");
-                $self->$keyword(@_);
-            };
-        } else {
-            $map{$keyword} = sub {
-                croak "Function '$keyword' must be called from a route handler"
-                    unless defined $self->app->context;
-                $self->$keyword(@_);
-            }
-        }
-    }
-    return \%map;
-}
 
 #
-# Dancer's syntax
+# Default Dancer's syntax
 #
 
 #
 # Handy helpers
 #
+
+sub dsl_keywords {
+    [   
+        [dancer_app   => 1],
+        [debug        => 1],
+        [warning      => 1],
+        [error        => 1],
+        [true         => 1],
+        [false        => 1],
+        [dirname      => 1],
+        [path         => 1],
+        [config       => 1],
+        [engine       => 1],
+        [setting      => 1],
+        [set          => 1],
+        [template     => 0],
+        [session      => 0],
+        [send_file    => 0],
+        [hook         => 1],
+        [prefix       => 1],
+        [halt         => 0],
+        [get          => 1],
+        [post         => 1],
+        [any          => 1],
+        [put          => 1],
+        [del          => 1],
+        [options      => 1],
+        [runner       => 1],
+        [start        => 1],
+        [dance        => 1],
+        [status       => 0],
+        [push_header  => 0],
+        [header       => 0],
+        [headers      => 0],
+        [content_type => 0],
+        [pass         => 0],
+        [context      => 0],
+        [request      => 0],
+        [response     => 0],
+        [upload       => 0],
+        [captures     => 0],
+        [uri_for      => 0],
+        [splat        => 0],
+        [params       => 0],
+        [param        => 0],
+        [redirect     => 0],
+        [forward      => 0],
+        [vars         => 0],
+        [var          => 0],
+        [cookies      => 0],
+        [mime         => 1],
+        [cookie       => 0],
+        [from_json    => 1],
+        [to_json      => 1],
+        [from_yaml    => 1],
+        [to_yaml      => 1],
+        [from_dumper  => 1],
+        [to_dumper    => 1],
+        [log          => 1],
+        [core_debug   => 1],
+    ];
+}
 
 sub dancer_app { shift->app }
 
@@ -344,3 +280,4 @@ sub core_debug {
 }
 
 1;
+
