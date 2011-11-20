@@ -6,7 +6,6 @@ sub import {
     my $class = shift;
     my $plugin = caller;
 
-    Moo::Role->apply_role_to_package($plugin, 'Moo::Role');
 
     my @export = qw(
         register_plugin
@@ -17,6 +16,11 @@ sub import {
         no strict 'refs';
         *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
     }
+    
+    # Make sure our caller becomes a Moo::Role
+    # Perl 5.8.5+ mandatory for that trick
+    @_ = ('Moo::Role');
+    goto &Moo::Role::import
 }
 
 # registry for storing all keywords, their code and the plugin they come from
