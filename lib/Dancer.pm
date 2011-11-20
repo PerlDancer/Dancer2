@@ -74,13 +74,7 @@ sub import {
     $runner->server->register_application($app);
 
     my $dsl = Dancer::Core::DSL->new(app => $app);
-
-    my $exports = $dsl->construct_export_map;
-
-    foreach my $export (keys %$exports) {
-        no strict 'refs';
-        *{"${caller}::${export}"} = $exports->{$export};
-    }
+    $dsl->export_symbols_to($caller);
 
 #
 #    # if :syntax option exists, don't change settings

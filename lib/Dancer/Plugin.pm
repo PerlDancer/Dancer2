@@ -1,4 +1,88 @@
 package Dancer::Plugin;
+use Moo::Role;
+use Carp 'croak';
+
+sub import {
+    my $class = shift;
+    my $plugin = caller;
+
+
+    my @export = qw(
+        register_plugin
+        register
+    );
+
+    for my $symbol (@export) {
+        no strict 'refs';
+        *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
+    }
+    
+    # Make sure our caller becomes a Moo::Role
+    # Perl 5.8.5+ mandatory for that trick
+    @_ = ('Moo::Role');
+    goto &Moo::Role::import
+}
+
+# registry for storing all keywords, their code and the plugin they come from
+my $_keywords = {};
+
+sub register {
+    my $plugin = caller;
+    my $caller = caller(1);
+    my ($keyword, $code, $options) = @_;
+    $options ||= { is_global => 1 };
+
+    $keyword =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
+      or croak "You can't use '$keyword', it is an invalid name"
+        . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
+
+    if (
+        grep { $_ eq $keyword } 
+        map  { s/^(?:\$|%|&|@|\*)//; $_ } 
+        ( map { $_->[0] } @{ Dancer::Core::DSL->dsl_keywords } )
+    ) {
+        croak "You can't use '$keyword', this is a reserved keyword";
+    }
+
+    while (my ($plugin, $keywords) = each %$_keywords) {
+        if (grep { $_->[0] eq $keyword } @$keywords) {
+            croak "You can't use $keyword, "
+                . "this is a keyword reserved by $plugin";
+        }
+    }
+
+    $_keywords->{$plugin} ||= [];
+    push @{$_keywords->{$plugin}}, [
+        $keyword, 
+        $code, 
+        $options->{is_global}
+    ];
+}
+
+sub register_plugin {
+    my $plugin = caller;
+    my $caller = caller(1);
+
+    my $dsl = $caller->dsl;
+
+    Moo::Role->apply_role_to_package($plugin, 'Dancer::Core::Role::DSL');
+
+    for my $k (@{ $_keywords->{$plugin} }) {
+        my ($keyword, $code, $is_global) = @{ $k };
+        {
+            no strict 'refs';
+            *{"${plugin}::${keyword}"} = $code;
+        }
+        $dsl->register($keyword, $is_global);
+    }
+    
+    Moo::Role->apply_roles_to_object($dsl, $plugin);
+    $dsl->export_symbols_to($caller);
+}
+
+1;
+
+__END__
 use strict;
 use warnings;
 use Carp;
