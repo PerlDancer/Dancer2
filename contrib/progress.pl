@@ -70,7 +70,7 @@ my @expected = qw(
 );
 
 use Dancer::Core::DSL;
-my @done = Dancer::Core::DSL->_keyword_list;
+my @done = Dancer::Core::DSL->dsl_keywords_as_list;
 
 my $target = scalar(@expected);
 my $done   = scalar(@done);
