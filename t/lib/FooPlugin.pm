@@ -3,7 +3,6 @@ use Dancer::Plugin;
 
 register foo_wrap_request => sub {
     my ($self) = @_;
-    warn "foo_wrap_request : @_";
     return $self->request;
 },
 { is_global => 0 };

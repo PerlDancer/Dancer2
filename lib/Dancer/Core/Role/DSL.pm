@@ -28,6 +28,7 @@ sub register {
     push @{$self->keywords}, [ $keyword, $is_global ];
 }
 
+# exports new symbol to caller
 sub export_symbols_to {
     my ($self, $caller) = @_;
 
@@ -35,9 +36,9 @@ sub export_symbols_to {
 
     foreach my $export (keys %{ $exports }) {
         no strict 'refs';
-        no warnings 'redefine';
-        *{"${caller}::${export}"} = $exports->{$export};
-    }
+        my $existing = *{"${caller}::${export}"}{CODE};
+        *{"${caller}::${export}"} = $exports->{$export} unless defined $existing;
+   }
 
     return keys %{ $exports };
 }

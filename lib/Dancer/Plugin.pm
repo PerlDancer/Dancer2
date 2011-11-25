@@ -7,6 +7,7 @@ sub import {
     my $class = shift;
     my $plugin = caller;
 
+
     # First, export Dancer::Plugins symbols
     my @export = qw(
         register_plugin
@@ -23,7 +24,7 @@ sub import {
     # their first argument).
     # These modified versions of the DSL are then exported in the namespace of the
     # plugin.
-    for my $symbol (map { $_->[0] } @{Dancer::Core::DSL->dsl_keywords}) {
+    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
 
         # get the original symbol from the real DSL
         no strict 'refs';
