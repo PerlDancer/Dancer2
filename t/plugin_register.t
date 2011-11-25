@@ -2,9 +2,10 @@ use strict;
 use warnings;
 
 use Test::More import => ['!pass'];
-use Dancer::Plugin;
+use Dancer::Test;
 
 subtest 'reserved keywords' => sub {
+    use Dancer::Plugin;
     eval {
         register dance => sub {1};
     };
@@ -37,24 +38,4 @@ subtest 'plugin reserved keywords' => sub {
             "cant register a keyword already registered by another plugin";
     }
 };
-
-subtest 'global and route keywords' => sub { 
-    use Dancer;
-    use Dancer::Test;
-    use t::lib::FooPlugin;
-
-    get '/' => sub {
-        foo_wrap_request->env->{'PATH_INFO'};
-    };
-
-    foo_route;
-
-    my $r = dancer_response( GET => '/' );
-    is($r->[2][0], '/', 'route defined by a plugin');
-
-    $r = dancer_response( GET => '/foo' );
-    is($r->[2][0], 'foo', 'DSL keyword wrapped by a plugin');
-};
-
-
 done_testing;

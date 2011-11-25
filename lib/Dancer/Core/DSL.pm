@@ -10,6 +10,7 @@ with 'Dancer::Core::Role::DSL';
 sub dsl_keywords {
     [   
         [any          => 1],
+        [app          => 1],
         [captures     => 0],
         [config       => 1],
         [content_type => 0],
@@ -68,6 +69,10 @@ sub dsl_keywords {
         [vars         => 0],
         [warning      => 1],
     ];
+}
+
+sub dsl_keywords_as_list {
+    map { $_->[0] } @{ dsl_keywords() }
 }
 
 sub dancer_app { shift->app }

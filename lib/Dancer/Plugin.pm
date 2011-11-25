@@ -1,23 +1,48 @@
 package Dancer::Plugin;
 use Moo::Role;
 use Carp 'croak';
+use Dancer::Core::DSL;
 
 sub import {
     my $class = shift;
     my $plugin = caller;
 
 
+    # First, export Dancer::Plugins symbols
     my @export = qw(
         register_plugin
         register
     );
-
     for my $symbol (@export) {
         no strict 'refs';
         *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
     }
+
+    # Support for Dancer 1 syntax for plugin.
+    # Then, compile Dancer's DSL keywords into self-contained keywords for the
+    # plugin (actually, we call all the symbols by giving them $caller->dsl as
+    # their first argument).
+    # These modified versions of the DSL are then exported in the namespace of the
+    # plugin.
+    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
+
+        # get the original symbol from the real DSL
+        no strict 'refs';
+        my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
+
+        # compile it with $caller->dsl (we cant use a closure on the $caller now
+        # since we're at import time, it's not already ready).
+        my $compiled = sub {
+            my $caller = caller(2); # the app that uses the plugin
+            my $dsl = $caller->dsl;
+            $code->($dsl, @_);
+        };
+
+        # bind the newly compiled symbol to the caller's namespace.
+        *{"${plugin}::${symbol}"} = $compiled;
+    }
     
-    # Make sure our caller becomes a Moo::Role
+    # Finally, make sure our caller becomes a Moo::Role
     # Perl 5.8.5+ mandatory for that trick
     @_ = ('Moo::Role');
     goto &Moo::Role::import
@@ -62,7 +87,6 @@ sub register {
 sub register_plugin {
     my $plugin = caller;
     my $caller = caller(1);
-
     my $dsl = $caller->dsl;
 
     Moo::Role->apply_role_to_package($plugin, 'Dancer::Core::Role::DSL');

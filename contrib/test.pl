@@ -1,8 +1,17 @@
 use Dancer;
 use Data::Dumper;
+use Dancer::Plugin::Foo;
+use Dancer::Plugin::Bar;
 
 get '/' => sub {
     to_yaml(session());
+};
+
+foo;
+bar;
+
+get '/req' => sub {
+    wrap_request->env->{PATH_INFO};
 };
 
 get '/write/:name/:value' => sub {

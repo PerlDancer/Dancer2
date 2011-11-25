@@ -1,12 +1,16 @@
-package Dancer::Plugin::Foo;
+package Dancer::Plugin::Bar;
 use strict;
 use warnings;
 use Dancer::Plugin;
 
-register foo => sub {
-    get '/foo' => sub {
-        "/foo";
+register bar => sub {
+    get '/bar' => sub {
+        "/bar";
     };
+};
+
+register wrap_request => sub {
+    request;
 };
 
 #get '/foo_sttings' => sub {
