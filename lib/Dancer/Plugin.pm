@@ -111,6 +111,7 @@ use strict;
 use warnings;
 use Carp;
 
+use Dancer;
 use Dancer::Core::DSL;
 use base 'Exporter';
 use vars qw(@EXPORT);
