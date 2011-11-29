@@ -68,11 +68,6 @@ sub _build_title {
     "Error ".$self->code;
 }
 
-has type => (
-    is => 'rw',
-    isa => sub { Str(@_) },
-);
-
 has code => (
     is => 'ro',
     default => sub { 500 },
