@@ -21,6 +21,12 @@ has charset => (
     default => sub { 'UTF-8' },
 );
 
+has type => (
+    is => 'ro',
+    isa => sub { Str(@_) },
+    default => sub { 'Runtime Error' },
+);
+
 has title => (
     is => 'rw',
     isa => sub { Str(@_) },
@@ -82,7 +88,7 @@ has message => (
 
 sub _build_message {
     my ($self) = @_;
-    my $html_output = "<h2>" . $self->{type} . "</h2>";
+    my $html_output = "<h2>" . $self->type . "</h2>";
     $html_output .= $self->backtrace;
     $html_output .= $self->environment;
     return $html_output;
