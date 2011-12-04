@@ -2,6 +2,7 @@ package Dancer::Core::DSL;
 
 use Moo;
 use Dancer::Core::Hook;
+use Dancer::Core::Error;
 use Dancer::FileUtils;
 use Carp;
 
@@ -85,9 +86,20 @@ sub error   { shift->log(error   => @_) }
 sub true  { 1 }
 sub false { 0 }
 
-
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
 sub path    { shift and Dancer::FileUtils::path(@_)    }
+
+sub send_error { 
+    my ($self, $message, $code) = @_;
+    Dancer::Core::Error->new(
+        message => $message, 
+        app => $self->app,
+        context => $self->app->context,
+        serializer => $self->engine('serializer'),
+        template => $self->engine('template'),
+        code => $code || 500,
+        )->render;
+}
 
 sub config { shift->app->settings }
 

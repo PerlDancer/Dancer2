@@ -10,6 +10,7 @@ use vars '@EXPORT';
 
 @EXPORT = qw(
     Str Num HashRef ArrayRef CodeRef Regexp ObjectOf Bool ConsumerOf
+    ReadableFilePath WritableFilePath 
     DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
 );
 
@@ -77,7 +78,6 @@ sub CodeRef {
          || (ref($value) ne 'CODE');
 }
 
-
 sub ArrayRef {
     my ($value) = @_;
     return if ! defined $value;
@@ -92,6 +92,18 @@ sub ObjectOf {
     raise_type_exception "ObjectOf(${class})" => $value
       if !  blessed($value) 
          || (ref($value) ne $class);
+}
+
+sub ReadableFilePath {
+    my ($value) = @_;
+    raise_type_exception ReadableFilePath => $value 
+      if ! -e $value || ! -r $value;
+}
+
+sub WritableFilePath {
+    my ($value) = @_;
+    raise_type_exception WritableFilePath => $value 
+      if ! -e $value || ! -w $value;
 }
 
 # Dancer-specific types

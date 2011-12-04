@@ -77,11 +77,9 @@ has code => (
 has message => (
     is => 'rw',
     isa => sub { Str(@_) },
-    lazy => 1,
-    builder => '_build_message',
 );
 
-sub _build_message {
+sub full_message {
     my ($self) = @_;
     my $html_output = "<h2>" . $self->type . "</h2>";
     $html_output .= $self->backtrace;
