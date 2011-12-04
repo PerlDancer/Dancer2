@@ -8,7 +8,8 @@ sub import {
     my $plugin = caller;
 
     my $app = caller(2);
-    my $dsl = $app->dsl;
+    my $dsl;
+    $dsl = $app->dsl if $app->can('dsl');
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
@@ -26,17 +27,19 @@ sub import {
     # their first argument).
     # These modified versions of the DSL are then exported in the namespace of the
     # plugin.
-    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
+    if (defined $dsl) {
+        for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
 
-        # get the original symbol from the real DSL
-        no strict 'refs';
-        my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
+            # get the original symbol from the real DSL
+            no strict 'refs';
+            my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
 
-        # compile it with $caller->dsl
-        my $compiled = sub { $code->($dsl, @_) };
+            # compile it with $caller->dsl
+            my $compiled = sub { $code->($dsl, @_) };
 
-        # bind the newly compiled symbol to the caller's namespace.
-        *{"${plugin}::${symbol}"} = $compiled;
+            # bind the newly compiled symbol to the caller's namespace.
+            *{"${plugin}::${symbol}"} = $compiled;
+        }
     }
     
     # Finally, make sure our caller becomes a Moo::Role
