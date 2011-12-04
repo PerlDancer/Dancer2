@@ -7,6 +7,8 @@ sub import {
     my $class = shift;
     my $plugin = caller;
 
+    my $app = caller(2);
+    my $dsl = $app->dsl;
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
@@ -30,13 +32,8 @@ sub import {
         no strict 'refs';
         my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
 
-        # compile it with $caller->dsl (we cant use a closure on the $caller now
-        # since we're at import time, it's not already ready).
-        my $compiled = sub {
-            my $caller = caller(2); # the app that uses the plugin
-            my $dsl = $caller->dsl;
-            $code->($dsl, @_);
-        };
+        # compile it with $caller->dsl
+        my $compiled = sub { $code->($dsl, @_) };
 
         # bind the newly compiled symbol to the caller's namespace.
         *{"${plugin}::${symbol}"} = $compiled;
