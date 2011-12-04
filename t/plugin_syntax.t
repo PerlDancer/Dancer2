@@ -39,4 +39,15 @@ subtest 'plugin old syntax' => sub {
     is $r->[2][0], 'foo plugin';
 };
 
+subtest caller_dsl => sub {
+     {
+        use Dancer;
+        use t::lib::Dancer1Plugin;
+    }
+
+    my $r = dancer_response GET => '/sitemap';
+    is $r->[2][0], '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$'
+   
+};
+
 done_testing;
