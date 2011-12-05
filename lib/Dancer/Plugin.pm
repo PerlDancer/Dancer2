@@ -3,13 +3,26 @@ use Moo::Role;
 use Carp 'croak';
 use Dancer::Core::DSL;
 
-sub import {
-    my $class = shift;
-    my $plugin = caller;
-
-    my $app = caller(2);
+sub _get_dsl {
     my $dsl;
-    $dsl = $app->dsl if $app->can('dsl');
+    my $deep = 2;
+    while (my $caller = caller($deep++)) {
+        warn "testing caller $caller ($deep)";
+        $dsl = $caller->dsl if $caller->can('dsl');
+        last if defined $dsl;
+    }
+
+    croak "Dancer::Plugin must be called from a Dancer app." 
+        if not defined $dsl;
+
+
+    return $dsl;
+}
+
+sub import {
+    my $class  = shift;
+    my $plugin = caller;
+    my $dsl    = _get_dsl();
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
@@ -27,19 +40,17 @@ sub import {
     # their first argument).
     # These modified versions of the DSL are then exported in the namespace of the
     # plugin.
-    if (defined $dsl) {
-        for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
+    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
 
-            # get the original symbol from the real DSL
-            no strict 'refs';
-            my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
+        # get the original symbol from the real DSL
+        no strict 'refs';
+        my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
 
-            # compile it with $caller->dsl
-            my $compiled = sub { $code->($dsl, @_) };
+        # compile it with $caller->dsl
+        my $compiled = sub { $code->($dsl, @_) };
 
-            # bind the newly compiled symbol to the caller's namespace.
-            *{"${plugin}::${symbol}"} = $compiled;
-        }
+        # bind the newly compiled symbol to the caller's namespace.
+        *{"${plugin}::${symbol}"} = $compiled;
     }
     
     # Finally, make sure our caller becomes a Moo::Role
