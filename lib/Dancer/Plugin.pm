@@ -7,14 +7,12 @@ sub _get_dsl {
     my $dsl;
     my $deep = 2;
     while (my $caller = caller($deep++)) {
-        warn "testing caller $caller ($deep)";
         $dsl = $caller->dsl if $caller->can('dsl');
         last if defined $dsl;
     }
 
     croak "Dancer::Plugin must be called from a Dancer app." 
         if not defined $dsl;
-
 
     return $dsl;
 }
