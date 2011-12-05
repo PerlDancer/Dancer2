@@ -133,12 +133,17 @@ sub response_headers_include {
 # all the symbols exported by Dancer::Test are compiled so they can receive the
 # $app object of the caller as their first argument.
 sub import {
-    my ($class, @args) = @_;
+    my ($class, $app_name) = @_;
     my ($caller, $script) = caller;
 
     my $app;
-    $caller->can('dancer_app') and
+    $app = $app_name->dancer_app 
+        if defined $app_name;
+
+    if (! defined $app) {
+        $caller->can('dancer_app') and
         $app = $caller->dancer_app;
+    }
 
     for my $symbol (@EXPORT) {
         my $orig_sub = _get_orig_symbol($symbol);
