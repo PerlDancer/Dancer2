@@ -44,6 +44,11 @@ has regexp => (
     required => 1,
 );
 
+has spec_route => (
+    is => 'rw',
+    isa => sub { Str(@_) },
+);
+
 =attr prefix
 
 The prefix to prepend to the C<regexp>. Optional.
@@ -229,6 +234,9 @@ sub _init_prefix {
 sub _init_regexp {
     my ($self) = @_;
     my $value = $self->regexp;
+
+    # store the original valeu fo the route
+    $self->spec_route($value);
 
     # already a Regexp, so capture is true
     if (ref($value) eq 'Regexp') {
