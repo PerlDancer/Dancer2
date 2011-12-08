@@ -6,11 +6,12 @@ use Dancer::Core::Hook;
 use File::Spec;
 use File::Basename 'dirname';
 
-eval "use Dancer::Template::TemplateToolkit";
-
+eval "use Template;";
 if ($@) {
-   plan skip_all => "Template::Toolkit probably missing.";
+    plan skip_all => 'Template::Toolkit probably missing.';
 }
+
+use_ok('Dancer::Template::TemplateToolkit');
 
 my $views = File::Spec->rel2abs(
     File::Spec->catfile(dirname(__FILE__), 'views'));
