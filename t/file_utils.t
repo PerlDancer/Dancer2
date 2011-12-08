@@ -29,7 +29,7 @@ my $tmp = File::Temp->new();
 write_file($tmp, "one$/two");
 
 $content = read_file_content($tmp);
-ok $content = "one$/two";
+is $content, "one$/two";
 
 my @content = read_file_content($tmp);
 ok $content[0] eq "one$/" && $content[1] eq 'two';
