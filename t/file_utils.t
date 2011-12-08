@@ -14,6 +14,12 @@ sub write_file {
     close CONF;
 }
 
+sub hexe {
+    my $s = shift;
+    $s =~ s/([\x00-\x1F])/sprintf('%#x',ord($1))/eg;
+    return $s;
+}
+
 eval { Dancer::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') };
 like $@, qr{/slfkjsdlkfjsdlf' using mode '<'};
 
@@ -29,10 +35,11 @@ my $tmp = File::Temp->new();
 write_file($tmp, "one$/two");
 
 $content = read_file_content($tmp);
-is $content, "one$/two";
+is hexe($content), hexe("one$/two");
 
 my @content = read_file_content($tmp);
-ok $content[0] eq "one$/" && $content[1] eq 'two';
+is hexe($content[0]), hexe("one$/");
+is $content[1], 'two';
 
 # returns UNDEF on non-existant path
 my $path = 'bla/blah';
