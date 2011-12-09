@@ -26,6 +26,7 @@ sub import {
     my @export = qw(
         register_plugin
         register
+        plugin_setting
     );
     for my $symbol (@export) {
         no strict 'refs';
@@ -112,6 +113,14 @@ sub register_plugin {
     Moo::Role->apply_roles_to_object($dsl, $plugin);
     $dsl->export_symbols_to($caller);
 }
+
+sub plugin_setting {
+    my $plugin = caller;
+    (my $plugin_name = $plugin) =~ s/Dancer::Plugin:://;
+    my $app = $plugin->dancer_app;
+    return $app->config->{'plugins'}->{$plugin_name} ||= {};
+}
+
 
 1;
 
