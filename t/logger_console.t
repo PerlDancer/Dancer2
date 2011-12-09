@@ -1,7 +1,13 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Trap;
+
+eval { require Test::Trap };
+if ($@) {
+    plan skip_all => "Test::Trap is required to run these tests";
+}
+
+plan tests => 4;
 
 use Dancer::Logger::Console;
 my $l = Dancer::Logger::Console->new(log_level => 'core');
