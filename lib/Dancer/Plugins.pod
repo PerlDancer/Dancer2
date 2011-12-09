@@ -1,0 +1,127 @@
+=head1 NAME
+
+Dancer::Plugins - interesting plugins to add to Dancer's capabilities
+
+=head1 DESCRIPTION
+
+Dancer aims to keep the core as small as possible, but there are a growing
+number of useful plugins to add helpful features.
+
+This document provides a quick summary of some recommended plugins.
+
+=head1 PLUGINS
+
+=over 4
+
+=item L<Dancer::Plugin::Database>
+
+Provides easy database access via DBI, reading the DB connection details from
+your app's config file, and taking care of ensuring the connection is still valid
+and reconnecting if not (useful in persistent environments).  Just calling the
+C<database> keyword gives you a connected and working database handle. It also
+provides some helpful keywords to make inserting/updating data as simple as it
+should be.
+
+=item L<Dancer::Plugin::DBIC>
+
+Provides easy acces to DBIx::Class database virtualization.
+
+=item L<Dancer::Plugin::Auth::RBAC>
+
+Dancer Authentication, Security and Role-Based Access Control Framework.
+
+=item L<Dancer::Plugin::Email>
+
+Provides easy email-sending powered by Email::Send - simply call the C<email>
+keyword.  Email sending settings can be taken from your app's config.
+
+=item L<Dancer::Plugin::SMS>
+
+Send SMS text messages to mobile phones from your Dancer app, using any service
+supported by L<SMS::Send>.
+
+
+=item L<Dancer::Plugin::Ajax>
+
+Provides easy way to add Ajax route handlers.
+
+=item L<Dancer::Plugin::REST>
+
+Makes writing RESTful web services easy.
+
+=item L<Dancer::Plugin::SiteMap>
+
+Automatically provides site maps (as a HTML page, or as an XML sitemap ready for
+Google) based on the routes your app defines.
+
+=item L<Dancer::Plugin::Validation>
+
+Easy data validation powered by L<Oogly>.
+
+=item L<Dancer::Plugin::Params::Normalization>
+
+Provides different ways of normalizing parameter names
+
+=item L<Dancer::Plugin::SimpleCRUD>
+
+Provides easy CRUD (create, read, update, delete) facilities, automatically
+creating routes to display, add, edit and delete data from a database table.
+
+=item L<Dancer::Plugin::WebSocket>
+
+Supports building apps using Web Sockets for bi-directional, full-duplex
+communications over a long-lived socket connection.
+
+=item L<Dancer::Plugin::Memcached>
+
+Cache page responses or individual items of data with memcached for performance.
+
+=item L<Dancer::Plugin::MobileDevice>
+
+Quickly determine whether the client is a mobile browser, in order to offer a
+simplified layout, or otherwise customise features.
+
+=item L<Dancer::Plugin::NYTProf>
+
+Provides dead-simple profiling of your app using L<Devel::NYTProf> - enables
+profiling for each request individually, serves up a list of profiling runs, and
+generates & sends the HTML reports produced by C<nytprofhtml>.
+
+=item L<Dancer::Plugin::Bcrypt>
+
+Provides simple effective password hashing and validation using Bcrypt.
+
+=item L<Dancer::Plugin::Cache::CHI>
+
+Provides caching for generated pages and/or arbitrary data.  Uses L<CHI>, so is
+backend-agnostic - caching can be done in memory, to files, using Memcache, in a
+database, or any other method for which there is a L<CHI::Driver> module.
+
+=item L<Dancer::Plugin::Thumbnail>
+
+Easy thumbnail generation using L<GD>.
+
+=item L<Dancer::Plugin::Captcha::SecurityImage>
+
+Easy CAPTCHA image generation and validation, using L<GD>.
+
+=item L<Dancer::Plugin::Facebook>
+
+Easily work with Facebook's Graph API from your Perl Dancer app.  Uses
+L<Facebook::Graph>.
+
+=item L<Dancer::Plugin::Redis>
+
+Easy L<Redis> database connections, based upon L<Dancer::Plugin::Database>.
+
+=item L<Dancer::Plugin::XML::RSS>
+
+Easy XML RSS creation and consumption.
+
+=back
+
+More plugins are appearing on CPAN all the time - just search for
+C<Dancer::Plugin> to see what may have been released since this document was
+last updated!
+
+
