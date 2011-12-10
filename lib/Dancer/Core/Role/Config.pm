@@ -154,13 +154,7 @@ my $_setters = {
     logger => sub {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
-        my $running_env = $self->get_environment || 'development';
-
         my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
-        $engine_options->{log_dir} ||=
-            File::Spec->catdir($self->config_location, 'logs');
-        $engine_options->{file_name} ||= "${running_env}.log";
-        
         return Dancer::Factory::Engine->create(logger => $value, %{$engine_options});
     },
 
@@ -223,15 +217,20 @@ sub _compile_config_entry {
 sub _get_config_for_engine {
     my ($self, $engine, $name, $config) = @_;
 
-    return {} unless defined $config->{engines};
+    my $default_config = {
+        environment => $self->get_environment,
+        location    => $self->config_location,
+    };
+    return $default_config unless defined $config->{engines};
     
     if (! defined $config->{engines}{$engine}) {
-        carp "No config section for engines/$engine "
-           . "(unable to find configuration for $name)";
-        return {};
+        return $default_config;
     }
 
-    return $config->{engines}{$engine}{$name} || {};
+    return {   
+        %{ $default_config }, 
+        %{ $config->{engines}{$engine}{$name} } ,
+    } || $default_config;
 }
 
 1;

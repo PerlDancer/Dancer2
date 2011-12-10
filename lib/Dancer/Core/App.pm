@@ -22,6 +22,16 @@ has location => (
     default => sub { File::Spec->rel2abs('.') },
 );
 
+sub config_location { goto &location }
+
+has environment => (
+    is => 'ro',
+    isa => sub { Str(@_) },
+    default => sub { 'development' },
+);
+
+sub get_environment { goto &environment }
+
 has runner_config => (
     is => 'ro',
     isa => sub { HashRef(@_) },
@@ -106,10 +116,6 @@ sub template {
     return $content;
 }
 
-# we dont support per-app config files yet
-# (but that could be easy to do in the future)
-sub config_location { undef }
-sub get_environment { undef }
 
 sub supported_hooks {
     qw/before after before_request after_request/

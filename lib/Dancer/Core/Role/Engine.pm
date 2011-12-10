@@ -6,6 +6,9 @@ with 'Dancer::Core::Role::Hookable';
 
 requires 'type';
 
+has environment => (is => 'ro');
+has location => (is => 'ro');
+
 has context => (
     is => 'rw',
     isa => sub { ObjectOf('Dancer::Core::Context', @_) },
