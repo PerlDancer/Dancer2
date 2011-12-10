@@ -19,6 +19,7 @@ our @EXPORT = qw(
 );
 
 use Dancer::Core::Dispatcher;
+use Dancer::Core::Request;
 
 my $_dispatcher = Dancer::Core::Dispatcher->new;
 
@@ -49,13 +50,23 @@ sub dancer_response {
         $env->{REQUEST_URI} = join('&', @params);
     }
 
+    my $request = Dancer::Core::Request->new(env => $env);
+
     # TODO body
-    # TODO headers
+    
+    # headers
+    if ($options->{headers}) {
+        for my $header (@{ $options->{headers} }) {
+            my ($name, $value) = @{$header};
+            $request->header($name => $value);
+        }
+    }
+
     # TODO files
 
     # use Data::Dumper;
     # warn "Env created : ".Dumper($env);
-    $_dispatcher->dispatch($env)->to_psgi;
+    $_dispatcher->dispatch($env, $request)->to_psgi;
 }
 
 sub response_status_is {
