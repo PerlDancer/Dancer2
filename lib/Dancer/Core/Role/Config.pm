@@ -152,16 +152,18 @@ sub _normalize_config_entry {
 
 my $_setters = {
     logger => sub {
-        my ($self, $value) = @_;
+        my ($self, $value, $config) = @_;
+        return $value if ref($value);
+        my $running_env = $self->get_environment || 'development';
+
+        my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
+        $engine_options->{log_dir} ||=
+            File::Spec->catdir($self->config_location, 'logs');
+        $engine_options->{file_name} ||= "${running_env}.log";
         
-        return (ref $value)
-          ? $value
-          : Dancer::Factory::Engine->create(logger => $value);
+        return Dancer::Factory::Engine->create(logger => $value, %{$engine_options});
     },
 
-#    log_file => sub {
-#        Dancer::Logger->init(setting("logger"), setting());
-#    },
     session => sub {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
@@ -170,6 +172,7 @@ my $_setters = {
         $engine_options->{session_dir} ||= File::Spec->catdir($self->config_location, 'sessions');
         return Dancer::Factory::Engine->create(session => $value, %{$engine_options});
     },
+
     template => sub {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
