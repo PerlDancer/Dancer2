@@ -1,11 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-
-eval { require Test::Trap };
-if ($@) {
-    plan skip_all => "Test::Trap is required to run these tests";
-}
+use Test::Trap;
 
 plan tests => 4;
 
