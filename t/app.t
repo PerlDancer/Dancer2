@@ -37,7 +37,7 @@ for my $p ('/', '/mywebsite') {
     }
 }
 
-is $app->get_environment, undef;
+is $app->get_environment, 'development';
 
 my $routes_regexps = $app->routes_regexps_for('get');
 is (scalar(@$routes_regexps), 4, "route regexps are OK");
