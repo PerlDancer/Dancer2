@@ -2,7 +2,7 @@ appname: test
 traces: 1
 charset: 'UTF8'
 content_type: "text/plain"
-logger: "console"
+logger: "File"
 template: "template_toolkit"
 
 session: 'YAML'
@@ -14,6 +14,9 @@ engines:
   serializer:
     json:
       pretty: 1
+  logger:
+    File:
+      log_dir: "/tmp/testlogs"
 
 plugins:
   Foo:
