@@ -46,7 +46,6 @@ has regexp => (
 
 has spec_route => (
     is => 'rw',
-    isa => sub { Str(@_) },
 );
 
 =attr prefix
