@@ -4,6 +4,7 @@ use Dancer::Plugin::Foo;
 use Dancer::Plugin::Bar;
 
 get '/' => sub {
+    debug "in / route";
     to_yaml(session());
 };
 

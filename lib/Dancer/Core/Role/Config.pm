@@ -152,16 +152,12 @@ sub _normalize_config_entry {
 
 my $_setters = {
     logger => sub {
-        my ($self, $value) = @_;
-        
-        return (ref $value)
-          ? $value
-          : Dancer::Factory::Engine->create(logger => $value);
+        my ($self, $value, $config) = @_;
+        return $value if ref($value);
+        my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
+        return Dancer::Factory::Engine->create(logger => $value, %{$engine_options});
     },
 
-#    log_file => sub {
-#        Dancer::Logger->init(setting("logger"), setting());
-#    },
     session => sub {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
@@ -170,6 +166,7 @@ my $_setters = {
         $engine_options->{session_dir} ||= File::Spec->catdir($self->config_location, 'sessions');
         return Dancer::Factory::Engine->create(session => $value, %{$engine_options});
     },
+
     template => sub {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
@@ -220,15 +217,20 @@ sub _compile_config_entry {
 sub _get_config_for_engine {
     my ($self, $engine, $name, $config) = @_;
 
-    return {} unless defined $config->{engines};
+    my $default_config = {
+        environment => $self->get_environment,
+        location    => $self->config_location,
+    };
+    return $default_config unless defined $config->{engines};
     
     if (! defined $config->{engines}{$engine}) {
-        carp "No config section for engines/$engine "
-           . "(unable to find configuration for $name)";
-        return {};
+        return $default_config;
     }
 
-    return $config->{engines}{$engine}{$name} || {};
+    return {   
+        %{ $default_config }, 
+        %{ $config->{engines}{$engine}{$name} } ,
+    } || $default_config;
 }
 
 1;
