@@ -11,16 +11,12 @@ sub _get_dsl {
         last if defined $dsl;
     }
 
-    croak "Dancer::Plugin must be called from a Dancer app." 
-        if not defined $dsl;
-
     return $dsl;
 }
 
 sub import {
     my $class  = shift;
     my $plugin = caller;
-    my $dsl    = _get_dsl();
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
@@ -32,6 +28,9 @@ sub import {
         no strict 'refs';
         *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
     }
+
+    my $dsl = _get_dsl();
+    return if ! defined $dsl;
 
     # Support for Dancer 1 syntax for plugin.
     # Then, compile Dancer's DSL keywords into self-contained keywords for the
