@@ -26,4 +26,23 @@ is $logger->log_level, 'debug';
 $logger->debug("foo");
 like $_logs->[0], qr{debug \@2010-06-1\d \d\d:00:00> foo in t/logger.t};
 
+subtest 'logger capture' => sub {
+    use Dancer::Logger::Capture;
+    use Dancer;
+
+    set logger => 'capture';
+
+    warning "Danger!  Warning!";
+    debug   "I like pie.";
+
+    my $trap = Dancer::Logger::Capture->trap;
+    is_deeply $trap->read, [
+        { level => "warning", message => "Danger!  Warning!" },
+        { level => "debug",   message => "I like pie.", }
+    ];
+
+    # each call to read cleans the trap
+    is_deeply $trap->read, [];
+};
+
 done_testing;
