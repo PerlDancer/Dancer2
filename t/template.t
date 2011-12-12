@@ -1,11 +1,17 @@
 use strict;
 use warnings;
 use Test::More;
-use Dancer::Template::TemplateToolkit;
 use Dancer::Core::Hook;
 
 use File::Spec;
 use File::Basename 'dirname';
+
+eval "use Template;";
+if ($@) {
+    plan skip_all => 'Template::Toolkit probably missing.';
+}
+
+use_ok('Dancer::Template::TemplateToolkit');
 
 my $views = File::Spec->rel2abs(
     File::Spec->catfile(dirname(__FILE__), 'views'));
