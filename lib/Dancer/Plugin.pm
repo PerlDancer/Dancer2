@@ -96,7 +96,7 @@ sub register {
 sub register_plugin {
     my $plugin = caller;
     my $caller = caller(1);
-    my $dsl = $caller->dsl;
+    #my $dsl = $caller->dsl;
 
     Moo::Role->apply_role_to_package($plugin, 'Dancer::Core::Role::DSL');
 
@@ -106,11 +106,11 @@ sub register_plugin {
             no strict 'refs';
             *{"${plugin}::${keyword}"} = $code;
         }
-        $dsl->register($keyword, $is_global);
+        #$dsl->register($keyword, $is_global);
     }
-    
-    Moo::Role->apply_roles_to_object($dsl, $plugin);
-    $dsl->export_symbols_to($caller);
+
+    #Moo::Role->apply_roles_to_object($dsl, $plugin);
+    #$dsl->export_symbols_to($caller);
 }
 
 sub plugin_setting {

@@ -3,6 +3,7 @@ package Dancer::Plugin::Ajax;
 use strict;
 use warnings;
 
+use Dancer ':syntax';
 use Dancer::Plugin;
 
 hook 'before' => sub {
