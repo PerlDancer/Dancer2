@@ -52,6 +52,7 @@ sub dsl_keywords {
         [response     => 0],
         [runner       => 1],
         [send_file    => 0],
+        [send_error => 0],
         [session      => 0],
         [set          => 1],
         [setting      => 1],
@@ -102,6 +103,8 @@ sub template { shift->app->template(@_) }
 sub session { shift->app->session(@_) }
 
 sub send_file { shift->app->send_file(@_) }
+
+sub send_error {shift->app->send_error(@_)}
 
 #
 # route handlers & friends
