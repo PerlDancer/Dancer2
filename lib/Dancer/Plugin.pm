@@ -42,6 +42,7 @@ sub import {
 
         # get the original symbol from the real DSL
         no strict 'refs';
+        no warnings 'redefine';
         my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
 
         # compile it with $caller->dsl
