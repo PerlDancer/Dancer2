@@ -12,7 +12,7 @@ set 'default_mime_type' => 'text/bar';
 get '/' => sub { app->name };
 
 # /haltme should bounce to /
-before sub {
+hook 'before' => sub {
     if (request->path_info eq '/haltme') {
         redirect '/';
         halt;
@@ -20,7 +20,7 @@ before sub {
 };
 get '/haltme' => sub { "should not be there" };
 
-after sub {
+hook after => sub {
     my $response = shift;
     if (request->path_info eq '/rewrite_me') {
         $response->content("rewritten!");
