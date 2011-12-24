@@ -97,6 +97,11 @@ sub register {
 sub register_plugin {
     my $plugin = caller;
     my $caller = caller(1);
+
+    # if the caller has not a dsl, we cant register the plugin 
+    return if ! $caller->can('dsl');
+
+    # we have a $dsl in our caller, we can register our symbols then
     my $dsl = $caller->dsl;
 
     Moo::Role->apply_role_to_package($plugin, 'Dancer::Core::Role::DSL');
