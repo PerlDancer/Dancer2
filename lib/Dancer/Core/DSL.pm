@@ -104,7 +104,7 @@ sub session { shift->app->session(@_) }
 
 sub send_file { shift->app->send_file(@_) }
 
-sub send_error {shift->app->send_error(@_)}
+sub send_error {shift->app->status(@_)}
 
 #
 # route handlers & friends

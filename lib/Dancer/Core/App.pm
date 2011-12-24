@@ -233,10 +233,11 @@ sub send_file {
     # TODO Streaming support
 }
 
-sub send_error {
-  my $error_message = $_[0];
-  my $error_code = $_[1];
-  return "<h1>$error_code</h1>\n$error_message"
+sub status {
+  #my $error_message = $_[0];
+  my $error_code = shift;
+  return Dancer::HTTP->status ($error_code);
+  #return "<h1>$error_code</h1>\n$error_message"
 }
 
 sub BUILD {
