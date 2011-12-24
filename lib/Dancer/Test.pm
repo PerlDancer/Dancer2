@@ -16,6 +16,9 @@ our @EXPORT = qw(
     response_status_isnt
     response_headers_include
     response_headers_are_deeply
+    response_content_like
+    response_content_is_file
+    response_content_is_deeply
 );
 
 use Dancer::Core::Dispatcher;
@@ -111,6 +114,33 @@ sub response_content_isnt {
 
     my $tb = Test::Builder->new;
     $tb->isnt_eq( $response->[2][0], $content, $test_name );
+}
+
+sub response_content_like {
+    my ($req, $matcher, $test_name) = @_;
+    $test_name ||= "response content looks good for " . _req_label($req);
+
+    my $response = _req_to_response($req);
+    my $tb = Test::Builder->new;
+    return $tb->like( $response->{content}, $matcher, $test_name );
+}
+
+sub response_content_is_deeply {
+    my ($req, $matcher, $test_name) = @_;
+    $test_name ||= "response content looks good for " . _req_label($req);
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $response = _req_to_response($req);
+    is_deeply $response->{content}, $matcher, $test_name;
+}
+
+sub response_is_file {
+    my ($req, $test_name) = @_;
+    $test_name ||= "a file is returned for " . _req_label($req);
+
+    my $response = _get_file_response($req);
+    my $tb = Test::Builder->new;
+    return $tb->ok(defined($response), $test_name);
 }
 
 sub response_headers_are_deeply {
