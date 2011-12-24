@@ -1,4 +1,4 @@
-use Test::More tests => 8;
+use Test::More tests => 9;
 use strict;
 use warnings;
 use File::Spec;
@@ -12,6 +12,12 @@ sub write_file {
     open CONF, '>', $file or die "cannot write file $file : $!";
     print CONF $content;
     close CONF;
+}
+
+sub hexe {
+    my $s = shift;
+    $s =~ s/([\x00-\x1F])/sprintf('%#x',ord($1))/eg;
+    return $s;
 }
 
 eval { Dancer::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') };
@@ -29,10 +35,11 @@ my $tmp = File::Temp->new();
 write_file($tmp, "one$/two");
 
 $content = read_file_content($tmp);
-ok $content = "one$/two";
+is hexe($content), hexe("one$/two");
 
 my @content = read_file_content($tmp);
-ok $content[0] eq "one$/" && $content[1] eq 'two';
+is hexe($content[0]), hexe("one$/");
+is $content[1], 'two';
 
 # returns UNDEF on non-existant path
 my $path = 'bla/blah';
