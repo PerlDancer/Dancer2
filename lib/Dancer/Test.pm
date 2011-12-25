@@ -17,8 +17,8 @@ our @EXPORT = qw(
     response_headers_include
     response_headers_are_deeply
     response_content_like
-    response_content_is_file
     response_content_is_deeply
+    response_is_file
 );
 
 use Dancer::Core::Dispatcher;
@@ -117,12 +117,7 @@ sub response_content_isnt {
 }
 
 sub response_content_like {
-    my ($req, $matcher, $test_name) = @_;
-    $test_name ||= "response content looks good for " . _req_label($req);
-
-    my $response = _req_to_response($req);
-    my $tb = Test::Builder->new;
-    return $tb->like( $response->{content}, $matcher, $test_name );
+    return response_content_is (@_);
 }
 
 sub response_content_is_deeply {
@@ -284,6 +279,24 @@ sub _check_header {
         return 1 if $name eq $key && $value eq $val;
     }
     return 0;
+}
+
+sub _req_to_response {
+    my $req = shift;
+
+    # already a response object
+    return $req if ref $req eq 'Dancer::Core::Response';
+
+    return dancer_response( ref $req eq 'ARRAY' ? @$req : ( 'GET', $req ) );
+}
+
+sub _get_file_response {
+    my ($req) = @_;
+
+    my ($method, $path, $params) = expand_req($req);
+    my $request = Dancer::Request->new_for_request($method => $path, $params);
+    Dancer::SharedData->request($request);
+    return Dancer::Renderer::get_file_response();
 }
 
 1;
