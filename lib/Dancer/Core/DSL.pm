@@ -2,6 +2,7 @@ package Dancer::Core::DSL;
 
 use Moo;
 use Dancer::Core::Hook;
+use Dancer::Core::Error;
 use Dancer::FileUtils;
 use Carp;
 
@@ -51,6 +52,7 @@ sub dsl_keywords {
         [request      => 0],
         [response     => 0],
         [runner       => 1],
+        [send_error   => 0],
         [send_file    => 0],
         [session      => 0],
         [set          => 1],
@@ -85,9 +87,27 @@ sub error   { shift->log(error   => @_) }
 sub true  { 1 }
 sub false { 0 }
 
-
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
 sub path    { shift and Dancer::FileUtils::path(@_)    }
+
+sub send_error { 
+    my ($self, $message, $code) = @_;
+    require 'Dancer/Serializer/JSON.pm';
+    # Should be TemplateSimple
+    require 'Dancer/Template/TemplateToolkit.pm';
+
+    my $s = Dancer::Serializer::JSON->new;
+    my $t = Dancer::Template::TemplateToolkit->new;
+
+    Dancer::Core::Error->new(
+        message => $message, 
+        app => $self->app,
+        context => $self->app->context,
+        serializer => $s,
+        template => $t,
+        code => $code || 500,
+        )->render;
+}
 
 sub config { shift->app->settings }
 
