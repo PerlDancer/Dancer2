@@ -29,14 +29,50 @@ my $env = {
 my $a = Dancer::Core::App->new(name => 'main');
 my $c = Dancer::Core::Context->new(env => $env);
 
-subtest 'basic defaults' => sub {
+subtest 'basic defaults of Error object' => sub {
     my $e = Dancer::Core::Error->new(
         app => $a,
         context => $c,
     );
-    is $e->code, 500;
-    is $e->title, 'Error 500';
-    is $e->message, '';
+    is $e->code, 500, 'code';
+    is $e->title, 'Error 500', 'title';
+    is $e->message, undef, 'message';
+};
+
+subtest "send_error in route" => sub {
+    {
+        package App;
+        use Dancer;
+
+        get '/error' => sub {
+            send_error "This is a custom error message";
+        };
+    }
+
+    use Dancer::Test 'App';
+    my $r = dancer_response GET => '/error';
+
+    is $r->[0], 500, 'send_error sets the status to 500';
+    like $r->[2][0], qr{This is a custom error message},
+        'Error message looks good';
+};
+
+subtest "send_error with custom stuff" => sub {
+    {
+        package App;
+        use Dancer;
+
+        get '/error/:x' => sub {
+            my $x = param('x');
+            send_error "Error $x", "5$x";
+        };
+    }
+
+    my $r = dancer_response GET => '/error/42';
+
+    is $r->[0], 542, 'send_error sets the status to 542';
+    like $r->[2][0], qr{Error 542},
+        'Error message looks good';
 };
 
 done_testing;
