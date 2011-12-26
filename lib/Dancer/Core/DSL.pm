@@ -37,6 +37,7 @@ sub dsl_keywords {
         [header       => 0],
         [headers      => 0],
         [hook         => 1],
+        [load_app     => 1],
         [log          => 1],
         [mime         => 1],
         [options      => 1],
@@ -90,24 +91,6 @@ sub false { 0 }
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
 sub path    { shift and Dancer::FileUtils::path(@_)    }
 
-sub send_error { 
-    my ($self, $message, $code) = @_;
-    require 'Dancer/Serializer/JSON.pm';
-    # Should be TemplateSimple
-    require 'Dancer/Template/TemplateToolkit.pm';
-
-    my $s = Dancer::Serializer::JSON->new;
-    my $t = Dancer::Template::TemplateToolkit->new;
-
-    Dancer::Core::Error->new(
-        message => $message, 
-        app => $self->app,
-        context => $self->app->context,
-        serializer => $s,
-        template => $t,
-        code => $code || 500,
-        )->render;
-}
 
 sub config { shift->app->settings }
 
@@ -248,6 +231,24 @@ sub mime {
 
 sub cookie { shift->context->cookie(@_) }
 
+sub send_error { 
+    my ($self, $message, $code) = @_;
+    require 'Dancer/Serializer/JSON.pm';
+    # Should be TemplateSimple
+    require 'Dancer/Template/TemplateToolkit.pm';
+
+    my $s = Dancer::Serializer::JSON->new;
+    my $t = Dancer::Template::TemplateToolkit->new;
+
+    Dancer::Core::Error->new(
+        message => $message, 
+        app => $self->app,
+        context => $self->app->context,
+        serializer => $s,
+        template => $t,
+        code => $code || 500,
+        )->render;
+}
 #
 # engines
 #
