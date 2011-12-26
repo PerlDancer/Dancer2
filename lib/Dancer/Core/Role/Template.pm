@@ -64,14 +64,11 @@ sub render_layout {
 
 sub apply_renderer {
     my ($self, $view, $tokens) = @_;
-
+    $view = $self->view($view) if ! ref $view;
     $tokens = $self->_prepare_tokens_options($tokens);
 
-    $view = $self->view($view);
     $self->execute_hooks('before_template_render', $tokens);
-
     my $content = $self->render($view, $tokens);
-
     $self->execute_hooks('after_template_render', \$content);
 
     # make sure to avoid ( undef ) in list context return

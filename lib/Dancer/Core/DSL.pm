@@ -52,6 +52,7 @@ sub dsl_keywords {
         [request      => 0],
         [response     => 0],
         [runner       => 1],
+        [send_error   => 0],
         [send_file    => 0],
         [session      => 0],
         [set          => 1],
@@ -91,12 +92,19 @@ sub path    { shift and Dancer::FileUtils::path(@_)    }
 
 sub send_error { 
     my ($self, $message, $code) = @_;
+    require 'Dancer/Serializer/JSON.pm';
+    # Should be TemplateSimple
+    require 'Dancer/Template/TemplateToolkit.pm';
+
+    my $s = Dancer::Serializer::JSON->new;
+    my $t = Dancer::Template::TemplateToolkit->new;
+
     Dancer::Core::Error->new(
         message => $message, 
         app => $self->app,
         context => $self->app->context,
-        serializer => $self->engine('serializer'),
-        template => $self->engine('template'),
+        serializer => $s,
+        template => $t,
         code => $code || 500,
         )->render;
 }
