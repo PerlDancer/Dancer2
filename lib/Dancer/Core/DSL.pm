@@ -115,6 +115,21 @@ sub hook {
     $self->app->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
 }
 
+sub load_app {
+    my ($self, $app_name, %options) = @_;
+
+    # set the application
+    eval "use $app_name";
+    croak "Unable to load application \"$app_name\" : $@" if $@;
+
+    croak "$app_name is not a Dancer application" 
+      if !  $app_name->can('dancer_app');
+    my $app = $app->dancer_app;
+
+# FIXME not working yet
+}
+
+
 sub prefix {
     my $app = shift->app;
     @_ == 1
