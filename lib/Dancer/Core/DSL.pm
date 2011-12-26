@@ -124,7 +124,7 @@ sub load_app {
 
     croak "$app_name is not a Dancer application" 
       if !  $app_name->can('dancer_app');
-    my $app = $app->dancer_app;
+    my $app = $app_name->dancer_app;
 
 # FIXME not working yet
 }
