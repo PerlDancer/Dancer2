@@ -254,9 +254,10 @@ sub _render_html {
 
     # error_template defaults to something, always
     my $template_name = $self->error_template;
+
     my $ops           = {
         title   => $self->title,
-        message => $self->message,
+        content => $self->message,
         code    => $self->code,
         defined $self->exception ? (exception => $self->exception) : (),
     };
