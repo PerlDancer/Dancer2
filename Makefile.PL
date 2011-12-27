@@ -10,7 +10,8 @@ my %WriteMakefileArgs = (
   'BUILD_REQUIRES'     => {
                            'File::Find' => '0',
                            'File::Temp' => '0',
-                           'Test::More' => '0'
+                           'Test::More' => '0',
+                           'Test::Trap' => '0',
   },
   'CONFIGURE_REQUIRES' => {
                            'ExtUtils::MakeMaker' => '6.30'
