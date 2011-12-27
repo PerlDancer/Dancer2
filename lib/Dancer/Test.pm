@@ -94,30 +94,42 @@ sub response_status_isnt {
     $tb->isnt_eq( $response->[0], $status, $test_name );
 }
 
+{
+    # Map comparison operator names to human-friendly ones
+    my %cmp_name = (
+        is_eq   => "is",
+        isnt_eq => "is not",
+        like    => "matches",
+        unlike  => "doesn't match",
+    );
+    
+    sub _cmp_response_content {
+        my $app = shift;
+        my ($req, $want, $test_name, $cmp) = @_;
+        $test_name || = "response content $cmp_name{$cmp} $want for " . _req_label($req);
+        
+        my $response = _dancer_response($app, @$req);
+        
+        my $tb = Test::Builder->new;
+        $tb->$cmp( $response->[2][0], $content, $test_name );
+    }
+}
+    
+    
 sub response_content_is {
-    my $app = shift;
-    my ($req, $content, $test_name) = @_;
-    $test_name ||= "response content is ok for " . _req_label($req);
-
-    my $response = _dancer_response($app, @$req);
-
-    my $tb = Test::Builder->new;
-    $tb->is_eq( $response->[2][0], $content, $test_name );
+    _cmp_response_content(@_, 'is_eq');
 }
 
 sub response_content_isnt {
-    my $app = shift;
-    my ($req, $content, $test_name) = @_;
-    $test_name ||= "response content is ok for " . _req_label($req);
-
-    my $response = _dancer_response($app, @$req);
-
-    my $tb = Test::Builder->new;
-    $tb->isnt_eq( $response->[2][0], $content, $test_name );
+    _cmp_response_content(@_, 'isnt_eq');
 }
 
 sub response_content_like {
-    return response_content_is (@_);
+    _cmp_response_content(@_, 'like');
+}
+
+sub response_content_unlike {
+    _cmp_response_content(@_, 'unlike');
 }
 
 sub response_content_is_deeply {
