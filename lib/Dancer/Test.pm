@@ -80,6 +80,7 @@ sub response_status_is {
     my $response = _dancer_response($app, @$req);
 
     my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     $tb->is_eq( $response->[0], $status, $test_name );
 }
 
@@ -91,6 +92,7 @@ sub response_status_isnt {
     my $response = _dancer_response($app, @$req);
 
     my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     $tb->isnt_eq( $response->[0], $status, $test_name );
 }
 
@@ -111,6 +113,7 @@ sub response_status_isnt {
         my $response = _dancer_response($app, @$req);
         
         my $tb = Test::Builder->new;
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
         $tb->$cmp( $response->[2][0], $content, $test_name );
     }
 }
@@ -147,6 +150,7 @@ sub response_is_file {
 
     my $response = _get_file_response($req);
     my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(defined($response), $test_name);
 }
 
@@ -172,6 +176,7 @@ sub response_headers_include {
     my $tb = Test::Builder->new;
 
     my $response = _dancer_response($app, _expand_req($req));
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(_include_in_headers($response->headers_to_array, $expected), $test_name);
 }
 
