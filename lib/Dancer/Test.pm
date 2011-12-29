@@ -108,13 +108,13 @@ sub response_status_isnt {
     sub _cmp_response_content {
         my $app = shift;
         my ($req, $want, $test_name, $cmp) = @_;
-        $test_name || = "response content $cmp_name{$cmp} $want for " . _req_label($req);
+        $test_name ||= "response content $cmp_name{$cmp} $want for " . _req_label($req);
         
         my $response = _dancer_response($app, @$req);
         
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $tb->$cmp( $response->[2][0], $content, $test_name );
+        $tb->$cmp( $response->[2][0], $response->{'content'}, $test_name );
     }
 }
     
