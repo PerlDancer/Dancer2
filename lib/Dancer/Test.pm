@@ -114,7 +114,7 @@ sub response_status_isnt {
         
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $tb->$cmp( $response->[2][0], $response->{'content'}, $test_name );
+        $tb->$cmp( $response->[2][0], $want, $test_name );
     }
 }
     
