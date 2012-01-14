@@ -250,10 +250,10 @@ sub send_error {
     my ($self, $message, $code) = @_;
     require 'Dancer/Serializer/JSON.pm';
     # Should be TemplateSimple
-    require 'Dancer/Template/TemplateToolkit.pm';
+    require 'Dancer/Template/Tiny.pm';
 
     my $s = Dancer::Serializer::JSON->new;
-    my $t = Dancer::Template::TemplateToolkit->new;
+    my $t = Dancer::Template::Tiny->new;
 
     Dancer::Core::Error->new(
         message => $message, 
