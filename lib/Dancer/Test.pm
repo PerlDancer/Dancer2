@@ -108,13 +108,19 @@ sub response_status_isnt {
     sub _cmp_response_content {
         my $app = shift;
         my ($req, $want, $test_name, $cmp) = @_;
-        $test_name ||= "response content $cmp_name{$cmp} $want for " . _req_label($req);
+
+        if (@_ == 3) {
+            $cmp = $test_name;
+            $test_name = $cmp_name{$cmp};
+        }
+
+        $test_name ||= "response content $test_name $want for " . _req_label($req);
         
         my $response = _dancer_response($app, @$req);
         
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $tb->$cmp( $response->[2][0], $response->{'content'}, $test_name );
+        $tb->$cmp( $response->[2][0], $want, $test_name );
     }
 }
     
@@ -305,15 +311,6 @@ sub _req_to_response {
     return $req if ref $req eq 'Dancer::Core::Response';
 
     return dancer_response( ref $req eq 'ARRAY' ? @$req : ( 'GET', $req ) );
-}
-
-sub _get_file_response {
-    my ($req) = @_;
-
-    my ($method, $path, $params) = expand_req($req);
-    my $request = Dancer::Request->new_for_request($method => $path, $params);
-    Dancer::SharedData->request($request);
-    return Dancer::Renderer::get_file_response();
 }
 
 1;
