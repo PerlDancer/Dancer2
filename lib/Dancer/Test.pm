@@ -16,6 +16,9 @@ our @EXPORT = qw(
     response_status_isnt
     response_headers_include
     response_headers_are_deeply
+    response_content_like
+    response_content_is_deeply
+    response_is_file
 );
 
 use Dancer::Core::Dispatcher;
@@ -77,6 +80,7 @@ sub response_status_is {
     my $response = _dancer_response($app, @$req);
 
     my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     $tb->is_eq( $response->[0], $status, $test_name );
 }
 
@@ -88,29 +92,72 @@ sub response_status_isnt {
     my $response = _dancer_response($app, @$req);
 
     my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     $tb->isnt_eq( $response->[0], $status, $test_name );
 }
 
+{
+    # Map comparison operator names to human-friendly ones
+    my %cmp_name = (
+        is_eq   => "is",
+        isnt_eq => "is not",
+        like    => "matches",
+        unlike  => "doesn't match",
+    );
+    
+    sub _cmp_response_content {
+        my $app = shift;
+        my ($req, $want, $test_name, $cmp) = @_;
+
+        if (@_ == 3) {
+            $cmp = $test_name;
+            $test_name = $cmp_name{$cmp};
+        }
+
+        $test_name ||= "response content $test_name $want for " . _req_label($req);
+        
+        my $response = _dancer_response($app, @$req);
+        
+        my $tb = Test::Builder->new;
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
+        $tb->$cmp( $response->[2][0], $want, $test_name );
+    }
+}
+    
+    
 sub response_content_is {
-    my $app = shift;
-    my ($req, $content, $test_name) = @_;
-    $test_name ||= "response content is ok for " . _req_label($req);
-
-    my $response = _dancer_response($app, @$req);
-
-    my $tb = Test::Builder->new;
-    $tb->is_eq( $response->[2][0], $content, $test_name );
+    _cmp_response_content(@_, 'is_eq');
 }
 
 sub response_content_isnt {
-    my $app = shift;
-    my ($req, $content, $test_name) = @_;
-    $test_name ||= "response content is ok for " . _req_label($req);
+    _cmp_response_content(@_, 'isnt_eq');
+}
 
-    my $response = _dancer_response($app, @$req);
+sub response_content_like {
+    _cmp_response_content(@_, 'like');
+}
 
+sub response_content_unlike {
+    _cmp_response_content(@_, 'unlike');
+}
+
+sub response_content_is_deeply {
+    my ($req, $matcher, $test_name) = @_;
+    $test_name ||= "response content looks good for " . _req_label($req);
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $response = _req_to_response($req);
+    is_deeply $response->{content}, $matcher, $test_name;
+}
+
+sub response_is_file {
+    my ($req, $test_name) = @_;
+    $test_name ||= "a file is returned for " . _req_label($req);
+
+    my $response = _get_file_response($req);
     my $tb = Test::Builder->new;
-    $tb->isnt_eq( $response->[2][0], $content, $test_name );
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    return $tb->ok(defined($response), $test_name);
 }
 
 sub response_headers_are_deeply {
@@ -135,6 +182,7 @@ sub response_headers_include {
     my $tb = Test::Builder->new;
 
     my $response = _dancer_response($app, _expand_req($req));
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(_include_in_headers($response->headers_to_array, $expected), $test_name);
 }
 
@@ -254,6 +302,15 @@ sub _check_header {
         return 1 if $name eq $key && $value eq $val;
     }
     return 0;
+}
+
+sub _req_to_response {
+    my $req = shift;
+
+    # already a response object
+    return $req if ref $req eq 'Dancer::Core::Response';
+
+    return dancer_response( ref $req eq 'ARRAY' ? @$req : ( 'GET', $req ) );
 }
 
 1;
