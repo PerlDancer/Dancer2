@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More tests => 10;
+use Test::Fatal;
 
 use Dancer::Core::Hook;
 
@@ -16,11 +17,17 @@ is $h->code->(), 'BT';
 
 my $f = Foo->new;
 
-eval { $f->execute_hooks() };
-like $@, qr{execute_hook needs a hook name};
+like(
+    exception { $f->execute_hooks() },
+    qr{execute_hook needs a hook name},
+    'execute_hook needs a hook name',
+);
 
-eval { $f->execute_hooks('foobar') };
-like $@, qr{Hook 'foobar' does not exist};
+like(
+    exception { $f->execute_hooks('foobar') },
+    qr{Hook 'foobar' does not exist},
+    'Hook does not exist',
+);
 
 my $count = 0;
 my $some_hook = Dancer::Core::Hook->new(
@@ -30,24 +37,35 @@ my $some_hook = Dancer::Core::Hook->new(
     }
 );
 
-eval { $f->add_hook($some_hook)};
-like $@, qr{Hook 'foobar' must be installed first};
+like(
+    exception { $f->add_hook($some_hook) },
+    qr{Hook 'foobar' must be installed first},
+    'Hook must be installed first',
+);
 
 $f->install_hooks('foobar');
 
-eval { $f->install_hooks('foobar') };
-like $@, qr{Hook 'foobar' is already registered, please use another name};
+like(
+    exception { $f->install_hooks('foobar') },
+    qr{Hook 'foobar' is already registered, please use another name},
+    'Hook by name already registered',
+);
 
-eval { $f->add_hook($some_hook)};
-is $@, '';
+ok(
+    ! exception { $f->add_hook($some_hook) },
+    'Adding hook successfully',
+);
 
 $f->execute_hooks('foobar');
 is $count, 1;
 
-eval { $f->replace_hooks('doesnotexist', []) };
-like $@, qr{Hook 'doesnotexist' must be installed first};
+like(
+    exception { $f->replace_hooks( 'doesnotexist', [] ) },
+    qr{Hook 'doesnotexist' must be installed first},
+    'Nonexistent hook fails',
+);
 
-my $new_hooks = [sub {$count--}, sub {$count--}, sub {$count--}];
+my $new_hooks = [ sub {$count--}, sub {$count--}, sub {$count--} ];
 $f->replace_hooks('foobar',$new_hooks);
 $f->execute_hooks('foobar');
 is $count, -2;
