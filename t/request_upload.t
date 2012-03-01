@@ -1,6 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 use Test::More tests => 19;
+use Test::Fatal;
 
 use Dancer::Core::Request;
 
@@ -130,8 +131,10 @@ do {
         *{"Dancer::FileUtils::open_file"} = sub { 0 };
     }
     $upload->{_fh} = undef;
-    eval { $upload->file_handle };
-    like $@, qr{Can't open.* using mode '<'};
+    like(
+        exception { $upload->file_handle },
+        qr{Can't open.* using mode '<'},
+    );
     
 
     unlink($file) if ($^O eq 'MSWin32');

@@ -1,128 +1,233 @@
 use strict;
 use warnings;
 use Test::More tests => 37;
+use Test::Fatal;
 use Dancer::Moo::Types;
 
-eval { Dancer::Moo::Types::Str(undef) };
-is $@, '', 'Str accepts undef value';
+is(
+    exception { Dancer::Moo::Types::Str(undef) },
+    undef,
+    'Str accepts undef value',
+);
 
-eval { Dancer::Moo::Types::Str('something') };
-is $@, '', 'Str';
+is(
+    exception { Dancer::Moo::Types::Str('something') },
+    undef,
+    'Str',
+);
 
-eval { Dancer::Moo::Types::Str({foo => 'something'}) };
-like $@, qr{does not pass the type constraint check for type `Str'}, 'Str';
+like(
+    exception { Dancer::Moo::Types::Str({foo => 'something'}) },
+    qr{does not pass the type constraint check for type `Str'},
+    'Str',
+);
 
+is(
+    exception { Dancer::Moo::Types::Num(34) },
+    undef,
+    'Num',
+);
 
-eval { Dancer::Moo::Types::Num(34) };
-is $@, '', 'Num';
+is(
+    exception { Dancer::Moo::Types::Num(undef) },
+    undef,
+    'Num accepts undef value',
+);
 
-eval { Dancer::Moo::Types::Num(undef) };
-is $@, '', 'Num accepts undef value';
+like(
+    exception { Dancer::Moo::Types::Num('not a number') },
+    qr{does not pass the type constraint check for type `Num'},
+    'Num fail',
+);
 
-eval { Dancer::Moo::Types::Num('not a number') };
-like $@, qr{does not pass the type constraint check for type `Num'}, 'Num fail';
+is(
+    exception { Dancer::Moo::Types::Bool(1) },
+    undef,
+    'Bool true value',
+);
 
-eval { Dancer::Moo::Types::Bool(1) };
-is $@, '', 'Bool true value';
+is(
+    exception { Dancer::Moo::Types::Bool(0) },
+    undef,
+    'Bool false value',
+);
 
-eval { Dancer::Moo::Types::Bool(0) };
-is $@, '', 'Bool false value';
+is(
+    exception { Dancer::Moo::Types::Bool(undef) },
+    undef,
+    'Bool accepts undef value',
+);
 
-eval { Dancer::Moo::Types::Bool(undef) };
-is $@, '', 'Bool accepts undef value';
+like(
+    exception { Dancer::Moo::Types::Bool('2') },
+    qr{does not pass the type constraint check for type `Bool'},
+    'Bool fail',
+);
 
-eval { Dancer::Moo::Types::Bool('2') };
-like $@, qr{does not pass the type constraint check for type `Bool'}, 'Bool fail';
+is(
+    exception { Dancer::Moo::Types::Regexp(qr{.*}) },
+    undef,
+    'Regexp',
+);
 
-eval { Dancer::Moo::Types::Regexp(qr{.*}) };
-is $@, '', 'Regexp';
+like(
+    exception { Dancer::Moo::Types::Regexp('/.*/') },
+    qr{does not pass the type constraint check for type `Regexp'},
+    'Regexp fail',
+);
 
-eval { Dancer::Moo::Types::Regexp('/.*/') };
-like $@, qr{does not pass the type constraint check for type `Regexp'}, 'Regexp fail';
+is(
+    exception { Dancer::Moo::Types::Regexp(undef) },
+    undef,
+    'Regexp accepts undef value',
+);
 
-eval { Dancer::Moo::Types::Regexp(undef) };
-is $@, '', 'Regexp accepts undef value';
+is(
+    exception { Dancer::Moo::Types::HashRef({goo => 'le'}) },
+    undef,
+    'HashRef',
+);
 
-eval { Dancer::Moo::Types::HashRef({goo => 'le'}) };
-is $@, '', 'HashRef';
+like(
+    exception { Dancer::Moo::Types::HashRef('/.*/') },
+    qr{does not pass the type constraint check for type `HashRef'},
+    'HashRef fail',
+);
 
-eval { Dancer::Moo::Types::HashRef('/.*/') };
-like $@, qr{does not pass the type constraint check for type `HashRef'}, 'HashRef fail';
+is(
+    exception { Dancer::Moo::Types::HashRef(undef) },
+    undef,
+    'HashRef accepts undef value',
+);
 
-eval { Dancer::Moo::Types::HashRef(undef) };
-is $@, '', 'HashRef accepts undef value';
+is(
+    exception { Dancer::Moo::Types::ArrayRef([1, 2, 3, 4 ]) },
+    undef,
+    'ArrayRef',
+);
 
-eval { Dancer::Moo::Types::ArrayRef([1, 2, 3, 4 ]) };
-is $@, '', 'ArrayRef';
+like(
+    exception { Dancer::Moo::Types::ArrayRef('/.*/') },
+    qr{does not pass the type constraint check for type `ArrayRef'},
+    'ArrayRef fail',
+);
 
-eval { Dancer::Moo::Types::ArrayRef('/.*/') };
-like $@, qr{does not pass the type constraint check for type `ArrayRef'}, 'ArrayRef fail';
+is(
+    exception { Dancer::Moo::Types::ArrayRef(undef) },
+    undef,
+    'ArrayRef accepts undef value',
+);
 
-eval { Dancer::Moo::Types::ArrayRef(undef) };
-is $@, '', 'ArrayRef accepts undef value';
+is(
+    exception { Dancer::Moo::Types::CodeRef( sub { 44 } ) },
+    undef,
+    'CodeRef',
+);
 
-eval { Dancer::Moo::Types::CodeRef( sub { 44 } ) };
-is $@, '', 'CodeRef';
+like(
+    exception { Dancer::Moo::Types::CodeRef('/.*/') },
+    qr{does not pass the type constraint check for type `CodeRef'},
+    'CodeRef fail',
+);
 
-eval { Dancer::Moo::Types::CodeRef('/.*/') };
-like $@, qr{does not pass the type constraint check for type `CodeRef'}, 'CodeRef fail';
-
-eval { Dancer::Moo::Types::CodeRef(undef) };
-is $@, '', 'CodeRef accepts undef value';
+is(
+    exception { Dancer::Moo::Types::CodeRef(undef) },
+    undef,
+    'CodeRef accepts undef value',
+);
 
 { package Foo; }
 { package Bar; }
 my $f = bless {}, 'Foo'; 
 my $b = bless {}, 'Bar'; 
 
-eval { Dancer::Moo::Types::ObjectOf( Foo => $f) };
-is $@, '', 'ObjectOf';
+is(
+    exception { Dancer::Moo::Types::ObjectOf( Foo => $f) },
+    undef,
+    'ObjectOf',
+);
 
-eval { Dancer::Moo::Types::ObjectOf( Foo => $b) };
-like $@, qr{does not pass the type constraint check for type `ObjectOf\(Foo\)'},
-    'ObjectOf fail';
+like(
+    exception { Dancer::Moo::Types::ObjectOf( Foo => $b) },
+    qr{does not pass the type constraint check for type `ObjectOf\(Foo\)'},
+    'ObjectOf fail',
+);
 
-eval { Dancer::Moo::Types::ObjectOf(Foo => undef) };
-is $@, '', 'ObjectOf accepts undef value';
+is(
+    exception { Dancer::Moo::Types::ObjectOf(Foo => undef) },
+    undef,
+    'ObjectOf accepts undef value',
+);
 
+is(
+    exception { Dancer::Moo::Types::DancerPrefix('/foo') },
+    undef,
+    'DancerPrefix',
+);
 
-eval { Dancer::Moo::Types::DancerPrefix('/foo') };
-is $@, '', 'DancerPrefix';
+like(
+    exception { Dancer::Moo::Types::DancerPrefix('bar/something') },
+    qr{does not pass the type constraint check for type `DancerPrefix'},
+    'DancerPrefix fail',
+);
 
-eval { Dancer::Moo::Types::DancerPrefix('bar/something') };
-like $@, qr{does not pass the type constraint check for type `DancerPrefix'}, 
-    'DancerPrefix fail';
+is(
+    exception { Dancer::Moo::Types::DancerPrefix(undef) },
+    undef,
+    'DancerPrefix accepts undef value',
+);
 
-eval { Dancer::Moo::Types::DancerPrefix(undef) };
-is $@, '', 'DancerPrefix accepts undef value';
+is(
+    exception { Dancer::Moo::Types::DancerAppName('Foo') },
+    undef,
+    'DancerAppName',
+);
 
-eval { Dancer::Moo::Types::DancerAppName('Foo') };
-is $@, '', 'DancerAppName';
+is(
+    exception { Dancer::Moo::Types::DancerAppName(undef) },
+    undef,
+    'DancerAppName accepts undef value',
+);
 
-eval { Dancer::Moo::Types::DancerAppName(undef) };
-is $@, '', 'DancerAppName accepts undef value';
+like(
+    exception { Dancer::Moo::Types::DancerAppName('') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fail',
+);
 
-eval { Dancer::Moo::Types::DancerAppName('') };
-like $@, qr{does not pass the type constraint check for type `DancerAppName'}, 
-    'DancerAppName fail';
+is(
+    exception { Dancer::Moo::Types::DancerMethod('post') },
+    undef,
+    'DancerMethod',
+);
 
-eval { Dancer::Moo::Types::DancerMethod('post') };
-is $@, '', 'DancerMethod';
+like(
+    exception { Dancer::Moo::Types::DancerMethod('POST') },
+    qr{does not pass the type constraint check for type `DancerMethod'},
+    'DancerMethod fail',
+);
 
-eval { Dancer::Moo::Types::DancerMethod('POST') };
-like $@, qr{does not pass the type constraint check for type `DancerMethod'}, 
-    'DancerMethod fail';
+is(
+    exception { Dancer::Moo::Types::DancerMethod(undef) },
+    undef,
+    'DancerMethod accepts undef value',
+);
 
-eval { Dancer::Moo::Types::DancerMethod(undef) };
-is $@, '', 'DancerMethod accepts undef value';
+is(
+    exception { Dancer::Moo::Types::DancerHTTPMethod('POST') },
+    undef,
+    'DancerMethod',
+);
 
-eval { Dancer::Moo::Types::DancerHTTPMethod('POST') };
-is $@, '', 'DancerMethod';
+like(
+    exception { Dancer::Moo::Types::DancerHTTPMethod('post') },
+    qr{does not pass the type constraint check for type `DancerMethod'},
+    'DancerMethod fail',
+);
 
-eval { Dancer::Moo::Types::DancerHTTPMethod('post') };
-like $@, qr{does not pass the type constraint check for type `DancerMethod'}, 
-    'DancerMethod fail';
-
-eval { Dancer::Moo::Types::DancerHTTPMethod(undef) };
-is $@, '', 'DancerMethod accepts undef value';
+is(
+    exception { Dancer::Moo::Types::DancerHTTPMethod(undef) },
+    undef,
+    'DancerMethod accepts undef value',
+);
 

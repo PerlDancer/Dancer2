@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 
 use Dancer::Core::Route;
 
@@ -62,15 +63,18 @@ for my $t (@tests) {
     my ($route, $path, $expected) = @$t;
 
     if (ref($expected) eq 'Regexp') {
-        eval {
-            my $r = Dancer::Core::Route->new(
-                method => $route->[0],
-                regexp => $route->[1],
-                code   => $route->[2],
-                prefix => $route->[3],
-            );
-        };
-        like $@, $expected, "got expected exception for $path";
+        like(
+            exception {
+                my $r = Dancer::Core::Route->new(
+                    method => $route->[0],
+                    regexp => $route->[1],
+                    code   => $route->[2],
+                    prefix => $route->[3],
+                );
+            },
+            $expected,
+            "got expected exception for $path",
+        );
     }
     else {
         my $r = Dancer::Core::Route->new(

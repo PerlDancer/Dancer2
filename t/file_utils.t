@@ -1,6 +1,7 @@
-use Test::More tests => 9;
 use strict;
 use warnings;
+use Test::More tests => 9;
+use Test::Fatal;
 use File::Spec;
 use File::Temp 0.22;
 
@@ -20,8 +21,11 @@ sub hexe {
     return $s;
 }
 
-eval { Dancer::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') };
-like $@, qr{/slfkjsdlkfjsdlf' using mode '<'};
+like(
+    exception { Dancer::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') },
+    qr{/slfkjsdlkfjsdlf' using mode '<'},
+    'Failure opening nonexistent file',
+);
 
 my $content = Dancer::FileUtils::read_file_content();
 is $content, undef;

@@ -1,6 +1,7 @@
-use Test::More;
 use strict;
 use warnings;
+use Test::More;
+use Test::Fatal;
 use File::Basename 'dirname';
 
 use Dancer::Core::Runner;
@@ -36,8 +37,11 @@ is $runner->server->is_daemon, 0;
 note "testing server failure";
 {
     $runner->config->{apphandler} = 'NotExist';
-    eval { Dancer::Core::Runner::BUILD($runner) };
-    like $@, qr{Unable to load Dancer::Core::Server::NotExist};
+    like(
+        exception { Dancer::Core::Runner::BUILD($runner) },
+        qr{Unable to load Dancer::Core::Server::NotExist},
+        'Cannot run BUILD for server that does not exist',
+    );
 }
 
 done_testing;

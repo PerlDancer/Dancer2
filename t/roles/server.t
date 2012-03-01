@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Fatal;
 
 use strict;
 use warnings;
@@ -13,11 +14,17 @@ use warnings;
 
 my $s;
 
-eval { $s = Foo->new };
-like $@, qr{required.*host}, "host is mandatory";
+like(
+    exception { $s = Foo->new },
+    qr{required.*host},
+    "host is mandatory",
+);
 
-eval { $s = Foo->new(host => 'localhost') };
-like $@, qr{required.*port}, "port is mandatory";
+like(
+    exception { $s = Foo->new(host => 'localhost') },
+    qr{required.*port},
+    "port is mandatory",
+);
 
 $s = Foo->new(host => 'localhost', port => 3000);
 my $app = Dancer::Core::App->new(name => 'main');

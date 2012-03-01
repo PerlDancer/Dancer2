@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 use Dancer::Core::App;
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Hook;
@@ -119,11 +120,13 @@ for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere') {
 }
 
 note "test a failure in the callback of a lexical prefix";
-eval {
-    $app->lexical_prefix('/test' => sub { Failure->game_over() });
-};
-like $@, qr{Unable to run the callback for prefix '/test': Can't locate object method "game_over" via package "Failure"}, 
-    "caught an exception in the lexical prefix callback";
+like(
+    exception {
+        $app->lexical_prefix('/test' => sub { Failure->game_over() });
+    },
+    qr{Unable to run the callback for prefix '/test': Can't locate object method "game_over" via package "Failure"},
+    "caught an exception in the lexical prefix callback",
+);
 
 $app->add_hook(Dancer::Core::Hook->new(
     name => 'before',
@@ -141,8 +144,11 @@ my $env = {
     PATH_INFO => '/',
 };
 
-eval { my $resp = $dispatcher->dispatch($env)->to_psgi };
-like $@, qr{Exception caught in 'before' filter: Hook error: Can't locate object method "failure"};
+like(
+    exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
+    qr{Exception caught in 'before' filter: Hook error: Can't locate object method "failure"},
+    'before filter nonexistent method failure',
+);
 
 $app->replace_hooks('before', [ sub { 1 } ]);
 $app->compile_hooks;
@@ -150,7 +156,11 @@ $env = {
     REQUEST_METHOD => 'GET',
     PATH_INFO => '/',
 };
-eval { my $resp = $dispatcher->dispatch($env)->to_psgi };
-is $@, '';
+
+is(
+    exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
+    undef,
+    'Successful to_psgi of response',
+);
 
 done_testing;
