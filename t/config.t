@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 use Carp 'croak';
 
 use Dancer::Core::Runner;
@@ -68,8 +69,11 @@ is_deeply [$fail->config_files],
     "config_files() works";
 
 
-eval { $fail->config };
-like $@, qr{Unable to parse the configuration file};
+like(
+    exception { $fail->config },
+    qr{Unable to parse the configuration file},
+    'Configuration file parsing failure',
+);
 
 note "config parsing";
 
@@ -85,8 +89,11 @@ note "default values";
 is $f->setting('apphandler'), 'Standalone';
 is $f->setting('content_type'), 'text/html';
 
-eval { $f->_normalize_config({charset => 'BOGUS'}) };
-like $@, qr{Charset defined in configuration is wrong : couldn't identify 'BOGUS'};
+like(
+    exception { $f->_normalize_config({charset => 'BOGUS'}) },
+    qr{Charset defined in configuration is wrong : couldn't identify 'BOGUS'},
+    'Configuration file charset failure',
+);
 
 { 
     package Foo;
@@ -95,13 +102,17 @@ like $@, qr{Charset defined in configuration is wrong : couldn't identify 'BOGUS
 }
 
 is $f->setting('traces'), 0;
-eval { Foo->foo() };
-unlike $@, qr{Foo::foo}, 
-    "traces are not enabled";
+unlike(
+    exception { Foo->foo() },
+    qr{Foo::foo},
+    "traces are not enabled",
+);
 
 $f->setting(traces => 1);
-eval { Foo->foo() };
-like $@, qr{Foo::foo},
-    "traces are enabled";
+like(
+    exception { Foo->foo() },
+    qr{Foo::foo},
+    "traces are enabled",
+);
 
 done_testing;
