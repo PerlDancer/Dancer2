@@ -9,6 +9,10 @@ use Carp;
 with 'Dancer::Core::Role::DSL';
 
 sub dsl_keywords {
+
+    # the flag means : 1 = is global, 0 = is not global. global means can be
+    # called from anywhere. not global means must be called rom within a route
+    # handler
     [   
         [any          => 1],
         [app          => 1],

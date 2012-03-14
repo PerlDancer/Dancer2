@@ -111,7 +111,7 @@ sub register_plugin {
       or croak "register_plugin must be called like this : register_plugin for_versions => [ 1, 2 ]";
 
     +{ map { $_ => 1 } @$supported_versions }->{$PLUGIN_MAJOR_VERSION}
-      or croak "can't register plugin '$plugin', it doesn't support Dancer version $Dancer::MAJOR_VERSION, it only supports these version(s): " . join(',', @$supported_versions) . ". Please upgrade the plugin.";
+      or croak "can't register plugin '$plugin', it doesn't support Dancer version $PLUGIN_MAJOR_VERSION, it only supports these version(s): " . join(',', @$supported_versions) . ". Please upgrade the plugin.";
 
     # if the caller has not a dsl, we cant register the plugin 
     return if ! $caller->can('dsl');
