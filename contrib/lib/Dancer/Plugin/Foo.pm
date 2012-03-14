@@ -13,5 +13,5 @@ register foo => sub {
 #    to_yaml(plugin_settings);
 #};
 
-register_plugin;
+register_plugin for_versions => [ 2 ];
 1;

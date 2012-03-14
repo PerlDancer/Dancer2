@@ -2,6 +2,7 @@ package Dancer::Plugin;
 use Moo::Role;
 use Carp 'croak';
 use Dancer::Core::DSL;
+use Dancer;
 
 sub _get_dsl {
     my $dsl;
@@ -97,6 +98,18 @@ sub register {
 sub register_plugin {
     my $plugin = caller;
     my $caller = caller(1);
+    my %params = @_;
+
+    # For backward compatibility, no params means "supports only Dancer 1"
+    defined $params{for_versions}
+      or $params{for_versions} = [ 1 ];
+
+    my $supported_versions = $params{for_versions} || [ 1 ];
+    ref $supported_versions eq 'ARRAY'
+      or croak "register_plugin must be called like this : register_plugin for_versions => [ 1, 2 ]";
+
+    +{ map { $_ => 1 } @$supported_versions }->{$Dancer::MAJOR_VERSION}
+      or croak "can't register plugin '$plugin', it doesn't support Dancer version $Dancer::MAJOR_VERSION, it only supports these version(s): " . join(',', @$supported_versions) . ". Please upgrade the plugin.";
 
     # if the caller has not a dsl, we cant register the plugin 
     return if ! $caller->can('dsl');

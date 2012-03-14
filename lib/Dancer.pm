@@ -12,7 +12,7 @@ use Dancer::FileUtils;
 
 our $VERSION   = '1.9999_01';
 our $AUTHORITY = 'SUKRIA';
-
+our $MAJOR_VERSION = 2;
 
 #
 # private
