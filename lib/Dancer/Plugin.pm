@@ -6,6 +6,8 @@ use Dancer::Core::DSL;
 # The plugin system major version, to check compatibility against it
 our $PLUGIN_MAJOR_VERSION = 2;
 
+sub major_version { $PLUGIN_MAJOR_VERSION }
+
 sub _get_dsl {
     my $dsl;
     my $deep = 2;
@@ -234,6 +236,15 @@ for B<Dancer::Plugin::Foo::Bar>, use:
   plugins:
     "Foo::Bar":
       key: value
+
+=item B<major_version>
+
+  my $plugin_system_version = Dancer::Plugin->major_version
+
+Returns the Dancer plugin system major version. Useful for a plugin to know if
+it's being loaded in a Dancer 1 or Dancer 2 plugin system.
+
+Returns always 2 ( because that's Dancer 2, eh ! )
 
 =back
 
