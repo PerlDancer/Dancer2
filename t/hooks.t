@@ -9,6 +9,9 @@ my @hooks = qw(
     before_request
     after_request
 
+    before_template_render
+    after_template_render
+
     before_file_render
     after_file_render
 
@@ -20,6 +23,12 @@ my $tests_flags = {};
 {
     use Dancer;
     set serializer => 'JSON';
+
+    # Uncomment the following line is for before_template_render to work. It
+    # shouldn't be needed, we should be able to setup a template hook before
+    # deciding which template engine to use
+
+    # setting template => 'template_toolkit';
 
     for my $hook (@hooks) {
         hook $hook => sub {
@@ -34,6 +43,10 @@ my $tests_flags = {};
 
     get '/' => sub { 
         "ok"
+    };
+
+    get '/template' => sub { 
+        template \"PLOP";
     };
 
     hook 'before_serializer' => sub {
@@ -73,6 +86,12 @@ subtest 'file render hooks' => sub {
     $resp = dancer_response get => '/file.txt';
     is $tests_flags->{before_file_render}, 2, "before_file_render was called";
     is $tests_flags->{after_file_render},  2, "after_file_render was called";
+};
+
+subtest 'template render hook' => sub {
+    my $resp = dancer_response get => '/template';
+    is $tests_flags->{before_template_render}, 1, "before_template_render was called";
+    is $tests_flags->{after_template_render},  1, "after_template_render was called";
 };
 
 done_testing;
