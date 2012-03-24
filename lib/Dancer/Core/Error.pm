@@ -7,7 +7,11 @@ use Data::Dumper;
 with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
-    qw/before_error_render after_error_render before_error_init/;
+    qw/
+    core.error.before 
+    core.error.after 
+    core.error.init
+    /;
 }
 
 has show_errors => (
@@ -109,7 +113,7 @@ has context => (
 
 sub BUILD {
     my ($self) = @_;
-    $self->execute_hooks('before_error_init', $self);
+    $self->execute_hooks('core.error.init', $self);
 }
 
 has exception => (
@@ -120,9 +124,9 @@ has exception => (
 sub render {
     my $self = shift;
 
-    $self->execute_hooks('before_error_render', $self);
+    $self->execute_hooks('core.error.before', $self);
     my $response = $self->_render_html();
-    $self->execute_hooks('after_error_render', $response);
+    $self->execute_hooks('core.error.after', $response);
     
     return $response;
 }

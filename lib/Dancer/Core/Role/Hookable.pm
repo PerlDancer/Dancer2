@@ -13,6 +13,48 @@ has hooks => (
     lazy => 1,
 );
 
+sub BUILD { }
+
+# after a hookable object is built, we go over its postponed hooks and register
+# them if any.
+after BUILD => sub {
+    my ($self, $args) = @_;
+    $self->_add_postponed_hooks($args) 
+        if defined $args->{postponed_hooks};
+};
+
+sub _add_postponed_hooks {
+    my ( $self, $args ) = @_;
+    #Dancer::core_debug("building $self with postponed hooks: ", $postponed_hooks);
+
+    my $postponed_hooks = $args->{postponed_hooks};
+
+    # find the internal name of the hooks, from the caller name
+    my $caller = ref($self);
+    my ( $dancer, $h_type, $h_name, @rest ) = map { lc } split /::/, $caller;
+    $h_name = $rest[0] if $h_name eq 'Role';
+    if ( $h_type =~ /(template|logger|serializer|session)/ ) {
+        $h_name = $h_type;
+        $h_type = 'engine';
+    }
+
+    #Dancer::core_debug("looking for hooks for $h_type/$h_name");
+    # keep only the hooks we want
+    $postponed_hooks = $postponed_hooks->{$h_type}{$h_name};
+    return unless defined $postponed_hooks;
+
+    foreach my $name ( keys %{$postponed_hooks} ) {
+        my $hook   = $postponed_hooks->{$name}{hook};
+        my $caller = $postponed_hooks->{$name}{caller};
+
+        $self->has_hook($name)
+          or croak "$h_name $h_type does not support the hook `$name'.\n"
+          . join( ", ", @{$caller} );
+
+        $self->add_hook($hook);
+    }
+}
+
 # mst++ for the hint
 sub _build_hooks {
     my ($self) = @_;

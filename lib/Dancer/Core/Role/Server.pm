@@ -20,9 +20,21 @@ has apps => (
     default => sub { [] },
 );
 
+has runner => (
+    is => 'ro',
+    required => 1,
+    isa => sub { ObjectOf('Dancer::Core::Runner', @_) },
+    weak_ref => 1,
+);
+
 sub register_application {
     my ($self, $app) = @_;
     push @{ $self->apps }, $app;
+    $app->server($self);
+    $app->server->runner->postponed_hooks({
+        %{ $app->server->runner->postponed_hooks },
+        %{ $app->postponed_hooks }
+    });
 }
 
 has host => (

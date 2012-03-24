@@ -4,7 +4,7 @@ use Dancer::Moo::Types;
 use Carp;
 
 has name => (
-    is => 'ro',
+    is => 'rw',
     isa => sub { Str(@_) },
     required => 1,
     coerce => sub {

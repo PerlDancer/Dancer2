@@ -72,6 +72,13 @@ sub load_config_file {
     return $config;
 }
 
+sub get_postponed_hooks {
+    my ($self) = @_;
+    return (ref($self) eq 'Dancer::Core::App')
+        ? $self->server->runner->postponed_hooks
+        : $self->can('postponed_hooks') ? $self->postponed_hooks : {} ;
+}
+
 # private
 
 sub _build_config {
@@ -155,7 +162,11 @@ my $_setters = {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
         my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
-        return Dancer::Factory::Engine->create(logger => $value, %{$engine_options});
+        return Dancer::Factory::Engine->create(
+            logger => $value, 
+            %{$engine_options},
+            postponed_hooks => $self->get_postponed_hooks
+        );
     },
 
     session => sub {
@@ -164,7 +175,11 @@ my $_setters = {
 
         my $engine_options = $self->_get_config_for_engine(session => $value, $config);
         $engine_options->{session_dir} ||= File::Spec->catdir($self->config_location, 'sessions');
-        return Dancer::Factory::Engine->create(session => $value, %{$engine_options});
+        return Dancer::Factory::Engine->create(
+            session => $value, 
+            %{$engine_options},
+            postponed_hooks => $self->get_postponed_hooks,
+        );
     },
 
     template => sub {
@@ -176,7 +191,11 @@ my $_setters = {
         $engine_attrs->{layout} ||= $config->{layout};
         $engine_attrs->{views}  ||= path($self->config_location, 'views');
 
-        return Dancer::Factory::Engine->create(template => $value, %{$engine_attrs});
+        return Dancer::Factory::Engine->create(
+            template => $value, 
+            %{$engine_attrs},
+            postponed_hooks => $self->get_postponed_hooks,
+        );
     },
 #    route_cache => sub {
 #        my ($setting, $value) = @_;
@@ -191,7 +210,9 @@ my $_setters = {
 
         return Dancer::Factory::Engine->create(
             serializer => $value, 
-            config => $engine_options);
+            config => $engine_options,
+            postponed_hooks => $self->get_postponed_hooks,
+        );
     },
     import_warnings => sub {
         my ($self, $value) = @_;
