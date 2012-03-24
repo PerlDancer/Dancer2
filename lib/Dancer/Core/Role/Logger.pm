@@ -6,7 +6,10 @@ use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
-    qw(before_logger after_logger)
+    qw(
+    engine.logger.before 
+    engine.logger.after
+    )
 }
 
 sub type { 'Logger' }

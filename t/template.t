@@ -25,7 +25,7 @@ isa_ok $tt, 'Dancer::Template::TemplateToolkit';
 ok $tt->does('Dancer::Core::Role::Template');
 
 $tt->add_hook(Dancer::Core::Hook->new(
-    name => 'before_template_render',
+    name => 'engine.template.before_render',
     code => sub {
         my $tokens = shift;
         $tokens->{before_template_render} = 1;
@@ -33,7 +33,7 @@ $tt->add_hook(Dancer::Core::Hook->new(
 ));
 
 $tt->add_hook(Dancer::Core::Hook->new(
-    name => 'before_layout_render',
+    name => 'engine.template.before_layout_render',
     code => sub {
         my $tokens = shift;
         my $content = shift;
@@ -44,7 +44,7 @@ $tt->add_hook(Dancer::Core::Hook->new(
 ));
 
 $tt->add_hook(Dancer::Core::Hook->new(
-    name => 'after_layout_render',
+    name => 'engine.template.after_layout_render',
     code => sub {
         my $content = shift;
         $$content .= "\ncontent added in after_layout_render";
@@ -52,7 +52,7 @@ $tt->add_hook(Dancer::Core::Hook->new(
 ));
 
 $tt->add_hook(Dancer::Core::Hook->new(
-    name => 'after_template_render',
+    name => 'engine.template.after_render',
     code => sub {
         my $content = shift;
         $$content .= 'content added in after_template_render';

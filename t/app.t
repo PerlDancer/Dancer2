@@ -146,11 +146,11 @@ my $env = {
 
 like(
     exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
-    qr{Exception caught in 'before' filter: Hook error: Can't locate object method "failure"},
+    qr{Exception caught in 'core.app.before_request' filter: Hook error: Can't locate object method "failure"},
     'before filter nonexistent method failure',
 );
 
-$app->replace_hooks('before', [ sub { 1 } ]);
+$app->replace_hooks('core.app.before_request', [ sub { 1 } ]);
 $app->compile_hooks;
 $env = {
     REQUEST_METHOD => 'GET',

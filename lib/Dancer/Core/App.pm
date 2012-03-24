@@ -16,6 +16,26 @@ use Dancer::Core::Route;
 with 'Dancer::Core::Role::Hookable';
 with 'Dancer::Core::Role::Config';
 
+sub supported_hooks {
+    qw/
+    core.app.before_request 
+    core.app.after_request
+    /
+}
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my ( $class, %args ) = @_;
+    $args{postponed_hooks} ||= {};
+    return $class->$orig(%args);
+};
+
+has server => (
+    is => 'rw',
+    isa => sub { ConsumerOf('Dancer::Core::Role::Server', @_ ) },
+    weak_ref => 1,
+);
+
 has location => (
     is => 'ro',
     isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
@@ -116,12 +136,7 @@ sub template {
     return $content;
 }
 
-
-sub supported_hooks {
-    qw/before after before_request after_request/
-}
-
-sub _hook_candidates {
+sub hook_candidates {
     my ($self) = @_;
     
     my @engines;
@@ -143,23 +158,84 @@ sub _hook_candidates {
     (@route_handlers, @engines, @plugins);
 }
 
+has postponed_hooks => (
+    is => 'ro',
+    isa => sub { HashRef(@_) },
+    default => sub { {} },
+);
+
+# add_hook will add the hook to the first "hook candidate" it finds that support
+# it. If none, then it will try to add the hook to the current application.
 around add_hook => sub {
     my ($orig, $self) = (shift, shift);
+    
+    # saving caller information
+    my ($package, $file, $line) = caller(4); # deep to 4 : user's app code
+    my $add_hook_caller = [ $package, $file, $line ];
+
     my ($hook) = @_;
-    unless ($self->has_hook(my $name = $hook->name)) {
-        foreach my $cand ($self->_hook_candidates) {
-            return $cand->add_hook(@_) if $cand->has_hook($name);
-        }
+    my $name = $hook->name;
+
+#    Dancer::core_debug("add_hook $name ...");
+
+    my $_BACKWARD_HOOK_SUPPORT = {
+        before                 => 'core.app.before_request',
+        before_request         => 'core.app.before_request',
+        after                  => 'core.app.after_request',
+        after_request          => 'core.app.after_request',
+        before_file_render     => 'handler.file.before_render',
+        after_file_render      => 'handler.file.after_render',
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_serializer      => 'engine.serializer.before',
+        after_serializer       => 'engine.serializer.after',
+    };
+
+    # backward compat with previous hook format
+    $name = $_BACKWARD_HOOK_SUPPORT->{$name} 
+        if defined $_BACKWARD_HOOK_SUPPORT->{$name};
+
+#    Dancer::core_debug("hook is internally named: $name");
+    $hook->name($name);
+
+    # if that hook belongs to the app, register it
+    return $self->$orig(@_) if $self->has_hook($name);
+    
+    # at this point the hook name must be formated like:
+    # '$type.$candidate.$name', eg: 'engine.template.before_render' or 
+    # 'plugin.database.before_dbi_connect'
+    my ($hookable_type, $hookable_name, $hook_name) = split (/\./, $name);
+
+    croak "Invalid hook name `$name'" 
+        unless defined $hookable_name && defined $hook_name;
+
+    croak "Unknown hook type `$hookable_type'" 
+        if ! grep /^$hookable_type$/, qw(core engine handler plugin);
+
+    # that's not a hook for the app, let's see if one of the existing candidates
+    # owns it...
+    foreach my $hookable ($self->hook_candidates) {
+        return $hookable->add_hook(@_) if $hookable->has_hook($name);
     }
 
-    return $self->$orig(@_);
+#    Dancer::core_debug("Hook $name isnt available yet, postponed for $hookable_type / $hookable_name");
+
+    my $postponed_hooks = $self->postponed_hooks;
+
+    # Hmm, so the hook was not claimed, at this point we'll cache it and
+    # register it when the owner is instanciated
+    $postponed_hooks->{$hookable_type}{$hookable_name} ||= {};
+    $postponed_hooks->{$hookable_type}{$hookable_name}{$name} ||= {};
+    $postponed_hooks->{$hookable_type}{$hookable_name}{$name}{hook} = $hook;
+    $postponed_hooks->{$hookable_type}{$hookable_name}{$name}{caller} = $add_hook_caller;
+
 };
 
 around execute_hooks => sub {
     my ($orig, $self) = (shift, shift);
     my ($hook, @args) = @_;
     unless ($self->has_hook($hook)) {
-        foreach my $cand ($self->_hook_candidates) {
+        foreach my $cand ($self->hook_candidates) {
             return $cand->execute_hooks(@_) if $cand->has_hook($hook);
         }
     }
@@ -219,6 +295,7 @@ sub send_file {
 
     my $file_handler = Dancer::Handler::File->new(
         app => $self,
+        postponed_hooks => $self->postponed_hooks,
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
     ); 
 
@@ -260,7 +337,10 @@ sub init_route_handlers {
         $config = {} if !ref($config);
         $config->{app} = $self;
         my $handler = Dancer::Factory::Engine->create(
-            Handler => $handler_name, %$config);
+            Handler => $handler_name, 
+            %$config,
+            postponed_hooks => $self->postponed_hooks,
+            );
         $self->route_handlers->{$handler_name} = $handler;
     }
 }
