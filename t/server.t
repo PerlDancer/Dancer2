@@ -10,7 +10,10 @@ use Test::More;
     sub name { "Foo" }
 }
 
-my $f = Foo->new(host => 'localhost', port => 3000);
+use Dancer::Core::Runner;
+my $runner = Dancer::Core::Runner->new(caller => __FILE__);
+
+my $f = Foo->new(host => 'localhost', port => 3000, runner => $runner);
 my $app = Dancer::Core::App->new(name => 'foo');
 
 $f->register_application($app);

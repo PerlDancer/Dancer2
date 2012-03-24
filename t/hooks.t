@@ -22,13 +22,7 @@ my @hooks = qw(
 my $tests_flags = {};
 {
     use Dancer;
-    set serializer => 'JSON';
 
-    # Uncomment the following line is for before_template_render to work. It
-    # shouldn't be needed, we should be able to setup a template hook before
-    # deciding which template engine to use
-
-    # setting template => 'template_toolkit';
 
     for my $hook (@hooks) {
         hook $hook => sub {
@@ -36,6 +30,11 @@ my $tests_flags = {};
             $tests_flags->{$hook}++;
         };
     }
+
+    # we set the engines after the hook, and that should work
+    # thanks to the postponed hooks system
+    set template => 'template_toolkit';
+    set serializer => 'JSON';
 
     get '/send_file' => sub {
         send_file(File::Spec->rel2abs(__FILE__), system_path => 1);
