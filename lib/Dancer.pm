@@ -62,10 +62,11 @@ sub import {
 
     # the app object
     my $app = Dancer::Core::App->new(
-        name          => $caller,
-        environment   => $runner->environment,
-        location      => $runner->location,
-        runner_config => $runner->config,
+        name            => $caller,
+        environment     => $runner->environment,
+        location        => $runner->location,
+        runner_config   => $runner->config,
+        postponed_hooks => $runner->postponed_hooks,
     );
 
     core_debug("binding app to $caller");
@@ -98,10 +99,16 @@ sub _use_lib {
 
 sub core_debug {
     my $msg = shift;
+    my (@stuff) = @_;
+    use Data::Dumper;
+
+    my $vars = @stuff ? Dumper(\@stuff) : '';
+
+    my ($package, $filename, $line) = caller;
     return unless $ENV{DANCER_DEBUG_CORE};
 
     chomp $msg;
-    print STDERR "core: $msg\n";
+    print STDERR "core: $msg\n$vars";
 }
 
 1;

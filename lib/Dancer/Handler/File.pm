@@ -11,7 +11,10 @@ with 'Dancer::Core::Role::StandardResponses';
 with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
-    qw(before_file_render after_file_render)
+    qw(
+    handler.file.before_render 
+    handler.file.after_render
+    )
 }
 
 has mime => (
@@ -83,7 +86,7 @@ sub code {
         }
 
         my $file_path = path($self->public_dir, @tokens);
-        $self->execute_hooks('before_file_render', $file_path);
+        $self->execute_hooks('handler.file.before_render', $file_path);
 
         if (! -f $file_path) {
             $ctx->response->has_passed(1);
@@ -113,7 +116,7 @@ sub code {
             $ctx->response->header('Last-Modified', HTTP::Date::time2str($stat[9]));
 
         $ctx->response->content($content);
-        $self->execute_hooks('after_file_render', $ctx->response);
+        $self->execute_hooks('handler.file.after_render', $ctx->response);
         return ($ctx->request->method eq 'GET') ? $content : '';
     };
 }

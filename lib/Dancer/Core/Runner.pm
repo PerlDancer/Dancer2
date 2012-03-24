@@ -12,6 +12,14 @@ use File::Spec;
 
 with 'Dancer::Core::Role::Config';
 
+# hooks will be applied at the end, when the hookable objects are instanciated,
+# not before.
+has postponed_hooks => (
+    is => 'rw',
+    isa => sub { HashRef(@_) },
+    default => sub { {} },
+);
+
 # when the runner is created, it has to init the server instance
 # according to the condiguration
 sub BUILD {
@@ -27,6 +35,7 @@ sub BUILD {
         host => $self->config->{host},
         port => $self->config->{port},
         is_daemon => $self->config->{is_daemon},
+        runner => $self,
     ));
 }
 
