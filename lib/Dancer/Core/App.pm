@@ -70,6 +70,7 @@ sub _build_default_config {
 
     return {   
         %{ $self->runner_config },
+        # session => 'simple',
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
@@ -98,7 +99,9 @@ sub engine {
 
 sub session {
     my ($self, $key, $value) = @_;
+
     my $engine = $self->engine('session');
+
     my $session;
 
     # fetch any existing session
@@ -176,8 +179,6 @@ around add_hook => sub {
     my ($hook) = @_;
     my $name = $hook->name;
 
-#    Dancer::core_debug("add_hook $name ...");
-
     my $_BACKWARD_HOOK_SUPPORT = {
         before                 => 'core.app.before_request',
         before_request         => 'core.app.before_request',
@@ -195,10 +196,9 @@ around add_hook => sub {
     $name = $_BACKWARD_HOOK_SUPPORT->{$name} 
         if defined $_BACKWARD_HOOK_SUPPORT->{$name};
 
-#    Dancer::core_debug("hook is internally named: $name");
     $hook->name($name);
 
-    # if that hook belongs to the app, register it
+    # if that hook belongs to the app, register it now and return
     return $self->$orig(@_) if $self->has_hook($name);
     
     # at this point the hook name must be formated like:
@@ -212,13 +212,14 @@ around add_hook => sub {
     croak "Unknown hook type `$hookable_type'" 
         if ! grep /^$hookable_type$/, qw(core engine handler plugin);
 
-    # that's not a hook for the app, let's see if one of the existing candidates
-    # owns it...
+    # register the hooks for existing hookable candidates
     foreach my $hookable ($self->hook_candidates) {
-        return $hookable->add_hook(@_) if $hookable->has_hook($name);
+        $hookable->add_hook(@_) if $hookable->has_hook($name);
     }
 
-#    Dancer::core_debug("Hook $name isnt available yet, postponed for $hookable_type / $hookable_name");
+    # we register the hook for upcoming objects;
+    # that way, each components that can claim the hook will have a chance 
+    # to register it.
 
     my $postponed_hooks = $self->postponed_hooks;
 

@@ -73,6 +73,7 @@ sub apply_renderer {
     $tokens = $self->_prepare_tokens_options($tokens);
 
     $self->execute_hooks('engine.template.before_render', $tokens);
+
     my $content = $self->render($view, $tokens);
     $self->execute_hooks('engine.template.after_render', \$content);
 
@@ -124,7 +125,7 @@ sub _prepare_tokens_options {
         $tokens->{params}   = $self->context->request->params;
         $tokens->{vars}     = $self->context->buffer;
 
-        $tokens->{session} = $self->context->app->config->{session}
+        $tokens->{session} = $self->context->app->config->{session}->data
           if defined $self->context->app->config->{session};
     }
 

@@ -75,7 +75,11 @@ sub load_config_file {
 sub get_postponed_hooks {
     my ($self) = @_;
     return (ref($self) eq 'Dancer::Core::App')
-        ? $self->server->runner->postponed_hooks
+        ? (
+            (defined $self->server) 
+            ? $self->server->runner->postponed_hooks 
+            : {} 
+        )
         : $self->can('postponed_hooks') ? $self->postponed_hooks : {} ;
 }
 

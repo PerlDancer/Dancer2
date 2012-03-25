@@ -10,6 +10,8 @@ use URI::Escape;
 use base 'Exporter';
 our @EXPORT = qw(
     dancer_response
+    route_exists
+    route_doent_exist
     response_content_is
     response_content_isnt
     response_status_is
@@ -84,6 +86,16 @@ sub response_status_is {
     $tb->is_eq( $response->[0], $status, $test_name );
 }
 
+sub route_exists {
+    my $app = shift;
+    response_status_is(@_, 200);
+}
+
+sub route_doent_exist {
+    my $app = shift;
+    response_status_is(@_, 404);
+}
+
 sub response_status_isnt {
     my $app = shift;
     my ($req, $status, $test_name) = @_;
@@ -147,7 +159,7 @@ sub response_content_is_deeply {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $response = _req_to_response($req);
-    is_deeply $response->{content}, $matcher, $test_name;
+    is_deeply $response->[2][0], $matcher, $test_name;
 }
 
 sub response_is_file {
