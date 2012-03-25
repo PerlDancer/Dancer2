@@ -134,6 +134,8 @@ sub register_plugin {
     
     Moo::Role->apply_roles_to_object($dsl, $plugin);
     $dsl->export_symbols_to($caller);
+
+    $dsl->dancer_app->register_plugin($dsl);
 }
 
 sub plugin_setting {
