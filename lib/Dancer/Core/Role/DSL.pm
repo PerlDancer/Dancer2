@@ -3,6 +3,8 @@ use Moo::Role;
 use Dancer::Moo::Types;
 use Carp 'croak';
 
+with 'Dancer::Core::Role::Hookable';
+
 has app => (is => 'ro', required => 1);
 
 has keywords => (
@@ -11,6 +13,9 @@ has keywords => (
     lazy => 1,
     builder => '_build_dsl_keywords',
 );
+
+# needs to be overwritten by plugins who claim hooks
+sub supported_hooks { }
 
 sub _build_dsl_keywords {
     my ($self) = @_;
