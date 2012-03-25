@@ -48,9 +48,10 @@ sub _add_postponed_hooks {
         my $caller = $postponed_hooks->{$name}{caller};
 
         $self->has_hook($name)
-          or croak "$h_name $h_type does not support the hook `$name'.\n"
-          . join( ", ", @{$caller} );
+          or croak "$h_name $h_type does not support the hook `$name'. ("
+          . join( ", ", @{$caller} ) .")";
 
+        Dancer::core_debug("Adding hook '$name' to $self");
         $self->add_hook($hook);
     }
 }

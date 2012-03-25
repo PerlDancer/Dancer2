@@ -2,6 +2,8 @@ package Dancer::Serializer::Dumper;
 
 use Moo;
 use Carp 'croak';
+use Data::Dumper;
+
 
 with 'Dancer::Core::Role::Serializer';
 
@@ -20,7 +22,7 @@ sub to_dumper {
 
 # class definition
 
-sub BUILD { eval "use Dumper ()"; croak "Fail to load Dumper : $@" if $@ }
+sub BUILD { eval "use Data::Dumper ()"; croak "Fail to load Dumper : $@" if $@ }
 sub loaded { 1 }
 
 sub serialize {

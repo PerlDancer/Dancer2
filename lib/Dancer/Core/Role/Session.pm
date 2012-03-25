@@ -96,7 +96,8 @@ sub write {
 
 sub read {
     my ($self, $key) = @_;
-    $self->data->{$key};
+    my $v = $self->data->{$key};
+    return $v;
 }
 
 sub delete { 
