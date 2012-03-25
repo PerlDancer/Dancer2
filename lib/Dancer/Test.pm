@@ -19,6 +19,7 @@ our @EXPORT = qw(
     response_headers_include
     response_headers_are_deeply
     response_content_like
+    response_content_unlike
     response_content_is_deeply
     response_is_file
 );
