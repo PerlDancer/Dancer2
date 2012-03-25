@@ -15,6 +15,24 @@ has hooks => (
 
 sub BUILD { }
 
+# this hash contains all known core hooks with their 'human' name
+# classes that consume the role can overrirde this method to provide
+# their own aliases for their own hooks
+sub hook_aliases {
+    {
+        before                 => 'core.app.before_request',
+        before_request         => 'core.app.before_request',
+        after                  => 'core.app.after_request',
+        after_request          => 'core.app.after_request',
+        before_file_render     => 'handler.file.before_render',
+        after_file_render      => 'handler.file.after_render',
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_serializer      => 'engine.serializer.before',
+        after_serializer       => 'engine.serializer.after',
+    }
+}
+
 # after a hookable object is built, we go over its postponed hooks and register
 # them if any.
 after BUILD => sub {

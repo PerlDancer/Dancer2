@@ -179,23 +179,11 @@ around add_hook => sub {
 
     my ($hook) = @_;
     my $name = $hook->name;
-
-    my $_BACKWARD_HOOK_SUPPORT = {
-        before                 => 'core.app.before_request',
-        before_request         => 'core.app.before_request',
-        after                  => 'core.app.after_request',
-        after_request          => 'core.app.after_request',
-        before_file_render     => 'handler.file.before_render',
-        after_file_render      => 'handler.file.after_render',
-        before_template_render => 'engine.template.before_render',
-        after_template_render  => 'engine.template.after_render',
-        before_serializer      => 'engine.serializer.before',
-        after_serializer       => 'engine.serializer.after',
-    };
+    my $hook_aliases = $self->hook_aliases;
 
     # backward compat with previous hook format
-    $name = $_BACKWARD_HOOK_SUPPORT->{$name} 
-        if defined $_BACKWARD_HOOK_SUPPORT->{$name};
+    $name = $hook_aliases->{$name} 
+        if defined $hook_aliases->{$name};
 
     $hook->name($name);
 
