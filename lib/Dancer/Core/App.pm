@@ -70,7 +70,8 @@ sub _build_default_config {
 
     return {   
         %{ $self->runner_config },
-        # session => 'simple',
+        template => 'Tiny',
+        session => 'simple',
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
