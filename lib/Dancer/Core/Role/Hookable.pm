@@ -43,8 +43,6 @@ after BUILD => sub {
 
 sub _add_postponed_hooks {
     my ( $self, $args ) = @_;
-    #Dancer::core_debug("building $self with postponed hooks: ", $postponed_hooks);
-
     my $postponed_hooks = $args->{postponed_hooks};
 
     # find the internal name of the hooks, from the caller name
@@ -56,7 +54,7 @@ sub _add_postponed_hooks {
         $h_type = 'engine';
     }
 
-    #Dancer::core_debug("looking for hooks for $h_type/$h_name");
+    Dancer::core_debug("looking for hooks for $h_type/$h_name");
     # keep only the hooks we want
     $postponed_hooks = $postponed_hooks->{$h_type}{$h_name};
     return unless defined $postponed_hooks;

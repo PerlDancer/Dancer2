@@ -14,7 +14,6 @@ has keywords => (
     builder => '_build_dsl_keywords',
 );
 
-# needs to be overwritten by plugins who claim hooks
 sub supported_hooks { }
 
 sub _build_dsl_keywords {

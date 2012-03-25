@@ -23,6 +23,18 @@ sub supported_hooks {
     /
 }
 
+has plugins => (
+    is => 'rw',
+    isa => sub { ArrayRef(@_) },
+    default => sub { [] },
+);
+
+sub register_plugin {
+    my ($self, $plugin) = @_;
+    Dancer::core_debug("Registered $plugin");
+    push @{ $self->plugins }, $plugin;
+}
+
 around BUILDARGS => sub {
     my $orig = shift;
     my ( $class, %args ) = @_;
@@ -157,9 +169,23 @@ sub hook_candidates {
     }
 
     # TODO : get the list of all plugins registered
-    my @plugins;
+    my @plugins = @{ $self->plugins };
 
     (@route_handlers, @engines, @plugins);
+}
+
+sub all_hook_aliases {
+    my ($self) = @_;
+
+    my $aliases = $self->hook_aliases;
+    for my $plugin (@{ $self->plugins }) {
+        $aliases = {
+            %{$aliases},
+            %{ $plugin->hook_aliases },
+        };
+    }
+
+    return $aliases;
 }
 
 has postponed_hooks => (
@@ -177,14 +203,15 @@ around add_hook => sub {
     my ($package, $file, $line) = caller(4); # deep to 4 : user's app code
     my $add_hook_caller = [ $package, $file, $line ];
 
+
     my ($hook) = @_;
     my $name = $hook->name;
-    my $hook_aliases = $self->hook_aliases;
+    
+    my $hook_aliases = $self->all_hook_aliases;
 
     # backward compat with previous hook format
     $name = $hook_aliases->{$name} 
         if defined $hook_aliases->{$name};
-
     $hook->name($name);
 
     # if that hook belongs to the app, register it now and return
