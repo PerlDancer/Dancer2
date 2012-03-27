@@ -1,64 +1,61 @@
 package Dancer::Plugin;
+
+# ABSTRACT: helper for extending Dancer's DSL 
+
+=head1 DESCRIPTION
+
+You can extend Dancer by writing your own Plugin.
+
+A plugin is a module that exports a bunch of symbols to the current namespace
+(the caller will see all the symbols defined via C<register>).
+
+Note that you have to C<use> the plugin wherever you want to use its symbols.
+For instance, if you have Webapp::App1 and Webapp::App2, both loaded from your
+main application, they both need to C<use FooPlugin> if they want to use the
+symbols exported by C<FooPlugin>.
+
+=cut
+
 use Moo::Role;
 use Carp 'croak';
 use Dancer::Core::DSL;
 
-sub _get_dsl {
-    my $dsl;
-    my $deep = 2;
-    while (my $caller = caller($deep++)) {
-        $dsl = $caller->dsl if $caller->can('dsl');
-        last if defined $dsl;
-    }
+=method register
 
-    return $dsl;
-}
+Allows the plugin to define a keyword that will be exported to the caller's
+namespace.
 
-sub import {
-    my $class  = shift;
-    my $plugin = caller;
+The first argument is the symbol name, the second one the coderef to execute
+when the symbol is called.
 
-    # First, export Dancer::Plugins symbols
-    my @export = qw(
-        register_plugin
-        register
-        plugin_setting
-    );
-    for my $symbol (@export) {
-        no strict 'refs';
-        *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
-    }
+The coderef receives as its first argument the Dancer::Core::DSL object. Any
+Dancer keyword wrapped by the plugin should be called with the $dsl object like
+the following:
 
-    my $dsl = _get_dsl();
-    return if ! defined $dsl;
+    sub {
+        my $dsl = shift;
+        my @args = @_;
 
-    # Support for Dancer 1 syntax for plugin.
-    # Then, compile Dancer's DSL keywords into self-contained keywords for the
-    # plugin (actually, we call all the symbols by giving them $caller->dsl as
-    # their first argument).
-    # These modified versions of the DSL are then exported in the namespace of the
-    # plugin.
-    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
+        $dsl->some_dancer_thing;
+        ...
+    };
 
-        # get the original symbol from the real DSL
-        no strict 'refs';
-        no warnings 'redefine';
-        my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
+As an optional third argument, it's possible to give a hash ref to C<register>
+in order to set some options. 
 
-        # compile it with $caller->dsl
-        my $compiled = sub { $code->($dsl, @_) };
+The option C<is_global> (boolean) is used to declare a global/non keyword (by
+default all keywords are global). A non global keyword must be called from
+within a route handler (eg: C<session> or C<param>) whereas a global one can be called
+frome everywhere (eg: C<dancer_version> or C<setting>).
 
-        # bind the newly compiled symbol to the caller's namespace.
-        *{"${plugin}::${symbol}"} = $compiled;
-    }
-    
-    # Finally, make sure our caller becomes a Moo::Role
-    # Perl 5.8.5+ mandatory for that trick
-    @_ = ('Moo::Role');
-    goto &Moo::Role::import
-}
+    register my_symbol_to_export => sub {
+        # ... some code 
+    }, { is_global => 1} ;
 
-# registry for storing all keywords, their code and the plugin they come from
+=cut
+
+# singleton for storing all keywords, 
+# their code and the plugin they come from
 my $_keywords = {};
 
 sub register {
@@ -97,10 +94,23 @@ sub register {
 =method register_plugin
 
 A Dancer plugin must end with this statement. This lets the plugin register all
-the symbols define with C<register> as exported symbols (via the L<Exporter>
-module).
+the symbols defined with C<register> as exported symbols.
 
-A Dancer plugin inherits from Dancer::Plugin and Exporter transparently.
+Since version 2, Dancer requires any plugin to declare explicitly which version
+of the core it supports. This is done for safer upgrade of major versions and
+allow Dancer 2 to detect legacy plugins that have not been ported to the new
+core. To do so, the plugin must list the major versions of the core it supports
+in an arrayref, like the following:
+
+    # For instance, if the plugin works with Dancer 1 and 2:
+    register_plugin for_versions => [ 1, 2 ]; 
+
+    # Or if it only works for 2:
+    register_plugin for_versions => [ 2 ];
+
+If the C<for_versions> option is omitted, it dfaults to C<[ 1 ]> meaning the
+plugin was written for Dancer 1 and has not been ported to Dancer 2. This is a
+rather violent convention but will help a lot the migration of the ecosystem.
 
 =cut
 
@@ -147,87 +157,12 @@ sub register_plugin {
     $dsl->dancer_app->register_plugin($dsl);
 }
 
-sub plugin_setting {
-    my $plugin = caller;
-    (my $plugin_name = $plugin) =~ s/Dancer::Plugin:://;
-    my $app = $plugin->dancer_app;
-    return $app->config->{'plugins'}->{$plugin_name} ||= {};
-}
+=method plugin_setting
 
-
-1;
-__END__
-=pod
-
-=head1 NAME
-
-Dancer::Plugin - helper for writing Dancer plugins
-
-=head1 DESCRIPTION
-
-Create plugins for Dancer
-
-=head1 SYNOPSIS
-
-  package Dancer::Plugin::LinkBlocker;
-  use Dancer ':syntax';
-  use Dancer::Plugin;
-
-  register block_links_from => sub {
-    my $conf = plugin_setting();
-    my $re = join ('|', @{$conf->{hosts}});
-    before sub {
-        if (request->referer && request->referer =~ /$re/) {
-            status 403 || $conf->{http_code};
-        }
-    };
-  };
-
-  register_plugin;
-  1;
-
-And in your application:
-
-    package My::Webapp;
-    
-    use Dancer ':syntax';
-    use Dancer::Plugin::LinkBlocker;
-
-    block_links_from; # this is exported by the plugin
-
-=head1 PLUGINS
-
-You can extend Dancer by writing your own Plugin.
-
-A plugin is a module that exports a bunch of symbols to the current namespace
-(the caller will see all the symbols defined via C<register>).
-
-Note that you have to C<use> the plugin wherever you want to use its symbols.
-For instance, if you have Webapp::App1 and Webapp::App2, both loaded from your
-main application, they both need to C<use FooPlugin> if they want to use the
-symbols exported by C<FooPlugin>.
-
-=head2 METHODS
-
-=over 4
-
-=item B<register>
-
-Lets you define a keyword that will be exported by the plugin.
-
-    register my_symbol_to_export => sub {
-        # ... some code 
-    };
-
-=item B<register_plugin>
-
-A Dancer plugin must end with this statement. This lets the plugin register all
-the symbols define with C<register> as exported symbols (via the L<Exporter>
-module).
-
-A Dancer plugin inherits from Dancer::Plugin and Exporter transparently.
-
-=item B<plugin_setting>
+If C<plugin_setting> is called inside a plugin, the appropriate configuration 
+will be returned. The C<plugin_name> should be the name of the package, or, 
+if the plugin name is under the B<Dancer::Plugin::> namespace (which is
+recommended), the remaining part of the plugin name. 
 
 Configuration for plugin should be structured like this in the config.yml of
 the application:
@@ -236,11 +171,6 @@ the application:
     plugin_name:
       key: value
 
-If C<plugin_setting> is called inside a plugin, the appropriate configuration 
-will be returned. The C<plugin_name> should be the name of the package, or, 
-if the plugin name is under the B<Dancer::Plugin::> namespace (which is
-recommended), the remaining part of the plugin name. 
-
 Enclose the remaining part in quotes if it contains ::, e.g.
 for B<Dancer::Plugin::Foo::Bar>, use:
 
@@ -248,24 +178,105 @@ for B<Dancer::Plugin::Foo::Bar>, use:
     "Foo::Bar":
       key: value
 
-=item B<major_version>
+=cut
 
-  my $plugin_system_version = Dancer::Plugin->major_version
+sub plugin_setting {
+    my $plugin = caller;
+    (my $plugin_name = $plugin) =~ s/Dancer::Plugin:://;
+    my $app = $plugin->dancer_app;
+    return $app->config->{'plugins'}->{$plugin_name} ||= {};
+}
 
-Returns the Dancer plugin system major version. Useful for a plugin to know if
-it's being loaded in a Dancer 1 or Dancer 2 plugin system.
+# private
 
-Returns always 2 ( because that's Dancer 2, eh ! )
+sub import {
+    my $class  = shift;
+    my $plugin = caller;
 
-=back
+    # First, export Dancer::Plugins symbols
+    my @export = qw(
+        register_plugin
+        register
+        plugin_setting
+    );
+    for my $symbol (@export) {
+        no strict 'refs';
+        *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
+    }
 
-=head1 AUTHORS
+    my $dsl = _get_dsl();
+    return if ! defined $dsl;
 
-This module has been written by Alexis Sukrieh and others.
+    # Support for Dancer 1 syntax for plugin.
+    # Then, compile Dancer's DSL keywords into self-contained keywords for the
+    # plugin (actually, we call all the symbols by giving them $caller->dsl as
+    # their first argument).
+    # These modified versions of the DSL are then exported in the namespace of the
+    # plugin.
+    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
 
-=head1 LICENSE
+        # get the original symbol from the real DSL
+        no strict 'refs';
+        no warnings 'redefine';
+        my $code = *{"Dancer::Core::DSL::$symbol"}{CODE};
 
-This module is free software and is published under the same
-terms as Perl itself.
+        # compile it with $caller->dsl
+        my $compiled = sub { $code->($dsl, @_) };
+
+        # bind the newly compiled symbol to the caller's namespace.
+        *{"${plugin}::${symbol}"} = $compiled;
+    }
+    
+    # Finally, make sure our caller becomes a Moo::Role
+    # Perl 5.8.5+ mandatory for that trick
+    @_ = ('Moo::Role');
+    goto &Moo::Role::import
+}
+
+sub _get_dsl {
+    my $dsl;
+    my $deep = 2;
+    while (my $caller = caller($deep++)) {
+        $dsl = $caller->dsl if $caller->can('dsl');
+        last if defined $dsl;
+    }
+
+    return $dsl;
+}
+
+1;
+__END__
+
+=head1 EXAMPLE PLUGIN
+
+The following code is a dummy plugin that provides a keyword 'block_links_from'.
+
+  package Dancer::Plugin::LinkBlocker;
+  use Dancer::Plugin;
+
+  register block_links_from => sub {
+    my $dsl = shift;
+
+    my $conf = plugin_setting();
+    my $re = join ('|', @{$conf->{hosts}});
+    $dsl->before( sub {
+        if ($dsl->request->referer && $dsl->request->referer =~ /$re/) {
+            $dsl->status(403) || $conf->{http_code};
+        }
+    });
+  };
+
+  register_plugin for_versions => [ 2 ] ;
+
+  1;
+
+And in your application:
+
+    package My::Webapp;
+    
+    use Dancer;
+    use Dancer::Plugin::LinkBlocker;
+
+    block_links_from; # this is exported by the plugin
 
 =cut
