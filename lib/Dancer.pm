@@ -10,7 +10,7 @@ use Dancer::Core::App;
 use Dancer::Core::DSL;
 use Dancer::FileUtils;
 
-our $VERSION   = '1.9999_01';
+our $VERSION   = '2.000000_01';
 our $AUTHORITY = 'SUKRIA';
 
 #

@@ -3,11 +3,6 @@ use Moo::Role;
 use Carp 'croak';
 use Dancer::Core::DSL;
 
-# The plugin system major version, to check compatibility against it
-our $PLUGIN_MAJOR_VERSION = 2;
-
-sub major_version { $PLUGIN_MAJOR_VERSION }
-
 sub _get_dsl {
     my $dsl;
     my $deep = 2;
@@ -99,6 +94,16 @@ sub register {
     ];
 }
 
+=method register_plugin
+
+A Dancer plugin must end with this statement. This lets the plugin register all
+the symbols define with C<register> as exported symbols (via the L<Exporter>
+module).
+
+A Dancer plugin inherits from Dancer::Plugin and Exporter transparently.
+
+=cut
+
 sub register_plugin {
     my $plugin = caller;
     my $caller = caller(1);
@@ -110,13 +115,18 @@ sub register_plugin {
 
     my $supported_versions = $params{for_versions} || [ 1 ];
     ref $supported_versions eq 'ARRAY'
-      or croak "register_plugin must be called like this : register_plugin for_versions => [ 1, 2 ]";
-
-    +{ map { $_ => 1 } @$supported_versions }->{$PLUGIN_MAJOR_VERSION}
-      or croak "can't register plugin '$plugin', it doesn't support Dancer version $PLUGIN_MAJOR_VERSION, it only supports these version(s): " . join(',', @$supported_versions) . ". Please upgrade the plugin.";
+      or croak "register_plugin must be called with an array ref";
 
     # if the caller has not a dsl, we cant register the plugin 
     return if ! $caller->can('dsl');
+    my $dancer_version = $caller->dsl->dancer_version;
+    my $plugin_version = eval "\$${plugin}::VERSION" || '??';
+
+    warn "supported_versions : ".join(', ', @$supported_versions);
+    # make sure the plugin is compatible with this version of Dancer
+    grep /^$dancer_version$/, @{ $supported_versions }
+      or croak "$plugin $plugin_version does not support Dancer $dancer_version.";
+
 
     # we have a $dsl in our caller, we can register our symbols then
     my $dsl = $caller->dsl;
