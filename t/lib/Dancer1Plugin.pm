@@ -10,7 +10,7 @@ register around_get => sub {
     };
 };
 
-register_plugin;
+register_plugin for_versions => [ 2 ];
 
 1;
 

@@ -34,7 +34,7 @@ register 'ajax' => sub {
     $dsl->any( ['get', 'post'] => $pattern, $ajax_route );
 };
 
-register_plugin;
+register_plugin for_versions => [ 2 ];
 1;
 
 __END__
