@@ -94,12 +94,38 @@ sub register {
     ];
 }
 
+=method register_plugin
+
+A Dancer plugin must end with this statement. This lets the plugin register all
+the symbols define with C<register> as exported symbols (via the L<Exporter>
+module).
+
+A Dancer plugin inherits from Dancer::Plugin and Exporter transparently.
+
+=cut
+
 sub register_plugin {
     my $plugin = caller;
     my $caller = caller(1);
+    my %params = @_;
+
+    # For backward compatibility, no params means "supports only Dancer 1"
+    defined $params{for_versions}
+      or $params{for_versions} = [ 1 ];
+
+    my $supported_versions = $params{for_versions} || [ 1 ];
+    ref $supported_versions eq 'ARRAY'
+      or croak "register_plugin must be called with an array ref";
 
     # if the caller has not a dsl, we cant register the plugin 
     return if ! $caller->can('dsl');
+    my $dancer_version = $caller->dsl->dancer_version;
+    my $plugin_version = eval "\$${plugin}::VERSION" || '??';
+
+    # make sure the plugin is compatible with this version of Dancer
+    grep /^$dancer_version$/, @{ $supported_versions }
+      or croak "$plugin $plugin_version does not support Dancer $dancer_version.";
+
 
     # we have a $dsl in our caller, we can register our symbols then
     my $dsl = $caller->dsl;
@@ -221,6 +247,15 @@ for B<Dancer::Plugin::Foo::Bar>, use:
   plugins:
     "Foo::Bar":
       key: value
+
+=item B<major_version>
+
+  my $plugin_system_version = Dancer::Plugin->major_version
+
+Returns the Dancer plugin system major version. Useful for a plugin to know if
+it's being loaded in a Dancer 1 or Dancer 2 plugin system.
+
+Returns always 2 ( because that's Dancer 2, eh ! )
 
 =back
 

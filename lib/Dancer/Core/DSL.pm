@@ -9,6 +9,10 @@ use Carp;
 with 'Dancer::Core::Role::DSL';
 
 sub dsl_keywords {
+
+    # the flag means : 1 = is global, 0 = is not global. global means can be
+    # called from anywhere. not global means must be called rom within a route
+    # handler
     [   
         [any          => 1],
         [app          => 1],
@@ -21,6 +25,7 @@ sub dsl_keywords {
         [core_debug   => 1],
         [dance        => 1],
         [dancer_app   => 1],
+        [dancer_version => 1],
         [debug        => 1],
         [del          => 1],
         [dirname      => 1],
@@ -79,6 +84,7 @@ sub dsl_keywords_as_list {
 }
 
 sub dancer_app { shift->app }
+sub dancer_version { (split /\./, $Dancer::VERSION)[0] }
 sub dsl { shift }
 
 sub debug   { shift->log(debug   => @_) }
