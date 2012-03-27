@@ -122,7 +122,6 @@ sub register_plugin {
     my $dancer_version = $caller->dsl->dancer_version;
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
 
-    warn "supported_versions : ".join(', ', @$supported_versions);
     # make sure the plugin is compatible with this version of Dancer
     grep /^$dancer_version$/, @{ $supported_versions }
       or croak "$plugin $plugin_version does not support Dancer $dancer_version.";
