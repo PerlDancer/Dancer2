@@ -56,7 +56,7 @@ sub dancer_response {
         $env->{REQUEST_URI} = join('&', @params);
     }
 
-    my $request = Dancer::Core::Request->new(env => $env);
+    my $request = Dancer::Core::Request->new(env => { %$env, %ENV });
 
     # TODO body
     
