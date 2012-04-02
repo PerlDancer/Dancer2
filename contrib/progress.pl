@@ -75,6 +75,9 @@ my @done = Dancer::Core::DSL->dsl_keywords_as_list;
 my $target = scalar(@expected);
 my $done   = scalar(@done);
 
+my @missing = grep { ! { map { $_ => 1 } @done }->{$_}  }  @expected;
+my @additional = grep { ! { map { $_ => 1 } @expected }->{$_}  }  @done;
+
 use feature 'say';
 
 if ($v) {
@@ -86,15 +89,13 @@ if ($v) {
     print "\n";
 
     print "Statistics:\n", "-" x 40, "\n";
-    my @missing;
-    for my $c (@expected) {
-        push @missing, $c unless grep { $_ eq $c } @done;
-    }
-    say "Dancer 2.0 DSL is missing: ", join (", ", sort @missing);
+    say "Dancer 2.0 DSL is missing: ", join (", ", @missing );
+    say "Dancer 2.0 DSL has these new keywords: ", join (", ", @additional );
+
 }
 
-my $percent = sprintf('%02.2f', ($done / $target * 100));
-say "Dancer 2.0 is at $percent% ($done symbols supported on $target)";
+my $percent = sprintf('%02.2f', (100 - @missing * 100 / $target));
+say "Dancer 2.0 is at $percent% ( " . ($target - @missing) . " symbols supported on $target)";
 
 my $dancer1_lines=11999;
 my $dancer2_lines=`wc -l \`find lib -name '*.pm'\` | grep 'total' | awk '{print \$1}'`;
