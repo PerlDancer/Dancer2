@@ -1,3 +1,5 @@
+# PODNAME: Introduction.pod
+
 =head1 NAME
 
 Dancer::Introduction - A gentle introduction to Dancer
