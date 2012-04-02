@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Handler::AutoPage;
 use Moo;
 use Carp 'croak';

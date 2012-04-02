@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Logger::Capture::Trap;
 use Moo;
 use Dancer::Moo::Types;

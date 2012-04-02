@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Session::Simple;
 use Moo;
 use Dancer::Moo::Types;

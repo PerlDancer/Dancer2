@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;

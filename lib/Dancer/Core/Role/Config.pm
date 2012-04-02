@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Role::Config;
 use Moo::Role;
 

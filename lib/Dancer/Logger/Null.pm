@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Logger::Null;
 use Moo;
 with 'Dancer::Core::Role::Logger';

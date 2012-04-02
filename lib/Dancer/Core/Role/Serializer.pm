@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Role::Serializer;
 use Dancer::Moo::Types;
 

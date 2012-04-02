@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Hook;
 use Moo;
 use Dancer::Moo::Types;

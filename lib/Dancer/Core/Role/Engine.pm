@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Role::Engine;
 use Moo::Role;
 use Dancer::Moo::Types;

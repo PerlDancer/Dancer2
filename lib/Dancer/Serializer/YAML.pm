@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Serializer::YAML;
 use Moo;
 use Carp 'croak';

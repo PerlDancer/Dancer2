@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Role::Hookable;
 use Moo::Role;
 use Dancer::Moo::Types;

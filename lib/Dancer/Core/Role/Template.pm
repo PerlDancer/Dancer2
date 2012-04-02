@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Core::Role::Template;
 use Dancer::Moo::Types;
 use Dancer::FileUtils qw'path';

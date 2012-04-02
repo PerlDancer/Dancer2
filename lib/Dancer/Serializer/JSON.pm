@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Serializer::JSON;
 use Moo;
 use Carp 'croak';

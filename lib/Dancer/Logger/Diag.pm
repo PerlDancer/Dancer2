@@ -1,3 +1,5 @@
+# Abstract: TODO
+
 package Dancer::Logger::Diag;
 use Moo;
 use Test::More;
