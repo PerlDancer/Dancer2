@@ -1,4 +1,4 @@
-# Abstract: TODO
+# ABSTRACT: TODO
 
 package Dancer::Logger::Capture;
 use Moo;

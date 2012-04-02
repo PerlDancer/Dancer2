@@ -1,4 +1,4 @@
-# Abstract: TODO
+# ABSTRACT: TODO
 
 package Dancer::Core::Role::Logger;
 use Dancer::Moo::Types;

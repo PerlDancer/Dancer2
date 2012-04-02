@@ -1,4 +1,4 @@
-# Abstract: TODO
+# ABSTRACT: TODO
 
 package Dancer::Core::Role::StandardResponses;
 use Moo::Role;
