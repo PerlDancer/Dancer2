@@ -5,4 +5,5 @@
     * Add warning in Makefile.PL to inform about Dist::Zilla (Damien Krotkine)
     * Update README (Damien Krotkine)
     * Add Abstract placeholders (Damien Krotkine)
-    * Add changelog
+    * Add changelog (Damien Krotkine)
+    * Various fixes (Damien Krotkine)
