@@ -49,6 +49,20 @@ unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
+    print STDERR "
+WARNING ! This $0 file is provided just for lazy developers to
+quickly build this module directly from source, and hack it. However this
+module is managed by Dist::Zilla. Serious developers should install
+Dist::Zilla, and issue 'dist help' to see how to build and develop it properly.
+Especially, build/test/install requires are not properly set in this
+file.
+
+Contact the author if you need more help.
+
+Now sleeping 10 secs so you get bored and go install Dist::Zilla :)\n\n";
+
+    sleep 10;
+
 WriteMakefile(%WriteMakefileArgs);
 
 
