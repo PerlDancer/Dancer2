@@ -1,0 +1,6 @@
+{{$NEXT}}
+
+    [ BUG FIXES ]
+    * Fix dist.ini, and numerous missing pod names (Damien Krotkine)
+    * Add warning in Makefile.PL to inform about Dist::Zilla
+    * Update README
