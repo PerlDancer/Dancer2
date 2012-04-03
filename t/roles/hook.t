@@ -13,6 +13,7 @@ is $h->code->(), 'BT';
     package Foo;
     use Moo;
     with 'Dancer::Core::Role::Hookable';
+    sub supported_hooks {  }
 }
 
 my $f = Foo->new;
@@ -39,7 +40,7 @@ my $some_hook = Dancer::Core::Hook->new(
 
 like(
     exception { $f->add_hook($some_hook) },
-    qr{Hook 'foobar' must be installed first},
+    qr{Unsupported hook 'foobar'},
     'Hook must be installed first',
 );
 
