@@ -1,10 +1,11 @@
 # ABSTRACT: TODO
 
 package Dancer::Core::Role::Template;
+
 use Dancer::Moo::Types;
 use Dancer::FileUtils qw'path';
 use Carp 'croak';
-    
+
 use Data::Dumper;
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
@@ -119,7 +120,7 @@ sub _prepare_tokens_options {
     # these are the default tokens provided for template processing
     $tokens ||= {};
     $tokens->{perl_version}   = $];
-    $tokens->{dancer_version} = $Dancer::VERSION;
+    $tokens->{dancer_version} = Dancer->VERSION;
 
     if (defined $self->context) {
         $tokens->{settings} = $self->context->app->config;

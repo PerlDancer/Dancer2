@@ -19,5 +19,5 @@ any ['get', 'post'], '/'  => sub {
     is $r->[2][0], 'POST';
 }
 
-is dancer_version, 2, 'dancer_version';
+is int(dancer_version), 2, 'dancer_version';
 done_testing;

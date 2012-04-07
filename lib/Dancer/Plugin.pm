@@ -129,12 +129,12 @@ sub register_plugin {
 
     # if the caller has not a dsl, we cant register the plugin 
     return if ! $caller->can('dsl');
-    my $dancer_version = $caller->dsl->dancer_version;
+    my $dancer_major_version = int($caller->dsl->dancer_version);
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
 
     # make sure the plugin is compatible with this version of Dancer
-    grep /^$dancer_version$/, @{ $supported_versions }
-      or croak "$plugin $plugin_version does not support Dancer $dancer_version.";
+    grep { $_ eq $dancer_major_version } @$supported_versions
+      or croak "$plugin $plugin_version does not support Dancer $dancer_major_version.";
 
 
     # we have a $dsl in our caller, we can register our symbols then
