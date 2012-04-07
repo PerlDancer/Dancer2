@@ -13,6 +13,7 @@ use Dancer::Core::DSL;
 use Dancer::FileUtils;
 
 our $VERSION   = '2.000000_01';
+$VERSION = eval $VERSION;
 our $AUTHORITY = 'SUKRIA';
 
 #

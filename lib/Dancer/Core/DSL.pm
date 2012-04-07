@@ -86,7 +86,7 @@ sub dsl_keywords_as_list {
 }
 
 sub dancer_app { shift->app }
-sub dancer_version { (split /\./, $Dancer::VERSION)[0] }
+sub dancer_version { Dancer->VERSION }
 sub dsl { shift }
 
 sub debug   { shift->log(debug   => @_) }
