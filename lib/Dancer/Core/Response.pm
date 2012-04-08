@@ -14,6 +14,10 @@ use Scalar::Util qw/looks_like_number blessed/;
 use Dancer ();
 use Dancer::Core::MIME;
 
+use overload 
+    '@{}' => sub { $_[0]->to_psgi },
+    '""'  => sub { $_[0] };
+
 with 'Dancer::Core::Role::Headers';
 
 sub BUILD {
