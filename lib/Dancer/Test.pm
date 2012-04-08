@@ -13,7 +13,7 @@ use base 'Exporter';
 our @EXPORT = qw(
     dancer_response
     route_exists
-    route_doent_exist
+    route_doesnt_exist
     response_content_is
     response_content_isnt
     response_status_is
@@ -94,7 +94,7 @@ sub route_exists {
     response_status_is(@_, 200);
 }
 
-sub route_doent_exist {
+sub route_doesnt_exist {
     my $app = shift;
     response_status_is(@_, 404);
 }
