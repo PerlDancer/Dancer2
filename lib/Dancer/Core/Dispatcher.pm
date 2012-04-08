@@ -45,18 +45,18 @@ sub dispatch {
 
         $app->log(core => "looking for $http_method $path_info");
 
+        ROUTE:
         foreach my $route (@{ $app->routes->{$http_method} }) {
             # warn "testing route ".$route->regexp;
 
             # TODO next if $r->has_options && (not $r->validate_options($request));
             # TODO store in route cache
 
-            my $match = $route->match($http_method => $path_info);
-            if ($match) {
-                # warn "got a match";
-                $context->request->_set_route_params($match);
-            }
+            # go to the next route if no match
+            my $match = $route->match($http_method => $path_info) 
+                or next ROUTE;
 
+            $context->request->_set_route_params($match);
 
             # if the request has been altered by a before filter, we should not continue
             # with this route handler, we should continue to walk through the
@@ -65,20 +65,22 @@ sub dispatch {
             # next if $context->request->path_info ne $path_info
             #         || $context->request->method ne uc($http_method);
 
-            # go to the next route if no match
-            next if !$match;
-            my $content;
             $app->execute_hook('core.app.before_request', $context);
+            my $response = $context->response;
 
-            if (! $context->response->is_halted) {
-                eval { $content = $route->execute($context) };
-                if ($@) { # 500
-                    $app->log(error => $@);
-                    return $self->response_internal_error($@);
+            my $content;
+            if ( $response->is_halted ) {
+                # if halted, it comes from the 'before' hook. Take its content
+                $content = $response->content;
+            }
+            else {
+                $content = eval { $route->execute($context) };
+                my $error = $@;
+                if ($error) {
+                    $app->log(error => "Route exception: $error");
+                    return $self->response_internal_error($error);
                 }
             }
-
-            my $response = $context->response;
 
             # routes should use 'content_type' as default, or 'text/html'
             if (!$response->header('Content-type')) {
@@ -90,20 +92,18 @@ sub dispatch {
             }
 
             # serialize if needed
-            if (defined $app->config->{serializer}) {
-                $content = $app->config->{serializer}->serialize($content)
-                    if ref($content);
-            }
+            $content = $app->config->{serializer}->serialize($content) 
+                if ref $content and defined $app->config->{serializer}; 
 
             $response->content(defined $content ? $content : '');
             $response->encode_content;
 
-            return $response if $context->response->is_halted;
+            return $response if $response->is_halted;
 
             # pass the baton if the response says so...
             if ($response->has_passed) {
-                $context->response->has_passed(0);
-                next;
+                $response->has_passed(0);  # clear for the next round
+                next ROUTE;
             }
 
             $app->execute_hook('core.app.after_request', $response);
