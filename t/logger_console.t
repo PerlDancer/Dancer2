@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Capture::Tiny 'capture_stderr';
+use Capture::Tiny 0.12 'capture_stderr';
 
 plan tests => 4;
 
