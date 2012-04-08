@@ -141,18 +141,22 @@ sub response_status_isnt {
     
     
 sub response_content_is {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'is_eq');
 }
 
 sub response_content_isnt {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'isnt_eq');
 }
 
 sub response_content_like {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'like');
 }
 
 sub response_content_unlike {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'unlike');
 }
 
