@@ -56,6 +56,16 @@ my $tests_flags = {};
     get '/json' => sub { 
         [ foo => 42 ]
     };
+
+    get '/intercepted' => sub { 'not intercepted' };
+
+    hook before => sub {
+        my $c = shift;
+        return unless $c->request->path eq '/intercepted';
+
+        $c->response->content( 'halted by before' );
+        $c->response->halt;
+    };
     
     # make sure we compile all the apps without starting a webserver
     main->dancer_app->finish;
@@ -91,6 +101,11 @@ subtest 'template render hook' => sub {
     my $resp = dancer_response get => '/template';
     is $tests_flags->{before_template_render}, 1, "before_template_render was called";
     is $tests_flags->{after_template_render},  1, "after_template_render was called";
+};
+
+subtest 'before can halt' => sub {
+    my $resp = dancer_response get => '/intercepted';
+    is join( "\n", @{$resp->[2]} ) => 'halted by before';
 };
 
 done_testing;
