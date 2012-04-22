@@ -35,16 +35,51 @@ has env => (
 has path => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Str(@_) },
+    default => sub {
+        my $self = shift;
+
+        # Written from PSGI specs:
+        # http://search.cpan.org/dist/PSGI/PSGI.pod
+
+        my $path = "";
+
+        $path .= $self->script_name      if defined $self->script_name;
+        $path .= $self->env->{PATH_INFO} if defined $self->env->{PATH_INFO};
+
+        # fallback to REQUEST_URI if nothing found
+        # we have to decode it, according to PSGI specs.
+        if (defined $self->request_uri) {
+            $path ||= $self->_url_decode($self->request_uri);
+        }
+
+        croak "Cannot resolve path" if not $path;
+
+        return $path;
+    },
 );
 
 has path_info => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Str(@_) },
+    default => sub {
+        my $self = shift;
+
+        my $info = $self->env->{PATH_INFO};
+        # Empty path info will be interpreted as "root".
+        return $info || '/' if defined $info;
+
+        return $self->path;
+    },
 );
 
 has method => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::DancerHTTPMethod(@_) },
+    default => sub {
+        my $self = shift;
+        $self->env->{REQUEST_METHOD} || 'GET';
+    },
+    coerce => sub { uc $_[0] },
 );
 
 has content_type => (
@@ -168,9 +203,6 @@ sub BUILD {
 
     $self->_init_request_headers();
     $self->_build_request_env();
-    $self->_build_path();      
-    $self->_build_path_info() ;
-    $self->_build_method();    
 
     $self->{_http_body} =
       HTTP::Body->new($self->content_type, $self->content_length);
@@ -201,7 +233,7 @@ sub make_forward_to {
                                     $params || {});
 
     if (exists($options->{method})) {
-        $new_request->method(uc $options->{method});
+        $new_request->method($options->{method});
     }
 
     $new_request->{params}  = $new_params;
@@ -420,44 +452,6 @@ sub _build_params {
         %{$self->{_route_params}}, %{$self->{_body_params}},
     };
 
-}
-
-# Written from PSGI specs:
-# http://search.cpan.org/dist/PSGI/PSGI.pod
-sub _build_path {
-    my ($self) = @_;
-    my $path = "";
-
-    $path .= $self->script_name if defined $self->script_name;
-    $path .= $self->env->{PATH_INFO} if defined $self->env->{PATH_INFO};
-
-    # fallback to REQUEST_URI if nothing found
-    # we have to decode it, according to PSGI specs.
-    if (defined $self->request_uri) {
-        $path ||= $self->_url_decode($self->request_uri);
-    }
-
-    croak "Cannot resolve path" if not $path;
-    $self->{path} = $path;
-}
-
-sub _build_path_info {
-    my ($self) = @_;
-    my $info = $self->env->{PATH_INFO};
-    if (defined $info) {
-
-        # Empty path info will be interpreted as "root".
-        $info ||= '/';
-    }
-    else {
-        $info = $self->path;
-    }
-    $self->{path_info} = $info;
-}
-
-sub _build_method {
-    my ($self) = @_;
-    $self->{method} = $self->env->{REQUEST_METHOD};
 }
 
 sub _url_decode {
