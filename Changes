@@ -7,3 +7,4 @@
     * Add Abstract placeholders (Damien Krotkine)
     * Add changelog (Damien Krotkine)
     * Various fixes (Damien Krotkine)
+    * Added non-blocking File I/O support (Mariusz Wojcik)

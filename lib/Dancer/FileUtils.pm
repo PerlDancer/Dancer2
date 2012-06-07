@@ -7,6 +7,8 @@ use warnings;
 
 use File::Basename ();
 use File::Spec;
+use IO::File;
+use IO::Handle;
 use Carp;
 use Cwd 'realpath';
 
@@ -47,10 +49,15 @@ sub set_file_mode {
 sub open_file {
     my ( $mode, $filename ) = @_;
 
-    open my $fh, $mode, $filename
-      or croak "Can't open '$filename' using mode '$mode'";
+    my $fh = IO::File->new();
+    unless ($fh->open($filename, $mode)) {
+        croak "Can't open '$filename' using mode '$mode'";
+    }
+    my $io = IO::Handle->new();
+    $io->fdopen($fh->fileno, $mode);
+    $io->blocking(0);
 
-    return set_file_mode($fh);
+    return set_file_mode($io);
 }
 
 sub read_file_content {
@@ -67,7 +74,7 @@ sub read_glob_content {
     binmode $fh;
 
     my @content = <$fh>;
-    close $fh;
+    $fh->close;
 
     return wantarray ? @content : join '', @content;
 }
