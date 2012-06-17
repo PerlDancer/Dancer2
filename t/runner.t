@@ -38,7 +38,7 @@ note "testing server failure";
 {
     $runner->config->{apphandler} = 'NotExist';
     like(
-        exception { Dancer::Core::Runner::BUILD($runner) },
+        exception { Dancer::Core::Runner::_build_server($runner) },
         qr{Unable to load Dancer::Core::Server::NotExist},
         'Cannot run BUILD for server that does not exist',
     );
