@@ -39,8 +39,6 @@ sub BUILD {
     ));
 }
 
-# the path to the caller script that is starting the app
-# mandatory, because we use that to determine where the appdir is.
 has caller => (
     is => 'ro',
     isa => sub { Str(@_) },
@@ -140,3 +138,72 @@ sub start {
 }
 
 1;
+
+=head1 DESCRIPTION
+
+Runs Dancer app.
+
+=head1 ATTRIBUTES
+
+=head2
+
+Inherited from L<Dancer::Core::Role::Config>.
+
+=head2 caller
+
+The path to the caller script that is starting the app.
+
+This is required in order to determine where the appdir is.
+
+=head2 server
+
+A read/write attribute to that holds the proper server.
+
+It checks for an object that consumes the L<Dancer::Core::Role::Server> role.
+
+=head2 mime_type
+
+A read/write attribute that holds a L<Dancer::Core::MIME> object.
+
+=head2 environment
+
+The environment string. The options, in this order, are:
+
+=over 4
+
+=item * C<DANCER_ENVIRONMENT>
+
+=item * C<PLACK_ENV>
+
+=item * C<development>
+
+=back
+
+=head2 location
+
+Absolute path to the directory where the server started.
+
+=head1 METHODS
+
+=head2 BUILD
+
+The builder initializes the proper server instance (C<Dancer::Core::Server::*>)
+and sets the C<server> attribute to it.
+
+=head2 get_environment
+
+Returns the environment. Same as C<< $object->environment >>.
+
+=head2 default_config
+
+It then sets up the default configuration.
+
+=head2 config_location
+
+Gets the location from the configuration. Same as C<< $object->location >>.
+
+=head2 start
+
+Runs C<finish> (to set everything up) on all of the server's applications. It
+then Sets up the current server and starts it by calling its C<start> method.
+

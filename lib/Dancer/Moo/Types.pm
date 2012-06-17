@@ -156,3 +156,86 @@ sub _is_scalar {
 
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Type definitions for Moo attributes. These are defined as subroutines.
+
+=head1 SUBROUTINES
+
+=head2 Str($value)
+
+A string.
+
+=head2 Num($value)
+
+A number, via L<Scalar::Util>'s C<looks_like_number>.
+
+=head2 HashRef($value)
+
+A hash reference.
+
+=head2 ArrayRef($value)
+
+An array reference.
+
+=head2 CodeRef($value)
+
+A code reference.
+
+=head2 Regexp($value)
+
+A regular expression reference.
+
+=head2 ObjectOf($class, $value)
+
+An object of a certain class. Utilizes L<Scalar::Util>'s C<blessed>.
+
+=head2 Bool($value)
+
+A boolean. Only accepts B<1> (for true) and B<0> (for false).
+
+=head2 ConsumerOf($role, $value)
+
+An object that consumes a certain role, i.e., I<does>.
+
+=head2 ReadableFilePath($value)
+
+A readable file path.
+
+=head2 WritableFilePath($value)
+
+A writable file path.
+
+=head2 DancerPrefix($value)
+
+A proper Dancer prefix, which is basically a prefix that starts with a I</>
+character.
+
+=head2 DancerAppName($value)
+
+A proper Dancer application name.
+
+Currently this only checks for I<\w+>.
+
+=head2 DancerMethod($value)
+
+An acceptable method supported by Dancer.
+
+Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
+I<options>.
+
+=head2 DancerHTTPMethod($value)
+
+An acceptable HTTP method supported by Dancer.
+
+Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
+and I<OPTIONS>.
+
+=head2 raise_type_exception($type, $value)
+
+This isn't a type but rather a subroutine that raises an exception of type
+check.
+
