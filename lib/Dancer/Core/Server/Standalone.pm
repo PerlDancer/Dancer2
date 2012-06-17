@@ -10,20 +10,26 @@ sub name { 'Standalone' }
 use HTTP::Server::Simple::PSGI;
 
 has backend => (
-    is => 'rw',
-    isa => sub { Dancer::Moo::Types::ObjectOf('HTTP::Server::Simple::PSGI' => @_) },
+    is      => 'ro',
+    isa     => sub { Dancer::Moo::Types::ObjectOf('HTTP::Server::Simple::PSGI' => @_) },
+    lazy    => 1,
+    builder => '_build_backend',
 );
 
-sub start {
-    my $self = shift;
+sub _build_backend {
+    my $self    = shift;
+    my $backend = HTTP::Server::Simple::PSGI->new( $self->port );
 
-    $self->backend(HTTP::Server::Simple::PSGI->new($self->port));
-    $self->backend->host($self->host);
-    $self->backend->app($self->psgi_app);
+    $backend->host( $self->host     );
+    $backend->app(  $self->psgi_app );
 
     $self->is_daemon
-        ? $self->backend->background() 
-        : $self->backend->run();
+        ? $backend->background()
+        : $backend->run();
+
+    return $backend;
 }
+
+sub start {1}
 
 1;
