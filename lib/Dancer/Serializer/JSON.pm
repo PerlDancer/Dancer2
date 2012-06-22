@@ -2,13 +2,11 @@
 
 package Dancer::Serializer::JSON;
 use Moo;
-use Carp 'croak';
+use JSON;
 
 with 'Dancer::Core::Role::Serializer';
 
-
 # helpers
-
 sub from_json {
     my $s = Dancer::Serializer::JSON->new;
     $s->deserialize(@_);
@@ -20,8 +18,7 @@ sub to_json {
 }
 
 # class definition
-
-sub loaded { require 'JSON.pm'; }
+sub loaded {1}
 
 sub serialize {
     my ($self, $entity, $options) = @_;
@@ -36,14 +33,12 @@ sub serialize {
         $options->{convert_blessed} = $config->{convert_blessed};
     }
 
-    require 'JSON.pm';
-    JSON::to_json( $entity, $options );
+    to_json( $entity, $options );
 }
 
 sub deserialize {
     my ($self, $entity, $options) = @_;
-    require 'JSON.pm';
-    JSON::from_json( $entity, $options );
+    from_json( $entity, $options );
 }
 
 sub content_type {'application/json'}
