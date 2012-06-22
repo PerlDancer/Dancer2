@@ -16,6 +16,17 @@ use vars '@EXPORT';
     DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
 );
 
+# reference definitions, please see:
+# Effective Perl Programming
+# Chapter 6: References
+# Item 59. Compare reference types to prototypes.
+# 1st edition: Joseph N. Hall, Randal L. Schwartz.
+# 2nd edition: Joseph N. Hall, Joshua A. McAdams, brian d. foy.
+my $arrayref  = ref [];
+my $hashref   = ref {};
+my $coderef   = ref sub {};
+my $regexpref = ref qr//;
+
 sub raise_type_exception {
     my ($type, $value) = @_;
 
@@ -53,7 +64,7 @@ sub ArrayRef {
     return if ! defined $value;
     raise_type_exception ArrayRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'ARRAY');
+         || (ref($value) ne $arrayref);
 }
 
 sub HashRef {
@@ -61,7 +72,7 @@ sub HashRef {
     return if ! defined $value;
     raise_type_exception HashRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'HASH');
+         || (ref($value) ne $hashref);
 }
 
 sub CodeRef {
@@ -69,7 +80,7 @@ sub CodeRef {
     return if ! defined $value;
     raise_type_exception CodeRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'CODE');
+         || (ref($value) ne $coderef);
 }
 
 sub Regexp {
@@ -77,7 +88,7 @@ sub Regexp {
     return if ! defined $value;
     raise_type_exception Regexp => $value
       if  ! ref($value)
-         || (ref($value) ne 'Regexp');
+         || (ref($value) ne $regexpref);
 }
 
 sub ObjectOf {
