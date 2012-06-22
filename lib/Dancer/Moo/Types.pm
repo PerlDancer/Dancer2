@@ -132,6 +132,18 @@ sub DancerPrefix {
          || (index($value, '/') != 0); 
 }
 
+my $single_part = qr/
+    [A-Za-z]              # must start with letter
+    (?: [A-Za-z0-9_]+ )? # can continue with letters, numbers or underscore
+/x;
+
+my $namespace = qr/
+    ^
+    $single_part                    # first part
+    (?: (?: \:\: $single_part )+ )? # optional part starting with double colon
+    $
+/x;
+
 sub DancerAppName {
     my ($value) = @_;
     return if ! defined $value;
@@ -139,7 +151,7 @@ sub DancerAppName {
     # TODO need a real check of valid app names
     raise_type_exception DancerAppName => $value
       if !  _is_scalar($value)
-         || ($value !~ /\w/); 
+         || ($value !~ $namespace);
 }
 
 sub DancerMethod {

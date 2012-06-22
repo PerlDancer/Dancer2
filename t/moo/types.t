@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 46;
 use Test::Fatal;
 use Dancer::Moo::Types;
 
@@ -184,6 +184,60 @@ is(
 );
 
 is(
+    exception { Dancer::Moo::Types::DancerAppName('Foo::Bar') },
+    undef,
+    'DancerAppName',
+);
+
+is(
+    exception { Dancer::Moo::Types::DancerAppName('Foo::Bar::Baz') },
+    undef,
+    'DancerAppName',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('Foo:Bar') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with single colons',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('Foo:::Bar') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with tripe colons',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('7Foo') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with beginning number',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('Foo::45Bar') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with beginning number',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('-F') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with special character',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('Foo::-') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with special character',
+);
+
+like(
+    exception { Dancer::Moo::Types::DancerAppName('Foo^') },
+    qr{does not pass the type constraint check for type `DancerAppName'},
+    'DancerAppName fails with special character',
+);
+
+is(
     exception { Dancer::Moo::Types::DancerAppName(undef) },
     undef,
     'DancerAppName accepts undef value',
@@ -192,7 +246,7 @@ is(
 like(
     exception { Dancer::Moo::Types::DancerAppName('') },
     qr{does not pass the type constraint check for type `DancerAppName'},
-    'DancerAppName fail',
+    'DancerAppName fails an empty string value',
 );
 
 is(
