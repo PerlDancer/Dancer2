@@ -11,7 +11,7 @@ use base 'Exporter';
 use vars '@EXPORT';
 
 @EXPORT = qw(
-    Str Num HashRef ArrayRef CodeRef Regexp ObjectOf Bool ConsumerOf
+    Str Num Bool ArrayRef HashRef CodeRef Regexp ObjectOf ConsumerOf
     ReadableFilePath WritableFilePath 
     DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
 );
@@ -48,20 +48,12 @@ sub Bool {
          || ($value != 0 && $value != 1);
 }
 
-sub ConsumerOf {
-    my ($role, $value) = @_;
-    return if ! defined $value;
-
-    raise_type_exception Consumes => $value
-      if ! $value->does($role);
-}
-
-sub Regexp {
+sub ArrayRef {
     my ($value) = @_;
     return if ! defined $value;
-    raise_type_exception Regexp => $value
+    raise_type_exception ArrayRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'Regexp');
+         || (ref($value) ne 'ARRAY');
 }
 
 sub HashRef {
@@ -80,12 +72,12 @@ sub CodeRef {
          || (ref($value) ne 'CODE');
 }
 
-sub ArrayRef {
+sub Regexp {
     my ($value) = @_;
     return if ! defined $value;
-    raise_type_exception ArrayRef => $value
+    raise_type_exception Regexp => $value
       if  ! ref($value)
-         || (ref($value) ne 'ARRAY');
+         || (ref($value) ne 'Regexp');
 }
 
 sub ObjectOf {
@@ -94,6 +86,14 @@ sub ObjectOf {
     raise_type_exception "ObjectOf(${class})" => $value
       if !  blessed($value) 
          || (ref($value) ne $class);
+}
+
+sub ConsumerOf {
+    my ($role, $value) = @_;
+    return if ! defined $value;
+
+    raise_type_exception Consumes => $value
+      if ! $value->does($role);
 }
 
 sub ReadableFilePath {
@@ -154,5 +154,5 @@ sub _is_scalar {
     return ! ref($value);
 }
 
-
 1;
+
