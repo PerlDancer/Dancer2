@@ -2,7 +2,7 @@
 
 package Dancer::Serializer::JSON;
 use Moo;
-use JSON;
+use JSON ();
 
 with 'Dancer::Core::Role::Serializer';
 
@@ -33,12 +33,12 @@ sub serialize {
         $options->{convert_blessed} = $config->{convert_blessed};
     }
 
-    to_json( $entity, $options );
+    JSON::to_json( $entity, $options );
 }
 
 sub deserialize {
     my ($self, $entity, $options) = @_;
-    from_json( $entity, $options );
+    JSON::from_json( $entity, $options );
 }
 
 sub content_type {'application/json'}
