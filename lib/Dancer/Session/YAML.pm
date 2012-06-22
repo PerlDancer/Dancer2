@@ -32,8 +32,8 @@ has session_dir => (
 sub BUILD { 
     my $self = shift;
 
-    eval "use Any::YAML";
-    croak "Any::YAML is needed and is not installed: $@" if $@;
+    eval "use YAML::Any";
+    croak "YAML::Any is needed and is not installed: $@" if $@;
 }
 
 # create a new session and return the newborn object
@@ -55,7 +55,7 @@ sub retrieve {
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    my $content = Any::YAML::LoadFile($fh);
+    my $content = YAML::Any::LoadFile($fh);
     close $fh or die "Can't close '$session_file': $!\n";
 
     return $content;
@@ -80,7 +80,7 @@ sub flush {
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     set_file_mode($fh);
-    print {$fh} Any::YAML::Dump($self);
+    print {$fh} YAML::Any::Dump($self);
     close $fh or die "Can't close '$session_file': $!\n";
 
     return $self;
