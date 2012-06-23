@@ -23,13 +23,15 @@ sub _build_backend {
     $backend->host( $self->host     );
     $backend->app(  $self->psgi_app );
 
-    $self->is_daemon
-        ? $backend->background()
-        : $backend->run();
-
     return $backend;
 }
 
-sub start {1}
+sub start {
+    my $self = shift;
+
+    $self->is_daemon
+        ? $self->backend->background()
+        : $self->backend->run();
+}
 
 1;
