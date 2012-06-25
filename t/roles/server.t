@@ -9,7 +9,7 @@ use warnings;
     use Moo;
     with 'Dancer::Core::Role::Server';
 
-    sub name { "foo" }
+    sub _build_name { "foo" }
 }
 
 my $s;

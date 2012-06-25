@@ -14,30 +14,11 @@ use Dancer::Core::Response;
 use Dancer::Core::Request;
 use Dancer::Core::Context;
 
-requires 'name';
-
-has apps => (
-    is => 'ro',
-    isa => sub { Dancer::Moo::Types::ArrayRef(@_) },
-    default => sub { [] },
+has name => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_name',
 );
-
-has runner => (
-    is => 'ro',
-    required => 1,
-    isa => sub { ObjectOf('Dancer::Core::Runner', @_) },
-    weak_ref => 1,
-);
-
-sub register_application {
-    my ($self, $app) = @_;
-    push @{ $self->apps }, $app;
-    $app->server($self);
-    $app->server->runner->postponed_hooks({
-        %{ $app->server->runner->postponed_hooks },
-        %{ $app->postponed_hooks }
-    });
-}
 
 has host => (
     is => 'rw',
@@ -56,6 +37,19 @@ has is_daemon => (
     isa => sub { Dancer::Moo::Types::Bool(@_) },
 );
 
+has apps => (
+    is => 'ro',
+    isa => sub { Dancer::Moo::Types::ArrayRef(@_) },
+    default => sub { [] },
+);
+
+has runner => (
+    is => 'ro',
+    required => 1,
+    isa => sub { ObjectOf('Dancer::Core::Runner', @_) },
+    weak_ref => 1,
+);
+
 # The dispatcher to dispatch an incoming request to the appropriate route
 # handler
 has dispatcher => (
@@ -64,6 +58,8 @@ has dispatcher => (
     lazy => 1,
     builder => '_build_dispatcher',
 );
+
+requires '_build_name';
 
 sub _build_dispatcher {
     my ($self) = @_;
@@ -79,6 +75,16 @@ sub psgi_app {
         my ($env) = @_;
         $self->dispatcher->dispatch($env)->to_psgi;
     };
+}
+
+sub register_application {
+    my ($self, $app) = @_;
+    push @{ $self->apps }, $app;
+    $app->server($self);
+    $app->server->runner->postponed_hooks({
+        %{ $app->server->runner->postponed_hooks },
+        %{ $app->postponed_hooks }
+    });
 }
 
 1;
