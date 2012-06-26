@@ -1,0 +1,62 @@
+
+
+This file describes the progress of the documentation effort.  There are
+3 levels of documentation.
+
+    * [ ] means undocumented or has very little documentation
+    * [r] means that the documentation needs review
+    * [c] means that the documentation is complete and ready to ship
+
+[ ]	Dancer
+[ ]	Dancer::FileUtils
+[ ]	Dancer::Handler::File
+[ ]	Dancer::Handler::AutoPage
+[ ]	Dancer::Template::Tiny
+[ ]	Dancer::Template::TemplateToolkit
+[ ]	Dancer::Session::YAML
+[ ]	Dancer::Session::Simple
+[ ]	Dancer::Plugin
+[ ]	Dancer::Core::App
+[ ]	Dancer::Core::Server::Standalone
+[ ]	Dancer::Core::Server::PSGI
+[ ]	Dancer::Core::Response
+[ ]	Dancer::Core::Route
+[ ]	Dancer::Core::DSL
+[ ]	Dancer::Core::Hook
+[ ]	Dancer::Core::Context
+[ ]	Dancer::Core::Runner
+[ ]	Dancer::Core::Role::Logger
+[ ]	Dancer::Core::Role::StandardResponses
+[ ]	Dancer::Core::Role::Engine
+[ ]	Dancer::Core::Role::Config
+[ ]	Dancer::Core::Role::DSL
+[ ]	Dancer::Core::Role::Template
+[ ]	Dancer::Core::Role::Session
+[ ]	Dancer::Core::Role::Serializer
+[ ]	Dancer::Core::Role::Headers
+[ ]	Dancer::Core::Role::Server
+[ ]	Dancer::Core::Role::Handler
+[ ]	Dancer::Core::Role::Hookable
+[ ]	Dancer::Core::Request
+[ ]	Dancer::Core::Error
+[ ]	Dancer::Core::Cookie
+[ ]	Dancer::Core::Dispatcher
+[ ]	Dancer::Core::Request::Upload
+[ ]	Dancer::Core::MIME
+[ ]	Dancer::Logger::File
+[ ]	Dancer::Logger::Note
+[ ]	Dancer::Logger::Console
+[ ]	Dancer::Logger::Capture::Trap
+[ ]	Dancer::Logger::Null
+[ ]	Dancer::Logger::Diag
+[ ]	Dancer::Logger::Capture
+[ ]	Dancer::Moo::Types
+[ ]	Dancer::Core
+[ ]	Dancer::Plugin::Ajax
+[ ]	Dancer::Serializer::JSON
+[ ]	Dancer::Serializer::YAML
+[ ]	Dancer::Serializer::Dumper
+[ ]	Dancer::Factory::Engine
+[ ]	Dancer::Test
+
+
