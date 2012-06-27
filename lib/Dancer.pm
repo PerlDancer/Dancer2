@@ -120,7 +120,7 @@ __END__
 
 =head1 AUDIENCE
 
-This doc describes the Dancer application core and therefor meant for Dancer
+This doc describes the Dancer application core and therefore meant for Dancer
 core developers. If you're a user of Dancer, you should forget about this and
 read the L<Dancer::Manual>.
 
@@ -129,7 +129,7 @@ on irc.perl.org.
 
 =head1 DESCRIPTION
 
-This is the main module for Dancer distribution. It contains logics for creating
+This is the main module for the Dancer distribution. It contains logic for creating
 a new Dancer application.
 
 =head1 ATTRIBUTES
@@ -189,3 +189,7 @@ Load an additional library using L<lib>.
 
 =head2 core_debug
 
+Output a message to STDERR and take further arguments as some data structures using 
+L<Data::Dumper>
+
+=cut
