@@ -123,7 +123,7 @@ Dancer::FileUtils - helper providing file utilities
 
 =head1 DESCRIPTION
 
-Dancer::FileUtils includes a few file related utilities related that Dancer
+Dancer::FileUtils includes a few file related utilities that Dancer
 uses internally. Developers may use it instead of writing their own
 file reading subroutines or using additional modules.
 
@@ -163,7 +163,7 @@ Provides comfortable path resolving, internally using L<File::Spec>.
     my @content = read_file_content($file);
     my $content = read_file_content($file);
 
-Returns either the content of a file (whose filename is the input), I<undef>
+Returns either the content of a file (whose filename is the input), or I<undef>
 if the file could not be opened.
 
 In array context it returns each line (as defined by $/) as a seperate element;
