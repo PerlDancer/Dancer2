@@ -57,15 +57,17 @@ Dancer::Serializer::Dumper - serializer for handling Dumper data
 
 =head1 DESCRIPTION
 
+Turn Perl data structures into L<Data::Dumper> output and vice-versa.
+
 =head1 METHODS
 
 =head2 serialize
 
-Serialize a data structure to a Dumper structure.
+Serialize a Perl data structure into a Dumper string.
 
 =head2 deserialize
 
-Deserialize a Dumper structure to a data structure
+Deserialize a Dumper string into a Perl data structure
 
 =head2 content_type
 

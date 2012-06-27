@@ -53,9 +53,9 @@ developers.  There are 3 levels of documentation:
 [r]	Dancer::Moo::Types
 [ ]	Dancer::Core
 [r]	Dancer::Plugin::Ajax
-[ ]	Dancer::Serializer::JSON
-[ ]	Dancer::Serializer::YAML
-[ ]	Dancer::Serializer::Dumper
+[r]	Dancer::Serializer::JSON
+[r]	Dancer::Serializer::YAML
+[r]	Dancer::Serializer::Dumper
 [ ]	Dancer::Factory::Engine
 [ ]	Dancer::Test
 
