@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Template::Toolkit backend to Dancer
 
 package Dancer::Template::TemplateToolkit;
 
@@ -61,10 +61,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Template::TemplateToolkit - Template::Toolkit backend to Dancer
-
 =head1 SYNOPSIS
 
 To use this engine, you may configure L<Dancer> via C<config.yaml>:
@@ -85,10 +81,6 @@ Renders the template.  The first arg is a filename for the template file
 or a reference to a string that contains the template.  The second arg
 is a hashref for the tokens that you wish to pass to
 L<Template::Toolkit> for rendering.
-
-=head1 AUTHOR
-
-Alexis Sukrieh
 
 =head1 BUGS
 
@@ -125,15 +117,5 @@ L<http://cpanratings.perl.org/d/Dancer-Template-TemplateToolkit>
 L<http://search.cpan.org/dist/Dancer-Template-TemplateToolkit/>
 
 =back
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2012
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
 
 =cut

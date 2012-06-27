@@ -54,10 +54,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Serializer::JSON --
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
@@ -77,13 +73,6 @@ Deserialize a JSON string into a Perl data structure
 =head2 content_type
 
 return 'application/json'
-
-=head1 AUTHOR
-
-
-=head1 COPYRIGHT
-
-Copyright (c) 2012
 
 =cut
 

@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: interface for accessing incoming requests
 
 package Dancer::Core::Request;
 use Moo;
@@ -639,10 +639,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Request - interface for accessing incoming requests
-
 =head1 DESCRIPTION
 
 This class implements a common interface for accessing incoming requests in
@@ -949,18 +945,6 @@ Dancer::Request object through specific accessors, here are those supported:
 =item C<user_agent>
 
 =back
-
-
-=head1 AUTHORS
-
-This module has been written by Alexis Sukrieh and was mostly
-inspired by L<Plack::Request>, written by Tatsuiko Miyagawa.
-
-Tatsuiko Miyagawa also gave a hand for the PSGI interface.
-
-=head1 LICENCE
-
-This module is released under the same terms as Perl itself.
 
 =head1 SEE ALSO
 

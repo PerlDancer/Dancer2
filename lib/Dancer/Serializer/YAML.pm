@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: serializer for handling YAML data
 
 package Dancer::Serializer::YAML;
 use Moo;
@@ -39,9 +39,7 @@ sub content_type {'text/x-yaml'}
 1;
 __END__
 
-=head1 NAME
-
-Dancer::Serializer::YAML - serializer for handling YAML data
+=pod
 
 =head1 SYNOPSIS
 
@@ -60,3 +58,5 @@ Deserialize a YAML structure to a data structure
 =head2 content_type
 
 Return 'text/x-yaml'
+
+=cut

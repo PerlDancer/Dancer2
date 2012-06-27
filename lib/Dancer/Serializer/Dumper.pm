@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: serializer for handling Dumper data
 
 package Dancer::Serializer::Dumper;
 
@@ -49,9 +49,9 @@ sub content_type {'text/x-data-dumper'}
 
 1;
 
-=head1 NAME
+__END__
 
-Dancer::Serializer::Dumper - serializer for handling Dumper data
+=pod
 
 =head1 SYNOPSIS
 

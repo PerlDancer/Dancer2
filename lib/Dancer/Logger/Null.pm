@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: blackhole-like silent logging engine for Dancer
 
 package Dancer::Logger::Null;
 use Moo;
@@ -10,9 +10,6 @@ sub _log {1}
 
 __END__
 
-=head1 NAME
-
-Dancer::Logger::Null - blackhole-like silent logging engine for Dancer
 
 =head1 SYNOPSIS
 
@@ -27,17 +24,4 @@ the log messages instead of displaying them anywhere.
 
 Discards the message.
 
-=head1 AUTHOR
-
-Alexis Sukrieh
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2009-2010 Alexis Sukrieh.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
-
+=cut
