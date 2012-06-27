@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Test::More diag() logging engine for Dancer
 
 package Dancer::Logger::Diag;
 use Moo;
@@ -17,9 +17,7 @@ sub _log {
 
 __END__
 
-=head1 NAME
-
-Dancer::Logger::Diag - Test::More diag() logging engine for Dancer
+=pod
 
 =head1 SYNOPSIS
 
@@ -36,17 +34,4 @@ messages as part of your TAP.
 
 Use Test::More's diag() to output the log message.
 
-=head1 AUTHOR
-
-Alexis Sukrieh
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2009-2010 Alexis Sukrieh.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
-
+=cut

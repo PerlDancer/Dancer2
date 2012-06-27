@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: helper providing file utilities
 
 package Dancer::FileUtils;
 
@@ -95,10 +95,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::FileUtils - helper providing file utilities
-
 =head1 SYNOPSIS
 
     use Dancer::FileUtils qw/dirname path/;
@@ -123,7 +119,7 @@ Dancer::FileUtils - helper providing file utilities
 
 =head1 DESCRIPTION
 
-Dancer::FileUtils includes a few file related utilities related that Dancer
+Dancer::FileUtils includes a few file related utilities that Dancer
 uses internally. Developers may use it instead of writing their own
 file reading subroutines or using additional modules.
 
@@ -163,7 +159,7 @@ Provides comfortable path resolving, internally using L<File::Spec>.
     my @content = read_file_content($file);
     my $content = read_file_content($file);
 
-Returns either the content of a file (whose filename is the input), I<undef>
+Returns either the content of a file (whose filename is the input), or I<undef>
 if the file could not be opened.
 
 In array context it returns each line (as defined by $/) as a seperate element;
@@ -193,16 +189,3 @@ charset setting.
 
 Nothing by default. You can provide a list of subroutines to import.
 
-=head1 AUTHOR
-
-Alexis Sukrieh
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2009-2011 Alexis Sukrieh.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.

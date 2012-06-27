@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: class representing file uploads requests
 
 package Dancer::Core::Request::Upload;
 use Moo;
@@ -80,10 +80,6 @@ sub type {
 __END__
 =pod
 
-=head1 NAME 
-
-Dancer::Request::Upload - class representing file uploads requests
-
 =head1 DESCRIPTION
 
 This class implements a representation of file uploads for Dancer.
@@ -143,11 +139,6 @@ Returns a hash ref of the headers associated with this upload.
 The Content-Type of this upload.
 
 =back
-
-=head1 AUTHORS
-
-This module as been writen by Alexis Sukrieh, heavily based on
-L<Plack::Request::Upload>. Kudos to Plack authors.
 
 =head1 SEE ALSO
 
