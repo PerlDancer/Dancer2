@@ -12,7 +12,7 @@ developers.  There are 3 levels of documentation:
 [ ]	Dancer::Handler::File
 [ ]	Dancer::Handler::AutoPage
 [r]	Dancer::Template::Tiny
-[ ]	Dancer::Template::TemplateToolkit
+[r]	Dancer::Template::TemplateToolkit
 [r]	Dancer::Session::YAML
 [r]	Dancer::Session::Simple
 [r]	Dancer::Plugin
