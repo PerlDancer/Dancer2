@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Test::More note() logging engine for Dancer
 
 package Dancer::Logger::Note;
 use Moo;
@@ -17,10 +17,6 @@ sub _log {
 
 __END__
 
-=head1 NAME
-
-Dancer::Logger::Note - Test::More note() logging engine for Dancer
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
@@ -38,18 +34,4 @@ harness. It will only be visible in the verbose TAP stream." -- Test::More.
 =head2 _log
 
 Use Test::More's note() to output the log message.
-
-=head1 AUTHOR
-
-Alexis Sukrieh
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2009-2010 Alexis Sukrieh.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
 

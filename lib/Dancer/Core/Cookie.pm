@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: class representing cookies
 
 package Dancer::Core::Cookie;
 use Moo;
@@ -160,10 +160,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Core::Cookie - class representing cookies
-
 =head1 SYNOPSIS
 
     use Dancer::Core::Cookie;
@@ -244,18 +240,4 @@ Runs an expiration test and sets a default path if not set.
 =head2 to_header
 
 Creates a proper HTTP cookie header from the content.
-
-=head1 AUTHOR
-
-Alexis Sukrieh
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2009-2010 Alexis Sukrieh.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
 

@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Response object for Dancer
 
 package Dancer::Core::Response;
 
@@ -127,8 +127,3 @@ sub redirect {
 
 1;
 __END__
-=head1 NAME
-
-Dancer::Response - Response object for Dancer
-
-TODO ...

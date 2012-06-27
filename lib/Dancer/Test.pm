@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Useful routines for testing Dancer apps
 
 package Dancer::Test;
 use strict;
@@ -329,3 +329,41 @@ sub _req_to_response {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 DESCRIPTION
+
+
+
+=head1 ROUTINES
+
+=head2 dancer_response
+
+=head2 response_status_is
+
+=head2 route_exists
+
+=head2 route_doent_exist
+
+=head2 response_status_isnt
+
+=head2 response_content_is
+
+=head2 response_content_isnt
+
+=head2 response_content_like
+
+=head2 response_content_unlike
+
+=head2 response_content_is_deeply
+
+=head2 response_is_file
+
+=head2 response_headers_are_deeply
+
+=head2 response_headers_include
+
+=cut
