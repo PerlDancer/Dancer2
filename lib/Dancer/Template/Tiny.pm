@@ -74,8 +74,8 @@ Of course, you can also set this B<while> working using C<set>:
     set template => 'tiny';
 
 Since L<Dancer> has internal support for a wrapper-like option with the
-C<layout> configuration option, you have a WRAPPER like with
-L<Template::Toolkit> even though L<Template::Tiny> doesn't really support it. :)
+C<layout> configuration option, you can have a L<Template::Toolkit>-like WRAPPER
+even though L<Template::Tiny> doesn't really support it. :)
 
 =head1 SUBROUTINES/METHODS
 
