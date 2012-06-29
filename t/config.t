@@ -47,11 +47,6 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 
 }
 
-sub has_conf {
-    my ( $file, @conf_files ) = @_;
-    return scalar grep { $_ eq $file } @conf_files;
-}
-
 my $d = Dev->new;
 is_deeply [$d->config_files], 
     [
