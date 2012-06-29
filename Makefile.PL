@@ -25,6 +25,7 @@ my %WriteMakefileArgs = (
                            'Moo'          => '0',
                            'Scalar::Util' => '0',
                            'MIME::Types'  => '0',
+                           'Config::Any'  => '0',
   },
   'VERSION'            => '2.0',
   'test'               => {
