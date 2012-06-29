@@ -72,7 +72,7 @@ sub config_files {
         }
     }
 
-    return @files;
+    return sort @files;
 }
 
 sub load_config_file {
