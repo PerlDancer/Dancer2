@@ -15,6 +15,8 @@ has hooks => (
     lazy => 1,
 );
 
+sub BUILD { }
+
 # this hash contains all known core hooks with their 'human' name
 # classes that consume the role can overrirde this method to provide
 # their own aliases for their own hooks
