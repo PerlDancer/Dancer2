@@ -58,13 +58,7 @@ has location => (
 
 sub config_location { goto &location }
 
-has environment => (
-    is => 'ro',
-    isa => sub { Str(@_) },
-    default => sub { 'development' },
-);
-
-sub get_environment { goto &environment }
+sub _build_environment {'development'}
 
 has runner_config => (
     is => 'ro',

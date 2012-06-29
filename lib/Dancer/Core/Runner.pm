@@ -63,18 +63,11 @@ has mime_type => (
     default => sub { Dancer::Core::MIME->new(); },
 );
 
-has environment => (
-    is => 'ro',
-    isa => sub { Str(@_) },
-    default => sub { 
-        $ENV{DANCER_ENVIRONMENT} || 
-        $ENV{PLACK_ENV} || 
-        'development' 
-    },
-);
+sub _build_environment {
+    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
+}
 
-# our Config role needs a get_environment mehtod and a default_config hash
-sub get_environment { $_[0]->environment }
+# our Config role needs a default_config hash
 sub default_config {
 
     $ENV{PLACK_ENV} and 

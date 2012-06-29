@@ -17,7 +17,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     use Moo;
     with 'Dancer::Core::Role::Config';
 
-    sub get_environment { "production" }
+    sub _build_environment {'production'}
     sub config_location { $location }
     sub default_config { $runner->default_config }
 
@@ -25,7 +25,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     use Moo;
     with 'Dancer::Core::Role::Config';
 
-    sub get_environment { "development" }
+    sub _build_environment {'development'}
     sub config_location { $location }
     sub default_config { $runner->default_config }
 
@@ -33,7 +33,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     use Moo;
     with 'Dancer::Core::Role::Config';
 
-    sub get_environment { "failure" }
+    sub _build_environment {'failure'}
     sub config_location { $location }
     sub default_config { $runner->default_config }
 
@@ -59,7 +59,7 @@ is_deeply [$f->config_files],
 
 note "bad YAML file";
 my $fail = Failure->new;
-is $fail->get_environment, 'failure';
+is $fail->environment, 'failure';
 
 is_deeply [$fail->config_files], 
     [
