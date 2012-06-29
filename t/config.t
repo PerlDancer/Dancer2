@@ -37,6 +37,19 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     sub config_location { $location }
     sub default_config { $runner->default_config }
 
+    package Staging;
+    use Moo;
+    with 'Dancer::Core::Role::Config';
+
+    sub get_environment { "staging" }
+    sub config_location { $location }
+    sub default_config { $runner->default_config }
+
+}
+
+sub has_conf {
+    my ( $file, @conf_files ) = @_;
+    return scalar grep { $_ eq $file } @conf_files;
 }
 
 my $d = Dev->new;
@@ -57,6 +70,14 @@ is_deeply [$f->config_files],
     ],
     "config_files() works";
 
+my $j = Staging->new;
+is_deeply [$j->config_files], 
+    [
+     path($location, 'config.yml'), 
+     path($location, 'environments', 'staging.json'),
+    ],
+    "config_files() does JSON too!";
+
 note "bad YAML file";
 my $fail = Failure->new;
 is $fail->get_environment, 'failure';
@@ -68,10 +89,9 @@ is_deeply [$fail->config_files],
     ],
     "config_files() works";
 
-
 like(
     exception { $fail->config },
-    qr{Unable to parse the configuration file},
+    qr{not a valid YAML file},
     'Configuration file parsing failure',
 );
 
