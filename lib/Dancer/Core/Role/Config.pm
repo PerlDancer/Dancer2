@@ -50,10 +50,12 @@ sub config_files {
     my $running_env = $self->get_environment;
     my @files;
     foreach my $file (
-        ['config.yml'], 
-        ['environments', "$running_env.yml"]) {
+        ['config'], 
+        ['environments', "$running_env"]) {
         my $path = path($location, @{$file});
-        next if ! -r $path;
+        # Used to be a file test here to see if a config file exists,
+        # but moved to load_config_file() as we don't know a specific 
+        # file we are looking for until Config::Any tries to find us one.
         push @files, $path;
     }
 
@@ -64,14 +66,18 @@ sub load_config_file {
     my ($self, $file) = @_;
     my $config;
 
-    require YAML;
-    eval { $config = YAML::LoadFile($file) };
-    if (my $err = $@ || (!$config)) {
+    require Config::Any;
+    eval { 
+        my @files = ( $file );
+        my $tmpconfig = Config::Any->load_stems({ stems => \@files, use_ext => 1 })->[0];
+        ( $file, $config ) = %{ $tmpconfig };
+    };
+    if (-r $file and (my $err = $@ || (!$config))) {
         croak "Unable to parse the configuration file: $file: $@";
     }
 
     # TODO handle mergeable entries
-    return $config;
+    return $config if -r $file;
 }
 
 sub get_postponed_hooks {
@@ -97,7 +103,7 @@ sub _build_config {
 
     foreach my $file ($self->config_files) {
         my $current = $self->load_config_file($file);
-        $config = {%{$config}, %{$current}};
+        $config = {%{$config}, %{$current}} if $current;
     }
 
     $config = $self->_normalize_config($config);
