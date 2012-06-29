@@ -60,7 +60,7 @@ has content_length => (
 has body => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Str(@_) },
-    default => '',
+    default => sub{''},
 );
 
 has id => (
@@ -82,13 +82,13 @@ has ajax => (
 has body_is_parsed => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
-    default => 0,
+    default => sub{0},
 );
 
 has is_behind_proxy => (
     is => 'ro',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
-    default => 0,
+    default => sub{0},
 );
 
 has host => (
