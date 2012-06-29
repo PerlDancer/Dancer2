@@ -18,7 +18,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     with 'Dancer::Core::Role::Config';
 
     sub _build_environment {'production'}
-    sub config_location { $location }
+    sub _build_config_location {$location}
     sub default_config { $runner->default_config }
 
     package Dev;
@@ -26,7 +26,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     with 'Dancer::Core::Role::Config';
 
     sub _build_environment {'development'}
-    sub config_location { $location }
+    sub _build_config_location {$location}
     sub default_config { $runner->default_config }
 
     package Failure;
@@ -34,9 +34,8 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     with 'Dancer::Core::Role::Config';
 
     sub _build_environment {'failure'}
-    sub config_location { $location }
+    sub _build_config_location {$location}
     sub default_config { $runner->default_config }
-
 }
 
 my $d = Dev->new;

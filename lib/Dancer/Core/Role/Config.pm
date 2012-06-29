@@ -14,7 +14,12 @@ use Dancer::Moo::Types;
 use Dancer::FileUtils qw/dirname path/;
 use Carp 'croak', 'carp';
 
-requires 'config_location';
+has config_location => (
+    is      => 'ro',
+    isa     => sub { ReadableFilePath(@_) },
+    lazy    => 1,
+    builder => '_build_config_location',
+);
 
 has config => (
     is => 'rw',
