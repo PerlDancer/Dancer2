@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 8;
 use Test::Fatal;
 
 use Dancer::Core::Hook;
@@ -13,7 +13,7 @@ is $h->code->(), 'BT';
     package Foo;
     use Moo;
     with 'Dancer::Core::Role::Hookable';
-    sub supported_hooks {  }
+    sub supported_hooks {  'foobar' }
 }
 
 my $f = Foo->new;
@@ -24,12 +24,6 @@ like(
     'execute_hook needs a hook name',
 );
 
-like(
-    exception { $f->execute_hooks('foobar') },
-    qr{Hook 'foobar' does not exist},
-    'Hook does not exist',
-);
-
 my $count = 0;
 my $some_hook = Dancer::Core::Hook->new(
     name => 'foobar',
@@ -38,23 +32,21 @@ my $some_hook = Dancer::Core::Hook->new(
     }
 );
 
-like(
-    exception { $f->add_hook($some_hook) },
-    qr{Unsupported hook 'foobar'},
-    'Hook must be installed first',
-);
-
-$f->install_hooks('foobar');
-
-like(
-    exception { $f->install_hooks('foobar') },
-    qr{Hook 'foobar' is already registered, please use another name},
-    'Hook by name already registered',
-);
-
 ok(
     ! exception { $f->add_hook($some_hook) },
-    'Adding hook successfully',
+    'Supported hook can be installed',
+);
+
+like(
+    exception {
+        $f->add_hook(
+            Dancer::Core::Hook->new(
+                name => 'unknown_hook',
+                code => sub { $count++; }
+            ));
+    },
+    qr{Unsupported hook 'unknown_hook'},
+    'Unsupported hook cannot be installed',
 );
 
 $f->execute_hooks('foobar');
@@ -69,4 +61,4 @@ like(
 my $new_hooks = [ sub {$count--}, sub {$count--}, sub {$count--} ];
 $f->replace_hooks('foobar',$new_hooks);
 $f->execute_hooks('foobar');
-is $count, -2;
+is $count, -2, 'replaced hooks were installed and executed';
