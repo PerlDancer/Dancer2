@@ -51,20 +51,14 @@ has server => (
 );
 
 has location => (
-    is => 'ro',
-    isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
+    is      => 'ro',
+    isa     => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
     default => sub { File::Spec->rel2abs('.') },
 );
 
-sub config_location { goto &location }
+sub _build_config_location { goto &location }
 
-has environment => (
-    is => 'ro',
-    isa => sub { Str(@_) },
-    default => sub { 'development' },
-);
-
-sub get_environment { goto &environment }
+sub _build_environment {'development'}
 
 has runner_config => (
     is => 'ro',
@@ -89,7 +83,7 @@ sub _build_default_config {
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
-                  || path($self->location, 'public')
+                  || path($self->config_location, 'public')
             },
             AutoPage => 1,
         },

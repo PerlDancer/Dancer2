@@ -11,10 +11,21 @@ use base 'Exporter';
 use vars '@EXPORT';
 
 @EXPORT = qw(
-    Str Num HashRef ArrayRef CodeRef Regexp ObjectOf Bool ConsumerOf
+    Str Num Bool ArrayRef HashRef CodeRef Regexp ObjectOf ConsumerOf
     ReadableFilePath WritableFilePath 
     DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
 );
+
+# reference definitions, please see:
+# Effective Perl Programming
+# Chapter 6: References
+# Item 59. Compare reference types to prototypes.
+# 1st edition: Joseph N. Hall, Randal L. Schwartz.
+# 2nd edition: Joseph N. Hall, Joshua A. McAdams, brian d. foy.
+my $arrayref  = ref [];
+my $hashref   = ref {};
+my $coderef   = ref sub {};
+my $regexpref = ref qr//;
 
 sub raise_type_exception {
     my ($type, $value) = @_;
@@ -48,20 +59,12 @@ sub Bool {
          || ($value != 0 && $value != 1);
 }
 
-sub ConsumerOf {
-    my ($role, $value) = @_;
-    return if ! defined $value;
-
-    raise_type_exception Consumes => $value
-      if ! $value->does($role);
-}
-
-sub Regexp {
+sub ArrayRef {
     my ($value) = @_;
     return if ! defined $value;
-    raise_type_exception Regexp => $value
+    raise_type_exception ArrayRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'Regexp');
+         || (ref($value) ne $arrayref);
 }
 
 sub HashRef {
@@ -69,7 +72,7 @@ sub HashRef {
     return if ! defined $value;
     raise_type_exception HashRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'HASH');
+         || (ref($value) ne $hashref);
 }
 
 sub CodeRef {
@@ -77,15 +80,15 @@ sub CodeRef {
     return if ! defined $value;
     raise_type_exception CodeRef => $value
       if  ! ref($value)
-         || (ref($value) ne 'CODE');
+         || (ref($value) ne $coderef);
 }
 
-sub ArrayRef {
+sub Regexp {
     my ($value) = @_;
     return if ! defined $value;
-    raise_type_exception ArrayRef => $value
+    raise_type_exception Regexp => $value
       if  ! ref($value)
-         || (ref($value) ne 'ARRAY');
+         || (ref($value) ne $regexpref);
 }
 
 sub ObjectOf {
@@ -94,6 +97,14 @@ sub ObjectOf {
     raise_type_exception "ObjectOf(${class})" => $value
       if !  blessed($value) 
          || (ref($value) ne $class);
+}
+
+sub ConsumerOf {
+    my ($role, $value) = @_;
+    return if ! defined $value;
+
+    raise_type_exception Consumes => $value
+      if ! $value->does($role);
 }
 
 sub ReadableFilePath {
@@ -121,6 +132,18 @@ sub DancerPrefix {
          || (index($value, '/') != 0); 
 }
 
+my $single_part = qr/
+    [A-Za-z]              # must start with letter
+    (?: [A-Za-z0-9_]+ )? # can continue with letters, numbers or underscore
+/x;
+
+my $namespace = qr/
+    ^
+    $single_part                    # first part
+    (?: (?: \:\: $single_part )+ )? # optional part starting with double colon
+    $
+/x;
+
 sub DancerAppName {
     my ($value) = @_;
     return if ! defined $value;
@@ -128,7 +151,7 @@ sub DancerAppName {
     # TODO need a real check of valid app names
     raise_type_exception DancerAppName => $value
       if !  _is_scalar($value)
-         || ($value !~ /\w/); 
+         || ($value !~ $namespace);
 }
 
 sub DancerMethod {
@@ -154,5 +177,5 @@ sub _is_scalar {
     return ! ref($value);
 }
 
-
 1;
+

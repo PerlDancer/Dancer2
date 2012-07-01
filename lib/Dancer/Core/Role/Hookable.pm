@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Role for hookable objects
 
 package Dancer::Core::Role::Hookable;
 use Moo::Role;

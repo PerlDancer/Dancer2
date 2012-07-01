@@ -21,17 +21,17 @@ sub to_yaml {
 
 # class definition
 
-sub BUILD { eval "use YAML ()"; croak "Fail to load YAML: $@" if $@ }
+sub BUILD { eval "use YAML::Any ()"; croak "Fail to load YAML: $@" if $@ }
 sub loaded { 1 }
 
 sub serialize {
     my ($self, $entity) = @_;
-    YAML::Dump($entity);
+    YAML::Any::Dump($entity);
 }
 
 sub deserialize {
     my ($self, $content) = @_;
-    YAML::Load($content);
+    YAML::Any::Load($content);
 }
 
 sub content_type {'text/x-yaml'}

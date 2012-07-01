@@ -20,25 +20,6 @@ has postponed_hooks => (
     default => sub { {} },
 );
 
-# when the runner is created, it has to init the server instance
-# according to the condiguration
-sub BUILD {
-    my ($self) = @_;
-
-    my $server_name  = $self->config->{apphandler};
-    my $server_class = "Dancer::Core::Server::${server_name}";
-
-    eval "use $server_class";
-    croak "Unable to load $server_class : $@" if $@;
-
-    $self->server($server_class->new(
-        host => $self->config->{host},
-        port => $self->config->{port},
-        is_daemon => $self->config->{is_daemon},
-        runner => $self,
-    ));
-}
-
 # the path to the caller script that is starting the app
 # mandatory, because we use that to determine where the appdir is.
 has caller => (
@@ -52,9 +33,29 @@ has caller => (
 );
 
 has server => (
-    is => 'rw',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Server', @_) },
+    is      => 'rw',
+    isa     => sub { ConsumerOf('Dancer::Core::Role::Server', @_) },
+    lazy    => 1,
+    builder => '_build_server',
 );
+
+# when the runner is created, it has to init the server instance
+# according to the condiguration
+sub _build_server {
+    my $self         = shift;
+    my $server_name  = $self->config->{apphandler};
+    my $server_class = "Dancer::Core::Server::${server_name}";
+
+    eval "use $server_class";
+    croak "Unable to load $server_class : $@" if $@;
+
+    return $server_class->new(
+        host      => $self->config->{host},
+        port      => $self->config->{port},
+        is_daemon => $self->config->{is_daemon},
+        runner    => $self,
+    );
+}
 
 has mime_type => (
     is => 'rw',
@@ -62,18 +63,11 @@ has mime_type => (
     default => sub { Dancer::Core::MIME->new(); },
 );
 
-has environment => (
-    is => 'ro',
-    isa => sub { Str(@_) },
-    default => sub { 
-        $ENV{DANCER_ENVIRONMENT} || 
-        $ENV{PLACK_ENV} || 
-        'development' 
-    },
-);
+sub _build_environment {
+    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
+}
 
-# our Config role needs a get_environment mehtod and a default_config hash
-sub get_environment { $_[0]->environment }
+# our Config role needs a default_config hash
 sub default_config {
 
     $ENV{PLACK_ENV} and 
@@ -106,7 +100,7 @@ has location => (
         return $value;
     },
 );
-sub config_location { $_[0]->location }
+sub _build_config_location { $_[0]->location }
 
 sub _build_location {
     my ($self, $script) = @_;

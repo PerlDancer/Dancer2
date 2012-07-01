@@ -25,7 +25,7 @@ sub BUILD {
 has has_passed => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
-    default => 0,
+    default => sub{0},
 );
 
 sub pass { shift->has_passed(1) }
@@ -33,13 +33,13 @@ sub pass { shift->has_passed(1) }
 has is_encoded => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
-    default => 0,
+    default => sub{0},
 );
 
 has is_halted => (
     is => 'rw',
     isa => sub { Dancer::Moo::Types::Bool(@_) },
-    default => 0,
+    default => sub{0},
 );
 
 sub halt { shift->is_halted(1) }

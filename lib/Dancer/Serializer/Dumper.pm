@@ -6,12 +6,9 @@ use Moo;
 use Carp 'croak';
 use Data::Dumper;
 
-
 with 'Dancer::Core::Role::Serializer';
 
-
 # helpers
-
 sub from_dumper {
     my $s = Dancer::Serializer::Dumper->new;
     $s->deserialize(@_);
@@ -23,9 +20,7 @@ sub to_dumper {
 }
 
 # class definition
-
-sub BUILD { eval "use Data::Dumper ()"; croak "Fail to load Dumper : $@" if $@ }
-sub loaded { 1 }
+sub loaded {1}
 
 sub serialize {
     my ( $self, $entity ) = @_;
@@ -34,7 +29,6 @@ sub serialize {
         local $Data::Dumper::Purity = 1;
         return Dumper($entity);
     }
-
 }
 
 sub deserialize {

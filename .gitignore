@@ -9,3 +9,4 @@ MYMETA.json
 MYMETA.yml
 contrib/sessions/
 contrib/logs/
+*.sw?

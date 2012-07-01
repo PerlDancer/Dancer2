@@ -14,14 +14,25 @@ use Dancer::Moo::Types;
 use Dancer::FileUtils qw/dirname path/;
 use Carp 'croak', 'carp';
 
-requires 'config_location';
-requires 'get_environment';
+has config_location => (
+    is      => 'ro',
+    isa     => sub { ReadableFilePath(@_) },
+    lazy    => 1,
+    builder => '_build_config_location',
+);
 
 has config => (
     is => 'rw',
     isa => sub { HashRef(@_) },
     lazy => 1,
     builder => '_build_config',
+);
+
+has environment => (
+    is      => 'ro',
+    isa     => sub { Str(@_) },
+    lazy    => 1,
+    builder => '_build_environment',
 );
 
 sub settings { shift->config }
@@ -47,7 +58,7 @@ sub config_files {
     # an undef location means no config files for the caller
     return unless defined $location;
 
-    my $running_env = $self->get_environment;
+    my $running_env = $self->environment;
     my @files;
     foreach my $file (
         ['config.yml'], 
@@ -245,7 +256,7 @@ sub _get_config_for_engine {
     my ($self, $engine, $name, $config) = @_;
 
     my $default_config = {
-        environment => $self->get_environment,
+        environment => $self->environment,
         location    => $self->config_location,
     };
     return $default_config unless defined $config->{engines};
