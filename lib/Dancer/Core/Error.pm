@@ -42,7 +42,7 @@ has title => (
 
 has error_template => (
     is => 'ro',
-    isa => sub { ReadableFilePath(@_) },
+    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath(@_) },
     lazy => 1,
     builder => '_build_error_template',
 );
