@@ -26,7 +26,8 @@ like(
     "port is mandatory",
 );
 
-$s = Foo->new(host => 'localhost', port => 3000);
+my $runner = Dancer::Core::Runner->new(caller => $0);
+$s = Foo->new(host => 'localhost', port => 3000, runner => $runner);
 my $app = Dancer::Core::App->new(name => 'main');
 
 $s->register_application($app);
