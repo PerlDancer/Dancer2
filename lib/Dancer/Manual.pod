@@ -1,0 +1,10 @@
+package Dancer::Manual;
+
+# PODNAME: Dancer::Manual
+# ABSTRACT: What is Dancer, and how do I use it?
+
+=pod
+
+dancer manual
+
+=cut
