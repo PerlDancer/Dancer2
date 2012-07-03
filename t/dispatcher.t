@@ -82,14 +82,6 @@ my @tests = (
     },
     {   env => {
             REQUEST_METHOD => 'GET',
-            PATH_INFO      => '/error',
-        },
-        expected => [500, 
-            [@default_headers, 'Content-Length' => 157, "Content-Type", 'text/plain'], 
-            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s]
-    },
-    {   env => {
-            REQUEST_METHOD => 'GET',
             PATH_INFO      => '/haltme',
         },
         expected => [
@@ -146,9 +138,10 @@ $app->add_route(
 );
 $app->compile_hooks;
 
-plan tests => scalar(@tests) * 3 + 1;
+plan tests => scalar(@tests) * 3 + 5;
 
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
+my $counter = 0;
 foreach my $test (@tests) {
     my $env = $test->{env};
     my $expected = $test->{expected};
@@ -156,6 +149,33 @@ foreach my $test (@tests) {
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
     is        $resp->[0] => $expected->[0], "Return code ok.";
+    is_deeply $resp->[1] => $expected->[1], "Headers ok. (test $counter)";
+
+    if (ref($expected->[2]) eq "Regexp") {
+        like   $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";
+    } else {
+        is_deeply $resp->[2] => $expected->[2], "Contents ok. (test $counter)";
+    }
+    $counter++;
+}
+
+foreach my $test (
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/error',
+        },
+        expected => [500, 
+            [@default_headers, 'Content-Length', "Content-Type", 'text/plain'], 
+            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s]
+    }) {
+    my $env = $test->{env};
+    my $expected = $test->{expected};
+
+    my $resp = $dispatcher->dispatch($env)->to_psgi;
+
+    is        $resp->[0] => $expected->[0], "Return code ok.";
+
+    ok(splice(@{$resp->[1]}, -3, 1) >= 140, "Length ok.");
     is_deeply $resp->[1] => $expected->[1], "Headers ok.";
 
     if (ref($expected->[2]) eq "Regexp") {
@@ -164,5 +184,6 @@ foreach my $test (@tests) {
         is_deeply $resp->[2] => $expected->[2], "Contents ok.";
     }
 }
+
 
 is $was_in_second_filter, 0, "didnt enter the second filter, because of halt";
