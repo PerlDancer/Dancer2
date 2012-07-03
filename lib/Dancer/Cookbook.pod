@@ -582,7 +582,7 @@ any further modification of the css inclusion
 If you use L<Plack> and have some unicode problem with your Dancer application,
 don't forget to check if you have set your template engine to use unicode, and
 set the default charset to UTF-8. So, if you are using template toolkit, your
-config.yml will look like this:
+config file will look like this:
 
     charset: UTF-8
     engines:
@@ -607,7 +607,7 @@ These few steps will get you there:
 =item * Disable the layout in Dancer
 
 You can do this by simply commenting (or removing) the C<layout> configuration
-in the F<config.yml> file.
+in the config file.
 
 =item * Use Template Toolkit template engine
 
@@ -644,7 +644,7 @@ Other ways are possible, you can define all your settings in the file
 course, write the config file in YAML.
 
 That's better than the first option, but it's still not perfect as you can't
-switch easily from an environment to another without rewriting the config.yml
+switch easily from an environment to another without rewriting the config
 file.
 
 The better way is to have one config.yml file with default global settings,
@@ -771,7 +771,7 @@ To start logging, select the logging engine you wish to use with the C<logger>
 setting; Dancer includes built-in log engines named C<file> and C<console>,
 which log to a logfile and to the console respectively.
 
-To enable logging to a file, add the following to your config.yml:
+To enable logging to a file, add the following to your config file:
 
     logger: 'file'
 
@@ -817,7 +817,7 @@ serialize and deserialize for the following data formats:
 =back
 
 To activate this feature, you only have to set the C<serializer> setting to the
-format you require, for instance in your config.yml:
+format you require, for instance in your config file:
 
    serializer: JSON
 
@@ -886,7 +886,7 @@ application, all you have to do is to set C<plack_middlewares> like that:
         [ 'Debug' => [ 'panels' => [qw(DBITrace Memory Timer)] ] ],
     ];
 
-Of course, you can also put this configuration into your config.yml file, or
+Of course, you can also put this configuration into your config file, or
 even in your environment configuration files:
 
     # environments/development.yml

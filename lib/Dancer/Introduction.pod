@@ -304,24 +304,21 @@ Configuring a Dancer application can be done in many ways. The easiest one (and
 maybe the dirtiest) is to put all your settings statements at the top of
 your script, before calling the dance() method.
 
-Other ways are possible, you can write all your setting calls in the file
-`appdir/config.yml'. For this, you must have installed the YAML module, and of
-course, write the conffile in YAML.
+Other ways are possible.  You could write all your setting calls in the file
+`appdir/config.yml'. You would, of course, have write the conffile in YAML.
 
-That's better than the first option, but it's still not
-perfect as you can't switch easily from an environment to another without
-rewriting the config.yml file.
-
-The better way is to have one config.yml file with default global settings,
-like the following:
+While better than the first option, it's still not perfect.  You can't easily 
+switch from an environment to another (for example, from development to
+production) without rewriting the config.yml file.  The best way is to have 
+one config.yml file with default global settings, like the following:
 
     # appdir/config.yml
     logger: 'file'
     layout: 'main'
 
 And then write as many environment files as you like in appdir/environments.
-That way, the appropriate  environment config file will be loaded according to
-the running environment (if none is specified, it will be 'development').
+That way, the appropriate environment config file will be loaded according to
+the running environment (if none is specified, 'development' is assumed).
 
 Note that you can change the running environment using the --environment
 commandline switch.
@@ -340,6 +337,10 @@ And in a production one:
     log: 'warning'
     startup_info: 0
     show_errors:  0
+
+Please note that you are not limited to writing configuration files in YAML. 
+Dancer supports any file format that is supported by L< Config::Any >, such as
+JSON, XML, INI files, and Apache-style config files.
 
 =head2 load
 
@@ -396,7 +397,7 @@ only one method is possible for logging messages but future releases may add
 additional logging methods, for instance logging to syslog.
 
 In order to enable the logging system for your application, you first have to
-start the logger engine in your config.yml
+start the logger engine in your config file:
 
     logger: 'file'
 
@@ -549,12 +550,10 @@ A setting is key/value pair assigned by the keyword B<set>:
 
     set setting_name => 'setting_value';
 
-More usefully, settings can be defined in a YAML configuration file.
+More usefully, settings can be defined in a configuration file.
 Environment-specific settings can also be defined in environment-specific files
 (for instance, you don't want auto_reload in production, and might want extra
 logging in development).  See the cookbook for examples.
-
-See L<Dancer::Config> for complete details about supported settings.
 
 =head1 SERIALIZERS
 

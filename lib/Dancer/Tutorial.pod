@@ -257,11 +257,11 @@ web browser, log access attempts and log Dancer warnings (instead of silently
 ignoring them)
 
 In a more sophisticated application you would want to put these configuration
-options into a YAML file, but for this tutorial, we're going to keep it simple.
-Dancer also supports the notion of application environments meaning you can
-create a configuration file for your development instance, and another config
-file for the production environment (with things like debugging and showing
-errors disabled perhaps.) Dancer also doesn't impose any limits on what
+options into a configuration file, but for this tutorial, we're going to keep 
+it simple.  Dancer also supports the notion of application environments meaning 
+you can create a configuration file for your development instance, and another 
+config file for the production environment (with things like debugging and 
+showing errors disabled perhaps.) Dancer also doesn't impose any limits on what
 parameters you can set using the C<set> syntax.  For this application we're
 going to embed our single username and password into the application itself.
 

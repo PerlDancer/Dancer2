@@ -7,3 +7,6 @@
     * Add Abstract placeholders (Damien Krotkine)
     * Add changelog (Damien Krotkine)
     * Various fixes (Damien Krotkine)
+
+    [ ENHANCEMENTS ]
+    * Use Config::Any (rather than YAML) to allow multiple config file formats (cromedome)
