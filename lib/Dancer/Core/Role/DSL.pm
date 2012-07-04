@@ -55,7 +55,7 @@ sub _compile_keyword {
     my ($self, $keyword, $is_global) = @_;
     
     my $compiled_code = sub {
-        core_debug("[".$self->app->name."] -> $keyword(".join(', ', @_).")");
+        core_debug("[".$self->app->name."] -> $keyword(".join(', ', map { defined() ? $_ : '<undef>' } @_).")");
         $self->$keyword(@_);
     };
 
