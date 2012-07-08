@@ -22,7 +22,7 @@ has env => (
     isa => sub { Dancer::Moo::Types::HashRef(@_) } ,
 );
 
-# the incoming request 
+# the incoming request
 has request => (
     is => 'rw',
     lazy => 1,

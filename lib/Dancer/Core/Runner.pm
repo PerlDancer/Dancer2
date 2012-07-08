@@ -70,7 +70,7 @@ sub _build_environment {
 # our Config role needs a default_config hash
 sub default_config {
 
-    $ENV{PLACK_ENV} and 
+    $ENV{PLACK_ENV} and
         $ENV{DANCER_APPHANDLER} = 'PSGI';
 
     my ($self) = @_;
@@ -95,7 +95,7 @@ has location => (
     # make sure the path given is always absolute
     coerce => sub {
         my ($value) = @_;
-        return File::Spec->rel2abs($value) 
+        return File::Spec->rel2abs($value)
             if !File::Spec->file_name_is_absolute($value);
         return $value;
     },
@@ -110,7 +110,7 @@ sub _build_location {
 
     # ... but we go one step upper if we find out we're in bin or public
     $location = Dancer::FileUtils::path( $location, '..' )
-            if File::Basename::basename($location) eq 'bin' 
+            if File::Basename::basename($location) eq 'bin'
             || File::Basename::basename($location) eq 'public';
 
     $self->location($location);

@@ -61,7 +61,7 @@ sub dancer_response {
     my $request = Dancer::Core::Request->new(env => $env);
 
     # TODO body
-    
+
     # headers
     if ($options->{headers}) {
         for my $header (@{ $options->{headers} }) {
@@ -119,7 +119,7 @@ sub response_status_isnt {
         like    => "matches",
         unlike  => "doesn't match",
     );
-    
+
     sub _cmp_response_content {
         my $app = shift;
         my ($req, $want, $test_name, $cmp) = @_;
@@ -130,16 +130,16 @@ sub response_status_isnt {
         }
 
         $test_name ||= "response content $test_name $want for " . _req_label($req);
-        
+
         my $response = _dancer_response($app, @$req);
-        
+
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
         $tb->$cmp( $response->[2][0], $want, $test_name );
     }
 }
-    
-    
+
+
 sub response_content_is {
     _cmp_response_content(@_, 'is_eq');
 }
@@ -182,7 +182,7 @@ sub response_headers_are_deeply {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my $response = _dancer_response($app, _expand_req($req));
-    
+
     is_deeply(
         _sort_headers( $response->[1] ),
         _sort_headers( $expected ),
@@ -211,7 +211,7 @@ sub import {
     my ($caller, $script) = caller;
 
     my $app;
-    $app = $app_name->dancer_app 
+    $app = $app_name->dancer_app
         if defined $app_name;
 
     if (! defined $app) {
@@ -221,15 +221,15 @@ sub import {
 
     for my $symbol (@EXPORT) {
         my $orig_sub = _get_orig_symbol($symbol);
-        my $new_sub = sub { 
+        my $new_sub = sub {
             if (! defined $app) {
                 my $c = caller;
                 $app = $c->dancer_app;
             }
-            $orig_sub->($app, @_) 
+            $orig_sub->($app, @_)
         };
-        { 
-            no strict 'refs'; 
+        {
+            no strict 'refs';
             no warnings 'redefine';
             *{"Dancer::Test::$symbol"} = $new_sub;
         }
@@ -297,12 +297,12 @@ sub _sort_headers {
 sub _include_in_headers {
     my ($full_headers, $expected_subset) = @_;
 
-    # walk through all the expected header pairs, make sure 
+    # walk through all the expected header pairs, make sure
     # they exist with the same value in the full_headers list
     # return false as soon as one is not.
     for (my $i=0; $i<scalar(@$expected_subset); $i+=2) {
         my ($name, $value) = ($expected_subset->[$i], $expected_subset->[$i + 1]);
-        return 0 
+        return 0
           unless _check_header($full_headers, $name, $value);
     }
 

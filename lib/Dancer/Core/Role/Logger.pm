@@ -9,7 +9,7 @@ with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
     qw(
-    engine.logger.before 
+    engine.logger.before
     engine.logger.after
     )
 }
@@ -63,7 +63,7 @@ sub format_message {
     $level = sprintf('%5s', $level);
     $message = Encode::encode($self->auto_encoding_charset, $message)
         if $self->auto_encoding_charset;
-    
+
     my @stack = caller(2);
 
     my $block_handler = sub {

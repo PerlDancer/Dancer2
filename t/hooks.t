@@ -40,11 +40,11 @@ my $tests_flags = {};
         send_file(File::Spec->rel2abs(__FILE__), system_path => 1);
     };
 
-    get '/' => sub { 
+    get '/' => sub {
         "ok"
     };
 
-    get '/template' => sub { 
+    get '/template' => sub {
         template \"PLOP";
     };
 
@@ -53,10 +53,10 @@ my $tests_flags = {};
         push @{$data}, (added_in_hook => 1);
     };
 
-    get '/json' => sub { 
+    get '/json' => sub {
         [ foo => 42 ]
     };
-    
+
     # make sure we compile all the apps without starting a webserver
     main->dancer_app->finish;
 }

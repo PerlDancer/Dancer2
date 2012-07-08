@@ -59,7 +59,7 @@ has prefix => (
     isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
 );
 
-=attr options 
+=attr options
 
 A HashRef of conditions on which the matching will depend. Optional.
 
@@ -199,17 +199,17 @@ sub BUILD {
 # alter the regexp according to the prefix set, if any.
 sub _init_prefix {
     my ($self) = @_;
-    
+
     my $prefix = $self->prefix;
     my $regexp = $self->regexp;
 
 # NOTE apparently this cannot work
 #    if (ref($regexp) eq 'Regexp') {
-#        return $self->regexp(qr{${prefix}${regexp}}) 
+#        return $self->regexp(qr{${prefix}${regexp}})
 #          if $regexp !~ /^$prefix/;
 #        return;
 #    }
-    
+
     if (ref($regexp) eq 'Regexp') {
         croak "Cannot combine a prefix ($prefix) with a regular expression ($regexp)";
     }

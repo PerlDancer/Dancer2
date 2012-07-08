@@ -10,8 +10,8 @@ with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw/
-    core.error.before 
-    core.error.after 
+    core.error.before
+    core.error.after
     core.error.init
     /;
 }
@@ -129,7 +129,7 @@ sub render {
     $self->execute_hooks('core.error.before', $self);
     my $response = $self->_render_html();
     $self->execute_hooks('core.error.after', $response);
-    
+
     return $response;
 }
 

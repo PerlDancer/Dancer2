@@ -135,7 +135,6 @@ do {
         exception { $upload->file_handle },
         qr{Can't open.* using mode '<'},
     );
-    
 
     unlink($file) if ($^O eq 'MSWin32');
 };

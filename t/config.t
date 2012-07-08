@@ -48,9 +48,9 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 }
 
 my $d = Dev->new;
-is_deeply [$d->config_files], 
+is_deeply [$d->config_files],
     [
-     path($location, 'config.yml'), 
+     path($location, 'config.yml'),
     ],
     "config_files() only sees existing files";
 
@@ -58,17 +58,17 @@ my $f = Prod->new;
 is $f->does('Dancer::Core::Role::Config'), 1,
     "role Dancer::Core::Role::Config is consumed";
 
-is_deeply [$f->config_files], 
+is_deeply [$f->config_files],
     [
-     path($location, 'config.yml'), 
+     path($location, 'config.yml'),
      path($location, 'environments', 'production.yml'),
     ],
     "config_files() works";
 
 my $j = Staging->new;
-is_deeply [$j->config_files], 
+is_deeply [$j->config_files],
     [
-     path($location, 'config.yml'), 
+     path($location, 'config.yml'),
      path($location, 'environments', 'staging.json'),
     ],
     "config_files() does JSON too!";
@@ -77,9 +77,9 @@ note "bad YAML file";
 my $fail = Failure->new;
 is $fail->environment, 'failure';
 
-is_deeply [$fail->config_files], 
+is_deeply [$fail->config_files],
     [
-     path($location, 'config.yml'), 
+     path($location, 'config.yml'),
      path($location, 'environments', 'failure.yml'),
     ],
     "config_files() works";
@@ -94,7 +94,7 @@ note "config parsing";
 
 is $f->config->{show_errors}, 0;
 is $f->config->{main}, 1;
-is $f->config->{charset}, 'utf-8', 
+is $f->config->{charset}, 'utf-8',
     "normalized UTF-8 to utf-8";
 
 ok($f->has_setting('charset'));
@@ -110,7 +110,7 @@ like(
     'Configuration file charset failure',
 );
 
-{ 
+{
     package Foo;
     use Carp 'croak';
     sub foo { croak "foo" };

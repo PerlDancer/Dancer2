@@ -70,25 +70,25 @@ $app->prefix(undef);
 $app->lexical_prefix(
     '/foo' => sub {
         $app->add_route(
-            method => 'get', 
-            regexp => '/', 
+            method => 'get',
+            regexp => '/',
             code => sub { '/foo' });
 
         $app->add_route(
-            method => 'get', 
-            regexp => '/second', 
+            method => 'get',
+            regexp => '/second',
             code => sub { '/foo/second' });
-    
+
         $app->lexical_prefix('/bar' => sub {
             $app->add_route(
-                method => 'get', 
-                regexp => '/', 
+                method => 'get',
+                regexp => '/',
                 code => sub { '/foo/bar' });
             $app->add_route(
-                method => 'get', 
-                regexp => '/second', 
+                method => 'get',
+                regexp => '/second',
                 code => sub { '/foo/bar/second' });
-        }); 
+        });
     },
 );
 
