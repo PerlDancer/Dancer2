@@ -89,7 +89,7 @@ has session_expires => (
 
 # Methods below this this line should not be overloaded.
 
-sub write { 
+sub write {
     my ($self, $key, $value) = @_;
     $self->data->{$key} = $value;
     $self->flush;
@@ -102,7 +102,7 @@ sub read {
     return $v;
 }
 
-sub delete { 
+sub delete {
     my ($self, $key) = @_;
     delete $self->data->{$key};
     $self->flush;

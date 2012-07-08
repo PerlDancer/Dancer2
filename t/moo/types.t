@@ -138,8 +138,8 @@ is(
 
 { package Foo; }
 { package Bar; }
-my $f = bless {}, 'Foo'; 
-my $b = bless {}, 'Bar'; 
+my $f = bless {}, 'Foo';
+my $b = bless {}, 'Bar';
 
 is(
     exception { Dancer::Moo::Types::ObjectOf( Foo => $f) },

@@ -5,7 +5,7 @@ use Test::More import => ['!pass'];
 use Dancer;
 use Dancer::Test;
 
-get '/'        => sub { 
+get '/'        => sub {
     'home:' . join(',', params);
 };
 get '/bounce/' => sub {

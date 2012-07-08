@@ -61,7 +61,7 @@ sub dispatch {
             # if the request has been altered by a before filter, we should not continue
             # with this route handler, we should continue to walk through the
             # rest
-#            next if $context->request->path_info ne $path_info 
+#            next if $context->request->path_info ne $path_info
 #                 || $context->request->method ne uc($http_method);
 
             # go to the next route if no match
@@ -87,8 +87,8 @@ sub dispatch {
 
             # serialize if needed
             if (defined $app->config->{serializer}) {
-                $content = $app->config->{serializer}->serialize($content) 
-                    if ref($content); 
+                $content = $app->config->{serializer}->serialize($content)
+                    if ref($content);
             }
 
             $response->content(defined $content ? $content : '');
@@ -112,7 +112,7 @@ sub dispatch {
 
 sub response_internal_error {
     my ($self, $error) = @_;
-    
+
     # warn "got error: $error";
 
     my $r = Dancer::Core::Response->new( status => 500 );
@@ -124,7 +124,7 @@ sub response_internal_error {
 
 sub response_not_found {
     my ($self, $request) = @_;
-    
+
     my $r = Dancer::Core::Response->new( status => 404 );
     $r->content( "404 Not Found\n\n$request\n" );
     $r->content_type( 'text/plain' );

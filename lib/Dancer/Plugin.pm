@@ -1,6 +1,6 @@
 package Dancer::Plugin;
 
-# ABSTRACT: helper for extending Dancer's DSL 
+# ABSTRACT: helper for extending Dancer's DSL
 
 =head1 DESCRIPTION
 
@@ -41,7 +41,7 @@ the following:
     };
 
 As an optional third argument, it's possible to give a hash ref to C<register>
-in order to set some options. 
+in order to set some options.
 
 The option C<is_global> (boolean) is used to declare a global/non keyword (by
 default all keywords are global). A non global keyword must be called from
@@ -49,12 +49,12 @@ within a route handler (eg: C<session> or C<param>) whereas a global one can be 
 frome everywhere (eg: C<dancer_version> or C<setting>).
 
     register my_symbol_to_export => sub {
-        # ... some code 
+        # ... some code
     }, { is_global => 1} ;
 
 =cut
 
-# singleton for storing all keywords, 
+# singleton for storing all keywords,
 # their code and the plugin they come from
 my $_keywords = {};
 
@@ -69,8 +69,8 @@ sub register {
         . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
 
     if (
-        grep { $_ eq $keyword } 
-        map  { s/^(?:\$|%|&|@|\*)//; $_ } 
+        grep { $_ eq $keyword }
+        map  { s/^(?:\$|%|&|@|\*)//; $_ }
         ( map { $_->[0] } @{ Dancer::Core::DSL->dsl_keywords } )
     ) {
         croak "You can't use '$keyword', this is a reserved keyword";
@@ -85,8 +85,8 @@ sub register {
 
     $_keywords->{$plugin} ||= [];
     push @{$_keywords->{$plugin}}, [
-        $keyword, 
-        $code, 
+        $keyword,
+        $code,
         $options->{is_global}
     ];
 }
@@ -103,7 +103,7 @@ core. To do so, the plugin must list the major versions of the core it supports
 in an arrayref, like the following:
 
     # For instance, if the plugin works with Dancer 1 and 2:
-    register_plugin for_versions => [ 1, 2 ]; 
+    register_plugin for_versions => [ 1, 2 ];
 
     # Or if it only works for 2:
     register_plugin for_versions => [ 2 ];
@@ -127,7 +127,7 @@ sub register_plugin {
     ref $supported_versions eq 'ARRAY'
       or croak "register_plugin must be called with an array ref";
 
-    # if the caller has not a dsl, we cant register the plugin 
+    # if the caller has not a dsl, we cant register the plugin
     return if ! $caller->can('dsl');
     my $dancer_major_version = int($caller->dsl->dancer_version);
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
@@ -150,7 +150,7 @@ sub register_plugin {
         }
         $dsl->register($keyword, $is_global);
     }
-    
+
     Moo::Role->apply_roles_to_object($dsl, $plugin);
 
     $dsl->export_symbols_to($caller);
@@ -159,10 +159,10 @@ sub register_plugin {
 
 =method plugin_setting
 
-If C<plugin_setting> is called inside a plugin, the appropriate configuration 
-will be returned. The C<plugin_name> should be the name of the package, or, 
+If C<plugin_setting> is called inside a plugin, the appropriate configuration
+will be returned. The C<plugin_name> should be the name of the package, or,
 if the plugin name is under the B<Dancer::Plugin::> namespace (which is
-recommended), the remaining part of the plugin name. 
+recommended), the remaining part of the plugin name.
 
 Configuration for plugin should be structured like this in the config.yml of
 the application:
@@ -192,8 +192,8 @@ sub plugin_setting {
 Allows a plugin to delcare a list of supported hooks. Any hook declared like so
 can be executed by the plugin with C<execute_hooks>.
 
-    register_hook 'foo'; 
-    register_hook 'foo', 'bar', 'baz'; 
+    register_hook 'foo';
+    register_hook 'foo', 'bar', 'baz';
 
 =cut
 
@@ -290,7 +290,7 @@ sub import {
         # bind the newly compiled symbol to the caller's namespace.
         *{"${plugin}::${symbol}"} = $compiled;
     }
-    
+
     # Finally, make sure our caller becomes a Moo::Role
     # Perl 5.8.5+ mandatory for that trick
     @_ = ('Moo::Role');
@@ -337,7 +337,7 @@ The following code is a dummy plugin that provides a keyword 'block_links_from'.
 And in your application:
 
     package My::Webapp;
-    
+
     use Dancer;
     use Dancer::Plugin::LinkBlocker;
 
