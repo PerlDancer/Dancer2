@@ -51,7 +51,6 @@ subtest caller_dsl => sub {
 
     my $r = dancer_response GET => '/sitemap';
     is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$'
-
 };
 
 subtest 'hooks in plugins' => sub {
