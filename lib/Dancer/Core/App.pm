@@ -194,18 +194,16 @@ has postponed_hooks => (
 # it. If none, then it will try to add the hook to the current application.
 around add_hook => sub {
     my ($orig, $self) = (shift, shift);
-    
+
     # saving caller information
     my ($package, $file, $line) = caller(4); # deep to 4 : user's app code
     my $add_hook_caller = [ $package, $file, $line ];
 
-
     my ($hook) = @_;
     my $name = $hook->name;
-    
     my $hook_aliases = $self->all_hook_aliases;
 
-    # backward compat with previous hook format
+    # look for an alias
     $name = $hook_aliases->{$name} 
         if defined $hook_aliases->{$name};
     $hook->name($name);

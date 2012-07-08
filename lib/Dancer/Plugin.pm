@@ -152,8 +152,8 @@ sub register_plugin {
     }
     
     Moo::Role->apply_roles_to_object($dsl, $plugin);
-    $dsl->export_symbols_to($caller);
 
+    $dsl->export_symbols_to($caller);
     $dsl->dancer_app->register_plugin($dsl);
 }
 
@@ -187,6 +187,51 @@ sub plugin_setting {
     return $app->config->{'plugins'}->{$plugin_name} ||= {};
 }
 
+=method register_plugin
+
+Allows a plugin to delcare a list of supported hooks. Any hook declared like so
+can be executed by the plugin with C<execute_hooks>.
+
+    register_hook 'foo'; 
+    register_hook 'foo', 'bar', 'baz'; 
+
+=cut
+
+sub register_hook {
+    my $caller = caller;
+    my $plugin = $caller;
+
+    my (@hooks) = @_;
+
+    my $current_hooks = [];
+    if ($plugin->can('supported_hooks')) {
+        $current_hooks = [ $plugin->supported_hooks ];
+    }
+
+    my $current_aliases = {};
+    if ($plugin->can('hook_aliases')) {
+        $current_aliases = $plugin->hook_aliases;
+    }
+
+    $plugin =~ s/^Dancer::Plugin:://;
+    $plugin =~ s/::/_/g;
+
+    my $base_name = "plugin.".lc($plugin);
+    for my $hook (@hooks) {
+        my $hook_name = "${base_name}.$hook";
+
+        push @{$current_hooks}, $hook_name;
+        $current_aliases->{$hook} = $hook_name;
+    }
+
+    {
+        no strict 'refs';
+        no warnings 'redefine';
+        *{"${caller}::supported_hooks"} = sub { @$current_hooks };
+        *{"${caller}::hook_aliases"} = sub { $current_aliases };
+    }
+}
+
 # private
 
 sub import {
@@ -195,6 +240,7 @@ sub import {
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
+        register_hook
         register_plugin
         register
         plugin_setting

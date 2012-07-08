@@ -109,20 +109,26 @@ sub replace_hooks {
 # Boolean flag to tells if the hook is registered or not
 sub has_hook {
     my ($self, $hook_name) = @_;
-    return exists $self->hooks->{$hook_name};
+    return 
+        exists $self->hooks->{$hook_name};
 }
 
 # Exectue the hook at the given position
 sub execute_hooks {
     my ($self, $name, @args) = @_;
 
+    $name = $self->hook_aliases->{$name}
+        if exists $self->hook_aliases->{$name};
+
     croak "execute_hook needs a hook name"
       if !defined $name || !length($name);
 
     croak "Hook '$name' does not exist"
       if !$self->has_hook($name);
-    
-    $_->(@args) for @{ $self->hooks->{$name} };
+
+    my $res;
+    $res = $_->(@args) for @{ $self->hooks->{$name} };
+    return $res;
 }
 
 1;

@@ -54,4 +54,29 @@ subtest caller_dsl => sub {
    
 };
 
+subtest 'hooks in plugins' => sub {
+    my $counter = 0;
+
+    {
+        use Dancer;
+        use t::lib::Hookee;
+
+        hook 'start_hookee' => sub {
+            'hook for plugin';
+        };
+
+        get '/hooks_plugin' => sub {
+            $counter++;
+            some_keyword();
+        };
+
+    }
+
+    is $counter, 0, "the hook has not been executed";
+    my $r = dancer_response(GET => '/hooks_plugin');
+    is($r->[2][0], 'hook for plugin', '... route is rendered');
+    is $counter, 1, "... and the hook has been executed exactly once";
+};
+
+
 done_testing;
