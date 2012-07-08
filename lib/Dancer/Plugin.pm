@@ -187,7 +187,7 @@ sub plugin_setting {
     return $app->config->{'plugins'}->{$plugin_name} ||= {};
 }
 
-=method register_plugin
+=method register_hook
 
 Allows a plugin to delcare a list of supported hooks. Any hook declared like so
 can be executed by the plugin with C<execute_hooks>.
@@ -232,6 +232,23 @@ sub register_hook {
     }
 }
 
+=method execute_hooks
+
+Allows a plugin to execute the hooks attached at the given position
+
+    execute_hooks 'some_hook';
+
+The hook must have been registered by the plugin first, with C<register_hook>.
+
+=cut
+
+sub execute_hooks {
+    my $position = shift;
+    my $dsl = _get_dsl();
+    croak "No DSL object found" if !defined $dsl;
+    $dsl->execute_hooks($position);
+}
+
 # private
 
 sub import {
@@ -240,6 +257,7 @@ sub import {
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
+        execute_hooks
         register_hook
         register_plugin
         register
