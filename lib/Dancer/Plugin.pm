@@ -238,6 +238,11 @@ Allows a plugin to execute the hooks attached at the given position
 
     execute_hooks 'some_hook';
 
+Arguments can be passed which will be received by handlers attached to that
+hook:
+
+    execute_hooks 'some_hook', $some_args, ... ;
+
 The hook must have been registered by the plugin first, with C<register_hook>.
 
 =cut
@@ -246,7 +251,7 @@ sub execute_hooks {
     my $position = shift;
     my $dsl = _get_dsl();
     croak "No DSL object found" if !defined $dsl;
-    $dsl->execute_hooks($position);
+    $dsl->execute_hooks($position, @_);
 }
 
 # private
