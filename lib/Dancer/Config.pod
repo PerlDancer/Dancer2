@@ -1,3 +1,4 @@
+# PODNAME: Config.pod
 =pod
 
 =head1 NAME
