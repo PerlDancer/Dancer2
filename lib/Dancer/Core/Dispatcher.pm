@@ -43,7 +43,7 @@ sub dispatch {
         my $http_method = lc $context->request->method;
         my $path_info   = $context->request->path_info;
 
-        $app->log(core => "looking for $http_method $path_info");
+        $app->log(core => "looking for $http_method $path_info (".$app->name.")");
 
         foreach my $route (@{ $app->routes->{$http_method} }) {
             # warn "testing route ".$route->regexp;
