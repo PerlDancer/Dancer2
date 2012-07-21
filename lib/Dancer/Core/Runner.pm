@@ -134,6 +134,6 @@ sub start {
 }
 
 # Used by 'logger' to get a name from a Runner
-sub name { "runner" };
+sub name { "runner" }
 
 1;
