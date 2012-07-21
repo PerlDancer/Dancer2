@@ -20,7 +20,7 @@ my $_logs = [];
     }
 }
 
-my $logger = Dancer::Logger::Test->new();
+my $logger = Dancer::Logger::Test->new(app_name => 'test');
 
 is $logger->log_level, 'debug';
 $logger->debug("foo");

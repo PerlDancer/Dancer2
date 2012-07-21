@@ -17,6 +17,8 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     use Moo;
     with 'Dancer::Core::Role::Config';
 
+    sub name { 'Prod' }
+
     sub _build_environment {'production'}
     sub _build_config_location {$location}
     sub default_config { $runner->default_config }
