@@ -27,10 +27,16 @@ has auto_encoding_charset => (
     isa => sub { Str(@_) },
 );
 
+has app_name => (
+    is => 'ro',
+    isa => sub { Str(@_) },
+);
+
+
 has log_format => (
     is => 'rw',
     isa => sub { Str(@_) },
-    default => sub { '[%P] %L @%T> %m in %f l. %l' },
+    default => sub { '[%a:%P] %L @%T> %m in %f l. %l' },
 );
 
 my $_levels = {
@@ -78,6 +84,7 @@ sub format_message {
     };
 
     my $chars_mapping = {
+        a => sub { $self->app_name },
         t => sub { Encode::decode(setting('charset'),
                                   POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) )) },
         T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time)  ) },

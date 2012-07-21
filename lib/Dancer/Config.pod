@@ -324,27 +324,7 @@ console window) and others.
 
 =head3 log (enum)
 
-Tells which log messages should be actually logged. Possible values are
-B<core>, B<debug>, B<warning> or B<error>.
-
-=over 4
-
-=item B<core> : all messages are logged, including some from Dancer itself
-
-=item B<debug> : all messages are logged
-
-=item B<info> : only info, warning and error messages are logged
-
-=item B<warning> : only warning and error messages are logged
-
-=item B<error> : only error messages are logged
-
-=back
-
-During development, you'll probably want to use C<debug> to see your own debug
-messages, and C<core> if you need to see what Dancer is doing.  In production,
-you'll likely want C<error> or C<warning> only, for less-chatty logs.
-
+See the Logger engine bellow.
 
 =head3 show_errors (boolean)
 
@@ -395,6 +375,44 @@ make a change in a route handler.
 Note that L<Module::Refresh> only operates on files in C<%INC>, so if the script
 your Dancer app is started from changes, even with auto_reload enabled, you will
 still not see the changes reflected until you start your app.
+
+=head2 Logger engine
+
+=head3 log_level
+
+This is the old top-level C<log> entry that is still supported. With
+Dancer 2 we suggest you use C<log_level> under the Loger engine
+configuration:
+
+   engines:
+     logger:
+       console:
+         log_level: core
+
+With this approach you can set different log levels accordingly with
+the logger you use.
+
+This option tells which log messages should be actually
+logged. Possible values are B<core>, B<debug>, B<warning> or B<error>.
+
+=over 4
+
+=item B<core> : all messages are logged, including some from Dancer itself
+
+=item B<debug> : all messages are logged
+
+=item B<info> : only info, warning and error messages are logged
+
+=item B<warning> : only warning and error messages are logged
+
+=item B<error> : only error messages are logged
+
+=back
+
+During development, you'll probably want to use C<debug> to see your own debug
+messages, and C<core> if you need to see what Dancer is doing.  In production,
+you'll likely want C<error> or C<warning> only, for less-chatty logs.
+
 
 =head2 Session engine
 
