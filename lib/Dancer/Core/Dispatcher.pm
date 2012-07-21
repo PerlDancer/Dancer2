@@ -43,7 +43,7 @@ sub dispatch {
         my $http_method = lc $context->request->method;
         my $path_info   = $context->request->path_info;
 
-        $app->log(core => "looking for $http_method $path_info (".$app->name.")");
+        $app->log(core => "looking for $http_method $path_info");
 
         foreach my $route (@{ $app->routes->{$http_method} }) {
             # warn "testing route ".$route->regexp;
@@ -61,8 +61,9 @@ sub dispatch {
             # if the request has been altered by a before filter, we should not continue
             # with this route handler, we should continue to walk through the
             # rest
-#            next if $context->request->path_info ne $path_info 
-#                 || $context->request->method ne uc($http_method);
+
+            # next if $context->request->path_info ne $path_info 
+            #         || $context->request->method ne uc($http_method);
 
             # go to the next route if no match
             next if !$match;
@@ -71,7 +72,10 @@ sub dispatch {
 
             if (! $context->response->is_halted) {
                 eval { $content = $route->execute($context) };
-                return $self->response_internal_error($@) if $@;    # 500
+                if ($@) { # 500
+                    $app->log(error => $@);
+                    return $self->response_internal_error($@);
+                }
             }
 
             my $response = $context->response;

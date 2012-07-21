@@ -184,6 +184,7 @@ sub _normalize_config_entry {
 my $_setters = {
     logger => sub {
         my ($self, $value, $config) = @_;
+
         return $value if ref($value);
         my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
 
@@ -194,6 +195,7 @@ my $_setters = {
         return Dancer::Factory::Engine->create(
             logger => $value, 
             %{$engine_options},
+            app_name => $self->name,
             postponed_hooks => $self->get_postponed_hooks
         );
     },
