@@ -184,11 +184,18 @@ sub _normalize_config_entry {
 my $_setters = {
     logger => sub {
         my ($self, $value, $config) = @_;
+
         return $value if ref($value);
         my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
+
+        # keep compatibility with old 'log' keyword to define log level.
+        if (!exists($engine_options->{log_level}) and exists($config->{log})) {
+            $engine_options->{log_level} = $config->{log};
+        }
         return Dancer::Factory::Engine->create(
             logger => $value, 
             %{$engine_options},
+            app_name => $self->name,
             postponed_hooks => $self->get_postponed_hooks
         );
     },

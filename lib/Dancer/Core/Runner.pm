@@ -133,4 +133,7 @@ sub start {
     $server->start;
 }
 
+# Used by 'logger' to get a name from a Runner
+sub name { "runner" };
+
 1;
