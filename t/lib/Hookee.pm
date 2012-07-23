@@ -9,6 +9,10 @@ register some_keyword => sub {
     execute_hooks('start_hookee');
 };
 
+register some_other => sub {
+    execute_hooks('third_hook');
+};
+
 register_plugin for_versions => [ 2 ];
 
 1;

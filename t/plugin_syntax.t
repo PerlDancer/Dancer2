@@ -61,8 +61,17 @@ subtest 'hooks in plugins' => sub {
         use Dancer;
         use t::lib::Hookee;
 
+        hook 'third_hook' => sub {
+            var( hook => 'third hook');
+        };
+
         hook 'start_hookee' => sub {
             'hook for plugin';
+        };
+
+        get '/hook_with_var' => sub {
+            some_other();
+            is var('hook') => 'third hook', "Vars preserved from hooks";
         };
 
         get '/hooks_plugin' => sub {
@@ -76,6 +85,8 @@ subtest 'hooks in plugins' => sub {
     my $r = dancer_response(GET => '/hooks_plugin');
     is($r->[2][0], 'hook for plugin', '... route is rendered');
     is $counter, 1, "... and the hook has been executed exactly once";
+
+    dancer_response(GET => '/hook_with_var');
 };
 
 
