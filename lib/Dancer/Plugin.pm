@@ -190,7 +190,7 @@ sub plugin_setting {
 =method register_hook
 
 Allows a plugin to delcare a list of supported hooks. Any hook declared like so
-can be executed by the plugin with C<execute_hooks>.
+can be executed by the plugin with C<execute_hook>.
 
     register_hook 'foo'; 
     register_hook 'foo', 'bar', 'baz'; 
@@ -232,26 +232,26 @@ sub register_hook {
     }
 }
 
-=method execute_hooks
+=method execute_hook
 
 Allows a plugin to execute the hooks attached at the given position
 
-    execute_hooks 'some_hook';
+    execute_hook 'some_hook';
 
 Arguments can be passed which will be received by handlers attached to that
 hook:
 
-    execute_hooks 'some_hook', $some_args, ... ;
+    execute_hook 'some_hook', $some_args, ... ;
 
 The hook must have been registered by the plugin first, with C<register_hook>.
 
 =cut
 
-sub execute_hooks {
+sub execute_hook {
     my $position = shift;
     my $dsl = _get_dsl();
     croak "No DSL object found" if !defined $dsl;
-    $dsl->execute_hooks($position, @_);
+    $dsl->execute_hook($position, @_);
 }
 
 # private
@@ -262,7 +262,7 @@ sub import {
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
-        execute_hooks
+        execute_hook
         register_hook
         register_plugin
         register

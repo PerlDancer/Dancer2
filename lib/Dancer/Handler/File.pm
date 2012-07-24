@@ -88,7 +88,7 @@ sub code {
         }
 
         my $file_path = path($self->public_dir, @tokens);
-        $self->execute_hooks('handler.file.before_render', $file_path);
+        $self->execute_hook('handler.file.before_render', $file_path);
 
         if (! -f $file_path) {
             $ctx->response->has_passed(1);
@@ -107,7 +107,7 @@ sub code {
         }
 
         my @stat = stat $file_path;
-        
+
         $ctx->response->header('Content-Type') or
             $ctx->response->header('Content-Type', $content_type);
 
@@ -118,7 +118,7 @@ sub code {
             $ctx->response->header('Last-Modified', HTTP::Date::time2str($stat[9]));
 
         $ctx->response->content($content);
-        $self->execute_hooks('handler.file.after_render', $ctx->response);
+        $self->execute_hook('handler.file.after_render', $ctx->response);
         return ($ctx->request->method eq 'GET') ? $content : '';
     };
 }

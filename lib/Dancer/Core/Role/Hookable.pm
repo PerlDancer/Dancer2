@@ -97,7 +97,7 @@ sub add_hook {
 # allows the caller to replace the current list of hooks at the given position
 # this is useful if the object where this role is composed wants to compile the
 # hooks.
-sub replace_hooks {
+sub replace_hook {
     my ($self, $position, $hooks) = @_;
 
     croak "Hook '$position' must be installed first"
@@ -114,7 +114,7 @@ sub has_hook {
 }
 
 # Exectue the hook at the given position
-sub execute_hooks {
+sub execute_hook {
     my ($self, $name, @args) = @_;
 
     $name = $self->hook_aliases->{$name}

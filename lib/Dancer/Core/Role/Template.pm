@@ -75,10 +75,10 @@ sub apply_renderer {
     $view = $self->view($view) if ! ref $view;
     $tokens = $self->_prepare_tokens_options($tokens);
 
-    $self->execute_hooks('engine.template.before_render', $tokens);
+    $self->execute_hook('engine.template.before_render', $tokens);
 
     my $content = $self->render($view, $tokens);
-    $self->execute_hooks('engine.template.after_render', \$content);
+    $self->execute_hook('engine.template.after_render', \$content);
 
     # make sure to avoid ( undef ) in list context return
     defined $content and return $content;
@@ -102,12 +102,12 @@ sub apply_layout {
     defined $content or return;
     defined $layout or return $content;
 
-    $self->execute_hooks('engine.template.before_layout_render', $tokens, \$content);
+    $self->execute_hook('engine.template.before_layout_render', $tokens, \$content);
 
     my $full_content =
       $self->render_layout($layout, $tokens, $content);
 
-    $self->execute_hooks('engine.template.after_layout_render', \$full_content);
+    $self->execute_hook('engine.template.after_layout_render', \$full_content);
 
     # make sure to avoid ( undef ) in list context return
     defined $full_content and return $full_content;

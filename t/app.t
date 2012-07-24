@@ -150,7 +150,7 @@ like(
     'before filter nonexistent method failure',
 );
 
-$app->replace_hooks('core.app.before_request', [ sub { 1 } ]);
+$app->replace_hook('core.app.before_request', [ sub { 1 } ]);
 $app->compile_hooks;
 $env = {
     REQUEST_METHOD => 'GET',
