@@ -117,11 +117,11 @@ sub has_hook {
 sub execute_hooks {
     my ($self, $name, @args) = @_;
 
-    $name = $self->hook_aliases->{$name}
-        if exists $self->hook_aliases->{$name};
-
     croak "execute_hook needs a hook name"
       if !defined $name || !length($name);
+
+    $name = $self->hook_aliases->{$name}
+        if exists $self->hook_aliases->{$name};
 
     croak "Hook '$name' does not exist"
       if !$self->has_hook($name);
