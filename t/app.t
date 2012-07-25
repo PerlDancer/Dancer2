@@ -2,12 +2,12 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Fatal;
+use Dancer;
 use Dancer::Core::App;
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Hook;
 use Dancer::FileUtils;
 use File::Spec;
-use File::Basename 'dirname';
 
 # our app/dispatcher object
 my $app = Dancer::Core::App->new(
