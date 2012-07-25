@@ -23,9 +23,9 @@ around serialize => sub {
     my ($orig, $self) = (shift, shift);
     my ($data) = @_;
 
-    $self->execute_hooks('engine.serializer.before', $data);
+    $self->execute_hook('engine.serializer.before', $data);
     my $serialized = $self->$orig($data);
-    $self->execute_hooks('engine.serializer.after', $serialized);
+    $self->execute_hook('engine.serializer.after', $serialized);
 
     return $serialized;
 };

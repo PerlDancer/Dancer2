@@ -19,7 +19,7 @@ is $h->code->(), 'BT';
 my $f = Foo->new;
 
 like(
-    exception { $f->execute_hooks() },
+    exception { $f->execute_hook() },
     qr{execute_hook needs a hook name},
     'execute_hook needs a hook name',
 );
@@ -49,16 +49,16 @@ like(
     'Unsupported hook cannot be installed',
 );
 
-$f->execute_hooks('foobar');
+$f->execute_hook('foobar');
 is $count, 1;
 
 like(
-    exception { $f->replace_hooks( 'doesnotexist', [] ) },
+    exception { $f->replace_hook( 'doesnotexist', [] ) },
     qr{Hook 'doesnotexist' must be installed first},
     'Nonexistent hook fails',
 );
 
 my $new_hooks = [ sub {$count--}, sub {$count--}, sub {$count--} ];
-$f->replace_hooks('foobar',$new_hooks);
-$f->execute_hooks('foobar');
+$f->replace_hook('foobar', $new_hooks);
+$f->execute_hook('foobar');
 is $count, -2, 'replaced hooks were installed and executed';
