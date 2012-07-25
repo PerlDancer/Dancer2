@@ -68,7 +68,7 @@ sub dispatch {
             # go to the next route if no match
             next if !$match;
             my $content;
-            $app->execute_hooks('core.app.before_request', $context);
+            $app->execute_hook('core.app.before_request', $context);
 
             if (! $context->response->is_halted) {
                 eval { $content = $route->execute($context) };
@@ -106,7 +106,7 @@ sub dispatch {
                 next;
             }
 
-            $app->execute_hooks('core.app.after_request', $response);
+            $app->execute_hook('core.app.after_request', $response);
             $app->context(undef);
             return $response;
         }

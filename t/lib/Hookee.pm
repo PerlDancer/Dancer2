@@ -6,11 +6,11 @@ register_hook 'start_hookee', 'stop_hookee';
 register_hook 'third_hook';
 
 register some_keyword => sub {
-    execute_hooks('start_hookee');
+    execute_hook('start_hookee');
 };
 
 register some_other => sub {
-    execute_hooks('third_hook');
+    execute_hook('third_hook');
 };
 
 register_plugin for_versions => [ 2 ];

@@ -83,9 +83,9 @@ Add a new hook name, so application developers can insert some code at this poin
 
 Test if a hook with this name has already been registered.
 
-=head2 execute_hooks
+=head2 execute_hook
 
-Execute a list of hooks for some position
+Execute a hooks
 
 =head2 get_hooks_for
 

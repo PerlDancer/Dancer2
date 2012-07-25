@@ -242,12 +242,12 @@ around add_hook => sub {
 
 };
 
-around execute_hooks => sub {
+around execute_hook => sub {
     my ($orig, $self) = (shift, shift);
     my ($hook, @args) = @_;
     unless ($self->has_hook($hook)) {
         foreach my $cand ($self->hook_candidates) {
-            return $cand->execute_hooks(@_) if $cand->has_hook($hook);
+            return $cand->execute_hook(@_) if $cand->has_hook($hook);
         }
     }
 
@@ -312,7 +312,7 @@ sub send_file {
 
     for my $h (keys %{ $self->route_handlers->{File}->hooks } ) {
         my $hooks = $self->route_handlers->{File}->hooks->{$h};
-        $file_handler->replace_hooks($h, $hooks);
+        $file_handler->replace_hook($h, $hooks);
     }
 
     $self->context->request->path_info($path);
@@ -384,7 +384,7 @@ sub compile_hooks {
 
             push @{$compiled_hooks}, $compiled;
         }
-        $self->replace_hooks($position, $compiled_hooks);
+        $self->replace_hook($position, $compiled_hooks);
     }
 }
 

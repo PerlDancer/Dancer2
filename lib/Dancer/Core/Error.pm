@@ -115,7 +115,7 @@ has context => (
 
 sub BUILD {
     my ($self) = @_;
-    $self->execute_hooks('core.error.init', $self);
+    $self->execute_hook('core.error.init', $self);
 }
 
 has exception => (
@@ -126,10 +126,10 @@ has exception => (
 sub render {
     my $self = shift;
 
-    $self->execute_hooks('core.error.before', $self);
+    $self->execute_hook('core.error.before', $self);
     my $response = $self->_render_html();
-    $self->execute_hooks('core.error.after', $response);
-    
+    $self->execute_hook('core.error.after', $response);
+
     return $response;
 }
 
