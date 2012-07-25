@@ -157,6 +157,23 @@ sub register_plugin {
     $dsl->dancer_app->register_plugin($dsl);
 }
 
+=method plugin_args
+
+Simple method to retrieve the parameters or arguments passed to a
+plugin-defined keyword. Although not relevant for Dancer 1 only, or
+Dancer 2 only, plugins, it is useful for universal plugins.
+
+  register foo => sub {
+     my ($self, @args) = plugin_args(@_);
+     ...
+  }
+
+Note that Dancer 1 will return undef as the object reference.
+
+=cut
+
+sub plugin_args { @_ }
+
 =method plugin_setting
 
 If C<plugin_setting> is called inside a plugin, the appropriate configuration 
@@ -267,6 +284,7 @@ sub import {
         register_plugin
         register
         plugin_setting
+        plugin_args
     );
     for my $symbol (@export) {
         no strict 'refs';
