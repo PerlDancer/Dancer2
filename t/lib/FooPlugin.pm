@@ -10,13 +10,13 @@ sub _html_sitemap {
 }
 
 register foo_wrap_request => sub {
-    my ($self) = @_;
+    my ($self) = plugin_args(@_);
     return $self->request;
 },
 { is_global => 0 };
 
 register foo_route => sub {
-    my $self = shift;
+    my ($self) = plugin_args(@_);
     $self->get('/foo', sub {'foo'});
 };
 
