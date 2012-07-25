@@ -10,7 +10,7 @@ register some_keyword => sub {
 };
 
 register some_other => sub {
-    execute_hooks('third_hook');
+    execute_hook('third_hook');
 };
 
 register_plugin for_versions => [ 2 ];
