@@ -2,7 +2,7 @@
 
 package Dancer::Session::Simple;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Carp;
 
 with 'Dancer::Core::Role::Session';

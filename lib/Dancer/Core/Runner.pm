@@ -2,7 +2,7 @@ package Dancer::Core::Runner;
 # ABSTRACT: top-layer class that contains what is need to start a dancer app
 
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Dancer::Core::MIME;
 use Carp 'croak';
 

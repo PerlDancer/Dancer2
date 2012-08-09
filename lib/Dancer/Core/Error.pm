@@ -3,15 +3,15 @@
 package Dancer::Core::Error;
 use Moo;
 use Carp;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Data::Dumper;
 
 with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw/
-    core.error.before 
-    core.error.after 
+    core.error.before
+    core.error.after
     core.error.init
     /;
 }

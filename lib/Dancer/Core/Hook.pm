@@ -2,7 +2,7 @@
 
 package Dancer::Core::Hook;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Carp;
 
 has name => (

@@ -11,7 +11,7 @@ use Scalar::Util 'blessed';
 use Carp 'croak';
 
 use Dancer::FileUtils 'path', 'read_file_content';
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Dancer::Core::Route;
 
 # we have hooks here
@@ -20,7 +20,7 @@ with 'Dancer::Core::Role::Config';
 
 sub supported_hooks {
     qw/
-    core.app.before_request 
+    core.app.before_request
     core.app.after_request
     /
 }
@@ -348,7 +348,7 @@ sub init_route_handlers {
         $config = {} if !ref($config);
         $config->{app} = $self;
         my $handler = Dancer::Factory::Engine->create(
-            Handler => $handler_name, 
+            Handler => $handler_name,
             %$config,
             postponed_hooks => $self->postponed_hooks,
             );

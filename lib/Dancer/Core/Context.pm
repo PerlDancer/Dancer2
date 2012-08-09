@@ -2,9 +2,9 @@
 
 package Dancer::Core::Context;
 use Moo;
-use Dancer::Moo::Types;
 use URI::Escape;
 
+use Dancer::Core::Types;
 use Dancer::Core::Request;
 use Dancer::Core::Response;
 use Dancer::Core::Cookie;

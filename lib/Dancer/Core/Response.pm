@@ -7,7 +7,7 @@ use warnings;
 use Carp;
 use Moo;
 use Encode;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 use Scalar::Util qw/looks_like_number blessed/;
 ## use Dancer::HTTP;

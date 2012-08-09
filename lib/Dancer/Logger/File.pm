@@ -3,7 +3,7 @@
 package Dancer::Logger::File;
 use Carp 'carp';
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 with 'Dancer::Core::Role::Logger';
 

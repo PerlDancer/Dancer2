@@ -2,12 +2,12 @@
 
 package Dancer::Core::Role::Hookable;
 use Moo::Role;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Carp 'croak';
 
 requires 'supported_hooks';
 
-# The hooks registry 
+# The hooks registry
 has hooks => (
     is => 'rw',
     isa => HashRef,

@@ -3,7 +3,7 @@
 package Dancer::Core::Role::Headers;
 
 use Moo::Role;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use HTTP::Headers;
 
 has headers => (

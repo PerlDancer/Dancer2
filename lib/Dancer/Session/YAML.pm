@@ -2,7 +2,7 @@
 
 package Dancer::Session::YAML;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Carp;
 use Fcntl ':flock';
 use Dancer::FileUtils qw(path set_file_mode);

@@ -1,7 +1,7 @@
 # ABSTRACT: TODO
 
 package Dancer::Core::Role::Logger;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 use POSIX qw/strftime/;
 use Moo::Role;
@@ -9,7 +9,7 @@ with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
     qw(
-    engine.logger.before 
+    engine.logger.before
     engine.logger.after
     )
 }

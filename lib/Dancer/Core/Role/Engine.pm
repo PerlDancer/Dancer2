@@ -2,7 +2,7 @@
 
 package Dancer::Core::Role::Engine;
 use Moo::Role;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 with 'Dancer::Core::Role::Hookable';
 
