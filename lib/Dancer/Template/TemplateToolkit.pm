@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use Carp;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Template;
 
 with 'Dancer::Core::Role::Template';
@@ -50,4 +50,3 @@ sub render {
 }
 
 1;
-

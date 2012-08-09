@@ -1,7 +1,7 @@
 # ABSTRACT: TODO
 
 package Dancer::Core::Role::Serializer;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';

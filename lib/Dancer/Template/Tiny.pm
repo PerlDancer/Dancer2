@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Carp;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Template::Tiny;
 use Dancer::FileUtils 'read_file_content';
 

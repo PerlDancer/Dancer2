@@ -6,8 +6,7 @@ use Moo::Role;
 use Carp 'croak';
 use File::Spec;
 
-use Dancer::Moo::Types;
-
+use Dancer::Core::Types;
 use Dancer::Core::App;
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Response;

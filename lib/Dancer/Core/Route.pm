@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Carp 'croak';
 
 =attr method
