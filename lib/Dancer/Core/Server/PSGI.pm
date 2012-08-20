@@ -7,7 +7,7 @@ use Plack::Request;
 
 with 'Dancer::Core::Role::Server';
 
-sub _build_name { 'PSGI' }
+has '+name' => ( default => sub {'PSGI'} );
 
 sub start {
     my ($self) = @_;

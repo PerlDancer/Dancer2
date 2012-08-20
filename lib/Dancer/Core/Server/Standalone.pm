@@ -5,7 +5,7 @@ package Dancer::Core::Server::Standalone;
 use Moo;
 with 'Dancer::Core::Role::Server';
 
-sub _build_name { 'Standalone' }
+has '+name' => ( default => sub {'Standalone'} );
 
 use HTTP::Server::Simple::PSGI;
 

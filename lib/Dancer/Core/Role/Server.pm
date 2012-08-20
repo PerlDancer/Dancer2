@@ -15,9 +15,8 @@ use Dancer::Core::Request;
 use Dancer::Core::Context;
 
 has name => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_name',
+    is       => 'ro',
+    required => 1,
 );
 
 has host => (
@@ -58,8 +57,6 @@ has dispatcher => (
     lazy => 1,
     builder => '_build_dispatcher',
 );
-
-requires '_build_name';
 
 sub _build_dispatcher {
     my ($self) = @_;
