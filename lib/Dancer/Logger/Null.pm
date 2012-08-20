@@ -4,7 +4,7 @@ package Dancer::Logger::Null;
 use Moo;
 with 'Dancer::Core::Role::Logger';
 
-sub _log {1}
+sub log {1}
 
 1;
 

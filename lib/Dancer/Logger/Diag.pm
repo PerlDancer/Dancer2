@@ -5,7 +5,7 @@ use Moo;
 use Test::More;
 with 'Dancer::Core::Role::Logger';
 
-sub _log {
+sub log {
     my ($self, $level, $message) = @_;
 
     Test::More::diag(

@@ -4,7 +4,7 @@ package Dancer::Logger::Console;
 use Moo;
 with 'Dancer::Core::Role::Logger';
 
-sub _log {
+sub log {
     my ($self, $level, $message) = @_;
     print STDERR $self->format_message($level => $message);
 }

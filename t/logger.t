@@ -14,7 +14,7 @@ my $_logs = [];
     use Moo;
     with 'Dancer::Core::Role::Logger';
 
-    sub _log {
+    sub log {
         my ($self, $level, $message) = @_;
         push @$_logs, $self->format_message($level, $message);
     }

@@ -20,7 +20,7 @@ sub type { 'Logger' }
 # It receives the following arguments:
 # $msg_level, $msg_content, it gets called only if the configuration allows
 # a message of the given level to be logged.
-requires '_log';
+requires 'log';
 
 has auto_encoding_charset => (
     is => 'ro',
@@ -118,9 +118,9 @@ sub format_message {
     return $fmt."\n";
 }
 
-sub core    { $_[0]->_should('core')    and $_[0]->_log('core',    $_[1]) }
-sub debug   { $_[0]->_should('debug')   and $_[0]->_log('debug',   $_[1]) }
-sub warning { $_[0]->_should('warning') and $_[0]->_log('warning', $_[1]) }
-sub error   { $_[0]->_should('error')   and $_[0]->_log('error',   $_[1]) }
+sub core    { $_[0]->_should('core')    and $_[0]->log('core',    $_[1]) }
+sub debug   { $_[0]->_should('debug')   and $_[0]->log('debug',   $_[1]) }
+sub warning { $_[0]->_should('warning') and $_[0]->log('warning', $_[1]) }
+sub error   { $_[0]->_should('error')   and $_[0]->log('error',   $_[1]) }
 
 1;

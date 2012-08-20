@@ -61,7 +61,7 @@ sub BUILD {
     $self->fh($fh);
 }
 
-sub _log {
+sub log {
     my ($self, $level, $message) = @_;
     my $fh = $self->fh;
 

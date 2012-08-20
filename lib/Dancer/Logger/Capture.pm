@@ -9,7 +9,7 @@ with 'Dancer::Core::Role::Logger';
 my $_trap = Dancer::Logger::Capture::Trap->new;
 sub trap { $_trap }
 
-sub _log {
+sub log {
     my($self, $level, $message) = @_;
 
     $_trap->store( $level => $message );
