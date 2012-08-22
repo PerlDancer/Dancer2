@@ -6,7 +6,7 @@ use Dancer::Moo::Types;
 
 has _storage => (
     is => 'rw',
-    isa => sub { ArrayRef(@_) },
+    isa => ArrayRef,
     default => sub { [] },
 );
 

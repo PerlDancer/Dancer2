@@ -7,7 +7,7 @@ use Carp;
 
 has name => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     required => 1,
     coerce => sub {
         my ($hook_name) = @_;
@@ -22,7 +22,7 @@ has name => (
 
 has code => (
     is => 'ro',
-    isa => sub { CodeRef(@_) },
+    isa => CodeRef,
     required => 1,
     coerce => sub {
         my ($hook) = @_;

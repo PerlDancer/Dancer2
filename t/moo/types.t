@@ -5,133 +5,133 @@ use Test::Fatal;
 use Dancer::Moo::Types;
 
 is(
-    exception { Dancer::Moo::Types::Str(undef) },
+    exception { Str->(undef) },
     undef,
     'Str accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::Str('something') },
+    exception { Str->('something') },
     undef,
     'Str',
 );
 
 like(
-    exception { Dancer::Moo::Types::Str({foo => 'something'}) },
+    exception { Str->({foo => 'something'}) },
     qr{does not pass the type constraint check for type `Str'},
     'Str',
 );
 
 is(
-    exception { Dancer::Moo::Types::Num(34) },
+    exception { Num->(34) },
     undef,
     'Num',
 );
 
 is(
-    exception { Dancer::Moo::Types::Num(undef) },
+    exception { Num->(undef) },
     undef,
     'Num accepts undef value',
 );
 
 like(
-    exception { Dancer::Moo::Types::Num('not a number') },
+    exception { Num->('not a number') },
     qr{does not pass the type constraint check for type `Num'},
     'Num fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::Bool(1) },
+    exception { Bool->(1) },
     undef,
     'Bool true value',
 );
 
 is(
-    exception { Dancer::Moo::Types::Bool(0) },
+    exception { Bool->(0) },
     undef,
     'Bool false value',
 );
 
 is(
-    exception { Dancer::Moo::Types::Bool(undef) },
+    exception { Bool->(undef) },
     undef,
     'Bool accepts undef value',
 );
 
 like(
-    exception { Dancer::Moo::Types::Bool('2') },
+    exception { Bool->('2') },
     qr{does not pass the type constraint check for type `Bool'},
     'Bool fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::Regexp(qr{.*}) },
+    exception { Regexp->(qr{.*}) },
     undef,
     'Regexp',
 );
 
 like(
-    exception { Dancer::Moo::Types::Regexp('/.*/') },
+    exception { Regexp->('/.*/') },
     qr{does not pass the type constraint check for type `Regexp'},
     'Regexp fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::Regexp(undef) },
+    exception { Regexp->(undef) },
     undef,
     'Regexp accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::HashRef({goo => 'le'}) },
+    exception { HashRef->({goo => 'le'}) },
     undef,
     'HashRef',
 );
 
 like(
-    exception { Dancer::Moo::Types::HashRef('/.*/') },
+    exception { HashRef->('/.*/') },
     qr{does not pass the type constraint check for type `HashRef'},
     'HashRef fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::HashRef(undef) },
+    exception { HashRef->(undef) },
     undef,
     'HashRef accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::ArrayRef([1, 2, 3, 4 ]) },
+    exception { ArrayRef->([1, 2, 3, 4 ]) },
     undef,
     'ArrayRef',
 );
 
 like(
-    exception { Dancer::Moo::Types::ArrayRef('/.*/') },
+    exception { ArrayRef->('/.*/') },
     qr{does not pass the type constraint check for type `ArrayRef'},
     'ArrayRef fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::ArrayRef(undef) },
+    exception { ArrayRef->(undef) },
     undef,
     'ArrayRef accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::CodeRef( sub { 44 } ) },
+    exception { CodeRef->( sub { 44 } ) },
     undef,
     'CodeRef',
 );
 
 like(
-    exception { Dancer::Moo::Types::CodeRef('/.*/') },
+    exception { CodeRef->('/.*/') },
     qr{does not pass the type constraint check for type `CodeRef'},
     'CodeRef fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::CodeRef(undef) },
+    exception { CodeRef->(undef) },
     undef,
     'CodeRef accepts undef value',
 );
@@ -142,145 +142,145 @@ my $f = bless {}, 'Foo';
 my $b = bless {}, 'Bar'; 
 
 is(
-    exception { Dancer::Moo::Types::ObjectOf( Foo => $f) },
+    exception { ObjectOf('Foo')->($f) },
     undef,
     'ObjectOf',
 );
 
 like(
-    exception { Dancer::Moo::Types::ObjectOf( Foo => $b) },
+    exception { ObjectOf('Foo')->($b) },
     qr{does not pass the type constraint check for type `ObjectOf\(Foo\)'},
     'ObjectOf fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::ObjectOf(Foo => undef) },
+    exception { ObjectOf('Foo')->(undef) },
     undef,
     'ObjectOf accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerPrefix('/foo') },
+    exception { DancerPrefix->('/foo') },
     undef,
     'DancerPrefix',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerPrefix('bar/something') },
+    exception { DancerPrefix->('bar/something') },
     qr{does not pass the type constraint check for type `DancerPrefix'},
     'DancerPrefix fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerPrefix(undef) },
+    exception { DancerPrefix->(undef) },
     undef,
     'DancerPrefix accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerAppName('Foo') },
+    exception { DancerAppName->('Foo') },
     undef,
     'DancerAppName',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerAppName('Foo::Bar') },
+    exception { DancerAppName->('Foo::Bar') },
     undef,
     'DancerAppName',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerAppName('Foo::Bar::Baz') },
+    exception { DancerAppName->('Foo::Bar::Baz') },
     undef,
     'DancerAppName',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('Foo:Bar') },
+    exception { DancerAppName->('Foo:Bar') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with single colons',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('Foo:::Bar') },
+    exception { DancerAppName->('Foo:::Bar') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with tripe colons',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('7Foo') },
+    exception { DancerAppName->('7Foo') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with beginning number',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('Foo::45Bar') },
+    exception { DancerAppName->('Foo::45Bar') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with beginning number',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('-F') },
+    exception { DancerAppName->('-F') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('Foo::-') },
+    exception { DancerAppName->('Foo::-') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('Foo^') },
+    exception { DancerAppName->('Foo^') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerAppName(undef) },
+    exception { DancerAppName->(undef) },
     undef,
     'DancerAppName accepts undef value',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerAppName('') },
+    exception { DancerAppName->('') },
     qr{does not pass the type constraint check for type `DancerAppName'},
     'DancerAppName fails an empty string value',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerMethod('post') },
+    exception { DancerMethod->('post') },
     undef,
     'DancerMethod',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerMethod('POST') },
+    exception { DancerMethod->('POST') },
     qr{does not pass the type constraint check for type `DancerMethod'},
     'DancerMethod fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerMethod(undef) },
+    exception { DancerMethod->(undef) },
     undef,
     'DancerMethod accepts undef value',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerHTTPMethod('POST') },
+    exception { DancerHTTPMethod->('POST') },
     undef,
     'DancerMethod',
 );
 
 like(
-    exception { Dancer::Moo::Types::DancerHTTPMethod('post') },
+    exception { DancerHTTPMethod->('post') },
     qr{does not pass the type constraint check for type `DancerMethod'},
     'DancerMethod fail',
 );
 
 is(
-    exception { Dancer::Moo::Types::DancerHTTPMethod(undef) },
+    exception { DancerHTTPMethod->(undef) },
     undef,
     'DancerMethod accepts undef value',
 );

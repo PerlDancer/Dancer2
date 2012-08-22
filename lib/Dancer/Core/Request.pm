@@ -9,6 +9,7 @@ use HTTP::Body;
 use URI;
 use URI::Escape;
 use Dancer::Core::Request::Upload;
+use Dancer::Moo::Types;
 
 with 'Dancer::Core::Role::Headers';
 
@@ -22,78 +23,78 @@ my @http_env_keys = (
 
 has $_ => (
       is  => 'rw',
-      isa => sub { Dancer::Moo::Types::Str(@_) }
+      isa => Str,
   ) for @http_env_keys;
 
 # then all the native attributes
 has env => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 
 has path => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
 );
 
 has path_info => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
 );
 
 has method => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::DancerHTTPMethod(@_) },
+    isa => DancerHTTPMethod,
 );
 
 has content_type => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
 );
 
 has content_length => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Num(@_) },
+    isa => Num,
 );
 
 has body => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
     default => sub{''},
 );
 
 has id => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Num(@_) },
+    isa => Num,
 );
 
 has uploads => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa => HashRef,
 );
 
 # Really needed? as we have is_ajax() ...
 has ajax => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => Bool,
 );
 
 has body_is_parsed => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => Bool,
     default => sub{0},
 );
 
 has is_behind_proxy => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => Bool,
     default => sub{0},
 );
 
 has host => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str( @_ ) },
+    isa => Str,
 );
 
 # Some Moo-gic to make host() depend on the flag "is_behind_proxy"
@@ -604,7 +605,7 @@ sub _build_uploads {
 
 has cookies => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     lazy => 1,
     builder => '_build_cookies',
 );

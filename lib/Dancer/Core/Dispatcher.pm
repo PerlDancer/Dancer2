@@ -10,13 +10,13 @@ use Dancer::Core::Response;
 
 has apps => (
     is       => 'rw',
-    isa      => sub { ArrayRef(@_) },
+    isa      => ArrayRef,
     default  => sub { [] },
 );
 
 has default_content_type => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'text/html' },
 );
 

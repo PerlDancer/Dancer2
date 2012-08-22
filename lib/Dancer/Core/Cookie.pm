@@ -24,7 +24,7 @@ sub to_header {
 
 has value => (
     is       => 'rw',
-    isa      => sub { ArrayRef(@_) },
+    isa      => ArrayRef,
     required => 0,
     coerce   => sub {
         my $value = shift;
@@ -46,13 +46,13 @@ around value => sub {
 
 has name => (
     is       => 'rw',
-    isa      => sub { Str(@_) },
+    isa      => Str,
     required => 1,
 );
 
 has expires => (
     is       => 'rw',
-    isa      => sub { Str(@_) },
+    isa      => Str,
     required => 0,
     coerce   => sub {
        my $time = shift;
@@ -68,27 +68,27 @@ has expires => (
 
 has domain => (
     is       => 'rw',
-    isa      => sub { Str(@_) },
+    isa      => Str,
     required => 0,
 );
 
 has path => (
     is       => 'rw',
-    isa      => sub { Str(@_) },
+    isa      => Str,
     required => 0,
     default  => sub { '/' },
 );
 
 has secure => (
     is       => 'rw',
-    isa      => sub { Bool(@_) },
+    isa      => Bool,
     required => 0,
     default  => sub { 0 },
 );
 
 has http_only => (
     is       => 'rw',
-    isa      => sub { Bool(@_) },
+    isa      => Bool,
     required => 0,
     default  => sub { 0 },
 );

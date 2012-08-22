@@ -34,7 +34,7 @@ sub reset { return }
 
 has id => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     lazy => 1,
     builder => '_build_id',
 );
@@ -60,31 +60,31 @@ sub _build_id {
 
 has data => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 
 has name => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'dancer.session' },
 );
 
 has session_secure => (
     is => 'rw',
-    isa => sub { Bool(@_) },
+    isa => Bool,
     default => sub { 0 },
 );
 
 has session_is_http_only => (
     is => 'rw',
-    isa => sub { Bool(@_) },
+    isa => Bool,
     default => sub { 1 },
 );
 
 has session_expires => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 # Methods below this this line should not be overloaded.

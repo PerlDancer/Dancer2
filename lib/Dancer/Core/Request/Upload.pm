@@ -10,22 +10,22 @@ use Dancer::FileUtils qw(open_file);
 
 has filename => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
 );
 
 has tempname => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
 );
 
 has headers => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa => HashRef,
 );
 
 has size => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Num(@_) },
+    isa => Num,
 );
 
 sub file_handle {

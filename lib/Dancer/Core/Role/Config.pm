@@ -17,21 +17,21 @@ use Carp 'croak', 'carp';
 
 has config_location => (
     is      => 'ro',
-    isa     => sub { ReadableFilePath(@_) },
+    isa     => ReadableFilePath,
     lazy    => 1,
     builder => '_build_config_location',
 );
 
 has config => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     lazy => 1,
     builder => '_build_config',
 );
 
 has environment => (
     is      => 'ro',
-    isa     => sub { Str(@_) },
+    isa     => Str,
     lazy    => 1,
     builder => '_build_environment',
 );

@@ -27,7 +27,7 @@ sub supported_hooks {
 
 has plugins => (
     is => 'rw',
-    isa => sub { ArrayRef(@_) },
+    isa => ArrayRef,
     default => sub { [] },
 );
 
@@ -46,7 +46,7 @@ around BUILDARGS => sub {
 
 has server => (
     is => 'rw',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Server', @_ ) },
+    isa => ConsumerOf('Dancer::Core::Role::Server'),
     weak_ref => 1,
 );
 
@@ -62,13 +62,13 @@ sub _build_environment {'development'}
 
 has runner_config => (
     is => 'ro',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 
 has default_config => (
     is => 'ro',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     lazy => 1,
     builder => '_build_default_config',
 );
@@ -186,7 +186,7 @@ sub all_hook_aliases {
 
 has postponed_hooks => (
     is => 'ro',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 
@@ -335,7 +335,7 @@ sub finish {
 
 has route_handlers => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 
@@ -390,18 +390,18 @@ sub compile_hooks {
 
 has name => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => Str,
 );
 
 # holds a context whenever a request is processed
 has context => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Context', @_) },
+    isa => ObjectOf('Dancer::Core::Context'),
 );
 
 has prefix => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
+    isa => DancerPrefix,
     coerce => sub {
         my ($prefix) = @_;
         return undef if defined($prefix) and $prefix eq "/";
@@ -450,7 +450,7 @@ sub lexical_prefix {
 # routes registry, stored by method:
 has routes => (
     is      => 'rw',
-    isa     => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa     => HashRef,
     default => sub {
         {   get     => [],
             head    => [],

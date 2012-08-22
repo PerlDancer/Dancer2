@@ -24,18 +24,18 @@ requires '_log';
 
 has auto_encoding_charset => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 has app_name => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 
 has log_format => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { '[%a:%P] %L @%T> %m in %f l. %l' },
 );
 

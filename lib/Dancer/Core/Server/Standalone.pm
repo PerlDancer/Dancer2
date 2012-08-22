@@ -11,7 +11,7 @@ use HTTP::Server::Simple::PSGI;
 
 has backend => (
     is      => 'ro',
-    isa     => sub { Dancer::Moo::Types::ObjectOf('HTTP::Server::Simple::PSGI' => @_) },
+    isa     => ObjectOf('HTTP::Server::Simple::PSGI'),
     lazy    => 1,
     builder => '_build_backend',
 );

@@ -11,7 +11,7 @@ has app => (is => 'ro', required => 1);
 
 has keywords => (
     is => 'rw',
-    isa => sub { ArrayRef(@_) },
+    isa => ArrayRef,
     lazy => 1,
     builder => '_build_dsl_keywords',
 );

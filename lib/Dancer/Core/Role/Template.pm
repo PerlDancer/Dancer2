@@ -25,25 +25,25 @@ requires 'render';
 
 has charset => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'UTF-8' },
 );
 
 has default_tmpl_ext => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'tt' },
 );
 
 has views => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'views' },
 );
 
 has layout => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 sub _template_name {

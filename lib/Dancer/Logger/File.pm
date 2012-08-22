@@ -13,7 +13,7 @@ use IO::File;
 
 has log_dir => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     trigger => sub {
         my ($self, $dir) = @_;
         if (! -d $dir && ! mkdir $dir) {
@@ -33,7 +33,7 @@ sub _build_log_dir {
 
 has file_name => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     builder => '_build_file_name',
     lazy => 1
 );
@@ -44,7 +44,7 @@ sub _build_file_name {
     return "$env.log";
 }
 
-has log_file => ( is => 'rw', isa => sub { Str(@_) } );
+has log_file => ( is => 'rw', isa => Str );
 has fh => ( is => 'rw' );
 
 sub BUILD {

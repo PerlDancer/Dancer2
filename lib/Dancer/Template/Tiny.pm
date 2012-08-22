@@ -14,7 +14,7 @@ with 'Dancer::Core::Role::Template';
 has engine => (
     is => 'rw',
     default => sub { Template::Tiny->new },
-    isa => sub { ObjectOf('Template::Tiny', @_) },
+    isa => ObjectOf('Template::Tiny'),
 );
 
 sub render {

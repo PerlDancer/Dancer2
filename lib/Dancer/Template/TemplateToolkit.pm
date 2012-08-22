@@ -13,7 +13,7 @@ with 'Dancer::Core::Role::Template';
 
 has engine => (
     is => 'rw',
-    isa => sub { ObjectOf('Template', @_) },
+    isa => ObjectOf('Template'),
 );
 
 sub BUILD {

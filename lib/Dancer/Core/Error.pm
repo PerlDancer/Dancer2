@@ -18,31 +18,31 @@ sub supported_hooks {
 
 has show_errors => (
     is => 'ro',
-    isa => sub { Bool(@_) },
+    isa => Bool,
 );
 
 has charset => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'UTF-8' },
 );
 
 has type => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'Runtime Error' },
 );
 
 has title => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     lazy => 1,
     builder => '_build_title',
 );
 
 has error_template => (
     is => 'ro',
-    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath(@_) },
+    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
     lazy => 1,
     builder => '_build_error_template',
 );
@@ -77,12 +77,12 @@ sub _build_title {
 has code => (
     is => 'ro',
     default => sub { 500 },
-    isa => sub { Num(@_) },
+    isa => Num,
 );
 
 has message => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 sub full_message {
@@ -95,22 +95,22 @@ sub full_message {
 
 has serializer => (
     is => 'ro',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Serializer', @_) },
+    isa => ConsumerOf('Dancer::Core::Role::Serializer'),
 );
 
 has template => (
     is => 'ro',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Template', @_) },
+    isa => ConsumerOf('Dancer::Core::Role::Template'),
 );
 
 has session => (
     is => 'ro',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Session') },
+    isa => ConsumerOf('Dancer::Core::Role::Session'),
 );
 
 has context => (
     is => 'ro',
-    isa => sub { ObjectOf('Dancer::Core::Context', @_) },
+    isa => ObjectOf('Dancer::Core::Context'),
 );
 
 sub BUILD {
@@ -120,7 +120,7 @@ sub BUILD {
 
 has exception => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 sub render {
