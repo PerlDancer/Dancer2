@@ -10,7 +10,7 @@ requires 'supported_hooks';
 # The hooks registry 
 has hooks => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     builder => '_build_hooks',
     lazy => 1,
 );

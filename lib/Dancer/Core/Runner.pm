@@ -16,7 +16,7 @@ with 'Dancer::Core::Role::Config';
 # not before.
 has postponed_hooks => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 

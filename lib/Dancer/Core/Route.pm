@@ -16,7 +16,7 @@ the HTTP method of the route (lowercase). Required.
 
 has method => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::DancerMethod(@_) },
+    isa => sub { DancerMethod(@_) },
     required => 1,
 );
 
@@ -29,7 +29,7 @@ The code reference to execute when the route is ran. Required.
 has code => (
     is => 'ro',
     required => 1,
-    isa => sub { Dancer::Moo::Types::CodeRef(@_) },
+    isa => sub { CodeRef(@_) },
 );
 
 =attr regexp
@@ -56,7 +56,7 @@ The prefix to prepend to the C<regexp>. Optional.
 
 has prefix => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::DancerPrefix(@_) },
+    isa => sub { DancerPrefix(@_) },
 );
 
 =attr options 
@@ -67,7 +67,7 @@ A HashRef of conditions on which the matching will depend. Optional.
 
 has options => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::HashRef( @_) },
+    isa => HashRef,
     trigger => \&_check_options,
 );
 
@@ -93,12 +93,12 @@ has options => (
 
 has _should_capture => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => sub { Bool(@_) },
 );
 
 has _match_data => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::HashRef( @_) },
+    isa => HashRef,
     trigger => sub {
         my ($self, $value) = @_;
     },
@@ -106,7 +106,7 @@ has _match_data => (
 
 has _params => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::ArrayRef(@_) },
+    isa => sub { ArrayRef(@_) },
     default => sub { [] },
 );
 

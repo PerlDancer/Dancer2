@@ -23,19 +23,19 @@ has show_errors => (
 
 has charset => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'UTF-8' },
 );
 
 has type => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'Runtime Error' },
 );
 
 has title => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     lazy => 1,
     builder => '_build_title',
 );
@@ -82,7 +82,7 @@ has code => (
 
 has message => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 sub full_message {
@@ -120,7 +120,7 @@ sub BUILD {
 
 has exception => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 sub render {

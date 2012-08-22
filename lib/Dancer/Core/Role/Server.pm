@@ -22,24 +22,24 @@ has name => (
 
 has host => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => sub { Str(@_) },
     required => 1,
 );
 
 has port => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Num(@_) },
+    isa => sub { Num(@_) },
     required => 1,
 );
 
 has is_daemon => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => sub { Bool(@_) },
 );
 
 has apps => (
     is => 'ro',
-    isa => sub { Dancer::Moo::Types::ArrayRef(@_) },
+    isa => sub { ArrayRef(@_) },
     default => sub { [] },
 );
 

@@ -24,7 +24,7 @@ sub BUILD {
 # boolean to tell if the route passes or not
 has has_passed => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => sub { Bool(@_) },
     default => sub{0},
 );
 
@@ -32,13 +32,13 @@ sub pass { shift->has_passed(1) }
 
 has is_encoded => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => sub { Bool(@_) },
     default => sub{0},
 );
 
 has is_halted => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Bool(@_) },
+    isa => sub { Bool(@_) },
     default => sub{0},
 );
 
@@ -46,7 +46,7 @@ sub halt { shift->is_halted(1) }
 
 has status => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Num(@_) },
+    isa => sub { Num(@_) },
     default => sub { 200 },
     lazy => 1,
     coerce => sub {
@@ -58,7 +58,7 @@ has status => (
 
 has content => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::Str(@_) },
+    isa => sub { Str(@_) },
     default => sub { '' },
     coerce => sub {
         my ($value) = @_;
@@ -106,7 +106,7 @@ sub content_type {
 
 has _forward => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa => HashRef,
 );
 
 sub forward {

@@ -16,7 +16,7 @@ has apps => (
 
 has default_content_type => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub { 'text/html' },
 );
 

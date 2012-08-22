@@ -21,20 +21,20 @@ BEGIN {
 
 has mime_type => (
     is      => 'ro',
-    isa     => sub { Dancer::Moo::Types::ObjectOf('MIME::Types', @_) },
+    isa     => sub { ObjectOf('MIME::Types', @_) },
     default => sub { MIME::Types->new(only_complete => 1) },
     lazy    => 1,
 );
 
 has custom_types => (
     is      => 'rw',
-    isa     => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa     => HashRef,
     default => sub { +{} },
 );
 
 has default => (
     is      => 'rw',
-    isa     => sub { Dancer::Moo::Types::Str(@_) },
+    isa     => Str,
     builder => "reset_default",
 );
 

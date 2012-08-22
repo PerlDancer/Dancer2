@@ -24,7 +24,7 @@ has config_location => (
 
 has config => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     lazy => 1,
     builder => '_build_config',
 );

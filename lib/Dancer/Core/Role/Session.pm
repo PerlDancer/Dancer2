@@ -60,7 +60,7 @@ sub _build_id {
 
 has data => (
     is => 'rw',
-    isa => sub { HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 

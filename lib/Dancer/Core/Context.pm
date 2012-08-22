@@ -19,7 +19,7 @@ has app => (
 has env => (
     is => 'ro',
     required => 1,
-    isa => sub { Dancer::Moo::Types::HashRef(@_) } ,
+    isa => HashRef,
 );
 
 # the incoming request 
@@ -38,7 +38,7 @@ sub _build_request {
 # a buffer for per-request variables
 has buffer => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::HashRef(@_) },
+    isa => HashRef,
     default => sub { {} },
 );
 
@@ -55,7 +55,7 @@ sub var {
 # that HashRef will should be passed as attributes to a response object
 has response => (
     is => 'rw',
-    isa => sub { Dancer::Moo::Types::ObjectOf('Dancer::Core::Response', @_) },
+    isa => sub { ObjectOf('Dancer::Core::Response', @_) },
     default => sub { Dancer::Core::Response->new },
 );
 
