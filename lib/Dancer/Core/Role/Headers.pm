@@ -8,7 +8,7 @@ use HTTP::Headers;
 
 has headers => (
     is => 'rw',
-    isa => sub { ObjectOf('HTTP::Headers' => @_) },
+    isa => ObjectOf('HTTP::Headers'),
     lazy => 1,
     coerce => sub { 
         my ($value) = @_;

@@ -24,7 +24,7 @@ sub to_header {
 
 has value => (
     is       => 'rw',
-    isa      => sub { ArrayRef(@_) },
+    isa      => ArrayRef,
     required => 0,
     coerce   => sub {
         my $value = shift;
@@ -81,14 +81,14 @@ has path => (
 
 has secure => (
     is       => 'rw',
-    isa      => sub { Bool(@_) },
+    isa      => Bool,
     required => 0,
     default  => sub { 0 },
 );
 
 has http_only => (
     is       => 'rw',
-    isa      => sub { Bool(@_) },
+    isa      => Bool,
     required => 0,
     default  => sub { 0 },
 );

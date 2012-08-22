@@ -23,7 +23,7 @@ my @http_env_keys = (
 
 has $_ => (
       is  => 'rw',
-      isa => sub { Str(@_) }
+      isa => Str,
   ) for @http_env_keys;
 
 # then all the native attributes
@@ -35,38 +35,38 @@ has env => (
 
 has path => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 has path_info => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 has method => (
     is => 'rw',
-    isa => sub { DancerHTTPMethod(@_) },
+    isa => DancerHTTPMethod,
 );
 
 has content_type => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 has content_length => (
     is => 'rw',
-    isa => sub { Num(@_) },
+    isa => Num,
 );
 
 has body => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     default => sub{''},
 );
 
 has id => (
     is => 'rw',
-    isa => sub { Num(@_) },
+    isa => Num,
 );
 
 has uploads => (
@@ -77,24 +77,24 @@ has uploads => (
 # Really needed? as we have is_ajax() ...
 has ajax => (
     is => 'rw',
-    isa => sub { Bool(@_) },
+    isa => Bool,
 );
 
 has body_is_parsed => (
     is => 'rw',
-    isa => sub { Bool(@_) },
+    isa => Bool,
     default => sub{0},
 );
 
 has is_behind_proxy => (
     is => 'ro',
-    isa => sub { Bool(@_) },
+    isa => Bool,
     default => sub{0},
 );
 
 has host => (
     is => 'rw',
-    isa => sub { Str( @_ ) },
+    isa => Str,
 );
 
 # Some Moo-gic to make host() depend on the flag "is_behind_proxy"

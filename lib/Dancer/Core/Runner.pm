@@ -24,7 +24,7 @@ has postponed_hooks => (
 # mandatory, because we use that to determine where the appdir is.
 has caller => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     required => 1,
     trigger => sub {
         my ($self, $script) = @_;
@@ -34,7 +34,7 @@ has caller => (
 
 has server => (
     is      => 'rw',
-    isa     => sub { ConsumerOf('Dancer::Core::Role::Server', @_) },
+    isa     => ConsumerOf('Dancer::Core::Role::Server'),
     lazy    => 1,
     builder => '_build_server',
 );
@@ -59,7 +59,7 @@ sub _build_server {
 
 has mime_type => (
     is => 'rw',
-    isa => sub { ObjectOf("Dancer::Core::MIME", @_) },
+    isa => ObjectOf("Dancer::Core::MIME"),
     default => sub { Dancer::Core::MIME->new(); },
 );
 
@@ -91,7 +91,7 @@ sub default_config {
 # the absolute path to the directory where the server started
 has location => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     # make sure the path given is always absolute
     coerce => sub {
         my ($value) = @_;

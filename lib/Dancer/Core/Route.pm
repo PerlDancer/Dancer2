@@ -16,7 +16,7 @@ the HTTP method of the route (lowercase). Required.
 
 has method => (
     is => 'ro',
-    isa => sub { DancerMethod(@_) },
+    isa => DancerMethod,
     required => 1,
 );
 
@@ -29,7 +29,7 @@ The code reference to execute when the route is ran. Required.
 has code => (
     is => 'ro',
     required => 1,
-    isa => sub { CodeRef(@_) },
+    isa => CodeRef,
 );
 
 =attr regexp
@@ -56,7 +56,7 @@ The prefix to prepend to the C<regexp>. Optional.
 
 has prefix => (
     is => 'ro',
-    isa => sub { DancerPrefix(@_) },
+    isa => DancerPrefix,
 );
 
 =attr options 
@@ -93,7 +93,7 @@ has options => (
 
 has _should_capture => (
     is => 'rw',
-    isa => sub { Bool(@_) },
+    isa => Bool,
 );
 
 has _match_data => (
@@ -106,7 +106,7 @@ has _match_data => (
 
 has _params => (
     is => 'rw',
-    isa => sub { ArrayRef(@_) },
+    isa => ArrayRef,
     default => sub { [] },
 );
 

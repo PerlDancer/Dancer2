@@ -15,7 +15,7 @@ has filename => (
 
 has tempname => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
 );
 
 has headers => (
@@ -25,7 +25,7 @@ has headers => (
 
 has size => (
     is => 'rw',
-    isa => sub { Num(@_) },
+    isa => Num,
 );
 
 sub file_handle {

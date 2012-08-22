@@ -18,7 +18,7 @@ sub supported_hooks {
 
 has show_errors => (
     is => 'ro',
-    isa => sub { Bool(@_) },
+    isa => Bool,
 );
 
 has charset => (
@@ -77,7 +77,7 @@ sub _build_title {
 has code => (
     is => 'ro',
     default => sub { 500 },
-    isa => sub { Num(@_) },
+    isa => Num,
 );
 
 has message => (
@@ -95,22 +95,22 @@ sub full_message {
 
 has serializer => (
     is => 'ro',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Serializer', @_) },
+    isa => ConsumerOf('Dancer::Core::Role::Serializer'),
 );
 
 has template => (
     is => 'ro',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Template', @_) },
+    isa => ConsumerOf('Dancer::Core::Role::Template'),
 );
 
 has session => (
     is => 'ro',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Session') },
+    isa => ConsumerOf('Dancer::Core::Role::Session'),
 );
 
 has context => (
     is => 'ro',
-    isa => sub { ObjectOf('Dancer::Core::Context', @_) },
+    isa => ObjectOf('Dancer::Core::Context'),
 );
 
 sub BUILD {

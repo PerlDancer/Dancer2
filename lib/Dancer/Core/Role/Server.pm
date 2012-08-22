@@ -22,31 +22,31 @@ has name => (
 
 has host => (
     is => 'rw',
-    isa => sub { Str(@_) },
+    isa => Str,
     required => 1,
 );
 
 has port => (
     is => 'rw',
-    isa => sub { Num(@_) },
+    isa => Num,
     required => 1,
 );
 
 has is_daemon => (
     is => 'rw',
-    isa => sub { Bool(@_) },
+    isa => Bool,
 );
 
 has apps => (
     is => 'ro',
-    isa => sub { ArrayRef(@_) },
+    isa => ArrayRef,
     default => sub { [] },
 );
 
 has runner => (
     is => 'ro',
     required => 1,
-    isa => sub { ObjectOf('Dancer::Core::Runner', @_) },
+    isa => ObjectOf('Dancer::Core::Runner'),
     weak_ref => 1,
 );
 
@@ -54,7 +54,7 @@ has runner => (
 # handler
 has dispatcher => (
     is => 'rw',
-    isa => sub { ObjectOf('Dancer::Core::Dispatcher', @_) },
+    isa => ObjectOf('Dancer::Core::Dispatcher'),
     lazy => 1,
     builder => '_build_dispatcher',
 );

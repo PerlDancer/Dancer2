@@ -22,7 +22,7 @@ has name => (
 
 has code => (
     is => 'ro',
-    isa => sub { CodeRef(@_) },
+    isa => CodeRef,
     required => 1,
     coerce => sub {
         my ($hook) = @_;

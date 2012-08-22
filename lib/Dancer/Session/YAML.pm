@@ -12,7 +12,7 @@ with 'Dancer::Core::Role::Session';
 my %_session_dir_initialized;
 has session_dir => (
     is => 'ro',
-    isa => sub { Str(@_) },
+    isa => Str,
     required => 1,
     trigger => sub {
         my ($self, $session_dir) = @_;

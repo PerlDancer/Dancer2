@@ -27,7 +27,7 @@ sub supported_hooks {
 
 has plugins => (
     is => 'rw',
-    isa => sub { ArrayRef(@_) },
+    isa => ArrayRef,
     default => sub { [] },
 );
 
@@ -46,7 +46,7 @@ around BUILDARGS => sub {
 
 has server => (
     is => 'rw',
-    isa => sub { ConsumerOf('Dancer::Core::Role::Server', @_ ) },
+    isa => ConsumerOf('Dancer::Core::Role::Server'),
     weak_ref => 1,
 );
 
@@ -396,12 +396,12 @@ has name => (
 # holds a context whenever a request is processed
 has context => (
     is => 'rw',
-    isa => sub { ObjectOf('Dancer::Core::Context', @_) },
+    isa => ObjectOf('Dancer::Core::Context'),
 );
 
 has prefix => (
     is => 'rw',
-    isa => sub { DancerPrefix(@_) },
+    isa => DancerPrefix,
     coerce => sub {
         my ($prefix) = @_;
         return undef if defined($prefix) and $prefix eq "/";

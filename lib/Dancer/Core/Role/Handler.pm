@@ -8,7 +8,7 @@ requires 'register';
 
 has app => (
     is => 'ro',
-    isa => sub { ObjectOf('Dancer::Core::App', @_) },
+    isa => ObjectOf('Dancer::Core::App'),
 );
 
 1;

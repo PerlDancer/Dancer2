@@ -10,7 +10,7 @@ use Dancer::Core::Response;
 
 has apps => (
     is       => 'rw',
-    isa      => sub { ArrayRef(@_) },
+    isa      => ArrayRef,
     default  => sub { [] },
 );
 

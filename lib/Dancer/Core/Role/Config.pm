@@ -17,7 +17,7 @@ use Carp 'croak', 'carp';
 
 has config_location => (
     is      => 'ro',
-    isa     => sub { ReadableFilePath(@_) },
+    isa     => ReadableFilePath,
     lazy    => 1,
     builder => '_build_config_location',
 );
@@ -31,7 +31,7 @@ has config => (
 
 has environment => (
     is      => 'ro',
-    isa     => sub { Str(@_) },
+    isa     => Str,
     lazy    => 1,
     builder => '_build_environment',
 );

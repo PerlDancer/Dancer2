@@ -13,7 +13,7 @@ has location => (is => 'ro');
 
 has context => (
     is => 'rw',
-    isa => sub { ObjectOf('Dancer::Core::Context', @_) },
+    isa => ObjectOf('Dancer::Core::Context'),
 );
 
 has config => (
