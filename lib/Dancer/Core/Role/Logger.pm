@@ -14,7 +14,7 @@ sub supported_hooks {
     )
 }
 
-sub type { 'Logger' }
+sub _build_type {'Logger'}
 
 # This is the only method to implement by logger engines.
 # It receives the following arguments:

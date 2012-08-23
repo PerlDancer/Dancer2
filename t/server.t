@@ -7,7 +7,7 @@ use Test::More;
     use Moo;
     with 'Dancer::Core::Role::Server';
 
-    has '+name' => ( default => sub {'Foo'} );
+    sub _build_name {'Foo'}
 }
 
 use Dancer::Core::Runner;

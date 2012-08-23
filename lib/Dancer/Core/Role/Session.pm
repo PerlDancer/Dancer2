@@ -8,7 +8,7 @@ use File::Spec;
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 
-sub type { 'Session' }
+sub _build_type {'Session'}
 
 sub supported_hooks { }
 

@@ -12,10 +12,12 @@ use Dancer::FileUtils 'read_file_content';
 with 'Dancer::Core::Role::Template';
 
 has engine => (
-    is => 'rw',
+    is      => 'rw',
+    isa     => ObjectOf('Template::Tiny'),
     default => sub { Template::Tiny->new },
-    isa => ObjectOf('Template::Tiny'),
 );
+
+sub _build_name {'Tiny'}
 
 sub render {
     my ( $self, $template, $tokens ) = @_;

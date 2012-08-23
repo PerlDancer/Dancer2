@@ -19,9 +19,16 @@ sub supported_hooks {
     /
 }
 
-sub type { 'Template' }
+sub _build_type {'Template'}
 
+requires '_build_name';
 requires 'render';
+
+has name => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => 1,
+);
 
 has charset => (
     is => 'ro',
