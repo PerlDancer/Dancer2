@@ -4,7 +4,7 @@ package Dancer::Logger::Capture::Trap;
 use Moo;
 use Dancer::Moo::Types;
 
-has _storage => (
+has storage => (
     is => 'rw',
     isa => ArrayRef,
     default => sub { [] },
@@ -12,14 +12,14 @@ has _storage => (
 
 sub store {
     my($self, $level, $message) = @_;
-    push @{$self->_storage}, { level => $level, message => $message };
+    push @{$self->storage}, { level => $level, message => $message };
 }
 
 sub read {
     my $self = shift;
 
-    my $logs = $self->_storage;
-    $self->_storage([]);
+    my $logs = $self->storage;
+    $self->storage([]);
     return $logs;
 }
 

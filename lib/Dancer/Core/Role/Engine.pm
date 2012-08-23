@@ -6,7 +6,11 @@ use Dancer::Moo::Types;
 
 with 'Dancer::Core::Role::Hookable';
 
-requires 'type';
+has type => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => 1,
+);
 
 has environment => (is => 'ro');
 has location => (is => 'ro');
@@ -21,5 +25,7 @@ has config => (
     isa  => HashRef,
     default => sub  { {} },
 );
+
+requires '_build_type';
 
 1;

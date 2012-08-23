@@ -14,7 +14,7 @@ my $_logs = [];
     use Moo;
     with 'Dancer::Core::Role::Logger';
 
-    sub _log {
+    sub log {
         my ($self, $level, $message) = @_;
         push @$_logs, $self->format_message($level, $message);
     }
@@ -35,7 +35,8 @@ subtest 'logger capture' => sub {
     warning "Danger!  Warning!";
     debug   "I like pie.";
 
-    my $trap = Dancer::Logger::Capture->trap;
+    my $app  = dancer_app;
+    my $trap = $app->setting('logger')->trapper;
     is_deeply $trap->read, [
         { level => "warning", message => "Danger!  Warning!" },
         { level => "debug",   message => "I like pie.", }

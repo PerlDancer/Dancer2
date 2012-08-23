@@ -17,7 +17,7 @@ use Dancer::Core::Context;
 has name => (
     is      => 'ro',
     lazy    => 1,
-    builder => '_build_name',
+    builder => 1,
 );
 
 has host => (

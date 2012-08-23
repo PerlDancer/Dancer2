@@ -1,22 +1,7 @@
-use Test::More;
 use strict;
 use warnings;
-
-{
-    package Dancer::Core::Role::Template;
-    use Moo::Role;
-    with 'Dancer::Core::Role::Engine';
-    requires 'render';
-
-    package Dancer::Template::Tiny;
-    use Moo;
-    with 'Dancer::Core::Role::Template';
-
-    sub name { 'Tiny' }
-    sub type { 'Template' }
-    sub render { "tiny" }
-    sub supported_hooks { }
-}
+use Test::More;
+use Dancer::Template::Tiny;
 
 my $f = Dancer::Template::Tiny->new();
 isa_ok $f, 'Dancer::Template::Tiny';

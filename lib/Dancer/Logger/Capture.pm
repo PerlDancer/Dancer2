@@ -6,13 +6,18 @@ use Dancer::Logger::Capture::Trap;
 
 with 'Dancer::Core::Role::Logger';
 
-my $_trap = Dancer::Logger::Capture::Trap->new;
-sub trap { $_trap }
+has trapper => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_trapper',
+);
 
-sub _log {
+sub _build_trapper { Dancer::Logger::Capture::Trap->new }
+
+sub log {
     my($self, $level, $message) = @_;
 
-    $_trap->store( $level => $message );
+    $self->trapper->store( $level => $message );
     return;
 }
 

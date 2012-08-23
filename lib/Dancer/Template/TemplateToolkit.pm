@@ -16,6 +16,8 @@ has engine => (
     isa => ObjectOf('Template'),
 );
 
+sub _build_name {'TemplateToolkit'}
+
 sub BUILD {
     my ($self) = @_;
 
