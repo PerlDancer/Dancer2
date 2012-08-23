@@ -10,4 +10,3 @@ MYMETA.yml
 contrib/sessions/
 contrib/logs/
 *.sw?
-Dancer*
