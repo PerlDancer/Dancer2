@@ -53,6 +53,13 @@ has layout => (
     isa => Str,
 );
 
+has engine => (
+    is      => 'ro',
+#    isa     => Object,
+    lazy    => 1,
+    builder => 1,
+);
+
 sub _template_name {
     my ($self, $view) = @_;
     my $def_tmpl_ext = $self->default_tmpl_ext();
