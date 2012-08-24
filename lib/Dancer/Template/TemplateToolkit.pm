@@ -11,36 +11,28 @@ use Template;
 
 with 'Dancer::Core::Role::Template';
 
-has engine => (
-    is => 'rw',
-    isa => ObjectOf('Template'),
-);
-
 sub _build_name {'TemplateToolkit'}
 
-sub BUILD {
-    my ($self) = @_;
-
-    my $charset = $self->charset;
-    my @encoding = length($charset) ? ( ENCODING => $charset ) : ();
-
-    my $tt_config = {
+sub _build_engine {
+    my $self      = shift;
+    my $charset   = $self->charset;
+    my %tt_config = (
         ANYCASE  => 1,
         ABSOLUTE => 1,
-        @encoding,
+        length($charset) ? ( ENCODING => $charset ) : (),
         %{$self->config},
-    };
+    );
 
-    my $start_tag = $self->config->{start_tag};
-    my $stop_tag = $self->config->{stop_tag} || $self->config->{end_tag};
-    $tt_config->{START_TAG} = $start_tag 
+    my $start_tag = $self->config->{'start_tag'};
+    my $stop_tag  = $self->config->{'stop_tag'} || $self->config->{end_tag};
+    $tt_config{'START_TAG'} = $start_tag
       if defined $start_tag && $start_tag ne '[%';
-    $tt_config->{END_TAG}   = $stop_tag  
+    $tt_config{'END_TAG'}   = $stop_tag
       if defined $stop_tag && $stop_tag  ne '%]';
 
-    $tt_config->{INCLUDE_PATH} ||= $self->views;
+    $tt_config{'INCLUDE_PATH'} ||= $self->views;
 
-    $self->engine( Template->new(%$tt_config) );
+    return Template->new(%tt_config);
 }
 
 sub render {
