@@ -40,7 +40,7 @@ has server => (
 );
 
 # when the runner is created, it has to init the server instance
-# according to the condiguration
+# according to the configuration
 sub _build_server {
     my $self         = shift;
     my $server_name  = $self->config->{apphandler};
