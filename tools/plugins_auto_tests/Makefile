@@ -41,8 +41,7 @@ perlbrew_dancer1_plugin_tests:
 	${PERLBREW} list | grep dancer1_plugin_tests > /dev/null || ( ${PERLBREW} install -j 2 -n perl-5.16.1 --as dancer1_plugin_tests )
 
 perlbrew_dancer2_plugin_tests:
-	${PERLBREW} list | grep dancer2_plugin_tests > /dev/null || ( ${PERLBREW} install -j 2 -n perl-5.16.1 --as dancer2_plugin_tests )
-	${CPANM_DANCER2} install ${HERE}/..
+	${PERLBREW} list | grep dancer2_plugin_tests > /dev/null || ( ${PERLBREW} install -j 2 -n perl-5.16.1 --as dancer2_plugin_tests && ${CPANM_DANCER2} ${HERE}/../.. )
 
 plugins_list:
 	${HERE}/get_modules_list.pl > plugins_list
