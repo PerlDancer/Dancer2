@@ -10,3 +10,6 @@ MYMETA.yml
 contrib/sessions/
 contrib/logs/
 *.sw?
+tools/plugins_auto_tests/perlbrew
+tools/plugins_auto_tests/plugins_list
+tools/plugins_auto_tests/result.csv
