@@ -133,7 +133,7 @@ sub register_plugin {
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
 
     # make sure the plugin is compatible with this version of Dancer
-    grep { $_ eq $dancer_major_version } @$supported_versions
+    ( grep { $_ eq $dancer_major_version } @$supported_versions) || $ENV{DANCER_FORCE_PLUGIN_REGISTRATION}
       or croak "$plugin $plugin_version does not support Dancer $dancer_major_version.";
 
 
