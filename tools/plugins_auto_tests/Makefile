@@ -3,12 +3,18 @@ HERE=${PWD}
 
 PERLBREW_DIR=${HERE}/perlbrew
 PERLBREW=export PERLBREW_ROOT=${PERLBREW_DIR} && source ${PERLBREW_DIR}/etc/bashrc && PERLBREW_ROOT=${PERLBREW_DIR} ${PERLBREW_DIR}/bin/perlbrew
-CPANM_DANCER1=${PERLBREW} switch dancer1_plugin_tests && export PERLBREW_ROOT=${PERLBREW_DIR} && source ${PERLBREW_DIR}/etc/bashrc && PERLBREW_ROOT=${PERLBREW_DIR} ${PERLBREW_DIR}/bin/cpanm
-CPANM_DANCER2=${PERLBREW} switch dancer2_plugin_tests && export PERLBREW_ROOT=${PERLBREW_DIR} && source ${PERLBREW_DIR}/etc/bashrc && PERLBREW_ROOT=${PERLBREW_DIR} ${PERLBREW_DIR}/bin/cpanm
+CPANM_DANCER1=${PERLBREW} exec --with dancer1_plugin_tests ${PERLBREW_DIR}/bin/cpanm
+CPANM_DANCER2=${PERLBREW} exec --with dancer2_plugin_tests ${PERLBREW_DIR}/bin/cpanm
 
 all: got_curl got_bash got_perlbrew_perl plugins_list
 	echo "Plugin name,Pass on Dancer 1,Pass on Dancer 2" > result.csv
-	@for i in `cat plugins_list`; do pass_d1=0; pass_d2=0; ${CPANM_DANCER1} -n --installdeps $$i && ${CPANM_DANCER1} --test-only $$i && pass_d1=1; ${CPANM_DANCER2} -n --installdeps $$i && DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only $$i && pass_d2=1; echo "$$i,$$pass_d1,$$pass_d2" >> result.csv ; done
+	@for i in `cat plugins_list`; do pass_d1=0; pass_d2=0; \
+	  echo " ---------- TESTING on Dancer 1 : $$i"; \
+          ${CPANM_DANCER1} -n --installdeps $$i && ${CPANM_DANCER1} --test-only $$i && pass_d1=1; \
+	  echo " ---------- TESTING on Dancer 2 : $$i"; \
+          ${CPANM_DANCER2} -n --installdeps $$i && DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only $$i && pass_d2=1; \
+          echo "$$i,$$pass_d1,$$pass_d2" >> result.csv; \
+        done;
 
 clean:
 	rm -rf plugins_list
@@ -36,7 +42,7 @@ perlbrew_dancer1_plugin_tests:
 
 perlbrew_dancer2_plugin_tests:
 	${PERLBREW} list | grep dancer2_plugin_tests > /dev/null || ( ${PERLBREW} install -j 2 -n perl-5.16.1 --as dancer2_plugin_tests )
-# TODO : install Dancer2 from curr directory
+	${CPANM_DANCER2} install ${HERE}/..
 
 plugins_list:
 	${HERE}/get_modules_list.pl > plugins_list
