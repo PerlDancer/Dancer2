@@ -33,7 +33,7 @@ my $_dispatcher = Dancer::Core::Dispatcher->new;
 
 sub dancer_response {
     my $app = shift;
-    my ($method, $path, $options) = @_;
+    my ($method, $path, $options, $arg_env) = @_;
 
     $_dispatcher->apps([ $app ]);
 
@@ -48,6 +48,10 @@ sub dancer_response {
         HTTP_HOST       => 'localhost',
         HTTP_USER_AGENT => "Dancer::Test simulator v $Dancer::VERSION",
     };
+
+    if( $arg_env ) {
+        $env->{$_} = $arg_env->{$_} for keys %{ $arg_env };
+    }
 
     if (defined $options->{params}) {
         my @params;
