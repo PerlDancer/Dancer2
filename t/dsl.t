@@ -11,12 +11,12 @@ any ['get', 'post'], '/'  => sub {
 
 {
     my $r = dancer_response GET => '/';
-    is $r->[2][0], 'GET';
+    is $r->content, 'GET';
 }
 
 {
     my $r = dancer_response POST => '/';
-    is $r->[2][0], 'POST';
+    is $r->content, 'POST';
 }
 
 is int(dancer_version), 2, 'dancer_version';

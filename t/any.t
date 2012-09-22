@@ -14,9 +14,9 @@ use Test::More import => ['!pass'];
 use Dancer::Test 'App';
 
 my $r = dancer_response( POST => '/test' );
-is $r->[2][0], 'POST';
+is $r->content, 'POST';
 
 $r = dancer_response( GET => '/test' );
-is $r->[2][0], 'GET';
+is $r->content, 'GET';
      
 done_testing;

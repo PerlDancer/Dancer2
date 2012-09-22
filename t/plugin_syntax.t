@@ -22,13 +22,13 @@ subtest 'global and route keywords' => sub {
     }
 
     my $r = dancer_response(GET => '/');
-    is($r->[2][0], '/', 'route defined by a plugin');
+    is($r->content, '/', 'route defined by a plugin');
 
     $r = dancer_response(GET => '/foo');
-    is($r->[2][0], 'foo', 'DSL keyword wrapped by a plugin');
+    is($r->content, 'foo', 'DSL keyword wrapped by a plugin');
 
     $r = dancer_response(GET => '/app');
-    is($r->[2][0], 'main', 'app name is correct');
+    is($r->content, 'main', 'app name is correct');
 };
 
 subtest 'plugin old syntax' => sub {
@@ -40,7 +40,7 @@ subtest 'plugin old syntax' => sub {
     }
 
     my $r = dancer_response GET => '/foo/plugin';
-    is $r->[2][0], 'foo plugin';
+    is $r->content, 'foo plugin';
 };
 
 subtest caller_dsl => sub {
@@ -50,7 +50,7 @@ subtest caller_dsl => sub {
     }
 
     my $r = dancer_response GET => '/sitemap';
-    is $r->[2][0], '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$'
+    is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$'
    
 };
 
@@ -83,7 +83,7 @@ subtest 'hooks in plugins' => sub {
 
     is $counter, 0, "the hook has not been executed";
     my $r = dancer_response(GET => '/hooks_plugin');
-    is($r->[2][0], 'hook for plugin', '... route is rendered');
+    is($r->content, 'hook for plugin', '... route is rendered');
     is $counter, 1, "... and the hook has been executed exactly once";
 
     dancer_response(GET => '/hook_with_var');

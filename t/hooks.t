@@ -72,7 +72,7 @@ subtest 'serializer hooks' => sub {
     require 'JSON.pm';
     my $r = dancer_response get => '/json';
     my $json = JSON::to_json([foo => 42, added_in_hook => 1]);
-    is $r->[2][0], $json, 'response is serialized';
+    is $r->content, $json, 'response is serialized';
     is $tests_flags->{before_serializer}, 1, 'before_serializer was called';
     is $tests_flags->{after_serializer},  1, 'after_serializer was called';
 };
