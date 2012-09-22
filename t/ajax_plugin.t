@@ -19,16 +19,16 @@ my $r = dancer_response( POST => '/test',  {
                 ['X-Requested-With' => 'XMLHttpRequest'],
             ], 
         });
-is $r->[2][0], "{some: 'json'}", "ajax works with POST";
+is $r->content, "{some: 'json'}", "ajax works with POST";
 
 $r = dancer_response( GET => '/test',  { 
             headers => [
                 ['X-Requested-With' => 'XMLHttpRequest'],
             ], 
         });
-is $r->[2][0], "{some: 'json'}", "ajax works with GET";
+is $r->content, "{some: 'json'}", "ajax works with GET";
 
 $r = dancer_response( POST => '/test' );
-is $r->[0], 404, 'ajax does not match if no XMLHttpRequest';
+is $r->status, 404, 'ajax does not match if no XMLHttpRequest';
 
 done_testing;
