@@ -136,6 +136,8 @@ sub register_plugin {
     ( grep { $_ eq $dancer_major_version } @$supported_versions) || $ENV{DANCER_FORCE_PLUGIN_REGISTRATION}
       or croak "$plugin $plugin_version does not support Dancer $dancer_major_version.";
 
+    $ENV{DANCER_FORCE_PLUGIN_REGISTRATION}
+      and print "DANCER2_PLUGIN_WERE_REGISTERED\n";
 
     # we have a $dsl in our caller, we can register our symbols then
     my $dsl = $caller->dsl;
