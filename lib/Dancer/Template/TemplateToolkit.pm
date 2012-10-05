@@ -13,7 +13,7 @@ with 'Dancer::Core::Role::Template';
 
 has engine => (
     is => 'rw',
-    isa => ObjectOf('Template'),
+    isa => InstanceOf['Template'],
 );
 
 sub _build_name {'TemplateToolkit'}

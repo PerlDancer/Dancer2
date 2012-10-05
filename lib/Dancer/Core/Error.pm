@@ -95,22 +95,22 @@ sub full_message {
 
 has serializer => (
     is => 'ro',
-    isa => ConsumerOf('Dancer::Core::Role::Serializer'),
+    isa => ConsumerOf['Dancer::Core::Role::Serializer'],
 );
 
 has template => (
     is => 'ro',
-    isa => ConsumerOf('Dancer::Core::Role::Template'),
+    isa => ConsumerOf['Dancer::Core::Role::Template'],
 );
 
 has session => (
     is => 'ro',
-    isa => ConsumerOf('Dancer::Core::Role::Session'),
+    isa => ConsumerOf['Dancer::Core::Role::Session'],
 );
 
 has context => (
     is => 'ro',
-    isa => ObjectOf('Dancer::Core::Context'),
+    isa => InstanceOf['Dancer::Core::Context'],
 );
 
 sub BUILD {

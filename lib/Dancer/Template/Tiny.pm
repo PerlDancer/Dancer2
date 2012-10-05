@@ -13,8 +13,8 @@ with 'Dancer::Core::Role::Template';
 
 has engine => (
     is      => 'rw',
-    isa     => ObjectOf('Template::Tiny'),
     default => sub { Template::Tiny->new },
+    isa     => InstanceOf['Template::Tiny'],
 );
 
 sub _build_name {'Tiny'}

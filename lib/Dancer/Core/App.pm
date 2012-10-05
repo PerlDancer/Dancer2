@@ -46,7 +46,7 @@ around BUILDARGS => sub {
 
 has server => (
     is => 'rw',
-    isa => ConsumerOf('Dancer::Core::Role::Server'),
+    isa => ConsumerOf['Dancer::Core::Role::Server'],
     weak_ref => 1,
 );
 
@@ -127,7 +127,7 @@ sub session {
         $self->context->response->push_header(
             'Set-Cookie' => $session->cookie->to_header);
     }
-    
+
     # want the full session?
     return $session->data if @_ == 1;
 
@@ -298,7 +298,7 @@ sub send_file {
             'Content-Disposition' =>
                 "attachment; filename=\"$options{filename}\""
         );
-    
+
     # if we're given a SCALAR reference, we're going to send the data
     # pretending it's a file (on-the-fly file sending)
     (ref($path) eq 'SCALAR') and
@@ -308,7 +308,7 @@ sub send_file {
         app => $self,
         postponed_hooks => $self->postponed_hooks,
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
-    ); 
+    );
 
     for my $h (keys %{ $self->route_handlers->{File}->hooks } ) {
         my $hooks = $self->route_handlers->{File}->hooks->{$h};
@@ -396,7 +396,7 @@ has name => (
 # holds a context whenever a request is processed
 has context => (
     is => 'rw',
-    isa => ObjectOf('Dancer::Core::Context'),
+    isa => InstanceOf['Dancer::Core::Context'],
 );
 
 has prefix => (

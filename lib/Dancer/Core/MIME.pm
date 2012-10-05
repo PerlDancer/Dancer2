@@ -21,7 +21,7 @@ BEGIN {
 
 has mime_type => (
     is      => 'ro',
-    isa     => ObjectOf('MIME::Types'),
+    isa     => InstanceOf['MIME::Types'],
     default => sub { MIME::Types->new(only_complete => 1) },
     lazy    => 1,
 );

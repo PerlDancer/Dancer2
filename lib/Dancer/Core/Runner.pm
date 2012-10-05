@@ -34,7 +34,7 @@ has caller => (
 
 has server => (
     is      => 'rw',
-    isa     => ConsumerOf('Dancer::Core::Role::Server'),
+    isa     => ConsumerOf['Dancer::Core::Role::Server'],
     lazy    => 1,
     builder => '_build_server',
 );
@@ -59,7 +59,7 @@ sub _build_server {
 
 has mime_type => (
     is => 'rw',
-    isa => ObjectOf("Dancer::Core::MIME"),
+    isa => InstanceOf["Dancer::Core::MIME"],
     default => sub { Dancer::Core::MIME->new(); },
 );
 
