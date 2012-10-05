@@ -16,6 +16,7 @@ my %WriteMakefileArgs = (
     "Module::Build" => "0.3601",
     "Template" => 0,
     "Test::More" => "0.92",
+    "Test::Fatal" => 0,
     "YAML::Any" => 0
   },
   "CONFIGURE_REQUIRES" => {
