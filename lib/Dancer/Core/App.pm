@@ -396,7 +396,7 @@ has name => (
 # holds a context whenever a request is processed
 has context => (
     is => 'rw',
-    isa => InstanceOf['Dancer::Core::Context'],
+    isa => Maybe[InstanceOf['Dancer::Core::Context']],
 );
 
 has prefix => (
