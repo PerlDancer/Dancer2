@@ -11,7 +11,7 @@ use Dancer::Core::Cookie;
 
 has app => (
     is => 'rw',
-    isa => ObjectOf('Dancer::Core::App'),
+    isa => InstanceOf['Dancer::Core::App'],
 );
 
 # the PSGI-env to use for building the request to process
@@ -22,12 +22,12 @@ has env => (
     isa => HashRef,
 );
 
-# the incoming request 
+# the incoming request
 has request => (
     is => 'rw',
     lazy => 1,
     builder => '_build_request',
-    isa => ObjectOf('Dancer::Core::Request'),
+    isa => InstanceOf['Dancer::Core::Request'],
 );
 
 sub _build_request {
@@ -55,7 +55,7 @@ sub var {
 # that HashRef will should be passed as attributes to a response object
 has response => (
     is => 'rw',
-    isa => ObjectOf('Dancer::Core::Response'),
+    isa => InstanceOf['Dancer::Core::Response'],
     default => sub { Dancer::Core::Response->new },
 );
 

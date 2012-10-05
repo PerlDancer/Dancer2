@@ -11,6 +11,10 @@ use Template;
 
 with 'Dancer::Core::Role::Template';
 
+has '+engine' => (
+    isa => InstanceOf['Template'],
+);
+
 sub _build_name {'TemplateToolkit'}
 
 sub _build_engine {

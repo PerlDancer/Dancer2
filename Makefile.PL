@@ -34,6 +34,7 @@ my %WriteMakefileArgs = (
     "JSON" => 0,
     "MIME::Types" => 0,
     "Moo" => "0.009014",
+    "MooX::Types::MooseLike" => "0.15",
     "Plack::Request" => 0,
     "Template::Tiny" => 0
   },

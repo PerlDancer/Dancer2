@@ -25,18 +25,7 @@ my $namespace = qr/
     $
 /x;
 
-# TODO fix ObjectOf / ConsumerOf
 my $definitions = [
-    {
-        name => 'ObjectOf',
-        test => sub { 1 },
-        message => sub { 'fail' }
-    },
-    {
-        name => 'ConsumerOf',
-        test => sub { 1 },
-        message => sub { 'fail' }
-    },
     {
         name => 'ReadableFilePath',
         test => sub { -e $_[0] && -r $_[0] },
@@ -100,7 +89,7 @@ for my $type (qw/App Request Response Context Runner Dispatcher MIME/) {
 
 MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 
-@EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK, qw(ConsumerOf ObjectOf));
+@EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK);
 
 # Export everything by default.
 

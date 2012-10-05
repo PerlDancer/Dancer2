@@ -45,7 +45,7 @@ has apps => (
 has runner => (
     is => 'ro',
     required => 1,
-    isa => ObjectOf('Dancer::Core::Runner'),
+    isa => InstanceOf['Dancer::Core::Runner'],
     weak_ref => 1,
 );
 
@@ -53,7 +53,7 @@ has runner => (
 # handler
 has dispatcher => (
     is => 'rw',
-    isa => ObjectOf('Dancer::Core::Dispatcher'),
+    isa => InstanceOf['Dancer::Core::Dispatcher'],
     lazy => 1,
     builder => '_build_dispatcher',
 );

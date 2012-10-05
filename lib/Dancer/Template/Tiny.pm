@@ -11,6 +11,10 @@ use Dancer::FileUtils 'read_file_content';
 
 with 'Dancer::Core::Role::Template';
 
+has '+engine' => (
+    isa => InstanceOf['Template::Tiny'],
+);
+
 sub _build_name   {'Tiny'}
 sub _build_engine { Template::Tiny->new }
 

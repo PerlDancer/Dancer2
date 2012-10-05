@@ -21,7 +21,7 @@ sub supported_hooks {
 
 has mime => (
     is => 'ro',
-    isa => ObjectOf('Dancer::Core::MIME'),
+    isa => InstanceOf['Dancer::Core::MIME'],
     default => sub { Dancer::Core::MIME->new },
 );
 
