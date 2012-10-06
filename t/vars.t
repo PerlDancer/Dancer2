@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 
+plan tests => 2;
+
 use Dancer::Test;
 
 {
@@ -23,5 +25,3 @@ use Dancer::Test;
 
 response_content_is [GET => '/bar'], 'foo';
 response_content_is [GET => '/baz'], 'ugh';
-
-done_testing;
