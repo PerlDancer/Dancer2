@@ -9,19 +9,19 @@ use Dancer::Test;
 
     hook before => sub {
         var("xpto" => "foo");
-#        vars->{zbr} => 'ugh';
+        vars->{zbr} = 'ugh';
     };
 
     get '/bar' => sub {
         var("xpto");
     };
 
-    # get '/baz' => sub {
-    #     vars->{zbr};
-    # };
+    get '/baz' => sub {
+        vars->{zbr};
+    };
 }
 
 response_content_is [GET => '/bar'], 'foo';
-# response_content_is [GET => '/baz'], 'ugh';
+response_content_is [GET => '/baz'], 'ugh';
 
 done_testing;
