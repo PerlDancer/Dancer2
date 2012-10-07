@@ -136,6 +136,5 @@ do {
         qr{Can't open.* using mode '<'},
     );
 
-
     unlink($file) if ($^O eq 'MSWin32');
 };
