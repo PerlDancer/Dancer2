@@ -31,6 +31,12 @@ has plugins => (
     default => sub { [] },
 );
 
+has api_version => (
+    is => 'ro',
+    isa => Num,
+    default => sub { 1 },
+);
+
 sub register_plugin {
     my ($self, $plugin) = @_;
     Dancer::core_debug("Registered $plugin");
@@ -78,7 +84,7 @@ sub _build_default_config {
 
     return {
         %{ $self->runner_config },
-        template => 'Tiny',
+        template => $self->api_version == 1 ? 'Simple' : 'Tiny',
         session => 'simple',
         route_handlers => {
             File => {
