@@ -143,7 +143,7 @@ sub template {
 
     $template->context($self->context);
     my $content = $template->process(@_);
-    $template->context(undef);
+    $template->clear_context();
 
     return $content;
 }

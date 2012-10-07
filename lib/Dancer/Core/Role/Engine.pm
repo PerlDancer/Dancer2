@@ -18,6 +18,7 @@ has location => (is => 'ro');
 has context => (
     is => 'rw',
     isa => InstanceOf['Dancer::Core::Context'],
+    clearer => 'clear_context',
 );
 
 has config => (
