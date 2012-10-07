@@ -55,7 +55,7 @@ has layout => (
 
 has engine => (
     is      => 'ro',
-#    isa     => Object,
+    isa     => Object,
     lazy    => 1,
     builder => 1,
 );
