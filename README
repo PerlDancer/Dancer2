@@ -24,8 +24,7 @@ Thanks.
 Dancer 2.0 is at 89.83% ( 53 symbols supported on 59)
 Dancer 2.0 code-lines ratio: 60.61% (7272/11999)
 
-Missing keywords: error, forward, from_dumper, from_xml, load, load_app,
-send_error, send_file, session, to_dumper, to_xml, upload, uri_for
+Missing keywords: after, before, before_template, from_xml, load, to_xml
 
 Most ot the plugins on CPAN might not be working as well, feedback welcome
 again.
