@@ -69,7 +69,7 @@ sub format_message {
     $level = sprintf('%5s', $level);
     $message = Encode::encode($self->auto_encoding_charset, $message)
         if $self->auto_encoding_charset;
-    
+
     my @stack = caller(2);
 
     my $block_handler = sub {

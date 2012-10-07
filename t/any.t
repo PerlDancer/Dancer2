@@ -18,5 +18,5 @@ is $r->content, 'POST';
 
 $r = dancer_response( GET => '/test' );
 is $r->content, 'GET';
-     
+
 done_testing;

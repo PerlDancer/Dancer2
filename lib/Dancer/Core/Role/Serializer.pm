@@ -6,9 +6,9 @@ use Dancer::Core::Types;
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 
-sub supported_hooks { 
+sub supported_hooks {
     qw(
-    engine.serializer.before 
+    engine.serializer.before
     engine.serializer.after
     )
 }

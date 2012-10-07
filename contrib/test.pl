@@ -36,7 +36,7 @@ hook 'after_file_render' => sub {
 
 get '/send_file' => sub {
     # send_file '/etc/passwd', system_path => 1;
-    send_file '/foo.txt', 
+    send_file '/foo.txt',
         filename => 'fakefile.txt',
         content_type => 'application/data';
 };
@@ -45,7 +45,7 @@ get '/' => sub {
     { foo => 42, bar => [ 1 .. 5]};
 };
 
-get '/s' => sub { 
+get '/s' => sub {
     to_json({x => 42});
 };
 
@@ -113,7 +113,7 @@ get '/' => sub {
     "This is Dancer 2! ".Dumper($c);
 };
 
-get '/bounce' => sub { 
+get '/bounce' => sub {
 #    status '302';
 #    header Location => 'http://perldancer.org';
     redirect 'http://perldancer.org';
@@ -134,7 +134,7 @@ get "/hello/:name" => sub {
 
 prefix '/foo';
 
-get '/bar' => sub { 
+get '/bar' => sub {
     "This is Dancer 2, under /foo/bar";
 };
 

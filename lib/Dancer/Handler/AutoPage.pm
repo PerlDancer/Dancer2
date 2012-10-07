@@ -18,10 +18,10 @@ sub register {
     ) for $self->methods;
 }
 
-sub code { 
+sub code {
     sub {
         my $ctx = shift;
-        
+
         my $template = $ctx->app->config->{template};
         if (! defined $template) {
             $ctx->response->has_passed(1);

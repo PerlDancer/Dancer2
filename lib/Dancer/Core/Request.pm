@@ -107,7 +107,7 @@ around host => sub {
 
     # alter the reader
     my $host;
-    $host = $self->env->{X_FORWARDED_HOST} 
+    $host = $self->env->{X_FORWARDED_HOST}
         if $self->is_behind_proxy;
     return $host || $self->{host} || $self->env->{HTTP_HOST};
 };
@@ -169,17 +169,17 @@ sub BUILD {
 
     $self->_init_request_headers();
     $self->_build_request_env();
-    $self->_build_path();      
+    $self->_build_path();
     $self->_build_path_info() ;
-    $self->_build_method();    
+    $self->_build_method();
 
     $self->{_http_body} =
       HTTP::Body->new($self->content_type, $self->content_length);
     $self->{_http_body}->cleanup(1);
-    
+
     $self->_build_params();
     $self->_build_uploads();
-    
+
     $self->{ajax} = $self->is_ajax;
 }
 

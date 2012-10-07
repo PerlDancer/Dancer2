@@ -13,7 +13,7 @@ my @splat;
     };
 }
 
-my $resp = dancer_response(get => '/foo/bar/baz', { 
+my $resp = dancer_response(get => '/foo/bar/baz', {
     params => { foo => 42 },
 });
 

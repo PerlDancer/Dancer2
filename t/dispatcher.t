@@ -86,9 +86,9 @@ my @tests = (
         },
         expected => [
             302,
-            [   
+            [
                 'Location'       => 'http://perldancer.org',
-                @default_headers, 
+                @default_headers,
                 'Content-Length' => '0',
                 'Content-Type'   => 'text/html',
             ],
@@ -164,8 +164,8 @@ foreach my $test (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/error',
         },
-        expected => [500, 
-            [@default_headers, 'Content-Length', "Content-Type", 'text/plain'], 
+        expected => [500,
+            [@default_headers, 'Content-Length', "Content-Type", 'text/plain'],
             qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s]
     }) {
     my $env = $test->{env};

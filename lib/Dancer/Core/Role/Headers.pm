@@ -10,7 +10,7 @@ has headers => (
     is => 'rw',
     isa => InstanceOf['HTTP::Headers'],
     lazy => 1,
-    coerce => sub { 
+    coerce => sub {
         my ($value) = @_;
         return $value if ref($value) eq 'HTTP::Headers';
         HTTP::Headers->new(@{ $value });
