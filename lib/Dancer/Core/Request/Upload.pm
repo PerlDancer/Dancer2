@@ -2,7 +2,7 @@
 
 package Dancer::Core::Request::Upload;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 use Carp;
 use File::Spec;

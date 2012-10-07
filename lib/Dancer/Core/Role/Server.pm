@@ -6,8 +6,7 @@ use Moo::Role;
 use Carp 'croak';
 use File::Spec;
 
-use Dancer::Moo::Types;
-
+use Dancer::Core::Types;
 use Dancer::Core::App;
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Response;
@@ -46,7 +45,7 @@ has apps => (
 has runner => (
     is => 'ro',
     required => 1,
-    isa => ObjectOf('Dancer::Core::Runner'),
+    isa => InstanceOf['Dancer::Core::Runner'],
     weak_ref => 1,
 );
 
@@ -54,7 +53,7 @@ has runner => (
 # handler
 has dispatcher => (
     is => 'rw',
-    isa => ObjectOf('Dancer::Core::Dispatcher'),
+    isa => InstanceOf['Dancer::Core::Dispatcher'],
     lazy => 1,
     builder => '_build_dispatcher',
 );

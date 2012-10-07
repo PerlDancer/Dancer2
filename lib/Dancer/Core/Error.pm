@@ -3,15 +3,15 @@
 package Dancer::Core::Error;
 use Moo;
 use Carp;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Data::Dumper;
 
 with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw/
-    core.error.before 
-    core.error.after 
+    core.error.before
+    core.error.after
     core.error.init
     /;
 }
@@ -95,22 +95,22 @@ sub full_message {
 
 has serializer => (
     is => 'ro',
-    isa => ConsumerOf('Dancer::Core::Role::Serializer'),
+    isa => ConsumerOf['Dancer::Core::Role::Serializer'],
 );
 
 has template => (
     is => 'ro',
-    isa => ConsumerOf('Dancer::Core::Role::Template'),
+    isa => ConsumerOf['Dancer::Core::Role::Template'],
 );
 
 has session => (
     is => 'ro',
-    isa => ConsumerOf('Dancer::Core::Role::Session'),
+    isa => ConsumerOf['Dancer::Core::Role::Session'],
 );
 
 has context => (
     is => 'ro',
-    isa => ObjectOf('Dancer::Core::Context'),
+    isa => InstanceOf['Dancer::Core::Context'],
 );
 
 sub BUILD {

@@ -2,7 +2,7 @@
 
 package Dancer::Logger::Capture::Trap;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 has storage => (
     is => 'rw',

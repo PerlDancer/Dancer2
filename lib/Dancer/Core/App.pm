@@ -11,7 +11,7 @@ use Scalar::Util 'blessed';
 use Carp 'croak';
 
 use Dancer::FileUtils 'path', 'read_file_content';
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Dancer::Core::Route;
 
 # we have hooks here
@@ -20,7 +20,7 @@ with 'Dancer::Core::Role::Config';
 
 sub supported_hooks {
     qw/
-    core.app.before_request 
+    core.app.before_request
     core.app.after_request
     /
 }
@@ -46,7 +46,7 @@ around BUILDARGS => sub {
 
 has server => (
     is => 'rw',
-    isa => ConsumerOf('Dancer::Core::Role::Server'),
+    isa => ConsumerOf['Dancer::Core::Role::Server'],
     weak_ref => 1,
 );
 
@@ -127,7 +127,7 @@ sub session {
         $self->context->response->push_header(
             'Set-Cookie' => $session->cookie->to_header);
     }
-    
+
     # want the full session?
     return $session->data if @_ == 1;
 
@@ -298,7 +298,7 @@ sub send_file {
             'Content-Disposition' =>
                 "attachment; filename=\"$options{filename}\""
         );
-    
+
     # if we're given a SCALAR reference, we're going to send the data
     # pretending it's a file (on-the-fly file sending)
     (ref($path) eq 'SCALAR') and
@@ -308,7 +308,7 @@ sub send_file {
         app => $self,
         postponed_hooks => $self->postponed_hooks,
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
-    ); 
+    );
 
     for my $h (keys %{ $self->route_handlers->{File}->hooks } ) {
         my $hooks = $self->route_handlers->{File}->hooks->{$h};
@@ -348,7 +348,7 @@ sub init_route_handlers {
         $config = {} if !ref($config);
         $config->{app} = $self;
         my $handler = Dancer::Factory::Engine->create(
-            Handler => $handler_name, 
+            Handler => $handler_name,
             %$config,
             postponed_hooks => $self->postponed_hooks,
             );
@@ -396,7 +396,7 @@ has name => (
 # holds a context whenever a request is processed
 has context => (
     is => 'rw',
-    isa => ObjectOf('Dancer::Core::Context'),
+    isa => Maybe[InstanceOf['Dancer::Core::Context']],
 );
 
 has prefix => (

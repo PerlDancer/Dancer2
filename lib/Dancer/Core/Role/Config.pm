@@ -11,7 +11,7 @@ use Moo::Role;
 use Dancer::Factory::Engine;
 use File::Spec;
 use Config::Any;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Dancer::FileUtils qw/dirname path/;
 use Carp 'croak', 'carp';
 

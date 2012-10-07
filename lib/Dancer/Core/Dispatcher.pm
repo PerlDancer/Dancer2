@@ -2,9 +2,9 @@
 
 package Dancer::Core::Dispatcher;
 use Moo;
-use Dancer::Moo::Types;
-
 use Encode;
+
+use Dancer::Core::Types;
 use Dancer::Core::Context;
 use Dancer::Core::Response;
 
