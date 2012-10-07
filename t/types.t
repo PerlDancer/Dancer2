@@ -135,27 +135,28 @@ is(
     'CodeRef accepts undef value',
 );
 
-{ package Foo; }
-{ package Bar; }
-my $f = bless {}, 'Foo'; 
-my $b = bless {}, 'Bar'; 
+{
+    package InstanceChecker::zad7;
+    use Moo;
+    use Dancer::Core::Types;
+    has foo => ( is => 'ro', isa => InstanceOf['Foo'] );
+}
 
 is(
-    exception { ObjectOf('Foo')->($f) },
+    exception { InstanceChecker::zad7->new( foo => bless {}, 'Foo' ) },
     undef,
-    'ObjectOf',
+    'InstanceOf',
 );
 
 like(
-    exception { ObjectOf('Foo')->($b) },
-    qr{does not pass the type constraint for type `ObjectOf\(Foo\)'},
-    'ObjectOf fail',
+    exception { InstanceChecker::zad7->new( foo => bless {}, 'Bar' ) },
+    qr{Bar=HASH\(\w+\) is not an instance of the class: Foo},
+    'InstanceOf fail',
 );
 
-is(
-    exception { ObjectOf('Foo')->(undef) },
-    undef,
-    'ObjectOf accepts undef value',
+ok(
+    exception { InstanceOf('Foo')->(undef) },
+    'InstanceOf does not accept undef value',
 );
 
 is(
