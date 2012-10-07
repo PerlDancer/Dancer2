@@ -4,10 +4,9 @@ use Test::More tests => 46;
 use Test::Fatal;
 use Dancer::Core::Types;
 
-is(
+ok(
     exception { Str->(undef) },
-    undef,
-    'Str accepts undef value',
+    'Str does not accept undef value',
 );
 
 is(
@@ -28,10 +27,9 @@ is(
     'Num',
 );
 
-is(
+ok(
     exception { Num->(undef) },
-    undef,
-    'Num accepts undef value',
+    'Num does not accept undef value',
 );
 
 like(
@@ -55,7 +53,7 @@ is(
 is(
     exception { Bool->(undef) },
     undef,
-    'Bool accepts undef value',
+    'Bool does accepts undef value',
 );
 
 like(
@@ -93,10 +91,9 @@ like(
     'HashRef fail',
 );
 
-is(
+ok(
     exception { HashRef->(undef) },
-    undef,
-    'HashRef accepts undef value',
+    'HashRef does not accept undef value',
 );
 
 is(
@@ -111,10 +108,9 @@ like(
     'ArrayRef fail',
 );
 
-is(
+ok(
     exception { ArrayRef->(undef) },
-    undef,
-    'ArrayRef accepts undef value',
+    'ArrayRef does not accept undef value',
 );
 
 is(
@@ -129,10 +125,9 @@ like(
     'CodeRef fail',
 );
 
-is(
+ok(
     exception { CodeRef->(undef) },
-    undef,
-    'CodeRef accepts undef value',
+    'CodeRef does not accept undef value',
 );
 
 {
@@ -171,10 +166,9 @@ like(
     'DancerPrefix fail',
 );
 
-is(
+ok(
     exception { DancerPrefix->(undef) },
-    undef,
-    'DancerPrefix accepts undef value',
+    'DancerPrefix does not accept undef value',
 );
 
 is(
@@ -237,10 +231,9 @@ like(
     'DancerAppName fails with special character',
 );
 
-is(
+ok(
     exception { DancerAppName->(undef) },
-    undef,
-    'DancerAppName accepts undef value',
+    'DancerAppName does not accept undef value',
 );
 
 like(
@@ -261,10 +254,9 @@ like(
     'DancerMethod fail',
 );
 
-is(
+ok(
     exception { DancerMethod->(undef) },
-    undef,
-    'DancerMethod accepts undef value',
+    'DancerMethod does not accept undef value',
 );
 
 is(
@@ -279,9 +271,8 @@ like(
     'DancerMethod fail',
 );
 
-is(
+ok(
     exception { DancerHTTPMethod->(undef) },
-    undef,
-    'DancerMethod accepts undef value',
+    'DancerMethod does not accept undef value',
 );
 
