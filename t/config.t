@@ -88,7 +88,7 @@ is_deeply [$fail->config_files],
 
 like(
     exception { $fail->config },
-    qr{not a valid YAML file},
+    qr{YAML},
     'Configuration file parsing failure',
 );
 
