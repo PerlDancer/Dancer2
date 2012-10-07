@@ -40,6 +40,7 @@ my @expected = qw(
   param
   params
   pass
+  patch
   path
   post
   prefix
