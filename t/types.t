@@ -18,7 +18,7 @@ is(
 
 like(
     exception { Str->({foo => 'something'}) },
-    qr{does not pass the type constraint check for type `Str'},
+    qr{HASH\(\w+\) is not a string},
     'Str',
 );
 
@@ -36,7 +36,7 @@ is(
 
 like(
     exception { Num->('not a number') },
-    qr{does not pass the type constraint check for type `Num'},
+    qr{not a number is not a Number},
     'Num fail',
 );
 
@@ -60,7 +60,7 @@ is(
 
 like(
     exception { Bool->('2') },
-    qr{does not pass the type constraint check for type `Bool'},
+    qr{2 is not a Boolean},
     'Bool fail',
 );
 
@@ -72,7 +72,7 @@ is(
 
 like(
     exception { Regexp->('/.*/') },
-    qr{does not pass the type constraint check for type `Regexp'},
+    qr{does not pass the type constraint for type `Regexp'},
     'Regexp fail',
 );
 
@@ -90,7 +90,7 @@ is(
 
 like(
     exception { HashRef->('/.*/') },
-    qr{does not pass the type constraint check for type `HashRef'},
+    qr{\Q/.*/\E is not a HashRef},
     'HashRef fail',
 );
 
@@ -108,7 +108,7 @@ is(
 
 like(
     exception { ArrayRef->('/.*/') },
-    qr{does not pass the type constraint check for type `ArrayRef'},
+    qr{\Q/.*/\E is not an ArrayRef},
     'ArrayRef fail',
 );
 
@@ -126,7 +126,7 @@ is(
 
 like(
     exception { CodeRef->('/.*/') },
-    qr{does not pass the type constraint check for type `CodeRef'},
+    qr{\Q/.*/\E is not a CodeRef},
     'CodeRef fail',
 );
 
@@ -149,7 +149,7 @@ is(
 
 like(
     exception { ObjectOf('Foo')->($b) },
-    qr{does not pass the type constraint check for type `ObjectOf\(Foo\)'},
+    qr{does not pass the type constraint for type `ObjectOf\(Foo\)'},
     'ObjectOf fail',
 );
 
@@ -167,7 +167,7 @@ is(
 
 like(
     exception { DancerPrefix->('bar/something') },
-    qr{does not pass the type constraint check for type `DancerPrefix'},
+    qr{does not pass the type constraint for type `DancerPrefix'},
     'DancerPrefix fail',
 );
 
@@ -197,43 +197,43 @@ is(
 
 like(
     exception { DancerAppName->('Foo:Bar') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with single colons',
 );
 
 like(
     exception { DancerAppName->('Foo:::Bar') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with tripe colons',
 );
 
 like(
     exception { DancerAppName->('7Foo') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with beginning number',
 );
 
 like(
     exception { DancerAppName->('Foo::45Bar') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with beginning number',
 );
 
 like(
     exception { DancerAppName->('-F') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 like(
     exception { DancerAppName->('Foo::-') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 like(
     exception { DancerAppName->('Foo^') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
@@ -245,7 +245,7 @@ is(
 
 like(
     exception { DancerAppName->('') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails an empty string value',
 );
 
@@ -257,7 +257,7 @@ is(
 
 like(
     exception { DancerMethod->('POST') },
-    qr{does not pass the type constraint check for type `DancerMethod'},
+    qr{does not pass the type constraint for type `DancerMethod'},
     'DancerMethod fail',
 );
 
@@ -275,7 +275,7 @@ is(
 
 like(
     exception { DancerHTTPMethod->('post') },
-    qr{does not pass the type constraint check for type `DancerMethod'},
+    qr{does not pass the type constraint for type `DancerMethod'},
     'DancerMethod fail',
 );
 
