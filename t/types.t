@@ -2,12 +2,11 @@ use strict;
 use warnings;
 use Test::More tests => 46;
 use Test::Fatal;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
-is(
+ok(
     exception { Str->(undef) },
-    undef,
-    'Str accepts undef value',
+    'Str does not accept undef value',
 );
 
 is(
@@ -18,7 +17,7 @@ is(
 
 like(
     exception { Str->({foo => 'something'}) },
-    qr{does not pass the type constraint check for type `Str'},
+    qr{HASH\(\w+\) is not a string},
     'Str',
 );
 
@@ -28,15 +27,14 @@ is(
     'Num',
 );
 
-is(
+ok(
     exception { Num->(undef) },
-    undef,
-    'Num accepts undef value',
+    'Num does not accept undef value',
 );
 
 like(
     exception { Num->('not a number') },
-    qr{does not pass the type constraint check for type `Num'},
+    qr{not a number is not a Number},
     'Num fail',
 );
 
@@ -55,31 +53,30 @@ is(
 is(
     exception { Bool->(undef) },
     undef,
-    'Bool accepts undef value',
+    'Bool does accepts undef value',
 );
 
 like(
     exception { Bool->('2') },
-    qr{does not pass the type constraint check for type `Bool'},
+    qr{2 is not a Boolean},
     'Bool fail',
 );
 
 is(
-    exception { Regexp->(qr{.*}) },
+    exception { RegexpRef->(qr{.*}) },
     undef,
     'Regexp',
 );
 
 like(
-    exception { Regexp->('/.*/') },
-    qr{does not pass the type constraint check for type `Regexp'},
+    exception { RegexpRef->('/.*/') },
+    qr{\Q/.*/\E is not a RegexpRef},
     'Regexp fail',
 );
 
-is(
-    exception { Regexp->(undef) },
-    undef,
-    'Regexp accepts undef value',
+ok(
+    exception { RegexpRef->(undef) },
+    'Regexp does not accept undef value',
 );
 
 is(
@@ -90,14 +87,13 @@ is(
 
 like(
     exception { HashRef->('/.*/') },
-    qr{does not pass the type constraint check for type `HashRef'},
+    qr{\Q/.*/\E is not a HashRef},
     'HashRef fail',
 );
 
-is(
+ok(
     exception { HashRef->(undef) },
-    undef,
-    'HashRef accepts undef value',
+    'HashRef does not accept undef value',
 );
 
 is(
@@ -108,14 +104,13 @@ is(
 
 like(
     exception { ArrayRef->('/.*/') },
-    qr{does not pass the type constraint check for type `ArrayRef'},
+    qr{\Q/.*/\E is not an ArrayRef},
     'ArrayRef fail',
 );
 
-is(
+ok(
     exception { ArrayRef->(undef) },
-    undef,
-    'ArrayRef accepts undef value',
+    'ArrayRef does not accept undef value',
 );
 
 is(
@@ -126,37 +121,37 @@ is(
 
 like(
     exception { CodeRef->('/.*/') },
-    qr{does not pass the type constraint check for type `CodeRef'},
+    qr{\Q/.*/\E is not a CodeRef},
     'CodeRef fail',
 );
 
-is(
+ok(
     exception { CodeRef->(undef) },
-    undef,
-    'CodeRef accepts undef value',
+    'CodeRef does not accept undef value',
 );
 
-{ package Foo; }
-{ package Bar; }
-my $f = bless {}, 'Foo'; 
-my $b = bless {}, 'Bar'; 
+{
+    package InstanceChecker::zad7;
+    use Moo;
+    use Dancer::Core::Types;
+    has foo => ( is => 'ro', isa => InstanceOf['Foo'] );
+}
 
 is(
-    exception { ObjectOf('Foo')->($f) },
+    exception { InstanceChecker::zad7->new( foo => bless {}, 'Foo' ) },
     undef,
-    'ObjectOf',
+    'InstanceOf',
 );
 
 like(
-    exception { ObjectOf('Foo')->($b) },
-    qr{does not pass the type constraint check for type `ObjectOf\(Foo\)'},
-    'ObjectOf fail',
+    exception { InstanceChecker::zad7->new( foo => bless {}, 'Bar' ) },
+    qr{Bar=HASH\(\w+\) is not an instance of the class: Foo},
+    'InstanceOf fail',
 );
 
-is(
-    exception { ObjectOf('Foo')->(undef) },
-    undef,
-    'ObjectOf accepts undef value',
+ok(
+    exception { InstanceOf('Foo')->(undef) },
+    'InstanceOf does not accept undef value',
 );
 
 is(
@@ -167,14 +162,13 @@ is(
 
 like(
     exception { DancerPrefix->('bar/something') },
-    qr{does not pass the type constraint check for type `DancerPrefix'},
+    qr{does not pass the type constraint for type `DancerPrefix'},
     'DancerPrefix fail',
 );
 
-is(
+ok(
     exception { DancerPrefix->(undef) },
-    undef,
-    'DancerPrefix accepts undef value',
+    'DancerPrefix does not accept undef value',
 );
 
 is(
@@ -197,55 +191,54 @@ is(
 
 like(
     exception { DancerAppName->('Foo:Bar') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with single colons',
 );
 
 like(
     exception { DancerAppName->('Foo:::Bar') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with tripe colons',
 );
 
 like(
     exception { DancerAppName->('7Foo') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with beginning number',
 );
 
 like(
     exception { DancerAppName->('Foo::45Bar') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with beginning number',
 );
 
 like(
     exception { DancerAppName->('-F') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 like(
     exception { DancerAppName->('Foo::-') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
 like(
     exception { DancerAppName->('Foo^') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails with special character',
 );
 
-is(
+ok(
     exception { DancerAppName->(undef) },
-    undef,
-    'DancerAppName accepts undef value',
+    'DancerAppName does not accept undef value',
 );
 
 like(
     exception { DancerAppName->('') },
-    qr{does not pass the type constraint check for type `DancerAppName'},
+    qr{does not pass the type constraint for type `DancerAppName'},
     'DancerAppName fails an empty string value',
 );
 
@@ -257,31 +250,29 @@ is(
 
 like(
     exception { DancerMethod->('POST') },
-    qr{does not pass the type constraint check for type `DancerMethod'},
+    qr{does not pass the type constraint for type `DancerMethod'},
     'DancerMethod fail',
 );
 
-is(
+ok(
     exception { DancerMethod->(undef) },
-    undef,
-    'DancerMethod accepts undef value',
+    'DancerMethod does not accept undef value',
 );
 
 is(
     exception { DancerHTTPMethod->('POST') },
     undef,
-    'DancerMethod',
+    'DancerHTTPMethod',
 );
 
 like(
     exception { DancerHTTPMethod->('post') },
-    qr{does not pass the type constraint check for type `DancerMethod'},
-    'DancerMethod fail',
+    qr{does not pass the type constraint for type `DancerHTTPMethod'},
+    'DancerHTTPMethod fail',
 );
 
-is(
+ok(
     exception { DancerHTTPMethod->(undef) },
-    undef,
-    'DancerMethod accepts undef value',
+    'DancerMethod does not accept undef value',
 );
 
