@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Carp 'croak';
 use Scalar::Util 'blessed', 'looks_like_number';
+use MooX::Types::MooseLike 0.11;
 use MooX::Types::MooseLike::Base qw/:all/;
 use MooX::Types::MooseLike::Numeric qw/:all/;
 
