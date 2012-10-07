@@ -65,21 +65,20 @@ like(
 );
 
 is(
-    exception { Regexp->(qr{.*}) },
+    exception { RegexpRef->(qr{.*}) },
     undef,
     'Regexp',
 );
 
 like(
-    exception { Regexp->('/.*/') },
-    qr{does not pass the type constraint for type `Regexp'},
+    exception { RegexpRef->('/.*/') },
+    qr{\Q/.*/\E is not a RegexpRef},
     'Regexp fail',
 );
 
-is(
-    exception { Regexp->(undef) },
-    undef,
-    'Regexp accepts undef value',
+ok(
+    exception { RegexpRef->(undef) },
+    'Regexp does not accept undef value',
 );
 
 is(
