@@ -39,7 +39,7 @@ sub hook_aliases {
 # them if any.
 after BUILD => sub {
     my ($self, $args) = @_;
-    $self->_add_postponed_hooks($args) 
+    $self->_add_postponed_hooks($args)
         if defined $args->{postponed_hooks};
 };
 
@@ -90,7 +90,7 @@ sub add_hook {
 
     croak "Unsupported hook '$name'"
         unless $self->has_hook($name);
-    
+
     push @{ $self->hooks->{$name} }, $code;
 }
 
@@ -102,14 +102,14 @@ sub replace_hook {
 
     croak "Hook '$position' must be installed first"
         unless $self->has_hook($position);
-    
+
     $self->hooks->{$position} = $hooks;
 }
 
 # Boolean flag to tells if the hook is registered or not
 sub has_hook {
     my ($self, $hook_name) = @_;
-    return 
+    return
         exists $self->hooks->{$hook_name};
 }
 

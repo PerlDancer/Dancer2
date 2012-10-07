@@ -10,7 +10,7 @@ is $r->content, 'hello';
 
 note "content_type";
 $r = Dancer::Core::Response->new(
-    headers => [ 'Content-Type' => 'text/html' ], 
+    headers => [ 'Content-Type' => 'text/html' ],
     content => 'foo',
 );
 

@@ -76,7 +76,7 @@ has default_config => (
 sub _build_default_config {
     my ($self) = @_;
 
-    return {   
+    return {
         %{ $self->runner_config },
         template => 'Tiny',
         session => 'simple',
@@ -150,7 +150,7 @@ sub template {
 
 sub hook_candidates {
     my ($self) = @_;
-    
+
     my @engines;
     for my $e (qw(logger serializer template logger)) {
         my $engine = eval { $self->engine($e) };
@@ -160,7 +160,7 @@ sub hook_candidates {
     my @route_handlers;
     for my $handler_name (keys %{$self->route_handlers}) {
         my $handler = $self->route_handlers->{$handler_name};
-        push @route_handlers, $handler 
+        push @route_handlers, $handler
             if blessed($handler) && $handler->can('supported_hooks');
     }
 
@@ -204,22 +204,22 @@ around add_hook => sub {
     my $hook_aliases = $self->all_hook_aliases;
 
     # look for an alias
-    $name = $hook_aliases->{$name} 
+    $name = $hook_aliases->{$name}
         if defined $hook_aliases->{$name};
     $hook->name($name);
 
     # if that hook belongs to the app, register it now and return
     return $self->$orig(@_) if $self->has_hook($name);
-    
+
     # at this point the hook name must be formated like:
-    # '$type.$candidate.$name', eg: 'engine.template.before_render' or 
+    # '$type.$candidate.$name', eg: 'engine.template.before_render' or
     # 'plugin.database.before_dbi_connect'
     my ($hookable_type, $hookable_name, $hook_name) = split (/\./, $name);
 
-    croak "Invalid hook name `$name'" 
+    croak "Invalid hook name `$name'"
         unless defined $hookable_name && defined $hook_name;
 
-    croak "Unknown hook type `$hookable_type'" 
+    croak "Unknown hook type `$hookable_type'"
         if ! grep /^$hookable_type$/, qw(core engine handler plugin);
 
     # register the hooks for existing hookable candidates
@@ -228,7 +228,7 @@ around add_hook => sub {
     }
 
     # we register the hook for upcoming objects;
-    # that way, each components that can claim the hook will have a chance 
+    # that way, each components that can claim the hook will have a chance
     # to register it.
 
     my $postponed_hooks = $self->postponed_hooks;
@@ -317,7 +317,7 @@ sub send_file {
 
     $self->context->request->path_info($path);
     return $file_handler->code->($self->context, $self->prefix);
-    
+
     # TODO Streaming support
 }
 
