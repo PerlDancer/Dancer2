@@ -262,13 +262,13 @@ ok(
 is(
     exception { DancerHTTPMethod->('POST') },
     undef,
-    'DancerMethod',
+    'DancerHTTPMethod',
 );
 
 like(
     exception { DancerHTTPMethod->('post') },
-    qr{does not pass the type constraint for type `DancerMethod'},
-    'DancerMethod fail',
+    qr{does not pass the type constraint for type `DancerHTTPMethod'},
+    'DancerHTTPMethod fail',
 );
 
 ok(
