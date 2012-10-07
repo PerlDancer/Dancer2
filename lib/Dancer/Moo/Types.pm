@@ -12,7 +12,7 @@ use vars '@EXPORT';
 
 @EXPORT = qw(
     Str Num Bool ArrayRef HashRef CodeRef Regexp ObjectOf ConsumerOf
-    ReadableFilePath WritableFilePath 
+    ReadableFilePath WritableFilePath
     DancerPrefix DancerAppName DancerMethod DancerHTTPMethod
 );
 
@@ -60,7 +60,7 @@ sub Bool {
         return if ! defined $value;
 
         raise_type_exception Bool => $value
-          if !  _is_scalar($value) 
+          if !  _is_scalar($value)
             || ($value != 0 && $value != 1);
     }
 }
@@ -111,7 +111,7 @@ sub ObjectOf {
         my ($value) = @_;
         return if ! defined $value;
         raise_type_exception "ObjectOf(${class})" => $value
-          if !  blessed($value) 
+          if !  blessed($value)
             || (ref($value) ne $class);
     }
 }
@@ -129,7 +129,7 @@ sub ConsumerOf {
 sub ReadableFilePath {
     sub {
         my ($value) = @_;
-        raise_type_exception ReadableFilePath => $value 
+        raise_type_exception ReadableFilePath => $value
           if ! -e $value || ! -r $value;
     }
 }
@@ -137,7 +137,7 @@ sub ReadableFilePath {
 sub WritableFilePath {
     sub {
         my ($value) = @_;
-        raise_type_exception WritableFilePath => $value 
+        raise_type_exception WritableFilePath => $value
           if ! -e $value || ! -w $value;
     }
 }
@@ -145,15 +145,15 @@ sub WritableFilePath {
 # Dancer-specific types
 
 sub DancerPrefix {
-    sub { 
+    sub {
         my ($value) = @_;
         return if ! defined $value;
 
         # a prefix must start with the char '/'
         # index is much faster than =~ /^\//
         raise_type_exception DancerPrefix => $value
-          if !  _is_scalar($value) 
-            || (index($value, '/') != 0); 
+          if !  _is_scalar($value)
+            || (index($value, '/') != 0);
     }
 }
 

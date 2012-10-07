@@ -26,7 +26,7 @@ sub _retreive_get_urls {
 
     for my $app ( @{ runner->server->apps } ) {
         my $routes = $app->routes;
-        
+
         # push the static get routes into an array.
         get_route:
         for my $get_route ( @{ $routes->{get} } ) {
@@ -35,15 +35,15 @@ sub _retreive_get_urls {
             # If the pattern is a true comprehensive regexp or the route
             # has a :variable element to it, then omit it.
             next get_route if ($regexp =~ m/[()[\]|]|:\w/);
-          
-            # If there is a wildcard modifier, then drop it and have the 
+
+            # If there is a wildcard modifier, then drop it and have the
             # full route.
             $regexp =~ s/\?//g;
 
             # Other than that, its cool to be added.
-            push (@urls, $regexp) 
-                if ! grep { $regexp =~ m/$_/i } 
-                          @$Dancer::Plugin::SiteMap::OMIT_ROUTES; 
+            push (@urls, $regexp)
+                if ! grep { $regexp =~ m/$_/i }
+                          @$Dancer::Plugin::SiteMap::OMIT_ROUTES;
         }
     }
 

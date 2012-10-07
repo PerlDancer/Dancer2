@@ -27,8 +27,8 @@ sub _build_dsl_keywords {
 
 sub register {
     my ($self, $keyword, $is_global) = @_;
-    
-    grep { /^$keyword$/ } @{$self->keywords} 
+
+    grep { /^$keyword$/ } @{$self->keywords}
         and croak "Keyword '$keyword' is not available.";
 
     push @{$self->keywords}, [ $keyword, $is_global ];
@@ -53,7 +53,7 @@ sub export_symbols_to {
 
 sub _compile_keyword {
     my ($self, $keyword, $is_global) = @_;
-    
+
     my $compiled_code = sub {
         core_debug("[".$self->app->name."] -> $keyword(".join(', ', map { defined() ? $_ : '<undef>' } @_).")");
         $self->$keyword(@_);

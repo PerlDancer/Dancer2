@@ -14,17 +14,17 @@ use Test::More import => ['!pass'];
 
 use Dancer::Test 'App';
 
-my $r = dancer_response( POST => '/test',  { 
+my $r = dancer_response( POST => '/test',  {
             headers => [
                 ['X-Requested-With' => 'XMLHttpRequest'],
-            ], 
+            ],
         });
 is $r->[2][0], "{some: 'json'}", "ajax works with POST";
 
-$r = dancer_response( GET => '/test',  { 
+$r = dancer_response( GET => '/test',  {
             headers => [
                 ['X-Requested-With' => 'XMLHttpRequest'],
-            ], 
+            ],
         });
 is $r->[2][0], "{some: 'json'}", "ajax works with GET";
 
