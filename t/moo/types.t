@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More tests => 46;
 use Test::Fatal;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 is(
     exception { Str->(undef) },
