@@ -8,8 +8,8 @@ use Encode;
 use HTTP::Body;
 use URI;
 use URI::Escape;
+use Dancer::Core::Types;
 use Dancer::Core::Request::Upload;
-use Dancer::Moo::Types;
 
 with 'Dancer::Core::Role::Headers';
 

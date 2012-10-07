@@ -3,12 +3,12 @@
 package Dancer::Core::Role::Headers;
 
 use Moo::Role;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use HTTP::Headers;
 
 has headers => (
     is => 'rw',
-    isa => ObjectOf('HTTP::Headers'),
+    isa => InstanceOf['HTTP::Headers'],
     lazy => 1,
     coerce => sub { 
         my ($value) = @_;

@@ -3,7 +3,7 @@
 package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 sub to_header {
     my $self   = shift;

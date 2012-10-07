@@ -27,7 +27,7 @@ $app->add_route (
     code => sub { Fail->fail; },
 );
 
-# A chain of two route for /user/$foo 
+# A chain of two route for /user/$foo
 $app->add_route(
     method => 'get',
     regexp => '/user/:name',

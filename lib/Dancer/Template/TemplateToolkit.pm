@@ -6,10 +6,14 @@ use strict;
 use warnings;
 use Carp;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Template;
 
 with 'Dancer::Core::Role::Template';
+
+has '+engine' => (
+    isa => InstanceOf['Template'],
+);
 
 sub _build_name {'TemplateToolkit'}
 
@@ -50,4 +54,3 @@ sub render {
 }
 
 1;
-

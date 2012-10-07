@@ -5,11 +5,15 @@ use strict;
 use warnings;
 use Carp;
 use Moo;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Template::Tiny;
 use Dancer::FileUtils 'read_file_content';
 
 with 'Dancer::Core::Role::Template';
+
+has '+engine' => (
+    isa => InstanceOf['Template::Tiny'],
+);
 
 sub _build_name   {'Tiny'}
 sub _build_engine { Template::Tiny->new }

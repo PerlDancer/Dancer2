@@ -2,7 +2,7 @@
 
 package Dancer::Core::Role::DSL;
 use Moo::Role;
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 use Carp 'croak';
 
 with 'Dancer::Core::Role::Hookable';

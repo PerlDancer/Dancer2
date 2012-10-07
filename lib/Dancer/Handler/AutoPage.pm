@@ -3,7 +3,7 @@
 package Dancer::Handler::AutoPage;
 use Moo;
 use Carp 'croak';
-use Dancer::Moo::Types;
+use Dancer::Core::Types;
 
 with 'Dancer::Core::Role::Handler';
 with 'Dancer::Core::Role::StandardResponses';
