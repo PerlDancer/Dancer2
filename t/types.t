@@ -5,8 +5,8 @@ use Test::Fatal;
 use Dancer::Core::Types;
 
 ok(
-    exception { Str->(undef) },
-    'Str does not accept undef value',
+    !exception { Str->(undef) },
+    'Str does accept undef value',
 );
 
 is(
@@ -167,8 +167,8 @@ like(
 );
 
 ok(
-    exception { DancerPrefix->(undef) },
-    'DancerPrefix does not accept undef value',
+    !exception { DancerPrefix->(undef) },
+    'DancerPrefix does accept undef value',
 );
 
 is(
@@ -232,8 +232,8 @@ like(
 );
 
 ok(
-    exception { DancerAppName->(undef) },
-    'DancerAppName does not accept undef value',
+    !exception { DancerAppName->(undef) },
+    'DancerAppName does accept undef value',
 );
 
 like(
@@ -255,8 +255,8 @@ like(
 );
 
 ok(
-    exception { DancerMethod->(undef) },
-    'DancerMethod does not accept undef value',
+    !exception { DancerMethod->(undef) },
+    'DancerMethod does accept undef value',
 );
 
 is(
@@ -272,7 +272,7 @@ like(
 );
 
 ok(
-    exception { DancerHTTPMethod->(undef) },
-    'DancerMethod does not accept undef value',
+    !exception { DancerHTTPMethod->(undef) },
+    'DancerMethod does accept undef value',
 );
 
