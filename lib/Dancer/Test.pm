@@ -78,7 +78,7 @@ sub dancer_response {
 
     # use Data::Dumper;
     # warn "Env created : ".Dumper($env);
-    $_dispatcher->dispatch($env, $request)->to_psgi;
+    $_dispatcher->dispatch($env, $request);
 }
 
 sub response_status_is {
@@ -90,7 +90,7 @@ sub response_status_is {
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    $tb->is_eq( $response->[0], $status, $test_name );
+    $tb->is_eq( $response->status, $status, $test_name );
 }
 
 sub route_exists {
@@ -139,7 +139,7 @@ sub response_status_isnt {
         
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $tb->$cmp( $response->[2][0], $want, $test_name );
+        $tb->$cmp( $response->content, $want, $test_name );
     }
 }
     
@@ -188,7 +188,7 @@ sub response_headers_are_deeply {
     my $response = _dancer_response($app, _expand_req($req));
     
     is_deeply(
-        _sort_headers( $response->[1] ),
+        _sort_headers( $response->headers_to_array ),
         _sort_headers( $expected ),
         $test_name
     );

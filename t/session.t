@@ -44,19 +44,19 @@ subtest simple_session_as_dsl => sub {
     get '/write/:value' => sub { session user => param('value') };
 
     my $r = dancer_response GET => '/read';
-    is $r->[2][0], '';
+    is $r->content, '';
 
     $r = dancer_response GET => '/write/42';
-    is $r->[2][0], '42';
+    is $r->content, '42';
 
     $r = dancer_response GET => '/read';
-    is $r->[2][0], '42';
+    is $r->content, '42';
     
     $r = dancer_response GET => '/write/sukria';
-    is $r->[2][0], 'sukria';
+    is $r->content, 'sukria';
 
     $r = dancer_response GET => '/read';
-    is $r->[2][0], 'sukria';
+    is $r->content, 'sukria';
 
 };
 done_testing;
