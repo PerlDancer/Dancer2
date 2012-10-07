@@ -12,7 +12,7 @@ sub create {
     $type = _camelize($type);
     $name = _camelize($name);
     my $engine_class = "Dancer::${type}::${name}";
-    
+
     eval "use $engine_class";
     croak "Unable to load class for $type engine $name: $@" if $@;
 
@@ -21,7 +21,7 @@ sub create {
 
 sub _camelize {
     my ($value) = @_;
-    
+
     my $camelized = '';
     for my $word (split /_/, $value) {
         $camelized .= ucfirst($word);

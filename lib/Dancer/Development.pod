@@ -121,7 +121,7 @@ contributions submitted via GitHub, as it makes tracking these contributions and
 applying them much, much easier. This gives your contribution a much better
 chance of being integrated into Dancer quickly!
 
-To help us achieve high-quality, stable releases, git-flow workflow is used to 
+To help us achieve high-quality, stable releases, git-flow workflow is used to
 handle pull-requests, that means contributors must work on their C<devel> branch
 rather than on their C<master>.  (Master should be touched only by the core dev
 team when preparing a release to CPAN; all ongoing development happens in

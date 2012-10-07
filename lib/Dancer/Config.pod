@@ -8,7 +8,7 @@ Dancer::Config.pod - how to configure Dancer to suit your needs
 =head1 DESCRIPTION
 
 The Dancer configuration (as implemented by L< Dancer::Core::Role::Config >)
-handles reading and changing the configuration of your Dancer apps.  This 
+handles reading and changing the configuration of your Dancer apps.  This
 document aims to describe how to manipulate Dancer's configuration settings
 (through code or by file), and to document the various settings that are
 available in Dancer.
@@ -34,13 +34,13 @@ a configuration file.
 =head2 Configuration file path and file names
 
 Dancer will first look for the file F< config.ext > (where .ext is the type
-of configuration file you are using) in the root directory of your 
+of configuration file you are using) in the root directory of your
 application.  This is considered your global Dancer config file.  If you do
 not care to have separate settings for production and development environments
 (B< not > a recommended practice!), then this file is all you need.
 
 Next, Dancer will look in the F< environments > directory for a configuration
-file specific to the platform you are deploying to (F< production.ext > and 
+file specific to the platform you are deploying to (F< production.ext > and
 F< development.ext >, for example).  Any settings in these files that are named
 the same as settings in your global configuration file will take precedence
 over those settings in the global file.  The rest of the settings are merged
@@ -53,10 +53,10 @@ the file extension you use for your configuration file.
 
 =head2 Supported configuration file formats
 
-Dancer supports any configuration file format that is supported by 
-L< Config::Any >.  At the time of this writing, that includes YAML (.yml and 
+Dancer supports any configuration file format that is supported by
+L< Config::Any >.  At the time of this writing, that includes YAML (.yml and
 .yaml), JSON (.jsn and .json), INI (.ini), Apache-style configurations (.cnf
-and .conf), XML (.xml), and Perl-style hashes (.pl and .perl).  
+and .conf), XML (.xml), and Perl-style hashes (.pl and .perl).
 
 Make sure you pick the appropriate extension for your configuration file name,
 as Dancer will not guess the type of format you are using.
@@ -114,7 +114,7 @@ If you like Apache configuration files, try something similar to:
             </DBIC>
         </plugins>
 
-INI-style files are deliberately simplistic and not recommended for use in 
+INI-style files are deliberately simplistic and not recommended for use in
 your Dancer applications.
 
 =head1 SUPPORTED SETTINGS
@@ -175,7 +175,7 @@ encoded.
 =item *
 
 If you're using L<Dancer::Plugin::Database>, UTF-8 support will automatically be
-enabled for your database - see 
+enabled for your database - see
 L<Dancer::Plugin::Database/"AUTOMATIC UTF-8 SUPPORT">
 
 =back
@@ -317,7 +317,7 @@ in standalone mode,
 
     logger: console
 
-Various other logger backends are available on CPAN, including 
+Various other logger backends are available on CPAN, including
 L<Dancer::Logger::Syslog>, L<Dancer::Logger::Log4perl>, L<Dancer::Logger::PSGI>
 (which can, with the aid of Plack middlewares, send log messages to a browser's
 console window) and others.

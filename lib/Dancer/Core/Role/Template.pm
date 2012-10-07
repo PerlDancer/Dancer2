@@ -12,9 +12,9 @@ with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
     qw/
-    engine.template.before_render 
-    engine.template.after_render 
-    engine.template.before_layout_render 
+    engine.template.before_render
+    engine.template.after_render
+    engine.template.before_layout_render
     engine.template.after_layout_render
     /
 }

@@ -10,8 +10,8 @@ with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw/
-    core.error.before 
-    core.error.after 
+    core.error.before
+    core.error.after
     core.error.init
     /;
 }

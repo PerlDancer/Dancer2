@@ -14,7 +14,7 @@ with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw(
-    handler.file.before_render 
+    handler.file.before_render
     handler.file.after_render
     )
 }
@@ -65,7 +65,7 @@ sub register {
     ) for $self->methods;
 }
 
-sub methods { ('head', 'get') } 
+sub methods { ('head', 'get') }
 
 sub code {
     my ($self, $prefix) = @_;

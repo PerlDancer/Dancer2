@@ -15,7 +15,7 @@ sub dsl_keywords {
     # the flag means : 1 = is global, 0 = is not global. global means can be
     # called from anywhere. not global means must be called rom within a route
     # handler
-    [   
+    [
         [any          => 1],
         [app          => 1],
         [captures     => 0],
@@ -130,7 +130,7 @@ sub load_app {
     eval "use $app_name";
     croak "Unable to load application \"$app_name\" : $@" if $@;
 
-    croak "$app_name is not a Dancer application" 
+    croak "$app_name is not a Dancer application"
       if !  $app_name->can('dancer_app');
     my $app = $app_name->dancer_app;
 
@@ -254,7 +254,7 @@ sub mime {
 
 sub cookie { shift->context->cookie(@_) }
 
-sub send_error { 
+sub send_error {
     my ($self, $message, $code) = @_;
     require 'Dancer/Serializer/JSON.pm';
     # Should be TemplateSimple
@@ -264,7 +264,7 @@ sub send_error {
     my $t = Dancer::Template::Tiny->new;
 
     Dancer::Core::Error->new(
-        message => $message, 
+        message => $message,
         app => $self->app,
         context => $self->app->context,
         serializer => $s,

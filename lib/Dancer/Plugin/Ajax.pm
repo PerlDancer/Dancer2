@@ -70,11 +70,11 @@ The route handler code will be compiled to behave like the following:
 
 =over 4
 
-=item * 
+=item *
 
 Pass if the request header X-Requested-With doesnt equal XMLHttpRequest
 
-=item * 
+=item *
 
 Disable the layout
 

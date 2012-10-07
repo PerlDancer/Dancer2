@@ -51,7 +51,7 @@ subtest simple_session_as_dsl => sub {
 
     $r = dancer_response GET => '/read';
     is $r->[2][0], '42';
-    
+
     $r = dancer_response GET => '/write/sukria';
     is $r->[2][0], 'sukria';
 

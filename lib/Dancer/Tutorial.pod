@@ -11,8 +11,8 @@ Dancer::Tutorial - An example to get you dancing
 =head1 What is Dancer?
 
 Dancer is a "micro" web framework which is modeled after a Ruby framework called L<Sinatra|http://www.sinatrarb.com>
-that constructs web applications by building a list of HTTP verbs, URLs (called routes) and methods to handle 
-that type of traffic to that specific URL. 
+that constructs web applications by building a list of HTTP verbs, URLs (called routes) and methods to handle
+that type of traffic to that specific URL.
 
   use Dancer;
 
@@ -61,7 +61,7 @@ tutorial.
   );
 
 Here we have a single table with three columns: id, title, and text.  The 'id' field is the primary key and will
-automatically get an ID assigned by the database engine when a row is inserted. 
+automatically get an ID assigned by the database engine when a row is inserted.
 
 We want our application to initialize the database automatically for us when we start it, so open your favorite
 L<text editor|http://www.vim.org> and create a file called 'dancr.pl'.  We're going to put the following subroutines
@@ -79,8 +79,8 @@ in that file:
     my $schema = read_file('./schema.sql');
     $db->do($schema) or die $db->errstr;
   }
-  
-Nothing too fancy in here, I hope. Standard DBI except for the C<setting('database')> thing - more on that in a bit. 
+
+Nothing too fancy in here, I hope. Standard DBI except for the C<setting('database')> thing - more on that in a bit.
 For now, just assume that the expression evaluates to file location for the database file.
 
 (Note that you may want to look at the L<Dancer::Plugin::Database> module for an
@@ -97,7 +97,7 @@ Let's tackle our first route handler now, the one for the root URL '/'. This is 
     my $sql = 'select id, title, text from entries order by id desc';
     my $sth = $db->prepare($sql) or die $db->errstr;
     $sth->execute or die $sth->errstr;
-    template 'show_entries.tt', { 
+    template 'show_entries.tt', {
        'msg' => get_flash(),
        'add_entry_url' => uri_for('/add'),
        'entries' => $sth->fetchall_hashref('id'),
@@ -209,7 +209,7 @@ C</add> route handler which handles a POST operation.
 
 As before, the HTTP verb begins the handler, followed by the route, and a
 subroutine to do something - in this case, it will insert a new entry into the
-database.  
+database.
 
 The first check in the subroutine is the make sure the user sending the data is
 logged in. If not, the application sends back an error and stops processing.
@@ -257,10 +257,10 @@ web browser, log access attempts and log Dancer warnings (instead of silently
 ignoring them)
 
 In a more sophisticated application you would want to put these configuration
-options into a configuration file, but for this tutorial, we're going to keep 
-it simple.  Dancer also supports the notion of application environments meaning 
-you can create a configuration file for your development instance, and another 
-config file for the production environment (with things like debugging and 
+options into a configuration file, but for this tutorial, we're going to keep
+it simple.  Dancer also supports the notion of application environments meaning
+you can create a configuration file for your development instance, and another
+config file for the production environment (with things like debugging and
 showing errors disabled perhaps.) Dancer also doesn't impose any limits on what
 parameters you can set using the C<set> syntax.  For this application we're
 going to embed our single username and password into the application itself.
@@ -296,11 +296,11 @@ handler for the C</login> route.
     }
 
     # display login form
-    template 'login.tt', { 
+    template 'login.tt', {
       'err' => $err,
     };
   };
- 
+
 This is the first handler which accepts two different verb types, a GET for a
 human browsing to the URL and a POST for the browser to submit the user's input
 to the web application.  Since we're handling two different verbs, we check to
@@ -430,7 +430,7 @@ everywhere you render a template.
 
   before_template sub {
      my $tokens = shift;
-	
+
      $tokens->{'css_url'} = request->base . 'css/style.css';
      $tokens->{'login_url'} = uri_for('/login');
      $tokens->{'logout_url'} = uri_for('/logout');
@@ -449,7 +449,7 @@ Here's the complete dancr.pl script from start to finish.
  use File::Spec;
  use File::Slurp;
  use Template;
- 
+
  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
  set 'session'      => 'Simple';
  set 'template'     => 'template_toolkit';
@@ -461,73 +461,73 @@ Here's the complete dancr.pl script from start to finish.
  set 'username'     => 'admin';
  set 'password'     => 'password';
  set 'layout'       => 'main';
- 
+
  my $flash;
- 
+
  sub set_flash {
  	my $message = shift;
- 
+
  	$flash = $message;
  }
- 
+
  sub get_flash {
- 
+
  	my $msg = $flash;
  	$flash = "";
- 
+
  	return $msg;
  }
- 
+
  sub connect_db {
  	my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
  		die $DBI::errstr;
- 
+
  	return $dbh;
  }
- 
+
  sub init_db {
  	my $db = connect_db();
  	my $schema = read_file('./schema.sql');
  	$db->do($schema) or die $db->errstr;
  }
- 
+
  before_template sub {
  	my $tokens = shift;
- 	
+
  	$tokens->{'css_url'} = request->base . 'css/style.css';
  	$tokens->{'login_url'} = uri_for('/login');
  	$tokens->{'logout_url'} = uri_for('/logout');
  };
- 
+
  get '/' => sub {
  	my $db = connect_db();
  	my $sql = 'select id, title, text from entries order by id desc';
  	my $sth = $db->prepare($sql) or die $db->errstr;
  	$sth->execute or die $sth->errstr;
- 	template 'show_entries.tt', { 
+ 	template 'show_entries.tt', {
  		'msg' => get_flash(),
  		'add_entry_url' => uri_for('/add'),
  		'entries' => $sth->fetchall_hashref('id'),
  	};
  };
- 
+
  post '/add' => sub {
  	if ( not session('logged_in') ) {
  		send_error("Not logged in", 401);
  	}
- 
+
  	my $db = connect_db();
  	my $sql = 'insert into entries (title, text) values (?, ?)';
  	my $sth = $db->prepare($sql) or die $db->errstr;
  	$sth->execute(params->{'title'}, params->{'text'}) or die $sth->errstr;
- 
+
  	set_flash('New entry posted!');
  	redirect '/';
  };
- 
+
  any ['get', 'post'] => '/login' => sub {
  	my $err;
- 
+
  	if ( request->method() eq "POST" ) {
  		# process form input
  		if ( params->{'username'} ne setting('username') ) {
@@ -544,7 +544,7 @@ Here's the complete dancr.pl script from start to finish.
 	}
 
 	# display login form
-	template 'login.tt', { 
+	template 'login.tt', {
 		'err' => $err,
 	};
 
@@ -588,7 +588,7 @@ http://perldancer.org
 
 http://github.com/sukria/Dancer
 
-=item * 
+=item *
 
 http://search.cpan.org/~sukria/Dancer/lib/Dancer/Plugins.pod
 
@@ -596,14 +596,14 @@ http://search.cpan.org/~sukria/Dancer/lib/Dancer/Plugins.pod
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010 by Mark R. Allen. 
+Copyright (C) 2010 by Mark R. Allen.
 
 This is free software; you can redistribute it and/or modify it under the terms of either the Artistic License 2.0
 or the GNU Public License version 2.
 
 The CSS stylesheet is copied verbatim from the Flaskr example application and is subject to their license:
 
-Copyright (c) 2010 by Armin Ronacher and contributors. 
+Copyright (c) 2010 by Armin Ronacher and contributors.
 
 Some rights reserved.
 
@@ -618,14 +618,14 @@ that the following conditions are met:
 Redistributions of source code must retain the above copyright
 notice, this list of conditions and the following disclaimer.
 
-=item * 
+=item *
 
 Redistributions in binary form must reproduce the above
 copyright notice, this list of conditions and the following
 disclaimer in the documentation and/or other materials provided
 with the distribution.
 
-=item * 
+=item *
 
 The names of the contributors may not be used to endorse or
 promote products derived from this software without specific

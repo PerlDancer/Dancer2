@@ -33,9 +33,9 @@ sub BUILD {
 
     my $start_tag = $self->config->{start_tag};
     my $stop_tag = $self->config->{stop_tag} || $self->config->{end_tag};
-    $tt_config->{START_TAG} = $start_tag 
+    $tt_config->{START_TAG} = $start_tag
       if defined $start_tag && $start_tag ne '[%';
-    $tt_config->{END_TAG}   = $stop_tag  
+    $tt_config->{END_TAG}   = $stop_tag
       if defined $stop_tag && $stop_tag  ne '%]';
 
     $tt_config->{INCLUDE_PATH} ||= $self->views;

@@ -191,7 +191,7 @@ you can use lexical prefix like this:
     prefix '/home' => sub {
       get '/page1' => sub {}; # will match '/home/page1'
     }; ## prefix reset to previous value on exit
-    
+
     get '/page1' => sub {}; will match /page1
 
 =head1 ACTION SKIPPING
@@ -269,7 +269,7 @@ The request keyword returns the current Dancer::Request object representing the
 incoming request. See the documentation of the L<Dancer::Request> module for
 details.
 
-=head2 After filters 
+=head2 After filters
 
 C<after> filters are evaluated after the response has been built by a route
 handler, and can alter the response itself, just before it's sent to the
@@ -307,9 +307,9 @@ your script, before calling the dance() method.
 Other ways are possible.  You could write all your setting calls in the file
 `appdir/config.yml'. You would, of course, have write the conffile in YAML.
 
-While better than the first option, it's still not perfect.  You can't easily 
+While better than the first option, it's still not perfect.  You can't easily
 switch from an environment to another (for example, from development to
-production) without rewriting the config.yml file.  The best way is to have 
+production) without rewriting the config.yml file.  The best way is to have
 one config.yml file with default global settings, like the following:
 
     # appdir/config.yml
@@ -338,7 +338,7 @@ And in a production one:
     startup_info: 0
     show_errors:  0
 
-Please note that you are not limited to writing configuration files in YAML. 
+Please note that you are not limited to writing configuration files in YAML.
 Dancer supports any file format that is supported by L< Config::Any >, such as
 JSON, XML, INI files, and Apache-style config files.
 

@@ -89,14 +89,14 @@ However, it's not built in Perl, so let's install it:
 
 That will take some time, but should install properly.
 
-After that is done, you should be able to launch C<dzil>: 
+After that is done, you should be able to launch C<dzil>:
 
   # dzil
   Available commands:
-  
+
       commands: list the application's commands
           help: display a command's help screen
-  
+
     authordeps: list your distribution's author dependencies
          build: build your dist
          clean: clean up after build, test, or install
@@ -128,7 +128,7 @@ That should install a bunch of stuff
 Now that C<Dist::Zilla> is up and running, you should install the dependencies
 required by Dancer:
 
-  dzil listdeps | cpanm -n 
+  dzil listdeps | cpanm -n
 
 When that is done, you're good to go !
 
