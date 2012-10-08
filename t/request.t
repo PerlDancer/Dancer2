@@ -47,6 +47,7 @@ ok($req->is_get);
 ok(!$req->is_post);
 ok(!$req->is_put);
 ok(!$req->is_delete);
+ok(!$req->is_patch);
 ok(!$req->is_head);
 
 is $req->id, 1;

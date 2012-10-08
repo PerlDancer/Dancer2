@@ -147,6 +147,7 @@ sub is_post               { $_[0]->{method} eq 'POST' }
 sub is_get                { $_[0]->{method} eq 'GET' }
 sub is_put                { $_[0]->{method} eq 'PUT' }
 sub is_delete             { $_[0]->{method} eq 'DELETE' }
+sub is_patch              { $_[0]->{method} eq 'PATCH' }
 
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
