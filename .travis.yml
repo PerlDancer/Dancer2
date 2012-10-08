@@ -6,6 +6,9 @@ perl:
     - "5.12"
     - "5.10"
 
+install:
+    - cpanm Dist::Zilla
+    - dzil authordeps --missing | cpanm || { cat ~/.cpanm/build.log ; false ; }
+    - dzil listdeps --author --missing | cpanm || { cat ~/.cpanm/build.log ; false ; }
 script:
-    - perl Makefile.PL
-    - make test
+    - dzil test --author --release
