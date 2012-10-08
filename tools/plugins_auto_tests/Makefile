@@ -13,7 +13,7 @@ all: got_curl got_bash got_perlbrew_perl plugins_list
 	  echo "  Dancer 1"; \
           echo "    - installing deps"; ${CPANM_DANCER1} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && ${CPANM_DANCER1} --test-only $$i 2>&1 | grep 'Successfully tested' >/dev/null && pass_d1=1; \
 	  echo "  Dancer 2"; \
-          echo "    - installing deps"; ${CPANM_DANCER2} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && r=$$(DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only $$i 2>&1); echo $$r | grep 'Successfully tested' >/dev/null && pass_d2=1; if (( pass_d2 )); then pass_d2='?'; echo $$r | grep DANCER2_PLUGIN_WERE_REGISTERED >/dev/null && pass_d2=1; fi;\
+          echo "    - installing deps"; ${CPANM_DANCER2} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && r=$$(DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only -v $$i 2>&1); echo $$r | grep 'Successfully tested' >/dev/null && pass_d2=1; if (( pass_d2 )); then pass_d2='?'; echo $$r | grep DANCER2_PLUGIN_WERE_REGISTERED >/dev/null && pass_d2=1; fi;\
           echo "$$i,$$pass_d1,$$pass_d2" >> result.csv; \
         done;
 
@@ -49,4 +49,4 @@ plugins_list:
 	${HERE}/get_modules_list.pl > plugins_list
 
 update_dancer2:
-	${CPANM_DANCER2} ${HERE}/../..
+	${CPANM_DANCER2} -v ${HERE}/../..
