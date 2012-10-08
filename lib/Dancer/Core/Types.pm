@@ -60,7 +60,7 @@ my $definitions = [
         name => 'DancerMethod',
         test => sub {
             return 1 if !defined $_[0];
-            grep { /^$_[0]$/ } qw(get head post put delete options)
+            grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
         message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerMethod'" }
     },
@@ -68,7 +68,7 @@ my $definitions = [
         name => 'DancerHTTPMethod',
         test => sub {
             return 1 if !defined $_[0];
-            grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS)
+            grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
         message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerHTTPMethod'" }
     },

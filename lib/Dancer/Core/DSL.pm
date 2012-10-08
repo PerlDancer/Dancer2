@@ -13,7 +13,7 @@ with 'Dancer::Core::Role::DSL';
 sub dsl_keywords {
 
     # the flag means : 1 = is global, 0 = is not global. global means can be
-    # called from anywhere. not global means must be called rom within a route
+    # called from anywhere. not global means must be called from within a route
     # handler
     [
         [any          => 1],
@@ -51,6 +51,7 @@ sub dsl_keywords {
         [param        => 0],
         [params       => 0],
         [pass         => 0],
+        [patch        => 1],
         [path         => 1],
         [post         => 1],
         [prefix       => 1],
@@ -183,6 +184,11 @@ sub del {
 sub options {
     my $app = shift->app;
     $app->add_route( method => 'options', regexp => $_[0], code   => $_[1] );
+}
+
+sub patch {
+    my $app = shift->app;
+    $app->add_route( method => 'patch', regexp => $_[0], code   => $_[1] );
 }
 
 #
