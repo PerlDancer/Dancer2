@@ -14,7 +14,7 @@ all: got_curl got_bash got_perlbrew_perl update_dancer2 plugins_list
 	  echo "  Dancer 1"; \
           echo "    - installing deps"; ${CPANM_DANCER1} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && ${CPANM_DANCER1} --test-only $$i 2>&1 | grep 'Successfully tested' >/dev/null && pass_d1=1; \
 	  echo "  Dancer 2"; \
-          echo "    - installing deps"; ${CPANM_DANCER2} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && r=$$(DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only -v $$i 2>&1); echo $$r; echo $$r | grep 'Successfully tested' >/dev/null && pass_d2=1; if (( pass_d2 )); then pass_d2='?'; echo $$r | grep DANCER2_PLUGIN_WERE_REGISTERED >/dev/null && pass_d2=1; fi;\
+          echo "    - installing deps"; ${CPANM_DANCER2} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && r=$$(DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only -v $$i 2>&1); echo $$r | grep 'Successfully tested' >/dev/null && pass_d2=1; if (( pass_d2 )); then pass_d2='?'; echo $$r | grep DANCER2_PLUGIN_WERE_REGISTERED >/dev/null && pass_d2=1; fi;\
           echo "$$i,$$pass_d1,$$pass_d2" >> result.csv; \
         done;
 
@@ -53,4 +53,4 @@ ${PERLBREW_DIR}/perls/dancer2_plugin_tests/bin/dzil:
 	${CPANM_DANCER2} Dist::Zilla -n
 
 update_dancer2: ${PERLBREW_DIR}/perls/dancer2_plugin_tests/bin/dzil
-	cd ${HERE}/../.. && ( ${DZIL_DANCER2} authordeps --missing | grep -v dancer2_plugin_tests | grep -v '==========' | ( ${CPANM_DANCER2} -n ) ) && ( ${DZIL_DANCER2} listdeps --missing | grep -v dancer2_plugin_tests | grep -v '==========' | ( ${CPANM_DANCER2} -n ) ) && ${DZIL_DANCER2} install --install-command='${CPANM_DANCER2} -v .' && cd ${HERE}
+	cd ${HERE}/../.. && echo "installing authordeps" && ( ${DZIL_DANCER2} authordeps --missing | grep -v dancer2_plugin_tests | grep -v '==========' | ( ${CPANM_DANCER2} -n ) ) && echo "installing deps (this may take a while)" && ( ${DZIL_DANCER2} listdeps --missing | grep -v dancer2_plugin_tests | grep -v '==========' | ( ${CPANM_DANCER2} -n ) ) && echo "installing Dancer 2" && ${DZIL_DANCER2} install --install-command='${CPANM_DANCER2} -v .' && cd ${HERE}
