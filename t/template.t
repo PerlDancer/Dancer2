@@ -67,7 +67,7 @@ before_layout_render = 1
 [index]
 var = 42
 
-before_layout_render =
+before_layout_render = 
 before_template_render = 1
 content added in after_template_render
 content added in before_layout_render
