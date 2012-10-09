@@ -5,15 +5,16 @@ PERLBREW_DIR=${HERE}/perlbrew
 PERLBREW=export PERLBREW_ROOT=${PERLBREW_DIR} && PERLBREW_ROOT=${PERLBREW_DIR} ${PERLBREW_DIR}/bin/perlbrew
 CPANM_DANCER1=${PERLBREW} exec --with dancer1_plugin_tests ${PERLBREW_DIR}/bin/cpanm
 CPANM_DANCER2=${PERLBREW} exec --with dancer2_plugin_tests ${PERLBREW_DIR}/bin/cpanm
+DZIL_DANCER2=${PERLBREW} exec --with dancer2_plugin_tests ${PERLBREW_DIR}/perls/dancer2_plugin_tests/bin/dzil
 
-all: got_curl got_bash got_perlbrew_perl plugins_list
+all: got_curl got_bash got_perlbrew_perl update_dancer2 plugins_list
 	@echo "Plugin name,Pass on Dancer 1,Pass on Dancer 2" > result.csv
 	@for i in `cat plugins_list`; do pass_d1=0; pass_d2=0; \
 	  echo "$$i"; \
 	  echo "  Dancer 1"; \
           echo "    - installing deps"; ${CPANM_DANCER1} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && ${CPANM_DANCER1} --test-only $$i 2>&1 | grep 'Successfully tested' >/dev/null && pass_d1=1; \
 	  echo "  Dancer 2"; \
-          echo "    - installing deps"; ${CPANM_DANCER2} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && r=$$(DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only -v $$i 2>&1); echo $$r | grep 'Successfully tested' >/dev/null && pass_d2=1; if (( pass_d2 )); then pass_d2='?'; echo $$r | grep DANCER2_PLUGIN_WERE_REGISTERED >/dev/null && pass_d2=1; fi;\
+          echo "    - installing deps"; ${CPANM_DANCER2} -n --installdeps $$i >/dev/null 2>&1 && echo "    - testing" && r=$$(DANCER_FORCE_PLUGIN_REGISTRATION=1 ${CPANM_DANCER2} --test-only -v $$i 2>&1); echo $$r; echo $$r | grep 'Successfully tested' >/dev/null && pass_d2=1; if (( pass_d2 )); then pass_d2='?'; echo $$r | grep DANCER2_PLUGIN_WERE_REGISTERED >/dev/null && pass_d2=1; fi;\
           echo "$$i,$$pass_d1,$$pass_d2" >> result.csv; \
         done;
 
@@ -42,11 +43,14 @@ perlbrew_dancer1_plugin_tests:
 	@${PERLBREW} list | grep dancer1_plugin_tests > /dev/null || ( ${PERLBREW} install -j 5 -n perl-5.16.1 --as dancer1_plugin_tests )
 
 perlbrew_dancer2_plugin_tests:
-	@${PERLBREW} list | grep dancer2_plugin_tests > /dev/null || ( ${PERLBREW} install -j 5 -n perl-5.16.1 --as dancer2_plugin_tests && ${CPANM_DANCER2} ${HERE}/../.. )
+	@${PERLBREW} list | grep dancer2_plugin_tests > /dev/null || ( ${PERLBREW} install -j 5 -n perl-5.16.1 --as dancer2_plugin_tests )
 
 plugins_list:
 	cpanm -n Modern::Perl LWP::Simple ElasticSearch
 	${HERE}/get_modules_list.pl > plugins_list
 
-update_dancer2:
-	${CPANM_DANCER2} -v ${HERE}/../..
+${PERLBREW_DIR}/perls/dancer2_plugin_tests/bin/dzil:
+	${CPANM_DANCER2} Dist::Zilla -n
+
+update_dancer2: ${PERLBREW_DIR}/perls/dancer2_plugin_tests/bin/dzil
+	cd ${HERE}/../.. && ( ${DZIL_DANCER2} authordeps --missing | grep -v dancer2_plugin_tests | grep -v '==========' | ( ${CPANM_DANCER2} -n ) ) && ( ${DZIL_DANCER2} listdeps --missing | grep -v dancer2_plugin_tests | grep -v '==========' | ( ${CPANM_DANCER2} -n ) ) && ${DZIL_DANCER2} install --install-command='${CPANM_DANCER2} -v .' && cd ${HERE}
