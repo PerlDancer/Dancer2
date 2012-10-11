@@ -9,7 +9,7 @@ use Test::More;
 use Test::Builder;
 use URI::Escape;
 
-use base 'Exporter';
+use parent 'Exporter';
 our @EXPORT = qw(
     dancer_response
     route_exists

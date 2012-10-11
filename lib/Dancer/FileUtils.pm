@@ -10,10 +10,8 @@ use File::Spec;
 use Carp;
 use Cwd 'realpath';
 
-use base 'Exporter';
-use vars '@EXPORT_OK';
-
-@EXPORT_OK = qw(
+use Exporter 'import';
+our @EXPORT_OK = qw(
     dirname open_file path read_file_content read_glob_content
     path_or_empty set_file_mode normalize_path
 );
