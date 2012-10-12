@@ -4,6 +4,7 @@ package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;
 use Dancer::Core::Types;
+use Carp 'croak';
 
 sub to_header {
     my $self   = shift;
@@ -74,7 +75,10 @@ has domain => (
 
 has path => (
     is       => 'rw',
-    isa      => Str,
+    isa      => sub { 
+        croak "path must be a string or undef" 
+            if defined $_ and not isStr($_) 
+    },
     required => 0,
     default  => sub { '/' },
 );
