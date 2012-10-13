@@ -239,7 +239,7 @@ ok(
 
 like(
     exception { DancerAppName->('') },
-    qr{is not a DancerAppName},
+    qr{Empty string is not a DancerAppName},
     'DancerAppName fails an empty string value',
 );
 
