@@ -40,7 +40,7 @@ my $definitions = [
     {
         name => 'DancerPrefix',
         test => sub {
-            return 1 if !defined $_[0];
+            defined $_[0] or return;
             # a prefix must start with the char '/'
             # index is much faster than =~ /^\//
             ref(\$_[0]) eq 'SCALAR' && (index($_[0], '/') == 0);
@@ -50,8 +50,7 @@ my $definitions = [
     {
         name => 'DancerAppName',
         test => sub {
-            # TODO need a real check of valid app names
-            return 1 if !defined $_[0];
+            defined $_[0] or return;
             ref(\$_[0]) eq 'SCALAR' && $_[0] =~ $namespace
         },
         message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerAppName'" }
@@ -59,7 +58,7 @@ my $definitions = [
     {
         name => 'DancerMethod',
         test => sub {
-            return 1 if !defined $_[0];
+            defined $_[0] or return;
             grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
         message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerMethod'" }
@@ -67,7 +66,7 @@ my $definitions = [
     {
         name => 'DancerHTTPMethod',
         test => sub {
-            return 1 if !defined $_[0];
+            defined $_[0] or return;
             grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
         message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerHTTPMethod'" }
