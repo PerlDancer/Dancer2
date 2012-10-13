@@ -35,7 +35,7 @@ ok(
 
 like(
     exception { Num->('not a number') },
-    qr{not a number is not a Number},
+    qr{not a number is not a number},
     'Num fail',
 );
 
@@ -163,7 +163,7 @@ is(
 
 like(
     exception { DancerPrefix->('bar/something') },
-    qr{does not pass the type constraint for type `DancerPrefix'},
+    qr{bar/something is not a DancerPrefix},
     'DancerPrefix fail',
 );
 
@@ -192,43 +192,43 @@ is(
 
 like(
     exception { DancerAppName->('Foo:Bar') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{Foo:Bar is not a DancerAppName},
     'DancerAppName fails with single colons',
 );
 
 like(
     exception { DancerAppName->('Foo:::Bar') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{Foo:::Bar is not a DancerAppName},
     'DancerAppName fails with tripe colons',
 );
 
 like(
     exception { DancerAppName->('7Foo') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{7Foo is not a DancerAppName},
     'DancerAppName fails with beginning number',
 );
 
 like(
     exception { DancerAppName->('Foo::45Bar') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{Foo::45Bar is not a DancerAppName},
     'DancerAppName fails with beginning number',
 );
 
 like(
     exception { DancerAppName->('-F') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{-F is not a DancerAppName},
     'DancerAppName fails with special character',
 );
 
 like(
     exception { DancerAppName->('Foo::-') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{Foo::- is not a DancerAppName},
     'DancerAppName fails with special character',
 );
 
 like(
     exception { DancerAppName->('Foo^') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{\QFoo^\E is not a DancerAppName},
     'DancerAppName fails with special character',
 );
 
@@ -239,7 +239,7 @@ ok(
 
 like(
     exception { DancerAppName->('') },
-    qr{does not pass the type constraint for type `DancerAppName'},
+    qr{is not a DancerAppName},
     'DancerAppName fails an empty string value',
 );
 
@@ -251,7 +251,7 @@ is(
 
 like(
     exception { DancerMethod->('POST') },
-    qr{does not pass the type constraint for type `DancerMethod'},
+    qr{POST is not a DancerMethod},
     'DancerMethod fail',
 );
 
@@ -268,7 +268,7 @@ is(
 
 like(
     exception { DancerHTTPMethod->('post') },
-    qr{does not pass the type constraint for type `DancerHTTPMethod'},
+    qr{post is not a DancerHTTPMethod},
     'DancerHTTPMethod fail',
 );
 
