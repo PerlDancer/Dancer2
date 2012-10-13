@@ -53,7 +53,15 @@ my $definitions = [
             defined $_[0] or return;
             ref(\$_[0]) eq 'SCALAR' && $_[0] =~ $namespace
         },
-        message => sub { exception_message( $_[0], 'a DancerAppName' ) }
+        message => sub {
+            if ( defined $_[0] && length $_[0] == 0 ) {
+                return exception_message(
+                    'Empty string', 'a DancerAppName'
+                );
+            }
+
+            exception_message( $_[0], 'a DancerAppName' );
+        }
     },
     {
         name => 'DancerMethod',
