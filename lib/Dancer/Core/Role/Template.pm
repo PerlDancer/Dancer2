@@ -50,7 +50,7 @@ has views => (
 
 has layout => (
     is => 'rw',
-    isa => sub { croak "layout must be a string" if defined($_) and not isStr($_) },
+    isa => Maybe[Str],
 );
 
 has engine => (

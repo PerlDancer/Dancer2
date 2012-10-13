@@ -75,10 +75,7 @@ has domain => (
 
 has path => (
     is       => 'rw',
-    isa      => sub { 
-        croak "path must be a string or undef" 
-            if defined $_ and not isStr($_) 
-    },
+    isa      => Maybe[Str],
     required => 0,
     default  => sub { '/' },
 );
