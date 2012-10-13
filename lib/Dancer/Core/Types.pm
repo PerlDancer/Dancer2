@@ -45,7 +45,7 @@ my $definitions = [
             # index is much faster than =~ /^\//
             ref(\$_[0]) eq 'SCALAR' && (index($_[0], '/') == 0);
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerPrefix'" }
+        message => sub { exception_message( $_[0], 'a DancerPrefix' ) }
     },
     {
         name => 'DancerAppName',
@@ -53,7 +53,7 @@ my $definitions = [
             defined $_[0] or return;
             ref(\$_[0]) eq 'SCALAR' && $_[0] =~ $namespace
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerAppName'" }
+        message => sub { exception_message( $_[0], 'a DancerAppName' ) }
     },
     {
         name => 'DancerMethod',
@@ -61,7 +61,7 @@ my $definitions = [
             defined $_[0] or return;
             grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerMethod'" }
+        message => sub { exception_message( $_[0], 'a DancerMethod' ) }
     },
     {
         name => 'DancerHTTPMethod',
@@ -69,7 +69,7 @@ my $definitions = [
             defined $_[0] or return;
             grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerHTTPMethod'" }
+        message => sub { exception_message( $_[0], 'a DancerHTTPMethod' ) }
     },
 ];
 
