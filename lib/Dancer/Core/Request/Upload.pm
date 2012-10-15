@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: class representing file uploads requests
 
 package Dancer::Core::Request::Upload;
 use Moo;
@@ -87,7 +87,7 @@ Dancer::Request::Upload - class representing file uploads requests
 =head1 DESCRIPTION
 
 This class implements a representation of file uploads for Dancer.
-These objects are accesible within route handlers via the request->uploads
+These objects are accessible within route handlers via the request->uploads
 keyword. See L<Dancer::Request> for details.
 
 =head1 METHODS

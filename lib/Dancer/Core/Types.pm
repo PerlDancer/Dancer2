@@ -94,3 +94,47 @@ MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 
 1;
 
+__END__
+
+=head1 DESCRIPTION
+
+Type definitions for Moo attributes. These are defined as subroutines. 
+
+=head1 SUBROUTINES
+
+=head2 ReadableFilePath($value)
+
+A readable file path.
+
+=head2 WritableFilePath($value)
+
+A writable file path.
+
+=head2 DancerPrefix($value)
+
+A proper Dancer prefix, which is basically a prefix that starts with a I</>
+character.
+
+=head2 DancerAppName($value)
+
+A proper Dancer application name.
+
+Currently this only checks for I<\w+>.
+
+=head2 DancerMethod($value)
+
+An acceptable method supported by Dancer.
+
+Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
+I<options>.
+
+=head2 DancerHTTPMethod($value)
+
+An acceptable HTTP method supported by Dancer.
+
+Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
+and I<OPTIONS>.
+
+=head1 SEE ALSO
+
+L<MooX::Types::MooseLike> for more available types

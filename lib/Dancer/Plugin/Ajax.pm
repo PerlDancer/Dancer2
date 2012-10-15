@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: a plugin for adding Ajax route handlers
 
 package Dancer::Plugin::Ajax;
 
@@ -44,10 +44,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Plugin::Ajax - a plugin for adding Ajax route handlers
-
 =head1 SYNOPSIS
 
     package MyWebApp;
@@ -83,9 +79,5 @@ Disable the layout
 The action built is a POST request.
 
 =back
-
-=head1 AUTHOR
-
-This module has been written by Alexis Sukrieh <sukria@sukria.net>
 
 =cut

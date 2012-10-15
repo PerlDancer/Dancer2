@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Capture dancer logs
 
 package Dancer::Logger::Capture;
 use Moo;
@@ -23,10 +23,6 @@ sub log {
 
 1;
 __END__
-
-=head1 NAME
-
-Dancer::Logger::Capture - Capture dancer logs
 
 =head1 SYNOPSIS
 
