@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: a place to store captured Dancer logs
 
 package Dancer::Logger::Capture::Trap;
 use Moo;
@@ -25,10 +25,6 @@ sub read {
 
 1;
 __END__
-
-=head1 NAME
-
-Dancer::Logger::Capture::Trap - a place to store captured Dancer logs
 
 =head1 SYNOPSIS
 

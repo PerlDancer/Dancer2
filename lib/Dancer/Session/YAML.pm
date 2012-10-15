@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: YAML-file-based session backend for Dancer
 
 package Dancer::Session::YAML;
 use Moo;
@@ -87,13 +87,10 @@ sub flush {
 }
 
 1;
+
 __END__
 
 =pod
-
-=head1 NAME
-
-Dancer::Session::YAML - YAML-file-based session backend for Dancer
 
 =head1 DESCRIPTION
 
@@ -137,22 +134,8 @@ to work without having to restart your application.
 
 This module depends on L<YAML>.
 
-=head1 AUTHOR
-
-This module has been written by Alexis Sukrieh, see the AUTHORS file for
-details.
-
 =head1 SEE ALSO
 
 See L<Dancer::Session> for details about session usage in route handlers.
-
-=head1 COPYRIGHT
-
-This module is copyright (c) 2009 Alexis Sukrieh <sukria@sukria.net>
-
-=head1 LICENSE
-
-This module is free software and is released under the same terms as Perl
-itself.
 
 =cut

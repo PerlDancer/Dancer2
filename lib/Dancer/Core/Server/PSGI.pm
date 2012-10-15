@@ -15,7 +15,24 @@ sub start {
 }
 
 1;
+
 __END__
+
+=head1 DESCRIPTION
+
+This is a server implementation for PSGI. It contains all the code to handle a
+PSGI request.
+
+=head1 METHODS
+
+=head2 name
+
+The server's name: B<PSGI>.
+
+=head2 start
+
+Starts the server.
+
 sub start {
     my $self = shift;
     my $app  = $self->psgi_app();

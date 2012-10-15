@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Class to manipulate hooks with Dancer
 
 package Dancer::Core::Hook;
 use Moo;
@@ -38,19 +38,15 @@ has code => (
 1;
 __END__
 
-=head1 NAME
-
-Dancer::Hook - Class to manipulate hooks with Dancer
-
-=head1 DESCRIPTION
-
-Manipulate hooks with Dancer
-
 =head1 SYNOPSIS
 
   # inside a plugin
   use Dancer::Hook;
   Dancer::Hook->register_hooks_name(qw/before_auth after_auth/);
+
+=head1 DESCRIPTION
+
+Manipulate hooks with Dancer
 
 =head1 METHODS
 
@@ -91,11 +87,4 @@ Execute a hooks
 
 Returns the list of coderef registered for a given position
 
-=head1 AUTHORS
-
-This module has been written by Alexis Sukrieh and others.
-
-=head1 LICENSE
-
-This module is free software and is published under the same
-terms as Perl itself.
+=cut
