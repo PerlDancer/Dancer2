@@ -76,7 +76,6 @@ has path => (
     is       => 'rw',
     isa      => Str,
     required => 0,
-    default  => sub { '/' },
 );
 
 has secure => (
