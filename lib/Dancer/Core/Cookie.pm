@@ -73,7 +73,7 @@ has domain => (
 );
 
 has path => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => Str,
     required => 0,
 );
