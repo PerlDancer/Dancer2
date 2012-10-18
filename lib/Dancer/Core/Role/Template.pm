@@ -50,7 +50,7 @@ has views => (
 
 has layout => (
     is => 'rw',
-    isa => Maybe[Str],
+    isa => Str,
 );
 
 has engine => (

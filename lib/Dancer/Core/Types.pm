@@ -5,11 +5,11 @@ package Dancer::Core::Types;
 use strict;
 use warnings;
 use Scalar::Util 'blessed', 'looks_like_number';
-use MooX::Types::MooseLike 0.16;
+use MooX::Types::MooseLike 0.11;
 use MooX::Types::MooseLike::Base qw/:all/;
 use MooX::Types::MooseLike::Numeric qw/:all/;
 
-use base 'Exporter';
+use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 
@@ -89,9 +89,8 @@ for my $type (qw/App Request Response Context Runner Dispatcher MIME/) {
 
 MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 
-@EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK);
-
 # Export everything by default.
+@EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK);
 
 1;
 
