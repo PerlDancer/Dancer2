@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: in-memory session backend for Dancer
 
 package Dancer::Session::Simple;
 use Moo;
@@ -36,10 +36,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Dancer::Session::Simple - in-memory session backend for Dancer
-
 =head1 DESCRIPTION
 
 This module implements a very simple session backend, holding all session data
@@ -53,22 +49,8 @@ The setting B<session> should be set to C<Simple> in order to use this session
 engine in a Dancer application.
 
 
-=head1 AUTHOR
-
-This module has been written by David Precious, see the AUTHORS file for
-details.
-
 =head1 SEE ALSO
 
 See L<Dancer::Session> for details about session usage in route handlers.
-
-=head1 COPYRIGHT
-
-This module is copyright (c) 2010 David Precious <davidp@preshweb.co.uk>
-
-=head1 LICENSE
-
-This module is free software and is released under the same terms as Perl
-itself.
 
 =cut

@@ -44,3 +44,30 @@ sub deserialize {
 sub content_type {'application/json'}
 
 1;
+
+__END__
+
+=pod
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+Turn Perl data structures into JSON output and vice-versa.
+
+=head1 METHODS
+
+=head2 serialize
+
+Serialize a Perl data structure into a JSON string.
+
+=head2 deserialize
+
+Deserialize a JSON string into a Perl data structure
+
+=head2 content_type
+
+return 'application/json'
+
+=cut
+

@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Template::Toolkit backend to Dancer
 
 package Dancer::Template::TemplateToolkit;
 
@@ -54,3 +54,31 @@ sub render {
 }
 
 1;
+
+
+__END__
+
+=pod
+
+=head1 SYNOPSIS
+
+To use this engine, you may configure L<Dancer> via C<config.yaml>:
+
+    template:   "template_toolkit"
+
+Or you may also change the rendering engine on a per-route basis by
+setting it manually with C<set>:
+
+    # code code code
+    set template => 'template_toolkit';
+
+=head1 SUBROUTINES/METHODS
+
+=head2 render TEMPLATE, TOKENS
+
+Renders the template.  The first arg is a filename for the template file
+or a reference to a string that contains the template.  The second arg
+is a hashref for the tokens that you wish to pass to
+L<Template::Toolkit> for rendering.
+
+=cut
