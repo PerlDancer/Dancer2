@@ -1,10 +1,20 @@
 package Dancer::Plugin;
 
-# ABSTRACT: helper for extending Dancer's DSL
+# ABSTRACT: Make plugins extending Dancer's DSL
+
+=pod
+
+=head1 NAME
+
+Dancer::Plugin - helper for extending Dancer's DSL
+
+=head1 VERSION
+
+version 2.0
 
 =head1 DESCRIPTION
 
-You can extend Dancer by writing your own Plugin.
+You can extend Dancer by writing your own plugin.
 
 A plugin is a module that exports a bunch of symbols to the current namespace
 (the caller will see all the symbols defined via C<register>).
@@ -20,7 +30,9 @@ use Moo::Role;
 use Carp 'croak';
 use Dancer::Core::DSL;
 
-=method register
+=head1 METHODS
+
+=head2 register
 
 Allows the plugin to define a keyword that will be exported to the caller's
 namespace.
@@ -91,7 +103,7 @@ sub register {
     ];
 }
 
-=method register_plugin
+=head2 register_plugin
 
 A Dancer plugin must end with this statement. This lets the plugin register all
 the symbols defined with C<register> as exported symbols.
@@ -159,7 +171,7 @@ sub register_plugin {
     $dsl->dancer_app->register_plugin($dsl);
 }
 
-=method plugin_args
+=head2 plugin_args
 
 Simple method to retrieve the parameters or arguments passed to a
 plugin-defined keyword. Although not relevant for Dancer 1 only, or
@@ -176,7 +188,7 @@ Note that Dancer 1 will return undef as the object reference.
 
 sub plugin_args { @_ }
 
-=method plugin_setting
+=head2 plugin_setting
 
 If C<plugin_setting> is called inside a plugin, the appropriate configuration
 will be returned. The C<plugin_name> should be the name of the package, or,
@@ -206,7 +218,7 @@ sub plugin_setting {
     return $app->config->{'plugins'}->{$plugin_name} ||= {};
 }
 
-=method register_hook
+=head2 register_hook
 
 Allows a plugin to delcare a list of supported hooks. Any hook declared like so
 can be executed by the plugin with C<execute_hook>.
@@ -251,7 +263,7 @@ sub register_hook {
     }
 }
 
-=method execute_hook
+=head2 execute_hook
 
 Allows a plugin to execute the hooks attached at the given position
 
@@ -367,5 +379,16 @@ And in your application:
     use Dancer::Plugin::LinkBlocker;
 
     block_links_from; # this is exported by the plugin
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
