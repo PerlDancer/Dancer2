@@ -1,5 +1,5 @@
 package Dancer::Core::Route;
-# ABSTRACT: class for Dancer route handler objects
+# ABSTRACT: Dancer's route handler
 
 use strict;
 use warnings;
@@ -8,7 +8,17 @@ use Moo;
 use Dancer::Core::Types;
 use Carp 'croak';
 
-=attr method
+=head1 NAME
+
+Dancer::Core::Route - Dancer's route handler 
+
+=head1 VERSION
+
+version 2.0
+
+=head1 ATTRIBUTES
+
+=head2 method
 
 the HTTP method of the route (lowercase). Required.
 
@@ -20,11 +30,11 @@ has method => (
     required => 1,
 );
 
-=attr code
+=head2 code
 
 The code reference to execute when the route is ran. Required.
 
-=cut
+=cut 
 
 has code => (
     is => 'ro',
@@ -32,7 +42,7 @@ has code => (
     isa => CodeRef,
 );
 
-=attr regexp
+=head2 regexp
 
 The regular expression that defines the path of the route.
 Required. Coerce from Dancer's route I<patterns>.
@@ -44,13 +54,19 @@ has regexp => (
     required => 1,
 );
 
+=head2 spec_route
+
+Optional.
+
+=cut
+
 has spec_route => (
     is => 'rw',
 );
 
-=attr prefix
+=head2 prefix
 
-The prefix to prepend to the C<regexp>. Optional.
+The prefix to prepend to the C<regexp>. Optional. Has to start with /.
 
 =cut
 
@@ -59,17 +75,20 @@ has prefix => (
     isa => DancerPrefix,
 );
 
-=attr options
+=head2 options
 
 A HashRef of conditions on which the matching will depend. Optional.
 
-=cut
+=cut 
 
 has options => (
     is => 'ro',
     isa => HashRef,
     trigger => \&_check_options,
 );
+
+=head1 METHODS
+=cut
 
 # TODO this should be done elsewhere
 #sub _check_options {
@@ -110,7 +129,8 @@ has _params => (
     default => sub { [] },
 );
 
-=method match
+
+=head2 match
 
 Try to match the route with a given pair of method/path.
 Returns the hash of matching data if success (captures and values of the route
@@ -171,7 +191,7 @@ sub match {
     return $self->_match_data({});
 }
 
-=method execute
+=head2 execute
 
 Runs the coderef of the route
 
@@ -285,3 +305,18 @@ sub _build_regexp_from_string {
 
 1;
 __END__
+
+=pod
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
