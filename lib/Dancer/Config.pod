@@ -1,9 +1,7 @@
-# PODNAME: Config.pod
+# ABSTRACT: Configure Dancer to suit your needs
+# PODNAME: Dancer::Config
+
 =pod
-
-=head1 NAME
-
-Dancer::Config.pod - how to configure Dancer to suit your needs
 
 =head1 DESCRIPTION
 
@@ -480,15 +478,6 @@ and setting `DANCER_ENVDIR` will be similar to:
 
     set envdir => '/path/to/environments'
 
-=head1 AUTHOR
-
-This module has been written by Alexis Sukrieh <sukria@cpan.org> and others,
-see the AUTHORS file that comes with this distribution for details.
-
-=head1 LICENSE
-
-This module is free software and is released under the same terms as Perl
-itself.
 
 =head1 SEE ALSO
 
