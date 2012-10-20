@@ -1,6 +1,5 @@
-# ABSTRACT: Leightweight yet powerful web application framework
-
 package Dancer;
+# ABSTRACT: Leightweight yet powerful web application framework
 
 use strict;
 use warnings;
@@ -12,8 +11,7 @@ use Dancer::Core::App;
 use Dancer::Core::DSL;
 use Dancer::FileUtils;
 
-our $VERSION   = '2.000000_01';
-$VERSION = eval $VERSION;
+#set version in dist.ini now
 our $AUTHORITY = 'SUKRIA';
 
 

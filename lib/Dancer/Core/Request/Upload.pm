@@ -1,9 +1,5 @@
-# ABSTRACT: Class representing file upload requests
-
 package Dancer::Core::Request::Upload;
-{
-  $Dancer::Core::Request::Upload::VERSION = '2.0';
-}
+# ABSTRACT: Class representing file upload requests
 use Moo;
 use Dancer::Core::Types;
 
