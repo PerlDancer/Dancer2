@@ -1,6 +1,6 @@
 package Dancer::Plugin;
 
-# ABSTRACT: helper for extending Dancer's DSL
+# ABSTRACT: Extending Dancer's DSL with plugins
 
 =head1 DESCRIPTION
 
