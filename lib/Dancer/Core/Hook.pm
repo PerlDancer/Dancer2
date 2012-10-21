@@ -1,9 +1,16 @@
-# ABSTRACT: Class to manipulate hooks with Dancer
-
+# ABSTRACT: Manipulate hooks with Dancer
 package Dancer::Core::Hook;
 use Moo;
 use Dancer::Core::Types;
 use Carp;
+
+=head1 SYNOPSIS
+
+  # inside a plugin
+  use Dancer::Hook;
+  Dancer::Hook->register_hooks_name(qw/before_auth after_auth/);
+
+=cut
 
 has name => (
     is => 'rw',
@@ -35,22 +42,7 @@ has code => (
     },
 );
 
-1;
-__END__
-
-=head1 SYNOPSIS
-
-  # inside a plugin
-  use Dancer::Hook;
-  Dancer::Hook->register_hooks_name(qw/before_auth after_auth/);
-
-=head1 DESCRIPTION
-
-Manipulate hooks with Dancer
-
-=head1 METHODS
-
-=head2 register_hook ($hook_name, [$properties], $code)
+=method register_hook ($hook_name, [$properties], $code)
 
     hook 'before', {apps => ['main']}, sub {...};
 
@@ -68,7 +60,7 @@ Currently supported properties:
 
 =back
 
-=head2 register_hooks_name
+=method register_hooks_name
 
 Add a new hook name, so application developers can insert some code at this point.
 
@@ -79,12 +71,14 @@ Add a new hook name, so application developers can insert some code at this poin
 
 Test if a hook with this name has already been registered.
 
-=head2 execute_hook
+=method execute_hook
 
 Execute a hooks
 
-=head2 get_hooks_for
+=method get_hooks_for
 
 Returns the list of coderef registered for a given position
 
 =cut
+
+1;

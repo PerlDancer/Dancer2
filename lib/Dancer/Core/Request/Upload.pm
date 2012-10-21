@@ -1,6 +1,5 @@
-# ABSTRACT: class representing file uploads requests
-
 package Dancer::Core::Request::Upload;
+# ABSTRACT: Class representing file upload requests
 use Moo;
 use Dancer::Core::Types;
 
@@ -8,25 +7,78 @@ use Carp;
 use File::Spec;
 use Dancer::FileUtils qw(open_file);
 
+=head1 DESCRIPTION
+
+This class implements a representation of file uploads for Dancer.
+These objects are accessible within route handlers via the request->uploads
+keyword. See L<Dancer::Request> for details.
+
+
+=attr filename
+
+Filename as sent by client. optional. May not be undef.
+
+=method my $filename=$upload->filename;
+
+Returns the filename (full path) as sent by the client.
+
+=cut
+
 has filename => (
     is => 'rw',
     isa => Str,
 );
+
+=attr tempname
+
+The name of the temporary file the data has been saved to. Optional. May not be undef.
+
+=method my $tempname=$upload->tempname;
+
+Returns the name of the temporary file the data has been saved to.
+
+For example, in directory /tmp, and given a random name, with no file extension.
+
+=cut
+
 
 has tempname => (
     is => 'rw',
     isa => Str,
 );
 
+=attr headers
+
+A hash ref of the headers associated with this upload. optional. is read-write and a HashRef.
+
+=method my $href=$upload->headers;
+
+Returns a hashRef of the headers associated with this upload.
+
+=cut
+
 has headers => (
     is => 'rw',
     isa => HashRef,
 );
 
+=attr size
+
+The size of the upload, in bytes. Optional.
+
+=cut
+
 has size => (
     is => 'rw',
     isa => Num,
 );
+
+
+=method my $fh=$upload->file_handle;
+
+Returns a read-only file handle on the temporary file.
+
+=cut
 
 sub file_handle {
     my ($self) = @_;
@@ -35,16 +87,37 @@ sub file_handle {
     $self->{_fh} = $fh;
 }
 
+
+=method $upload->copy_to('/path/to/target')
+
+Copies the temporary file using File::Copy. Returns true for success,
+false for failure.
+
+=cut    
+
 sub copy_to {
     my ($self, $target) = @_;
     require File::Copy;
     File::Copy::copy($self->{tempname}, $target);
 }
 
+=method $upload->link_to('/path/to/target');
+
+Creates a hard link to the temporary file. Returns true for success,
+false for failure.
+
+=cut
+
 sub link_to {
     my ($self, $target) = @_;
     CORE::link($self->{tempname}, $target);
 }
+
+=method my $content=$upload->content;
+
+Returns a scalar containing the contents of the temporary file.
+
+=cut
 
 sub content {
     my ($self, $layer) = @_;
@@ -65,11 +138,24 @@ sub content {
     $self->{_content} = $content;
 }
 
+=method my $basename=$upload->basename;
+
+Returns basename for "filename".
+
+=cut
+
 sub basename {
     my ($self) = @_;
     require File::Basename;
     File::Basename::basename($self->filename);
 }
+
+
+=method $upload->type
+
+Returns the Content-Type of this upload.
+
+=cut
 
 sub type {
     my $self = shift;
@@ -77,80 +163,11 @@ sub type {
 }
 
 1;
-__END__
-=pod
-
-=head1 NAME
-
-Dancer::Request::Upload - class representing file uploads requests
-
-=head1 DESCRIPTION
-
-This class implements a representation of file uploads for Dancer.
-These objects are accessible within route handlers via the request->uploads
-keyword. See L<Dancer::Request> for details.
-
-=head1 METHODS
-
-=over 4
-
-=item filename
-
-Returns the filename as sent by the client.
-
-=item basename
-
-Returns basename for "filename".
-
-=item tempname
-
-Returns the name of the temporary file the data has been saved to.
-
-This will be in e.g. /tmp, and given a random name, with no file extension.
-
-=item link_to
-
-Creates a hard link to the temporary file. Returns true for success,
-false for failure.
-
-    $upload->link_to('/path/to/target');
-
-=item file_handle
-
-Returns a read-only file handle on the temporary file.
-
-=item content
-
-Returns a scalar containing the contents of the temporary file.
-
-=item copy_to
-
-Copies the temporary file using File::Copy. Returns true for success,
-false for failure.
-
-    $upload->copy_to('/path/to/target')
-
-=item size
-
-The size of the upload, in bytes.
-
-=item headers
-
-Returns a hash ref of the headers associated with this upload.
-
-=item type
-
-The Content-Type of this upload.
-
-=back
-
-=head1 AUTHORS
-
-This module as been written by Alexis Sukrieh, heavily based on
-L<Plack::Request::Upload>. Kudos to Plack authors.
 
 =head1 SEE ALSO
 
 L<Dancer>
 
 =cut
+
+

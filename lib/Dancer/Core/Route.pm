@@ -1,5 +1,6 @@
+# ABSTRACT: Dancer's route handler
+
 package Dancer::Core::Route;
-# ABSTRACT: class for Dancer route handler objects
 
 use strict;
 use warnings;
@@ -284,4 +285,3 @@ sub _build_regexp_from_string {
 }
 
 1;
-__END__

@@ -13,6 +13,13 @@ use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 
+
+=head1 DESCRIPTION
+
+Type definitions for Moo attributes. These are defined as subroutines. 
+
+=cut
+
 my $single_part = qr/
     [A-Za-z]              # must start with letter
     (?: [A-Za-z0-9_]+ )? # can continue with letters, numbers or underscore
@@ -24,6 +31,43 @@ my $namespace = qr/
     (?: (?: \:\: $single_part )+ )? # optional part starting with double colon
     $
 /x;
+
+=head1 MOO TYPES 
+
+=head2 ReadableFilePath($value)
+
+A readable file path.
+
+=head2 WritableFilePath($value)
+
+A writable file path.
+
+=head2 DancerPrefix($value)
+
+A proper Dancer prefix, which is basically a prefix that starts with a I</>
+character.
+
+=head2 DancerAppName($value)
+
+A proper Dancer application name.
+
+Currently this only checks for I<\w+>.
+
+=head2 DancerMethod($value)
+
+An acceptable method supported by Dancer.
+
+Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
+I<options>.
+
+=head2 DancerHTTPMethod($value)
+
+An acceptable HTTP method supported by Dancer.
+
+Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
+and I<OPTIONS>.
+
+=cut
 
 my $definitions = [
     {
@@ -94,47 +138,9 @@ MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 
 1;
 
-__END__
-
-=head1 DESCRIPTION
-
-Type definitions for Moo attributes. These are defined as subroutines. 
-
-=head1 SUBROUTINES
-
-=head2 ReadableFilePath($value)
-
-A readable file path.
-
-=head2 WritableFilePath($value)
-
-A writable file path.
-
-=head2 DancerPrefix($value)
-
-A proper Dancer prefix, which is basically a prefix that starts with a I</>
-character.
-
-=head2 DancerAppName($value)
-
-A proper Dancer application name.
-
-Currently this only checks for I<\w+>.
-
-=head2 DancerMethod($value)
-
-An acceptable method supported by Dancer.
-
-Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
-I<options>.
-
-=head2 DancerHTTPMethod($value)
-
-An acceptable HTTP method supported by Dancer.
-
-Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
-and I<OPTIONS>.
-
 =head1 SEE ALSO
 
 L<MooX::Types::MooseLike> for more available types
+
+=cut
+
