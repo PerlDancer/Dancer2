@@ -46,7 +46,7 @@ my $definitions = [
             # index is much faster than =~ /^\//
             index($_[0], '/') == 0;
         },
-        message    => sub { return exception_message($_[0], 'DancerPrefix') }
+        message    => sub { return exception_message($_[0], 'a DancerPrefix') }
     },
     {
         name       => 'DancerAppName',
@@ -56,7 +56,12 @@ my $definitions = [
             # TODO need a real check of valid app names
             $_[0] =~ $namespace;
         },
-        message    => sub { return exception_message($_[0], 'DancerAppName') }
+        message    => sub { 
+            return exception_message(
+                length($_[0]) ? $_[0] : 'Empty string', 
+                'a DancerAppName'
+            ) 
+        }
     },
     {
         name       => 'DancerMethod',
@@ -65,7 +70,7 @@ my $definitions = [
         test       => sub {
             grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
-        message    => sub { return exception_message($_[0], 'DancerMethod') }
+        message    => sub { return exception_message($_[0], 'a DancerMethod') }
     },
     {
         name       => 'DancerHTTPMethod',
@@ -74,7 +79,7 @@ my $definitions = [
         test => sub {
             grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
-        message => sub { return exception_message($_[0], 'DancerHTTPMethod') }
+        message => sub { return exception_message($_[0], 'a DancerHTTPMethod') }
     },
 ];
 
@@ -95,12 +100,6 @@ MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 
 # Export everything by default.
 @EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK);
-
-sub exception_message {
-    my ($attribute_value, $type) = @_;
-    $attribute_value = defined $attribute_value ? $attribute_value : 'undef';
-    return "The value `${attribute_value}' does not pass the type constraint for type `${type}'";
-} 
 
 1;
 

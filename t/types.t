@@ -278,5 +278,3 @@ ok(
     exception { DancerHTTPMethod->(undef) },
     'DancerMethod does not accept undef value',
 );
-
-done_testing;
