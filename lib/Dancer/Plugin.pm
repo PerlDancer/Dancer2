@@ -334,7 +334,6 @@ sub _get_dsl {
 }
 
 1;
-__END__
 
 =head1 EXAMPLE PLUGIN
 

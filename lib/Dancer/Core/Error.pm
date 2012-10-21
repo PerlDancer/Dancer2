@@ -47,7 +47,7 @@ sub supported_hooks {
     /;
 }
 
-=atttr show_errors
+=attr show_errors
 =cut
 
 has show_errors => (
