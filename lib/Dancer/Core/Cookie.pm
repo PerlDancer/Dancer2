@@ -1,10 +1,34 @@
-# ABSTRACT: class representing cookies
+# ABSTRACT: A cookie representing class 
 
 package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;
 use Dancer::Core::Types;
 use Carp 'croak';
+
+=head1 SYNOPSIS
+
+    use Dancer::Core::Cookie;
+
+    my $cookie = Dancer::Cookie->new(
+        name => $cookie_name, value => $cookie_value
+    );
+
+=head1 DESCRIPTION
+
+Dancer::Cookie provides a HTTP cookie object to work with cookies.
+
+=method my $cookie=new Dancer::Cookie (%opts);
+
+Create a new Dancer::Cookie object.
+
+You can set any attribute described in the I<ATTRIBUTES> section above.
+
+=method my $header=$cookie->to_header();
+
+Creates a proper HTTP cookie header from the content.
+
+=cut
 
 sub to_header {
     my $self   = shift;
@@ -22,6 +46,14 @@ sub to_header {
 
     return join '; ', @headers;
 }
+
+
+
+=attr value
+
+The cookie's value.
+
+=cut 
 
 has value => (
     is       => 'rw',
@@ -44,12 +76,42 @@ around value => sub {
     return wantarray ? @$array : $array->[0];
 };
 
+=attr name
+
+The cookie's name.
+
+=cut
 
 has name => (
     is       => 'rw',
     isa      => Str,
     required => 1,
 );
+
+
+
+=attr expires
+
+The cookie's expiration date.  There are several formats.
+
+Unix epoch time like 1288817656 to mean "Wed, 03-Nov-2010 20:54:16 GMT"
+
+A human readable offset from the current time such as "2 hours".  It currently
+understands...
+
+    s second seconds sec secs
+    m minute minutes min mins
+    h hr hour hours
+    d day days
+    w week weeks
+    M month months
+    y year years
+
+Months and years are currently fixed at 30 and 365 days.  This may change.
+
+Anything else is used verbatim.
+
+=cut
 
 has expires => (
     is       => 'rw',
@@ -67,17 +129,37 @@ has expires => (
     },
 );
 
+
+=attr domain
+
+The cookie's domain.
+
+=cut
+
 has domain => (
     is       => 'rw',
     isa      => Str,
     required => 0,
 );
 
+=attr path
+
+The cookie's path.
+
+=cut
+
 has path => (
     is       => 'rw',
     isa      => Str,
     predicate => 1,
 );
+
+=attr secure
+
+If true, it instructs the client to only serve the cookie over secure
+connections such as https.
+
+=cut
 
 has secure => (
     is       => 'rw',
@@ -86,6 +168,17 @@ has secure => (
     default  => sub { 0 },
 );
 
+=attr http_only
+
+By default, cookies are created with a property, named C<HttpOnly>,
+that can be used for security, forcing the cookie to be used only by
+the server (via HTTP) and not by any JavaScript code.
+
+If your cookie is meant to be used by some JavaScript code, set this
+attribute to 0.
+
+=cut
+
 has http_only => (
     is       => 'rw',
     isa      => Bool,
@@ -93,6 +186,11 @@ has http_only => (
     default  => sub { 0 },
 );
 
+
+
+#
+# private
+#
 
 sub _epoch_to_gmtstring {
     my ($epoch) = @_;
@@ -155,89 +253,4 @@ sub _parse_duration {
 }
 
 1;
-
-__END__
-
-=pod
-
-=head1 SYNOPSIS
-
-    use Dancer::Core::Cookie;
-
-    my $cookie = Dancer::Cookie->new(
-        name => $cookie_name, value => $cookie_value
-    );
-
-=head1 DESCRIPTION
-
-Dancer::Cookie provides a HTTP cookie object to work with cookies.
-
-=head1 ATTRIBUTES
-
-=head2 name
-
-The cookie's name.
-
-=head2 value
-
-The cookie's value.
-
-=head2 expires
-
-The cookie's expiration date.  There are several formats.
-
-Unix epoch time like 1288817656 to mean "Wed, 03-Nov-2010 20:54:16 GMT"
-
-A human readable offset from the current time such as "2 hours".  It currently
-understands...
-
-    s second seconds sec secs
-    m minute minutes min mins
-    h hr hour hours
-    d day days
-    w week weeks
-    M month months
-    y year years
-
-Months and years are currently fixed at 30 and 365 days.  This may change.
-
-Anything else is used verbatim.
-
-=head2 domain
-
-The cookie's domain.
-
-=head2 path
-
-The cookie's path.
-
-=head2 secure
-
-If true, it instructs the client to only serve the cookie over secure
-connections such as https.
-
-=head2 http_only
-
-By default, cookies are created with a property, named C<HttpOnly>,
-that can be used for security, forcing the cookie to be used only by
-the server (via HTTP) and not by any JavaScript code.
-
-If your cookie is meant to be used by some JavaScript code, set this
-attribute to 0.
-
-=head1 METHODS/SUBROUTINES
-
-=head2 new
-
-Create a new Dancer::Cookie object.
-
-You can set any attribute described in the I<ATTRIBUTES> section above.
-
-=head2 init
-
-Runs an expiration test and sets a default path if not set.
-
-=head2 to_header
-
-Creates a proper HTTP cookie header from the content.
 

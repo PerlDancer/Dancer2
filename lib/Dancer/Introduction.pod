@@ -1,10 +1,5 @@
-# ABSTRACT: TODO
-
-# PODNAME: Introduction.pod
-
-=head1 NAME
-
-Dancer::Introduction - A gentle introduction to Dancer
+# ABSTRACT: A gentle introduction to Dancer
+# PODNAME: Dancer::Introduction
 
 =head1 DESCRIPTION
 
