@@ -4,6 +4,7 @@ package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;
 use Dancer::Core::Types;
+use Carp 'croak';
 
 sub to_header {
     my $self   = shift;
@@ -74,7 +75,7 @@ has domain => (
 
 has path => (
     is       => 'rw',
-    isa      => Str,
+    isa      => Maybe[Str],
     required => 0,
     default  => sub { '/' },
 );

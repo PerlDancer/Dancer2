@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More skip_all => "skipped, waiting for these to be merged : https://github.com/mateu/MooX-Types-MooseLike/issues/14 && https://github.com/mateu/MooX-Types-MooseLike/issues/13"; # tests => 46
+use Test::More tests => 46;
 use Test::Fatal;
 use Dancer::Core::Types;
 
@@ -35,7 +35,7 @@ ok(
 
 like(
     exception { Num->('not a number') },
-    qr{not a number is not a Number},
+    qr{(?i:not a number is not a Number)},
     'Num fail',
 );
 
@@ -167,9 +167,11 @@ like(
     'DancerPrefix fail',
 );
 
-ok(
+# see DancerPrefix definition, undef is a valid value
+is(
     exception { DancerPrefix->(undef) },
-    'DancerPrefix does not accept undef value',
+    undef,
+    'DancerPrefix accepts undef value',
 );
 
 is(

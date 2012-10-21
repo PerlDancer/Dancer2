@@ -5,7 +5,7 @@ package Dancer::Core::Types;
 use strict;
 use warnings;
 use Scalar::Util 'blessed', 'looks_like_number';
-use MooX::Types::MooseLike 0.11;
+use MooX::Types::MooseLike 0.16;
 use MooX::Types::MooseLike::Base qw/:all/;
 use MooX::Types::MooseLike::Numeric qw/:all/;
 
@@ -51,26 +51,35 @@ my $definitions = [
         name => 'DancerAppName',
         test => sub {
             # TODO need a real check of valid app names
-            return 1 if !defined $_[0];
+            return 0 unless defined $_[0];
             ref(\$_[0]) eq 'SCALAR' && $_[0] =~ $namespace
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerAppName'" }
+        message => sub { 
+            no warnings qw/ uninitialized /;
+            "The value `$_[0]' does not pass the type constraint for type `DancerAppName'" 
+        }
     },
     {
         name => 'DancerMethod',
         test => sub {
-            return 1 if !defined $_[0];
+            return 0 unless defined $_[0];
             grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerMethod'" }
+        message => sub { 
+            no warnings 'uninitialized'; 
+            "The value `$_[0]' does not pass the type constraint for type `DancerMethod'" 
+        }
     },
     {
         name => 'DancerHTTPMethod',
         test => sub {
-            return 1 if !defined $_[0];
+            return 0 unless defined $_[0];
             grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerHTTPMethod'" }
+        message => sub { 
+            no warnings 'uninitialized'; 
+            "The value `$_[0]' does not pass the type constraint for type `DancerHTTPMethod'" 
+        }
     },
 ];
 
