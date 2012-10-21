@@ -1,5 +1,5 @@
 package Dancer;
-# ABSTRACT: Leightweight yet powerful web application framework
+# ABSTRACT: Lightweight yet powerful web application framework
 
 use strict;
 use warnings;
