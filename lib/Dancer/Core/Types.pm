@@ -5,7 +5,7 @@ package Dancer::Core::Types;
 use strict;
 use warnings;
 use Scalar::Util 'blessed', 'looks_like_number';
-use MooX::Types::MooseLike 0.16;
+use MooX::Types::MooseLike 0.16 'exception_message';
 use MooX::Types::MooseLike::Base qw/:all/;
 use MooX::Types::MooseLike::Numeric qw/:all/;
 
@@ -40,46 +40,44 @@ my $definitions = [
     {
         name => 'DancerPrefix',
         test => sub {
-            return 1 if !defined $_[0];
+            return 0 unless defined $_[0];
             # a prefix must start with the char '/'
             # index is much faster than =~ /^\//
             ref(\$_[0]) eq 'SCALAR' && (index($_[0], '/') == 0);
         },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `DancerPrefix'" }
+        message => sub { exception_message( $_[0], 'a DancerPrefix' ) }
     },
     {
         name => 'DancerAppName',
         test => sub {
-            # TODO need a real check of valid app names
             return 0 unless defined $_[0];
             ref(\$_[0]) eq 'SCALAR' && $_[0] =~ $namespace
         },
-        message => sub { 
-            no warnings qw/ uninitialized /;
-            "The value `$_[0]' does not pass the type constraint for type `DancerAppName'" 
+        message => sub {
+            if ( defined $_[0] && length $_[0] == 0 ) {
+                return exception_message(
+                    'Empty string', 'a DancerAppName'
+                );
+            }
+
+            exception_message( $_[0], 'a DancerAppName' );
         }
     },
     {
         name => 'DancerMethod',
         test => sub {
-            return 0 unless defined $_[0];
+            defined $_[0] or return;
             grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
-        message => sub { 
-            no warnings 'uninitialized'; 
-            "The value `$_[0]' does not pass the type constraint for type `DancerMethod'" 
-        }
+        message => sub { exception_message( $_[0], 'a DancerMethod' ) }
     },
     {
         name => 'DancerHTTPMethod',
         test => sub {
-            return 0 unless defined $_[0];
+            defined $_[0] or return;
             grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
-        message => sub { 
-            no warnings 'uninitialized'; 
-            "The value `$_[0]' does not pass the type constraint for type `DancerHTTPMethod'" 
-        }
+        message => sub { exception_message( $_[0], 'a DancerHTTPMethod' ) }
     },
 ];
 

@@ -401,7 +401,8 @@ has context => (
 
 has prefix => (
     is => 'rw',
-    isa => DancerPrefix,
+    isa => Maybe[DancerPrefix],
+    predicate => 1,
     coerce => sub {
         my ($prefix) = @_;
         return undef if defined($prefix) and $prefix eq "/";
