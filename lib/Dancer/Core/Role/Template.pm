@@ -111,7 +111,8 @@ sub apply_layout {
     my $layout =
       exists $options->{layout}
       ? ($options->{layout} ? $options->{layout} : undef)
-      : $self->layout;
+      : ( $self->layout || $self->context->app->config->{layout} );
+      # that should only be $self->config, but the layout ain't there ???
 
     defined $content or return;
     defined $layout or return $content;

@@ -16,6 +16,17 @@ our $VERSION   = '2.000000_01';
 $VERSION = eval $VERSION;
 our $AUTHORITY = 'SUKRIA';
 
+
+my $api_version = 0;
+
+sub VERSION {
+    my $class = shift;
+
+    $api_version = $_[0] if @_;
+
+    return $class->SUPER::VERSION(@_);
+}
+
 #
 # private
 #
@@ -70,7 +81,10 @@ sub import {
         location        => $runner->location,
         runner_config   => $runner->config,
         postponed_hooks => $runner->postponed_hooks,
+       (api_version     => int $api_version) x !! $api_version,
     );
+
+    $api_version = 0;  # reset variable for next 'use Dancer X' call
 
     core_debug("binding app to $caller");
 
