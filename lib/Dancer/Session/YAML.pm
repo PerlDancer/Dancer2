@@ -4,8 +4,7 @@ package Dancer::Session::YAML;
 use Moo;
 use Dancer::Core::Types;
 use Carp;
-use Fcntl ':flock';
-use Dancer::FileUtils qw(path set_file_mode);
+use Dancer::FileUtils qw(path atomic_write);
 
 with 'Dancer::Core::Role::Session';
 
@@ -54,7 +53,6 @@ sub retrieve {
     return unless -f $session_file;
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
-    flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     my $content = YAML::Any::LoadFile($fh);
     close $fh or die "Can't close '$session_file': $!\n";
 
@@ -75,13 +73,8 @@ sub destroy {
 
 sub flush {
     my $self         = shift;
-    my $session_file = $self->yaml_file( $self->id );
 
-    open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
-    flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    set_file_mode($fh);
-    print {$fh} YAML::Any::Dump($self);
-    close $fh or die "Can't close '$session_file': $!\n";
+    atomic_write( setting('session_dir'), yaml_file($self->id), YAML::Dump($self) );
 
     return $self;
 }
