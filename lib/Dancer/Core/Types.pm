@@ -27,57 +27,59 @@ my $namespace = qr/
 
 my $definitions = [
     {
-        name => 'ReadableFilePath',
-        test => sub { -e $_[0] && -r $_[0] },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `ReadableFilePath'" }
+        name    => 'ReadableFilePath',
+        test    => sub { -e $_[0] && -r $_[0] },
+        message => sub { return exception_message($_[0], 'ReadableFilePath') }
     },
     {
-        name => 'WritableFilePath',
-        test => sub { -e $_[0] && -w $_[0] },
-        message => sub { "The value `$_[0]' does not pass the type constraint for type `WritableFilePath'" }
+        name    => 'WritableFilePath',
+        test    => sub { -e $_[0] && -w $_[0] },
+        message => sub { return exception_message($_[0], 'WritableFilePath') }
     },
     # Dancer-specific types
     {
         name => 'DancerPrefix',
+        subtype_of => 'Str',
+        from       => 'MooX::Types::MooseLike::Base',
         test => sub {
-            return 0 unless defined $_[0];
             # a prefix must start with the char '/'
             # index is much faster than =~ /^\//
-            ref(\$_[0]) eq 'SCALAR' && (index($_[0], '/') == 0);
+            index($_[0], '/') == 0;
         },
-        message => sub { exception_message( $_[0], 'a DancerPrefix' ) }
+        message    => sub { return exception_message($_[0], 'a DancerPrefix') }
     },
     {
-        name => 'DancerAppName',
-        test => sub {
-            return 0 unless defined $_[0];
-            ref(\$_[0]) eq 'SCALAR' && $_[0] =~ $namespace
+        name       => 'DancerAppName',
+        subtype_of => 'Str',
+        from       => 'MooX::Types::MooseLike::Base',
+        test       => sub {
+            # TODO need a real check of valid app names
+            $_[0] =~ $namespace;
         },
-        message => sub {
-            if ( defined $_[0] && length $_[0] == 0 ) {
-                return exception_message(
-                    'Empty string', 'a DancerAppName'
-                );
-            }
-
-            exception_message( $_[0], 'a DancerAppName' );
+        message    => sub { 
+            return exception_message(
+                length($_[0]) ? $_[0] : 'Empty string', 
+                'a DancerAppName'
+            ) 
         }
     },
     {
-        name => 'DancerMethod',
-        test => sub {
-            defined $_[0] or return;
+        name       => 'DancerMethod',
+        subtype_of => 'Str',
+        from       => 'MooX::Types::MooseLike::Base',
+        test       => sub {
             grep { /^$_[0]$/ } qw(get head post put delete options patch)
         },
-        message => sub { exception_message( $_[0], 'a DancerMethod' ) }
+        message    => sub { return exception_message($_[0], 'a DancerMethod') }
     },
     {
-        name => 'DancerHTTPMethod',
+        name       => 'DancerHTTPMethod',
+        subtype_of => 'Str',
+        from       => 'MooX::Types::MooseLike::Base',
         test => sub {
-            defined $_[0] or return;
             grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
         },
-        message => sub { exception_message( $_[0], 'a DancerHTTPMethod' ) }
+        message => sub { return exception_message($_[0], 'a DancerHTTPMethod') }
     },
 ];
 
