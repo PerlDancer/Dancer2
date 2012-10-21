@@ -1,4 +1,4 @@
-# ABSTRACT: File utility helpers
+# ABSTRACT: helper providing file utilities
 
 package Dancer::FileUtils;
 
@@ -10,77 +10,20 @@ use File::Spec;
 use Carp;
 use Cwd 'realpath';
 
-=head1 DESCRIPTION
-
-Dancer::FileUtils includes a few file related utilities that Dancer
-uses internally. Developers may use it instead of writing their own
-file reading subroutines or using additional modules.
-
-=head1 SYNOPSIS
-
-    use Dancer::FileUtils qw/dirname path path_or_empty/;
-
-    # for 'path/to/file'
-    my $dir  = dirname($path); # returns 'path/to'
-    my $path = path($path);    # returns '/abs/path/to/file'
-    my $path = path_or_empty($path);    # returns '' if file doesn't exist
-
-
-    use Dancer::FileUtils qw/path read_file_content/;
-
-    my $content = read_file_content( path( 'folder', 'folder', 'file' ) );
-    my @content = read_file_content( path( 'folder', 'folder', 'file' ) );
-
-
-    use Dancer::FileUtils qw/read_glob_content set_file_mode/;
-
-    open my $fh, '<', $file or die "$!\n";
-    set_file_mode($fh);
-    my @content = read_file_content($fh);
-    my $content = read_file_content($fh);
-    
-
-    use Dancer::FileUtils qw/open_file/;
-
-    my $fh = open_file('<', $file) or die $message;
-
-
-	use Dancer::FileUtils 'set_file_mode';
-
-    set_file_mode($fh);
-
-=head1 EXPORT
-
-Nothing by default. You can provide a list of subroutines to import.
-
-=cut
-
 use Exporter 'import';
 our @EXPORT_OK = qw(
     dirname open_file path read_file_content read_glob_content
     path_or_empty set_file_mode normalize_path
 );
 
-
-=func my $path = path( 'folder', 'folder', 'filename');
-
-Provides comfortable path resolution, internally using L<File::Spec>. 'path' 
-does not verify paths, it just normalizes the path.
-
-=cut
-
+# path should not verify paths
+# just normalize
 sub path {
     my @parts = @_;
     my $path  = File::Spec->catfile(@parts);
 
     return normalize_path($path);
 }
-
-=func my $path = path_or_empty('folder, 'folder','filename');
-
-Like path, but returns '' if path doesn't exist.
-
-=cut
 
 sub path_or_empty {
     my @parts = @_;
@@ -90,30 +33,7 @@ sub path_or_empty {
     return -e $path ? $path : '';
 }
 
-=func dirname
-
-    use Dancer::FileUtils 'dirname';
-
-    my $dir = dirname($path);
-
-Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
-a path. On most OS, returns all but last level of file path. See
-L<File::Basename> for details.
-
-=cut
-
 sub dirname { File::Basename::dirname(@_) }
-
-=func set_file_mode($fh);
-
-    use Dancer::FileUtils 'set_file_mode';
-
-    set_file_mode($fh);
-
-Applies charset setting from Dancer's configuration. Defaults to utf-8 if no
-charset setting.
-
-=cut
 
 sub set_file_mode {
     my $fh = shift;
@@ -121,17 +41,6 @@ sub set_file_mode {
     binmode $fh, ":encoding($charset)";
     return $fh;
 }
-
-=func my $fh = open_file('<', $file) or die $message;
-
-    use Dancer::FileUtils 'open_file';
-    my $fh = open_file('<', $file) or die $message;
-
-Calls open and returns a filehandle. Takes in account the 'charset' setting
-from Dancer's configuration to open the file in the proper encoding (or
-defaults to utf-8 if setting not present).
-
-=cut
 
 sub open_file {
     my ( $mode, $filename ) = @_;
@@ -142,21 +51,6 @@ sub open_file {
     return set_file_mode($fh);
 }
 
-=func my $content = read_file_content($file);
-
-    use Dancer::FileUtils 'read_file_content';
-
-    my @content = read_file_content($file);
-    my $content = read_file_content($file);
-
-Returns either the content of a file (whose filename is the input), or I<undef>
-if the file could not be opened.
-
-In array context it returns each line (as defined by $/) as a seperate element;
-in scalar context returns the entire contents of the file.
-
-=cut
-
 sub read_file_content {
     my $file = shift or return;
     my $fh   = open_file( '<', $file );
@@ -165,20 +59,6 @@ sub read_file_content {
            read_glob_content($fh) :
            scalar read_glob_content($fh);
 }
-
-=func my $content = read_glob_content($fh);
-
-    use Dancer::FileUtils 'read_glob_content';
-
-    open my $fh, '<', $file or die "$!\n";
-    my @content = read_glob_content($fh);
-    my $content = read_glob_content($fh);
-
-Same as I<read_file_content>, only it accepts a file handle. Returns the
-content and B<closes the file handle>.
-
-=cut
-
 
 sub read_glob_content {
     my $fh = shift;
@@ -189,11 +69,6 @@ sub read_glob_content {
 
     return wantarray ? @content : join '', @content;
 }
-
-
-=func my $norm_path=normalize_path ($path);
-
-=cut
 
 sub normalize_path {
     # this is a revised version of what is described in
@@ -213,4 +88,102 @@ sub normalize_path {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 SYNOPSIS
+
+    use Dancer::FileUtils qw/dirname path/;
+
+    # for 'path/to/file'
+    my $dir  = dirname($path); # returns 'path/to'
+    my $path = path($path);    # returns '/abs/path/to/file'
+
+
+    use Dancer::FileUtils qw/path read_file_content/;
+
+    my $content = read_file_content( path( 'folder', 'folder', 'file' ) );
+    my @content = read_file_content( path( 'folder', 'folder', 'file' ) );
+
+    use Dancer::FileUtils qw/read_glob_content set_file_mode/;
+
+    open my $fh, '<', $file or die "$!\n";
+    set_file_mode($fh);
+    my @content = read_file_content($fh);
+    my $content = read_file_content($fh);
+
+
+=head1 DESCRIPTION
+
+Dancer::FileUtils includes a few file related utilities that Dancer
+uses internally. Developers may use it instead of writing their own
+file reading subroutines or using additional modules.
+
+=head1 SUBROUTINES/METHODS
+
+=head2 dirname
+
+    use Dancer::FileUtils 'dirname';
+
+    my $dir = dirname($path);
+
+Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
+a path. On most OS, returns all but last level of file path. See
+L<File::Basename> for details.
+
+=head2 open_file
+
+    use Dancer::FileUtils 'open_file';
+    my $fh = open_file('<', $file) or die $message;
+
+Calls open and returns a filehandle. Takes in account the 'charset' setting
+from Dancer's configuration to open the file in the proper encoding (or
+defaults to utf-8 if setting not present).
+
+=head2 path
+
+    use Dancer::FileUtils 'path';
+
+    my $path = path( 'folder', 'folder', 'filename');
+
+Provides comfortable path resolving, internally using L<File::Spec>.
+
+=head2 read_file_content
+
+    use Dancer::FileUtils 'read_file_content';
+
+    my @content = read_file_content($file);
+    my $content = read_file_content($file);
+
+Returns either the content of a file (whose filename is the input), or I<undef>
+if the file could not be opened.
+
+In array context it returns each line (as defined by $/) as a seperate element;
+in scalar context returns the entire contents of the file.
+
+=head2 read_glob_content
+
+    use Dancer::FileUtils 'read_glob_content';
+
+    open my $fh, '<', $file or die "$!\n";
+    my @content = read_glob_content($fh);
+    my $content = read_glob_content($fh);
+
+Same as I<read_file_content>, only it accepts a file handle. Returns the
+content and B<closes the file handle>.
+
+=head2 set_file_mode
+
+    use Dancer::FileUtils 'set_file_mode';
+
+    set_file_mode($fh);
+
+Applies charset setting from Dancer's configuration. Defaults to utf-8 if no
+charset setting.
+
+=head1 EXPORT
+
+Nothing by default. You can provide a list of subroutines to import.
 

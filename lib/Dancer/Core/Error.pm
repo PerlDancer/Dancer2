@@ -1,4 +1,4 @@
-# ABSTRACT: Class representing fatal errors
+# ABSTRACT: class for representing fatal errors
 
 package Dancer::Core::Error;
 use Moo;
@@ -8,37 +8,6 @@ use Data::Dumper;
 
 with 'Dancer::Core::Role::Hookable';
 
-=head1 SYNOPSIS
-
-    # taken from send_file:
-    use Dancer::Error;
-
-    my $error = Dancer::Error->new(
-        code    => 404,
-        message => "No such file: `$path'"
-    );
-
-    Dancer::Response->set($error->render);
-
-=head1 DESCRIPTION
-
-With Dancer::Error you can throw reasonable-looking errors to the user instead
-of crashing the application and filling up the logs.
-
-This is usually used in debugging environments, and it's what Dancer uses as
-well under debugging to catch errors and show them on screen.
-
-
-=method my $error=new Dancer::Core::Error(code    => 404, message => "No such file: `$path'");
-
-Create a new Dancer::Error object. For available arguments see ATTRIBUTES.
-
-
-=method supported_hooks ();
-
-=cut
-
-
 sub supported_hooks {
     qw/
     core.error.before
@@ -47,16 +16,10 @@ sub supported_hooks {
     /;
 }
 
-=attr show_errors
-=cut
-
 has show_errors => (
     is => 'ro',
     isa => Bool,
 );
-
-=attr charset
-=cut
 
 has charset => (
     is => 'ro',
@@ -64,25 +27,11 @@ has charset => (
     default => sub { 'UTF-8' },
 );
 
-=attr type
-
-The error type.
-
-=cut
-
 has type => (
     is => 'ro',
     isa => Str,
     default => sub { 'Runtime Error' },
 );
-
-=attr title
-
-The title of the error page.
-
-This is only an attribute getter, you'll have to set it at C<new>.
-
-=cut
 
 has title => (
     is => 'rw',
@@ -125,25 +74,11 @@ sub _build_title {
     "Error ".$self->code;
 }
 
-=attr code
-
-The code that caused the error.
-
-This is only an attribute getter, you'll have to set it at C<new>.
-
-=cut
-
 has code => (
     is => 'ro',
     default => sub { 500 },
     isa => Num,
 );
-
-=attr message
-
-The message of the error page.
-
-=cut
 
 has message => (
     is => 'rw',
@@ -188,12 +123,6 @@ has exception => (
     isa => Str,
 );
 
-=method render
-
-Renders a response using L<Dancer::Response>.
-
-=cut
-
 sub render {
     my $self = shift;
 
@@ -204,16 +133,6 @@ sub render {
     return $response;
 }
 
-=method backtrace
-
-Create a backtrace of the code where the error is caused.
-
-This method tries to find out where the error appeared according to the actual
-error message (using the C<message> attribute) and tries to parse it (supporting
-the regular/default Perl warning or error pattern and the L<Devel::SimpleTrace>
-output) and then returns an error-higlighted C<message>.
-
-=cut
 
 sub backtrace {
     my ($self) = @_;
@@ -272,12 +191,7 @@ sub backtrace {
     return $backtrace;
 }
 
-
-=method tabulate
-
-Small subroutine to help output nicer.
-
-=cut 
+# private
 
 sub tabulate {
     my ($number, $max) = @_;
@@ -285,13 +199,6 @@ sub tabulate {
     return $number if length($number) == $len;
     return " $number";
 }
-
-=head2 dumper
-
-This uses L<Data::Dumper> to create nice content output with a few predefined
-options.
-
-=cut
 
 sub dumper {
     my $obj = shift;
@@ -312,76 +219,8 @@ sub dumper {
     return $content;
 }
 
-
-=method environment
-
-A main function to render environment information: the caller (using
-C<get_caller>), the settings and environment (using C<dumper>) and more.
-
-=cut
-
-sub environment {
-    my ($self) = @_;
-
-    my $request = $self->context->request;
-    my $r_env   = {};
-    $r_env = $request->env if defined $request;
-
-    my $env =
-        qq|<div class="title">Environment</div><pre class="content">|
-      . dumper($r_env)
-      . "</pre>";
-    my $settings =
-        qq|<div class="title">Settings</div><pre class="content">|
-      . dumper($self->app->settings)
-      . "</pre>";
-    my $source =
-        qq|<div class="title">Stack</div><pre class="content">|
-      . $self->get_caller
-      . "</pre>";
-    my $session = "";
-
-    if ($self->session) {
-        $session =
-            qq[<div class="title">Session</div><pre class="content">]
-          . dumper($self->session->data)
-          . "</pre>";
-    }
-    return "$source $settings $session $env";
-}
-
-
-=method get_caller
-
-Creates a strack trace of callers.
-
-=cut
-
-sub get_caller {
-    my ($self) = @_;
-    my @stack;
-
-    my $deepness = 0;
-    while (my ($package, $file, $line) = caller($deepness++)) {
-        push @stack, "$package in $file l. $line";
-    }
-
-    return join("\n", reverse(@stack));
-}
-
-# private
-
 # Given a hashref, censor anything that looks sensitive.  Returns number of
 # items which were "censored".
-
-=func _censor
-
-An private function that tries to censor out content which should be protected.
-
-C<dumper> calls this method to censor things like passwords and such.
-
-=cut 
-
 sub _censor {
     my $hash = shift;
     if (!$hash || ref $hash ne 'HASH') {
@@ -402,15 +241,6 @@ sub _censor {
 
     return $censored;
 }
-
-=func my $string=_html_encode ($string);
-
-Private function that replaces illegal entities in (X)HTML with their
-escaped representations. 
-
-html_encode() doesn't do any UTF black magic.
-
-=cut
 
 # Replaces the entities that are illegal in (X)HTML.
 sub _html_encode {
@@ -443,5 +273,157 @@ sub _render_html {
     return $content;
 }
 
+sub environment {
+    my ($self) = @_;
+
+    my $request = $self->context->request;
+    my $r_env   = {};
+    $r_env = $request->env if defined $request;
+
+    my $env =
+        qq|<div class="title">Environment</div><pre class="content">|
+      . dumper($r_env)
+      . "</pre>";
+    my $settings =
+        qq|<div class="title">Settings</div><pre class="content">|
+      . dumper($self->app->settings)
+      . "</pre>";
+    my $source =
+        qq|<div class="title">Stack</div><pre class="content">|
+      . $self->get_caller
+      . "</pre>";
+    my $session = "";
+
+    if ($self->session) {
+        $session =
+            qq[<div class="title">Session</div><pre class="content">]
+          . dumper($self->session->data)
+          . "</pre>";
+    }
+    return "$source $settings $session $env";
+}
+
+sub get_caller {
+    my ($self) = @_;
+    my @stack;
+
+    my $deepness = 0;
+    while (my ($package, $file, $line) = caller($deepness++)) {
+        push @stack, "$package in $file l. $line";
+    }
+
+    return join("\n", reverse(@stack));
+}
+
 1;
 
+__END__
+
+=pod
+
+=head1 SYNOPSIS
+
+    # taken from send_file:
+    use Dancer::Error;
+
+    my $error = Dancer::Error->new(
+        code    => 404,
+        message => "No such file: `$path'"
+    );
+
+    Dancer::Response->set($error->render);
+
+=head1 DESCRIPTION
+
+With Dancer::Error you can throw reasonable-looking errors to the user instead
+of crashing the application and filling up the logs.
+
+This is usually used in debugging environments, and it's what Dancer uses as
+well under debugging to catch errors and show them on screen.
+
+=head1 ATTRIBUTES
+
+=head2 code
+
+The code that caused the error.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=head2 title
+
+The title of the error page.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=head2 message
+
+The message of the error page.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=head1 METHODS/SUBROUTINES
+
+=head2 new
+
+Create a new Dancer::Error object.
+
+=head3 title
+
+The title of the error page.
+
+=head3 type
+
+What type of error this is.
+
+=head3 code
+
+The code that caused the error.
+
+=head3 message
+
+The message that will appear to the user.
+
+=head2 backtrace
+
+Create a backtrace of the code where the error is caused.
+
+This method tries to find out where the error appeared according to the actual
+error message (using the C<message> attribute) and tries to parse it (supporting
+the regular/default Perl warning or error pattern and the L<Devel::SimpleTrace>
+output) and then returns an error-higlighted C<message>.
+
+=head2 tabulate
+
+Small subroutine to help output nicer.
+
+=head2 dumper
+
+This uses L<Data::Dumper> to create nice content output with a few predefined
+options.
+
+=head2 render
+
+Renders a response using L<Dancer::Response>.
+
+=head2 environment
+
+A main function to render environment information: the caller (using
+C<get_caller>), the settings and environment (using C<dumper>) and more.
+
+=head2 get_caller
+
+Creates a strack trace of callers.
+
+=head2 _censor
+
+An internal method that tries to censor out content which should be protected.
+
+C<dumper> calls this method to censor things like passwords and such.
+
+=head2 _html_encode
+
+Internal method to encode entities that are illegal in (X)HTML. We output as
+UTF-8, so no need to encode all non-ASCII characters or use a module.
+FIXME : this is not true anymore, output can be any charset. Need fixing.
+
+=cut

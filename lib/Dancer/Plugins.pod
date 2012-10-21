@@ -1,5 +1,10 @@
-# ABSTRACT: Recommended Dancer plugins 
-# PODNAME: Dancer::Plugins
+# ABSTRACT: TODO
+
+# PODNAME: Plugins.pod
+
+=head1 NAME
+
+Dancer::Plugins - interesting plugins to add to Dancer's capabilities
 
 =head1 DESCRIPTION
 
@@ -123,4 +128,4 @@ More plugins are appearing on CPAN all the time - just search for
 C<Dancer::Plugin> to see what may have been released since this document was
 last updated!
 
-=cut
+

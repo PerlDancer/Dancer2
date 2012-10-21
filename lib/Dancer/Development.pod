@@ -1,5 +1,10 @@
-# ABSTRACT: Guide for developers interested in contributing to Dancer
-# PODNAME: Dancer::Development
+# ABSTRACT: TODO
+
+# PODNAME: Development.pod
+
+=head1 NAME
+
+Dancer::Development - guide for developers interested in contributing
 
 =head1 DESCRIPTION
 
@@ -334,4 +339,6 @@ reports. This is done to make sure the new merge doesn't bring regressions.
 For current information on Dancer's plans for the future, see the file TODO at
 L<https://github.com/sukria/Dancer/blob/master/TODO>.
 
-=cut
+=head1 AUTHOR
+
+This document has been written by Alexis Sukrieh L<sukria@cpan.org>

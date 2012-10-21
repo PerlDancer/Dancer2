@@ -25,10 +25,6 @@ sub supported_hooks {
     /
 }
 
-=attr plugins
-
-=cut
-
 has plugins => (
     is => 'rw',
     isa => ArrayRef,
@@ -40,10 +36,6 @@ has api_version => (
     isa => Num,
     default => sub { 1 },
 );
-
-=method register_plugin
-
-=cut
 
 sub register_plugin {
     my ($self, $plugin) = @_;
@@ -58,19 +50,11 @@ around BUILDARGS => sub {
     return $class->$orig(%args);
 };
 
-=attr server
-
-=cut
-
 has server => (
     is => 'rw',
     isa => ConsumerOf['Dancer::Core::Role::Server'],
     weak_ref => 1,
 );
-
-=attr location
-
-=cut
 
 has location => (
     is      => 'ro',
@@ -82,18 +66,11 @@ sub _build_config_location { goto &location }
 
 sub _build_environment {'development'}
 
-=attr runner_config
-
-=cut
-
 has runner_config => (
     is => 'ro',
     isa => HashRef,
     default => sub { {} },
 );
-
-=attr default_config
-=cut
 
 has default_config => (
     is => 'ro',

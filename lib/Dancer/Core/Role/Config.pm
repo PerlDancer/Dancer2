@@ -15,12 +15,6 @@ use Dancer::Core::Types;
 use Dancer::FileUtils qw/dirname path/;
 use Carp 'croak', 'carp';
 
-=method config_location
-
-Gets the location from the configuration. Same as C<< $object->location >>.
-
-=cut
-
 has config_location => (
     is      => 'ro',
     isa     => ReadableFilePath,

@@ -1,5 +1,6 @@
-package Dancer::Core::MIME;
 # ABSTRACT: TODO
+
+package Dancer::Core::MIME;
 
 use strict;
 use warnings;

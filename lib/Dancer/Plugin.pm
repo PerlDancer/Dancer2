@@ -1,6 +1,6 @@
 package Dancer::Plugin;
 
-# ABSTRACT: Extending Dancer's DSL with plugins
+# ABSTRACT: helper for extending Dancer's DSL
 
 =head1 DESCRIPTION
 
@@ -334,6 +334,7 @@ sub _get_dsl {
 }
 
 1;
+__END__
 
 =head1 EXAMPLE PLUGIN
 

@@ -29,15 +29,7 @@ our @EXPORT = qw(
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Request;
 
-=head1 DESCRIPTION
-
-=cut
-
 my $_dispatcher = Dancer::Core::Dispatcher->new;
-
-=func dancer_response
-
-=cut
 
 sub dancer_response {
     my $app = shift;
@@ -89,9 +81,6 @@ sub dancer_response {
     $_dispatcher->dispatch($env, $request);
 }
 
-=func response_status_is
-=cut
-
 sub response_status_is {
     my $app = shift;
     my ($req, $status, $test_name) = @_;
@@ -104,26 +93,15 @@ sub response_status_is {
     $tb->is_eq( $response->status, $status, $test_name );
 }
 
-=func route_exists
-
-=cut 
-
 sub route_exists {
     my $app = shift;
     response_status_is(@_, 200);
 }
 
-=func route_doesnt_exist
-
-=cut
-
 sub route_doesnt_exist {
     my $app = shift;
     response_status_is(@_, 404);
 }
-
-=func response_status_isnt
-=cut
 
 sub response_status_isnt {
     my $app = shift;
@@ -165,41 +143,22 @@ sub response_status_isnt {
     }
 }
 
-=func response_content_is
-
-=cut
 
 sub response_content_is {
     _cmp_response_content(@_, 'is_eq');
 }
 
-=func response_content_isnt
-
-=cut
-
 sub response_content_isnt {
     _cmp_response_content(@_, 'isnt_eq');
 }
-
-=func response_content_like
-
-=cut
 
 sub response_content_like {
     _cmp_response_content(@_, 'like');
 }
 
-=func response_content_unlike
-
-=cut
-
 sub response_content_unlike {
     _cmp_response_content(@_, 'unlike');
 }
-
-=func response_content_is_deeply
-
-=cut
 
 sub response_content_is_deeply {
     my ($req, $matcher, $test_name) = @_;
@@ -210,10 +169,6 @@ sub response_content_is_deeply {
     is_deeply $response->[2][0], $matcher, $test_name;
 }
 
-=func response_is_file
-
-=cut
-
 sub response_is_file {
     my ($req, $test_name) = @_;
     $test_name ||= "a file is returned for " . _req_label($req);
@@ -223,10 +178,6 @@ sub response_is_file {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(defined($response), $test_name);
 }
-
-=func response_headers_are_deeply
-
-=cut
 
 sub response_headers_are_deeply {
     my $app = shift;
@@ -242,9 +193,6 @@ sub response_headers_are_deeply {
         $test_name
     );
 }
-
-=func response_headers_include
-=cut
 
 sub response_headers_include {
     my $app = shift;
@@ -262,7 +210,6 @@ sub response_headers_include {
 
 # all the symbols exported by Dancer::Test are compiled so they can receive the
 # $app object of the caller as their first argument.
-
 sub import {
     my ($class, $app_name) = @_;
     my ($caller, $script) = caller;
@@ -386,3 +333,41 @@ sub _req_to_response {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 DESCRIPTION
+
+
+
+=head1 ROUTINES
+
+=head2 dancer_response
+
+=head2 response_status_is
+
+=head2 route_exists
+
+=head2 route_doent_exist
+
+=head2 response_status_isnt
+
+=head2 response_content_is
+
+=head2 response_content_isnt
+
+=head2 response_content_like
+
+=head2 response_content_unlike
+
+=head2 response_content_is_deeply
+
+=head2 response_is_file
+
+=head2 response_headers_are_deeply
+
+=head2 response_headers_include
+
+=cut

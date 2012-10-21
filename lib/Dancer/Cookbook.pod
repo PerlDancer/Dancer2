@@ -1,10 +1,16 @@
-# ABSTRACT: Example-driven quick-start to the Dancer web framework
-# PODNAME: Dancer::Cookbook
+# ABSTRACT: TODO
+
+# PODNAME: Cookbook.pod
+
+=head1 NAME
+
+Dancer::Cookbook - a quick-start guide to the Dancer web framework
 
 =head1 DESCRIPTION
 
 A quick-start guide with examples to get you up and running with the Dancer web
 framework.
+
 
 
 =head1 BEGINNER'S DANCE
@@ -903,3 +909,7 @@ C<plack_middlewares_map>. You'll need L<Plack::App::URLMap> to do that.
     plack_middlewares_map:
         '/':      ['Debug']
         '/timer': ['Timer'],
+
+=head1 AUTHORS
+
+Dancer contributors - see AUTHORS file.
