@@ -7,6 +7,8 @@ perl:
     - "5.10"
 
 install:
+#Moo fails to install without Class::Method::Modifiers since 2012/10/19 
+    - cpanm Class::Method::Modifiers
     - cpanm Dist::Zilla
     - dzil authordeps --missing | cpanm || { cat ~/.cpanm/build.log ; false ; }
     - dzil listdeps --author --missing | cpanm || { cat ~/.cpanm/build.log ; false ; }

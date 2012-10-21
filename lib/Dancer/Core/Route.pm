@@ -56,7 +56,7 @@ The prefix to prepend to the C<regexp>. Optional.
 
 has prefix => (
     is => 'ro',
-    isa => DancerPrefix,
+    isa => Maybe[DancerPrefix],
 );
 
 =attr options
