@@ -54,7 +54,7 @@ sub dancer_response {
         SERVER_NAME     => 'localhost',
         SERVER_PORT     => 3000,
         HTTP_HOST       => 'localhost',
-        HTTP_USER_AGENT => "Dancer::Test simulator v $Dancer::VERSION",
+        HTTP_USER_AGENT => "Dancer::Test simulator v ".Dancer->VERSION,
     };
 
     if( $arg_env ) {

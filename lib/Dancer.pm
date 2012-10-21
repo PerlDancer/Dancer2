@@ -12,6 +12,10 @@ use Dancer::Core::DSL;
 use Dancer::FileUtils;
 
 #set version in dist.ini now
+# but we still need a basic version for
+# the tests
+$Dancer::VERSION ||= '2.00';
+
 our $AUTHORITY = 'SUKRIA';
 
 
