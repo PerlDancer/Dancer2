@@ -75,9 +75,8 @@ has domain => (
 
 has path => (
     is       => 'rw',
-    isa      => Maybe[Str],
-    required => 0,
-    default  => sub { '/' },
+    isa      => Str,
+    predicate => 1,
 );
 
 has secure => (
