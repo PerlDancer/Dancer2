@@ -5,10 +5,26 @@ package Dancer::Core::Server::Standalone;
 use Moo;
 use Dancer::Core::Types;
 with 'Dancer::Core::Role::Server';
+use HTTP::Server::Simple::PSGI;
+
+=head1 DESCRIPTION
+
+This is a server implementation for a stand-alone server. It contains all the
+code to start an L<HTTP::Server::Simple::PSGI> server and handle the requests.
+
+=method name
+
+The server's name: B<Standalone>.
+
+=cut
 
 sub _build_name {'Standalone'}
 
-use HTTP::Server::Simple::PSGI;
+=attr backend
+
+A L<HTTP::Server::Simple::PSGI> server.
+
+=cut
 
 has backend => (
     is      => 'ro',
@@ -27,6 +43,12 @@ sub _build_backend {
     return $backend;
 }
 
+=method start
+
+Starts the server.
+
+=cut
+
 sub start {
     my $self = shift;
 
@@ -36,27 +58,3 @@ sub start {
 }
 
 1;
-
-__END__
-
-=head1 DESCRIPTION
-
-This is a server implementation for a stand-alone server. It contains all the
-code to start an L<HTTP::Server::Simple::PSGI> server and handle the requests.
-
-=head1 ATTRIBUTES
-
-=head2 backend
-
-A L<HTTP::Server::Simple::PSGI> server.
-
-=head1 METHODS
-
-=head2 name
-
-The server's name: B<Standalone>.
-
-=head2 start
-
-Starts the server.
-

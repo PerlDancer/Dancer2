@@ -1,4 +1,4 @@
-# ABSTRACT: blackhole-like silent logging engine for Dancer
+# ABSTRACT: Blackhole-like silent logging engine for Dancer
 
 package Dancer::Logger::Null;
 use Moo;
