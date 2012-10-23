@@ -9,6 +9,37 @@ use Dancer::FileUtils qw(path set_file_mode);
 
 with 'Dancer::Core::Role::Session';
 
+=head1 DESCRIPTION
+
+This module implements a session engine based on YAML files. Session are stored
+in a I<session_dir> as YAML files. The idea behind this module was to provide a
+transparent session storage for the developer.
+
+This backend is intended to be used in development environments, when looking
+inside a session can be useful.
+
+It's not recommended to use this session engine in production environments.
+
+=head1 CONFIGURATION
+
+The setting B<session> should be set to C<YAML> in order to use this session
+engine in a Dancer application.
+
+Files will be stored to the value of the setting C<session_dir>, whose default
+value is C<appdir/sessions>.
+
+Here is an example configuration that use this session engine and stores session
+files in /tmp/dancer-sessions
+
+    session: "YAML"
+    session_dir: "/tmp/dancer-sessions"
+
+=method new Dancer::Session::YAML(%attributes);
+
+=attr session_dir
+
+=cut
+
 my %_session_dir_initialized;
 has session_dir => (
     is => 'ro',
@@ -38,7 +69,25 @@ sub BUILD {
 
 # create a new session and return the newborn object
 # representing that session
+
+=method create
+
+Synonym for new
+
+=cut
 sub create { goto &new }
+
+=method reset();
+
+to avoid checking if the sessions directory exists everytime a new session is
+created, this module maintains a cache of session directories it has already
+created. C<reset> wipes this cache out, forcing a test for existence
+of the sessions directory next time a session is created. It takes no argument.
+
+This is particulary useful if you want to remove the sessions directory on the
+system where your app is running, but you want this session engine to continue
+to work without having to restart your application.
+=cut
 
 # deletes the dir cache
 sub reset {
@@ -46,7 +95,11 @@ sub reset {
     %_session_dir_initialized = ();
 }
 
-# Return the session object corresponding to the given id
+=method 
+
+Return the session object corresponding to the given id
+
+=cut
 sub retrieve {
     my ($self, $id) = @_;
     my $session_file = $self->yaml_file($id);
@@ -63,16 +116,22 @@ sub retrieve {
 
 # instance
 
+=method yaml_file
+=cut
 sub yaml_file {
     my ($self, $id) = @_;
     return path($self->session_dir, "$id.yml");
 }
 
+=method destroy
+=cut
 sub destroy {
     my ($self) = @_;
     unlink $self->yaml_file($self->id) if -f $self->yaml_file($self->id);
 }
 
+=method flush
+=cut
 sub flush {
     my $self         = shift;
     my $session_file = $self->yaml_file( $self->id );
@@ -87,48 +146,6 @@ sub flush {
 }
 
 1;
-
-__END__
-
-=pod
-
-=head1 DESCRIPTION
-
-This module implements a session engine based on YAML files. Session are stored
-in a I<session_dir> as YAML files. The idea behind this module was to provide a
-transparent session storage for the developer.
-
-This backend is intended to be used in development environments, when looking
-inside a session can be useful.
-
-It's not recommended to use this session engine in production environments.
-
-=head1 CONFIGURATION
-
-The setting B<session> should be set to C<YAML> in order to use this session
-engine in a Dancer application.
-
-Files will be stored to the value of the setting C<session_dir>, whose default
-value is C<appdir/sessions>.
-
-Here is an example configuration that use this session engine and stores session
-files in /tmp/dancer-sessions
-
-    session: "YAML"
-    session_dir: "/tmp/dancer-sessions"
-
-=head1 METHODS
-
-=head2 reset
-
-to avoid checking if the sessions directory exists everytime a new session is
-created, this module maintains a cache of session directories it has already
-created. C<reset> wipes this cache out, forcing a test for existence
-of the sessions directory next time a session is created. It takes no argument.
-
-This is particulary useful if you want to remove the sessions directory on the
-system where your app is running, but you want this session engine to continue
-to work without having to restart your application.
 
 =head1 DEPENDENCY
 
