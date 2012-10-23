@@ -89,8 +89,8 @@ Starts the server.
 =cut
 
 sub start {
-	my ($self) = @_;
-	$self->psgi_app;
+    my ($self) = @_;
+    $self->psgi_app;
 }
 
 sub _build_name {'PSGI'}
