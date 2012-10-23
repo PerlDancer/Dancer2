@@ -12,30 +12,84 @@ use URI::Escape;
 use parent 'Exporter';
 our @EXPORT = qw(
     dancer_response
-    route_exists
-    route_doesnt_exist
+
     response_content_is
     response_content_isnt
-    response_status_is
-    response_status_isnt
-    response_headers_include
-    response_headers_are_deeply
+    response_content_is_deeply
     response_content_like
     response_content_unlike
-    response_content_is_deeply
+
+    response_status_is
+    response_status_isnt
+
+    response_headers_include
+    response_headers_are_deeply
+
     response_is_file
+
+    route_exists
+    route_doesnt_exist
+
 );
+
+#dancer1 also has read_logs, response_redirect_location_is
+#cf. https://github.com/PerlDancer/Dancer2/issues/25
 
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Request;
 
 =head1 DESCRIPTION
 
+provides useful routines to test Dancer apps.
+
+$test_name is always optional.
+
 =cut
 
 my $_dispatcher = Dancer::Core::Dispatcher->new;
 
-=func dancer_response
+=func dancer_response($method, $path, 
+	{ params => $params, 
+		body => $body, 
+		headers => $headers, 
+		files => [{filename => '/path/to/file', name => 'my_file'}] 
+	});
+
+Returns a Dancer::Response object for the given request.
+
+Only $method and $path are required.
+
+$params is a hashref, $body is a string and $headers can be an arrayref or
+a HTTP::Headers object, $files is an arrayref of hashref, containing some files to upload.
+
+A good reason to use this function is for testing POST requests. Since POST
+requests may not be idempotent, it is necessary to capture the content and
+status in one shot. Calling the response_status_is and response_content_is
+functions in succession would make two requests, each of which could alter the
+state of the application and cause Schrodinger's cat to die.
+
+    my $response = dancer_response POST => '/widgets';
+    is $response->{status}, 202, "response for POST /widgets is 202";
+    is $response->{content}, "Widget #1 has been scheduled for creation",
+        "response content looks good for first POST /widgets";
+
+    $response = dancer_response POST => '/widgets';
+    is $response->{status}, 202, "response for POST /widgets is 202";
+    is $response->{content}, "Widget #2 has been scheduled for creation",
+        "response content looks good for second POST /widgets";
+
+It's possible to test file uploads:
+
+    post '/upload' => sub { return upload('image')->content };
+
+    $response = dancer_response(POST => '/upload', {files => [{name => 'image', filename => '/path/to/image.jpg'}]});
+
+In addition, you can supply the file contents as the C<data> key:
+
+    my $data  = 'A test string that will pretend to be file contents.';
+    $response = dancer_response(POST => '/upload', {
+        files => [{name => 'test', filename => "filename.ext", data => $data}]
+    });
 
 =cut
 
@@ -137,7 +191,13 @@ sub _build_env_from_request {
    return ( $request, $env );
 }
 
-=func response_status_is
+=func response_status_is ($request, $expected, $test_name);
+
+Asserts that Dancer's response for the given request has a status equal to the
+one given.
+
+    response_status_is [GET => '/'], 200, "response for GET / is 200";
+
 =cut
 
 sub response_status_is {
@@ -153,8 +213,12 @@ sub response_status_is {
     $tb->is_eq( $response->status, $status, $test_name );
 }
 
-=func route_exists
+=func route_exists([$method, $path], $test_name)
 
+Asserts that the given request matches a route handler in Dancer's
+registry.
+
+    route_exists [GET => '/'], "GET / is handled";
 =cut 
 
 sub route_exists {
@@ -162,8 +226,13 @@ sub route_exists {
     response_status_is(@_, 200);
 }
 
-=func route_doesnt_exist
+=func route_doesnt_exist([$method, $path], $test_name)
 
+Asserts that the given request does not match any route handler 
+in Dancer's registry.
+
+    route_doesnt_exist [GET => '/bogus_path'], "GET /bogus_path is not handled";
+    
 =cut
 
 sub route_doesnt_exist {
@@ -171,7 +240,12 @@ sub route_doesnt_exist {
     response_status_is(@_, 404);
 }
 
-=func response_status_isnt
+=func response_status_isnt([$method, $path], $status, $test_name)
+
+Asserts that the status of Dancer's response is not equal to the
+one given.
+
+    response_status_isnt [GET => '/'], 404, "response for GET / is not a 404";
 =cut
 
 sub response_status_isnt {
@@ -213,8 +287,13 @@ sub response_status_isnt {
     }
 }
 
-=func response_content_is
+=func response_content_is([$method, $path], $expected, $test_name)
 
+Asserts that the response content is equal to the C<$expected> string.
+
+ response_content_is [GET => '/'], "Hello, World", 
+        "got expected response content for GET /";
+        
 =cut
 
 sub response_content_is {
@@ -222,7 +301,13 @@ sub response_content_is {
     _cmp_response_content(@_, 'is_eq');
 }
 
-=func response_content_isnt
+=func response_content_isnt([$method, $path], $not_expected, $test_name)
+
+Asserts that the response content is not equal to the C<$not_expected> string.
+
+    response_content_isnt [GET => '/'], "Hello, World", 
+        "got expected response content for GET /";
+
 
 =cut
 
@@ -231,7 +316,14 @@ sub response_content_isnt {
     _cmp_response_content(@_, 'isnt_eq');
 }
 
-=func response_content_like
+=func response_content_like([$method, $path], $regexp, $test_name)
+
+Asserts that the response content for the given request matches the regexp
+given.
+
+    response_content_like [GET => '/'], qr/Hello, World/, 
+        "response content looks good for GET /";
+
 
 =cut
 
@@ -240,7 +332,13 @@ sub response_content_like {
     _cmp_response_content(@_, 'like');
 }
 
-=func response_content_unlike
+=func response_content_unlike([$method, $path], $regexp, $test_name)
+
+Asserts that the response content for the given request does not match the regexp
+given.
+
+    response_content_unlike [GET => '/'], qr/Page not found/, 
+        "response content looks good for GET /";
 
 =cut
 
@@ -249,7 +347,18 @@ sub response_content_unlike {
     _cmp_response_content(@_, 'unlike');
 }
 
-=func response_content_is_deeply
+=func response_content_is_deeply([$method, $path], $expected_struct, $test_name)
+
+Similar to response_content_is(), except that if response content and 
+$expected_struct are references, it does a deep comparison walking each data 
+structure to see if they are equivalent.  
+
+If the two structures are different, it will display the place where they start
+differing.
+
+    response_content_is_deeply [GET => '/complex_struct'], 
+        { foo => 42, bar => 24}, 
+        "got expected response structure for GET /complex_struct";
 
 =cut
 
@@ -262,7 +371,7 @@ sub response_content_is_deeply {
     is_deeply $response->[2][0], $matcher, $test_name;
 }
 
-=func response_is_file
+=func response_is_file ($request, $test_name);
 
 =cut
 
@@ -276,7 +385,11 @@ sub response_is_file {
     return $tb->ok(defined($response), $test_name);
 }
 
-=func response_headers_are_deeply
+=func response_headers_are_deeply([$method, $path], $expected, $test_name)
+
+Asserts that the response headers data structure equals the one given.
+
+    response_headers_are_deeply [GET => '/'], [ 'X-Powered-By' => 'Dancer 1.150' ];
 
 =cut
 
@@ -295,7 +408,12 @@ sub response_headers_are_deeply {
     );
 }
 
-=func response_headers_include
+=func response_headers_include([$method, $path], $expected, $test_name)
+
+Asserts that the response headers data structure includes some of the defined ones.
+
+    response_headers_include [GET => '/'], [ 'Content-Type' => 'text/plain' ];
+
 =cut
 
 sub response_headers_include {
