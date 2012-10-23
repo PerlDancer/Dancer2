@@ -1,4 +1,4 @@
-# ABSTRACT: Template::Toolkit backend to Dancer
+# ABSTRACT: Template toolkit engine for Dancer
 
 package Dancer::Template::TemplateToolkit;
 
@@ -10,6 +10,20 @@ use Dancer::Core::Types;
 use Template;
 
 with 'Dancer::Core::Role::Template';
+
+=head1 SYNOPSIS
+
+To use this engine, you may configure L<Dancer> via C<config.yaml>:
+
+    template:   "template_toolkit"
+
+Or you may also change the rendering engine on a per-route basis by
+setting it manually with C<set>:
+
+    # code code code
+    set template => 'template_toolkit';
+
+=cut
 
 has '+engine' => (
     isa => InstanceOf['Template'],
@@ -39,6 +53,15 @@ sub _build_engine {
     return Template->new(%tt_config);
 }
 
+=method render TEMPLATE, TOKENS
+
+Renders the template.  The first arg is a filename for the template file
+or a reference to a string that contains the template.  The second arg
+is a hashref for the tokens that you wish to pass to
+L<Template::Toolkit> for rendering.
+
+=cut
+
 sub render {
     my ($self, $template, $tokens) = @_;
 
@@ -54,31 +77,3 @@ sub render {
 }
 
 1;
-
-
-__END__
-
-=pod
-
-=head1 SYNOPSIS
-
-To use this engine, you may configure L<Dancer> via C<config.yaml>:
-
-    template:   "template_toolkit"
-
-Or you may also change the rendering engine on a per-route basis by
-setting it manually with C<set>:
-
-    # code code code
-    set template => 'template_toolkit';
-
-=head1 SUBROUTINES/METHODS
-
-=head2 render TEMPLATE, TOKENS
-
-Renders the template.  The first arg is a filename for the template file
-or a reference to a string that contains the template.  The second arg
-is a hashref for the tokens that you wish to pass to
-L<Template::Toolkit> for rendering.
-
-=cut

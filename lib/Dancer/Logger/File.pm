@@ -11,6 +11,25 @@ use File::Spec;
 use Dancer::FileUtils qw(open_file);
 use IO::File;
 
+=head1 DESCRIPTION
+
+This is a logging engine that allows you to save your logs to files on disk.
+
+=method init
+
+This method is called when C<< ->new() >> is called. It initializes the log
+directory, creates if it doesn't already exist and opens the designated log
+file.
+
+=method logdir
+
+Returns the log directory, decided by "logs" either in "appdir" setting.
+It's also possible to specify a logs directory with the log_path option.
+
+  setting log_path => $dir;
+
+=cut
+
 has log_dir => (
     is => 'rw',
     isa => Str,
@@ -61,6 +80,13 @@ sub BUILD {
     $self->fh($fh);
 }
 
+
+=method log
+
+Writes the log message to the file.
+
+=cut
+
 sub log {
     my ($self, $level, $message) = @_;
     my $fh = $self->fh;
@@ -72,32 +98,3 @@ sub log {
 }
 
 1;
-
-__END__
-
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-This is a file-based logging engine that allows you to save your logs to files
-on disk.
-
-=head1 METHODS
-
-=head2 init
-
-This method is called when C<< ->new() >> is called. It initializes the log
-directory, creates if it doesn't already exist and opens the designated log
-file.
-
-=head2 logdir
-
-Returns the log directory, decided by "logs" either in "appdir" setting.
-It's also possible to specify a logs directory with the log_path option.
-
-  setting log_path => $dir;
-
-=head2 _log
-
-Writes the log message to the file.
-

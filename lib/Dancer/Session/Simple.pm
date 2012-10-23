@@ -6,8 +6,21 @@ use Dancer::Core::Types;
 use Carp;
 
 with 'Dancer::Core::Role::Session';
-
 my %sessions;
+
+=head1 DESCRIPTION
+
+This module implements a very simple session backend, holding all session data
+in memory.  This means that sessions are volatile, and no longer exist when the
+process exits.  This module is likely to be most useful for testing purposes.
+
+
+=head1 CONFIGURATION
+
+The setting B<session> should be set to C<Simple> in order to use this session
+engine in a Dancer application.
+
+=cut
 
 # create a new session and return the newborn object
 # representing that session
@@ -32,22 +45,6 @@ sub flush {
 }
 
 1;
-__END__
-
-=pod
-
-=head1 DESCRIPTION
-
-This module implements a very simple session backend, holding all session data
-in memory.  This means that sessions are volatile, and no longer exist when the
-process exits.  This module is likely to be most useful for testing purposes.
-
-
-=head1 CONFIGURATION
-
-The setting B<session> should be set to C<Simple> in order to use this session
-engine in a Dancer application.
-
 
 =head1 SEE ALSO
 

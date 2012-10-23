@@ -1,4 +1,4 @@
-# ABSTRACT: serializer for handling YAML data
+# ABSTRACT: Serializer for handling YAML data
 
 package Dancer::Serializer::YAML;
 use Moo;
