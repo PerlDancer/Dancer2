@@ -84,7 +84,7 @@ is $req->path_info, '/bar/baz';
 }
 
 {
-    note "testing begind proxy";
+    note "testing behind proxy";
     $req = Dancer::Core::Request->new(
         env             => $env,
         is_behind_proxy => 1
