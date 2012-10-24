@@ -50,19 +50,23 @@ $test_name is always optional.
 # singleton to store all the apps
 my $_dispatcher = Dancer::Core::Dispatcher->new;
 
-=func dancer_response($method, $path, 
-	{ params => $params, 
-		body => $body, 
-		headers => $headers, 
-		files => [{filename => '/path/to/file', name => 'my_file'}] 
-	});
+=func dancer_response ($method, $path, $params, $arg_env);
 
 Returns a Dancer::Response object for the given request.
 
 Only $method and $path are required.
 
-$params is a hashref, $body is a string and $headers can be an arrayref or
-a HTTP::Headers object, $files is an arrayref of hashref, containing some files to upload.
+$params is a hashref with 'body' as a string; 'headers' can be an arrayref or
+a HTTP::Headers object, 'files' can be arrayref of hashref, containing some 
+files to upload:
+
+	dancer_response($method, $path, 
+		{ params => $params, 
+			body => $body, 
+			headers => $headers, 
+			files => [{filename => '/path/to/file', name => 'my_file'}] 
+		}
+	);
 
 A good reason to use this function is for testing POST requests. Since POST
 requests may not be idempotent, it is necessary to capture the content and
