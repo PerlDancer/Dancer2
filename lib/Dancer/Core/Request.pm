@@ -111,42 +111,49 @@ Return the path requested by the client.
 has path => (
     is => 'rw',
     isa => Str,
-    default => sub {
-        my $self = shift;
-
-        # Written from PSGI specs:
-        # http://search.cpan.org/dist/PSGI/PSGI.pod
-
-        my $path = "";
-
-        $path .= $self->script_name      if defined $self->script_name;
-        $path .= $self->env->{PATH_INFO} if defined $self->env->{PATH_INFO};
-
-        # fallback to REQUEST_URI if nothing found
-        # we have to decode it, according to PSGI specs.
-        if (defined $self->request_uri) {
-            $path ||= $self->_url_decode($self->request_uri);
-        }
-
-        croak "Cannot resolve path" if not $path;
-
-        return $path;
-    },
+    lazy => 1,
+    builder => '_build_path',
 );
+
+sub _build_path {
+    my $self = shift;
+
+    # Written from PSGI specs:
+    # http://search.cpan.org/dist/PSGI/PSGI.pod
+
+    my $path = "";
+
+    $path .= $self->script_name if defined $self->script_name;
+    $path .= $self->env->{PATH_INFO} if defined $self->env->{PATH_INFO};
+
+    # fallback to REQUEST_URI if nothing found
+    # we have to decode it, according to PSGI specs.
+    if ( defined $self->request_uri ) {
+        $path ||= $self->_url_decode( $self->request_uri );
+    }
+
+    croak "Cannot resolve path" if not $path;
+
+    return $path;
+}
 
 has path_info => (
     is => 'rw',
     isa => Str,
-    default => sub {
-        my $self = shift;
-
-        my $info = $self->env->{PATH_INFO};
-        # Empty path info will be interpreted as "root".
-        return $info || '/' if defined $info;
-
-        return $self->path;
-    },
+    lazy => 1,
+    builder => '_build_path_info',
 );
+
+sub _build_path_info {
+    my $self = shift;
+
+    my $info = $self->env->{PATH_INFO};
+
+    # Empty path info will be interpreted as "root".
+    return $info || '/' if defined $info;
+
+    return $self->path;
+}
 
 =method method()
 
@@ -466,7 +473,9 @@ sub to_string {
 sub make_forward_to {
     my ($self, $url, $params, $options) = @_;
 
-    my $env = $self->env;
+    # we clone the env to make sure we don't alter the existing one in $self
+    my $env = { %{$self->env} };
+
     $env->{PATH_INFO} = $url;
 
     my $new_request = (ref $self)->new(env => $env, body_is_parsed => 1);
