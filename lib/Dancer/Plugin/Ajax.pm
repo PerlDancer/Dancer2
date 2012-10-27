@@ -8,42 +8,6 @@ use warnings;
 use Dancer ':syntax';
 use Dancer::Plugin;
 
-hook 'before' => sub {
-    if (request->is_ajax) {
-        content_type('text/xml');
-    }
-};
-
-register 'ajax' => sub {
-    my ($dsl, $pattern, @rest) = @_;
-
-    my $code;
-    for my $e (@rest) { $code = $e if (ref($e) eq 'CODE') }
-
-    my $ajax_route = sub {
-        # must be an XMLHttpRequest
-        if (not $dsl->request->is_ajax) {
-            $dsl->pass and return 0;
-        }
-
-        # disable layout
-        my $layout = $dsl->setting('layout');
-        $dsl->setting('layout' => undef);
-        my $response = $code->();
-        $dsl->setting('layout' => $layout);
-        return $response;
-    };
-
-    $dsl->any( ['get', 'post'] => $pattern, $ajax_route );
-};
-
-register_plugin for_versions => [ 2 ];
-1;
-
-__END__
-
-=pod
-
 =head1 SYNOPSIS
 
     package MyWebApp;
@@ -81,3 +45,37 @@ The action built is a POST request.
 =back
 
 =cut
+
+hook 'before' => sub {
+    if (request->is_ajax) {
+        content_type('text/xml');
+    }
+};
+
+register 'ajax' => sub {
+    my ($dsl, $pattern, @rest) = @_;
+
+    my $code;
+    for my $e (@rest) { $code = $e if (ref($e) eq 'CODE') }
+
+    my $ajax_route = sub {
+        # must be an XMLHttpRequest
+        if (not $dsl->request->is_ajax) {
+            $dsl->pass and return 0;
+        }
+
+        # disable layout
+        my $layout = $dsl->setting('layout');
+        $dsl->setting('layout' => undef);
+        my $response = $code->();
+        $dsl->setting('layout' => $layout);
+        return $response;
+    };
+
+    $dsl->any( ['get', 'post'] => $pattern, $ajax_route );
+};
+
+register_plugin for_versions => [ 2 ];
+1;
+
+

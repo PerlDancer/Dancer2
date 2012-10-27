@@ -1,5 +1,5 @@
 package Dancer::Template::Tiny;
-# ABSTRACT: Template::Tiny backend to Dancer
+# ABSTRACT: Template::Tiny engine for Dancer
 
 use strict;
 use warnings;
@@ -10,40 +10,6 @@ use Template::Tiny;
 use Dancer::FileUtils 'read_file_content';
 
 with 'Dancer::Core::Role::Template';
-
-has '+engine' => (
-    isa => InstanceOf['Template::Tiny'],
-);
-
-sub _build_name   {'Tiny'}
-sub _build_engine { Template::Tiny->new }
-
-sub render {
-    my ( $self, $template, $tokens ) = @_;
-
-    ( ref $template || -f $template )
-        or die "$template is not a regular file or reference";
-
-    my $template_data = ref $template    ?
-                            ${$template} :
-                            read_file_content($template);
-
-    my $content;
-
-    $self->engine->process(
-        \$template_data,
-        $tokens,
-        \$content,
-    ) or die "Could not process template file '$template'";
-
-    return $content;
-}
-
-1;
-
-
-
-=pod
 
 =head1 SYNOPSIS
 
@@ -70,51 +36,43 @@ Since L<Dancer> has internal support for a wrapper-like option with the
 C<layout> configuration option, you can have a L<Template::Toolkit>-like WRAPPER
 even though L<Template::Tiny> doesn't really support it. :)
 
-=head1 SUBROUTINES/METHODS
+=cut
 
-=head2 render
+has '+engine' => (
+    isa => InstanceOf['Template::Tiny'],
+);
+
+sub _build_name   {'Tiny'}
+sub _build_engine { Template::Tiny->new }
+
+=method render
 
 Renders the template. Accepts a string to a file or a reference to a string of
 the template.
 
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-dancer-template-tiny at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Dancer-Template-Tiny>.
-I will be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Dancer::Template::Tiny
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Dancer-Template-Tiny>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Dancer-Template-Tiny>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Dancer-Template-Tiny>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Dancer-Template-Tiny/>
-
-=back
-
 =cut
 
+sub render {
+    my ( $self, $template, $tokens ) = @_;
 
-__END__
+    ( ref $template || -f $template )
+        or die "$template is not a regular file or reference";
+
+    my $template_data = ref $template    ?
+                            ${$template} :
+                            read_file_content($template);
+
+    my $content;
+
+    $self->engine->process(
+        \$template_data,
+        $tokens,
+        \$content,
+    ) or die "Could not process template file '$template'";
+
+    return $content;
+}
+
+1;
+
 
