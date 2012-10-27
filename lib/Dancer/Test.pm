@@ -39,11 +39,34 @@ my $_dispatcher = Dancer::Core::Dispatcher->new;
 
 =cut
 
+# can be called with the ($method, $path, $option) triplet,
+# or can be fed a request object directly, or can be fed
+# a single string, assumed to be [ GET => $string ]
+# or can be fed a response (which is passed through without
+# any modification)
 sub dancer_response {
     my $app = shift;
-    my ($method, $path, $options, $arg_env) = @_;
-
     $_dispatcher->apps([ $app ]);
+
+    # useful for the high-level tests
+    return $_[0] if ref $_[0] eq 'Dancer::Core::Response';
+
+    my ( $request, $env ) = ref $_[0] eq 'Dancer::Core::Request'
+        ? _build_env_from_request( @_ )
+        : _build_request_from_env( @_ )
+        ;
+
+    return $_dispatcher->dispatch($env, $request);
+}
+
+sub _build_request_from_env {
+    # arguments can be passed as the triplet
+    # or as a arrayref, or as a simple string
+    my ( $method, $path, $options ) 
+        = @_ > 1               ? @_
+        : ref $_[0] eq 'ARRAY' ? @{$_[0]}
+        :                        ( GET => $_[0], {} )
+        ;
 
     my $env = {
         REQUEST_METHOD  => uc($method),
@@ -57,10 +80,6 @@ sub dancer_response {
         HTTP_USER_AGENT => "Dancer::Test simulator v ".Dancer->VERSION,
     };
 
-    if( $arg_env ) {
-        $env->{$_} = $arg_env->{$_} for keys %{ $arg_env };
-    }
-
     if (defined $options->{params}) {
         my @params;
         foreach my $p (keys %{$options->{params}}) {
@@ -72,8 +91,9 @@ sub dancer_response {
 
     my $request = Dancer::Core::Request->new(env => $env);
 
-    # TODO body
-
+    # body
+    $request->body( $options->{body} ) if exists $options->{body};
+    
     # headers
     if ($options->{headers}) {
         for my $header (@{ $options->{headers} }) {
@@ -83,10 +103,38 @@ sub dancer_response {
     }
 
     # TODO files
+    
+   return ( $request, $env );
+}
 
-    # use Data::Dumper;
-    # warn "Env created : ".Dumper($env);
-    $_dispatcher->dispatch($env, $request);
+sub _build_env_from_request {
+    my ( $request ) = @_;
+
+    my $env = {
+        REQUEST_METHOD  => $request->method,
+        PATH_INFO       => $request->path,
+        QUERY_STRING    => '',
+        'psgi.url_scheme' => 'http',
+        SERVER_PROTOCOL => 'HTTP/1.0',
+        SERVER_NAME     => 'localhost',
+        SERVER_PORT     => 3000,
+        HTTP_HOST       => 'localhost',
+        HTTP_USER_AGENT => "Dancer::Test simulator v $Dancer::VERSION",
+    };
+
+    # TODO
+    if (my $params = $request->{_query_params}) {
+        my @params;
+        foreach my $p (keys %{$params}) {
+           push @params,
+             uri_escape($p).'='.uri_escape($params->{$p});
+        }
+        $env->{REQUEST_URI} = join('&', @params);
+    }
+
+    # TODO files
+    
+   return ( $request, $env );
 }
 
 =func response_status_is
@@ -95,9 +143,10 @@ sub dancer_response {
 sub response_status_is {
     my $app = shift;
     my ($req, $status, $test_name) = @_;
+
     $test_name ||= "response status is $status for " . _req_label($req);
 
-    my $response = _dancer_response($app, @$req);
+    my $response = _dancer_response($app, $req);
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -130,11 +179,11 @@ sub response_status_isnt {
     my ($req, $status, $test_name) = @_;
     $test_name ||= "response status is not $status for " . _req_label($req);
 
-    my $response = _dancer_response($app, @$req);
+    my $response = _dancer_response($app, $req);
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    $tb->isnt_eq( $response->[0], $status, $test_name );
+    $tb->isnt_eq( $response->status, $status, $test_name );
 }
 
 {
@@ -156,9 +205,8 @@ sub response_status_isnt {
         }
 
         $test_name ||= "response content $test_name $want for " . _req_label($req);
-
-        my $response = _dancer_response($app, @$req);
-
+        my $response = _dancer_response($app, $req);
+        
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
         $tb->$cmp( $response->content, $want, $test_name );
@@ -170,6 +218,7 @@ sub response_status_isnt {
 =cut
 
 sub response_content_is {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'is_eq');
 }
 
@@ -178,6 +227,7 @@ sub response_content_is {
 =cut
 
 sub response_content_isnt {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'isnt_eq');
 }
 
@@ -186,6 +236,7 @@ sub response_content_isnt {
 =cut
 
 sub response_content_like {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'like');
 }
 
@@ -194,6 +245,7 @@ sub response_content_like {
 =cut
 
 sub response_content_unlike {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content(@_, 'unlike');
 }
 
@@ -249,10 +301,10 @@ sub response_headers_are_deeply {
 sub response_headers_include {
     my $app = shift;
     my ($req, $expected, $test_name) = @_;
-    $test_name ||= "headers include expected data for @$req";
+    $test_name ||= "headers include expected data for " . _req_label($req);
     my $tb = Test::Builder->new;
 
-    my $response = _dancer_response($app, _expand_req($req));
+    my $response = _dancer_response($app, $req);
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(_include_in_headers($response->headers_to_array, $expected), $test_name);
 }
@@ -322,6 +374,8 @@ sub _req_label {
     my $req = shift;
 
     return ref $req eq 'Dancer::Core::Response' ? 'response object'
+         : ref $req eq 'Dancer::Core::Request'  
+                ? join( ' ', map { $req->$_ } qw/ method path / )
          : ref $req eq 'ARRAY' ? join( ' ', @$req )
          : "GET $req"
          ;
