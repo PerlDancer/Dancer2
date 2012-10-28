@@ -181,7 +181,7 @@ sub _set_import_method_to_caller {
 
         my $with = $options{with};
         for my $key (keys %$with) {
-            $self->dancer_app->config->{$key} = $with->{$key}; 
+            $self->dancer_app->setting( $key => $with->{$key} ); 
         }
     };
 
