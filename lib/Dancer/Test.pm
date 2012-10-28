@@ -33,6 +33,7 @@ use Dancer::Core::Request;
 
 =cut
 
+# singleton to store all the apps
 my $_dispatcher = Dancer::Core::Dispatcher->new;
 
 =func dancer_response
@@ -45,8 +46,8 @@ my $_dispatcher = Dancer::Core::Dispatcher->new;
 # or can be fed a response (which is passed through without
 # any modification)
 sub dancer_response {
-    my $app = shift;
-    $_dispatcher->apps([ $app ]);
+
+    _find_dancer_apps_for_dispatcher();
 
     # useful for the high-level tests
     return $_[0] if ref $_[0] eq 'Dancer::Core::Response';
@@ -141,12 +142,11 @@ sub _build_env_from_request {
 =cut
 
 sub response_status_is {
-    my $app = shift;
     my ($req, $status, $test_name) = @_;
 
     $test_name ||= "response status is $status for " . _req_label($req);
 
-    my $response = _dancer_response($app, $req);
+    my $response = dancer_response($req);
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -158,7 +158,6 @@ sub response_status_is {
 =cut 
 
 sub route_exists {
-    my $app = shift;
     response_status_is(@_, 200);
 }
 
@@ -167,7 +166,6 @@ sub route_exists {
 =cut
 
 sub route_doesnt_exist {
-    my $app = shift;
     response_status_is(@_, 404);
 }
 
@@ -175,11 +173,10 @@ sub route_doesnt_exist {
 =cut
 
 sub response_status_isnt {
-    my $app = shift;
     my ($req, $status, $test_name) = @_;
     $test_name ||= "response status is not $status for " . _req_label($req);
 
-    my $response = _dancer_response($app, $req);
+    my $response = dancer_response($req);
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -196,7 +193,6 @@ sub response_status_isnt {
     );
 
     sub _cmp_response_content {
-        my $app = shift;
         my ($req, $want, $test_name, $cmp) = @_;
 
         if (@_ == 3) {
@@ -205,7 +201,7 @@ sub response_status_isnt {
         }
 
         $test_name ||= "response content $test_name $want for " . _req_label($req);
-        my $response = _dancer_response($app, $req);
+        my $response = dancer_response($req);
         
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -281,12 +277,11 @@ sub response_is_file {
 =cut
 
 sub response_headers_are_deeply {
-    my $app = shift;
     my ($req, $expected, $test_name) = @_;
     $test_name ||= "headers are as expected for " . _req_label($req);
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my $response = _dancer_response($app, _expand_req($req));
+    my $response = dancer_response(_expand_req($req));
 
     is_deeply(
         _sort_headers( $response->headers_to_array ),
@@ -299,76 +294,49 @@ sub response_headers_are_deeply {
 =cut
 
 sub response_headers_include {
-    my $app = shift;
     my ($req, $expected, $test_name) = @_;
     $test_name ||= "headers include expected data for " . _req_label($req);
     my $tb = Test::Builder->new;
 
-    my $response = _dancer_response($app, $req);
+    my $response = dancer_response($req);
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(_include_in_headers($response->headers_to_array, $expected), $test_name);
 }
 
 
-# private
 
-# all the symbols exported by Dancer::Test are compiled so they can receive the
-# $app object of the caller as their first argument.
+=func import
+
+When Dancer::Test is imported, it should be passed all the
+applications that are supposed to be tested.
+
+If none passed, then the caller is supposed to be the sole application
+to test.
+
+    # t/sometest.t
+
+    use t::lib::Foo;
+    use t::lib::Bar;
+
+    use Dancer::Test 't::lib::Foo', 't::lib::Bar';
+
+=cut
 
 sub import {
-    my ($class, $app_name) = @_;
+    my ($class, @applications) = @_;
     my ($caller, $script) = caller;
 
-    my $app;
-    $app = $app_name->dancer_app
-        if defined $app_name;
-
-    if (! defined $app) {
-        $caller->can('dancer_app') and
-        $app = $caller->dancer_app;
-    }
-
-    for my $symbol (@EXPORT) {
-        my $orig_sub = _get_orig_symbol($symbol);
-        my $new_sub = sub {
-            if (! defined $app) {
-                my $c = caller;
-                $app = $c->dancer_app;
-            }
-            $orig_sub->($app, @_)
-        };
-        {
-            no strict 'refs';
-            no warnings 'redefine';
-            *{"Dancer::Test::$symbol"} = $new_sub;
-        }
-    }
+    # if no app is passed, assume the caller is one.
+    @applications = ($caller) 
+        if ! @applications && $caller->can('dancer_app');
+    
+    # register the apps to the test dispatcher
+    $_dispatcher->apps([ map { $_->dancer_app } @applications ]);
 
     $class->export_to_level(1, $class, @EXPORT);
 }
 
-my $_orig_dsl_symbols = {};
-sub _get_orig_symbol {
-    my ($symbol) = @_;
-
-    # already saved this one, return it
-    return $_orig_dsl_symbols->{$symbol}
-        if exists $_orig_dsl_symbols->{$symbol};
-
-    # first time, save the symbol
-    my $orig;
-    {
-        no strict 'refs';
-        $orig = *{"Dancer::Test::${symbol}"}{CODE};
-
-        # also bind the original symbol to a private name
-        # in order to be able to call it manually from within Dancer.pm
-        *{"Dancer::Test::_${symbol}"} = $orig;
-    }
-
-    # return the newborn cache version
-    return $_orig_dsl_symbols->{$symbol} = $orig;
-}
+# private
 
 sub _req_label {
     my $req = shift;
@@ -437,6 +405,21 @@ sub _req_to_response {
     return $req if ref $req eq 'Dancer::Core::Response';
 
     return dancer_response( ref $req eq 'ARRAY' ? @$req : ( 'GET', $req ) );
+}
+
+# make sure we have at least one app in the dispatcher, and if not,
+# we must have at this point an app within the caller
+sub _find_dancer_apps_for_dispatcher {
+    return if scalar(@{ $_dispatcher->apps });
+
+    for (my $deep=0; $deep<5; $deep++) {
+        my $caller = caller($deep);
+        next if ! $caller->can('dancer_app');
+
+        return $_dispatcher->apps([$caller->dancer_app]);
+    }
+
+    croak "Unable to find a Dancer app, did you use Dancer in your test?";
 }
 
 1;
