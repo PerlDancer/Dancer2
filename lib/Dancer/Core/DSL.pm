@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Dancer's Domain Specific Language (DSL)
 
 package Dancer::Core::DSL;
 
@@ -327,6 +327,12 @@ sub core_debug {
     chomp $msg;
     print STDERR "core: $msg\n";
 }
+
+=head1 SEE ALSO
+
+L<http://advent.perldancer.org/2010/18>
+
+=cut
 
 1;
 
