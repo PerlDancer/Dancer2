@@ -1,0 +1,6 @@
+perl_version: [% perl_version %]
+dancer_version: [% dancer_version %]
+settings.foo: [% settings.foo %]
+params.foo: [% params.foo %]
+session.foo [% session.foo %]
+vars.foo: [% vars.foo %]

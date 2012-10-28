@@ -3,6 +3,9 @@ use Data::Dumper;
 use Dancer::Plugin::Foo;
 use Dancer::Plugin::Bar;
 
+use Bar;
+use Foo;
+
 get '/' => sub {
     debug "in / route";
     to_yaml(session());

@@ -5,6 +5,12 @@ use Data::Dumper;
 
 prefix "/foo";
 
+get "/see_session_in_template" => sub {
+    session foo_session => "foo";
+    var foo_var => "foo";
+    template "tokens";
+};
+
 set in_foo => 1;
 
 get '/' => sub { "in contrib::lib::Foo" };
