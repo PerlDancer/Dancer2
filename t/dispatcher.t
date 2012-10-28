@@ -9,9 +9,13 @@ use Dancer::Core::Route;
 use Dancer::Core::Dispatcher;
 use Dancer::Core::Hook;
 
+set logger => 'Null';
+
 # init our test fixture
 my $buffer = {};
 my $app = Dancer::Core::App->new(name => 'main');
+
+$app->setting(logger => engine('logger'));
 
 # a simple / route
 $app->add_route(
