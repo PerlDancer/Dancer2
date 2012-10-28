@@ -1,6 +1,6 @@
 package contrib::lib::Bar;
 
-use Dancer;
+use Dancer 2.0;
 use Data::Dumper;
 
 prefix '/bar';

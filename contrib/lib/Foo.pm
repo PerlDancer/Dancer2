@@ -5,6 +5,8 @@ use Data::Dumper;
 
 prefix "/foo";
 
+set session => "Simple";
+
 get "/see_session_in_template" => sub {
     session foo_session => "foo";
     var foo_var => "foo";
@@ -20,6 +22,11 @@ get '/config' => sub { Dumper(config) };
 
 get '/cookies' => sub {
     Dumper(cookies);
+};
+
+
+get '/session' => sub {
+    Dumper(session());
 };
 
 get '/set_cookie/:name/:value' => sub {

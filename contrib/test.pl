@@ -1,10 +1,20 @@
-use Dancer;
+use Dancer 2.0;
 use Data::Dumper;
-use Dancer::Plugin::Foo;
-use Dancer::Plugin::Bar;
+# use Dancer::Plugin::Foo;
+# use Dancer::Plugin::Bar;
 
-use Bar;
-use Foo;
+use contrib::lib::Foo with => { session => engine('session') };
+
+get '/session' => sub {
+    session value => "set by main";
+    Dumper(session());
+};
+
+
+dance;
+
+__END__
+# use Foo with => { session => engine('session') };
 
 get '/' => sub {
     debug "in / route";
