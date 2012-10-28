@@ -137,6 +137,13 @@ sub _set_config_entries {
 
 sub _set_config_entry {
     my ($self, $name, $value) = @_;
+
+    # warning if the config entry already exists
+    if (defined $self->config->{$name}) {
+        carp "Trying to define setting '$name' but already defined";
+        return;
+    }
+
     $value = $self->_normalize_config_entry($name, $value);
     $value = $self->_compile_config_entry($name, $value, $self->config);
     $self->config->{$name} = $value;
