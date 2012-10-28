@@ -153,11 +153,14 @@ sub import {
 
     $api_version = 0;  # reset variable for next 'use Dancer X' call
 
-    core_debug("binding app to $caller");
-
+    core_debug("binding import method to $caller");
+    _set_import_method_to_caller($caller);
+    
     # register the app within the runner instance
+    core_debug("binding app to $caller");
     $runner->server->register_application($app);
 
+    core_debug("exporting DSL symbols for $caller");
     my $dsl = Dancer::Core::DSL->new(app => $app);
     $dsl->export_symbols_to($caller);
 
@@ -170,6 +173,24 @@ sub import {
 #    Dancer::GetOpt->process_args() if !$as_script;
 }
 
+sub _set_import_method_to_caller {
+    my ($caller) = @_;
+
+    my $import = sub {
+        my ($self, %options) = @_;
+
+        my $with = $options{with};
+        for my $key (keys %$with) {
+            $self->dancer_app->config->{$key} = $with->{$key}; 
+        }
+    };
+
+    {
+        no strict 'refs';
+        no warnings 'redefine';
+        *{"${caller}::import"} = $import;
+    }
+}
 
 =func core_debug
 
