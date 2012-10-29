@@ -116,7 +116,7 @@ charset setting.
 =cut
 
 sub set_file_mode {
-    my $fh = shift;
+    my $fh      = shift;
     my $charset = 'utf-8';
     binmode $fh, ":encoding($charset)";
     return $fh;
@@ -134,7 +134,7 @@ defaults to utf-8 if setting not present).
 =cut
 
 sub open_file {
-    my ( $mode, $filename ) = @_;
+    my ($mode, $filename) = @_;
 
     open my $fh, $mode, $filename
       or croak "Can't open '$filename' using mode '$mode'";
@@ -159,11 +159,11 @@ in scalar context returns the entire contents of the file.
 
 sub read_file_content {
     my $file = shift or return;
-    my $fh   = open_file( '<', $file );
+    my $fh = open_file('<', $file);
 
-    return wantarray              ?
-           read_glob_content($fh) :
-           scalar read_glob_content($fh);
+    return wantarray
+      ? read_glob_content($fh)
+      : scalar read_glob_content($fh);
 }
 
 =func my $content = read_glob_content($fh);
@@ -196,10 +196,11 @@ sub read_glob_content {
 =cut
 
 sub normalize_path {
+
     # this is a revised version of what is described in
     # http://www.linuxjournal.com/content/normalizing-path-names-bash
     # by Mitch Frazier
-    my $path     = shift or return;
+    my $path = shift or return;
     my $seqregex = qr{
         [^/]*  # anything without a slash
         /\.\./ # that is accompanied by two dots as such
@@ -209,6 +210,10 @@ sub normalize_path {
     $path =~ s{$seqregex}{}g;
     $path =~ s{$seqregex}{};
 
+    #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
+    if ($^O eq 'cygwin') {
+        $path =~ s{^//}{/};
+    }
     return $path;
 }
 
