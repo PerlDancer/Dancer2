@@ -11,7 +11,7 @@ use File::Spec;
 my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
 
 my @clients = qw(one two three);
-my @engines = qw(Simple );
+my @engines = qw(YAML Simple);
 
 if ($ENV{DANCER_TEST_COOKIE}) {
     push @engines, "cookie";
@@ -22,6 +22,7 @@ plan tests => 3 * scalar(@clients) * scalar(@engines);
 
 foreach my $engine (@engines) {
 
+    note "Testing engine $engine";
     Test::TCP::test_tcp(
         client => sub {
             my $port = shift;

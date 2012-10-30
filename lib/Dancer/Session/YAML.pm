@@ -40,11 +40,17 @@ files in /tmp/dancer-sessions
 
 =cut
 
+# needed for new session when they get created
+# FIXME this won't be needed anymore when we split the design in two:
+# a Session class for session objects
+# a SessionFactory for handling session (the session_dir belongs here)
+my $_last_session_dir_used;
+
 my %_session_dir_initialized;
 has session_dir => (
     is => 'ro',
     isa => Str,
-    required => 1,
+    default => sub { $_last_session_dir_used },
     trigger => sub {
         my ($self, $session_dir) = @_;
 
@@ -55,6 +61,8 @@ has session_dir => (
                   or croak "session_dir $session_dir cannot be created";
             }
         }
+
+        $_last_session_dir_used = $session_dir;
     },
 );
 
@@ -108,10 +116,10 @@ sub retrieve {
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    my $content = YAML::Any::LoadFile($fh);
+    my $new_session = YAML::Any::LoadFile($fh);
     close $fh or die "Can't close '$session_file': $!\n";
 
-    return $content;
+    return $new_session;
 }
 
 # instance

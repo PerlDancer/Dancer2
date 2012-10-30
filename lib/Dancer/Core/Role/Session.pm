@@ -96,8 +96,8 @@ sub get_current_session {
     my $class   = ref($self);
 
     if (defined $sid) {
-#        warn "Session ID found: $sid, trying to retreive... ($class)";
-        $session = $class->retrieve($sid);
+#        warn "Session ID found: $sid, trying to retreive... ($self)";
+        $session = $self->retrieve($sid);
     }
 
     if (not defined $session) {
