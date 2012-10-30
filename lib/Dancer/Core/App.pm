@@ -140,21 +140,28 @@ sub session {
 
     # make sure we have a session engine
     my $engine = $self->engine('session');
-    defined $engine
-      or croak "Must specify session engine in settings prior to using 'session' keyword";
 
     # Read the session id from the cookie
     my $cookie = $self->context->cookie($engine->name);
     my $session_id;
     $session_id = $cookie->value if defined $cookie;
+    #warn "session id found: $session_id" if defined $session_id;
 
     # fetch or create the session, based on the existing session id
-    my $session = $engine->get_current_session($session_id);
+    my $session;
+    eval { $session = $engine->get_current_session($session_id) };
+    croak "Unable to retrieve session: $@" if $@;
+
+    # make sure the session object is updated in the context
+    # FIXME: this should be necessary if the session engine was a different
+    # object than the session itself, but it's a major chnage and I don't have
+    # the time yet...
+    $self->config->{session} = $session;
 
     # Generate a session cookie; we want to do this regardless of whether the
     # session is new or existing, so that the cookie expiry is updated.
-    $self->context->response->push_header(
-        'Set-Cookie' => $session->cookie->to_header);
+    $self->context->response->push_header('Set-Cookie' => $session->cookie->to_header) 
+        if defined $session && defined $session->cookie;
 
     # now return what is asked:
     #  - ether the whole session object, or do a get or a set
