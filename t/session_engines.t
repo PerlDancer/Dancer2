@@ -11,7 +11,7 @@ use File::Spec;
 my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
 
 my @clients = qw(one two three);
-my @engines = qw(YAML Simple);
+my @engines = qw(Simple );
 
 if ($ENV{DANCER_TEST_COOKIE}) {
     push @engines, "cookie";

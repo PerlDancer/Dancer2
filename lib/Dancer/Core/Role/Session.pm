@@ -89,6 +89,26 @@ has session_expires => (
 
 # Methods below this this line should not be overloaded.
 
+sub get_current_session {
+    my ($self, $sid) = @_;
+
+    my $session = undef;
+    my $class   = ref($self);
+
+    if (defined $sid) {
+#        warn "Session ID found: $sid, trying to retreive... ($class)";
+        $session = $class->retrieve($sid);
+    }
+
+    if (not defined $session) {
+#        warn "session unable to retreive or no session id, creating a new one";
+        $session = $class->create();
+        $session->flush;
+    }
+
+    return $session;
+}
+
 sub write {
     my ($self, $key, $value) = @_;
     $self->data->{$key} = $value;
@@ -107,7 +127,6 @@ sub delete {
     delete $self->data->{$key};
     $self->flush;
 }
-
 
 sub cookie {
     my ($self, $id) = @_;

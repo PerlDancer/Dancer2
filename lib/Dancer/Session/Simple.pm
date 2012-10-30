@@ -26,6 +26,8 @@ engine in a Dancer application.
 # representing that session
 sub create { goto &new }
 
+use Data::Dumper;
+
 # Return the session object corresponding to the given id
 sub retrieve {
     my ($self, $id) = @_;

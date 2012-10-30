@@ -1,0 +1,11 @@
+--- !!perl/hash:Dancer::Session::YAML
+config: {}
+data:
+  name: three
+environment: development
+id: '641974942627141772419071632313229179'
+location: /home/alexis/workspace/Dancer2/t
+name: dancer.session
+session_dir: /home/alexis/workspace/Dancer2/t/sessions
+session_is_http_only: 1
+session_secure: 0

@@ -138,32 +138,31 @@ sub engine {
 sub session {
     my ($self, $key, $value) = @_;
 
+    # make sure we have a session engine
     my $engine = $self->engine('session');
+    defined $engine
+      or croak "Must specify session engine in settings prior to using 'session' keyword";
 
-    my $session;
-
-    # fetch any existing session
+    # Read the session id from the cookie
     my $cookie = $self->context->cookie($engine->name);
-    if (defined $cookie && defined $cookie->value) {
-        my $existing_session = $engine->retrieve($cookie->value);
-        $session = $existing_session if defined $existing_session;
-    }
+    my $session_id;
+    $session_id = $cookie->value if defined $cookie;
 
-    # create a new session
-    if (! defined $session) {
-        $session = $engine;
-        $session->flush; # NOW?
-        $self->context->response->push_header(
-            'Set-Cookie' => $session->cookie->to_header);
-    }
+    # fetch or create the session, based on the existing session id
+    my $session = $engine->get_current_session($session_id);
 
-    # want the full session?
-    return $session->data if @_ == 1;
+    # Generate a session cookie; we want to do this regardless of whether the
+    # session is new or existing, so that the cookie expiry is updated.
+    $self->context->response->push_header(
+        'Set-Cookie' => $session->cookie->to_header);
 
-    # session accessors
-    return @_ == 3
-        ? $session->write($key => $value)
-        : $session->read($key);
+    # now return what is asked:
+    #  - ether the whole session object, or do a get or a set
+    return  @_ == 1
+        ? $session
+        : @_ == 2
+            ? $session->read($key)
+            : $session->write($key => $value);
 }
 
 sub template {
