@@ -34,29 +34,4 @@ subtest yaml_session_as_object => sub {
     rmdir $dir   or die "unable to rmdir $dir : $!";
 };
 
-subtest simple_session_as_dsl => sub {
-
-    use Dancer;
-    use Dancer::Test;
-    set session => 'Simple';
-
-    get '/read' => sub { session('user') };
-    get '/write/:value' => sub { session user => param('value') };
-
-    my $r = dancer_response GET => '/read';
-    is $r->content, '';
-
-    $r = dancer_response GET => '/write/42';
-    is $r->content, '42';
-
-    $r = dancer_response GET => '/read';
-    is $r->content, '42';
-
-    $r = dancer_response GET => '/write/sukria';
-    is $r->content, 'sukria';
-
-    $r = dancer_response GET => '/read';
-    is $r->content, 'sukria';
-
-};
 done_testing;
