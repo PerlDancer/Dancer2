@@ -111,8 +111,7 @@ sub retrieve {
     my $content = YAML::Any::LoadFile($fh);
     close $fh or die "Can't close '$session_file': $!\n";
 
-    $self->data($content);
-    return $self;
+    return $content;
 }
 
 # instance
@@ -140,7 +139,7 @@ sub flush {
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     set_file_mode($fh);
-    print {$fh} YAML::Any::Dump($self->data);
+    print {$fh} YAML::Any::Dump($self);
     close $fh or die "Can't close '$session_file': $!\n";
 
     return $self;
