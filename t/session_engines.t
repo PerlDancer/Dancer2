@@ -12,13 +12,12 @@ my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
 
 my @clients = qw(one two three);
 my @engines = qw(YAML Simple);
+my $SESSION_DIR;
 
 if ($ENV{DANCER_TEST_COOKIE}) {
     push @engines, "cookie";
     setting(session_cookie_key => "secret/foo*@!");
 }
-
-plan tests => 3 * scalar(@clients) * scalar(@engines);
 
 foreach my $engine (@engines) {
 
@@ -41,6 +40,9 @@ foreach my $engine (@engines) {
                 $res = $ua->get("http://127.0.0.1:$port/read_session");
                 like $res->content, qr/name='$client'/,
                   "session looks good for client $client";
+                
+                $res = $ua->get("http://127.0.0.1:$port/cleanup");
+                ok($res->is_success, "cleanup done for $client");
             }
 
             File::Temp::cleanup();
@@ -60,6 +62,14 @@ foreach my $engine (@engines) {
                 "name='$name'";
             };
 
+            get '/cleanup' => sub {
+                my $session = engine('session');
+                if (ref($session) eq 'Dancer::Session::YAML') {
+                    unlink $session->yaml_file($session->id) or die "unable to rm: $!";
+                }
+                1;
+            };
+
             setting appdir => $tempdir;
             setting(session => $engine);
 
@@ -74,4 +84,6 @@ foreach my $engine (@engines) {
         },
     );
 }
+done_testing;
+
 
