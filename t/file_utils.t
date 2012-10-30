@@ -55,4 +55,4 @@ is(path_or_empty('/tmp'), '/tmp');
 
 #slightly tricky paths on different platforms
 is(path('/','b','/c'), '/b//c', 'path /,b,/c -> /b//c');
-is(path('/','/b',), '/b', 'path //b -> /b');
+is(path('/','/b',), '/b', 'path /, /b -> /b');

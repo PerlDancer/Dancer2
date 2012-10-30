@@ -57,8 +57,8 @@ Nothing by default. You can provide a list of subroutines to import.
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
-    dirname open_file path read_file_content read_glob_content
-    path_or_empty set_file_mode normalize_path
+  dirname open_file path read_file_content read_glob_content
+  path_or_empty set_file_mode normalize_path
 );
 
 
@@ -211,9 +211,7 @@ sub normalize_path {
     $path =~ s{$seqregex}{};
 
     #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
-    if ($^O eq 'cygwin') {
-        $path =~ s{^//}{/};
-    }
+    $path =~ s{^//}{/};
     return $path;
 }
 
