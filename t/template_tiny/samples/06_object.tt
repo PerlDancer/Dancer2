@@ -1,0 +1,5 @@
+[% foo.foo %]
+[% bar %]
+[% IF bar %]true[% ELSE %]false[% END %]
+public  = '[% baz.public   %]'
+private = '[% baz._private %]'

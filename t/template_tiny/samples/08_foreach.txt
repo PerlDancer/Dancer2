@@ -1,0 +1,6 @@
+People bar:
+Adam Kennedy <adamk@cpan.org>
+Foo <No Fixed Address>
+Cool People:
+Adam Kennedy
+Done!

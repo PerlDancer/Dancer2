@@ -1,0 +1,14 @@
+$VAR1 = {
+	a   => 'b',
+	foo => {
+		one      => 1,
+		two      => 2,
+		three    => [ 1, 4, 9 ],
+		_private => 'secret',
+	},
+	bar => [
+		{
+			foo => 'bar',
+		},
+	],
+};

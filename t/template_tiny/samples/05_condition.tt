@@ -1,0 +1,14 @@
+ [%- IF foo %]World[% END %]!
+Hello[% IF bar %] World[% END %]!
+Hello[% UNLESS foo %] World[% END %]!
+Hello[% UNLESS bar %] World[% END %]!
+[% IF foo -%]
+foo
+[%- ELSE -%]
+bar
+[%- END -%]
+[% IF bar %]
+BAR
+[% ELSE %]
+FOO
+[% END -%] 

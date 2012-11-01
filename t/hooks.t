@@ -5,6 +5,10 @@ use File::Spec;
 
 use Carp;
 
+eval { require Template; Template->import(); 1 }
+  or plan skip_all => 'Template::Toolkit probably missing';
+
+
 my @hooks = qw(
     before_request
     after_request

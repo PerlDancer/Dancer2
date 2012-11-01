@@ -6,10 +6,8 @@ use Dancer::Core::Hook;
 use File::Spec;
 use File::Basename 'dirname';
 
-eval "use Template;";
-if ($@) {
-    plan skip_all => 'Template::Toolkit probably missing.';
-}
+eval { require Template; Template->import(); 1 }
+  or plan skip_all => 'Template::Toolkit probably missing.';
 
 use_ok('Dancer::Template::TemplateToolkit');
 

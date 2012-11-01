@@ -1,0 +1,16 @@
+foo[%- a -%]bar
+foo [%- a -%] bar
+foo
+[% a %]
+bar
+foo
+
+ [%- a %]
+bar
+foo
+[% a -%] 
+ 
+ bar
+foo
+[%- a -%]
+bar

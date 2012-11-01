@@ -1,0 +1,20 @@
+[% IF true %]
+  one
+[% END %]
+[% IF false %]
+  two
+[% END %]
+[% IF true %]
+  [% IF true %]
+    three
+  [% END %]
+  [% IF false %]
+    four
+  [% END %]
+[% END %]
+[% IF true %]
+  five
+[% END %]
+[% IF false %]
+  six
+[% END %]

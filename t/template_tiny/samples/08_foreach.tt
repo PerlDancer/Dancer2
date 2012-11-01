@@ -1,0 +1,11 @@
+People [% foo %]:
+[% FOREACH item IN list %]
+[%- item.name %] <[% item.email %]>
+[% END -%]
+Cool People:
+[% FOREACH item IN list %]
+[%- IF item.cool %]
+[%- item.name %]
+[% END %]
+[%- END -%]
+Done!
