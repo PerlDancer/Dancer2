@@ -1,4 +1,5 @@
 package Dancer::Template::Implementation::ForkedTiny;
+# ABSTRACT: Dancer own implementation of Template::Tiny
 
 use 5.00503;
 use strict;
