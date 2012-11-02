@@ -120,43 +120,43 @@ sub register_plugin {
     my %params = @_;
 
     # For backward compatibility, no params means "supports only Dancer 1"
-    defined $params{for_versions}
-      or $params{for_versions} = [ 1 ];
+    $params{for_versions} = [ 1 ] 
+        if ! defined $params{for_versions};
 
-    my $supported_versions = $params{for_versions} || [ 1 ];
-    ref $supported_versions eq 'ARRAY'
-      or croak "register_plugin must be called with an array ref";
+    my $supported_versions = $params{for_versions};
+    croak "register_plugin must be called with an array ref"
+        if ref $supported_versions ne ref([]);
 
     # if the caller has not a dsl, we cant register the plugin
     return if ! $caller->can('dsl');
+
     my $dancer_major_version = int($caller->dsl->dancer_version);
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
 
     # make sure the plugin is compatible with this version of Dancer
-    ( grep { $_ eq $dancer_major_version } @$supported_versions) || $ENV{DANCER_FORCE_PLUGIN_REGISTRATION}
-      or croak "$plugin $plugin_version does not support Dancer $dancer_major_version.";
+    if ($ENV{DANCER_FORCE_PLUGIN_REGISTRATION}) {
+        print STDERR "DANCER_FORCE_PLUGIN_REGISTRATION\n";
+    }
+    else {
+        croak
+          "$plugin $plugin_version does not support Dancer $dancer_major_version."
+          if !grep { $_ eq $dancer_major_version } @$supported_versions;
+    }
 
-    $ENV{DANCER_FORCE_PLUGIN_REGISTRATION}
-      and print STDERR "DANCER2_PLUGIN_WERE_REGISTERED\n";
-
-    # we have a $dsl in our caller, we can register our symbols then
-    my $dsl = $caller->dsl;
-
+    # the plugin consumes the DSL role
     Moo::Role->apply_role_to_package($plugin, 'Dancer::Core::Role::DSL');
 
-    for my $k (@{ $_keywords->{$plugin} }) {
-        my ($keyword, $code, $is_global) = @{ $k };
+    # bind all registered keywords to the plugin
+    my $dsl = $caller->dsl;
+    for my $k (@{$_keywords->{$plugin}}) {
+        my ($keyword, $code, $is_global) = @{$k};
         {
             no strict 'refs';
             *{"${plugin}::${keyword}"} = $code;
         }
-        $dsl->register($keyword, $is_global);
     }
 
-    Moo::Role->apply_roles_to_object($dsl, $plugin);
-
-    $dsl->export_symbols_to($caller);
-    $dsl->dancer_app->register_plugin($dsl);
+    # The plugin is ready now.
 }
 
 =method plugin_args
@@ -314,6 +314,30 @@ sub import {
 
         # bind the newly compiled symbol to the caller's namespace.
         *{"${plugin}::${symbol}"} = $compiled;
+    }
+
+    # create the import method of the caller (the actual plugin) in order to make it
+    # imports all the DSL's keyword
+    my $import     = sub {
+        my $plugin = shift;
+        my $caller  = caller();
+        # warn "importing $plugin in $caller";
+
+        for my $k (@{$_keywords->{$plugin}}) {
+            my ($keyword, $code, $is_global) = @{$k};
+            $caller->dsl->register($keyword, $is_global);
+        }
+
+        Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
+        $caller->dsl->export_symbols_to($caller);
+        $caller->dsl->dancer_app->register_plugin($caller->dsl);
+    };
+
+    my $app_caller = caller();
+    {
+        no strict 'refs';
+        no warnings 'redefine';
+        *{"${app_caller}::import"} = $import;
     }
 
     # Finally, make sure our caller becomes a Moo::Role

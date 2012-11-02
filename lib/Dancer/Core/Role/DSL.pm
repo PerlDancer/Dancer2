@@ -37,13 +37,15 @@ sub register {
 # exports new symbol to caller
 sub export_symbols_to {
     my ($self, $caller) = @_;
-
     my $exports = $self->_construct_export_map;
 
     foreach my $export (keys %{ $exports }) {
         no strict 'refs';
         my $existing = *{"${caller}::${export}"}{CODE};
-        *{"${caller}::${export}"} = $exports->{$export} unless defined $existing;
+
+        next if defined $existing;
+        
+        *{"${caller}::${export}"} = $exports->{$export};
    }
 
     return keys %{ $exports };
