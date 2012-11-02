@@ -9,63 +9,63 @@ no warnings;
 my $EXPR = qr/ [a-z_][\w.]* /xs;
 
 sub new {
-	my $self = bless { start_tag => '[%',
+    my $self = bless { start_tag => '[%',
                        end_tag => '%]', @_[1..$#_] }, $_[0];
 # Opening tag including whitespace chomping rules
 my $LEFT = $self->{LEFT} = qr/
-	(?:
-		(?: (?:^|\n) [ \t]* )? \Q$self->{start_tag}\E\-
-		|
-		\Q$self->{start_tag}\E \+?
-	) \s*
+    (?:
+        (?: (?:^|\n) [ \t]* )? \Q$self->{start_tag}\E\-
+        |
+        \Q$self->{start_tag}\E \+?
+    ) \s*
 /xs;
 
 # Closing %] tag including whitespace chomping rules
 my $RIGHT = $self->{RIGHT}  = qr/
-	\s* (?:
-		\+? \Q$self->{end_tag}\E
-		|
-		\-\Q$self->{end_tag}\E (?: [ \t]* \n )?
-	)
+    \s* (?:
+        \+? \Q$self->{end_tag}\E
+        |
+        \-\Q$self->{end_tag}\E (?: [ \t]* \n )?
+    )
 /xs;
 
 # Preparsing run for nesting tags
 $self->{PREPARSE} = qr/
-	$LEFT ( IF | UNLESS | FOREACH ) \s+
-		(
-			(?: \S+ \s+ IN \s+ )?
-		\S+ )
-	$RIGHT
-	(?!
-		.*?
-		$LEFT (?: IF | UNLESS | FOREACH ) \b
-	)
-	( .*? )
-	(?:
-		$LEFT ELSE $RIGHT
-		(?!
-			.*?
-			$LEFT (?: IF | UNLESS | FOREACH ) \b
-		)
-		( .+? )
-	)?
-	$LEFT END $RIGHT
+    $LEFT ( IF | UNLESS | FOREACH ) \s+
+        (
+            (?: \S+ \s+ IN \s+ )?
+        \S+ )
+    $RIGHT
+    (?!
+        .*?
+        $LEFT (?: IF | UNLESS | FOREACH ) \b
+    )
+    ( .*? )
+    (?:
+        $LEFT ELSE $RIGHT
+        (?!
+            .*?
+            $LEFT (?: IF | UNLESS | FOREACH ) \b
+        )
+        ( .+? )
+    )?
+    $LEFT END $RIGHT
 /xs;
 
 $self->{CONDITION} = qr/
-	\Q$self->{start_tag}\E\s
-		( ([IUF])\d+ ) \s+
-		(?:
-			([a-z]\w*) \s+ IN \s+
-		)?
-		( $EXPR )
-	\s\Q$self->{end_tag}\E
-	( .*? )
-	(?:
-		\Q$self->{start_tag}\E\s \1 \s\Q$self->{end_tag}\E
-		( .+? )
-	)?
-	\Q$self->{start_tag}\E\s \1 \s\Q$self->{end_tag}\E
+    \Q$self->{start_tag}\E\s
+        ( ([IUF])\d+ ) \s+
+        (?:
+            ([a-z]\w*) \s+ IN \s+
+        )?
+        ( $EXPR )
+    \s\Q$self->{end_tag}\E
+    ( .*? )
+    (?:
+        \Q$self->{start_tag}\E\s \1 \s\Q$self->{end_tag}\E
+        ( .+? )
+    )?
+    \Q$self->{start_tag}\E\s \1 \s\Q$self->{end_tag}\E
 /xs;
 
 $self;
@@ -73,34 +73,34 @@ $self;
 
 # Copy and modify
 sub preprocess {
-	my $self = shift;
-	my $text = shift;
-	$self->_preprocess(\$text);
-	return $text;
+    my $self = shift;
+    my $text = shift;
+    $self->_preprocess(\$text);
+    return $text;
 }
 
 sub process {
-	my $self  = shift;
-	my $copy  = ${shift()};
-	my $stash = shift || {};
+    my $self  = shift;
+    my $copy  = ${shift()};
+    my $stash = shift || {};
 
-	local $@  = '';
-	local $^W = 0;
+    local $@  = '';
+    local $^W = 0;
 
-	# Preprocess to establish unique matching tag sets
-	$self->_preprocess( \$copy );
+    # Preprocess to establish unique matching tag sets
+    $self->_preprocess( \$copy );
 
-	# Process down the nested tree of conditions
-	my $result = $self->_process( $stash, $copy );
-	if ( @_ ) {
-		${$_[0]} = $result;
-	} elsif ( defined wantarray ) {
-		require Carp;
-		Carp::carp('Returning of template results is deprecated in Template::Tiny 0.11');
-		return $result;
-	} else {
-		print $result;
-	}
+    # Process down the nested tree of conditions
+    my $result = $self->_process( $stash, $copy );
+    if ( @_ ) {
+        ${$_[0]} = $result;
+    } elsif ( defined wantarray ) {
+        require Carp;
+        Carp::carp('Returning of template results is deprecated in Template::Tiny 0.11');
+        return $result;
+    } else {
+        print $result;
+    }
 }
 
 
@@ -113,95 +113,95 @@ sub process {
 # The only reason this is a standalone is so we can
 # do more in-depth testing.
 sub _preprocess {
-	my $self = shift;
-	my $copy = shift;
+    my $self = shift;
+    my $copy = shift;
 
-	# Preprocess to establish unique matching tag sets
-	my $id = 0;
-	1 while $$copy =~ s/
-		$self->{PREPARSE}
-	/
-		my $tag = substr($1, 0, 1) . ++$id;
-		"\[\% $tag $2 \%\]$3\[\% $tag \%\]"
-		. (defined($4) ? "$4\[\% $tag \%\]" : '');
-	/sex;
+    # Preprocess to establish unique matching tag sets
+    my $id = 0;
+    1 while $$copy =~ s/
+        $self->{PREPARSE}
+    /
+        my $tag = substr($1, 0, 1) . ++$id;
+        "\[\% $tag $2 \%\]$3\[\% $tag \%\]"
+        . (defined($4) ? "$4\[\% $tag \%\]" : '');
+    /sex;
 }
 
 sub _process {
-	my ($self, $stash, $text) = @_;
+    my ($self, $stash, $text) = @_;
 
-	$text =~ s/
-		$self->{CONDITION}
-	/
-		($2 eq 'F')
-			? $self->_foreach($stash, $3, $4, $5)
-			: eval {
-				$2 eq 'U'
-				xor
-				!! # Force boolification
-				$self->_expression($stash, $4)
-			}
-				? $self->_process($stash, $5)
-				: $self->_process($stash, $6)
-	/gsex;
+    $text =~ s/
+        $self->{CONDITION}
+    /
+        ($2 eq 'F')
+            ? $self->_foreach($stash, $3, $4, $5)
+            : eval {
+                $2 eq 'U'
+                xor
+                !! # Force boolification
+                $self->_expression($stash, $4)
+            }
+                ? $self->_process($stash, $5)
+                : $self->_process($stash, $6)
+    /gsex;
 
-	# Resolve expressions
-	$text =~ s/
-		$self->{LEFT} ( $EXPR ) $self->{RIGHT}
-	/
-		eval {
-			$self->_expression($stash, $1)
-			. '' # Force stringification
-		}
-	/gsex;
+    # Resolve expressions
+    $text =~ s/
+        $self->{LEFT} ( $EXPR ) $self->{RIGHT}
+    /
+        eval {
+            $self->_expression($stash, $1)
+            . '' # Force stringification
+        }
+    /gsex;
 
-	# Trim the document
-	$text =~ s/^\s*(.+?)\s*\z/$1/s if $self->{TRIM};
+    # Trim the document
+    $text =~ s/^\s*(.+?)\s*\z/$1/s if $self->{TRIM};
 
-	return $text;
+    return $text;
 }
 
 # Special handling for foreach
 sub _foreach {
-	my ($self, $stash, $term, $expr, $text) = @_;
+    my ($self, $stash, $term, $expr, $text) = @_;
 
-	# Resolve the expression
-	my $list = $self->_expression($stash, $expr);
-	unless ( ref $list eq 'ARRAY' ) {
-		return '';
-	}
+    # Resolve the expression
+    my $list = $self->_expression($stash, $expr);
+    unless ( ref $list eq 'ARRAY' ) {
+        return '';
+    }
 
-	# Iterate
-	return join '', map {
-		$self->_process( { %$stash, $term => $_ }, $text )
-	} @$list;
+    # Iterate
+    return join '', map {
+        $self->_process( { %$stash, $term => $_ }, $text )
+    } @$list;
 }
 
 # Evaluates a stash expression
 sub _expression {
-	my $cursor = $_[1];
-	my @path   = split /\./, $_[2];
-	foreach ( @path ) {
-		# Support for private keys
-		return undef if substr($_, 0, 1) eq '_';
+    my $cursor = $_[1];
+    my @path   = split /\./, $_[2];
+    foreach ( @path ) {
+        # Support for private keys
+        return undef if substr($_, 0, 1) eq '_';
 
-		# Split by data type
-		my $type = ref $cursor;
-		if ( $type eq 'ARRAY' ) {
-			return '' unless /^(?:0|[0-9]\d*)\z/;
-			$cursor = $cursor->[$_];
-		} elsif ( $type eq 'HASH' ) {
-			$cursor = $cursor->{$_};
-		} elsif ( $type ) {
-			$cursor = $cursor->$_();
-		} else {
-			return '';
-		}
-	}
+        # Split by data type
+        my $type = ref $cursor;
+        if ( $type eq 'ARRAY' ) {
+            return '' unless /^(?:0|[0-9]\d*)\z/;
+            $cursor = $cursor->[$_];
+        } elsif ( $type eq 'HASH' ) {
+            $cursor = $cursor->{$_};
+        } elsif ( $type ) {
+            $cursor = $cursor->$_();
+        } else {
+            return '';
+        }
+    }
     # If the last expression is a CodeRef, execute it
     ref($cursor) eq 'CODE'
       and $cursor = $cursor->();
-	return $cursor;
+    return $cursor;
 }
 
 1;
