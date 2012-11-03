@@ -209,6 +209,8 @@ sub normalize_path {
     $path =~ s{$seqregex}{}g;
     $path =~ s{$seqregex}{};
 
+    #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
+    $path =~ s{^//}{/};
     return $path;
 }
 

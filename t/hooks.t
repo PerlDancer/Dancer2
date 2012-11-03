@@ -80,6 +80,9 @@ use Dancer::Test;
 subtest 'request hooks' => sub {
     my $r = dancer_response get => '/';
     is $tests_flags->{before_request}, 1, "before_request was called";
+    is $tests_flags->{before_serializer}, undef, "before_serializer undef";
+    is $tests_flags->{after_serializer}, undef, "after_serializer undef";
+    is $tests_flags->{before_file_render}, undef, "before_file_render undef";
 };
 
 subtest 'serializer hooks' => sub {
@@ -89,6 +92,7 @@ subtest 'serializer hooks' => sub {
     is $r->content, $json, 'response is serialized';
     is $tests_flags->{before_serializer}, 1, 'before_serializer was called';
     is $tests_flags->{after_serializer},  1, 'after_serializer was called';
+    is $tests_flags->{before_file_render}, undef, "before_file_render undef";
 };
 
 subtest 'file render hooks' => sub {

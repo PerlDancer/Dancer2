@@ -1,11 +1,11 @@
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Fatal;
 use File::Spec;
 use File::Temp 0.22;
 
-use Dancer::FileUtils qw/read_file_content path_or_empty/;
+use Dancer::FileUtils qw/read_file_content path_or_empty path/;
 
 sub write_file {
     my ($file, $content) = @_;
@@ -56,3 +56,7 @@ if (! -e $path) {
 }
 
 is(path_or_empty('/tmp'), '/tmp');
+
+#slightly tricky paths on different platforms
+is(path('/','b','/c'), '/b//c', 'path /,b,/c -> /b//c');
+is(path('/','/b',), '/b', 'path /, /b -> /b');
