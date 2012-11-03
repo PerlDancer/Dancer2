@@ -126,11 +126,12 @@ sub response_internal_error {
 
     # warn "got error: $error";
 
-    my $r = Dancer::Core::Response->new( status => 500 );
-    $r->content( "Internal Server Error\n\n$error\n" );
-    $r->content_type ('text/plain');
-
-    return $r;
+    return Dancer::Core::Error->new(
+        status       => 500,
+        title        => 'Internal Server Error',
+        content      => "Internal Server Error\n\n$error\n",
+        content_type => 'text/plain'
+    )->throw;
 }
 
 sub response_not_found {
