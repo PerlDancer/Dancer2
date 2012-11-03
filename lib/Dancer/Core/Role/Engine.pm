@@ -19,6 +19,7 @@ has context => (
     is => 'rw',
     isa => InstanceOf['Dancer::Core::Context'],
     clearer => 'clear_context',
+    predicate => 1,
 );
 
 has config => (

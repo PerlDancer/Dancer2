@@ -27,15 +27,14 @@ my $env = {
 };
 
 my $a = Dancer::Core::App->new(name => 'main');
-my $c = Dancer::Core::Context->new(env => $env);
+my $c = Dancer::Core::Context->new(env => $env, app => $a);
 
 subtest 'basic defaults of Error object' => sub {
     my $e = Dancer::Core::Error->new(
-        app => $a,
         context => $c,
     );
-    is $e->code, 500, 'code';
-    is $e->title, 'Error 500', 'title';
+    is $e->status, 500, 'code';
+    is $e->title, 'Error 500 - Internal Server Error', 'title';
     is $e->message, undef, 'message';
 };
 
@@ -74,5 +73,17 @@ subtest "send_error with custom stuff" => sub {
     like $r->content, qr{Error 542},
         'Error message looks good';
 };
+
+subtest 'Response->error()' => sub {
+    my $resp = Dancer::Core::Response->new;
+
+    isa_ok $resp->error( message => 'oops', status => 418 ), 'Dancer::Core::Error';
+
+    is   $resp->status => 418, 'response code is 418';
+    like $resp->content => qr/oops/, 'response content overriden by error';
+    like $resp->content => qr/teapot/, 'error code title is present';
+    ok   $resp->is_halted, 'response is halted';
+};
+
 
 done_testing;

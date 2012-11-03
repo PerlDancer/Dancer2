@@ -261,22 +261,15 @@ sub mime {
 sub cookie { shift->context->cookie(@_) }
 
 sub send_error {
-    my ($self, $message, $code) = @_;
-    require 'Dancer/Serializer/JSON.pm';
-    # Should be TemplateSimple
-    require 'Dancer/Template/Tiny.pm';
+    my ($self, $message, $status) = @_;
 
-    my $s = Dancer::Serializer::JSON->new;
-    my $t = Dancer::Template::Tiny->new;
-
-    Dancer::Core::Error->new(
+    my $x = Dancer::Core::Error->new(
         message => $message,
-        app => $self->app,
         context => $self->app->context,
-        serializer => $s,
-        template => $t,
-        code => $code || 500,
-        )->render;
+        ( status => $status ) x !!$status,
+    )->throw;
+
+    $x;
 }
 #
 # engines
