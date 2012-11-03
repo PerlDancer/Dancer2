@@ -145,7 +145,7 @@ $app->add_route(
 );
 $app->compile_hooks;
 
-plan tests => scalar(@tests) * 3 + 5;
+plan tests => 16;
 
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 my $counter = 0;
@@ -178,18 +178,13 @@ foreach my $test (
     my $env = $test->{env};
     my $expected = $test->{expected};
 
-    my $resp = $dispatcher->dispatch($env)->to_psgi;
+    my $resp = $dispatcher->dispatch($env);
 
-    is        $resp->[0] => $expected->[0], "Return code ok.";
+    is        $resp->status => $expected->[0], "Return code ok.";
 
-    ok(splice(@{$resp->[1]}, -3, 1) >= 140, "Length ok.");
-    is_deeply $resp->[1] => $expected->[1], "Headers ok.";
+    ok( $resp->header('Content-Length') >= 140, "Length ok.");
 
-    if (ref($expected->[2]) eq "Regexp") {
-        like   $resp->[2][0] => $expected->[2], "Contents ok.";
-    } else {
-        is_deeply $resp->[2] => $expected->[2], "Contents ok.";
-    }
+    like $resp->content, $expected->[2], "contents ok";
 }
 
 

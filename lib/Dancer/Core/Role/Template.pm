@@ -44,8 +44,7 @@ has default_tmpl_ext => (
 
 has views => (
     is => 'rw',
-    isa => Str,
-    default => sub { 'views' },
+    isa => Maybe[Str],
 );
 
 has layout => (

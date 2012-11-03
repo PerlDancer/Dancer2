@@ -5,6 +5,7 @@ use Moo;
 use Carp;
 use Dancer::Core::Types;
 use Data::Dumper;
+use Dancer::FileUtils 'path';
 
 with 'Dancer::Core::Role::Hookable';
 
@@ -14,7 +15,7 @@ with 'Dancer::Core::Role::Hookable';
     use Dancer::Error;
 
     my $error = Dancer::Error->new(
-        code    => 404,
+        status    => 404,
         message => "No such file: `$path'"
     );
 
@@ -29,14 +30,72 @@ This is usually used in debugging environments, and it's what Dancer uses as
 well under debugging to catch errors and show them on screen.
 
 
-=method my $error=new Dancer::Core::Error(code    => 404, message => "No such file: `$path'");
+=method my $error=new Dancer::Core::Error(status    => 404, message => "No such file: `$path'");
 
 Create a new Dancer::Error object. For available arguments see ATTRIBUTES.
 
+=cut
+
+my %error_title = (
+    400 => "Bad Request",
+    401 => "Unauthorized",
+    402 => "Payment Required",
+    403 => "Forbidden",
+    404 => "Not Found",
+    405 => "Method Not Allowed",
+    406 => "Not Acceptable",
+    407 => "Proxy Authentication Required",
+    408 => "Request Timeout",
+    409 => "Conflict",
+    410 => "Gone",
+    411 => "Length Required",
+    412 => "Precondition Failed",
+    413 => "Request Entity Too Large",
+    414 => "Request-URI Too Long",
+    415 => "Unsupported Media Type",
+    416 => "Requested Range Not Satisfiable",
+    417 => "Expectation Failed",
+    418 => "I'm a teapot",
+    420 => "Enhance Your Calm",
+    422 => "Unprocessable Entity",
+    423 => "Locked",
+    424 => "Failed Dependency",
+    424 => "Method Failure",
+    425 => "Unordered Collection",
+    426 => "Upgrade Required",
+    428 => "Precondition Required",
+    429 => "Too Many Requests",
+    431 => "Request Header Fields Too Large",
+    444 => "No Response",
+    449 => "Retry With",
+    450 => "Blocked by Windows Parental Controls ",
+    451 => "Unavailable For Legal Reasons ",
+    451 => "Redirect",
+    494 => "Request Header Too Large ",
+    495 => "Cert Error",
+    496 => "No Cert ",
+    497 => "HTTP to HTTPS",
+    499 => "Client Closed Request",
+    500 => "Internal Server Error",
+    501 => "Not Implemented",
+    502 => "Bad Gateway",
+    503 => "Service Unavailable",
+    504 => "Gateway Timeout",
+    505 => "HTTP Version Not Supported",
+    506 => "Variant Also Negotiates ",
+    507 => "Insufficient Storage ",
+    508 => "Loop Detected ",
+    509 => "Bandwidth Limit Exceeded ",
+    510 => "Not Extended",
+    511 => "Network Authentication Required ",
+    598 => "Network read timeout error ",
+    599 => "Network connect timeout error ",
+);
 
 =method supported_hooks ();
 
 =cut
+
 
 
 sub supported_hooks {
@@ -91,21 +150,76 @@ has title => (
     builder => '_build_title',
 );
 
-has error_template => (
+sub _build_title {
+    my ($self) = @_;
+    my $title = 'Error '.$self->status;
+    $title.= ' - ' . $error_title{$self->status} if $error_title{$self->status};
+
+    return $title;
+}
+
+has template => (
     is => 'ro',
-    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
+#    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
     lazy => 1,
     builder => '_build_error_template',
 );
 
 sub _build_error_template {
     my ($self) = @_;
-    my $template = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+    # look for a template named after the status number.
+    # E.g.: views/404.tt  for a TT template
+    return $self->status 
+        if -f $self->context->app->engine('template')->view($self->status);
+
+    return undef;
+}
+
+has static_page => (
+    is => 'ro',
+    lazy => 1,
+    builder => '_build_static_page',
+);
+
+sub _build_static_page {
+    my ($self) = @_;
+
+    return undef unless $self->has_context;
+
+    # TODO there must be a better way to get it
+    my $public_dir = $ENV{DANCER_PUBLIC} 
+                   || path($self->context->app->config_location, 'public');
+
+    my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
+
+    open my $fh, $filename or return undef;
+
+    local $/ = undef;  # slurp time
+
+    return <$fh>;
+}
+
+
+sub default_error_page { 
+    my $self = shift;
+
+    require Template::Tiny;
+
+    my $opts = { 
+        title => $self->title,
+        charset => $self->charset,
+        content => $self->message,
+        version => Dancer->VERSION,
+    };
+
+    Template::Tiny->new->process( \<<"END_TEMPLATE", $opts, \my $output ); 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title>[% title %]</title>
-<link rel="stylesheet" href="/css/[% style %].css" />
-<meta http-equiv="Content-type" content="text/html; charset=' . $self->charset . '" />
+<link rel="stylesheet" href="/css/error.css" />
+<meta http-equiv="Content-type" content="text/html; charset='[% charset %]'" />
 </head>
 <body>
 <h1>[% title %]</h1>
@@ -116,24 +230,22 @@ sub _build_error_template {
 Powered by <a href="http://perldancer.org/">Dancer</a> [% version %]
 </div>
 </body>
-</html>';
-    return \$template;
+</html>
+END_TEMPLATE
+
+    return $output;
 }
 
-sub _build_title {
-    my ($self) = @_;
-    "Error ".$self->code;
-}
 
-=attr code
+=attr status
 
-The code that caused the error.
+The status that caused the error.
 
 This is only an attribute getter, you'll have to set it at C<new>.
 
 =cut
 
-has code => (
+has status => (
     is => 'ro',
     default => sub { 500 },
     isa => Num,
@@ -163,11 +275,6 @@ has serializer => (
     isa => ConsumerOf['Dancer::Core::Role::Serializer'],
 );
 
-has template => (
-    is => 'ro',
-    isa => ConsumerOf['Dancer::Core::Role::Template'],
-);
-
 has session => (
     is => 'ro',
     isa => ConsumerOf['Dancer::Core::Role::Session'],
@@ -176,6 +283,7 @@ has session => (
 has context => (
     is => 'ro',
     isa => InstanceOf['Dancer::Core::Context'],
+    predicate => 1,
 );
 
 sub BUILD {
@@ -188,20 +296,69 @@ has exception => (
     isa => Str,
 );
 
-=method render
+has response => (
+    is => 'rw',
+    lazy => 1,
+    default => sub { $_[0]->has_context 
+        ? $_[0]->context->response 
+        : Dancer::Core::Response->new 
+    },
+);
 
-Renders a response using L<Dancer::Response>.
+has content_type => (
+    is => 'ro',
+    default => sub { 'text/html' },
+);
+
+has content => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+
+        # we check for a template, for a static file and,
+        # if all else fail, the default error page
+
+        if ( $self->has_context and $self->template ) {
+            return $self->context->app->template($self->template, {
+                title   => $self->title,
+                content => $self->message,
+                status    => $self->status,
+            });
+        }
+
+        if ( my $content = $self->static_page ) {
+            return $content;
+        }
+
+        return $self->default_error_page;
+    },
+);
+
+=method throw($response)
+
+Populates the content of the response with the error's information.
+If I<$response> is not given, acts on the I<context> 
+attribute's response.
 
 =cut
 
-sub render {
+sub throw {
     my $self = shift;
+    $self->response(shift) if @_;
+
+    croak "error has no response to throw at" unless $self->response;
 
     $self->execute_hook('core.error.before', $self);
-    my $response = $self->_render_html();
-    $self->execute_hook('core.error.after', $response);
 
-    return $response;
+    $self->response->status($self->status);
+    $self->response->header($self->content_type);
+    $self->response->content($self->content);
+    $self->response->halt(1);
+
+    $self->execute_hook('core.error.after', $self->response);
+
+    return $self->response;
 }
 
 =method backtrace
@@ -323,7 +480,7 @@ C<get_caller>), the settings and environment (using C<dumper>) and more.
 sub environment {
     my ($self) = @_;
 
-    my $request = $self->context->request;
+    my $request = $self->has_context ? $self->context->request : 'TODO';
     my $r_env   = {};
     $r_env = $request->env if defined $request;
 
@@ -434,12 +591,12 @@ sub _render_html {
     my $ops           = {
         title   => $self->title,
         content => $self->message,
-        code    => $self->code,
+        status    => $self->status,
         defined $self->exception ? (exception => $self->exception) : (),
     };
     my $content = $self->template->apply_renderer($template_name, $ops);
-    $self->context->response->status($self->code);
-    $self->context->response->header('Content-Type' => 'text/html');
+    $self->response->status($self->status);
+    $self->response->header('Content-Type' => 'text/html');
     return $content;
 }
 

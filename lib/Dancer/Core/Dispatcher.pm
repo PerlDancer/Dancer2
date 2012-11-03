@@ -91,12 +91,19 @@ sub dispatch {
                 }
             }
 
-            # serialize if needed
-            $content = $app->config->{serializer}->serialize($content) 
-                if ref $content and defined $app->config->{serializer}; 
+            if ( ref $content eq 'Dancer::Core::Response' ) {
+                $response = $context->response($content);    
+            }
+            else {
+                # serialize if needed
+                if (defined $app->config->{serializer}) {
+                    $content = $app->config->{serializer}->serialize($content)
+                        if ref($content);
+                }
 
-            $response->content(defined $content ? $content : '');
-            $response->encode_content;
+                $response->content(defined $content ? $content : '');
+                $response->encode_content;
+            }
 
             return $response if $response->is_halted;
 
@@ -119,11 +126,12 @@ sub response_internal_error {
 
     # warn "got error: $error";
 
-    my $r = Dancer::Core::Response->new( status => 500 );
-    $r->content( "Internal Server Error\n\n$error\n" );
-    $r->content_type ('text/plain');
-
-    return $r;
+    return Dancer::Core::Error->new(
+        status       => 500,
+        title        => 'Internal Server Error',
+        content      => "Internal Server Error\n\n$error\n",
+        content_type => 'text/plain'
+    )->throw;
 }
 
 sub response_not_found {
