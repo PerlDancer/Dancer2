@@ -156,6 +156,36 @@ sub register_plugin {
         }
     }
 
+    # create the import method of the caller (the actual plugin) in order to make it
+    # imports all the DSL's keyword when it's used.
+    my $import     = sub {
+        my $plugin = shift;
+
+        # caller(1) because our import method is wrapped, see below
+        my $caller  = caller(1);
+
+        for my $k (@{$_keywords->{$plugin}}) {
+            my ($keyword, $code, $is_global) = @{$k};
+            $caller->dsl->register($keyword, $is_global);
+        }
+
+        Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
+        $caller->dsl->export_symbols_to($caller);
+        $caller->dsl->dancer_app->register_plugin($caller->dsl);
+    };
+
+    my $app_caller = caller();
+    {
+        no strict 'refs';
+        no warnings 'redefine';
+        my $original_import = *{"${app_caller}::import"}{CODE};
+        $original_import ||= sub { };
+        *{"${app_caller}::import"} = sub { 
+            $original_import->(@_); 
+            $import->(@_);
+        };
+    }
+
     # The plugin is ready now.
 }
 
@@ -278,6 +308,7 @@ sub execute_hook {
 sub import {
     my $class  = shift;
     my $plugin = caller;
+        
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
@@ -314,30 +345,6 @@ sub import {
 
         # bind the newly compiled symbol to the caller's namespace.
         *{"${plugin}::${symbol}"} = $compiled;
-    }
-
-    # create the import method of the caller (the actual plugin) in order to make it
-    # imports all the DSL's keyword
-    my $import     = sub {
-        my $plugin = shift;
-        my $caller  = caller();
-        # warn "importing $plugin in $caller";
-
-        for my $k (@{$_keywords->{$plugin}}) {
-            my ($keyword, $code, $is_global) = @{$k};
-            $caller->dsl->register($keyword, $is_global);
-        }
-
-        Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
-        $caller->dsl->export_symbols_to($caller);
-        $caller->dsl->dancer_app->register_plugin($caller->dsl);
-    };
-
-    my $app_caller = caller();
-    {
-        no strict 'refs';
-        no warnings 'redefine';
-        *{"${app_caller}::import"} = $import;
     }
 
     # Finally, make sure our caller becomes a Moo::Role
