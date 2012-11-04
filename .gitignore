@@ -1,4 +1,5 @@
 .build
+tags
 Makefile
 blib
 cover_db
