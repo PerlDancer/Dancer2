@@ -72,8 +72,10 @@ has content => (
     trigger => sub {
         my ($self, $value) = @_;
 
-        (! $self->header('Content-Length')) && (! $self->has_passed) and
-            $self->header('Content-Length' => length($value));
+        $self->header('Content-Length' => length($value))
+         if ! $self->has_passed;
+
+        $value;
     },
 );
 
@@ -81,8 +83,18 @@ sub encode_content {
     my ($self) = @_;
     return if $self->is_encoded;
     return if $self->content_type !~ /^text/;
+    
+    my $ct = $self->content_type;
+    $self->content_type("$ct; charset=UTF-8")
+      if $ct !~ /charset/;
+
     $self->is_encoded(1);
-    $self->content(Encode::encode('UTF-8', $self->content));
+    my $content = $self->content(Encode::encode('UTF-8', $self->content));
+
+    # we need to reset the content length, because UTF-8
+    $self->header('Content-Length' => length($content));
+
+    return $content;
 }
 
 sub to_psgi {

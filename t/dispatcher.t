@@ -63,7 +63,7 @@ my @tests = (
             200,
             [   @default_headers,
                 'Content-Length' => 4,
-                'Content-Type'   => 'text/html'
+                'Content-Type'   => 'text/html; charset=UTF-8'
             ],
             ["home"]
           ]
@@ -73,7 +73,10 @@ my @tests = (
             PATH_INFO      => '/user/Johnny',
         },
         expected => [
-            200, [@default_headers, 'Content-Length' => 12, 'Content-Type' => 'text/html'],
+            200, [@default_headers, 
+                'Content-Length' => 12, 
+                'Content-Type' => 'text/html; charset=UTF-8'
+            ],
             ["Hello Johnny"]
           ]
     },
@@ -94,7 +97,7 @@ my @tests = (
                 'Location'       => 'http://perldancer.org',
                 @default_headers,
                 'Content-Length' => '0',
-                'Content-Type'   => 'text/html',
+                'Content-Type'   => 'text/html; charset=UTF-8',
             ],
             ['']
         ]
