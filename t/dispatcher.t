@@ -97,7 +97,7 @@ my @tests = (
                 'Location'       => 'http://perldancer.org',
                 @default_headers,
                 'Content-Length' => '0',
-                'Content-Type'   => 'text/html; charset=UTF-8',
+                'Content-Type'   => 'text/html',
             ],
             ['']
         ]
