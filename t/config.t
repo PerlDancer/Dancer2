@@ -50,7 +50,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
 }
 
 my $d = Dev->new;
-is_deeply [$d->config_files],
+is_deeply $d->config_files,
     [
      path($location, 'config.yml'),
     ],
@@ -60,7 +60,7 @@ my $f = Prod->new;
 is $f->does('Dancer::Core::Role::Config'), 1,
     "role Dancer::Core::Role::Config is consumed";
 
-is_deeply [$f->config_files],
+is_deeply $f->config_files,
     [
      path($location, 'config.yml'),
      path($location, 'environments', 'production.yml'),
@@ -68,7 +68,7 @@ is_deeply [$f->config_files],
     "config_files() works";
 
 my $j = Staging->new;
-is_deeply [$j->config_files],
+is_deeply $j->config_files,
     [
      path($location, 'config.yml'),
      path($location, 'environments', 'staging.json'),
@@ -79,7 +79,7 @@ note "bad YAML file";
 my $fail = Failure->new;
 is $fail->environment, 'failure';
 
-is_deeply [$fail->config_files],
+is_deeply $fail->config_files,
     [
      path($location, 'config.yml'),
      path($location, 'environments', 'failure.yml'),

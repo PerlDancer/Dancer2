@@ -58,27 +58,37 @@ sub has_setting {
     return exists $self->config->{$name};
 }
 
-sub config_files {
+has config_files => (
+    is => 'rw',
+    lazy => 1,
+    isa => ArrayRef,
+    builder => '_build_config_files',
+);
+
+sub _build_config_files {
     my ($self) = @_;
     my $location = $self->config_location;
 
     # an undef location means no config files for the caller
-    return unless defined $location;
+    return [] unless defined $location;
 
     my $running_env = $self->environment;
     my @exts = Config::Any->extensions;
     my @files;
+
     foreach my $ext( @exts ) {
         foreach my $file (
             ["config.$ext"],
             ['environments', "$running_env.$ext"]) {
+
             my $path = path($location, @{$file});
             next if ! -r $path;
+
             push @files, $path;
         }
     }
 
-    return sort @files;
+    return [ sort @files ];
 }
 
 sub load_config_file {
@@ -119,7 +129,7 @@ sub _build_config {
     $config = $self->default_config
         if $self->can('default_config');
 
-    foreach my $file ($self->config_files) {
+    foreach my $file (@{ $self->config_files }) {
         my $current = $self->load_config_file($file);
         $config = {%{$config}, %{$current}};
     }
