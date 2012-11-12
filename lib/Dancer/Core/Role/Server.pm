@@ -139,7 +139,7 @@ sub psgi_app {
             return [
                 500,
                 ['Content-Type' => 'text/plain'],
-                ["Internal Sever Error\n\n$@"],
+                ["Internal Server Error\n\n$@"],
             ];
         }
         return $app;
