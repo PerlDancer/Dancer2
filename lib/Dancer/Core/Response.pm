@@ -140,7 +140,9 @@ sub is_forwarded {
 sub redirect {
     my ($self, $destination, $status) = @_;
     $self->status($status || 302);
-    $self->header('Location' => $destination);
+
+    # we want to stringify the $destination object (URI object)
+    $self->header('Location' => "$destination");
 }
 
 1;
