@@ -432,7 +432,21 @@ has name => (
 has context => (
     is => 'rw',
     isa => Maybe[InstanceOf['Dancer::Core::Context']],
+    trigger => sub {
+        my ($self, $ctx) = @_;
+        $self->_init_for_context($ctx),
+    },
 );
+
+sub _init_for_context {
+    my ($self) = @_;
+
+    return if ! defined $self->context;
+    return if ! defined $self->context->request;
+
+    $self->context->request->is_behind_proxy(1)
+      if $self->setting('behind_proxy');
+}
 
 has prefix => (
     is => 'rw',

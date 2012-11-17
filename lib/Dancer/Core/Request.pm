@@ -246,29 +246,17 @@ has body_is_parsed => (
 );
 
 has is_behind_proxy => (
-    is => 'ro',
+    is => 'rw',
     isa => Bool,
     default => sub{0},
 );
 
-has host => (
-    is => 'rw',
-    isa => Str,
-);
+sub host { 
+    my ($self) = @_;
 
-# Some Moo-gic to make host() depend on the flag "is_behind_proxy"
-around host => sub {
-    my $orig = shift;
-    my ($self, @args) = @_;
-
-    # wanted a setter, don't touch anything
-    return $self->$orig(@args) if @args == 1;
-
-    # alter the reader
-    my $host;
-    $host = $self->env->{X_FORWARDED_HOST}
-        if $self->is_behind_proxy;
-    return $host || $self->{host} || $self->env->{HTTP_HOST};
+    return ($self->is_behind_proxy) 
+      ? $self->env->{X_FORWARDED_HOST}
+      : $self->env->{HTTP_HOST};
 };
 
 
@@ -596,8 +584,9 @@ would return C<http://localhost:5000/foo/bar?baz=baz>.  Returns a L<URI> object
 
 sub uri_for {
     my ($self, $part, $params, $dont_escape) = @_;
-    my $uri = $self->base;
 
+    my $uri = $self->base;
+    
     # Make sure there's exactly one slash between the base and the new part
     my $base = $uri->path;
     $base =~ s|/$||;
