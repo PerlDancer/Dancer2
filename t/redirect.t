@@ -3,85 +3,71 @@ use warnings;
 
 use Test::More;
 
-# basic redirect
-#{
-#    get '/'         => sub { 'home' };
-#    get '/bounce'   => sub { redirect '/' };
-#    get '/redirect' => sub { header 'X-Foo' => 'foo'; redirect '/'; };
-#    get '/redirect_querystring' => sub { redirect '/login?failed=1' };
-#
-#    response_status_is  [ GET => '/' ] => 200;
-#    response_content_is [ GET => '/' ] => "home";
-#
-#    response_status_is  [ GET => '/bounce' ] => 302;
-#
-#    my $expected_headers = [
-#        'Location'     => 'http://localhost/',
-#        'Content-Type' => 'text/html',
-#        'X-Foo'        => 'foo',
-#    ];
-#    response_headers_include [ GET => '/redirect' ] => $expected_headers;
-#
-#    $expected_headers = [
-#        'Location'     => 'http://localhost/login?failed=1',
-#        'Content-Type' => 'text/html',
-#    ];
-#    response_headers_include [ GET => '/redirect_querystring' ] =>
-#      $expected_headers;
-#}
+subtest 'basic redirects' => sub {
+    {
+        package App;
+        use Dancer 2.0;
+
+        get '/'         => sub { 'home' };
+        get '/bounce'   => sub { redirect '/' };
+        get '/redirect' => sub { header 'X-Foo' => 'foo'; redirect '/'; };
+        get '/redirect_querystring' => sub { redirect '/login?failed=1' };
+    }
+    use Dancer::Test 'App';
+
+    response_status_is  [ GET => '/' ] => 200;
+    response_content_is [ GET => '/' ] => "home";
+
+    response_status_is  [ GET => '/bounce' ] => 302;
+
+    my $expected_headers = [
+        'Location'     => 'http://localhost/',
+        'Content-Type' => 'text/html',
+        'X-Foo'        => 'foo',
+    ];
+    response_headers_include [ GET => '/redirect' ] => $expected_headers;
+
+    $expected_headers = [
+        'Location'     => 'http://localhost/login?failed=1',
+        'Content-Type' => 'text/html',
+    ];
+    response_headers_include [ GET => '/redirect_querystring' ] =>
+      $expected_headers;
+};
 
 # redirect absolute
-#{
-#    get '/absolute_with_host' => sub { redirect "http://foo.com/somewhere"; };
-#    get '/absolute' => sub { redirect "/absolute"; };
-#    get '/relative' => sub { redirect "somewhere/else"; };
-#
-#    response_headers_include
-#      [ GET => '/absolute_with_host' ],
-#      [ Location => 'http://foo.com/somewhere' ];
-#
-#    response_headers_include
-#      [ GET => '/absolute' ],
-#      [ Location => 'http://localhost/absolute' ];
-#
-#    response_headers_include
-#      [ GET => '/relative' ],
-#      [ Location => 'http://localhost/somewhere/else' ];
-#}
+subtest 'absolute and relative redirects' => sub {
+    { 
+        package App;
+        use Dancer 2.0;
 
-# redirect no content
-#{
-#
-#    my $not_redirected_content = 'gotcha';
-#    get '/home' => sub { "home"; };
-#
-#    get '/cond_bounce' => sub {
-#        if ( params->{'bounce'} ) {
-#            redirect '/';
-#            return;
-#        }
-#        $not_redirected_content;
-#    };
-#
-#    my $req = [ GET => '/cond_bounce', { params => { bounce => 1 } } ];
-#    response_status_is  $req => 302, 'status is 302';
-#    response_content_is $req => '', 'content is empty when bounced';
-#
-#    $req = [ GET => '/cond_bounce' ];
-#    response_status_is  $req => 200, 'status is 200';
-#    response_content_is $req => $not_redirected_content, 'content is not empty';
-#
-#}
+        get '/absolute_with_host' =>
+          sub { redirect "http://foo.com/somewhere"; };
+        get '/absolute' => sub { redirect "/absolute"; };
+        get '/relative' => sub { redirect "somewhere/else"; };
+    }
+    use Dancer::Test 'App';
 
-# redirect behind proxy
-{
+    response_headers_include
+      [ GET => '/absolute_with_host' ],
+      [ Location => 'http://foo.com/somewhere' ];
+
+    response_headers_include
+      [ GET => '/absolute' ],
+      [ Location => 'http://localhost/absolute' ];
+
+    response_headers_include
+      [ GET => '/relative' ],
+      [ Location => 'http://localhost/somewhere/else' ];
+};
+
+subtest 'redirect behind a proxy' => sub {
     { 
         package App;
         use Dancer 2.0;
         set behind_proxy => 1;
         get '/bounce'   => sub { redirect '/' };
     }
-
     use Dancer::Test 'App';
 
     $ENV{X_FORWARDED_HOST} = "nice.host.name";
@@ -99,6 +85,6 @@ use Test::More;
     response_headers_include [GET => '/bounce'] =>
       [Location => 'ftp://nice.host.name/'],
       "... or from X_FORWARDED_PROTOCOL";
-}
+};
 
 done_testing;
