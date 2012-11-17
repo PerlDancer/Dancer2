@@ -71,6 +71,7 @@ sub _build_request_from_env {
         ;
 
     my $env = {
+        %ENV,
         REQUEST_METHOD  => uc($method),
         PATH_INFO       => $path,
         QUERY_STRING    => '',
