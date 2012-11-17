@@ -88,15 +88,17 @@ use Test::More;
     response_headers_include
       [GET      => '/bounce'],
       [Location => 'http://nice.host.name/'],
-      "Test X_FORWARDED_HOST";
+      "behind a proxy, host() is read from X_FORWARDED_HOST";
 
-#    $ENV{HTTP_FORWARDED_PROTO} = "https";
-#    response_headers_include [GET => '/bounce'] => [Location => 'https://nice.host.name/'],
-#      "Test HTTP_FORWARDED_PROTO";
-#
-#    $ENV{X_FORWARDED_PROTOCOL} = "ftp";  # stupid, but why not?
-#    response_headers_include [GET => '/bounce'] => [Location => 'ftp://nice.host.name/'],
-#      "Test X_FORWARDED_PROTOCOL";
+    $ENV{HTTP_FORWARDED_PROTO} = "https";
+    response_headers_include [GET => '/bounce'] =>
+      [Location => 'https://nice.host.name/'],
+      "... and the scheme is read from HTTP_FORWARDED_PROTO";
+
+    $ENV{X_FORWARDED_PROTOCOL} = "ftp";    # stupid, but why not?
+    response_headers_include [GET => '/bounce'] =>
+      [Location => 'ftp://nice.host.name/'],
+      "... or from X_FORWARDED_PROTOCOL";
 }
 
 done_testing;
