@@ -8,6 +8,7 @@ use Carp 'croak';
 use Test::More;
 use Test::Builder;
 use URI::Escape;
+use Data::Dumper;
 
 use parent 'Exporter';
 our @EXPORT = qw(
@@ -90,7 +91,7 @@ sub _build_request_from_env {
         $env->{REQUEST_URI} = join('&', @params);
     }
 
-    my $request = Dancer::Core::Request->new(env => $env);
+    my $request = Dancer::Core::Request->new( env => $env );
 
     # body
     $request->body( $options->{body} ) if exists $options->{body};
@@ -300,7 +301,12 @@ sub response_headers_include {
 
     my $response = dancer_response($req);
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    return $tb->ok(_include_in_headers($response->headers_to_array, $expected), $test_name);
+
+    print STDERR "Headers are: ".Dumper($response->headers_to_array).
+                 "\n Expected to find header: ".Dumper($expected)
+      if ! $tb->ok(
+            _include_in_headers($response->headers_to_array, $expected), 
+            $test_name);
 }
 
 
