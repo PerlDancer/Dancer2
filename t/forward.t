@@ -52,7 +52,7 @@ response_content_is [ GET => '/go_to_post/' ] => 'post:foo,bar';
 
 my $expected_headers = [
     'Content-Length' => 5,
-    'Content-Type' => 'text/html',
+    'Content-Type' => 'text/html; charset=UTF-8',
     'Server'       => "Perl Dancer",
 ];
 

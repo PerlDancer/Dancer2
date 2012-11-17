@@ -69,11 +69,16 @@ has content => (
         $value = "$value" if ref($value);
         return $value;
     },
+
+    # This trigger makes sure we have a good content-length whenever the content
+    # changes
     trigger => sub {
         my ($self, $value) = @_;
 
-        (! $self->header('Content-Length')) && (! $self->has_passed) and
-            $self->header('Content-Length' => length($value));
+        $self->header('Content-Length' => length($value))
+         if ! $self->has_passed;
+
+        $value;
     },
 );
 
@@ -81,13 +86,22 @@ sub encode_content {
     my ($self) = @_;
     return if $self->is_encoded;
     return if $self->content_type !~ /^text/;
+            
+    # we don't want to encode an empty string, it will break the output
+    return if ! $self->content;
+    
+    my $ct = $self->content_type;
+    $self->content_type("$ct; charset=UTF-8")
+      if $ct !~ /charset/;
+
     $self->is_encoded(1);
-    $self->content(Encode::encode('UTF-8', $self->content));
+    my $content = $self->content(Encode::encode('UTF-8', $self->content));
+
+    return $content;
 }
 
 sub to_psgi {
     my ($self) = @_;
-
     return [
         $self->status,
         $self->headers_to_array,

@@ -129,7 +129,20 @@ sub psgi_app {
     my ($self) = @_;
     sub {
         my ($env) = @_;
-        $self->dispatcher->dispatch($env)->to_psgi;
+        my $app;
+
+        eval {
+            $app = $self->dispatcher->dispatch($env)->to_psgi;
+        };
+
+        if ($@) {
+            return [
+                500,
+                ['Content-Type' => 'text/plain'],
+                ["Internal Server Error\n\n$@"],
+            ];
+        }
+        return $app;
     };
 }
 
