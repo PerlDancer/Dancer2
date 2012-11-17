@@ -200,9 +200,9 @@ sub response_status_isnt {
         if (@_ == 3) {
             $cmp = $test_name;
             $test_name = $cmp_name{$cmp};
+            $test_name = "response content $test_name $want for " . _req_label($req);
         }
 
-        $test_name ||= "response content $test_name $want for " . _req_label($req);
         my $response = dancer_response($req);
         
         my $tb = Test::Builder->new;
