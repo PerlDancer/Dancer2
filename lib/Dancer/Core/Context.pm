@@ -12,6 +12,7 @@ use Dancer::Core::Cookie;
 has app => (
     is => 'rw',
     isa => InstanceOf['Dancer::Core::App'],
+    weak_ref => 1,
 );
 
 # the PSGI-env to use for building the request to process
@@ -32,7 +33,7 @@ has request => (
 
 sub _build_request {
     my ($self) = @_;
-    Dancer::Core::Request->new(env => $self->env);
+    Dancer::Core::Request->new( env => $self->env );
 }
 
 # a buffer for per-request variables
