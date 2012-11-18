@@ -137,7 +137,11 @@ sub response_internal_error {
 sub response_not_found {
     my ($self, $request) = @_;
 
-    return Dancer::Core::Error->new( status => 404 )->throw;
+    my $r = Dancer::Core::Response->new( status => 404 );
+    $r->content( "404 Not Found\n\n$request\n" );
+    $r->content_type( 'text/plain' );
+
+    return $r;
 }
 
 1;
