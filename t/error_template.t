@@ -20,6 +20,8 @@ use Test::More;
     };
 
     get '/no_template' => sub {
+        local $ENV{DANCER_PUBLIC} = undef;
+
         send_error "oopsie", 404;
     };
 
@@ -48,6 +50,14 @@ subtest "/no_template" => sub {
 
     is $r->status, 404, 'send_error sets the status to 404';
     like $r->content, qr{<h1>Error 404 - Not Found</h1>}, 'Error message looks good';
+};
+
+subtest '404 with static template' => sub {
+    my $r = dancer_response GET => '/middle/of/nowhere';
+
+    is $r->status, 404, 'unknown route => 404';
+    like $r->content, qr{you're lost}i,
+        'Error message looks good';
 };
 
 

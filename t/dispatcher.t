@@ -81,13 +81,6 @@ my @tests = (
           ]
     },
     {   env => {
-            REQUEST_METHOD => 'POST',
-            PATH_INFO      => '/user/Johnny',
-        },
-        expected =>
-          [404, [@default_headers, 'Content-Length' => 28, 'Content-Type' => 'text/plain'], ["404 Not Found\n\n/user/Johnny\n"]]
-    },
-    {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/haltme',
         },
@@ -145,7 +138,7 @@ $app->add_route(
 );
 $app->compile_hooks;
 
-plan tests => 16;
+plan tests => 13;
 
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 my $counter = 0;

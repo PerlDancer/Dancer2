@@ -185,11 +185,10 @@ has static_page => (
 sub _build_static_page {
     my ($self) = @_;
 
-    return undef unless $self->has_context;
-
     # TODO there must be a better way to get it
     my $public_dir = $ENV{DANCER_PUBLIC} 
-                   || path($self->context->app->config_location, 'public');
+                   || ( $self->has_context &&
+                       path($self->context->app->config_location, 'public') );
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 
