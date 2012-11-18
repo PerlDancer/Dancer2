@@ -167,5 +167,27 @@ sub error {
     return $error;
 }
 
+=method error( @args )
+
+    $response->error( message => "oops" );
+
+Creates a L<Dancer::Core::Error> object with the given I<@args> and I<throw()>
+it against the response object. Returns the error object.
+
+=cut
+
+sub error {
+    my $self = shift;
+
+    my $error = Dancer::Core::Error->new(
+        response => $self,
+        @_,
+    );
+
+    $error->throw;
+
+    return $error;
+}
+
 1;
 __END__
