@@ -163,8 +163,12 @@ sub any {
     my ($self, $methods, @params) = @_;
     my $app = $self->app;
 
-    croak "any must be given an ArrayRef of HTTP methods"
-        unless ref($methods) eq 'ARRAY';
+    if ($methods) {
+        unless (ref($methods) eq 'ARRAY') {
+            unshift @params, $methods;
+            $methods = [ qw(get post put del options patch) ];
+        }
+    }
 
     for my $method (@{$methods}) {
         $self->$method(@params);
