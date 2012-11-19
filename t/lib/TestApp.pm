@@ -1,5 +1,7 @@
 package t::lib::TestApp;
 use Dancer;
+use Data::Dumper;
+
 # this app is intended to cover 100% of the DSL!
 
 # set some MIME aliases...
@@ -118,6 +120,16 @@ prefix '/prefix' => sub {
 # used in t/request_raw_data.t
 put '/jsondata' => sub {
     request->body;
+};
+
+#used in request_mixed_params.t
+post '/params/:var' => sub {
+    Dumper({
+        params => scalar(params),
+        route  => { params('route') },
+        query  => { params('query') },
+        body   => { params('body') }
+    });
 };
 
 1;

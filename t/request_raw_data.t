@@ -16,12 +16,9 @@ my $server = Test::TCP->new(
         my $port = shift;
         use TestApp;
 
-        #Dancer::Config->load;
-        #set doesn't work like this in D2.0?
         set(environment => 'production',
             startup_info => 0  #seems not to work yet in Dancer 2.0
         );
-        #print "environ:" . Dancer->runner->environment . "\n";
         Dancer->runner->server->port($port);
         start;
     },
