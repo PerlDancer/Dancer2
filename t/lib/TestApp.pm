@@ -115,4 +115,9 @@ prefix '/prefix' => sub {
     get '/foo' => sub { '/prefix/prefix2/foo' };
 };
 
+# used in t/request_raw_data.t
+put '/jsondata' => sub {
+    request->body;
+};
+
 1;
