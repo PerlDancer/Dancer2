@@ -40,7 +40,7 @@ foreach my $engine (@engines) {
                 $res = $ua->get("http://127.0.0.1:$port/read_session");
                 like $res->content, qr/name='$client'/,
                   "session looks good for client $client";
-                
+
                 $res = $ua->get("http://127.0.0.1:$port/cleanup");
                 ok($res->is_success, "cleanup done for $client");
             }
@@ -65,20 +65,19 @@ foreach my $engine (@engines) {
             get '/cleanup' => sub {
                 my $session = engine('session');
                 if (ref($session) eq 'Dancer::Session::YAML') {
-                    unlink $session->yaml_file($session->id) or die "unable to rm: $!";
+                    unlink $session->yaml_file($session->id)
+                      or die "unable to rm: $!";
                 }
                 1;
             };
 
-            setting appdir => $tempdir;
-            setting(session => $engine);
-
-            set(show_errors  => 1,
-                startup_info => 0,
+            set(appdir       => $tempdir,
                 environment  => 'production',
-                port         => $port
+                session      => $engine,
+                show_errors  => 1,
+                startup_info => 0,
             );
-           
+
             Dancer->runner->server->port($port);
             start;
         },
