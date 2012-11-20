@@ -1,12 +1,10 @@
-use Test::More import => ['!pass'];
 use strict;
 use warnings;
-
+use Test::More;
 use LWP::UserAgent;
 use Test::TCP;
 
-my @handlers = ('Standalone');    #
-
+my @handlers = ('Standalone');
 eval { require Plack::Request; require Plack::Loader; };
 unless ($@) {
     push @handlers, 'PSGI';
@@ -49,7 +47,6 @@ for my $handler (@handlers) {
         },
     );
 
-#todo: only test PSGI if PSGI installed
 #client
     my $port = $server->port;
     my $ua   = LWP::UserAgent->new;
