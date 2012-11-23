@@ -19,7 +19,6 @@ BEGIN {
     Plack::Loader->import();
 }
 
-
 my $server = Test::TCP->new(
     code => sub {
         my $port = shift;

@@ -117,12 +117,12 @@ prefix '/prefix' => sub {
     get '/foo' => sub { '/prefix/prefix2/foo' };
 };
 
-# used in t/request_raw_data.t
+#t/request_raw_data.t
 put '/jsondata' => sub {
     request->body;
 };
 
-#used in request_mixed_params.t
+#t/request_mixed_params.t
 post '/params/:var' => sub {
     Dumper({
         params => scalar(params),
@@ -132,14 +132,29 @@ post '/params/:var' => sub {
     });
 };
 
-#used in apphandlers_psgi_app.t
+#apphandlers_psgi_app.t
 get '/name/:name' => sub {
     "Your name: ".params->{name}
 };
 
-#used in apphandlers_psgi_app.t
+#apphandlers_standalone_app.t
+post '/name' => sub {
+    "Your name: ".params->{name}
+};
+
+#apphandlers_psgi_app.t
 get '/env' => sub { 
     Dumper(request); 
+};
+
+#apphandlers_psgi_app.t
+get '/issues/499/true' => sub {
+    "OK" if system('true') == 0, 
+};
+
+#apphandlers_psgi_app.t
+get '/issues/499/false' => sub {
+    "OK" if system('false') != 0  
 };
 
 1;
