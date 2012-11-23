@@ -132,4 +132,14 @@ post '/params/:var' => sub {
     });
 };
 
+#used in apphandlers_psgi_app.t
+get '/name/:name' => sub {
+    "Your name: ".params->{name}
+};
+
+#used in apphandlers_psgi_app.t
+get '/env' => sub { 
+    Dumper(request); 
+};
+
 1;
