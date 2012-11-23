@@ -260,7 +260,7 @@ sub response_content_is_deeply {
     is_deeply $response->[2][0], $matcher, $test_name;
 }
 
-=func response_is_file
+=func response_is_file ($req, $test_name);
 
 =cut
 
@@ -268,11 +268,18 @@ sub response_is_file {
     my ($req, $test_name) = @_;
     $test_name ||= "a file is returned for " . _req_label($req);
 
-    my $response = _get_file_response($req);
+    my $response = get_file_response($req);
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     return $tb->ok(defined($response), $test_name);
 }
+
+
+#TODO not yet implemented
+sub get_file_response {
+    return Dancer::Core::Response->new();
+}
+
 
 =func response_headers_are_deeply
 
@@ -344,17 +351,6 @@ sub import {
 }
 
 # private
-
-sub _req_label {
-    my $req = shift;
-
-    return ref $req eq 'Dancer::Core::Response' ? 'response object'
-         : ref $req eq 'Dancer::Core::Request'  
-                ? join( ' ', map { $req->$_ } qw/ method path / )
-         : ref $req eq 'ARRAY' ? join( ' ', @$req )
-         : "GET $req"
-         ;
-}
 
 sub _expand_req {
     my $req = shift;
@@ -429,4 +425,14 @@ sub _find_dancer_apps_for_dispatcher {
     croak "Unable to find a Dancer app, did you use Dancer in your test?";
 }
 
+sub _req_label {
+    my $req = shift;
+
+    return ref $req eq 'Dancer::Core::Response' ? 'response object'
+         : ref $req eq 'Dancer::Core::Request'  
+                ? join( ' ', map { $req->$_ } qw/ method path / )
+         : ref $req eq 'ARRAY' ? join( ' ', @$req )
+         : "GET $req"
+         ;
+}
 1;
