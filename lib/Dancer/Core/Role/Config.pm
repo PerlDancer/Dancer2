@@ -296,9 +296,10 @@ sub _get_config_for_engine {
         return $default_config;
     }
 
+    my $engine_config = $config->{engines}{$engine}{$name} || {};
     return {
         %{ $default_config },
-        %{ $config->{engines}{$engine}{$name} } ,
+        %{ $engine_config } ,
     } || $default_config;
 }
 
