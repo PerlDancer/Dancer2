@@ -112,7 +112,7 @@ Lets you define settings and access them:
     setting('foo' => 42, 'bar' => 43);
     my $foo=setting('foo');
 
-Returns number of set items if settings were set.
+If settings were defined returns number of settings.
 
 =cut
 

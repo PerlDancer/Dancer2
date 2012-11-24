@@ -16,8 +16,11 @@ ok(setting('foo' => '42'), 'setting a new value');
 is(setting('foo'), 42, 'new value has been set');
 
 # test the alias 'set'
-ok(set(bar => 43), "setting bar with set");
+ok(set(bar => 43), 'setting bar with set');
 is(setting('bar'), 43, 'new value has been set');
 
+#multiple values
+ok (setting ('foo' =>43, bar=>44), 'set multiple values');
+ok (setting ('foo') == 43 && setting ('bar') == 44, 'set multiple values successful');
 
 done_testing;
