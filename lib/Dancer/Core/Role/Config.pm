@@ -140,9 +140,11 @@ sub _build_config {
 
 sub _set_config_entries {
     my ($self, @args) = @_;
+    my $no=scalar @args;    
     while (@args) {
         $self->_set_config_entry(shift(@args), shift(@args));
     }
+    return $no;
 }
 
 sub _set_config_entry {
