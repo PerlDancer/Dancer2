@@ -4,16 +4,8 @@ use Test::More;
 use Test::TCP 1.13;
 use LWP::UserAgent;
 use File::Spec;
-
-BEGIN {
-    eval { require 'Plack/Request.pm' };
-    plan skip_all => "Plack::Request is needed to run this test"
-      if $@;
-    Plack::Request->import();
-
-    eval { require 'Plack/Loader.pm' };
-    Plack::Loader->import();
-}
+use Plack::Request;
+use Plack::Loader;
 
 my $server = Test::TCP->new(
     code => sub {

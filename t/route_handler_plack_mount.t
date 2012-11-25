@@ -5,12 +5,7 @@ use Test::TCP 1.13;
 use HTTP::Request;
 use LWP::UserAgent;
 use HTTP::Server::Simple::PSGI;
-
-BEGIN {
-    eval { require 'Plack/Builder.pm' };
-    plan skip_all => "Plack is needed to run this test" if $@;
-    Plack::Builder->import();
-}
+use Plack::Builder;
 
 my $server = Test::TCP->new(
     code => sub {

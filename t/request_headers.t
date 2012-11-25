@@ -3,16 +3,10 @@ use warnings;
 use Test::More;
 use LWP::UserAgent;
 use Test::TCP 1.13;
+use Plack::Request;
+use Plack::Loader;
 
-my @handlers = ('Standalone');
-eval { require Plack::Request; require Plack::Loader; };
-plan skip_all => "Plack is needed to run this test" if $@;
-
-unless ($@) {
-    push @handlers, 'PSGI';
-}
-
-for my $handler (@handlers) {
+for my $handler (qw/Standalone PSGI/) {
     my $server = Test::TCP->new(
         code => sub {
             my $port = shift;

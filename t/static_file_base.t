@@ -1,23 +1,19 @@
 use strict;
 use warnings;
 use Test::More;
-
-# There is an issue with HTTP::Parser::XS while parsing an URI with \0
-# Using the pure perl via PERL_ONLY works
-# test ported from D1 t/04_static_file/001_base.t
-
-BEGIN {
-    $ENV{PERL_ONLY} = 1;
-    eval { require 'Plack/Loader.pm' };
-    plan skip_all => "Plack::Loader is needed to run this test"
-      if $@;
-    Plack::Loader->import();
-}
-
+use Plack::Loader;
 use Dancer 2.0;
 use Dancer::Test;
 use HTTP::Date qw( time2str );
 use Test::TCP 1.13;
+use HTTP::Request;
+use LWP::UserAgent;
+
+
+$ENV{PERL_ONLY} = 1;
+# There is an issue with HTTP::Parser::XS while parsing an URI with \0
+# Using the pure perl via PERL_ONLY works
+# test ported from D1 t/04_static_file/001_base.t
 
 set public => path(dirname(__FILE__), 'static');
 my $public = setting('public');
@@ -38,9 +34,6 @@ is(ref($res->{content}), 'GLOB', "response content looks good for @$req");
 ok $res = Dancer::Test::get_file_response([GET => "/hello\0.txt"]);
 is $res->status,  400;
 is $res->content, 'Bad Request';
-
-require HTTP::Request;
-require LWP::UserAgent;
 
 my $server = Test::TCP->new(
     code => sub {

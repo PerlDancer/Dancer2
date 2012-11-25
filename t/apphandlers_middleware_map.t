@@ -1,22 +1,13 @@
 use Test::More;
 use strict;
 use warnings;
-use Dancer 2.0 ':syntax';
+use Dancer 2.0; 
 use LWP::UserAgent;
 use Test::TCP 1.13;
 use File::Spec;
 use lib File::Spec->catdir('t', 'lib');
-
-BEGIN {
-    eval { require 'Plack/Request.pm' };
-    plan skip_all => "Plack::Request is needed to run this test"
-      if $@;
-    Plack::Request->import();
-
-    eval { require 'Plack/Loader.pm' };
-    Plack::Loader->import();
-}
-
+use Plack::Request;
+use Plack::Loader;
 
 my $confs = {'/hash' => [['Runtime']],};
 

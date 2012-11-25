@@ -6,18 +6,9 @@ use LWP::UserAgent;
 use File::Spec;
 use lib File::Spec->catdir('t', 'lib');
 use Dancer 2.0;
-
+use Plack::Request;
+use Plack::Loader;
 #skip on Win32?
-
-BEGIN {
-    eval { require 'Plack/Request.pm' };
-    plan skip_all => "Plack::Request is needed to run this test"
-      if $@;
-    Plack::Request->import();
-
-    eval { require 'Plack/Loader.pm' };
-    Plack::Loader->import();
-}
 
 my $server = Test::TCP->new(
     code => sub {
