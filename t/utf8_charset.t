@@ -1,11 +1,10 @@
 use strict;
 use warnings;
-
 use utf8;
 use Encode qw(encode decode);
 use Test::More import => ['!pass'];
 use LWP::UserAgent;
-use Test::TCP;
+use Test::TCP 1.13;
 
 #from Dancer1's t/00_base/12_utf8_charset.t
 #see also charset_server.t for related tests

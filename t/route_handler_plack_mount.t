@@ -1,15 +1,15 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::TCP;
+use Test::TCP 1.13;
 use HTTP::Request;
 use LWP::UserAgent;
-use HTTP::Server::Simple::PSGI; 
+use HTTP::Server::Simple::PSGI;
+
 BEGIN {
     eval { require 'Plack/Builder.pm' };
-    plan skip_all => "Plack is needed to run this test"
-      if $@;
-    Plack::Builder->import();  
+    plan skip_all => "Plack is needed to run this test" if $@;
+    Plack::Builder->import();
 }
 
 my $server = Test::TCP->new(
@@ -25,8 +25,8 @@ my $server = Test::TCP->new(
             get '/foo' => sub { request->path_info };
 
             my $env = shift;
-            
-            my $app=dancer_app;
+
+            my $app = dancer_app;
             my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
             $dispatcher->dispatch($env)->to_psgi;
         };

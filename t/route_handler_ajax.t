@@ -5,9 +5,8 @@ use Test::More;
 use Dancer 2.0;
 use Dancer::Plugin::Ajax;
 use Dancer::Test;
-use Test::TCP;
+use Test::TCP 1.13;
 use LWP::UserAgent;
-
 
 #there is no single method in Dancer 2 like registry->is_empty
 my $empty = {
@@ -22,7 +21,6 @@ my $app = dancer_app;
 is_deeply($app->routes, $empty, 'route registry is empty');
 ajax '/' => sub {'ajax'};
 isnt($app->routes, $empty, 'route registry is NOT empty');
-
 
 my $server = Test::TCP->new(
     code => sub {

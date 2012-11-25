@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::TCP;
+use Test::TCP 1.13;
 use Dancer 2.0;
 use LWP::UserAgent;
 use HTTP::Request;

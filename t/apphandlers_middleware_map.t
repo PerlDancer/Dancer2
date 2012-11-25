@@ -1,13 +1,11 @@
 use Test::More;
 use strict;
 use warnings;
-
 use Dancer 2.0 ':syntax';
 use LWP::UserAgent;
-
+use Test::TCP 1.13;
 use File::Spec;
 use lib File::Spec->catdir('t', 'lib');
-use Test::TCP;
 
 BEGIN {
     eval { require 'Plack/Request.pm' };

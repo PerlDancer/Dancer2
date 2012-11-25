@@ -2,10 +2,12 @@ use strict;
 use warnings;
 use Test::More;
 use LWP::UserAgent;
-use Test::TCP;
+use Test::TCP 1.13;
 
 my @handlers = ('Standalone');
 eval { require Plack::Request; require Plack::Loader; };
+plan skip_all => "Plack is needed to run this test" if $@;
+
 unless ($@) {
     push @handlers, 'PSGI';
 }

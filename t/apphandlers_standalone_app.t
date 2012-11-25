@@ -1,9 +1,9 @@
 use strict;
 use warnings;
 use Test::More;
-use Dancer::ModuleLoader;
-use Test::TCP;
+use Test::TCP 1.13;
 use LWP::UserAgent;
+use File::Spec;
 
 BEGIN {
     eval { require 'Plack/Request.pm' };
@@ -20,7 +20,6 @@ my $server = Test::TCP->new(
         my $port = shift;
 
         use Dancer 2.0;
-        use File::Spec;
         use lib File::Spec->catdir('t', 'lib');
         use TestApp;
         set(startup_info => 0);

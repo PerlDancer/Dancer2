@@ -1,7 +1,7 @@
 use Test::More;
 use strict;
 use warnings;
-use Test::TCP;
+use Test::TCP 1.13;
 use LWP::UserAgent;
 use File::Spec;
 use lib File::Spec->catdir('t', 'lib');

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use LWP::UserAgent;
-use Test::TCP;
+use Test::TCP 1.13;
 
 # ported from Dancer 1's t/03_route_handler/33_vars.t
 # Test that vars are really reset between each request

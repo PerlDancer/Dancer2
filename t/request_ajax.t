@@ -1,7 +1,7 @@
-use Test::More import => ['!pass'];
+use Test::More;
 use strict;
 use warnings;
-use Test::TCP;
+use Test::TCP 1.13;
 use LWP::UserAgent;
 use HTTP::Headers;
 

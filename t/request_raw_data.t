@@ -1,11 +1,11 @@
-use Test::More import => ['!pass'];
+use Test::More;
 use strict;
 use warnings;
-use Dancer;
+use Dancer 2.0;
+use Test::TCP 1.13;
+use LWP::UserAgent;
 use File::Spec;
 use lib File::Spec->catdir('t', 'lib');
-use Test::TCP;
-use LWP::UserAgent;
 
 use constant RAW_DATA => "var: 2; foo: 42; bar: 57\nHey I'm here.\r\n\r\n";
 

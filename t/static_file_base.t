@@ -14,10 +14,10 @@ BEGIN {
     Plack::Loader->import();
 }
 
+use Dancer 2.0;
 use Dancer::Test;
 use HTTP::Date qw( time2str );
-use Test::TCP;
-use Dancer 2.0;
+use Test::TCP 1.13;
 
 set public => path(dirname(__FILE__), 'static');
 my $public = setting('public');
