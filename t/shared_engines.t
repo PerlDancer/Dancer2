@@ -9,26 +9,8 @@ use Test::TCP 1.13;
 use YAML;
 
 my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
-
-Test::TCP::test_tcp(
-    client => sub {
-        my $port = shift;
-
-        my $ua = LWP::UserAgent->new;
-        $ua->cookie_jar({file => "$tempdir/.cookies.txt"});
-
-        my $res = $ua->get("http://127.0.0.1:$port/main");
-        like $res->content, qr{42}, "session is set in main";
-
-        $res = $ua->get("http://127.0.0.1:$port/in_foo");
-        like $res->content, qr{42}, "session is set in foo";
-
-        my $engine = t::lib::Foo->dsl->engine('session');
-        is $engine->{__marker__}, 1, "the session engine in subapp is the same";
-
-        File::Temp::cleanup();
-    },
-    server => sub {
+my $server = Test::TCP->new(
+    code => sub {
         my $port = shift;
 
         BEGIN {
@@ -37,7 +19,7 @@ Test::TCP::test_tcp(
             engine('session')->{'__marker__'} = 1;
         }
 
-        use t::lib::Foo with => { session => engine('session') };
+        use t::lib::Foo with => {session => engine('session')};
 
         get '/main' => sub {
             session('test' => 42);
@@ -49,4 +31,20 @@ Test::TCP::test_tcp(
     },
 );
 
+#client
+my $port = $server->port;
+
+my $ua = LWP::UserAgent->new;
+$ua->cookie_jar({file => "$tempdir/.cookies.txt"});
+
+my $res = $ua->get("http://127.0.0.1:$port/main");
+like $res->content, qr{42}, "session is set in main";
+
+$res = $ua->get("http://127.0.0.1:$port/in_foo");
+like $res->content, qr{42}, "session is set in foo";
+
+my $engine = t::lib::Foo->dsl->engine('session');
+is $engine->{__marker__}, 1, "the session engine in subapp is the same";
+
+File::Temp::cleanup();
 done_testing;

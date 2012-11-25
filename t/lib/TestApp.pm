@@ -1,5 +1,7 @@
 package t::lib::TestApp;
 use Dancer;
+use Data::Dumper;
+
 # this app is intended to cover 100% of the DSL!
 
 # set some MIME aliases...
@@ -113,6 +115,46 @@ prefix '/prefix' => sub {
 
     prefix '/prefix2';
     get '/foo' => sub { '/prefix/prefix2/foo' };
+};
+
+#t/request_raw_data.t
+put '/jsondata' => sub {
+    request->body;
+};
+
+#t/request_mixed_params.t
+post '/params/:var' => sub {
+    Dumper({
+        params => scalar(params),
+        route  => { params('route') },
+        query  => { params('query') },
+        body   => { params('body') }
+    });
+};
+
+#apphandlers_psgi_app.t
+get '/name/:name' => sub {
+    "Your name: ".params->{name}
+};
+
+#apphandlers_standalone_app.t
+post '/name' => sub {
+    "Your name: ".params->{name}
+};
+
+#apphandlers_psgi_app.t
+get '/env' => sub { 
+    Dumper(request); 
+};
+
+#apphandlers_psgi_app.t
+get '/issues/499/true' => sub {
+    "OK" if system('true') == 0, 
+};
+
+#apphandlers_psgi_app.t
+get '/issues/499/false' => sub {
+    "OK" if system('false') != 0  
 };
 
 1;
