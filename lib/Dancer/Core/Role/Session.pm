@@ -137,6 +137,7 @@ sub cookie {
         value     => $self->id,
         secure    => $self->session_secure,
         http_only => $self->session_is_http_only,
+        path      => '/',
     );
 
     if (my $expires = $self->session_expires) {
