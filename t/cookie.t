@@ -41,8 +41,8 @@ ok !$cookie->domain;
 is $cookie->domain("dancer.org") => "dancer.org";
 is $cookie->domain => "dancer.org";
 
-is $cookie->path => undef, "by default, no path";
-ok !$cookie->has_path, "has_path";
+is $cookie->path => '/', "by default, path is /";
+ok $cookie->has_path, "has_path";
 is $cookie->path("/foo") => "/foo";
 ok $cookie->has_path, "has_path";
 is $cookie->path => "/foo";
@@ -105,7 +105,7 @@ my @cake = (
                          value     => 'foo',
                          expires   => '+2h',
                          secure    => 1 },
-             expected => sprintf("bar=foo; expires=%s; Secure", $times{'+2h'}),
+             expected => sprintf("bar=foo; path=/; expires=%s; Secure", $times{'+2h'}),
             },
             {
              cookie => { name      => 'bar',
@@ -119,7 +119,7 @@ my @cake = (
              cookie => { name      => 'bar',
                          value     => 'foo',
                        },
-             expected => "bar=foo",
+             expected => "bar=foo; path=/",
             },
            );
 

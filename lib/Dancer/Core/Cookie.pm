@@ -151,6 +151,7 @@ The cookie's path.
 has path => (
     is       => 'rw',
     isa      => Str,
+    default  => sub { '/' },
     predicate => 1,
 );
 
