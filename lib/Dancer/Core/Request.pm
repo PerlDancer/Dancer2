@@ -254,8 +254,10 @@ has is_behind_proxy => (
 sub host { 
     my ($self) = @_;
 
-    return ($self->is_behind_proxy) 
-      ? $self->env->{X_FORWARDED_HOST}
+    return ($self->is_behind_proxy)
+      ? ($self->env->{HTTP_X_FORWARDED_HOST} || 
+         $self->env->{X_FORWARDED_HOST}
+        )
       : $self->env->{HTTP_HOST};
 };
 
