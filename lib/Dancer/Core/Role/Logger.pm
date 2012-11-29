@@ -108,12 +108,12 @@ sub format_message {
 
     my $fmt = $self->log_format;
 
-    $fmt =~ s{
+    $fmt =~ s/
         (?:
             \%\{(.+?)\}([a-z])|
             \%([a-zA-Z])
         )
-    }{ $1 ? $block_handler->($1, $2) : $char_mapping->($3) }egx;
+    / $1 ? $block_handler->($1, $2) : $char_mapping->($3) /egx;
 
     return $fmt."\n";
 }
