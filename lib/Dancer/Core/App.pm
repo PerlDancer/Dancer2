@@ -138,38 +138,18 @@ sub engine {
 sub session {
     my ($self, $key, $value) = @_;
 
-    # make sure we have a session engine
-    my $engine = $self->engine('session');
+    my $session = $self->context->session;
+    croak "No session available, a session engine needs to be set"
+        if ! defined $session;
 
-    # Read the session id from the cookie
-    my $cookie = $self->context->cookie($engine->name);
-    my $session_id;
-    $session_id = $cookie->value if defined $cookie;
-    #warn "session id found: $session_id" if defined $session_id;
+    # return all the session data if no key
+    return $session->data if @_ == 1;
 
-    # fetch or create the session, based on the existing session id
-    my $session;
-    eval { $session = $engine->get_current_session($session_id) };
-    croak "Unable to retrieve session: $@" if $@;
+    # read if a key is provided
+    return $session->read($key) if @_ == 2;
 
-    # make sure the session object is updated in the context
-    # FIXME: this should be necessary if the session engine was a different
-    # object than the session itself, but it's a major chnage and I don't have
-    # the time yet...
-    $self->config->{session} = $session;
-
-    # Generate a session cookie; we want to do this regardless of whether the
-    # session is new or existing, so that the cookie expiry is updated.
-    $self->context->response->push_header('Set-Cookie' => $session->cookie->to_header) 
-        if defined $session && defined $session->cookie;
-
-    # now return what is asked:
-    #  - ether the whole session object, or do a get or a set
-    return  @_ == 1
-        ? $session
-        : @_ == 2
-            ? $session->read($key)
-            : $session->write($key => $value);
+    # write to the session
+    $session->write($key => $value);
 }
 
 sub template {
@@ -360,6 +340,41 @@ sub send_file {
 sub BUILD {
     my ($self) = @_;
     $self->init_route_handlers();
+    $self->_init_hooks()
+}
+
+sub _init_hooks {
+    my ($self) = @_;
+
+    # Hook to add the session cookie in the headers, if a session is defined
+    $self->add_hook(Dancer::Core::Hook->new(
+        name => 'core.app.before_request',
+        code => sub {
+            my $context = shift;
+
+            # make sure an engine is defined, if not, nothing to do
+            my $engine = $self->setting('session');
+            return if ! defined $engine;
+
+            # push the session in the headers
+            $context->response->push_header('Set-Cookie',
+                $context->session->cookie->to_header);
+        }
+    ));
+
+    # Hook to flush the session at the end of the request, this way, we're sure we
+    # flush only once per request
+    $self->add_hook(
+        Dancer::Core::Hook->new(
+            name => 'core.app.after_request',
+            code => sub {
+                # make sure an engine is defined, if not, nothing to do
+                my $engine = $self->setting('session');
+                return if ! defined $engine;
+                $engine->flush(session => $self->context->session);
+            },
+        )
+    );
 }
 
 sub finish {

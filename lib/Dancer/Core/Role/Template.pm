@@ -142,8 +142,8 @@ sub _prepare_tokens_options {
         $tokens->{params}   = $self->context->request->params;
         $tokens->{vars}     = $self->context->buffer;
 
-        $tokens->{session} = $self->context->app->config->{session}->data
-          if defined $self->context->app->config->{session};
+        $tokens->{session} = $self->context->session->data
+          if defined $self->context->session;
     }
 
     return $tokens;

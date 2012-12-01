@@ -1,12 +1,17 @@
-# ABSTRACT: TODO
-
 package Dancer::Core::Role::Config;
+# ABSTRACT: Config role for Dancer core objects
+
 use Moo::Role;
 
-# provide a "config" attribute that feeds itself by finding and parsing
-# configuration files.
-# also provides a setting() method which is supposed to be used by externals to
-# read/write config entries.
+=head1 DESCRIPTION
+
+Provides a C<config> attribute that feeds itself by finding and parsing
+configuration files.
+
+Also provides a C<setting()> method which is supposed to be used by externals to
+read/write config entries.
+
+=cut
 
 use Dancer::Factory::Engine;
 use File::Spec;
