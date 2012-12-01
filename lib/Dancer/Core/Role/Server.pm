@@ -154,6 +154,10 @@ Adds another application to the C<apps> attribute (see above).
 
 sub register_application {
     my ($self, $app) = @_;
+
+    # verify that the app is not already present
+    return if grep { $app->name eq $_->name } @$self->apps;
+
     push @{ $self->apps }, $app;
     $app->server($self);
     $app->server->runner->postponed_hooks({

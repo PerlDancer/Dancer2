@@ -112,7 +112,8 @@ sub import {
     my @final_args;
     my $syntax_only = 0;
     my $as_script   = 0;
-    foreach (@args) {
+    my $app_name = $caller;
+    while ( $_ = shift @args) {
         if ( $_ eq ':moose' ) {
             push @final_args, '!before', '!after';
         }
@@ -124,6 +125,9 @@ sub import {
         }
         elsif ($_ eq ':script') {
             $as_script = 1;
+        }
+        elsif ($_ eq 'app') {
+            $app_name = shift @args;
         } else {
             push @final_args, $_;
         }
@@ -141,15 +145,17 @@ sub import {
     my $local_libdir = Dancer::FileUtils::path($runner->location, 'lib');
     _use_lib($local_libdir) if -d $local_libdir;
 
-    # the app object
-    my $app = Dancer::Core::App->new(
-        name            => $caller,
-        environment     => $runner->environment,
-        location        => $runner->location,
-        runner_config   => $runner->config,
-        postponed_hooks => $runner->postponed_hooks,
-       (api_version     => int $api_version) x !! $api_version,
-    );
+    my( $app ) = grep { $_->name eq $app_name } @{ $runner->server->apps };
+    unless ( $app ) {
+        $app = Dancer::Core::App->new(
+            name            => $app_name,
+            environment     => $runner->environment,
+            location        => $runner->location,
+            runner_config   => $runner->config,
+            postponed_hooks => $runner->postponed_hooks,
+            (api_version     => int $api_version) x !! $api_version,
+        );
+    }
 
     $api_version = 0;  # reset variable for next 'use Dancer X' call
 
