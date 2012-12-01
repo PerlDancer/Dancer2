@@ -110,7 +110,7 @@ sub _build_session {
 
     # Find the session engine
     my $engine = $self->app->setting('session');
-    croak "No session engine defined"
+    croak "No session engine defined, cannot use session."
       if ! defined $engine;
 
     # find the session cookie if any

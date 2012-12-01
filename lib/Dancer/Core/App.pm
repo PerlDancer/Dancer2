@@ -108,7 +108,6 @@ sub _build_default_config {
     return {
         %{ $self->runner_config },
         template => $self->api_version == 1 ? 'Simple' : 'Tiny',
-        session => 'simple',
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
@@ -142,8 +141,8 @@ sub session {
     croak "No session available, a session engine needs to be set"
         if ! defined $session;
 
-    # return all the session data if no key
-    return $session->data if @_ == 1;
+    # return the session object if no key
+    return $session if @_ == 1;
 
     # read if a key is provided
     return $session->read($key) if @_ == 2;
@@ -371,6 +370,7 @@ sub _init_hooks {
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $self->setting('session');
                 return if ! defined $engine;
+                return if ! defined $self->context;
                 $engine->flush(session => $self->context->session);
             },
         )

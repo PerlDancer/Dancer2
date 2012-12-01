@@ -5,12 +5,20 @@ use warnings;
 use Test::More;
 
 {
+
     package App;
-    use Dancer;
+    BEGIN {
+        use Dancer 2.0;
+        set session => 'Simple';
+    }
 
-    use t::lib::SubApp1;
-    use t::lib::SubApp2;
+    use t::lib::SubApp1 with => {
+        session => engine('session')
+    };
 
+    use t::lib::SubApp2 with => {
+        session => engine('session')
+    };
 }
 
 use Dancer::Test 'App', 't::lib::SubApp1', 't::lib::SubApp2';

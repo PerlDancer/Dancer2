@@ -12,19 +12,17 @@ my $views = File::Spec->rel2abs(
 
 {
     package Foo;
+    
     use Dancer 2.0;
+    set session  => 'Simple';
 
     set views    => $views;
-    set session  => 'simple';
     set template => "template_toolkit";
     set foo     => "in settings";
 
-    get '/set_vars' => sub {
-        session foo => "in session";
-    };
-
     get '/view/:foo' => sub {
         var foo     => "in var";
+        session foo => "in session";
         template "tokens";
     };
 }
@@ -38,7 +36,6 @@ params.foo: 42
 session.foo in session
 vars.foo: in var";
 
-dancer_response "/set_vars";
 response_content_like "/view/42",
   qr{$expected},
   "Response contains all expected tokens";
