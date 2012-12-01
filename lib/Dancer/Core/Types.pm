@@ -1,6 +1,5 @@
-# ABSTRACT: TODO
-
 package Dancer::Core::Types;
+# ABSTRACT: Moo types for Dancer core.
 
 use strict;
 use warnings;
@@ -128,7 +127,24 @@ my $definitions = [
 ];
 
 # generate abbreviated class types for core dancer objects
-for my $type (qw/App Request Response Context Runner Dispatcher MIME/) {
+for my $type (qw/
+        App 
+        Context 
+        Cookie 
+        DSL  
+        Dispatcher 
+        Error  
+        Hook  
+        MIME  
+        Request  
+        Response  
+        Role  
+        Route  
+        Runner  
+        Server  
+        Session  
+        Types
+    /) {
     push @$definitions, {
         name => $type,
         test => sub {

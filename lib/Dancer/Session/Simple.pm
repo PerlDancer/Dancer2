@@ -5,8 +5,10 @@ use Moo;
 use Dancer::Core::Types;
 use Carp;
 
-with 'Dancer::Core::Role::Session';
-my %sessions;
+with 'Dancer::Core::Role::SessionFactory';
+
+# The singleton that contains all the session objects created
+my $SESSIONS = {};
 
 =head1 DESCRIPTION
 
@@ -14,6 +16,11 @@ This module implements a very simple session backend, holding all session data
 in memory.  This means that sessions are volatile, and no longer exist when the
 process exits.  This module is likely to be most useful for testing purposes.
 
+=head1 DISCLAIMER
+
+This session factory should not be used in production and is only for
+single-process application workers. As the sessions objects are stored
+in-memory, they cannot be shared among multiple workers.
 
 =head1 CONFIGURATION
 
@@ -22,28 +29,29 @@ engine in a Dancer application.
 
 =cut
 
-# create a new session and return the newborn object
-# representing that session
-sub create { goto &new }
-
-use Data::Dumper;
-
-# Return the session object corresponding to the given id
-sub retrieve {
-    my ($self, $id) = @_;
-    return $sessions{$id};
-}
-
-
-sub destroy {
+sub _sessions {
     my ($self) = @_;
-    undef $sessions{$self->id};
+    return [ keys %{ $SESSIONS } ];
 }
 
-sub flush {
-    my $self = shift;
-    $sessions{$self->id} = $self;
-    return $self;
+sub _retrieve {
+    my ($class, $id) = @_;
+    my $s = $SESSIONS->{$id};
+
+    croak "Invalid session ID: $id"
+      if ! defined $s;
+
+    return $s;
+}
+
+sub _destroy {
+    my ($class, $id) = @_;
+    undef $SESSIONS->{$id};
+}
+
+sub _flush {
+    my ($class, $session) = @_;
+    $SESSIONS->{$session->id} = $session;
 }
 
 1;

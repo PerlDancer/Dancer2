@@ -4,6 +4,7 @@ use Test::More import => ['!pass'];
 use Carp 'croak';
 
 use Dancer (qw':tests');
+use Dancer::Test;
 use Dancer::Core::App;
 use Dancer::Core::Route;
 use Dancer::Core::Dispatcher;
@@ -51,8 +52,6 @@ $app->add_route(
     },
 );
 
-my @default_headers = (Server => 'Perl Dancer' );
-
 # the tests
 my @tests = (
     {   env => {
@@ -61,7 +60,7 @@ my @tests = (
         },
         expected => [
             200,
-            [   @default_headers,
+            [   
                 'Content-Length' => 4,
                 'Content-Type'   => 'text/html; charset=UTF-8'
             ],
@@ -73,7 +72,7 @@ my @tests = (
             PATH_INFO      => '/user/Johnny',
         },
         expected => [
-            200, [@default_headers, 
+            200, [
                 'Content-Length' => 12, 
                 'Content-Type' => 'text/html; charset=UTF-8'
             ],
@@ -88,7 +87,6 @@ my @tests = (
             302,
             [
                 'Location'       => 'http://perldancer.org',
-                @default_headers,
                 'Content-Length' => '0',
                 'Content-Type'   => 'text/html',
             ],
@@ -149,7 +147,9 @@ foreach my $test (@tests) {
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
     is        $resp->[0] => $expected->[0], "Return code ok.";
-    is_deeply $resp->[1] => $expected->[1], "Headers ok. (test $counter)";
+
+    ok(Dancer::Test::_include_in_headers($resp->[1], $expected->[1]), 
+        "expected headers are there");
 
     if (ref($expected->[2]) eq "Regexp") {
         like   $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";
@@ -165,7 +165,7 @@ foreach my $test (
             PATH_INFO      => '/error',
         },
         expected => [500,
-            [@default_headers, 'Content-Length', "Content-Type", 'text/plain'],
+            ['Content-Length', "Content-Type", 'text/plain'],
             qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s]
     }) {
     my $env = $test->{env};
@@ -173,10 +173,8 @@ foreach my $test (
 
     my $resp = $dispatcher->dispatch($env);
 
-    is        $resp->status => $expected->[0], "Return code ok.";
-
+    is $resp->status => $expected->[0], "Return code ok.";
     ok( $resp->header('Content-Length') >= 140, "Length ok.");
-
     like $resp->content, $expected->[2], "contents ok";
 }
 

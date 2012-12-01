@@ -63,10 +63,8 @@ foreach my $engine (@engines) {
             };
 
             get '/cleanup' => sub {
-                my $session = engine('session');
-                if (ref($session) eq 'Dancer::Session::YAML') {
-                    unlink $session->yaml_file($session->id) or die "unable to rm: $!";
-                }
+                my $engine = engine('session');
+                $engine->destroy(id => $_) for @{ $engine->sessions };
                 1;
             };
 

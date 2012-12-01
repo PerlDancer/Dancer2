@@ -3,13 +3,24 @@ use Data::Dumper;
 # use Dancer::Plugin::Foo;
 # use Dancer::Plugin::Bar;
 
-use contrib::lib::Foo with => { session => engine('session') };
+set content_type => 'text/plain';
+
+get '/' => sub {
+    template 'test'
+};
 
 get '/session' => sub {
     session value => "set by main";
-    Dumper(session());
+    to_dumper(session());
 };
 
+get '/set/:name/:value' => sub {
+    session( param('name') => param('value'));
+};
+
+get '/all_sessions' => sub {
+    to_dumper(setting('session')->sessions);
+};
 
 dance;
 

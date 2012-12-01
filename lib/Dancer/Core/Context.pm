@@ -1,8 +1,9 @@
-# ABSTRACT: TODO
-
 package Dancer::Core::Context;
+# ABSTRACT: handles everything proper to a request's context.
+
 use Moo;
 use URI::Escape;
+use Carp 'croak';
 
 use Dancer::Core::Types;
 use Dancer::Core::Request;
@@ -88,5 +89,47 @@ sub redirect {
 
     $self->response->redirect($destination, $status);
 }
+
+
+=attr session
+
+Handle for the current session object, if any
+
+=cut
+
+has session => (
+    is      => 'rw',
+    isa     => Session,
+    lazy    => 1,
+    builder => '_build_session',
+);
+
+sub _build_session {
+    my ($self) = @_;
+    my $session;
+
+    # Find the session engine
+    my $engine = $self->app->setting('session');
+    croak "No session engine defined, cannot use session."
+      if ! defined $engine;
+
+    # find the session cookie if any
+    my $session_id;
+    my $session_cookie = $self->cookie('dancer.session');
+    if (defined $session_cookie) {
+        $session_id = $session_cookie->value;
+    }
+   
+    # if we have a session cookie, try to retrieve the session
+    if (defined $session_id) {
+        eval { $session = $engine->retrieve(id => $session_id) };
+        croak "Fail to retreive session: $@" 
+          if $@ && $@ !~ /Unable to retrieve session/;
+    }
+
+    # create the session if none retrieved
+    return $session ||= $engine->create();
+}
+
 
 1;
