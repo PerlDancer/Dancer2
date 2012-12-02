@@ -22,7 +22,7 @@ with 'Dancer::Core::Role::Headers';
 
 sub BUILD {
     my ($self) = @_;
-    $self->header('Server' => "Perl Dancer");
+    $self->header('Server' => "Perl Dancer $Dancer::VERSION");
 }
 
 # boolean to tell if the route passes or not
