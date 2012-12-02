@@ -118,7 +118,9 @@ sub dispatch {
             return $response;
         }
     }
-    return $self->response_not_found($env->{PATH_INFO});
+    # the context will still have the last $app loaded
+    # TODO do we care that it's that app or any other one?
+    return $self->response_not_found($context);
 }
 
 sub response_internal_error {
@@ -135,9 +137,12 @@ sub response_internal_error {
 }
 
 sub response_not_found {
-    my ($self, $request) = @_;
+    my ($self, $context ) = @_;
 
-    return Dancer::Core::Error->new( status => 404 )->throw;
+    return Dancer::Core::Error->new( 
+        status   => 404,
+        context  => $context,
+    )->throw;
 }
 
 1;
