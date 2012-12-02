@@ -14,7 +14,12 @@ $r = Dancer::Core::Response->new(
     content => 'foo',
 );
 
-is_deeply $r->to_psgi, [200, [Server => 'Perl Dancer', 'Content-Type', 'text/html'], ['foo']];
+is_deeply $r->to_psgi, [
+    200, [
+        Server => "Perl Dancer $Dancer::VERSION", 
+        'Content-Type' => 'text/html',
+    ], ['foo']
+];
 
 isa_ok $r->headers, 'HTTP::Headers';
 is $r->content_type, 'text/html';

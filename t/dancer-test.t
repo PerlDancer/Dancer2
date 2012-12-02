@@ -43,5 +43,6 @@ response_content_unlike $_ => qr/ought/ for @routes;
 response_status_is   $_ => 200 for @routes;
 response_status_isnt $_ => 203 for @routes;
 
-response_headers_include $_ => [ Server => 'Perl Dancer' ] for @routes;
+response_headers_include $_ => [ Server => "Perl Dancer $Dancer::VERSION" ] 
+    for @routes;
 

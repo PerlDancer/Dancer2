@@ -52,8 +52,8 @@ response_content_is [ GET => '/go_to_post/' ] => 'post:foo,bar';
 
 my $expected_headers = [
     'Content-Length' => 5,
-    'Content-Type' => 'text/html; charset=UTF-8',
-    'Server'       => "Perl Dancer",
+    'Content-Type'   => 'text/html; charset=UTF-8',
+    'Server'         => "Perl Dancer $Dancer::VERSION",
 ];
 
 response_headers_are_deeply [ GET => '/bounce/' ], $expected_headers;
