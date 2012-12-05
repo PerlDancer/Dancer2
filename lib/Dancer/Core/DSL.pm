@@ -105,7 +105,26 @@ sub config { shift->app->settings }
 
 sub engine { shift->app->engine(@_) }
 
+=func setting
+
+Lets you define settings and access them:
+    setting('foo' => 42);
+    setting('foo' => 42, 'bar' => 43);
+    my $foo=setting('foo');
+
+If settings were defined returns number of settings.
+
+=cut
+
 sub setting { shift->app->setting(@_) }
+
+=func set ()
+
+alias for L<setting>:
+    set('foo' => '42');
+    my $port=set('port');
+
+=cut
 
 sub set { shift->setting(@_) }
 
