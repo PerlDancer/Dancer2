@@ -5,14 +5,15 @@ use warnings;
 use Test::More;
 
 use Dancer::Core::Session;
+use Dancer::Session::Simple;
 
 subtest 'session attributes' => sub {
-    my $s1 = Dancer::Core::Session->new;
+    my $s1 = Dancer::Session::Simple->create;
 
     my $id = $s1->id;
     ok defined($id), 'id is defined';
 
-    my $s2 = Dancer::Core::Session->new;
+    my $s2 = Dancer::Session::Simple->create;
     isnt($s1->id, $s2->id, "IDs are not the same");
 
     ok( defined($s2->creation_time), "creation time is set");
@@ -23,7 +24,8 @@ subtest "$count session IDs and no dups" => sub {
     my $seen = {};
     my $iteration = 0;
     foreach my $i (1 .. $count) {
-        my $id = Dancer::Core::Session->new->id; 
+        my $s1 = Dancer::Session::Simple->create;
+        my $id = $s1->id;
         if (exists $seen->{$id}) {
             last;
         }
