@@ -13,6 +13,8 @@ use warnings;
 use Carp 'croak';
 use Dancer::Core::Session;
 use Dancer::Core::Types;
+use Digest::SHA1 'sha1_hex';
+use List::Util 'shuffle';
 
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
@@ -41,7 +43,7 @@ This method does not need to be implemented in the class.
 
 sub create {
     my ($class) = @_;
-    my $session = Dancer::Core::Session->new();
+    my $session = Dancer::Core::Session->new( id => $class->generate_id );
 
     eval { $class->_flush($session) };
     croak "Unable to create a new session: $@" 
@@ -49,6 +51,40 @@ sub create {
 
     return $session;
 }
+
+=head2 generate_id
+
+Returns a randomly-generated, guaranteed-unique string.  (It is not
+guaranteed cryptographically secure, but it's still reasonably
+strong for general use.)  This method is used internally by create()
+to set the session ID.
+
+This method does not need to be implemented in the class unless an
+alternative method for session ID generation is desired.
+
+=cut
+
+{
+    my $COUNTER = 0;
+
+    sub generate_id {
+        my ($class) = @_;
+
+        my $seed = rand(1_000_000_000) # a random number
+                . __FILE__            # the absolute path as a secret key
+                . $COUNTER++          # impossible to have two consecutive dups
+                . time()              # impossible to have dups between seconds
+                . $$                  # the process ID as another private constant
+                . join('',
+                    shuffle('a'..'z',
+                          'A'..'Z',
+                            0 .. 9))   # a shuffled list of 62 chars, another random component
+                ;
+
+        return sha1_hex($seed);
+    }
+}
+
 
 =head2 retrieve
 
