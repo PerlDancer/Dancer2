@@ -18,8 +18,24 @@ use List::Util 'shuffle';
 
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
+
+sub supported_hooks {
+   qw/
+    engine.session.before_retrieve
+    engine.session.after_retrieve
+
+    engine.session.before_create
+    engine.session.after_create
+
+    engine.session.before_destroy
+    engine.session.after_destroy
+
+    engine.session.before_flush
+    engine.session.after_flush
+   /
+}
+
 sub _build_type {'Session'}
-sub supported_hooks { }
 
 =head1 INTERFACE
 
@@ -42,13 +58,15 @@ This method does not need to be implemented in the class.
 =cut
 
 sub create {
-    my ($class) = @_;
-    my $session = Dancer::Core::Session->new( id => $class->generate_id );
+    my ($self) = @_;
+    my $session = Dancer::Core::Session->new( id => $self->generate_id );
+    $self->execute_hook('engine.session.before_create', $session);
 
-    eval { $class->_flush($session) };
+    eval { $self->_flush($session) };
     croak "Unable to create a new session: $@" 
       if $@;
 
+    $self->execute_hook('engine.session.after_create', $session);
     return $session;
 }
 
@@ -68,13 +86,14 @@ alternative method for session ID generation is desired.
     my $COUNTER = 0;
 
     sub generate_id {
-        my ($class) = @_;
+        my ($self) = @_;
 
         my $seed = rand(1_000_000_000) # a random number
                 . __FILE__            # the absolute path as a secret key
                 . $COUNTER++          # impossible to have two consecutive dups
                 . time()              # impossible to have dups between seconds
                 . $$                  # the process ID as another private constant
+                . "$self"             # the instance's memory address for more entropy
                 . join('',
                     shuffle('a'..'z',
                           'A'..'Z',
@@ -100,14 +119,17 @@ The method C<_retrieve> must be implemented.
 requires '_retrieve';
 
 sub retrieve {
-    my ($class, %params) = @_;
+    my ($self, %params) = @_;
     my $session;
     my $id = $params{id};
 
-    eval { $session = $class->_retrieve($id) };
+    $self->execute_hook('engine.session.before_retrieve', $id);
+
+    eval { $session = $self->_retrieve($id) };
     croak "Unable to retrieve session with id '$id'"
       if $@;
 
+    $self->execute_hook('engine.session.after_retrieve', $session);
     return $session;
 }
 
@@ -125,13 +147,15 @@ The C<_destroy> method must be implemented.
 requires '_destroy';
 
 sub destroy {
-    my ($class, %params) = @_;
+    my ($self, %params) = @_;
     my $id = $params{id};
+    $self->execute_hook('engine.session.before_destroy', $id);
 
-    eval { $class->_destroy($id) };
+    eval { $self->_destroy($id) };
     croak "Unable to destroy session with id '$id': $@"
       if $@;
 
+    $self->execute_hook('engine.session.after_destroy', $id);
     return $id;
 }
 
@@ -151,13 +175,15 @@ The C<_flush> method must be implemented.
 requires '_flush';
 
 sub flush {
-    my ($class, %params) = @_;
+    my ($self, %params) = @_;
     my $session = $params{session};
+    $self->execute_hook('engine.session.before_flush', $session);
 
-    eval { $class->_flush($session) };
+    eval { $self->_flush($session) };
     croak "Unable to flush session: $@"
       if $@;
 
+    $self->execute_hook('engine.session.after_flush', $session);
     return $session->id;
 }
 
