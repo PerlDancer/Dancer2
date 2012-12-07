@@ -21,6 +21,7 @@ if ($ENV{DANCER_TEST_COOKIE}) {
 
 foreach my $engine (@engines) {
 
+
     note "Testing engine $engine";
     Test::TCP::test_tcp(
         client => sub {
@@ -43,6 +44,9 @@ foreach my $engine (@engines) {
                 
                 $res = $ua->get("http://127.0.0.1:$port/cleanup");
                 ok($res->is_success, "cleanup done for $client");
+
+                ok($res->content, "session hook triggered");
+
             }
 
             File::Temp::cleanup();
@@ -51,6 +55,13 @@ foreach my $engine (@engines) {
             my $port = shift;
 
             use Dancer;
+            
+            my @to_destroy;
+
+            hook 'engine.session.before_destroy' => sub {
+                my $session = shift;
+                push @to_destroy, $session;
+            };
 
             get '/set_session/*' => sub {
                 my ($name) = splat;
@@ -65,7 +76,7 @@ foreach my $engine (@engines) {
             get '/cleanup' => sub {
                 my $engine = engine('session');
                 $engine->destroy(id => $_) for @{ $engine->sessions };
-                1;
+                return scalar(@to_destroy);
             };
 
             setting appdir => $tempdir;
