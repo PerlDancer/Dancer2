@@ -1,5 +1,5 @@
 package Dancer::Core::Session;
-#ABSTRACT: class to represent aany session object
+#ABSTRACT: class to represent any session object
 
 =head1 DESCRIPTION
 
@@ -9,50 +9,32 @@ its data, creation timestampe...
 It is completely agnostic of how it will be stored, this is the role of
 a factory that consumes L<Dancer::Core::Role::SessionFactory> to know about that.
 
+Generally, session objects should not be created directly.  The correct way to
+get a new session object is to call the C<create()> method on a session engine
+that implements the SessionFactory role.  This is done automatically by the
+context object if a session engine is defined.
+
 =cut
 
 use strict;
 use warnings;
 use Moo;
 use Dancer::Core::Types;
-use Digest::SHA1 'sha1_hex';
-use List::Util 'shuffle';
 
 
 =attr id
 
-The identifier of the session object. Randomnly generated, guaranteed to be
-unique.
+The identifier of the session object. Required. By default,
+L<Dancer::Core::Role::SessionFactory> sets this to a randomly-generated,
+guaranteed-unique string.
 
 =cut
 
 has id => (
-    is      => 'rw',
-    isa     => Str,
-    lazy    => 1,
-    builder => '_build_id',
+    is        => 'rw',
+    isa       => Str,
+    required  => 1,
 );
-
-my $COUNTER = 0;
-
-sub _build_id {
-    my ($self) = @_;
-
-    my $seed = rand(1_000_000_000) # a random number
-             . __FILE__            # the absolute path as a secret key
-             . $COUNTER++          # impossible to have two consecutive dups
-             . "$self"             # the memory address of the object
-             . time()              # impossible to have dups between seconds
-             . $$                  # the process ID as another private constant
-             . join('', 
-                shuffle('a'..'z', 
-                       'A'..'Z', 
-                        0 .. 9))   # a shuffled list of 62 chars, another random component
-             ;
-
-    return sha1_hex($seed);
-}
-
 
 =method read
 
