@@ -21,7 +21,6 @@ sub supported_hooks {
 
 sub _build_type {'Template'}
 
-requires '_build_name';
 requires 'render';
 
 has name => (
@@ -29,6 +28,8 @@ has name => (
     lazy    => 1,
     builder => 1,
 );
+
+sub _build_name { ref shift; }
 
 has charset => (
     is => 'ro',
