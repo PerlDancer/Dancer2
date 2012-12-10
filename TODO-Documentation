@@ -59,4 +59,13 @@ developers.  There are 3 levels of documentation:
 [ ]	Dancer::Factory::Engine
 [ ]	Dancer::Test
 
+# Other docs (guides etc) - to port/write:
 
+[ ]     Dancer::Cookbook
+[ ]     Dancer::Deployment
+[ ]     Dancer::Development
+[ ]     Dancer::Development::Integration
+[ ]     Dancer::Introduction
+[ ]     Dancer::Plugins (indicate which are D2-ready)
+[ ]     Dancer::Migration (D1->D2 migration instructions)
+[ ]     Dancer::Tutorial
