@@ -42,6 +42,8 @@ Reader on the session data
 
     my $value = $session->read('something');
 
+Returns C<undef> if the key does not exist in the session.
+
 =cut
 
 sub read {
@@ -54,11 +56,30 @@ sub read {
 
 Writer on the session data
 
+  $session->write('something', $value);
+
+Returns C<$value>.
+
 =cut
 
 sub write {
     my ($self, $key, $value) = @_;
     $self->data->{$key} = $value;
+}
+
+=method delete
+
+Deletes a key from session data
+
+  $session->delete('something');
+
+Returns the value deleted from the session.
+
+=cut
+
+sub delete {
+    my ($self, $key, $value) = @_;
+    delete $self->data->{$key};
 }
 
 =attr is_secure 

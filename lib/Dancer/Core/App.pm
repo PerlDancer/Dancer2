@@ -149,8 +149,13 @@ sub session {
     # read if a key is provided
     return $session->read($key) if @_ == 2;
 
-    # write to the session
-    $session->write($key => $value);
+    # write to the session or delete if value is undef
+    if ( defined $value ) {
+        $session->write($key => $value);
+    }
+    else {
+        $session->delete($key);
+    }
 }
 
 sub template {
