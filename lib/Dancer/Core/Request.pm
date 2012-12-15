@@ -75,6 +75,18 @@ Dancer::Request object through specific accessors, here are those supported:
 
 =cut
 
+# check presence of XS module to speedup request
+eval {
+    require URL::Encode::XS;
+};
+our $XS_URL_DECODE = !$@;
+
+eval {
+    require CGI::Deurl::XS;
+};
+our $XS_PARSE_QUERY_STRING = !$@;
+
+
 # add an attribute for each HTTP_* variables
 my @http_env_keys = (
     'user_agent',      'accept_language', 'accept_charset',
@@ -812,6 +824,7 @@ sub _build_params {
 
 sub _url_decode {
     my ($self, $encoded) = @_;
+    return URL::Encode::XS::url_decode($encoded) if $XS_URL_DECODE;
     my $clean = $encoded;
     $clean =~ tr/\+/ /;
     $clean =~ s/%([a-fA-F0-9]{2})/pack "H2", $1/eg;
@@ -829,9 +842,17 @@ sub _parse_post_params {
 sub _parse_get_params {
     my ($self) = @_;
     return $self->{_query_params} if defined $self->{_query_params};
+
     $self->{_query_params} = {};
 
-    my $source = $self->env->{QUERY_STRING} || '';
+    my $source = $self->env->{QUERY_STRING};
+    return if !defined $source || $source eq '';
+
+    if ($XS_PARSE_QUERY_STRING) {
+        $self->{_query_params} = CGI::Deurl::XS::parse_query_string($source) // {};
+        return;
+    }
+
     foreach my $token (split /[&;]/, $source) {
         my ($key, $val) = split(/=/, $token);
         next unless defined $key;
@@ -855,7 +876,7 @@ sub _parse_get_params {
             $self->{_query_params}{$key} = $val;
         }
     }
-    return $self->{_query_params};
+    return;
 }
 
 sub _read_to_end {

@@ -4,6 +4,11 @@ use Test::More;
 
 use Dancer::Core::Request;
 
+diag "If you want extract speed, install URL::Encode::XS"
+    if ! $Dancer::Core::Request::XS_URL_DECODE;
+diag "If you want extract speed, install CGI::Deurl::XS"
+    if ! $Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+
 my $env = {
     'psgi.url_scheme' => 'http',
     REQUEST_METHOD    => 'GET',
