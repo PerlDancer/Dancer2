@@ -75,6 +75,13 @@ Dancer::Request object through specific accessors, here are those supported:
 
 =cut
 
+=head1 EXTRA SPEED
+
+Install URL::Encode::XS and CGI::Deurl::XS for extra speed.
+
+Dancer::Core::Request will use it if they detect their presence.
+
+=cut
 # check presence of XS module to speedup request
 eval {
     require URL::Encode::XS;
