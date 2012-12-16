@@ -9,6 +9,7 @@ use Data::Dumper;
 use Dancer::Core::Runner;
 use Dancer::Core::App;
 use Dancer::FileUtils;
+use Dancer::ModuleLoader;
 
 #set version in dist.ini now
 # but we still need a basic version for
@@ -146,7 +147,7 @@ sub import {
     }
 
     my $local_libdir = Dancer::FileUtils::path($runner->location, 'lib');
-    _use_lib($local_libdir) if -d $local_libdir;
+    Dancer::ModuleLoader->use_lib($local_libdir) if -d $local_libdir;
 
     # the app object
     my $app = Dancer::Core::App->new(
@@ -170,10 +171,8 @@ sub import {
     core_debug("exporting DSL symbols for $caller");
 
     # load the DSL, defaulting to Dancer::Core::DSL
-    my $dsl_file = $final_args{dsl};
-    $dsl_file =~ s!(::|_)!/!g;
-    $dsl_file .= '.pm';
-    require $dsl_file;
+    Dancer::ModuleLoader->require($final_args{dsl})
+        or die "Couldn't require '" . $final_args{dsl} . "'\n";
     my $dsl = $final_args{dsl}->new(app => $app);
     $dsl->export_symbols_to($caller, \%final_args);
 
@@ -224,24 +223,6 @@ sub core_debug {
 
     chomp $msg;
     print STDERR "core: $msg\n$vars";
-}
-
-
-#
-# private
-#
-
-#_use_lib: Load an additional library using L<lib>.
-
-sub _use_lib {
-    my (@args) = @_;
-
-    use lib;
-    local $@;
-    lib->import(@args);
-    my $error = $@;
-    $error and return wantarray ? (0, $error) : 0;
-    return 1;
 }
 
 1;
