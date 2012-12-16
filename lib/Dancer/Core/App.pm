@@ -13,6 +13,7 @@ use Carp 'croak';
 use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Core::Types;
 use Dancer::Core::Route;
+use Dancer::Core::Hook;
 
 # we have hooks here
 with 'Dancer::Core::Role::Hookable';
@@ -93,6 +94,7 @@ has runner_config => (
 );
 
 =attr default_config
+
 =cut
 
 has default_config => (

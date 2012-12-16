@@ -8,7 +8,6 @@ use Carp;
 use Data::Dumper;
 use Dancer::Core::Runner;
 use Dancer::Core::App;
-use Dancer::Core::DSL;
 use Dancer::FileUtils;
 
 #set version in dist.ini now
@@ -114,20 +113,28 @@ sub import {
     my $as_script   = 0;
     foreach (@args) {
         if ( $_ eq ':moose' ) {
-            push @final_args, '!before', '!after';
+            push @final_args, '!before' => 1, '!after' => 1;
         }
         elsif ( $_ eq ':tests' ) {
-            push @final_args, '!pass';
+            push @final_args, '!pass' => 1;
         }
         elsif ( $_ eq ':syntax' ) {
             $syntax_only = 1;
         }
         elsif ($_ eq ':script') {
             $as_script = 1;
+        } elsif ( substr($_, 0, 1) eq '!') {
+            push @final_args, $_, 1;
         } else {
             push @final_args, $_;
         }
     }
+
+    scalar(@final_args) % 2
+      and die "parameters to 'use Dancer' should be one of : 'key => value', ':moose', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
+    my %final_args = @final_args;
+
+    $final_args{dsl} ||= 'Dancer::Core::DSL';
 
     # never instanciated the runner, should do it now
     if (not defined $runner) {
@@ -161,8 +168,14 @@ sub import {
     $runner->server->register_application($app);
 
     core_debug("exporting DSL symbols for $caller");
-    my $dsl = Dancer::Core::DSL->new(app => $app);
-    $dsl->export_symbols_to($caller);
+
+    # load the DSL, defaulting to Dancer::Core::DSL
+    my $dsl_file = $final_args{dsl};
+    $dsl_file =~ s!(::|_)!/!g;
+    $dsl_file .= '.pm';
+    require $dsl_file;
+    my $dsl = $final_args{dsl}->new(app => $app);
+    $dsl->export_symbols_to($caller, \%final_args);
 
 #
 #    # if :syntax option exists, don't change settings
