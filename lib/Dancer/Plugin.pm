@@ -333,7 +333,7 @@ sub import {
     # their first argument).
     # These modified versions of the DSL are then exported in the namespace of the
     # plugin.
-    for my $symbol (Dancer::Core::DSL->dsl_keywords_as_list) {
+    for my $symbol ($dsl->dsl_keywords_as_list) {
 
         # get the original symbol from the real DSL
         no strict 'refs';
@@ -358,7 +358,7 @@ sub _get_dsl {
     my $deep = 2;
     while (my $caller = caller($deep++)) {
         $dsl = $caller->dsl if $caller->can('dsl');
-        last if defined $dsl;
+        last if defined $dsl && length(ref($dsl));
     }
 
     return $dsl;

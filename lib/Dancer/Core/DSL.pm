@@ -82,13 +82,8 @@ sub dsl_keywords {
     ];
 }
 
-sub dsl_keywords_as_list {
-    map { $_->[0] } @{ dsl_keywords() }
-}
-
 sub dancer_app { shift->app }
 sub dancer_version { Dancer->VERSION }
-sub dsl { shift }
 
 sub debug   { shift->log(debug   => @_) }
 sub warning { shift->log(warning => @_) }
