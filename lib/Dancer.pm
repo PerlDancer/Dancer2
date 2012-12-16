@@ -8,8 +8,8 @@ use Carp;
 use Data::Dumper;
 use Dancer::Core::Runner;
 use Dancer::Core::App;
-use Dancer::Core::DSL;
 use Dancer::FileUtils;
+use Dancer::ModuleLoader;
 
 #set version in dist.ini now
 # but we still need a basic version for
@@ -114,20 +114,28 @@ sub import {
     my $as_script   = 0;
     foreach (@args) {
         if ( $_ eq ':moose' ) {
-            push @final_args, '!before', '!after';
+            push @final_args, '!before' => 1, '!after' => 1;
         }
         elsif ( $_ eq ':tests' ) {
-            push @final_args, '!pass';
+            push @final_args, '!pass' => 1;
         }
         elsif ( $_ eq ':syntax' ) {
             $syntax_only = 1;
         }
         elsif ($_ eq ':script') {
             $as_script = 1;
+        } elsif ( substr($_, 0, 1) eq '!') {
+            push @final_args, $_, 1;
         } else {
             push @final_args, $_;
         }
     }
+
+    scalar(@final_args) % 2
+      and die "parameters to 'use Dancer' should be one of : 'key => value', ':moose', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
+    my %final_args = @final_args;
+
+    $final_args{dsl} ||= 'Dancer::Core::DSL';
 
     # never instanciated the runner, should do it now
     if (not defined $runner) {
@@ -139,7 +147,7 @@ sub import {
     }
 
     my $local_libdir = Dancer::FileUtils::path($runner->location, 'lib');
-    _use_lib($local_libdir) if -d $local_libdir;
+    Dancer::ModuleLoader->use_lib($local_libdir) if -d $local_libdir;
 
     # the app object
     my $app = Dancer::Core::App->new(
@@ -161,8 +169,12 @@ sub import {
     $runner->server->register_application($app);
 
     core_debug("exporting DSL symbols for $caller");
-    my $dsl = Dancer::Core::DSL->new(app => $app);
-    $dsl->export_symbols_to($caller);
+
+    # load the DSL, defaulting to Dancer::Core::DSL
+    Dancer::ModuleLoader->require($final_args{dsl})
+        or die "Couldn't require '" . $final_args{dsl} . "'\n";
+    my $dsl = $final_args{dsl}->new(app => $app);
+    $dsl->export_symbols_to($caller, \%final_args);
 
 #
 #    # if :syntax option exists, don't change settings
@@ -211,24 +223,6 @@ sub core_debug {
 
     chomp $msg;
     print STDERR "core: $msg\n$vars";
-}
-
-
-#
-# private
-#
-
-#_use_lib: Load an additional library using L<lib>.
-
-sub _use_lib {
-    my (@args) = @_;
-
-    use lib;
-    local $@;
-    lib->import(@args);
-    my $error = $@;
-    $error and return wantarray ? (0, $error) : 0;
-    return 1;
 }
 
 1;
