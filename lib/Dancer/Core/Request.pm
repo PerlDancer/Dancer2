@@ -437,7 +437,7 @@ sub is_patch              { $_[0]->{method} eq 'PATCH' }
 sub request_method { method(@_) }
 sub input_handle   { $_[0]->env->{'psgi.input'} || $_[0]->env->{'PSGI.INPUT'} }
 
-my $_count = 0;
+our $_count = 0;
 
 sub BUILD {
     my ($self) = @_;
