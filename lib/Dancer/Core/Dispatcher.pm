@@ -118,7 +118,8 @@ sub dispatch {
             return $response;
         }
     }
-    return $self->response_not_found($env->{PATH_INFO});
+
+    return $self->response_not_found($context);
 }
 
 sub response_internal_error {
@@ -134,10 +135,30 @@ sub response_internal_error {
     )->throw;
 }
 
-sub response_not_found {
-    my ($self, $request) = @_;
+# if we support 5.10.0 and up, we can change that
+# for a 'state'
+my $not_found_app;
 
-    return Dancer::Core::Error->new( status => 404 )->throw;
+sub response_not_found {
+    my ($self, $context ) = @_;
+
+    $not_found_app ||= Dancer::Core::App->new(
+        name            => 'file_not_found',
+        environment     => Dancer->runner->environment,
+        location        => Dancer->runner->location,
+        runner_config   => Dancer->runner->config,
+        postponed_hooks => Dancer->runner->postponed_hooks,
+        api_version     => 2,
+    );
+
+    $context->app($not_found_app);
+    $not_found_app->context($context);
+
+    return Dancer::Core::Error->new( 
+        status   => 404,
+        context  => $context,
+        message => $context->request->path,
+    )->throw;
 }
 
 1;
