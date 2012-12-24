@@ -19,5 +19,4 @@ any ['get', 'post'], '/'  => sub {
     is $r->content, 'POST';
 }
 
-is int(dancer_version), 2, 'dancer_version';
 done_testing;
