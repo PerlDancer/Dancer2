@@ -28,6 +28,7 @@ sub dsl_keywords {
         [dance        => 1],
         [dancer_app   => 1],
         [dancer_version => 1],
+        [dancer_major_version => 1],
         [debug        => 1],
         [del          => 1],
         [dirname      => 1],
@@ -84,6 +85,10 @@ sub dsl_keywords {
 
 sub dancer_app { shift->app }
 sub dancer_version { Dancer->VERSION }
+sub dancer_major_version { 
+    my @tokens = split /\./, dancer_version;
+    return $tokens[0];
+}
 
 sub debug   { shift->log(debug   => @_) }
 sub warning { shift->log(warning => @_) }

@@ -8,7 +8,7 @@ use Test::More;
 
     package App;
     BEGIN {
-        use Dancer 2.0;
+        use Dancer;
         set session => 'Simple';
     }
 

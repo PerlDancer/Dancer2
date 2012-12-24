@@ -6,7 +6,7 @@ use Test::More;
 {
     package PrettyError;
 
-    use Dancer 2;
+    use Dancer;
 
     engine('template')->views('t/corpus/pretty');
     $ENV{DANCER_PUBLIC} = 't/corpus/pretty_public';

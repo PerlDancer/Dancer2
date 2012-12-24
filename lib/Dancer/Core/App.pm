@@ -39,7 +39,7 @@ has plugins => (
 has api_version => (
     is => 'ro',
     isa => Num,
-    default => sub { 1 },
+    default => sub { 2 },
 );
 
 =method register_plugin

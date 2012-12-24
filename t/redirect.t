@@ -6,7 +6,7 @@ use Test::More;
 subtest 'basic redirects' => sub {
     {
         package App;
-        use Dancer 2.0;
+        use Dancer;
 
         get '/'         => sub { 'home' };
         get '/bounce'   => sub { redirect '/' };
@@ -39,7 +39,7 @@ subtest 'basic redirects' => sub {
 subtest 'absolute and relative redirects' => sub {
     { 
         package App;
-        use Dancer 2.0;
+        use Dancer;
 
         get '/absolute_with_host' =>
           sub { redirect "http://foo.com/somewhere"; };
@@ -64,7 +64,7 @@ subtest 'absolute and relative redirects' => sub {
 subtest 'redirect behind a proxy' => sub {
     { 
         package App;
-        use Dancer 2.0;
+        use Dancer;
         set behind_proxy => 1;
         get '/bounce'   => sub { redirect '/' };
     }

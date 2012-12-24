@@ -32,7 +32,7 @@ Test::TCP::test_tcp(
         my $port = shift;
 
         BEGIN {
-            use Dancer 2.0;
+            use Dancer;
             set session => 'Simple';
             engine('session')->{'__marker__'} = 1;
         }

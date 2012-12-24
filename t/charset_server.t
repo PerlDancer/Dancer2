@@ -38,7 +38,7 @@ Test::TCP::test_tcp(
     },
     server => sub {
         my $port = shift;
-        use Dancer 2.0;
+        use Dancer;
 
         get '/name/:name' => sub {
             "Your name: ".params->{name}
