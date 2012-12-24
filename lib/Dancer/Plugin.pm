@@ -130,7 +130,7 @@ sub register_plugin {
     # if the caller has not a dsl, we cant register the plugin
     return if ! $caller->can('dsl');
 
-    my $dancer_major_version = $caller->dsl->dancer_major_version;
+    my $dancer_major_version = $caller->dancer_app->api_version;
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
 
     # make sure the plugin is compatible with this version of Dancer
