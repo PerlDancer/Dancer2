@@ -1,12 +1,6 @@
-{{$NEXT}}
+1.9999_01
 
-    [ BUG FIXES ]
-    * Fix dist.ini, and numerous missing pod names (Damien Krotkine)
-    * Add warning in Makefile.PL to inform about Dist::Zilla (Damien Krotkine)
-    * Update README (Damien Krotkine)
-    * Add Abstract placeholders (Damien Krotkine)
-    * Add changelog (Damien Krotkine)
-    * Various fixes (Damien Krotkine)
-
-    [ ENHANCEMENTS ]
-    * Use Config::Any (rather than YAML) to allow multiple config file formats (cromedome)
+    * First DEVELEOPER release of Dancer 2
+      complete rewrite of Dancer with a Moo backend.  
+      (Alexis Sukrieh, David Precious, Damien Krotkine, SawyerX, Yanick Champoux
+      and others, plus Matt S. Trout as a reviewer).
