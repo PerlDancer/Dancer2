@@ -15,3 +15,5 @@ tools/plugins_auto_tests/perlbrew
 tools/plugins_auto_tests/plugins_list
 tools/plugins_auto_tests/result.csv
 Dancer-[1-9]*
+t/sessions
+
