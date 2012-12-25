@@ -86,8 +86,7 @@ sub dsl_keywords {
 sub dancer_app { shift->app }
 sub dancer_version { Dancer->VERSION }
 sub dancer_major_version { 
-    my @tokens = split /\./, dancer_version;
-    return $tokens[0];
+    return (split /\./, dancer_version)[0];
 }
 
 sub debug   { shift->log(debug   => @_) }
