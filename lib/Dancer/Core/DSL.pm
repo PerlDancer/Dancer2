@@ -26,6 +26,7 @@ sub dsl_keywords {
         [cookies      => 0],
         [core_debug   => 1],
         [dance        => 1],
+        [dancer_api_version => 1],
         [dancer_app   => 1],
         [dancer_version => 1],
         [dancer_major_version => 1],
@@ -88,6 +89,16 @@ sub dancer_version { Dancer->VERSION }
 sub dancer_major_version { 
     return (split /\./, dancer_version)[0];
 }
+
+=func dancer_api_version 
+
+    my $api_version = dancer_api_version;
+
+Returns the API version used by the current app.
+
+=cut
+
+sub dancer_api_version { $_[0]->app->api_version }
 
 sub debug   { shift->log(debug   => @_) }
 sub warning { shift->log(warning => @_) }
