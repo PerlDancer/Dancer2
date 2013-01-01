@@ -168,12 +168,20 @@ sub _build_location {
     # default to the dir that contains the script...
     my $location = Dancer::FileUtils::dirname($script);
 
-    # ... but we go one step upper if we find out we're in bin or public
-    $location = Dancer::FileUtils::path($location, '..')
-      if File::Basename::basename($location) eq 'bin'
-          || File::Basename::basename($location) eq 'public';
+    #we try to find bin and lib
+    my $subdir = $location;
+    my $subdir_found = 0;
+    for(1..10) {
+       my $libdir = Dancer::FileUtils::path($subdir, 'lib'); 
+       my $bindir = Dancer::FileUtils::path($subdir, 'lib'); 
+       if (-d $libdir && -d $bindir) {
+           $subdir_found = 1;
+           last;
+       }
+       $subdir = Dancer::FileUtils::path($subdir, '..');
+    }
 
-    $self->location($location);
+    $self->location($subdir_found ? $subdir : $location);
 }
 
 =method start
