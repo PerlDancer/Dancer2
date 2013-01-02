@@ -173,8 +173,9 @@ sub _build_location {
     my $subdir_found = 0;
     for(1..10) {
        my $libdir = Dancer::FileUtils::path($subdir, 'lib'); 
-       my $bindir = Dancer::FileUtils::path($subdir, 'lib'); 
-       if (-d $libdir && -d $bindir) {
+       my $bindir = Dancer::FileUtils::path($subdir, 'bin'); 
+       my $dancer_app = Dancer::FileUtils::path($subdir, '.dancer_app'); 
+       if ((-d $libdir && -d $bindir) || (-f $dancer_app)) {
            $subdir_found = 1;
            last;
        }
