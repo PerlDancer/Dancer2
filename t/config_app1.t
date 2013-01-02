@@ -3,8 +3,7 @@ use warnings;
 
 use Test::More;
 use Path::Class;
-use lib dir('t','app','t1', 'lib')->stringify;
-use App1;
+use t::app::t1::lib::App1;
 
 is(App1->runner->config->{app}->{config}, 'ok', 'config loaded properly');
 is_deeply(App1->runner->config_files, [
