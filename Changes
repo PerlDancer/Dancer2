@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * The engine configuration is now passed down to
       Dancer::Template::Implementation::ForkedTiny (Damien Krotkine).
+    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer" file. (Celogeek)
 
 1.9999_02
 
