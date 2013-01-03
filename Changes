@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ EVO ]
+    * Dancer::Test use hash as option to simplifier test in plugin and apps
+
     [ BUG FIXES ]
     * The engine configuration is now passed down to
       Dancer::Template::Implementation::ForkedTiny (Damien Krotkine).
