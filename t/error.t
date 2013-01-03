@@ -48,7 +48,7 @@ subtest "send_error in route" => sub {
         };
     }
 
-    use Dancer::Test 'App';
+    use Dancer::Test apps => ['App'];
     my $r = dancer_response GET => '/error';
 
     is $r->status, 500, 'send_error sets the status to 500';

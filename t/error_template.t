@@ -27,7 +27,7 @@ use Test::More;
 
 }
 
-use Dancer::Test 'PrettyError';
+use Dancer::Test apps => ['PrettyError'];
 
 subtest "/error" => sub {
     my $r = dancer_response GET => '/error';

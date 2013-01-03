@@ -15,7 +15,7 @@ use Test::More import => ['!pass'];
     };
 }
 
-use Dancer::Test 'App';
+use Dancer::Test apps => ['App'];
 
 my $r = dancer_response( POST => '/test' );
 is $r->content, 'POST';
