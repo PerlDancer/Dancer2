@@ -325,17 +325,22 @@ to test.
     use t::lib::Foo;
     use t::lib::Bar;
 
-    use Dancer::Test 't::lib::Foo', 't::lib::Bar';
+    use Dancer::Test apps => ['t::lib::Foo', 't::lib::Bar'];
 
 =cut
 
 sub import {
-    my ($class, @applications) = @_;
-    my ($caller, $script) = caller;
+    my ($class, %options) = @_;
 
-    # if no app is passed, assume the caller is one.
-    @applications = ($caller) 
-        if ! @applications && $caller->can('dancer_app');
+    my @applications;
+    if (ref $options{apps} eq ref([])) {
+        @applications = @{$options{apps}};
+    } else {
+        my ($caller, $script) = caller;
+
+        # if no app is passed, assume the caller is one.
+        @applications = ($caller) if $caller->can('dancer_app');
+    }
     
     # register the apps to the test dispatcher
     $_dispatcher->apps([ map { $_->dancer_app } @applications ]);
