@@ -177,9 +177,9 @@ sub _build_location {
        my $libdir = Dancer::FileUtils::path($subdir, 'lib'); 
        my $bindir = Dancer::FileUtils::path($subdir, 'bin'); 
        #try to find .dancer_app file to determine the root of dancer app
-       my $dancer_app = Dancer::FileUtils::path($subdir, '.dancer_app'); 
+       my $dancerdir = Dancer::FileUtils::path($subdir, '.dancer'); 
        # if one of them is found, keep that
-       if ((-d $libdir && -d $bindir) || (-f $dancer_app)) {
+       if ((-d $libdir && -d $bindir) || (-f $dancerdir)) {
            $subdir_found = 1;
            last;
        }
