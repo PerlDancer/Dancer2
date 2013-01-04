@@ -46,7 +46,7 @@ sub _retrieve {
 
 sub _destroy {
     my ($class, $id) = @_;
-    undef $SESSIONS->{$id}; # XXX should delete, not undef
+    delete $SESSIONS->{$id};
 }
 
 sub _flush {
