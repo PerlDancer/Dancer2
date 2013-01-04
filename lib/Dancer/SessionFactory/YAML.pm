@@ -19,7 +19,7 @@ Where to store the session files.
 has session_dir => (
     is => 'ro',
     isa => Str,
-    required => 1,
+    default => sub { path('.', 'sessions') },
 );
 
 sub BUILD {

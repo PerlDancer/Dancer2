@@ -231,9 +231,6 @@ my $_setters = {
         my $engine_options =
           $self->_get_config_for_engine(session => $value, $config);
 
-        $engine_options->{session_dir}
-          ||= File::Spec->catdir($self->config_location, 'sessions');
-
         return Dancer::Factory::Engine->create(
             session_factory => $value,
             %{$engine_options},
