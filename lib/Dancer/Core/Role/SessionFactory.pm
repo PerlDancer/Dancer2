@@ -35,7 +35,7 @@ sub supported_hooks {
    /
 }
 
-sub _build_type {'Session'}
+sub _build_type {'SessionFactory'} # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
 =attr session_config
 

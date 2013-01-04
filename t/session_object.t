@@ -5,9 +5,9 @@ use warnings;
 use Test::More;
 
 use Dancer::Core::Session;
-use Dancer::Session::Simple;
+use Dancer::SessionFactory::Simple;
 
-my $ENGINE = Dancer::Session::Simple->new;
+my $ENGINE = Dancer::SessionFactory::Simple->new;
 
 subtest 'session attributes' => sub {
     my $s1 = $ENGINE->create;
