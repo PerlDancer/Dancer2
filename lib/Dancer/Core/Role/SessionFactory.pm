@@ -131,7 +131,8 @@ found, triggers an exception.
 
     my $session = MySessionFactory->retrieve(id => $id);
 
-The method C<_retrieve> must be implemented.
+The method C<_retrieve> must be implemented.  It must take C<$id> as a single
+argument and must return a hash reference of session data.
 
 =cut
 
@@ -139,14 +140,19 @@ requires '_retrieve';
 
 sub retrieve {
     my ($self, %params) = @_;
-    my $session;
     my $id = $params{id};
 
     $self->execute_hook('engine.session.before_retrieve', $id);
 
-    eval { $session = $self->_retrieve($id) };
+    my $data = eval { $self->_retrieve($id) };
     croak "Unable to retrieve session with id '$id'"
       if $@;
+
+    my $session = Dancer::Core::Session->new(
+        %{$self->session_config},
+        id => $id,
+        data => $data,
+    );
 
     $self->execute_hook('engine.session.after_retrieve', $session);
     return $session;
@@ -159,7 +165,8 @@ destroyed session if succeeded, triggers an exception otherwise.
 
     MySessionFactory->destroy(id => $id);
 
-The C<_destroy> method must be implemented.
+The C<_destroy> method must be implemented. It must take C<$id> as a single
+argumenet and destroy the underlying data.
 
 =cut
 
@@ -187,7 +194,8 @@ An exception is triggered if the session is unable to be updated in the backend.
 
     MySessionFactory->flush(session => $session);
 
-The C<_flush> method must be implemented.
+The C<_flush> method must be implemented.  It must take two arguments: the C<$id>
+and a hash reference of session data.
 
 =cut
 
@@ -198,7 +206,7 @@ sub flush {
     my $session = $params{session};
     $self->execute_hook('engine.session.before_flush', $session);
 
-    eval { $self->_flush($session) };
+    eval { $self->_flush($session->id, $session->data) };
     croak "Unable to flush session: $@"
       if $@;
 

@@ -62,10 +62,10 @@ sub _retrieve {
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    my $new_session = YAML::Any::LoadFile($fh);
+    my $data = YAML::Any::LoadFile($fh);
     close $fh or die "Can't close '$session_file': $!\n";
 
-    return $new_session;
+    return $data;
 }
 
 sub _destroy {
@@ -77,16 +77,16 @@ sub _destroy {
 }
 
 sub _flush {
-    my ($self, $session) = @_;
-    my $session_file = $self->yaml_file( $session->id );
+    my ($self, $id, $data) = @_;
+    my $session_file = $self->yaml_file( $id );
 
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     set_file_mode($fh);
-    print {$fh} YAML::Any::Dump($session);
+    print {$fh} YAML::Any::Dump($data);
     close $fh or die "Can't close '$session_file': $!\n";
 
-    return $session;
+    return $data;
 }
 
 1;
