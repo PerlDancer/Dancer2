@@ -78,6 +78,7 @@ sub create {
     my $session = Dancer::Core::Session->new( 
         %{$self->session_config},
         id => $self->generate_id,
+        factory => $self,
     );
     $self->execute_hook('engine.session.before_create', $session);
 
@@ -151,6 +152,7 @@ sub retrieve {
     my $session = Dancer::Core::Session->new(
         %{$self->session_config},
         id => $id,
+        factory => $self,
         data => $data,
     );
 
