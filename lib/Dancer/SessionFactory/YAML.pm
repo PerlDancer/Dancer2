@@ -1,4 +1,4 @@
-package Dancer::Session::YAML;
+package Dancer::SessionFactory::YAML;
 # ABSTRACT: YAML-file-based session backend for Dancer
 
 use Moo;
