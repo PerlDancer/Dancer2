@@ -235,7 +235,7 @@ my $_setters = {
           ||= File::Spec->catdir($self->config_location, 'sessions');
 
         return Dancer::Factory::Engine->create(
-            session => $value,
+            session_factory => $value,
             %{$engine_options},
             postponed_hooks => $self->get_postponed_hooks,
         );
