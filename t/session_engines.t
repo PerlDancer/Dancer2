@@ -83,8 +83,7 @@ foreach my $engine (@engines) {
             };
 
             get '/cleanup' => sub {
-                my $engine = engine('session');
-                $engine->destroy(id => $_) for @{ $engine->sessions };
+                session->destroy;
                 return scalar(@to_destroy);
             };
 

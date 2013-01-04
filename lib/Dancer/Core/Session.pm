@@ -36,6 +36,21 @@ has id => (
     required  => 1,
 );
 
+=attr factory
+
+The SessionFactory object that created this session object. Required.
+
+=cut
+
+has factory => (
+    is        => 'ro',
+    isa       => sub {
+        die "factory must be a SessionFactory"
+            unless $_[0]->DOES("Dancer::Core::Role::SessionFactory")
+    },
+    required  => 1,
+);
+
 =method read
 
 Reader on the session data
@@ -195,5 +210,20 @@ sub cookie {
     return Dancer::Core::Cookie->new(%cookie);
 }
 
+=method destroy
+
+Destroys the session.  Deletes data in the session object and instructs
+the C<factory> to destroy the session as well.  Also sets expiration time
+into the past.
+
+=cut
+
+sub destroy {
+    my ($self) = @_;
+    $self->factory->destroy( id => $self->id );
+    %{$self->data} = ();
+    $self->expires( -86400 );
+    return;
+}
 
 1;
