@@ -92,16 +92,25 @@ has is_http_only => (
 
 =attr expires
 
-Timestamp for the expiry of the session cookie.
+Number of seconds for the expiry of the session cookie. Don't add the current
+timestamp to it, will be done automatically. 
 
 Default is no expiry (session cookie will leave for the whole browser's
 session).
+
+For a lifetime of one hour:
+
+  expires => 3600
 
 =cut
 
 has expires => (
     is => 'rw',
     isa => Str,
+    coerce => sub {
+        my $value = shift;
+        $value += time;
+    },
 );
 
 
@@ -128,6 +137,20 @@ has creation_time => (
     default => sub { time() },
 );
 
+=attr cookie_name 
+
+The name of the cookie to create for storing the session key
+
+Defaults to C<dancer.session>
+
+=cut
+
+has cookie_name => (
+    is => 'ro',
+    isa => Str,
+    default => sub { 'dancer.session' },
+);
+
 =method cookie
 
 Coerce the session object into a L<Dancer::Core::Cookie> object.
@@ -138,7 +161,7 @@ sub cookie {
     my ($self) = @_;
 
     my %cookie = (
-        name      => 'dancer.session',
+        name      => $self->cookie_name,
         value     => $self->id,
         secure    => $self->is_secure,
         http_only => $self->is_http_only,

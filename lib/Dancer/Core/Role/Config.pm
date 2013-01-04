@@ -228,8 +228,12 @@ my $_setters = {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
 
-        my $engine_options = $self->_get_config_for_engine(session => $value, $config);
-        $engine_options->{session_dir} ||= File::Spec->catdir($self->config_location, 'sessions');
+        my $engine_options =
+          $self->_get_config_for_engine(session => $value, $config);
+
+        $engine_options->{session_dir}
+          ||= File::Spec->catdir($self->config_location, 'sessions');
+
         return Dancer::Factory::Engine->create(
             session => $value,
             %{$engine_options},

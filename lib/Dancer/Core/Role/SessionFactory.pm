@@ -37,6 +37,22 @@ sub supported_hooks {
 
 sub _build_type {'Session'}
 
+=attr session_config
+
+A HashRef that contains all config options that should be passed to the
+constructor of L<Dancer::Core::Session>.
+
+By default this Hash is empty so all default values will be taken as described
+in the L<Dancer::Core::Session> class.
+
+=cut
+
+has session_config => (
+    is => 'ro',
+    isa => HashRef,
+    default => sub { {} },
+);
+
 =head1 INTERFACE
 
 Following is the interface provided by this role. When specified the required
@@ -59,7 +75,10 @@ This method does not need to be implemented in the class.
 
 sub create {
     my ($self) = @_;
-    my $session = Dancer::Core::Session->new( id => $self->generate_id );
+    my $session = Dancer::Core::Session->new( 
+        %{$self->session_config},
+        id => $self->generate_id,
+    );
     $self->execute_hook('engine.session.before_create', $session);
 
     eval { $self->_flush($session) };
