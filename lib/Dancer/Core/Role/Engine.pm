@@ -6,12 +6,6 @@ use Dancer::Core::Types;
 
 with 'Dancer::Core::Role::Hookable';
 
-has type => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => 1,
-);
-
 has environment => (is => 'ro');
 has location    => (is => 'ro');
 
@@ -27,7 +21,5 @@ has config => (
     isa     => HashRef,
     default => sub { {} },
 );
-
-requires '_build_type';
 
 1;

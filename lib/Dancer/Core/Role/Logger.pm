@@ -14,8 +14,6 @@ sub supported_hooks {
     );
 }
 
-sub _build_type {'Logger'}
-
 # This is the only method to implement by logger engines.
 # It receives the following arguments:
 # $msg_level, $msg_content, it gets called only if the configuration allows
