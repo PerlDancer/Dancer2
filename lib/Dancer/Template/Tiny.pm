@@ -56,7 +56,6 @@ has '+engine' => (
     isa => InstanceOf['Dancer::Template::Implementation::ForkedTiny'],
 );
 
-sub _build_name   {'Tiny'}
 sub _build_engine { Dancer::Template::Implementation::ForkedTiny->new(%{$_[0]->config}) }
 
 =method render

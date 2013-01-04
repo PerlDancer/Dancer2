@@ -29,7 +29,7 @@ has name => (
     builder => 1,
 );
 
-sub _build_name { ref shift; }
+sub _build_name { ( my $name = ref shift ) =~ s/^Dancer::Template:://; $name; }
 
 has charset => (
     is => 'ro',

@@ -51,8 +51,6 @@ has stop_tag => (
     default => sub { '%>' },
 );
 
-sub _build_name { 'Simple' }
-
 sub BUILD {
     my $self     = shift;
     my $settings = $self->config;
