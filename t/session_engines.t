@@ -41,6 +41,10 @@ foreach my $engine (@engines) {
                 $res = $ua->get("http://127.0.0.1:$port/read_session");
                 like $res->content, qr/name='$client'/,
                   "session looks good for client $client";
+
+                $res = $ua->get("http://127.0.0.1:$port/clear_session");
+                like $res->content, qr/cleared/,
+                  "deleted session key";
                 
                 $res = $ua->get("http://127.0.0.1:$port/cleanup");
                 ok($res->is_success, "cleanup done for $client");
@@ -71,6 +75,11 @@ foreach my $engine (@engines) {
             get '/read_session' => sub {
                 my $name = session('name') || '';
                 "name='$name'";
+            };
+
+            get '/clear_session' => sub {
+                session name => undef;
+                return exists(session->data->{name}) ? "failed" : "cleared";
             };
 
             get '/cleanup' => sub {
