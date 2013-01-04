@@ -33,6 +33,8 @@ has config_location => (
     builder => '_build_config_location',
 );
 
+requires '_build_config_location';
+
 has config => (
     is => 'rw',
     isa => HashRef,
