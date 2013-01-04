@@ -359,18 +359,20 @@ Or, alternatively,
 
 For disc-based session back ends like L<Dancer::Session::YAML>,
 L<Dancer::Session::Storable> etc, session files are written to the session dir
-specified by the C<session_dir> setting, which defaults to C<appdir/sessions> if
+specified by the C<session_dir> setting, which defaults to C<./sessions> if
 not specifically set.
 
 If you need to control where session files are created, you can do so quickly
 and easily within your config file, for example:
 
-    session_dir: /tmp/dancer-sessions
+    session: YAML
+    engines:
+      session:
+        YAML:
+          session_dir: /tmp/dancer-sessions
 
 If the directory you specify does not exist, Dancer will attempt to create it
 for you.
-
-
 
 =head3 Destroying a session
 
