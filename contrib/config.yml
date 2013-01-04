@@ -17,6 +17,11 @@ engines:
   logger:
     File:
       log_dir: "/tmp/testlogs"
+  session:
+    YAML:
+      session_config:
+        cookie_name: 'session.foo.dancer'
+        expires: 86400
 
 plugins:
   Foo:

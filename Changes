@@ -1,12 +1,19 @@
 {{$NEXT}}
 
-    [ EVO ]
-    * Dancer::Test use hash as option to simplifier test in plugin and apps
+    [ ENHANCEMENTS ]
+    * Dancer::Test takes a hash instead of an array for better backward
+      compatibility with Dancer 1.
+      (Celogeek)
 
     [ BUG FIXES ]
     * The engine configuration is now passed down to
       Dancer::Template::Implementation::ForkedTiny (Damien Krotkine).
-    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer" file. (Celogeek)
+    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer" 
+      file. (Celogeek)
+    * Issues #125 and #126
+      Support for configuration bits for session objects, possible to change the
+      cookie name instead of the hard-coded value 'dancer.session'.
+      (Reported by David Golden, fixed by Alexis Sukrieh).
 
 1.9999_02
 
