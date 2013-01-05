@@ -173,20 +173,6 @@ has creation_time => (
     default => sub { time() },
 );
 
-=attr cookie_name 
-
-The name of the cookie to create for storing the session key
-
-Defaults to C<dancer.session>
-
-=cut
-
-has cookie_name => (
-    is => 'ro',
-    isa => Str,
-    default => sub { 'dancer.session' },
-);
-
 =method cookie
 
 Coerce the session object into a L<Dancer::Core::Cookie> object.
@@ -197,7 +183,7 @@ sub cookie {
     my ($self) = @_;
 
     my %cookie = (
-        name      => $self->cookie_name,
+        name      => $self->factory->cookie_name,
         value     => $self->id,
         secure    => $self->is_secure,
         http_only => $self->is_http_only,
