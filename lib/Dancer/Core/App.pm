@@ -352,33 +352,35 @@ sub BUILD {
 sub _init_hooks {
     my ($self) = @_;
 
-    # Hook to add the session cookie in the headers, if a session is defined
-    $self->add_hook(Dancer::Core::Hook->new(
-        name => 'core.app.before_request',
-        code => sub {
-            my $context = shift;
-
-            # make sure an engine is defined, if not, nothing to do
-            my $engine = $self->setting('session');
-            return if ! defined $engine;
-
-            # push the session in the headers
-            $context->response->push_header('Set-Cookie',
-                $context->session->cookie->to_header);
-        }
-    ));
-
     # Hook to flush the session at the end of the request, this way, we're sure we
     # flush only once per request
     $self->add_hook(
         Dancer::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
+                my $response = shift;
+
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $self->setting('session');
                 return if ! defined $engine;
+
+                # make sure we have a context to examine
                 return if ! defined $self->context;
-                $engine->flush(session => $self->context->session);
+
+                # if a session has been instantiated or we already had a
+                # session, first flush the session so cookie-based sessions can
+                # update the session ID if needed, then set the session cookie
+                # in the response
+
+                if ( $self->context->has_session
+                  || $self->context->cookie($engine->cookie_name)
+                ) {
+                  my $session = $self->context->session;
+                  $engine->flush(session => $session);
+                  $response->push_header(
+                    'Set-Cookie', $session->cookie->to_header
+                  );
+                }
             },
         )
     );

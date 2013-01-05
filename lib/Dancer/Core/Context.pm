@@ -102,6 +102,7 @@ has session => (
     isa     => Session,
     lazy    => 1,
     builder => '_build_session',
+    predicate => 1,
 );
 
 sub _build_session {
@@ -130,6 +131,5 @@ sub _build_session {
     # create the session if none retrieved
     return $session ||= $engine->create();
 }
-
 
 1;
