@@ -115,7 +115,7 @@ sub _build_session {
 
     # find the session cookie if any
     my $session_id;
-    my $session_cookie = $self->cookie('dancer.session');
+    my $session_cookie = $self->cookie($engine->cookie_name);
     if (defined $session_cookie) {
         $session_id = $session_cookie->value;
     }

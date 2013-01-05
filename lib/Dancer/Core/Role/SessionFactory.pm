@@ -53,6 +53,20 @@ has session_config => (
     default => sub { {} },
 );
 
+=attr cookie_name
+
+The name of the cookie to create for storing the session key
+
+Defaults to C<dancer.session>
+
+=cut
+
+has cookie_name => (
+    is => 'ro',
+    isa => Str,
+    default => sub { 'dancer.session' },
+);
+
 =head1 INTERFACE
 
 Following is the interface provided by this role. When specified the required
