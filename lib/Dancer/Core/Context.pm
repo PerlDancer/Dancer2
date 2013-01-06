@@ -102,7 +102,6 @@ has session => (
     isa     => Session,
     lazy    => 1,
     builder => '_build_session',
-    predicate => 1,
 );
 
 sub _build_session {
@@ -130,6 +129,23 @@ sub _build_session {
 
     # create the session if none retrieved
     return $session ||= $engine->create();
+}
+
+=method has_session
+
+Returns true if session engine has been defined and if either a session object
+has been instantiated in the context or if a session cookie was found.
+
+=cut
+
+sub has_session {
+  my ($self) = @_;
+
+  my $engine = $self->app->setting('session')
+      or return;;
+
+  return defined($self->{session})
+      || defined($self->cookie($engine->cookie_name));
 }
 
 1;
