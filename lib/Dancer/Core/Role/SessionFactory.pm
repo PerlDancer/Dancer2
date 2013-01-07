@@ -292,7 +292,7 @@ sub flush {
     return $session->id;
 }
 
-=method cookie
+=head2 cookie
 
 Coerce a session object into a L<Dancer::Core::Cookie> object.
 
@@ -325,12 +325,13 @@ sub cookie {
 }
 
 
-=method sessions
+=head2 sessions
 
 Return a list of all session IDs stored in the backend.
 Useful to create cleaning scripts, in conjunction with session's creation time.
 
-Required method : C<_sessions>
+The C<_sessions> method must be implemented.  It must return an array reference
+of session IDs (or an empty array reference).
 
 =cut
 
