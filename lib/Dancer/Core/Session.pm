@@ -162,17 +162,6 @@ has data => (
     default => sub { {} },
 );
 
-=attr creation_time
-
-A timestamp of the moment when the session was created.
-
-=cut
-
-has creation_time => (
-    is => 'ro',
-    default => sub { time() },
-);
-
 =method cookie
 
 Coerce the session object into a L<Dancer::Core::Cookie> object.
