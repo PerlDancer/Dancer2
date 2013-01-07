@@ -3,8 +3,8 @@ package Dancer::Core::Session;
 
 =head1 DESCRIPTION
 
-A session object encapsulates anything related to a specific session: it's ID,
-its data, creation timestampe...
+A session object encapsulates anything related to a specific session: its ID,
+its data, and its expiration.
 
 It is completely agnostic of how it will be stored, this is the role of
 a factory that consumes L<Dancer::Core::Role::SessionFactory> to know about that.
@@ -21,7 +21,6 @@ use warnings;
 use Moo;
 use Dancer::Core::Types;
 
-
 =attr id
 
 The identifier of the session object. Required. By default,
@@ -34,6 +33,41 @@ has id => (
     is        => 'rw',
     isa       => Str,
     required  => 1,
+);
+
+=attr data
+
+Contains the data of the session (Hash).
+
+=cut
+
+has data => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub { {} },
+);
+
+=attr expires
+
+Number of seconds for the expiry of the session cookie. Don't add the current
+timestamp to it, will be done automatically.
+
+Default is no expiry (session cookie will leave for the whole browser's
+session).
+
+For a lifetime of one hour:
+
+  expires => 3600
+
+=cut
+
+has expires => (
+    is => 'rw',
+    isa => Str,
+    coerce => sub {
+        my $value = shift;
+        $value += time;
+    },
 );
 
 =attr factory
@@ -96,42 +130,6 @@ sub delete {
     my ($self, $key, $value) = @_;
     delete $self->data->{$key};
 }
-
-=attr expires
-
-Number of seconds for the expiry of the session cookie. Don't add the current
-timestamp to it, will be done automatically. 
-
-Default is no expiry (session cookie will leave for the whole browser's
-session).
-
-For a lifetime of one hour:
-
-  expires => 3600
-
-=cut
-
-has expires => (
-    is => 'rw',
-    isa => Str,
-    coerce => sub {
-        my $value = shift;
-        $value += time;
-    },
-);
-
-
-=attr data
-
-Contains the data of the session (Hash).
-
-=cut
-
-has data => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub { {} },
-);
 
 =method destroy
 
