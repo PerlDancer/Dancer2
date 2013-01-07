@@ -154,7 +154,7 @@ sub create {
 
     $self->execute_hook('engine.session.before_create', $session);
 
-    eval { $self->_flush($session) };
+    eval { $self->_flush($session->id, $session->data) };
     croak "Unable to create a new session: $@" 
       if $@;
 
