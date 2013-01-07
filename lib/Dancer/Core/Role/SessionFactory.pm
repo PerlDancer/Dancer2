@@ -224,8 +224,10 @@ sub retrieve {
     my %args = (
         id => $id,
         factory => $self,
-        data => $data,
     );
+
+    $args{data} = $data
+      if $data and ref $data eq 'HASH';
 
     $args{expires} = $self->cookie_duration
       if $self->has_cookie_duration;
