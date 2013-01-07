@@ -37,22 +37,6 @@ sub supported_hooks {
 
 sub _build_type {'SessionFactory'} # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
-=attr session_config
-
-A HashRef that contains all config options that should be passed to the
-constructor of L<Dancer::Core::Session>.
-
-By default this Hash is empty so all default values will be taken as described
-in the L<Dancer::Core::Session> class.
-
-=cut
-
-has session_config => (
-    is => 'ro',
-    isa => HashRef,
-    default => sub { {} },
-);
-
 =attr cookie_name
 
 The name of the cookie to create for storing the session key
@@ -65,6 +49,74 @@ has cookie_name => (
     is => 'ro',
     isa => Str,
     default => sub { 'dancer.session' },
+);
+
+=attr cookie_domain
+
+The domain of the cookie to create for storing the session key.
+Defaults to the empty string and is unused as a result.
+
+=cut
+
+has cookie_domain => (
+    is => 'ro',
+    isa => Str,
+    predicate => 1,
+);
+
+=attr cookie_path
+
+The path of the cookie to create for storing the session key.
+Defaults to "/".
+
+=cut
+
+has cookie_path => (
+    is => 'ro',
+    isa => Str,
+    default => sub { "/" },
+);
+
+=attr cookie_duration
+
+Default duration before session cookie expiration.  If set, the
+L<Dancer::Core::Session> C<expires> attribute will be set to the current time
+plus this duration.
+
+=cut
+
+has cookie_duration => (
+    is => 'ro',
+    isa => Num,
+    predicate => 1,
+);
+
+=attr is_secure
+
+Boolean flag to tell if the session cookie is secure or not.
+
+Default is false.
+
+=cut
+
+has is_secure => (
+    is => 'rw',
+    isa => Bool,
+    default => sub { 0 },
+);
+
+=attr is_http_only
+
+Boolean flag to tell if the session cookie is http only.
+
+Default is true.
+
+=cut
+
+has is_http_only => (
+    is => 'rw',
+    isa => Bool,
+    default => sub { 1 },
 );
 
 =head1 INTERFACE
@@ -89,11 +141,17 @@ This method does not need to be implemented in the class.
 
 sub create {
     my ($self) = @_;
-    my $session = Dancer::Core::Session->new( 
-        %{$self->session_config},
+
+    my %args = (
         id => $self->generate_id,
         factory => $self,
     );
+
+    $args{expires} = $self->cookie_duration
+      if $self->has_cookie_duration;
+
+    my $session = Dancer::Core::Session->new(%args);
+
     $self->execute_hook('engine.session.before_create', $session);
 
     eval { $self->_flush($session) };
@@ -163,12 +221,16 @@ sub retrieve {
     croak "Unable to retrieve session with id '$id'"
       if $@;
 
-    my $session = Dancer::Core::Session->new(
-        %{$self->session_config},
+    my %args = (
         id => $id,
         factory => $self,
         data => $data,
     );
+
+    $args{expires} = $self->cookie_duration
+      if $self->has_cookie_duration;
+
+    my $session = Dancer::Core::Session->new(%args);
 
     $self->execute_hook('engine.session.after_retrieve', $session);
     return $session;
@@ -228,6 +290,38 @@ sub flush {
 
     $self->execute_hook('engine.session.after_flush', $session);
     return $session->id;
+}
+
+=method cookie
+
+Coerce a session object into a L<Dancer::Core::Cookie> object.
+
+    MySessionFactory->cookie(session => $session);
+
+=cut
+
+sub cookie {
+    my ($self, %params) = @_;
+    my $session = $params{session};
+    croak "cookie() requires a valid 'session' parameter"
+      unless ref($session) && $session->isa("Dancer::Core::Session");
+
+    my %cookie = (
+        value     => $session->id,
+        name      => $self->cookie_name,
+        path      => $self->cookie_path,
+        secure    => $self->is_secure,
+        http_only => $self->is_http_only,
+    );
+
+    $cookie{domain} = $self->cookie_domain
+      if $self->has_cookie_domain;
+
+    if (my $expires = $session->expires) {
+        $cookie{expires} = $expires;
+    }
+
+    return Dancer::Core::Cookie->new(%cookie);
 }
 
 

@@ -97,35 +97,6 @@ sub delete {
     delete $self->data->{$key};
 }
 
-=attr is_secure 
-
-Boolean flag to tell if the session cookie is secure or not.
-
-Default is false.
-
-=cut
-
-has is_secure => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 0 },
-);
-
-=attr is_http_only
-
-Boolean flag to tell if the session cookie is http only.
-
-Default is true.
-
-=cut
-
-has is_http_only => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 1 },
-);
-
-
 =attr expires
 
 Number of seconds for the expiry of the session cookie. Don't add the current
@@ -161,29 +132,6 @@ has data => (
     lazy    => 1,
     default => sub { {} },
 );
-
-=method cookie
-
-Coerce the session object into a L<Dancer::Core::Cookie> object.
-
-=cut
-
-sub cookie {
-    my ($self) = @_;
-
-    my %cookie = (
-        name      => $self->factory->cookie_name,
-        value     => $self->id,
-        secure    => $self->is_secure,
-        http_only => $self->is_http_only,
-    );
-
-    if (my $expires = $self->expires) {
-        $cookie{expires} = $expires;
-    }
-
-    return Dancer::Core::Cookie->new(%cookie);
-}
 
 =method destroy
 

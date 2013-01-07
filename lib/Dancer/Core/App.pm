@@ -376,7 +376,7 @@ sub _init_hooks {
                   my $session = $self->context->session;
                   $engine->flush(session => $session);
                   $response->push_header(
-                    'Set-Cookie', $session->cookie->to_header
+                    'Set-Cookie', $engine->cookie(session => $session)->to_header
                   );
                 }
             },
