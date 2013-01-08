@@ -1,4 +1,5 @@
 package Dancer::SessionFactory::YAML;
+
 # ABSTRACT: YAML-file-based session backend for Dancer
 
 use Moo;
@@ -17,35 +18,37 @@ Where to store the session files.
 =cut
 
 has session_dir => (
-    is => 'ro',
-    isa => Str,
+    is      => 'ro',
+    isa     => Str,
     default => sub { path('.', 'sessions') },
 );
 
 sub BUILD {
     my $self = shift;
 
-    if (! -d $self->session_dir) {
+    if (!-d $self->session_dir) {
         mkdir $self->session_dir
-          or croak "Unable to create session dir : ".$self->session_dir.' : '.$!;
+          or croak "Unable to create session dir : "
+          . $self->session_dir . ' : '
+          . $!;
     }
 }
 
 sub _sessions {
     my ($self) = @_;
     my $sessions = [];
-    
-    opendir (my $dh, $self->session_dir)
-      or croak "Unable to open directory ".$self->session_dir." : $!";
+
+    opendir(my $dh, $self->session_dir)
+      or croak "Unable to open directory " . $self->session_dir . " : $!";
 
     while (my $file = readdir($dh)) {
         next if $file eq '.' || $file eq '..';
         if ($file =~ /(\w+)\.yml/) {
-            push @{ $sessions }, $1;
+            push @{$sessions}, $1;
         }
     }
     closedir($dh);
-    
+
     return $sessions;
 }
 
@@ -71,14 +74,14 @@ sub _retrieve {
 sub _destroy {
     my ($self, $id) = @_;
     my $session_file = $self->yaml_file($id);
-    return if ! -f $session_file;
+    return if !-f $session_file;
 
-    unlink $session_file
+    unlink $session_file;
 }
 
 sub _flush {
     my ($self, $id, $data) = @_;
-    my $session_file = $self->yaml_file( $id );
+    my $session_file = $self->yaml_file($id);
 
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";

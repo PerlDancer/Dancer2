@@ -141,7 +141,7 @@ sub session {
 
     my $session = $self->context->session;
     croak "No session available, a session engine needs to be set"
-        if ! defined $session;
+      if !defined $session;
 
     # return the session object if no key
     return $session if @_ == 1;
@@ -150,7 +150,7 @@ sub session {
     return $session->read($key) if @_ == 2;
 
     # write to the session or delete if value is undef
-    if ( defined $value ) {
+    if (defined $value) {
         $session->write($key => $value);
     }
     else {
@@ -362,10 +362,10 @@ sub _init_hooks {
 
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $self->setting('session');
-                return if ! defined $engine;
+                return if !defined $engine;
 
                 # make sure we have a context to examine
-                return if ! defined $self->context;
+                return if !defined $self->context;
 
                 # if a session has been instantiated or we already had a
                 # session, first flush the session so cookie-based sessions can
@@ -373,18 +373,17 @@ sub _init_hooks {
                 # in the response
 
                 my $session;
-                if ( $self->context->has_session ) {
+                if ($self->context->has_session) {
                     $session = $self->context->session;
                     $engine->flush(session => $session);
                 }
-                elsif ( $self->context->has_destroyed_session ) {
+                elsif ($self->context->has_destroyed_session) {
                     $session = $self->context->destroyed_session;
                 }
 
-                if ( $session ) {
-                    $response->push_header(
-                        'Set-Cookie', $engine->cookie(session => $session)->to_header
-                    );
+                if ($session) {
+                    $response->push_header('Set-Cookie',
+                        $engine->cookie(session => $session)->to_header);
                 }
             },
         )

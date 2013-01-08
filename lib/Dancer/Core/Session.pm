@@ -1,4 +1,5 @@
 package Dancer::Core::Session;
+
 #ABSTRACT: class to represent any session object
 
 =head1 DESCRIPTION
@@ -30,9 +31,9 @@ guaranteed-unique string.
 =cut
 
 has id => (
-    is        => 'rw',
-    isa       => Str,
-    required  => 1,
+    is       => 'rw',
+    isa      => Str,
+    required => 1,
 );
 
 =attr data
@@ -62,8 +63,8 @@ For a lifetime of one hour:
 =cut
 
 has expires => (
-    is => 'rw',
-    isa => Str,
+    is     => 'rw',
+    isa    => Str,
     coerce => sub {
         my $value = shift;
         $value += time;
