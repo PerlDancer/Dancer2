@@ -144,7 +144,6 @@ sub create {
 
     my %args = (
         id => $self->generate_id,
-        factory => $self,
     );
 
     $args{expires} = $self->cookie_duration
@@ -223,7 +222,6 @@ sub retrieve {
 
     my %args = (
         id => $id,
-        factory => $self,
     );
 
     $args{data} = $data
