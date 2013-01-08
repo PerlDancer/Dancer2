@@ -112,10 +112,10 @@ sub _build_session {
     # Find the session engine
     my $engine = $self->app->setting('session');
     croak "No session engine defined, cannot use session."
-      if ! defined $engine;
+      if !defined $engine;
 
     # find the session cookie if any
-    if ( ! $self->destroyed_session ) {
+    if (!$self->destroyed_session) {
         my $session_id;
         my $session_cookie = $self->cookie($engine->cookie_name);
         if (defined $session_cookie) {
@@ -143,13 +143,13 @@ subsequently invalidated.
 =cut
 
 sub has_session {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my $engine = $self->app->setting('session')
+    my $engine = $self->app->setting('session')
       or return;
 
-  return $self->{session}
-    || ( $self->cookie($engine->cookie_name) && ! $self->destroyed_session );
+    return $self->{session}
+      || ($self->cookie($engine->cookie_name) && !$self->destroyed_session);
 }
 
 =attr destroyed_session
@@ -162,9 +162,9 @@ expire the cookie.
 =cut
 
 has destroyed_session => (
-  is => 'rw',
-  isa => InstanceOf['Dancer::Core::Session'],
-  predicate => 1,
+    is        => 'rw',
+    isa       => InstanceOf ['Dancer::Core::Session'],
+    predicate => 1,
 );
 
 =method destroy_session
@@ -175,25 +175,25 @@ from scratch and not from the request session cookie
 =cut
 
 sub destroy_session {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  # Find the session engine
-  my $engine = $self->app->setting('session');
-  croak "No session engine defined, cannot use session."
-    if ! defined $engine;
+    # Find the session engine
+    my $engine = $self->app->setting('session');
+    croak "No session engine defined, cannot use session."
+      if !defined $engine;
 
-  # Expire session, set the expired cookie and destroy the session
-  # Setting the cookie ensures client gets an expired cookie unless
-  # a new session is created and supercedes it
-  my $session = $self->session;
-  $session->expires( -86400 ); # yesterday
-  $engine->destroy( id => $session->id );
+    # Expire session, set the expired cookie and destroy the session
+    # Setting the cookie ensures client gets an expired cookie unless
+    # a new session is created and supercedes it
+    my $session = $self->session;
+    $session->expires(-86400);    # yesterday
+    $engine->destroy(id => $session->id);
 
-  # Clear session in context and invalidate session cookie in request
-  $self->destroyed_session($session);
-  $self->clear_session;
+    # Clear session in context and invalidate session cookie in request
+    $self->destroyed_session($session);
+    $self->clear_session;
 
-  return;
+    return;
 }
 
 1;

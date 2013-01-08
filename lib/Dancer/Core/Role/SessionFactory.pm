@@ -20,22 +20,24 @@ use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
-   qw/
-    engine.session.before_retrieve
-    engine.session.after_retrieve
+    qw/
+      engine.session.before_retrieve
+      engine.session.after_retrieve
 
-    engine.session.before_create
-    engine.session.after_create
+      engine.session.before_create
+      engine.session.after_create
 
-    engine.session.before_destroy
-    engine.session.after_destroy
+      engine.session.before_destroy
+      engine.session.after_destroy
 
-    engine.session.before_flush
-    engine.session.after_flush
-   /
+      engine.session.before_flush
+      engine.session.after_flush
+      /;
 }
 
-sub _build_type {'SessionFactory'} # XXX vs 'Session'?  Unused, so I can't tell -- xdg
+sub _build_type {
+    'SessionFactory'
+}    # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
 =attr cookie_name
 
@@ -46,9 +48,9 @@ Defaults to C<dancer.session>
 =cut
 
 has cookie_name => (
-    is => 'ro',
-    isa => Str,
-    default => sub { 'dancer.session' },
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'dancer.session'},
 );
 
 =attr cookie_domain
@@ -59,8 +61,8 @@ Defaults to the empty string and is unused as a result.
 =cut
 
 has cookie_domain => (
-    is => 'ro',
-    isa => Str,
+    is        => 'ro',
+    isa       => Str,
     predicate => 1,
 );
 
@@ -72,9 +74,9 @@ Defaults to "/".
 =cut
 
 has cookie_path => (
-    is => 'ro',
-    isa => Str,
-    default => sub { "/" },
+    is      => 'ro',
+    isa     => Str,
+    default => sub {"/"},
 );
 
 =attr cookie_duration
@@ -86,8 +88,8 @@ plus this duration.
 =cut
 
 has cookie_duration => (
-    is => 'ro',
-    isa => Num,
+    is        => 'ro',
+    isa       => Num,
     predicate => 1,
 );
 
@@ -100,9 +102,9 @@ Default is false.
 =cut
 
 has is_secure => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 0 },
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
 );
 
 =attr is_http_only
@@ -114,9 +116,9 @@ Default is true.
 =cut
 
 has is_http_only => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 1 },
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {1},
 );
 
 =head1 INTERFACE
@@ -142,9 +144,7 @@ This method does not need to be implemented in the class.
 sub create {
     my ($self) = @_;
 
-    my %args = (
-        id => $self->generate_id,
-    );
+    my %args = (id => $self->generate_id,);
 
     $args{expires} = $self->cookie_duration
       if $self->has_cookie_duration;
@@ -154,7 +154,7 @@ sub create {
     $self->execute_hook('engine.session.before_create', $session);
 
     eval { $self->_flush($session->id, $session->data) };
-    croak "Unable to create a new session: $@" 
+    croak "Unable to create a new session: $@"
       if $@;
 
     $self->execute_hook('engine.session.after_create', $session);
@@ -179,17 +179,16 @@ alternative method for session ID generation is desired.
     sub generate_id {
         my ($self) = @_;
 
-        my $seed = rand(1_000_000_000) # a random number
-                . __FILE__            # the absolute path as a secret key
-                . $COUNTER++          # impossible to have two consecutive dups
-                . time()              # impossible to have dups between seconds
-                . $$                  # the process ID as another private constant
-                . "$self"             # the instance's memory address for more entropy
-                . join('',
-                    shuffle('a'..'z',
-                          'A'..'Z',
-                            0 .. 9))   # a shuffled list of 62 chars, another random component
-                ;
+        my $seed = rand(1_000_000_000)    # a random number
+          . __FILE__                      # the absolute path as a secret key
+          . $COUNTER++    # impossible to have two consecutive dups
+          . time()        # impossible to have dups between seconds
+          . $$            # the process ID as another private constant
+          . "$self"       # the instance's memory address for more entropy
+          . join('',
+            shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9)
+          )    # a shuffled list of 62 chars, another random component
+          ;
 
         return sha1_hex($seed);
     }
@@ -220,9 +219,7 @@ sub retrieve {
     croak "Unable to retrieve session with id '$id'"
       if $@;
 
-    my %args = (
-        id => $id,
-    );
+    my %args = (id => $id,);
 
     $args{data} = $data
       if $data and ref $data eq 'HASH';

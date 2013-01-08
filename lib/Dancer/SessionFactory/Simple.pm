@@ -31,7 +31,7 @@ engine in a Dancer application.
 
 sub _sessions {
     my ($self) = @_;
-    return [ keys %{ $SESSIONS } ];
+    return [keys %{$SESSIONS}];
 }
 
 sub _retrieve {
@@ -39,7 +39,7 @@ sub _retrieve {
     my $s = $SESSIONS->{$id};
 
     croak "Invalid session ID: $id"
-      if ! defined $s;
+      if !defined $s;
 
     return $s;
 }

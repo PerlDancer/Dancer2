@@ -21,7 +21,7 @@ subtest 'session attributes' => sub {
 
 my $count = 10_000;
 subtest "$count session IDs and no dups" => sub {
-    my $seen = {};
+    my $seen      = {};
     my $iteration = 0;
     foreach my $i (1 .. $count) {
         my $s1 = $ENGINE->create;
@@ -30,7 +30,7 @@ subtest "$count session IDs and no dups" => sub {
             last;
         }
         $seen->{$id} = 1;
-            $iteration++;
+        $iteration++;
     }
 
     is $iteration, $count,
