@@ -99,7 +99,7 @@ sub format_message {
         my $char = shift;
 
         my $cb = $chars_mapping->{$char};
-        unless ($cb) {
+        if (! $cb) {
             Carp::carp "\%$char not supported.";
             return "-";
         }

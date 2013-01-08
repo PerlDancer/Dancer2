@@ -182,7 +182,7 @@ sub any {
     my $app = $self->app;
 
     if ($methods) {
-        unless (ref($methods) eq 'ARRAY') {
+        if (ref($methods) ne 'ARRAY') {
             unshift @params, $methods;
             $methods = [ qw(get post put del options patch) ];
         }
