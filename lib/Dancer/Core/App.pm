@@ -261,7 +261,7 @@ around add_hook => sub {
 around execute_hook => sub {
     my ($orig, $self) = (shift, shift);
     my ($hook, @args) = @_;
-    unless ($self->has_hook($hook)) {
+    if (! $self->has_hook($hook)) {
         foreach my $cand ($self->hook_candidates) {
             return $cand->execute_hook(@_) if $cand->has_hook($hook);
         }
