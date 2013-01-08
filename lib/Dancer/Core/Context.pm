@@ -102,6 +102,7 @@ has session => (
     isa     => Session,
     lazy    => 1,
     builder => '_build_session',
+    clearer => 1,
 );
 
 sub _build_session {
@@ -114,17 +115,19 @@ sub _build_session {
       if ! defined $engine;
 
     # find the session cookie if any
-    my $session_id;
-    my $session_cookie = $self->cookie($engine->cookie_name);
-    if (defined $session_cookie) {
-        $session_id = $session_cookie->value;
-    }
-   
-    # if we have a session cookie, try to retrieve the session
-    if (defined $session_id) {
-        eval { $session = $engine->retrieve(id => $session_id) };
-        croak "Fail to retreive session: $@" 
-          if $@ && $@ !~ /Unable to retrieve session/;
+    unless ( $self->_destroyed_session ) {
+        my $session_id;
+        my $session_cookie = $self->cookie($engine->cookie_name);
+        if (defined $session_cookie) {
+            $session_id = $session_cookie->value;
+        }
+
+        # if we have a session cookie, try to retrieve the session
+        if (defined $session_id) {
+            eval { $session = $engine->retrieve(id => $session_id) };
+            croak "Fail to retreive session: $@"
+              if $@ && $@ !~ /Unable to retrieve session/;
+        }
     }
 
     # create the session if none retrieved
@@ -134,7 +137,8 @@ sub _build_session {
 =method has_session
 
 Returns true if session engine has been defined and if either a session object
-has been instantiated in the context or if a session cookie was found.
+has been instantiated in the context or if a session cookie was found and not
+subsequently invalidated.
 
 =cut
 
@@ -142,10 +146,49 @@ sub has_session {
   my ($self) = @_;
 
   my $engine = $self->app->setting('session')
-      or return;;
+      or return;
 
-  return defined($self->{session})
-      || defined($self->cookie($engine->cookie_name));
+  return $self->{session}
+    || ( $self->cookie($engine->cookie_name) && ! $self->_destroyed_session );
+}
+
+# _destroyed_session -- we cache a destroyed session here; once this is true,
+# we must not attempt to retrieve the session from the cookie in the request.
+# If no new session is created, we send it to force cookie expiration in the browser
+
+has _destroyed_session => (
+  is => 'rw',
+  isa => sub { $_[0]->isa("Dancer::Core::Session") or die "Must be Session object" },
+  predicate => 1,
+);
+
+=method destroy_session
+
+Destroys the current session and ensures any subsquent session is created
+from scratch and not from the request session cookie
+
+=cut
+
+sub destroy_session {
+  my ($self) = @_;
+
+  # Find the session engine
+  my $engine = $self->app->setting('session');
+  croak "No session engine defined, cannot use session."
+    if ! defined $engine;
+
+  # Expire session, set the expired cookie and destroy the session
+  # Setting the cookie ensures client gets an expired cookie unless
+  # a new session is created and supercedes it
+  my $session = $self->session;
+  $session->expires( -86400 ); # yesterday
+  $engine->destroy( id => $session->id );
+
+  # Clear session in context and invalidate session cookie in request
+  $self->_destroyed_session($session);
+  $self->clear_session;
+
+  return;
 }
 
 1;
