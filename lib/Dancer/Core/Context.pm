@@ -115,7 +115,7 @@ sub _build_session {
       if ! defined $engine;
 
     # find the session cookie if any
-    unless ( $self->_destroyed_session ) {
+    if ( ! $self->_destroyed_session ) {
         my $session_id;
         my $session_cookie = $self->cookie($engine->cookie_name);
         if (defined $session_cookie) {
