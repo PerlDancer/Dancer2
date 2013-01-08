@@ -163,7 +163,7 @@ expire the cookie.
 
 has destroyed_session => (
   is => 'rw',
-  isa => sub { $_[0]->isa("Dancer::Core::Session") or die "Must be Session object" },
+  isa => InstanceOf['Dancer::Core::Session'],
   predicate => 1,
 );
 
