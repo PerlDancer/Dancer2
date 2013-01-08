@@ -167,7 +167,7 @@ sub _foreach {
 
     # Resolve the expression
     my $list = $self->_expression($stash, $expr);
-    unless ( ref $list eq 'ARRAY' ) {
+    if ( ref $list ne 'ARRAY' ) {
         return '';
     }
 
