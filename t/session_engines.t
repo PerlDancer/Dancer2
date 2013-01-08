@@ -87,6 +87,13 @@ foreach my $engine (@engines) {
             };
 
             setting appdir => $tempdir;
+            setting(engines => {
+                session => {
+                    $engine => {
+                        session_dir => 't/sessions'
+                    }
+                }
+            });
             setting(session => $engine);
 
             set(show_errors  => 1,
