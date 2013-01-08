@@ -377,8 +377,8 @@ sub _init_hooks {
                     $session = $self->context->session;
                     $engine->flush(session => $session);
                 }
-                elsif ( $self->context->_has_destroyed_session ) {
-                    $session = $self->context->_destroyed_session;
+                elsif ( $self->context->has_destroyed_session ) {
+                    $session = $self->context->destroyed_session;
                 }
 
                 if ( $session ) {

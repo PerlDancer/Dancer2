@@ -115,7 +115,7 @@ sub _build_session {
       if ! defined $engine;
 
     # find the session cookie if any
-    if ( ! $self->_destroyed_session ) {
+    if ( ! $self->destroyed_session ) {
         my $session_id;
         my $session_cookie = $self->cookie($engine->cookie_name);
         if (defined $session_cookie) {
@@ -149,14 +149,19 @@ sub has_session {
       or return;
 
   return $self->{session}
-    || ( $self->cookie($engine->cookie_name) && ! $self->_destroyed_session );
+    || ( $self->cookie($engine->cookie_name) && ! $self->destroyed_session );
 }
 
-# _destroyed_session -- we cache a destroyed session here; once this is true,
-# we must not attempt to retrieve the session from the cookie in the request.
-# If no new session is created, we send it to force cookie expiration in the browser
+=attr destroyed_session
 
-has _destroyed_session => (
+We cache a destroyed session here; once this is set we must not attempt to
+retrieve the session from the cookie in the request.  If no new session is
+created, this is set (with expiration) as a cookie to force the browser to
+expire the cookie.
+
+=cut
+
+has destroyed_session => (
   is => 'rw',
   isa => sub { $_[0]->isa("Dancer::Core::Session") or die "Must be Session object" },
   predicate => 1,
@@ -185,7 +190,7 @@ sub destroy_session {
   $engine->destroy( id => $session->id );
 
   # Clear session in context and invalidate session cookie in request
-  $self->_destroyed_session($session);
+  $self->destroyed_session($session);
   $self->clear_session;
 
   return;
