@@ -20,37 +20,105 @@ use Moo::Role;
 with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
-   qw/
-    engine.session.before_retrieve
-    engine.session.after_retrieve
+    qw/
+      engine.session.before_retrieve
+      engine.session.after_retrieve
 
-    engine.session.before_create
-    engine.session.after_create
+      engine.session.before_create
+      engine.session.after_create
 
-    engine.session.before_destroy
-    engine.session.after_destroy
+      engine.session.before_destroy
+      engine.session.after_destroy
 
-    engine.session.before_flush
-    engine.session.after_flush
-   /
+      engine.session.before_flush
+      engine.session.after_flush
+      /;
 }
 
-sub _build_type {'Session'}
+sub _build_type {
+    'SessionFactory'
+}    # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
-=attr session_config
+=attr cookie_name
 
-A HashRef that contains all config options that should be passed to the
-constructor of L<Dancer::Core::Session>.
+The name of the cookie to create for storing the session key
 
-By default this Hash is empty so all default values will be taken as described
-in the L<Dancer::Core::Session> class.
+Defaults to C<dancer.session>
 
 =cut
 
-has session_config => (
-    is => 'ro',
-    isa => HashRef,
-    default => sub { {} },
+has cookie_name => (
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'dancer.session'},
+);
+
+=attr cookie_domain
+
+The domain of the cookie to create for storing the session key.
+Defaults to the empty string and is unused as a result.
+
+=cut
+
+has cookie_domain => (
+    is        => 'ro',
+    isa       => Str,
+    predicate => 1,
+);
+
+=attr cookie_path
+
+The path of the cookie to create for storing the session key.
+Defaults to "/".
+
+=cut
+
+has cookie_path => (
+    is      => 'ro',
+    isa     => Str,
+    default => sub {"/"},
+);
+
+=attr cookie_duration
+
+Default duration before session cookie expiration.  If set, the
+L<Dancer::Core::Session> C<expires> attribute will be set to the current time
+plus this duration.
+
+=cut
+
+has cookie_duration => (
+    is        => 'ro',
+    isa       => Num,
+    predicate => 1,
+);
+
+=attr is_secure
+
+Boolean flag to tell if the session cookie is secure or not.
+
+Default is false.
+
+=cut
+
+has is_secure => (
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
+);
+
+=attr is_http_only
+
+Boolean flag to tell if the session cookie is http only.
+
+Default is true.
+
+=cut
+
+has is_http_only => (
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {1},
 );
 
 =head1 INTERFACE
@@ -75,14 +143,18 @@ This method does not need to be implemented in the class.
 
 sub create {
     my ($self) = @_;
-    my $session = Dancer::Core::Session->new( 
-        %{$self->session_config},
-        id => $self->generate_id,
-    );
+
+    my %args = (id => $self->generate_id,);
+
+    $args{expires} = $self->cookie_duration
+      if $self->has_cookie_duration;
+
+    my $session = Dancer::Core::Session->new(%args);
+
     $self->execute_hook('engine.session.before_create', $session);
 
-    eval { $self->_flush($session) };
-    croak "Unable to create a new session: $@" 
+    eval { $self->_flush($session->id, $session->data) };
+    croak "Unable to create a new session: $@"
       if $@;
 
     $self->execute_hook('engine.session.after_create', $session);
@@ -107,17 +179,16 @@ alternative method for session ID generation is desired.
     sub generate_id {
         my ($self) = @_;
 
-        my $seed = rand(1_000_000_000) # a random number
-                . __FILE__            # the absolute path as a secret key
-                . $COUNTER++          # impossible to have two consecutive dups
-                . time()              # impossible to have dups between seconds
-                . $$                  # the process ID as another private constant
-                . "$self"             # the instance's memory address for more entropy
-                . join('',
-                    shuffle('a'..'z',
-                          'A'..'Z',
-                            0 .. 9))   # a shuffled list of 62 chars, another random component
-                ;
+        my $seed = rand(1_000_000_000)    # a random number
+          . __FILE__                      # the absolute path as a secret key
+          . $COUNTER++    # impossible to have two consecutive dups
+          . time()        # impossible to have dups between seconds
+          . $$            # the process ID as another private constant
+          . "$self"       # the instance's memory address for more entropy
+          . join('',
+            shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9)
+          )    # a shuffled list of 62 chars, another random component
+          ;
 
         return sha1_hex($seed);
     }
@@ -131,7 +202,8 @@ found, triggers an exception.
 
     my $session = MySessionFactory->retrieve(id => $id);
 
-The method C<_retrieve> must be implemented.
+The method C<_retrieve> must be implemented.  It must take C<$id> as a single
+argument and must return a hash reference of session data.
 
 =cut
 
@@ -139,14 +211,23 @@ requires '_retrieve';
 
 sub retrieve {
     my ($self, %params) = @_;
-    my $session;
     my $id = $params{id};
 
     $self->execute_hook('engine.session.before_retrieve', $id);
 
-    eval { $session = $self->_retrieve($id) };
+    my $data = eval { $self->_retrieve($id) };
     croak "Unable to retrieve session with id '$id'"
       if $@;
+
+    my %args = (id => $id,);
+
+    $args{data} = $data
+      if $data and ref $data eq 'HASH';
+
+    $args{expires} = $self->cookie_duration
+      if $self->has_cookie_duration;
+
+    my $session = Dancer::Core::Session->new(%args);
 
     $self->execute_hook('engine.session.after_retrieve', $session);
     return $session;
@@ -159,7 +240,8 @@ destroyed session if succeeded, triggers an exception otherwise.
 
     MySessionFactory->destroy(id => $id);
 
-The C<_destroy> method must be implemented.
+The C<_destroy> method must be implemented. It must take C<$id> as a single
+argumenet and destroy the underlying data.
 
 =cut
 
@@ -187,7 +269,8 @@ An exception is triggered if the session is unable to be updated in the backend.
 
     MySessionFactory->flush(session => $session);
 
-The C<_flush> method must be implemented.
+The C<_flush> method must be implemented.  It must take two arguments: the C<$id>
+and a hash reference of session data.
 
 =cut
 
@@ -198,7 +281,7 @@ sub flush {
     my $session = $params{session};
     $self->execute_hook('engine.session.before_flush', $session);
 
-    eval { $self->_flush($session) };
+    eval { $self->_flush($session->id, $session->data) };
     croak "Unable to flush session: $@"
       if $@;
 
@@ -206,13 +289,46 @@ sub flush {
     return $session->id;
 }
 
+=head2 cookie
 
-=method sessions
+Coerce a session object into a L<Dancer::Core::Cookie> object.
+
+    MySessionFactory->cookie(session => $session);
+
+=cut
+
+sub cookie {
+    my ($self, %params) = @_;
+    my $session = $params{session};
+    croak "cookie() requires a valid 'session' parameter"
+      unless ref($session) && $session->isa("Dancer::Core::Session");
+
+    my %cookie = (
+        value     => $session->id,
+        name      => $self->cookie_name,
+        path      => $self->cookie_path,
+        secure    => $self->is_secure,
+        http_only => $self->is_http_only,
+    );
+
+    $cookie{domain} = $self->cookie_domain
+      if $self->has_cookie_domain;
+
+    if (my $expires = $session->expires) {
+        $cookie{expires} = $expires;
+    }
+
+    return Dancer::Core::Cookie->new(%cookie);
+}
+
+
+=head2 sessions
 
 Return a list of all session IDs stored in the backend.
 Useful to create cleaning scripts, in conjunction with session's creation time.
 
-Required method : C<_sessions>
+The C<_sessions> method must be implemented.  It must return an array reference
+of session IDs (or an empty array reference).
 
 =cut
 

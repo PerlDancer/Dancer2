@@ -1,6 +1,6 @@
 # ABSTRACT: in-memory session backend for Dancer
 
-package Dancer::Session::Simple;
+package Dancer::SessionFactory::Simple;
 use Moo;
 use Dancer::Core::Types;
 use Carp;
@@ -31,7 +31,7 @@ engine in a Dancer application.
 
 sub _sessions {
     my ($self) = @_;
-    return [ keys %{ $SESSIONS } ];
+    return [keys %{$SESSIONS}];
 }
 
 sub _retrieve {
@@ -39,19 +39,19 @@ sub _retrieve {
     my $s = $SESSIONS->{$id};
 
     croak "Invalid session ID: $id"
-      if ! defined $s;
+      if !defined $s;
 
     return $s;
 }
 
 sub _destroy {
     my ($class, $id) = @_;
-    undef $SESSIONS->{$id};
+    delete $SESSIONS->{$id};
 }
 
 sub _flush {
-    my ($class, $session) = @_;
-    $SESSIONS->{$session->id} = $session;
+    my ($class, $id, $data) = @_;
+    $SESSIONS->{$id} = $data;
 }
 
 1;

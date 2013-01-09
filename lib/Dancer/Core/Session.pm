@@ -1,10 +1,11 @@
 package Dancer::Core::Session;
+
 #ABSTRACT: class to represent any session object
 
 =head1 DESCRIPTION
 
-A session object encapsulates anything related to a specific session: it's ID,
-its data, creation timestampe...
+A session object encapsulates anything related to a specific session: its ID,
+its data, and its expiration.
 
 It is completely agnostic of how it will be stored, this is the role of
 a factory that consumes L<Dancer::Core::Role::SessionFactory> to know about that.
@@ -21,7 +22,6 @@ use warnings;
 use Moo;
 use Dancer::Core::Types;
 
-
 =attr id
 
 The identifier of the session object. Required. By default,
@@ -31,88 +31,10 @@ guaranteed-unique string.
 =cut
 
 has id => (
-    is        => 'rw',
-    isa       => Str,
-    required  => 1,
+    is       => 'rw',
+    isa      => Str,
+    required => 1,
 );
-
-=method read
-
-Reader on the session data
-
-    my $value = $session->read('something');
-
-=cut
-
-sub read {
-    my ($self, $key) = @_;
-    return $self->data->{$key};
-}
-
-
-=method write
-
-Writer on the session data
-
-=cut
-
-sub write {
-    my ($self, $key, $value) = @_;
-    $self->data->{$key} = $value;
-}
-
-=attr is_secure 
-
-Boolean flag to tell if the session cookie is secure or not.
-
-Default is false.
-
-=cut
-
-has is_secure => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 0 },
-);
-
-=attr is_http_only
-
-Boolean flag to tell if the session cookie is http only.
-
-Default is true.
-
-=cut
-
-has is_http_only => (
-    is => 'rw',
-    isa => Bool,
-    default => sub { 1 },
-);
-
-
-=attr expires
-
-Number of seconds for the expiry of the session cookie. Don't add the current
-timestamp to it, will be done automatically. 
-
-Default is no expiry (session cookie will leave for the whole browser's
-session).
-
-For a lifetime of one hour:
-
-  expires => 3600
-
-=cut
-
-has expires => (
-    is => 'rw',
-    isa => Str,
-    coerce => sub {
-        my $value = shift;
-        $value += time;
-    },
-);
-
 
 =attr data
 
@@ -126,53 +48,73 @@ has data => (
     default => sub { {} },
 );
 
-=attr creation_time
+=attr expires
 
-A timestamp of the moment when the session was created.
+Number of seconds for the expiry of the session cookie. Don't add the current
+timestamp to it, will be done automatically.
+
+Default is no expiry (session cookie will leave for the whole browser's
+session).
+
+For a lifetime of one hour:
+
+  expires => 3600
 
 =cut
 
-has creation_time => (
-    is => 'ro',
-    default => sub { time() },
+has expires => (
+    is     => 'rw',
+    isa    => Str,
+    coerce => sub {
+        my $value = shift;
+        $value += time;
+    },
 );
 
-=attr cookie_name 
+=method read
 
-The name of the cookie to create for storing the session key
+Reader on the session data
 
-Defaults to C<dancer.session>
+    my $value = $session->read('something');
 
-=cut
-
-has cookie_name => (
-    is => 'ro',
-    isa => Str,
-    default => sub { 'dancer.session' },
-);
-
-=method cookie
-
-Coerce the session object into a L<Dancer::Core::Cookie> object.
+Returns C<undef> if the key does not exist in the session.
 
 =cut
 
-sub cookie {
-    my ($self) = @_;
-
-    my %cookie = (
-        name      => $self->cookie_name,
-        value     => $self->id,
-        secure    => $self->is_secure,
-        http_only => $self->is_http_only,
-    );
-
-    if (my $expires = $self->expires) {
-        $cookie{expires} = $expires;
-    }
-
-    return Dancer::Core::Cookie->new(%cookie);
+sub read {
+    my ($self, $key) = @_;
+    return $self->data->{$key};
 }
 
+
+=method write
+
+Writer on the session data
+
+  $session->write('something', $value);
+
+Returns C<$value>.
+
+=cut
+
+sub write {
+    my ($self, $key, $value) = @_;
+    $self->data->{$key} = $value;
+}
+
+=method delete
+
+Deletes a key from session data
+
+  $session->delete('something');
+
+Returns the value deleted from the session.
+
+=cut
+
+sub delete {
+    my ($self, $key, $value) = @_;
+    delete $self->data->{$key};
+}
 
 1;

@@ -4,6 +4,10 @@
     * Dancer::Test takes a hash instead of an array for better backward
       compatibility with Dancer 1.
       (Celogeek)
+    * Session revamp: better decoupling between Session and SessionFactory,
+      support for session destruction and session values deletion. Everythin
+      regarding session settings is now configurable.
+      (David Golden).
 
     [ BUG FIXES ]
     * The engine configuration is now passed down to

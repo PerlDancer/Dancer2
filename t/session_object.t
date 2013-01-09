@@ -5,9 +5,9 @@ use warnings;
 use Test::More;
 
 use Dancer::Core::Session;
-use Dancer::Session::Simple;
+use Dancer::SessionFactory::Simple;
 
-my $ENGINE = Dancer::Session::Simple->new;
+my $ENGINE = Dancer::SessionFactory::Simple->new;
 
 subtest 'session attributes' => sub {
     my $s1 = $ENGINE->create;
@@ -17,13 +17,11 @@ subtest 'session attributes' => sub {
 
     my $s2 = $ENGINE->create;
     isnt($s1->id, $s2->id, "IDs are not the same");
-
-    ok( defined($s2->creation_time), "creation time is set");
 };
 
 my $count = 10_000;
 subtest "$count session IDs and no dups" => sub {
-    my $seen = {};
+    my $seen      = {};
     my $iteration = 0;
     foreach my $i (1 .. $count) {
         my $s1 = $ENGINE->create;
@@ -32,7 +30,7 @@ subtest "$count session IDs and no dups" => sub {
             last;
         }
         $seen->{$id} = 1;
-            $iteration++;
+        $iteration++;
     }
 
     is $iteration, $count,

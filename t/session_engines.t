@@ -41,7 +41,10 @@ foreach my $engine (@engines) {
                 $res = $ua->get("http://127.0.0.1:$port/read_session");
                 like $res->content, qr/name='$client'/,
                   "session looks good for client $client";
-                
+
+                $res = $ua->get("http://127.0.0.1:$port/clear_session");
+                like $res->content, qr/cleared/, "deleted session key";
+
                 $res = $ua->get("http://127.0.0.1:$port/cleanup");
                 ok($res->is_success, "cleanup done for $client");
 
@@ -55,7 +58,7 @@ foreach my $engine (@engines) {
             my $port = shift;
 
             use Dancer;
-            
+
             my @to_destroy;
 
             hook 'engine.session.before_destroy' => sub {
@@ -73,13 +76,24 @@ foreach my $engine (@engines) {
                 "name='$name'";
             };
 
+            get '/clear_session' => sub {
+                session name => undef;
+                return exists(session->data->{name}) ? "failed" : "cleared";
+            };
+
             get '/cleanup' => sub {
-                my $engine = engine('session');
-                $engine->destroy(id => $_) for @{ $engine->sessions };
+                context->destroy_session;
                 return scalar(@to_destroy);
             };
 
             setting appdir => $tempdir;
+            setting(engines => {
+                session => {
+                    $engine => {
+                        session_dir => 't/sessions'
+                    }
+                }
+            });
             setting(session => $engine);
 
             set(show_errors  => 1,
@@ -87,7 +101,7 @@ foreach my $engine (@engines) {
                 environment  => 'production',
                 port         => $port
             );
-           
+
             Dancer->runner->server->port($port);
             start;
         },
