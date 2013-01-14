@@ -12,6 +12,7 @@ sub write_file {
     my ($file, $content) = @_;
 
     open CONF, '>', $file or die "cannot write file $file : $!";
+    binmode CONF;
     print CONF $content;
     close CONF;
 }
