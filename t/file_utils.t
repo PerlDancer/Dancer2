@@ -3,6 +3,7 @@ use warnings;
 use Test::More tests => 11;
 use Test::Fatal;
 use File::Spec;
+BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
 use File::Temp 0.22;
 
 use Dancer::FileUtils qw/read_file_content path_or_empty path/;
