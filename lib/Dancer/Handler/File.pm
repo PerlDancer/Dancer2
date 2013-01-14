@@ -7,6 +7,7 @@ use HTTP::Date;
 use Dancer::FileUtils 'path', 'read_file_content';
 use Dancer::Core::MIME;
 use Dancer::Core::Types;
+use File::Spec;
 
 with 'Dancer::Core::Role::Handler';
 with 'Dancer::Core::Role::StandardResponses';
@@ -82,7 +83,7 @@ sub code {
             $path =~ s/^\Q$prefix\E//;
         }
 
-        my @tokens = split '/', $path;
+        my @tokens = File::Spec->splitdir(join '', (File::Spec->splitpath($path))[1,2]);
         if (grep $_ eq '..', @tokens) {
             return $self->response_403($ctx);
         }
