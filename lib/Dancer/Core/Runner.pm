@@ -35,7 +35,7 @@ The environment string. The options, in this order, are:
 =attr postponed_hooks
 
 Postponed hooks will be applied at the end, when the hookable objects are 
-instanciated, not before.
+instantiated, not before.
 
 =cut
 
