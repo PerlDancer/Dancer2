@@ -137,7 +137,7 @@ sub import {
 
     $final_args{dsl} ||= 'Dancer::Core::DSL';
 
-    # never instanciated the runner, should do it now
+    # never instantiated the runner, should do it now
     if (not defined $runner) {
         # TODO should support commandline options as well
 
