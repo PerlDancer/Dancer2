@@ -255,7 +255,7 @@ around add_hook => sub {
     my $postponed_hooks = $self->postponed_hooks;
 
     # Hmm, so the hook was not claimed, at this point we'll cache it and
-    # register it when the owner is instanciated
+    # register it when the owner is instantiated
     $postponed_hooks->{$hookable_type}{$hookable_name} ||= {};
     $postponed_hooks->{$hookable_type}{$hookable_name}{$name} ||= {};
     $postponed_hooks->{$hookable_type}{$hookable_name}{$name}{hook} = $hook;
