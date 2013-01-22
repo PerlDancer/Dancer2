@@ -8,6 +8,7 @@
       support for session destruction and session values deletion. Everythin
       regarding session settings is now configurable.
       (David Golden).
+    * Add route_exists and route_doesnt_exist in Dancer::Test (Mokko)
 
     [ BUG FIXES ]
     * The engine configuration is now passed down to
@@ -18,6 +19,9 @@
       Support for configuration bits for session objects, possible to change the
       cookie name instead of the hard-coded value 'dancer.session'.
       (Reported by David Golden, fixed by Alexis Sukrieh).
+
+    [ DOCUMENTATION ]
+    * Add more POD in Dancer::Test (Mokko)
 
 1.9999_02
 
