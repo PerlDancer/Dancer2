@@ -67,18 +67,24 @@ sub _template_name {
     return $view;
 }
 
-sub view {
+sub view_pathname {
     my ($self, $view) = @_;
 
     $view = $self->_template_name($view);
     return path($self->views, $view);
 }
 
+sub layout_pathname {
+    my ( $self, $layout ) = @_;
+
+    $layout = $self->_template_name($layout);
+    return path($self->views,'layouts', $layout);
+}
+
 sub render_layout {
     my ($self, $layout, $tokens, $content) = @_;
 
-    my $layout_name = $self->_template_name($layout);
-    my $layout_path = path($self->views, 'layouts', $layout_name);
+    my $layout_path = $self->layout_pathname($layout);
 
     # FIXME: not sure if I can "just call render"
     $self->render($layout_path, {%$tokens, content => $content});
@@ -86,7 +92,7 @@ sub render_layout {
 
 sub apply_renderer {
     my ($self, $view, $tokens) = @_;
-    $view = $self->view($view) if ! ref $view;
+    $view = $self->view_pathname($view) if ! ref $view;
     $tokens = $self->_prepare_tokens_options($tokens);
 
     $self->execute_hook('engine.template.before_render', $tokens);
