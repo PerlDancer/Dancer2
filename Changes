@@ -1,4 +1,4 @@
-{{$NEXT}}
+2.0000_01
 
     [ ENHANCEMENTS ]
     * Dancer::Test takes a hash instead of an array for better backward
