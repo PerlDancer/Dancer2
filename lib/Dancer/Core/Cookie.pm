@@ -210,6 +210,7 @@ sub _epoch_to_gmtstring {
 
 # This map is taken from Cache and Cache::Cache
 # map of expiration formats to their respective time in seconds
+#<<< no perl tidy
 my %Units = ( map(($_,             1), qw(s second seconds sec secs)),
               map(($_,            60), qw(m minute minutes min mins)),
               map(($_,         60*60), qw(h hr hour hours)),
@@ -217,6 +218,7 @@ my %Units = ( map(($_,             1), qw(s second seconds sec secs)),
               map(($_,    60*60*24*7), qw(w week weeks)),
               map(($_,   60*60*24*30), qw(M month months)),
               map(($_,  60*60*24*365), qw(y year years)) );
+#>>>
 
 # This code is taken from Time::Duration::Parse, except if it isn't
 # understood it just passes it through and it adds the current time.
