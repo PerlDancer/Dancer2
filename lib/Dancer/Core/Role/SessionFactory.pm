@@ -13,6 +13,7 @@ use warnings;
 use Carp 'croak';
 use Dancer::Core::Session;
 use Dancer::Core::Types;
+use Dancer::ModuleLoader;
 use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
@@ -122,6 +123,28 @@ has is_http_only => (
     default => sub {1},
 );
 
+# private attributes for upgrading to crypto-secure tokens
+has _cprng_available => (
+    is => 'ro',
+    isa => Bool,
+    default => sub {
+        Dancer::ModuleLoader->require("Math::Random::ISAAC::XS") &&
+        Dancer::ModuleLoader->require("Crypt::URandom")
+    },
+);
+
+has _cprng => (
+    is => 'lazy',
+    isa => InstanceOf['Math::Random::ISAAC::XS'],
+);
+
+sub _build__cprng {
+    my ($self) = @_;
+    return Math::Random::ISAAC::XS->new(
+        map { unpack("N", Crypt::URandom::urandom(4)) } 1 .. 256
+    );
+}
+
 =head1 INTERFACE
 
 Following is the interface provided by this role. When specified the required
@@ -169,8 +192,12 @@ By default, it is a 32-character, URL-safe, Base64 encoded combination
 of a 32 bit timestamp and a 160 bit SHA1 digest of random seed data.
 The timestamp ensures that session IDs are generally monotonic.
 
-(It is not guaranteed cryptographically secure, but it's still reasonably
-strong for general use.)
+The default algorithm is not guaranteed cryptographically secure, but it's
+still reasonably strong for general use.
+
+If you have installed L<Math::Random::ISAAC::XS> and L<Crypt::URandom>,
+the seed data will be generated from a cryptographically-strong
+random number generator.
 
 This method is used internally by create() to set the session ID.
 
@@ -185,18 +212,25 @@ alternative method for session ID generation is desired.
     sub generate_id {
         my ($self) = @_;
 
-        my $seed = rand(1_000_000_000)    # a random number
-          . __FILE__                      # the absolute path as a secret key
-          . $COUNTER++    # impossible to have two consecutive dups
-          . $$            # the process ID as another private constant
-          . "$self"       # the instance's memory address for more entropy
-          . join('',
-            shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9)
-          )    # a shuffled list of 62 chars, another random component
-          ;
+        my @seed;
+
+        if ( $self->_cprng_available ) {
+            # we include $$ in case the _cprng got forked with same seeds
+            @seed = ( $$, map { $self->_cprng->irand } 1 .. 4 );
+        }
+        else {
+            @seed = (rand(1_000_000_000)    # a random number
+              . __FILE__                    # the absolute path as a secret key
+              .  $COUNTER++    # impossible to have two consecutive dups
+              . $$            # the process ID as another private constant
+              . "$self"       # the instance's memory address for more entropy
+              . join('', shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9))
+                # a shuffled list of 62 chars, another random component
+            );
+        }
 
         # prepend epoch seconds so session ID is roughly monotonic
-        return encode_base64url( pack( "Na*", time, sha1($seed) ) );
+        return encode_base64url( pack( "Na*", time, sha1(@seed) ) );
     }
 }
 
