@@ -13,8 +13,9 @@ use warnings;
 use Carp 'croak';
 use Dancer::Core::Session;
 use Dancer::Core::Types;
-use Digest::SHA1 'sha1_hex';
+use Digest::SHA 'sha1';
 use List::Util 'shuffle';
+use MIME::Base64 'encode_base64url';
 
 use Moo::Role;
 with 'Dancer::Core::Role::Engine';
@@ -163,10 +164,15 @@ sub create {
 
 =head2 generate_id
 
-Returns a randomly-generated, guaranteed-unique string.  (It is not
-guaranteed cryptographically secure, but it's still reasonably
-strong for general use.)  This method is used internally by create()
-to set the session ID.
+Returns a randomly-generated, guaranteed-unique string.
+By default, it is a 32-character, URL-safe, Base64 encoded combination
+of a 32 bit timestamp and a 160 bit SHA1 digest of random seed data.
+The timestamp ensures that session IDs are generally monotonic.
+
+(It is not guaranteed cryptographically secure, but it's still reasonably
+strong for general use.)
+
+This method is used internally by create() to set the session ID.
 
 This method does not need to be implemented in the class unless an
 alternative method for session ID generation is desired.
@@ -182,7 +188,6 @@ alternative method for session ID generation is desired.
         my $seed = rand(1_000_000_000)    # a random number
           . __FILE__                      # the absolute path as a secret key
           . $COUNTER++    # impossible to have two consecutive dups
-          . time()        # impossible to have dups between seconds
           . $$            # the process ID as another private constant
           . "$self"       # the instance's memory address for more entropy
           . join('',
@@ -190,7 +195,8 @@ alternative method for session ID generation is desired.
           )    # a shuffled list of 62 chars, another random component
           ;
 
-        return sha1_hex($seed);
+        # prepend epoch seconds so session ID is roughly monotonic
+        return encode_base64url( pack( "Na*", time, sha1($seed) ) );
     }
 }
 
