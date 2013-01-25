@@ -4,12 +4,13 @@ use warnings;
 use Test::More;
 
 {
+
     package Foo;
     use Moo;
     with 'Dancer::Core::Role::Headers';
 }
 
-my $f = Foo->new(headers => ['X-Foo' => 42, 'X-Bar' => 43 ]);
+my $f = Foo->new(headers => ['X-Foo' => 42, 'X-Bar' => 43]);
 is $f->header('x-foo'), 42, "header can be read with lowercase";
 is $f->header('X-Foo'), 42, "header can be read with original name";
 

@@ -1,4 +1,5 @@
 package Dancer::Core::Role::Config;
+
 # ABSTRACT: Config role for Dancer core objects
 
 use Moo::Role;
@@ -36,9 +37,9 @@ has config_location => (
 requires '_build_config_location';
 
 has config => (
-    is => 'rw',
-    isa => HashRef,
-    lazy => 1,
+    is      => 'rw',
+    isa     => HashRef,
+    lazy    => 1,
     builder => '_build_config',
 );
 
@@ -56,8 +57,8 @@ sub setting {
     my @args = @_;
 
     return (scalar @args == 1)
-        ? $self->settings->{$args[0]}
-        : $self->_set_config_entries(@args);
+      ? $self->settings->{$args[0]}
+      : $self->_set_config_entries(@args);
 }
 
 sub has_setting {
@@ -66,9 +67,9 @@ sub has_setting {
 }
 
 has config_files => (
-    is => 'rw',
-    lazy => 1,
-    isa => ArrayRef,
+    is      => 'rw',
+    lazy    => 1,
+    isa     => ArrayRef,
     builder => '_build_config_files',
 );
 
@@ -80,22 +81,22 @@ sub _build_config_files {
     return [] unless defined $location;
 
     my $running_env = $self->environment;
-    my @exts = Config::Any->extensions;
+    my @exts        = Config::Any->extensions;
     my @files;
 
-    foreach my $ext( @exts ) {
-        foreach my $file (
-            ["config.$ext"],
-            ['environments', "$running_env.$ext"]) {
+    foreach my $ext (@exts) {
+        foreach
+          my $file (["config.$ext"], ['environments', "$running_env.$ext"])
+        {
 
             my $path = path($location, @{$file});
-            next if ! -r $path;
+            next if !-r $path;
 
             push @files, $path;
         }
     }
 
-    return [ sort @files ];
+    return [sort @files];
 }
 
 sub load_config_file {
@@ -103,11 +104,12 @@ sub load_config_file {
     my $config;
 
     eval {
-        my @files = ( $file );
-        my $tmpconfig = Config::Any->load_files({ files => \@files, use_ext => 1 })->[0];
-        ( $file, $config ) = %{ $tmpconfig };
+        my @files = ($file);
+        my $tmpconfig =
+          Config::Any->load_files({files => \@files, use_ext => 1})->[0];
+        ($file, $config) = %{$tmpconfig};
     };
-    if ( my $err = $@ || (!$config) ) {
+    if (my $err = $@ || (!$config)) {
         croak "Unable to parse the configuration file: $file: $@";
     }
 
@@ -118,12 +120,13 @@ sub load_config_file {
 sub get_postponed_hooks {
     my ($self) = @_;
     return (ref($self) eq 'Dancer::Core::App')
-        ? (
-            (defined $self->server)
-            ? $self->server->runner->postponed_hooks
-            : {}
-        )
-        : $self->can('postponed_hooks') ? $self->postponed_hooks : {} ;
+      ? (
+        (defined $self->server)
+        ? $self->server->runner->postponed_hooks
+        : {}
+      )
+      : $self->can('postponed_hooks') ? $self->postponed_hooks
+      :                                 {};
 }
 
 # private
@@ -134,20 +137,20 @@ sub _build_config {
 
     my $config = {};
     $config = $self->default_config
-        if $self->can('default_config');
+      if $self->can('default_config');
 
-    foreach my $file (@{ $self->config_files }) {
+    foreach my $file (@{$self->config_files}) {
         my $current = $self->load_config_file($file);
         $config = {%{$config}, %{$current}};
     }
 
     $config = $self->_normalize_config($config);
-    return  $self->_compile_config($config);
+    return $self->_compile_config($config);
 }
 
 sub _set_config_entries {
     my ($self, @args) = @_;
-    my $no=scalar @args;    
+    my $no = scalar @args;
     while (@args) {
         $self->_set_config_entry(shift(@args), shift(@args));
     }
@@ -189,8 +192,9 @@ my $_normalizers = {
 
         require Encode;
         my $encoding = Encode::find_encoding($charset);
-        croak "Charset defined in configuration is wrong : couldn't identify '$charset'"
-            unless defined $encoding;
+        croak
+          "Charset defined in configuration is wrong : couldn't identify '$charset'"
+          unless defined $encoding;
         my $name = $encoding->name;
 
         # Perl makes a distinction between the usual perl utf8, and the strict
@@ -203,7 +207,7 @@ my $_normalizers = {
 sub _normalize_config_entry {
     my ($self, $name, $value) = @_;
     $value = $_normalizers->{$name}->($value)
-        if exists $_normalizers->{$name};
+      if exists $_normalizers->{$name};
     return $value;
 }
 
@@ -212,7 +216,8 @@ my $_setters = {
         my ($self, $value, $config) = @_;
 
         return $value if ref($value);
-        my $engine_options = $self->_get_config_for_engine(logger => $value, $config);
+        my $engine_options =
+          $self->_get_config_for_engine(logger => $value, $config);
 
         # keep compatibility with old 'log' keyword to define log level.
         if (!exists($engine_options->{log_level}) and exists($config->{log})) {
@@ -221,7 +226,7 @@ my $_setters = {
         return Dancer::Factory::Engine->create(
             logger => $value,
             %{$engine_options},
-            app_name => $self->name,
+            app_name        => $self->name,
             postponed_hooks => $self->get_postponed_hooks
         );
     },
@@ -244,10 +249,11 @@ my $_setters = {
         my ($self, $value, $config) = @_;
         return $value if ref($value);
 
-        my $engine_options = $self->_get_config_for_engine(template => $value, $config);
+        my $engine_options =
+          $self->_get_config_for_engine(template => $value, $config);
         my $engine_attrs = {config => $engine_options};
         $engine_attrs->{layout} ||= $config->{layout};
-        $engine_attrs->{views}  ||= path( $self->config_location, 'views' );
+        $engine_attrs->{views} ||= path($self->config_location, 'views');
 
         return Dancer::Factory::Engine->create(
             template => $value,
@@ -255,6 +261,7 @@ my $_setters = {
             postponed_hooks => $self->get_postponed_hooks,
         );
     },
+
 #    route_cache => sub {
 #        my ($setting, $value) = @_;
 #        require Dancer::Route::Cache;
@@ -263,12 +270,12 @@ my $_setters = {
     serializer => sub {
         my ($self, $value, $config) = @_;
 
-        my $engine_options = $self->_get_config_for_engine(
-            serializer => $value, $config);
+        my $engine_options =
+          $self->_get_config_for_engine(serializer => $value, $config);
 
         return Dancer::Factory::Engine->create(
-            serializer => $value,
-            config => $engine_options,
+            serializer      => $value,
+            config          => $engine_options,
             postponed_hooks => $self->get_postponed_hooks,
         );
     },
@@ -302,15 +309,12 @@ sub _get_config_for_engine {
     };
     return $default_config unless defined $config->{engines};
 
-    if (! defined $config->{engines}{$engine}) {
+    if (!defined $config->{engines}{$engine}) {
         return $default_config;
     }
 
     my $engine_config = $config->{engines}{$engine}{$name} || {};
-    return {
-        %{ $default_config },
-        %{ $engine_config } ,
-    } || $default_config;
+    return {%{$default_config}, %{$engine_config},} || $default_config;
 }
 
 1;

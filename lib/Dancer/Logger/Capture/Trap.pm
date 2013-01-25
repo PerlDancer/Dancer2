@@ -5,14 +5,14 @@ use Moo;
 use Dancer::Core::Types;
 
 has storage => (
-    is => 'rw',
-    isa => ArrayRef,
+    is      => 'rw',
+    isa     => ArrayRef,
     default => sub { [] },
 );
 
 sub store {
-    my($self, $level, $message) = @_;
-    push @{$self->storage}, { level => $level, message => $message };
+    my ($self, $level, $message) = @_;
+    push @{$self->storage}, {level => $level, message => $message};
 }
 
 sub read {

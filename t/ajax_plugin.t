@@ -3,6 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 
 {
+
     package App;
     use Dancer;
     use Dancer::Plugin::Ajax;
@@ -14,21 +15,19 @@ use Test::More import => ['!pass'];
 
 use Dancer::Test apps => ['App'];
 
-my $r = dancer_response( POST => '/test',  {
-            headers => [
-                ['X-Requested-With' => 'XMLHttpRequest'],
-            ],
-        });
+my $r = dancer_response(
+    POST => '/test',
+    {headers => [['X-Requested-With' => 'XMLHttpRequest'],],}
+);
 is $r->content, "{some: 'json'}", "ajax works with POST";
 
-$r = dancer_response( GET => '/test',  {
-            headers => [
-                ['X-Requested-With' => 'XMLHttpRequest'],
-            ],
-        });
+$r = dancer_response(
+    GET => '/test',
+    {headers => [['X-Requested-With' => 'XMLHttpRequest'],],}
+);
 is $r->content, "{some: 'json'}", "ajax works with GET";
 
-$r = dancer_response( POST => '/test' );
+$r = dancer_response(POST => '/test');
 is $r->status, 404, 'ajax does not match if no XMLHttpRequest';
 
 done_testing;

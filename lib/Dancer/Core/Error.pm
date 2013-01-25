@@ -97,20 +97,19 @@ my %error_title = (
 =cut
 
 
-
 sub supported_hooks {
     qw/
-    core.error.before
-    core.error.after
-    core.error.init
-    /;
+      core.error.before
+      core.error.after
+      core.error.init
+      /;
 }
 
 =attr show_errors
 =cut
 
 has show_errors => (
-    is => 'ro',
+    is  => 'ro',
     isa => Bool,
 );
 
@@ -118,9 +117,9 @@ has show_errors => (
 =cut
 
 has charset => (
-    is => 'ro',
-    isa => Str,
-    default => sub { 'UTF-8' },
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'UTF-8'},
 );
 
 =attr type
@@ -130,9 +129,9 @@ The error type.
 =cut
 
 has type => (
-    is => 'ro',
-    isa => Str,
-    default => sub { 'Runtime Error' },
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'Runtime Error'},
 );
 
 =attr title
@@ -144,24 +143,26 @@ This is only an attribute getter, you'll have to set it at C<new>.
 =cut
 
 has title => (
-    is => 'rw',
-    isa => Str,
-    lazy => 1,
+    is      => 'rw',
+    isa     => Str,
+    lazy    => 1,
     builder => '_build_title',
 );
 
 sub _build_title {
     my ($self) = @_;
-    my $title = 'Error '.$self->status;
-    $title.= ' - ' . $error_title{$self->status} if $error_title{$self->status};
+    my $title = 'Error ' . $self->status;
+    $title .= ' - ' . $error_title{$self->status}
+      if $error_title{$self->status};
 
     return $title;
 }
 
 has template => (
     is => 'ro',
+
 #    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
-    lazy => 1,
+    lazy    => 1,
     builder => '_build_error_template',
 );
 
@@ -170,15 +171,15 @@ sub _build_error_template {
 
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
-    return $self->status 
-        if -f $self->context->app->engine('template')->view($self->status);
+    return $self->status
+      if -f $self->context->app->engine('template')->view($self->status);
 
     return undef;
 }
 
 has static_page => (
-    is => 'ro',
-    lazy => 1,
+    is      => 'ro',
+    lazy    => 1,
     builder => '_build_static_page',
 );
 
@@ -186,33 +187,33 @@ sub _build_static_page {
     my ($self) = @_;
 
     # TODO there must be a better way to get it
-    my $public_dir = $ENV{DANCER_PUBLIC} 
-                   || ( $self->has_context &&
-                       path($self->context->app->config_location, 'public') );
+    my $public_dir = $ENV{DANCER_PUBLIC}
+      || ($self->has_context
+        && path($self->context->app->config_location, 'public'));
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 
     open my $fh, $filename or return undef;
 
-    local $/ = undef;  # slurp time
+    local $/ = undef;    # slurp time
 
     return <$fh>;
 }
 
 
-sub default_error_page { 
+sub default_error_page {
     my $self = shift;
 
     require Template::Tiny;
 
-    my $opts = { 
-        title => $self->title,
+    my $opts = {
+        title   => $self->title,
         charset => $self->charset,
         content => $self->message,
         version => Dancer->VERSION,
     };
 
-    Template::Tiny->new->process( \<<"END_TEMPLATE", $opts, \my $output ); 
+    Template::Tiny->new->process(\<<"END_TEMPLATE", $opts, \my $output);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
@@ -245,9 +246,9 @@ This is only an attribute getter, you'll have to set it at C<new>.
 =cut
 
 has status => (
-    is => 'ro',
-    default => sub { 500 },
-    isa => Num,
+    is      => 'ro',
+    default => sub {500},
+    isa     => Num,
 );
 
 =attr message
@@ -257,7 +258,7 @@ The message of the error page.
 =cut
 
 has message => (
-    is => 'rw',
+    is  => 'rw',
     isa => Str,
 );
 
@@ -270,18 +271,18 @@ sub full_message {
 }
 
 has serializer => (
-    is => 'ro',
-    isa => ConsumerOf['Dancer::Core::Role::Serializer'],
+    is  => 'ro',
+    isa => ConsumerOf ['Dancer::Core::Role::Serializer'],
 );
 
 has session => (
-    is => 'ro',
-    isa => ConsumerOf['Dancer::Core::Role::Session'],
+    is  => 'ro',
+    isa => ConsumerOf ['Dancer::Core::Role::Session'],
 );
 
 has context => (
-    is => 'ro',
-    isa => InstanceOf['Dancer::Core::Context'],
+    is        => 'ro',
+    isa       => InstanceOf ['Dancer::Core::Context'],
     predicate => 1,
 );
 
@@ -291,42 +292,45 @@ sub BUILD {
 }
 
 has exception => (
-    is => 'rw',
+    is  => 'rw',
     isa => Str,
 );
 
 has response => (
-    is => 'rw',
-    lazy => 1,
-    default => sub { $_[0]->has_context 
-        ? $_[0]->context->response 
-        : Dancer::Core::Response->new 
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        $_[0]->has_context
+          ? $_[0]->context->response
+          : Dancer::Core::Response->new;
     },
 );
 
 has content_type => (
-    is => 'ro',
-    default => sub { 'text/html' },
+    is      => 'ro',
+    default => sub {'text/html'},
 );
 
 has content => (
-    is => 'ro',
-    lazy => 1,
+    is      => 'ro',
+    lazy    => 1,
     default => sub {
         my $self = shift;
 
         # we check for a template, for a static file and,
         # if all else fail, the default error page
 
-        if ( $self->has_context and $self->template ) {
-            return $self->context->app->template($self->template, {
-                title   => $self->title,
-                content => $self->message,
-                status    => $self->status,
-            });
+        if ($self->has_context and $self->template) {
+            return $self->context->app->template(
+                $self->template,
+                {   title   => $self->title,
+                    content => $self->message,
+                    status  => $self->status,
+                }
+            );
         }
 
-        if ( my $content = $self->static_page ) {
+        if (my $content = $self->static_page) {
             return $content;
         }
 
@@ -480,7 +484,7 @@ sub environment {
     my ($self) = @_;
 
     my $request = $self->has_context ? $self->context->request : 'TODO';
-    my $r_env   = {};
+    my $r_env = {};
     $r_env = $request->env if defined $request;
 
     my $env =
@@ -587,10 +591,10 @@ sub _render_html {
     # error_template defaults to something, always
     my $template_name = $self->error_template;
 
-    my $ops           = {
+    my $ops = {
         title   => $self->title,
         content => $self->message,
-        status    => $self->status,
+        status  => $self->status,
         defined $self->exception ? (exception => $self->exception) : (),
     };
     my $content = $self->template->apply_renderer($template_name, $ops);

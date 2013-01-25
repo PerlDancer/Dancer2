@@ -14,9 +14,9 @@ use Scalar::Util qw/looks_like_number blessed/;
 use Dancer ();
 use Dancer::Core::MIME;
 
-use overload 
-    '@{}' => sub { $_[0]->to_psgi },
-    '""'  => sub { $_[0] };
+use overload
+  '@{}' => sub { $_[0]->to_psgi },
+  '""'  => sub { $_[0] };
 
 with 'Dancer::Core::Role::Headers';
 
@@ -27,33 +27,33 @@ sub BUILD {
 
 # boolean to tell if the route passes or not
 has has_passed => (
-    is => 'rw',
-    isa => Bool,
-    default => sub{0},
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
 );
 
 sub pass { shift->has_passed(1) }
 
 has is_encoded => (
-    is => 'rw',
-    isa => Bool,
-    default => sub{0},
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
 );
 
 has is_halted => (
-    is => 'rw',
-    isa => Bool,
-    default => sub{0},
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
 );
 
 sub halt { shift->is_halted(1) }
 
 has status => (
-    is => 'rw',
-    isa => Num,
-    default => sub { 200 },
-    lazy => 1,
-    coerce => sub {
+    is      => 'rw',
+    isa     => Num,
+    default => sub {200},
+    lazy    => 1,
+    coerce  => sub {
         my ($status) = @_;
         return $status if looks_like_number($status);
         Dancer::HTTP->status($status);
@@ -61,22 +61,22 @@ has status => (
 );
 
 has content => (
-    is => 'rw',
-    isa => Str,
-    default => sub { '' },
-    coerce => sub {
+    is      => 'rw',
+    isa     => Str,
+    default => sub {''},
+    coerce  => sub {
         my ($value) = @_;
         $value = "$value" if ref($value);
         return $value;
     },
 
-    # This trigger makes sure we have a good content-length whenever the content
-    # changes
+   # This trigger makes sure we have a good content-length whenever the content
+   # changes
     trigger => sub {
         my ($self, $value) = @_;
 
         $self->header('Content-Length' => length($value))
-         if ! $self->has_passed;
+          if !$self->has_passed;
 
         $value;
     },
@@ -86,10 +86,10 @@ sub encode_content {
     my ($self) = @_;
     return if $self->is_encoded;
     return if $self->content_type !~ /^text/;
-            
+
     # we don't want to encode an empty string, it will break the output
-    return if ! $self->content;
-    
+    return if !$self->content;
+
     my $ct = $self->content_type;
     $self->content_type("$ct; charset=UTF-8")
       if $ct !~ /charset/;
@@ -102,11 +102,7 @@ sub encode_content {
 
 sub to_psgi {
     my ($self) = @_;
-    return [
-        $self->status,
-        $self->headers_to_array,
-        [ $self->content ],
-    ];
+    return [$self->status, $self->headers_to_array, [$self->content],];
 }
 
 # sugar for accessing the content_type header, with mimetype care
@@ -114,16 +110,17 @@ sub content_type {
     my $self = shift;
 
     if (scalar @_ > 0) {
-        my $runner = Dancer->runner;
+        my $runner   = Dancer->runner;
         my $mimetype = $runner->mime_type->name_or_type(shift);
         $self->header('Content-Type' => $mimetype);
-    } else {
+    }
+    else {
         return $self->header('Content-Type');
     }
 }
 
 has _forward => (
-    is => 'rw',
+    is  => 'rw',
     isa => HashRef,
 );
 

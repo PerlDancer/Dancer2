@@ -12,11 +12,11 @@ with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
     qw/
-    engine.template.before_render
-    engine.template.after_render
-    engine.template.before_layout_render
-    engine.template.after_layout_render
-    /
+      engine.template.before_render
+      engine.template.after_render
+      engine.template.before_layout_render
+      engine.template.after_layout_render
+      /;
 }
 
 sub _build_type {'Template'}
@@ -29,28 +29,28 @@ has name => (
     builder => 1,
 );
 
-sub _build_name { ( my $name = ref shift ) =~ s/^Dancer::Template:://; $name; }
+sub _build_name { (my $name = ref shift) =~ s/^Dancer::Template:://; $name; }
 
 has charset => (
-    is => 'ro',
-    isa => Str,
-    default => sub { 'UTF-8' },
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'UTF-8'},
 );
 
 has default_tmpl_ext => (
-    is => 'rw',
-    isa => Str,
-    default => sub { 'tt' },
+    is      => 'rw',
+    isa     => Str,
+    default => sub {'tt'},
 );
 
 has views => (
-    is => 'rw',
-    isa => Maybe[Str],
+    is  => 'rw',
+    isa => Maybe [Str],
 );
 
 has layout => (
-    is => 'rw',
-    isa => Maybe[Str],
+    is  => 'rw',
+    isa => Maybe [Str],
 );
 
 has engine => (
@@ -86,7 +86,7 @@ sub render_layout {
 
 sub apply_renderer {
     my ($self, $view, $tokens) = @_;
-    $view = $self->view($view) if ! ref $view;
+    $view = $self->view($view) if !ref $view;
     $tokens = $self->_prepare_tokens_options($tokens);
 
     $self->execute_hook('engine.template.before_render', $tokens);
@@ -104,23 +104,24 @@ sub apply_layout {
 
     $tokens = $self->_prepare_tokens_options($tokens);
 
-    # If 'layout' was given in the options hashref, use it if it's a true value,
-    # or don't use a layout if it was false (0, or undef); if layout wasn't
-    # given in the options hashref, go with whatever the current layout setting
-    # is.
+   # If 'layout' was given in the options hashref, use it if it's a true value,
+   # or don't use a layout if it was false (0, or undef); if layout wasn't
+   # given in the options hashref, go with whatever the current layout setting
+   # is.
     my $layout =
       exists $options->{layout}
       ? ($options->{layout} ? $options->{layout} : undef)
-      : ( $self->layout || $self->context->app->config->{layout} );
-      # that should only be $self->config, but the layout ain't there ???
+      : ($self->layout || $self->context->app->config->{layout});
+
+    # that should only be $self->config, but the layout ain't there ???
 
     defined $content or return;
-    defined $layout or return $content;
+    defined $layout  or return $content;
 
-    $self->execute_hook('engine.template.before_layout_render', $tokens, \$content);
+    $self->execute_hook('engine.template.before_layout_render',
+        $tokens, \$content);
 
-    my $full_content =
-      $self->render_layout($layout, $tokens, $content);
+    my $full_content = $self->render_layout($layout, $tokens, $content);
 
     $self->execute_hook('engine.template.after_layout_render', \$full_content);
 
@@ -161,11 +162,13 @@ sub process {
 
     ## FIXME - Look into PR 654 so we fix the problem here as well!
 
-    $content = $view ? $self->apply_renderer($view, $tokens)
-                     : delete $options->{content};
+    $content =
+        $view
+      ? $self->apply_renderer($view, $tokens)
+      : delete $options->{content};
 
-    defined $content and $full_content =
-      $self->apply_layout($content, $tokens, $options);
+    defined $content
+      and $full_content = $self->apply_layout($content, $tokens, $options);
 
     defined $full_content
       and return $full_content;

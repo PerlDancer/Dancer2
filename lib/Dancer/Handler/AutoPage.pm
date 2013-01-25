@@ -25,14 +25,14 @@ sub code {
         my $ctx = shift;
 
         my $template = $ctx->app->config->{template};
-        if (! defined $template) {
+        if (!defined $template) {
             $ctx->response->has_passed(1);
             return;
         }
 
-        my $page = $ctx->request->params->{'page'};
+        my $page      = $ctx->request->params->{'page'};
         my $view_path = $template->view($page);
-        if (! -f $view_path) {
+        if (!-f $view_path) {
             $ctx->response->has_passed(1);
             return;
         }
@@ -43,8 +43,8 @@ sub code {
     };
 }
 
-sub regexp { '/:page' }
+sub regexp {'/:page'}
 
-sub methods { qw(head get) }
+sub methods {qw(head get)}
 
 1;

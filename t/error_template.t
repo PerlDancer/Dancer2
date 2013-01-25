@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 
 {
+
     package PrettyError;
 
     use Dancer;
@@ -41,7 +42,7 @@ subtest "/error" => sub {
 subtest "/public" => sub {
     my $r = dancer_response GET => '/public';
 
-    is $r->status, 510, 'send_error sets the status to 510';
+    is $r->status,    510,             'send_error sets the status to 510';
     like $r->content, qr{Static page}, 'Error message looks good';
 };
 
@@ -49,15 +50,15 @@ subtest "/no_template" => sub {
     my $r = dancer_response GET => '/no_template';
 
     is $r->status, 404, 'send_error sets the status to 404';
-    like $r->content, qr{<h1>Error 404 - Not Found</h1>}, 'Error message looks good';
+    like $r->content, qr{<h1>Error 404 - Not Found</h1>},
+      'Error message looks good';
 };
 
 subtest '404 with static template' => sub {
     my $r = dancer_response GET => '/middle/of/nowhere';
 
     is $r->status, 404, 'unknown route => 404';
-    like $r->content, qr{you're lost}i,
-        'Error message looks good';
+    like $r->content, qr{you're lost}i, 'Error message looks good';
 };
 
 

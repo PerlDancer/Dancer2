@@ -1,4 +1,5 @@
 package Dancer::Template::Implementation::ForkedTiny;
+
 # ABSTRACT: Dancer own implementation of Template::Tiny
 
 use 5.00503;
@@ -9,10 +10,15 @@ no warnings;
 my $EXPR = qr/ [a-z_][\w.]* /xs;
 
 sub new {
-    my $self = bless { start_tag => '[%',
-                       end_tag => '%]', @_[1..$#_] }, $_[0];
+    my $self = bless {
+        start_tag => '[%',
+        end_tag   => '%]',
+        @_[1 .. $#_]
+      },
+      $_[0];
+
 # Opening tag including whitespace chomping rules
-my $LEFT = $self->{LEFT} = qr/
+    my $LEFT = $self->{LEFT} = qr/
     (?:
         (?: (?:^|\n) [ \t]* )? \Q$self->{start_tag}\E\-
         |
@@ -21,7 +27,7 @@ my $LEFT = $self->{LEFT} = qr/
 /xs;
 
 # Closing %] tag including whitespace chomping rules
-my $RIGHT = $self->{RIGHT}  = qr/
+    my $RIGHT = $self->{RIGHT} = qr/
     \s* (?:
         \+? \Q$self->{end_tag}\E
         |
@@ -30,7 +36,7 @@ my $RIGHT = $self->{RIGHT}  = qr/
 /xs;
 
 # Preparsing run for nesting tags
-$self->{PREPARSE} = qr/
+    $self->{PREPARSE} = qr/
     $LEFT ( IF | UNLESS | FOREACH ) \s+
         (
             (?: \S+ \s+ IN \s+ )?
@@ -52,7 +58,7 @@ $self->{PREPARSE} = qr/
     $LEFT END $RIGHT
 /xs;
 
-$self->{CONDITION} = qr/
+    $self->{CONDITION} = qr/
     \Q$self->{start_tag}\E\s
         ( ([IUF])\d+ ) \s+
         (?:
@@ -68,7 +74,7 @@ $self->{CONDITION} = qr/
     \Q$self->{start_tag}\E\s \1 \s\Q$self->{end_tag}\E
 /xs;
 
-$self;
+    $self;
 }
 
 # Copy and modify
@@ -88,23 +94,24 @@ sub process {
     local $^W = 0;
 
     # Preprocess to establish unique matching tag sets
-    $self->_preprocess( \$copy );
+    $self->_preprocess(\$copy);
 
     # Process down the nested tree of conditions
-    my $result = $self->_process( $stash, $copy );
-    if ( @_ ) {
+    my $result = $self->_process($stash, $copy);
+    if (@_) {
         ${$_[0]} = $result;
-    } elsif ( defined wantarray ) {
+    }
+    elsif (defined wantarray) {
         require Carp;
-        Carp::carp('Returning of template results is deprecated in Template::Tiny 0.11');
+        Carp::carp(
+            'Returning of template results is deprecated in Template::Tiny 0.11'
+        );
         return $result;
-    } else {
+    }
+    else {
         print $result;
     }
 }
-
-
-
 
 
 ######################################################################
@@ -167,37 +174,41 @@ sub _foreach {
 
     # Resolve the expression
     my $list = $self->_expression($stash, $expr);
-    if ( ref $list ne 'ARRAY' ) {
+    if (ref $list ne 'ARRAY') {
         return '';
     }
 
     # Iterate
-    return join '', map {
-        $self->_process( { %$stash, $term => $_ }, $text )
-    } @$list;
+    return join '',
+      map { $self->_process({%$stash, $term => $_}, $text) } @$list;
 }
 
 # Evaluates a stash expression
 sub _expression {
     my $cursor = $_[1];
-    my @path   = split /\./, $_[2];
-    foreach ( @path ) {
+    my @path = split /\./, $_[2];
+    foreach (@path) {
+
         # Support for private keys
         return undef if substr($_, 0, 1) eq '_';
 
         # Split by data type
         my $type = ref $cursor;
-        if ( $type eq 'ARRAY' ) {
+        if ($type eq 'ARRAY') {
             return '' unless /^(?:0|[0-9]\d*)\z/;
             $cursor = $cursor->[$_];
-        } elsif ( $type eq 'HASH' ) {
+        }
+        elsif ($type eq 'HASH') {
             $cursor = $cursor->{$_};
-        } elsif ( $type ) {
+        }
+        elsif ($type) {
             $cursor = $cursor->$_();
-        } else {
+        }
+        else {
             return '';
         }
     }
+
     # If the last expression is a CodeRef, execute it
     ref($cursor) eq 'CODE'
       and $cursor = $cursor->();

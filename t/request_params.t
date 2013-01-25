@@ -138,13 +138,13 @@ run_test();
 if ($Dancer::Core::Request::XS_PARSE_QUERY_STRING) {
     diag "Run test without XS_PARSE_QUERY_STRING";
     $Dancer::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer::Core::Request::_count = 0;
+    $Dancer::Core::Request::_count                = 0;
     run_test();
 }
 if ($Dancer::Core::Request::XS_URL_DECODE) {
     diag "Run test without XS_URL_DECODE";
     $Dancer::Core::Request::XS_URL_DECODE = 0;
-    $Dancer::Core::Request::_count = 0;
+    $Dancer::Core::Request::_count        = 0;
     run_test();
 }
 

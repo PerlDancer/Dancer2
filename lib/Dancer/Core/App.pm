@@ -21,9 +21,9 @@ with 'Dancer::Core::Role::Config';
 
 sub supported_hooks {
     qw/
-    core.app.before_request
-    core.app.after_request
-    /
+      core.app.before_request
+      core.app.after_request
+      /;
 }
 
 =attr plugins
@@ -31,15 +31,15 @@ sub supported_hooks {
 =cut
 
 has plugins => (
-    is => 'rw',
-    isa => ArrayRef,
+    is      => 'rw',
+    isa     => ArrayRef,
     default => sub { [] },
 );
 
 has api_version => (
-    is => 'ro',
-    isa => Num,
-    default => sub { 2 },
+    is      => 'ro',
+    isa     => Num,
+    default => sub {2},
 );
 
 =method register_plugin
@@ -49,12 +49,12 @@ has api_version => (
 sub register_plugin {
     my ($self, $plugin) = @_;
     Dancer::core_debug("Registered $plugin");
-    push @{ $self->plugins }, $plugin;
+    push @{$self->plugins}, $plugin;
 }
 
 around BUILDARGS => sub {
     my $orig = shift;
-    my ( $class, %args ) = @_;
+    my ($class, %args) = @_;
     $args{postponed_hooks} ||= {};
     return $class->$orig(%args);
 };
@@ -64,8 +64,8 @@ around BUILDARGS => sub {
 =cut
 
 has server => (
-    is => 'rw',
-    isa => ConsumerOf['Dancer::Core::Role::Server'],
+    is       => 'rw',
+    isa      => ConsumerOf ['Dancer::Core::Role::Server'],
     weak_ref => 1,
 );
 
@@ -74,8 +74,8 @@ has server => (
 =cut
 
 has location => (
-    is      => 'ro',
-    isa     => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
+    is  => 'ro',
+    isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
     default => sub { File::Spec->rel2abs('.') },
 );
 
@@ -88,8 +88,8 @@ sub _build_environment {'development'}
 =cut
 
 has runner_config => (
-    is => 'ro',
-    isa => HashRef,
+    is      => 'ro',
+    isa     => HashRef,
     default => sub { {} },
 );
 
@@ -98,9 +98,9 @@ has runner_config => (
 =cut
 
 has default_config => (
-    is => 'ro',
-    isa => HashRef,
-    lazy => 1,
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
     builder => '_build_default_config',
 );
 
@@ -108,7 +108,7 @@ sub _build_default_config {
     my ($self) = @_;
 
     return {
-        %{ $self->runner_config },
+        %{$self->runner_config},
         template => $self->api_version == 1 ? 'Simple' : 'Tiny',
         route_handlers => {
             File => {
@@ -124,7 +124,7 @@ sub _build_default_config {
 
 sub settings {
     my ($self) = @_;
-    +{ %{Dancer->runner->config}, %{$self->config} }
+    +{%{Dancer->runner->config}, %{$self->config}};
 }
 
 sub engine {
@@ -182,11 +182,11 @@ sub hook_candidates {
     for my $handler_name (keys %{$self->route_handlers}) {
         my $handler = $self->route_handlers->{$handler_name};
         push @route_handlers, $handler
-            if blessed($handler) && $handler->can('supported_hooks');
+          if blessed($handler) && $handler->can('supported_hooks');
     }
 
     # TODO : get the list of all plugins registered
-    my @plugins = @{ $self->plugins };
+    my @plugins = @{$self->plugins};
 
     (@route_handlers, @engines, @plugins);
 }
@@ -195,19 +195,16 @@ sub all_hook_aliases {
     my ($self) = @_;
 
     my $aliases = $self->hook_aliases;
-    for my $plugin (@{ $self->plugins }) {
-        $aliases = {
-            %{$aliases},
-            %{ $plugin->hook_aliases },
-        };
+    for my $plugin (@{$self->plugins}) {
+        $aliases = {%{$aliases}, %{$plugin->hook_aliases},};
     }
 
     return $aliases;
 }
 
 has postponed_hooks => (
-    is => 'ro',
-    isa => HashRef,
+    is      => 'ro',
+    isa     => HashRef,
     default => sub { {} },
 );
 
@@ -217,16 +214,16 @@ around add_hook => sub {
     my ($orig, $self) = (shift, shift);
 
     # saving caller information
-    my ($package, $file, $line) = caller(4); # deep to 4 : user's app code
-    my $add_hook_caller = [ $package, $file, $line ];
+    my ($package, $file, $line) = caller(4);    # deep to 4 : user's app code
+    my $add_hook_caller = [$package, $file, $line];
 
-    my ($hook) = @_;
-    my $name = $hook->name;
+    my ($hook)       = @_;
+    my $name         = $hook->name;
     my $hook_aliases = $self->all_hook_aliases;
 
     # look for an alias
     $name = $hook_aliases->{$name}
-        if defined $hook_aliases->{$name};
+      if defined $hook_aliases->{$name};
     $hook->name($name);
 
     # if that hook belongs to the app, register it now and return
@@ -235,13 +232,13 @@ around add_hook => sub {
     # at this point the hook name must be formated like:
     # '$type.$candidate.$name', eg: 'engine.template.before_render' or
     # 'plugin.database.before_dbi_connect'
-    my ($hookable_type, $hookable_name, $hook_name) = split (/\./, $name);
+    my ($hookable_type, $hookable_name, $hook_name) = split(/\./, $name);
 
     croak "Invalid hook name `$name'"
-        unless defined $hookable_name && defined $hook_name;
+      unless defined $hookable_name && defined $hook_name;
 
     croak "Unknown hook type `$hookable_type'"
-        if ! grep /^$hookable_type$/, qw(core engine handler plugin);
+      if !grep /^$hookable_type$/, qw(core engine handler plugin);
 
     # register the hooks for existing hookable candidates
     foreach my $hookable ($self->hook_candidates) {
@@ -259,14 +256,15 @@ around add_hook => sub {
     $postponed_hooks->{$hookable_type}{$hookable_name} ||= {};
     $postponed_hooks->{$hookable_type}{$hookable_name}{$name} ||= {};
     $postponed_hooks->{$hookable_type}{$hookable_name}{$name}{hook} = $hook;
-    $postponed_hooks->{$hookable_type}{$hookable_name}{$name}{caller} = $add_hook_caller;
+    $postponed_hooks->{$hookable_type}{$hookable_name}{$name}{caller} =
+      $add_hook_caller;
 
 };
 
 around execute_hook => sub {
     my ($orig, $self) = (shift, shift);
     my ($hook, @args) = @_;
-    if (! $self->has_hook($hook)) {
+    if (!$self->has_hook($hook)) {
         foreach my $cand ($self->hook_candidates) {
             return $cand->execute_hook(@_) if $cand->has_hook($hook);
         }
@@ -281,14 +279,15 @@ sub mime_type {
 
     if (exists($self->config->{default_mime_type})) {
         $runner->mime_type->default($self->config->{default_mime_type});
-    } else {
+    }
+    else {
         $runner->mime_type->reset_default;
     }
-    $runner->mime_type
+    $runner->mime_type;
 }
 
 sub log {
-    my $self = shift;
+    my $self  = shift;
     my $level = shift;
 
     my $logger = $self->setting('logger')
@@ -306,32 +305,29 @@ sub send_file {
     my ($self, $path, %options) = @_;
     my $env = $self->context->env;
 
-    ($options{'streaming'} && ! $env->{'psgi.streaming'}) and
-        croak "Streaming is not supported on this server.";
+    ($options{'streaming'} && !$env->{'psgi.streaming'})
+      and croak "Streaming is not supported on this server.";
 
-    (exists $options{'content_type'}) and
-        $self->context->response->header(
-            'Content-Type' => $options{content_type}
-        );
+    (exists $options{'content_type'})
+      and $self->context->response->header(
+        'Content-Type' => $options{content_type});
 
-    (exists $options{filename}) and
-        $self->context->response->header(
-            'Content-Disposition' =>
-                "attachment; filename=\"$options{filename}\""
-        );
+    (exists $options{filename})
+      and $self->context->response->header('Content-Disposition' =>
+          "attachment; filename=\"$options{filename}\"");
 
     # if we're given a SCALAR reference, we're going to send the data
     # pretending it's a file (on-the-fly file sending)
-    (ref($path) eq 'SCALAR') and
-        return $$path;
+    (ref($path) eq 'SCALAR')
+      and return $$path;
 
     my $file_handler = Dancer::Handler::File->new(
-        app => $self,
+        app             => $self,
         postponed_hooks => $self->postponed_hooks,
-        public_dir => ($options{system_path} ? File::Spec->rootdir : undef ),
+        public_dir => ($options{system_path} ? File::Spec->rootdir : undef),
     );
 
-    for my $h (keys %{ $self->route_handlers->{File}->hooks } ) {
+    for my $h (keys %{$self->route_handlers->{File}->hooks}) {
         my $hooks = $self->route_handlers->{File}->hooks->{$h};
         $file_handler->replace_hook($h, $hooks);
     }
@@ -346,14 +342,14 @@ sub send_file {
 sub BUILD {
     my ($self) = @_;
     $self->init_route_handlers();
-    $self->_init_hooks()
+    $self->_init_hooks();
 }
 
 sub _init_hooks {
     my ($self) = @_;
 
-    # Hook to flush the session at the end of the request, this way, we're sure we
-    # flush only once per request
+ # Hook to flush the session at the end of the request, this way, we're sure we
+ # flush only once per request
     $self->add_hook(
         Dancer::Core::Hook->new(
             name => 'core.app.after_request',
@@ -397,8 +393,8 @@ sub finish {
 }
 
 has route_handlers => (
-    is => 'rw',
-    isa => HashRef,
+    is      => 'rw',
+    isa     => HashRef,
     default => sub { {} },
 );
 
@@ -414,14 +410,14 @@ sub init_route_handlers {
             Handler => $handler_name,
             %$config,
             postponed_hooks => $self->postponed_hooks,
-            );
+        );
         $self->route_handlers->{$handler_name} = $handler;
     }
 }
 
 sub register_route_handlers {
     my ($self) = @_;
-    for my $handler_name (keys %{ $self->route_handlers }) {
+    for my $handler_name (keys %{$self->route_handlers}) {
         my $handler = $self->route_handlers->{$handler_name};
         $handler->register($self);
     }
@@ -432,8 +428,9 @@ sub compile_hooks {
 
     for my $position ($self->supported_hooks) {
         my $compiled_hooks = [];
-        for my $hook (@{ $self->hooks->{$position} }) {
+        for my $hook (@{$self->hooks->{$position}}) {
             my $compiled = sub {
+
                 # don't run the filter if halt has been used
                 return if $self->context->response->is_halted;
 
@@ -452,35 +449,35 @@ sub compile_hooks {
 }
 
 has name => (
-    is => 'ro',
+    is  => 'ro',
     isa => Str,
 );
 
 # holds a context whenever a request is processed
 has context => (
-    is => 'rw',
-    isa => Maybe[InstanceOf['Dancer::Core::Context']],
+    is      => 'rw',
+    isa     => Maybe [InstanceOf ['Dancer::Core::Context']],
     trigger => sub {
         my ($self, $ctx) = @_;
-        $self->_init_for_context($ctx),
+        $self->_init_for_context($ctx),;
     },
 );
 
 sub _init_for_context {
     my ($self) = @_;
 
-    return if ! defined $self->context;
-    return if ! defined $self->context->request;
+    return if !defined $self->context;
+    return if !defined $self->context->request;
 
     $self->context->request->is_behind_proxy(1)
       if $self->setting('behind_proxy');
 }
 
 has prefix => (
-    is => 'rw',
-    isa => Maybe[DancerPrefix],
+    is        => 'rw',
+    isa       => Maybe [DancerPrefix],
     predicate => 1,
-    coerce => sub {
+    coerce    => sub {
         my ($prefix) = @_;
         return undef if defined($prefix) and $prefix eq "/";
         return $prefix;
@@ -519,10 +516,10 @@ sub lexical_prefix {
     my $e = $@;
 
     # restore app prefix
-    $self->prefix( $app_prefix );
+    $self->prefix($app_prefix);
 
     croak "Unable to run the callback for prefix '$prefix': $e"
-        if $e;
+      if $e;
 }
 
 # routes registry, stored by method:
@@ -555,13 +552,11 @@ Register a new route handler.
 sub add_route {
     my ($self, %route_attrs) = @_;
 
-    my $route = Dancer::Core::Route->new(
-        %route_attrs,
-        prefix => $self->prefix,
-    );
+    my $route =
+      Dancer::Core::Route->new(%route_attrs, prefix => $self->prefix,);
 
     my $method = $route->method;
-    push @{ $self->routes->{$method} }, $route;
+    push @{$self->routes->{$method}}, $route;
 }
 
 =head2 routes_regexps_for
@@ -576,9 +571,7 @@ Returns an ArrayRef with the results.
 
 sub routes_regexps_for {
     my ($self, $method) = @_;
-    return [
-        map { $_->regexp } @{ $self->routes->{$method} }
-    ];
+    return [map { $_->regexp } @{$self->routes->{$method}}];
 }
 
 1;

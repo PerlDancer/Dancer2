@@ -12,12 +12,12 @@ register around_get => sub {
 };
 
 register install_hooks => sub {
-    hook 'before' => sub { 
+    hook 'before' => sub {
         session before_plugin => ++$counter;
     };
 };
 
-register_plugin for_versions => [ 2 ];
+register_plugin for_versions => [2];
 
 1;
 

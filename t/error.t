@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More import => [ '!pass' ];
+use Test::More import => ['!pass'];
 
 use Dancer::Core::App;
 use Dancer::Core::Context;
@@ -19,27 +19,27 @@ my $env = {
     SERVER_PORT       => 5000,
     SERVER_PROTOCOL   => 'HTTP/1.1',
     REMOTE_ADDR       => '127.0.0.1',
-    HTTP_COOKIE       => 'dancer.session=1234; fbs_102="access_token=xxxxxxxxxx%7Cffffff"',
+    HTTP_COOKIE =>
+      'dancer.session=1234; fbs_102="access_token=xxxxxxxxxx%7Cffffff"',
     X_FORWARDED_FOR => '127.0.0.2',
-    REMOTE_HOST       => 'localhost',
-    HTTP_USER_AGENT        => 'Mozilla',
-    REMOTE_USER => 'sukria',
+    REMOTE_HOST     => 'localhost',
+    HTTP_USER_AGENT => 'Mozilla',
+    REMOTE_USER     => 'sukria',
 };
 
 my $a = Dancer::Core::App->new(name => 'main');
 my $c = Dancer::Core::Context->new(env => $env, app => $a);
 
 subtest 'basic defaults of Error object' => sub {
-    my $e = Dancer::Core::Error->new(
-        context => $c,
-    );
-    is $e->status, 500, 'code';
-    is $e->title, 'Error 500 - Internal Server Error', 'title';
-    is $e->message, undef, 'message';
+    my $e = Dancer::Core::Error->new(context => $c,);
+    is $e->status,  500,                                 'code';
+    is $e->title,   'Error 500 - Internal Server Error', 'title';
+    is $e->message, undef,                               'message';
 };
 
 subtest "send_error in route" => sub {
     {
+
         package App;
         use Dancer;
 
@@ -53,11 +53,12 @@ subtest "send_error in route" => sub {
 
     is $r->status, 500, 'send_error sets the status to 500';
     like $r->content, qr{This is a custom error message},
-        'Error message looks good';
+      'Error message looks good';
 };
 
 subtest "send_error with custom stuff" => sub {
     {
+
         package App;
         use Dancer;
 
@@ -69,20 +70,20 @@ subtest "send_error with custom stuff" => sub {
 
     my $r = dancer_response GET => '/error/42';
 
-    is $r->status, 542, 'send_error sets the status to 542';
-    like $r->content, qr{Error 542},
-        'Error message looks good';
+    is $r->status,    542,           'send_error sets the status to 542';
+    like $r->content, qr{Error 542}, 'Error message looks good';
 };
 
 subtest 'Response->error()' => sub {
     my $resp = Dancer::Core::Response->new;
 
-    isa_ok $resp->error( message => 'oops', status => 418 ), 'Dancer::Core::Error';
+    isa_ok $resp->error(message => 'oops', status => 418),
+      'Dancer::Core::Error';
 
-    is   $resp->status => 418, 'response code is 418';
-    like $resp->content => qr/oops/, 'response content overriden by error';
+    is $resp->status    => 418,        'response code is 418';
+    like $resp->content => qr/oops/,   'response content overriden by error';
     like $resp->content => qr/teapot/, 'error code title is present';
-    ok   $resp->is_halted, 'response is halted';
+    ok $resp->is_halted, 'response is halted';
 };
 
 

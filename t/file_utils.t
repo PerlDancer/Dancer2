@@ -47,16 +47,12 @@ is $content[1], 'two';
 
 # returns UNDEF on non-existant path
 my $path = 'bla/blah';
-if (! -e $path) {
-    is(
-        path_or_empty($path),
-        '',
-        'path_or_empty on non-existent path',
-    );
+if (!-e $path) {
+    is(path_or_empty($path), '', 'path_or_empty on non-existent path',);
 }
 
 is(path_or_empty('/tmp'), '/tmp');
 
 #slightly tricky paths on different platforms
-is(path('/','b','/c'), '/b//c', 'path /,b,/c -> /b//c');
-is(path('/','/b',), '/b', 'path /, /b -> /b');
+is(path('/', 'b', '/c'), '/b//c', 'path /,b,/c -> /b//c');
+is(path('/', '/b',), '/b', 'path /, /b -> /b');

@@ -44,13 +44,13 @@ subtest 'plugin old syntax' => sub {
 };
 
 subtest caller_dsl => sub {
-     {
+    {
         use Dancer;
         use t::lib::Dancer1Plugin;
     }
 
     my $r = dancer_response GET => '/sitemap';
-    is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$'
+    is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$';
 };
 
 subtest 'hooks in plugins' => sub {
@@ -61,7 +61,7 @@ subtest 'hooks in plugins' => sub {
         use t::lib::Hookee;
 
         hook 'third_hook' => sub {
-            var( hook => 'third hook');
+            var(hook => 'third hook');
         };
 
         hook 'start_hookee' => sub {

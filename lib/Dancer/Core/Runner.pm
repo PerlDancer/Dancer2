@@ -169,21 +169,25 @@ sub _build_location {
     my $location = Dancer::FileUtils::dirname($script);
 
     #we try to find bin and lib
-    my $subdir = $location;
+    my $subdir       = $location;
     my $subdir_found = 0;
+
     #maximum of 10 iterations, to prevent infinite loop
-    for(1..10) {
-       #try to find libdir and bindir to determine the root of dancer app
-       my $libdir = Dancer::FileUtils::path($subdir, 'lib'); 
-       my $bindir = Dancer::FileUtils::path($subdir, 'bin'); 
-       #try to find .dancer_app file to determine the root of dancer app
-       my $dancerdir = Dancer::FileUtils::path($subdir, '.dancer'); 
-       # if one of them is found, keep that
-       if ((-d $libdir && -d $bindir) || (-f $dancerdir)) {
-           $subdir_found = 1;
-           last;
-       }
-       $subdir = Dancer::FileUtils::path($subdir, '..');
+    for (1 .. 10) {
+
+        #try to find libdir and bindir to determine the root of dancer app
+        my $libdir = Dancer::FileUtils::path($subdir, 'lib');
+        my $bindir = Dancer::FileUtils::path($subdir, 'bin');
+
+        #try to find .dancer_app file to determine the root of dancer app
+        my $dancerdir = Dancer::FileUtils::path($subdir, '.dancer');
+
+        # if one of them is found, keep that
+        if ((-d $libdir && -d $bindir) || (-f $dancerdir)) {
+            $subdir_found = 1;
+            last;
+        }
+        $subdir = Dancer::FileUtils::path($subdir, '..');
     }
 
     $self->location($subdir_found ? $subdir : $location);

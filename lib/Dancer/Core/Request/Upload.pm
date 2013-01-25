@@ -1,4 +1,5 @@
 package Dancer::Core::Request::Upload;
+
 # ABSTRACT: Class representing file upload requests
 use Moo;
 use Dancer::Core::Types;
@@ -25,7 +26,7 @@ Returns the filename (full path) as sent by the client.
 =cut
 
 has filename => (
-    is => 'rw',
+    is  => 'rw',
     isa => Str,
 );
 
@@ -43,7 +44,7 @@ For example, in directory /tmp, and given a random name, with no file extension.
 
 
 has tempname => (
-    is => 'rw',
+    is  => 'rw',
     isa => Str,
 );
 
@@ -58,7 +59,7 @@ Returns a hashRef of the headers associated with this upload.
 =cut
 
 has headers => (
-    is => 'rw',
+    is  => 'rw',
     isa => HashRef,
 );
 
@@ -69,7 +70,7 @@ The size of the upload, in bytes. Optional.
 =cut
 
 has size => (
-    is => 'rw',
+    is  => 'rw',
     isa => Num,
 );
 

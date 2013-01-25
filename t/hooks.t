@@ -10,17 +10,17 @@ eval { require Template; Template->import(); 1 }
 
 
 my @hooks = qw(
-    before_request
-    after_request
+  before_request
+  after_request
 
-    before_template_render
-    after_template_render
+  before_template_render
+  after_template_render
 
-    before_file_render
-    after_file_render
+  before_file_render
+  after_file_render
 
-    before_serializer
-    after_serializer
+  before_serializer
+  after_serializer
 );
 
 my $tests_flags = {};
@@ -37,7 +37,7 @@ my $tests_flags = {};
 
     # we set the engines after the hook, and that should work
     # thanks to the postponed hooks system
-    set template => 'template_toolkit';
+    set template   => 'template_toolkit';
     set serializer => 'JSON';
 
     get '/send_file' => sub {
@@ -45,7 +45,7 @@ my $tests_flags = {};
     };
 
     get '/' => sub {
-        "ok"
+        "ok";
     };
 
     get '/template' => sub {
@@ -58,19 +58,19 @@ my $tests_flags = {};
     };
 
     get '/json' => sub {
-        [ foo => 42 ]
+        [foo => 42];
     };
 
-    get '/intercepted' => sub { 'not intercepted' };
+    get '/intercepted' => sub {'not intercepted'};
 
     hook before => sub {
         my $c = shift;
         return unless $c->request->path eq '/intercepted';
 
-        $c->response->content( 'halted by before' );
+        $c->response->content('halted by before');
         $c->response->halt;
     };
-    
+
     # make sure we compile all the apps without starting a webserver
     main->dancer_app->finish;
 }
@@ -79,9 +79,9 @@ use Dancer::Test;
 
 subtest 'request hooks' => sub {
     my $r = dancer_response get => '/';
-    is $tests_flags->{before_request}, 1, "before_request was called";
-    is $tests_flags->{before_serializer}, undef, "before_serializer undef";
-    is $tests_flags->{after_serializer}, undef, "after_serializer undef";
+    is $tests_flags->{before_request},     1,     "before_request was called";
+    is $tests_flags->{before_serializer},  undef, "before_serializer undef";
+    is $tests_flags->{after_serializer},   undef, "after_serializer undef";
     is $tests_flags->{before_file_render}, undef, "before_file_render undef";
 };
 
@@ -107,13 +107,15 @@ subtest 'file render hooks' => sub {
 
 subtest 'template render hook' => sub {
     my $resp = dancer_response get => '/template';
-    is $tests_flags->{before_template_render}, 1, "before_template_render was called";
-    is $tests_flags->{after_template_render},  1, "after_template_render was called";
+    is $tests_flags->{before_template_render}, 1,
+      "before_template_render was called";
+    is $tests_flags->{after_template_render}, 1,
+      "after_template_render was called";
 };
 
 subtest 'before can halt' => sub {
     my $resp = dancer_response get => '/intercepted';
-    is join( "\n", @{$resp->[2]} ) => 'halted by before';
+    is join("\n", @{$resp->[2]}) => 'halted by before';
 };
 
 done_testing;

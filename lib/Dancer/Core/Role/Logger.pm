@@ -9,9 +9,9 @@ with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
     qw(
-    engine.logger.before
-    engine.logger.after
-    )
+      engine.logger.before
+      engine.logger.after
+    );
 }
 
 sub _build_type {'Logger'}
@@ -23,23 +23,24 @@ sub _build_type {'Logger'}
 requires 'log';
 
 has auto_encoding_charset => (
-    is => 'ro',
+    is  => 'ro',
     isa => Str,
 );
 
 has app_name => (
-    is => 'ro',
+    is  => 'ro',
     isa => Str,
 );
 
 
 has log_format => (
-    is => 'rw',
-    isa => Str,
-    default => sub { '[%a:%P] %L @%T> %m in %f l. %l' },
+    is      => 'rw',
+    isa     => Str,
+    default => sub {'[%a:%P] %L @%T> %m in %f l. %l'},
 );
 
 my $_levels = {
+
     # levels < 0 are for core only
     core => -10,
 
@@ -51,9 +52,11 @@ my $_levels = {
 };
 
 has log_level => (
-    is => 'rw',
-    isa => sub { grep { /$_[0]/} keys %{$_levels} },
-    default => sub { 'debug' },
+    is  => 'rw',
+    isa => sub {
+        grep {/$_[0]/} keys %{$_levels};
+    },
+    default => sub {'debug'},
 );
 
 sub _should {
@@ -68,14 +71,14 @@ sub format_message {
 
     $level = sprintf('%5s', $level);
     $message = Encode::encode($self->auto_encoding_charset, $message)
-        if $self->auto_encoding_charset;
+      if $self->auto_encoding_charset;
 
     my @stack = caller(2);
 
     my $block_handler = sub {
-        my ( $block, $type ) = @_;
-        if ( $type eq 't' ) {
-            return "[" . strftime( $block, localtime(time) ) . "]";
+        my ($block, $type) = @_;
+        if ($type eq 't') {
+            return "[" . strftime($block, localtime(time)) . "]";
         }
         else {
             Carp::carp("{$block}$type not supported");
@@ -85,12 +88,14 @@ sub format_message {
 
     my $chars_mapping = {
         a => sub { $self->app_name },
-        t => sub { Encode::decode(setting('charset'),
-                                  POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) )) },
-        T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time)  ) },
-        P => sub { $$ },
-        L => sub { $level },
-        m => sub { $message },
+        t => sub {
+            Encode::decode(setting('charset'),
+                POSIX::strftime("%d/%b/%Y %H:%M:%S", localtime(time)));
+        },
+        T => sub { POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time)) },
+        P => sub {$$},
+        L => sub {$level},
+        m => sub {$message},
         f => sub { $stack[1] || '-' },
         l => sub { $stack[2] || '-' },
     };
@@ -99,7 +104,7 @@ sub format_message {
         my $char = shift;
 
         my $cb = $chars_mapping->{$char};
-        if (! $cb) {
+        if (!$cb) {
             Carp::carp "\%$char not supported.";
             return "-";
         }
@@ -115,7 +120,7 @@ sub format_message {
         )
     / $1 ? $block_handler->($1, $2) : $char_mapping->($3) /egx;
 
-    return $fmt."\n";
+    return $fmt . "\n";
 }
 
 sub core    { $_[0]->_should('core')    and $_[0]->log('core',    $_[1]) }

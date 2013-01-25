@@ -17,7 +17,6 @@ Turn Perl data structures into L<Data::Dumper> output and vice-versa.
 =cut
 
 
-
 # helpers
 sub from_dumper {
     my $s = Dancer::Serializer::Dumper->new;
@@ -37,8 +36,9 @@ sub loaded {1}
 Serialize a Perl data structure into a Dumper string.
 
 =cut 
+
 sub serialize {
-    my ( $self, $entity ) = @_;
+    my ($self, $entity) = @_;
 
     {
         local $Data::Dumper::Purity = 1;
@@ -53,7 +53,7 @@ Deserialize a Dumper string into a Perl data structure
 =cut
 
 sub deserialize {
-    my ( $self, $content ) = @_;
+    my ($self, $content) = @_;
 
     my $res = eval "my \$VAR1; $content";
     croak "unable to deserialize : $@" if $@;
@@ -65,6 +65,7 @@ sub deserialize {
 Return 'text/x-data-dumper'
 
 =cut
+
 sub content_type {'text/x-data-dumper'}
 
 1;

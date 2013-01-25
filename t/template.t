@@ -11,53 +11,61 @@ eval { require Template; Template->import(); 1 }
 
 use_ok('Dancer::Template::TemplateToolkit');
 
-my $views = File::Spec->rel2abs(
-    File::Spec->catfile(dirname(__FILE__), 'views'));
+my $views =
+  File::Spec->rel2abs(File::Spec->catfile(dirname(__FILE__), 'views'));
 
 my $tt = Dancer::Template::TemplateToolkit->new(
-    views => $views,
+    views  => $views,
     layout => 'main.tt',
 );
 
 isa_ok $tt, 'Dancer::Template::TemplateToolkit';
 ok $tt->does('Dancer::Core::Role::Template');
 
-$tt->add_hook(Dancer::Core::Hook->new(
-    name => 'engine.template.before_render',
-    code => sub {
-        my $tokens = shift;
-        $tokens->{before_template_render} = 1;
-    },
-));
+$tt->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'engine.template.before_render',
+        code => sub {
+            my $tokens = shift;
+            $tokens->{before_template_render} = 1;
+        },
+    )
+);
 
-$tt->add_hook(Dancer::Core::Hook->new(
-    name => 'engine.template.before_layout_render',
-    code => sub {
-        my $tokens = shift;
-        my $content = shift;
+$tt->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'engine.template.before_layout_render',
+        code => sub {
+            my $tokens  = shift;
+            my $content = shift;
 
-        $tokens->{before_layout_render} = 1;
-        $$content .= "\ncontent added in before_layout_render";
-    },
-));
+            $tokens->{before_layout_render} = 1;
+            $$content .= "\ncontent added in before_layout_render";
+        },
+    )
+);
 
-$tt->add_hook(Dancer::Core::Hook->new(
-    name => 'engine.template.after_layout_render',
-    code => sub {
-        my $content = shift;
-        $$content .= "\ncontent added in after_layout_render";
-    },
-));
+$tt->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'engine.template.after_layout_render',
+        code => sub {
+            my $content = shift;
+            $$content .= "\ncontent added in after_layout_render";
+        },
+    )
+);
 
-$tt->add_hook(Dancer::Core::Hook->new(
-    name => 'engine.template.after_render',
-    code => sub {
-        my $content = shift;
-        $$content .= 'content added in after_template_render';
-    },
-));
+$tt->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'engine.template.after_render',
+        code => sub {
+            my $content = shift;
+            $$content .= 'content added in after_template_render';
+        },
+    )
+);
 
-my $result = $tt->process('index.tt', { var => 42 });
+my $result = $tt->process('index.tt', {var => 42});
 is $result, 'layout top
 var = 42
 before_layout_render = 1

@@ -38,8 +38,8 @@ B<Required>.
 =cut
 
 has host => (
-    is => 'rw',
-    isa => Str,
+    is       => 'rw',
+    isa      => Str,
     required => 1,
 );
 
@@ -52,8 +52,8 @@ B<Required>.
 =cut
 
 has port => (
-    is => 'rw',
-    isa => Num,
+    is       => 'rw',
+    isa      => Num,
     required => 1,
 );
 
@@ -64,7 +64,7 @@ Boolean for whether the server should daemonize.
 =cut
 
 has is_daemon => (
-    is => 'rw',
+    is  => 'rw',
     isa => Bool,
 );
 
@@ -75,15 +75,15 @@ An arrayref to hold Dancer applications.
 =cut
 
 has apps => (
-    is => 'ro',
-    isa => ArrayRef,
+    is      => 'ro',
+    isa     => ArrayRef,
     default => sub { [] },
 );
 
 has runner => (
-    is => 'ro',
+    is       => 'ro',
     required => 1,
-    isa => InstanceOf['Dancer::Core::Runner'],
+    isa      => InstanceOf ['Dancer::Core::Runner'],
     weak_ref => 1,
 );
 
@@ -97,9 +97,9 @@ It has a lazy builder that creates a new dispatcher with the server's apps.
 =cut
 
 has dispatcher => (
-    is => 'rw',
-    isa => InstanceOf['Dancer::Core::Dispatcher'],
-    lazy => 1,
+    is      => 'rw',
+    isa     => InstanceOf ['Dancer::Core::Dispatcher'],
+    lazy    => 1,
     builder => '_build_dispatcher',
 );
 
@@ -108,7 +108,7 @@ requires '_build_name';
 sub _build_dispatcher {
     my ($self) = @_;
     my $d = Dancer::Core::Dispatcher->new();
-    $d->apps( $self->apps );
+    $d->apps($self->apps);
     return $d;
 }
 
@@ -131,9 +131,7 @@ sub psgi_app {
         my ($env) = @_;
         my $app;
 
-        eval {
-            $app = $self->dispatcher->dispatch($env)->to_psgi;
-        };
+        eval { $app = $self->dispatcher->dispatch($env)->to_psgi; };
 
         if ($@) {
             return [
@@ -154,12 +152,10 @@ Adds another application to the C<apps> attribute (see above).
 
 sub register_application {
     my ($self, $app) = @_;
-    push @{ $self->apps }, $app;
+    push @{$self->apps}, $app;
     $app->server($self);
-    $app->server->runner->postponed_hooks({
-        %{ $app->server->runner->postponed_hooks },
-        %{ $app->postponed_hooks }
-    });
+    $app->server->runner->postponed_hooks(
+        {%{$app->server->runner->postponed_hooks}, %{$app->postponed_hooks}});
 }
 
 1;

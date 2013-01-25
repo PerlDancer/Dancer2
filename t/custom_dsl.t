@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More import => [ '!pass' ];
+use Test::More import => ['!pass'];
 
 use FindBin qw($Bin);
 use lib "$Bin/t/lib";
@@ -8,11 +8,11 @@ use Dancer dsl => 'MyDancerDSL';
 use Dancer::Test;
 
 
-envoie '/'  => sub {
+envoie '/' => sub {
     request->method;
 };
 
-prend '/'  => sub {
+prend '/' => sub {
     request->method;
 };
 

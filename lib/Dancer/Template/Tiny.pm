@@ -1,4 +1,5 @@
 package Dancer::Template::Tiny;
+
 # ABSTRACT: Template::Tiny engine for Dancer
 
 use strict;
@@ -52,11 +53,12 @@ even though L<Template::Tiny> doesn't really support it. :)
 
 =cut
 
-has '+engine' => (
-    isa => InstanceOf['Dancer::Template::Implementation::ForkedTiny'],
-);
+has '+engine' =>
+  (isa => InstanceOf ['Dancer::Template::Implementation::ForkedTiny'],);
 
-sub _build_engine { Dancer::Template::Implementation::ForkedTiny->new(%{$_[0]->config}) }
+sub _build_engine {
+    Dancer::Template::Implementation::ForkedTiny->new(%{$_[0]->config});
+}
 
 =method render
 
@@ -66,22 +68,20 @@ the template.
 =cut
 
 sub render {
-    my ( $self, $template, $tokens ) = @_;
+    my ($self, $template, $tokens) = @_;
 
-    ( ref $template || -f $template )
-        or die "$template is not a regular file or reference";
+    (ref $template || -f $template)
+      or die "$template is not a regular file or reference";
 
-    my $template_data = ref $template    ?
-                            ${$template} :
-                            read_file_content($template);
+    my $template_data =
+      ref $template
+      ? ${$template}
+      : read_file_content($template);
 
     my $content;
 
-    $self->engine->process(
-        \$template_data,
-        $tokens,
-        \$content,
-    ) or die "Could not process template file '$template'";
+    $self->engine->process(\$template_data, $tokens, \$content,)
+      or die "Could not process template file '$template'";
 
     return $content;
 }
