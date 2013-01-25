@@ -93,6 +93,20 @@ has cookie_duration => (
     predicate => 1,
 );
 
+=attr session_duration
+
+Duration in seconds before sessions should expire, regardless of cookie
+expiration.  If set, then SessionFactories should use this to enforce a limit
+on session validity.
+
+=cut
+
+has session_duration => (
+    is        => 'ro',
+    isa       => Num,
+    predicate => 1,
+);
+
 =attr is_secure
 
 Boolean flag to tell if the session cookie is secure or not.
