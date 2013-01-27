@@ -372,18 +372,18 @@ sub _init_hooks {
                 # update the session ID if needed, then set the session cookie
                 # in the response
 
-                my $session;
                 if ($self->context->has_session) {
-                    $session = $self->context->session;
+                    my $session = $self->context->session;
                     $engine->flush(session => $session);
+                    $engine->set_cookie_header(
+                        response => $response, session => $session
+                    );
                 }
                 elsif ($self->context->has_destroyed_session) {
-                    $session = $self->context->destroyed_session;
-                }
-
-                if ($session) {
-                    $response->push_header('Set-Cookie',
-                        $engine->cookie(session => $session)->to_header);
+                    my $session = $self->context->destroyed_session;
+                    $engine->set_cookie_header(
+                        response => $response, session => $session, destroyed => 1
+                    );
                 }
             },
         )

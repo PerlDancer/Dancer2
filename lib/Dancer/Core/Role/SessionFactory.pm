@@ -289,6 +289,34 @@ sub flush {
     return $session->id;
 }
 
+=head2 set_cookie_header
+
+Sets the session cookie into the response object
+
+    MySessionFactory->set_cookie_header(
+        response  => $response,
+        session   => $session,
+        destroyed => undef,
+    );
+
+The C<response> parameter contains a L<Dancer::Core::Response> object.
+The C<session> parameter contains a L<Dancer::Core::Session> object.
+
+The C<destroyed> parameter is optional.  If true, it indicates the
+session was marked destroyed by the request context.  The default
+C<set_cookie_header> method doesn't need that information, but it is
+included in case a SessionFactory must handle destroyed sessions
+differently (such as signalling to middleware).
+
+=cut
+
+sub set_cookie_header {
+    my ($self, %params) = @_;
+    $params{response}->push_header(
+        'Set-Cookie', $self->cookie(session => $params{session})->to_header
+    );
+}
+
 =head2 cookie
 
 Coerce a session object into a L<Dancer::Core::Cookie> object.
