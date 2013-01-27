@@ -4,92 +4,25 @@ package Dancer::SessionFactory::YAML;
 
 use Moo;
 use Dancer::Core::Types;
-use Carp;
-use Fcntl ':flock';
-use Dancer::FileUtils qw(path set_file_mode);
 use YAML::Any;
 
-with 'Dancer::Core::Role::SessionFactory';
-
-=attr session_dir
-
-Where to store the session files.
-
-=cut
-
-has session_dir => (
+has _suffix => (
     is      => 'ro',
     isa     => Str,
-    default => sub { path('.', 'sessions') },
+    default => sub { '.yml' },
 );
 
-sub BUILD {
-    my $self = shift;
+with 'Dancer::Core::Role::SessionFactory::File';
 
-    if (!-d $self->session_dir) {
-        mkdir $self->session_dir
-          or croak "Unable to create session dir : "
-          . $self->session_dir . ' : '
-          . $!;
-    }
-}
-
-sub _sessions {
-    my ($self) = @_;
-    my $sessions = [];
-
-    opendir(my $dh, $self->session_dir)
-      or croak "Unable to open directory " . $self->session_dir . " : $!";
-
-    while (my $file = readdir($dh)) {
-        next if $file eq '.' || $file eq '..';
-        if ($file =~ /(\w+)\.yml/) {
-            push @{$sessions}, $1;
-        }
-    }
-    closedir($dh);
-
-    return $sessions;
-}
-
-sub yaml_file {
-    my ($self, $id) = @_;
-    return path($self->session_dir, "$id.yml");
-}
-
-sub _retrieve {
-    my ($self, $id) = @_;
-    my $session_file = $self->yaml_file($id);
-
-    return unless -f $session_file;
-
-    open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
-    flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    my $data = YAML::Any::LoadFile($fh);
-    close $fh or die "Can't close '$session_file': $!\n";
-
-    return $data;
-}
-
-sub _destroy {
-    my ($self, $id) = @_;
-    my $session_file = $self->yaml_file($id);
-    return if !-f $session_file;
-
-    unlink $session_file;
-}
-
-sub _flush {
-    my ($self, $id, $data) = @_;
-    my $session_file = $self->yaml_file($id);
-
-    open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
-    flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    set_file_mode($fh);
+sub _freeze_to_handle {
+    my ($self, $fh, $data) = @_;
     print {$fh} YAML::Any::Dump($data);
-    close $fh or die "Can't close '$session_file': $!\n";
+    return;
+}
 
-    return $data;
+sub _thaw_from_handle {
+    my ($self, $fh) = @_;
+    return YAML::Any::LoadFile($fh);
 }
 
 1;
@@ -120,8 +53,11 @@ Here is an example configuration that use this session engine and stores session
 files in /tmp/dancer-sessions
 
     session: "YAML"
-    session_dir: "/tmp/dancer-sessions"
 
+    engines:
+      session:
+        YAML:
+          session_dir: "/tmp/dancer-sessions"
 
 =head1 DEPENDENCY
 
