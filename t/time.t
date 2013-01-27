@@ -14,10 +14,14 @@ use Dancer::Core::Time;
 my @tests = (
     ["1h" => 3600 => "Sun, 16-Dec-2012 17:44:04 GMT"],
     ["1 hour" => 3600 => "Sun, 16-Dec-2012 17:44:04 GMT"],
+    ["+1 hour" => 3600 => "Sun, 16-Dec-2012 17:44:04 GMT"],
+    ["-1h" => -3600 => "Sun, 16-Dec-2012 15:44:04 GMT"],
     ["1 hours" => 3600 => "Sun, 16-Dec-2012 17:44:04 GMT"],
 
     ["1d" => (3600 * 24) => "Mon, 17-Dec-2012 16:44:04 GMT" ],
     ["1 day" => (3600 * 24) => "Mon, 17-Dec-2012 16:44:04 GMT" ],
+    
+
 );
 
 foreach my $test (@tests) {
@@ -38,4 +42,18 @@ subtest "Forcing another epoch in the object should work" => sub {
     is $t->gmt_string, 'Thu, 01-Jan-1970 00:00:01 GMT', 
         "... and is expressed as Thu, 01-Jan-1970 00:00:01 GMT";
 };
+
+subtest "unparsable strings should be kept" => sub {
+    for my $t (
+    [ "something silly", "something silly", "something silly" ],
+    ["+2 something", "+2 something", "+2 something" ],
+    ) {
+        my ($expr, $secs, $gmt) = @$t;
+        my $t = Dancer::Core::Time->new(expression => $expr);
+        is $t->seconds, $secs, "\"$expr\" is $secs seconds";
+        is $t->epoch, $expr, "... its epoch is $expr";
+        is $t->gmt_string, $gmt, "... and its GMT string is $gmt";
+    }
+};
+
 done_testing;
