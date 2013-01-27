@@ -61,6 +61,7 @@ has epoch => (
 
 sub _build_epoch {
     my ($self) = @_;
+    return $self->seconds if $self->seconds !~ /^[\-\+]?\d+$/;
     $self->seconds + time;
 }
 
@@ -79,6 +80,7 @@ has gmt_string => (
 sub _build_gmt_string {
     my ($self) = @_;
     my $epoch = $self->epoch;
+    return $epoch if $epoch !~ /^\d+$/;
 
     my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($epoch);
     my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
