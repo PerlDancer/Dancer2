@@ -372,13 +372,16 @@ sub _init_hooks {
                     my $session = $self->context->session;
                     $engine->flush(session => $session);
                     $engine->set_cookie_header(
-                        response => $response, session => $session
+                        response => $response,
+                        session  => $session
                     );
                 }
                 elsif ($self->context->has_destroyed_session) {
                     my $session = $self->context->destroyed_session;
                     $engine->set_cookie_header(
-                        response => $response, session => $session, destroyed => 1
+                        response  => $response,
+                        session   => $session,
+                        destroyed => 1
                     );
                 }
             },

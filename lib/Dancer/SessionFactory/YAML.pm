@@ -9,7 +9,7 @@ use YAML::Any;
 has _suffix => (
     is      => 'ro',
     isa     => Str,
-    default => sub { '.yml' },
+    default => sub {'.yml'},
 );
 
 with 'Dancer::Core::Role::SessionFactory::File';

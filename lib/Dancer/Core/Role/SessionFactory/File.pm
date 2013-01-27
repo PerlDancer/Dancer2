@@ -1,4 +1,5 @@
 package Dancer::Core::Role::SessionFactory::File;
+
 #ABSTRACT: Role for file-based session factories
 
 =head1 DESCRIPTION
@@ -61,9 +62,9 @@ with 'Dancer::Core::Role::SessionFactory';
 # Required by classes consuming this role
 #--------------------------------------------------------------------------#
 
-requires '_suffix'; # '.yml', '.json', etc.
-requires '_thaw_from_handle'; # given handle, return session 'data' field
-requires '_freeze_to_handle'; # given handle and data, serialize it
+requires '_suffix';              # '.yml', '.json', etc.
+requires '_thaw_from_handle';    # given handle, return session 'data' field
+requires '_freeze_to_handle';    # given handle and data, serialize it
 
 
 #--------------------------------------------------------------------------#

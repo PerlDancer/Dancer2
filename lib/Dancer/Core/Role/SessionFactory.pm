@@ -327,9 +327,8 @@ differently (such as signalling to middleware).
 
 sub set_cookie_header {
     my ($self, %params) = @_;
-    $params{response}->push_header(
-        'Set-Cookie', $self->cookie(session => $params{session})->to_header
-    );
+    $params{response}->push_header('Set-Cookie',
+        $self->cookie(session => $params{session})->to_header);
 }
 
 =head2 cookie

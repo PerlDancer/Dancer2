@@ -1,4 +1,5 @@
 package Dancer::Core::Time;
+
 #ABSTRACT: class to handle common helpers for time manipulations
 
 =head1 DESCRIPTION
@@ -20,7 +21,7 @@ expression into a number of seconds.
 
 use strict;
 use warnings;
-use Carp 'croak'; 
+use Carp 'croak';
 
 use Moo;
 
@@ -40,8 +41,8 @@ sub _build_seconds {
     my ($self) = @_;
     my $seconds = $self->expression;
 
-    $seconds = $self->_parse_duration($seconds) 
-        if $seconds !~ /^\d+$/;
+    $seconds = $self->_parse_duration($seconds)
+      if $seconds !~ /^\d+$/;
 
     return $seconds;
 }
@@ -74,7 +75,7 @@ Convert the current value in epoch as a GMT string.
 has gmt_string => (
     is      => 'rw',
     builder => '_build_gmt_string',
-    lazy => 1,
+    lazy    => 1,
 );
 
 sub _build_gmt_string {
@@ -125,10 +126,10 @@ has expression => (
 
 sub BUILD {
     my ($self) = @_;
-    
+
     # if the expression is already a numeric value, assume it's an epoch
     if ($self->expression =~ /^\d+$/) {
-        $self->epoch( $self->expression );
+        $self->epoch($self->expression);
         $self->expression('0h');
     }
 }
