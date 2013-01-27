@@ -31,5 +31,11 @@ foreach my $test (@tests) {
     };
 }
 
+subtest "Forcing another epoch in the object should work" => sub {
+    my $t = Dancer::Core::Time->new(epoch => 1, expression => "1h");
+    is $t->seconds, 3600, "...1h is still 3600 seconds";
+    is $t->epoch, 1, "... epoch is 1";
+    is $t->gmt_string, 'Thu, 01-Jan-1970 00:00:01 GMT', 
+        "... and is expressed as Thu, 01-Jan-1970 00:00:01 GMT";
+};
 done_testing;
-
