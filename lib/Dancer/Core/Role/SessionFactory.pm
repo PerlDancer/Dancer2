@@ -123,28 +123,6 @@ has is_http_only => (
     default => sub {1},
 );
 
-# private attributes for upgrading to crypto-secure tokens
-has _cprng_available => (
-    is => 'ro',
-    isa => Bool,
-    default => sub {
-        Dancer::ModuleLoader->require("Math::Random::ISAAC::XS") &&
-        Dancer::ModuleLoader->require("Crypt::URandom")
-    },
-);
-
-has _cprng => (
-    is => 'lazy',
-    isa => InstanceOf['Math::Random::ISAAC::XS'],
-);
-
-sub _build__cprng {
-    my ($self) = @_;
-    return Math::Random::ISAAC::XS->new(
-        map { unpack("N", Crypt::URandom::urandom(4)) } 1 .. 256
-    );
-}
-
 =head1 INTERFACE
 
 Following is the interface provided by this role. When specified the required
@@ -208,18 +186,29 @@ alternative method for session ID generation is desired.
 
 {
     my $COUNTER = 0;
+    my $CPRNG_AVAIL =
+        Dancer::ModuleLoader->require("Math::Random::ISAAC::XS") &&
+        Dancer::ModuleLoader->require("Crypt::URandom");
 
+    # don't initialize until generate_id is called so the ISAAC algorithm
+    # is seeded after any pre-forking
+    my $CPRNG;
+
+    # prepend epoch seconds so session ID is roughly monotonic
     sub generate_id {
         my ($self) = @_;
 
-        my @seed;
-
-        if ( $self->_cprng_available ) {
-            # we include $$ in case the _cprng got forked with same seeds
-            @seed = ( $$, map { $self->_cprng->irand } 1 .. 4 );
+        if ( $CPRNG_AVAIL ) {
+            $CPRNG ||= Math::Random::ISAAC::XS->new(
+                map { unpack("N", Crypt::URandom::urandom(4)) } 1 .. 256
+            );
+            # include $$ to ensure $CPRNG wasn't forked by accident
+            return encode_base64url(
+                pack("N6", time, $$, $CPRNG->irand, $CPRNG->irand, $CPRNG->irand, $CPRNG->irand)
+            );
         }
         else {
-            @seed = (rand(1_000_000_000)    # a random number
+            my $seed = (rand(1_000_000_000)    # a random number
               . __FILE__                    # the absolute path as a secret key
               .  $COUNTER++    # impossible to have two consecutive dups
               . $$            # the process ID as another private constant
@@ -227,10 +216,9 @@ alternative method for session ID generation is desired.
               . join('', shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9))
                 # a shuffled list of 62 chars, another random component
             );
+            return encode_base64url( pack( "Na*", time, sha1($seed) ) );
         }
 
-        # prepend epoch seconds so session ID is roughly monotonic
-        return encode_base64url( pack( "Na*", time, sha1(@seed) ) );
     }
 }
 
