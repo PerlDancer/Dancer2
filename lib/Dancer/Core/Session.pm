@@ -21,6 +21,7 @@ use strict;
 use warnings;
 use Moo;
 use Dancer::Core::Types;
+use Dancer::Core::Time;
 
 =attr id
 
@@ -67,7 +68,8 @@ has expires => (
     isa    => Str,
     coerce => sub {
         my $value = shift;
-        $value += time;
+        $value += time if $value =~ /^[\-\+]?\d+$/;
+        Dancer::Core::Time->new(expression => $value)->epoch;
     },
 );
 

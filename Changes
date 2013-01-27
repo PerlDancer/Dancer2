@@ -9,6 +9,8 @@
       regarding session settings is now configurable.
       (David Golden).
     * Add route_exists and route_doesnt_exist in Dancer::Test (Mokko)
+    * session cookie duration can be expressed with human readable strings
+    * instead of numeric values (Alexis Sukrieh, issue #157).
 
     [ BUG FIXES ]
     * The engine configuration is now passed down to

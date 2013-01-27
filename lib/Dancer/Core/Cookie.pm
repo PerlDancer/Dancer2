@@ -4,6 +4,7 @@ package Dancer::Core::Cookie;
 use Moo;
 use URI::Escape;
 use Dancer::Core::Types;
+use Dancer::Core::Time;
 use Carp 'croak';
 
 =head1 SYNOPSIS
@@ -94,20 +95,9 @@ The cookie's expiration date.  There are several formats.
 
 Unix epoch time like 1288817656 to mean "Wed, 03-Nov-2010 20:54:16 GMT"
 
-A human readable offset from the current time such as "2 hours".  It currently
-understands...
-
-    s second seconds sec secs
-    m minute minutes min mins
-    h hr hour hours
-    d day days
-    w week weeks
-    M month months
-    y year years
-
-Months and years are currently fixed at 30 and 365 days.  This may change.
-
-Anything else is used verbatim.
+It also supports a human readable offset from the current time such as "2 hours". 
+See the documentation of L<Dancer::Core::Time> for details of all supported
+formats.
 
 =cut
 
@@ -116,15 +106,7 @@ has expires => (
     isa      => Str,
     required => 0,
     coerce   => sub {
-        my $time = shift;
-
-        # First, normalize things like +2h to # of seconds
-        $time = _parse_duration($time) if $time !~ /^\d+$/;
-
-        # Then translate to a gmt string, if it isn't one already
-        $time = _epoch_to_gmtstring($time) if $time =~ /^\d+$/;
-
-        return $time;
+        Dancer::Core::Time->new(expression => $_[0])->gmt_string;
     },
 );
 
@@ -186,75 +168,4 @@ has http_only => (
     default  => sub {0},
 );
 
-
-#
-# private
-#
-
-sub _epoch_to_gmtstring {
-    my ($epoch) = @_;
-
-    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($epoch);
-    my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-    my @days   = qw(Sun Mon Tue Wed Thu Fri Sat);
-
-    return sprintf "%s, %02d-%s-%d %02d:%02d:%02d GMT",
-      $days[$wday],
-      $mday,
-      $months[$mon],
-      ($year + 1900),
-      $hour, $min, $sec;
-}
-
-# This map is taken from Cache and Cache::Cache
-# map of expiration formats to their respective time in seconds
-#<<< no perl tidy
-my %Units = ( map(($_,             1), qw(s second seconds sec secs)),
-              map(($_,            60), qw(m minute minutes min mins)),
-              map(($_,         60*60), qw(h hr hour hours)),
-              map(($_,      60*60*24), qw(d day days)),
-              map(($_,    60*60*24*7), qw(w week weeks)),
-              map(($_,   60*60*24*30), qw(M month months)),
-              map(($_,  60*60*24*365), qw(y year years)) );
-#>>>
-
-# This code is taken from Time::Duration::Parse, except if it isn't
-# understood it just passes it through and it adds the current time.
-sub _parse_duration {
-    my $timespec      = shift;
-    my $orig_timespec = $timespec;
-
-    # Treat a plain number as a number of seconds (and parse it later)
-    if ($timespec =~ /^\s*([-+]?\d+(?:[.,]\d+)?)\s*$/) {
-        $timespec = "$1s";
-    }
-
-    # Convert hh:mm(:ss)? to something we understand
-    $timespec =~ s/\b(\d+):(\d\d):(\d\d)\b/$1h $2m $3s/g;
-    $timespec =~ s/\b(\d+):(\d\d)\b/$1h $2m/g;
-
-    my $duration = 0;
-    while ($timespec
-        =~ s/^\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)(?:\s*(?:,|and)\s*)*//i)
-    {
-        my ($amount, $unit) = ($1, $2);
-        $unit = lc($unit) unless length($unit) == 1;
-
-        if (my $value = $Units{$unit}) {
-            $amount =~ s/,/./;
-            $duration += $amount * $value;
-        }
-        else {
-            return $orig_timespec;
-        }
-    }
-
-    if ($timespec =~ /\S/) {
-        return $orig_timespec;
-    }
-
-    return sprintf "%.0f", $duration + time;
-}
-
 1;
-
