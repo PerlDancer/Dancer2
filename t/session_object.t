@@ -9,6 +9,10 @@ use Dancer::SessionFactory::Simple;
 
 my $ENGINE = Dancer::SessionFactory::Simple->new;
 
+diag $ENGINE->_cprng_available
+    ? "Crypto strength tokens"
+    : "Default strength tokens";
+
 subtest 'session attributes' => sub {
     my $s1 = $ENGINE->create;
 
