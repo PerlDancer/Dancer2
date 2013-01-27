@@ -106,25 +106,7 @@ has expires => (
     isa      => Str,
     required => 0,
     coerce   => sub {
-        my $expression = shift;
-        my $t;
-        
-        # if the value is a numeric value, assume its an epoch
-        if ($expression =~ /^\d+$/) {
-            $t = Dancer::Core::Time->new(
-                epoch      => $expression,
-                expression => '0h'
-            );
-        }
-
-        # else it should be a parsable expression
-        else {
-            $t = Dancer::Core::Time->new(
-                expression => $expression
-            );
-        }
-        
-        return $t->gmt_string;
+        Dancer::Core::Time->new(expression => $_[0])->gmt_string;
     },
 );
 

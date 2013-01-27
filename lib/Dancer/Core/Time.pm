@@ -119,9 +119,19 @@ Example:
 =cut
 
 has expression => (
-    is       => 'ro',
+    is       => 'rw',
     required => 1,
 );
+
+sub BUILD {
+    my ($self) = @_;
+    
+    # if the expression is already a numeric value, assume it's an epoch
+    if ($self->expression =~ /^\d+$/) {
+        $self->epoch( $self->expression );
+        $self->expression('0h');
+    }
+}
 
 # private
 

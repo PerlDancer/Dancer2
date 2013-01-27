@@ -84,13 +84,13 @@ has cookie_path => (
 
 Default duration before session cookie expiration.  If set, the
 L<Dancer::Core::Session> C<expires> attribute will be set to the current time
-plus this duration.
+plus this duration (expression parsed by L<Dancer::Core::Time>).
 
 =cut
 
 has cookie_duration => (
     is        => 'ro',
-    isa       => Num,
+    isa       => Str,
     predicate => 1,
 );
 
