@@ -16,11 +16,13 @@ use Test::More;
 use Dancer::Test;
 
 response_content_is '/test', 'dancer_plugin_with_import_keyword',
-    "the plugin exported its keyword";
+  "the plugin exported its keyword";
 
-is_deeply( t::lib::PluginWithImport->stuff,
-    { 't::lib::PluginWithImport' => 'imported' },
-    "the original import method of the plugin is still there" );
+is_deeply(
+    t::lib::PluginWithImport->stuff,
+    {'t::lib::PluginWithImport' => 'imported'},
+    "the original import method of the plugin is still there"
+);
 
 done_testing;
 

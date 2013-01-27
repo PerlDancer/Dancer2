@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 {
+
     package Foo;
     use Moo;
     with 'Dancer::Core::Role::Server';
@@ -14,16 +15,11 @@ use warnings;
 
 my $s;
 
-like(
-    exception { $s = Foo->new },
-    qr{required.*host},
-    "host is mandatory",
-);
+like(exception { $s = Foo->new }, qr{required.*host}, "host is mandatory",);
 
 like(
     exception { $s = Foo->new(host => 'localhost') },
-    qr{required.*port},
-    "port is mandatory",
+    qr{required.*port}, "port is mandatory",
 );
 
 my $runner = Dancer::Core::Runner->new(caller => $0);

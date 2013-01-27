@@ -1,4 +1,5 @@
 package Dancer::Core::Role::SessionFactory;
+
 #ABSTRACT: Role for session factories
 
 =head1 DESCRIPTION
@@ -36,7 +37,7 @@ sub supported_hooks {
 }
 
 sub _build_type {
-    'SessionFactory'
+    'SessionFactory';
 }    # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
 =attr cookie_name

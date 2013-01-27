@@ -15,7 +15,7 @@ my %method = (
     options => 'OPTIONS',
 );
 
-while ( my ( $method, $http ) = each %method ) {
+while (my ($method, $http) = each %method) {
     eval "$method '/' => sub { '$method' }";
-    response_content_is [ $http => '/' ], $method, $method;
+    response_content_is [$http => '/'], $method, $method;
 }

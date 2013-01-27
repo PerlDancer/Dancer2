@@ -9,7 +9,7 @@ my $runner = Dancer::Core::Runner->new(caller => __FILE__);
 
 isa_ok $runner, 'Dancer::Core::Runner';
 is $runner->location, File::Spec->rel2abs(dirname(__FILE__)),
-    "location is set correctly";
+  "location is set correctly";
 
 note "testing environments";
 is $runner->environment, 'development';
@@ -26,12 +26,11 @@ is $runner->environment, 'development';
     is $runner->environment, 'foo';
 }
 
-is $runner->server->name, 'Standalone',
-    "server is created and is standalone";
+is $runner->server->name, 'Standalone', "server is created and is standalone";
 
 note "testing default config of the server";
-is $runner->server->port, 3000;
-is $runner->server->host, '0.0.0.0';
+is $runner->server->port,      3000;
+is $runner->server->host,      '0.0.0.0';
 is $runner->server->is_daemon, 0;
 
 note "testing server failure";

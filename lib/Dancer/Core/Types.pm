@@ -1,4 +1,5 @@
 package Dancer::Core::Types;
+
 # ABSTRACT: Moo types for Dancer core.
 
 use strict;
@@ -69,90 +70,91 @@ and I<OPTIONS>.
 =cut
 
 my $definitions = [
-    {
-        name    => 'ReadableFilePath',
+    {   name    => 'ReadableFilePath',
         test    => sub { -e $_[0] && -r $_[0] },
         message => sub { return exception_message($_[0], 'ReadableFilePath') }
     },
-    {
-        name    => 'WritableFilePath',
+    {   name    => 'WritableFilePath',
         test    => sub { -e $_[0] && -w $_[0] },
         message => sub { return exception_message($_[0], 'WritableFilePath') }
     },
+
     # Dancer-specific types
-    {
-        name => 'DancerPrefix',
+    {   name       => 'DancerPrefix',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
-        test => sub {
+        test       => sub {
+
             # a prefix must start with the char '/'
             # index is much faster than =~ /^\//
             index($_[0], '/') == 0;
         },
-        message    => sub { return exception_message($_[0], 'a DancerPrefix') }
+        message => sub { return exception_message($_[0], 'a DancerPrefix') }
     },
-    {
-        name       => 'DancerAppName',
+    {   name       => 'DancerAppName',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
+
             # TODO need a real check of valid app names
             $_[0] =~ $namespace;
         },
-        message    => sub { 
-            return exception_message(
-                length($_[0]) ? $_[0] : 'Empty string', 
-                'a DancerAppName'
-            ) 
-        }
+        message => sub {
+            return exception_message(length($_[0]) ? $_[0] : 'Empty string',
+                'a DancerAppName');
+          }
     },
-    {
-        name       => 'DancerMethod',
+    {   name       => 'DancerMethod',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
-            grep { /^$_[0]$/ } qw(get head post put delete options patch)
+            grep {/^$_[0]$/} qw(get head post put delete options patch);
         },
-        message    => sub { return exception_message($_[0], 'a DancerMethod') }
+        message => sub { return exception_message($_[0], 'a DancerMethod') }
     },
-    {
-        name       => 'DancerHTTPMethod',
+    {   name       => 'DancerHTTPMethod',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
-        test => sub {
-            grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH)
+        test       => sub {
+            grep {/^$_[0]$/} qw(GET HEAD POST PUT DELETE OPTIONS PATCH);
         },
-        message => sub { return exception_message($_[0], 'a DancerHTTPMethod') }
+        message =>
+          sub { return exception_message($_[0], 'a DancerHTTPMethod') }
     },
 ];
 
 # generate abbreviated class types for core dancer objects
-for my $type (qw/
-        App 
-        Context 
-        Cookie 
-        DSL  
-        Dispatcher 
-        Error  
-        Hook  
-        MIME  
-        Request  
-        Response  
-        Role  
-        Route  
-        Runner  
-        Server  
-        Session  
-        Types
-    /) {
+for my $type (
+    qw/
+    App
+    Context
+    Cookie
+    DSL
+    Dispatcher
+    Error
+    Hook
+    MIME
+    Request
+    Response
+    Role
+    Route
+    Runner
+    Server
+    Session
+    Types
+    /
+  )
+{
     push @$definitions, {
         name => $type,
         test => sub {
-            return $_[0]
-              && blessed( $_[0] )
-              && ref( $_[0] ) eq 'Dancer::Core::' . $type;
+            return
+                 $_[0]
+              && blessed($_[0])
+              && ref($_[0]) eq 'Dancer::Core::' . $type;
         },
-        message => sub { "The value `$_[0]' does not pass the constraint check." }
+        message =>
+          sub {"The value `$_[0]' does not pass the constraint check."}
     };
 }
 

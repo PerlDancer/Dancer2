@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 
 {
+
     package Foo;
     use Moo;
     with 'Dancer::Core::Role::Server';
@@ -21,7 +22,7 @@ is $f->apps->[0]->name, 'foo';
 
 is $f->host, 'localhost';
 is $f->port, 3000;
-ok(! $f->is_daemon );
+ok(!$f->is_daemon);
 
 ok(defined $f->dispatcher);
 is ref($f->psgi_app), 'CODE';

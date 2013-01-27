@@ -42,13 +42,13 @@ If 'var1' exists in the tokens hash given, its value will be written there.
 =cut
 
 has start_tag => (
-    is => 'rw',
-    default => sub { '<%' },
+    is      => 'rw',
+    default => sub {'<%'},
 );
 
 has stop_tag => (
-    is => 'rw',
-    default => sub { '%>' },
+    is      => 'rw',
+    default => sub {'%>'},
 );
 
 sub BUILD {
@@ -56,7 +56,7 @@ sub BUILD {
     my $settings = $self->config;
 
     $settings->{$_} and $self->$_($settings->{$_})
-        for qw/ start_tag stop_tag /;
+      for qw/ start_tag stop_tag /;
 }
 
 sub render {

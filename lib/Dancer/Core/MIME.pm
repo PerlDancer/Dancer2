@@ -1,4 +1,5 @@
 package Dancer::Core::MIME;
+
 # ABSTRACT: TODO
 
 use strict;
@@ -20,7 +21,7 @@ BEGIN {
 
 has mime_type => (
     is      => 'ro',
-    isa     => InstanceOf['MIME::Types'],
+    isa     => InstanceOf ['MIME::Types'],
     default => sub { MIME::Types->new(only_complete => 1) },
     lazy    => 1,
 );
@@ -49,7 +50,7 @@ sub add_type {
 }
 
 sub add_alias {
-    my($self, $alias, $orig) = @_;
+    my ($self, $alias, $orig) = @_;
     my $type = $self->for_name($orig);
     $self->add_type($alias, $type);
     return $type;
@@ -63,16 +64,18 @@ sub for_file {
 }
 
 sub name_or_type {
-    my($self, $name) = @_;
+    my ($self, $name) = @_;
 
-    return $name if $name =~ m{/};  # probably a mime type
+    return $name if $name =~ m{/};    # probably a mime type
     return $self->for_name($name);
 }
 
 sub for_name {
     my ($self, $name) = @_;
-    return $self->custom_types->{lc $name} ||
-      $self->mime_type->mimeTypeOf(lc $name) || $self->default;
+    return
+         $self->custom_types->{lc $name}
+      || $self->mime_type->mimeTypeOf(lc $name)
+      || $self->default;
 }
 
 1;

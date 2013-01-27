@@ -7,13 +7,13 @@ use Dancer::Core::Types;
 use HTTP::Headers;
 
 has headers => (
-    is => 'rw',
-    isa => InstanceOf['HTTP::Headers'],
-    lazy => 1,
+    is     => 'rw',
+    isa    => InstanceOf ['HTTP::Headers'],
+    lazy   => 1,
     coerce => sub {
         my ($value) = @_;
         return $value if ref($value) eq 'HTTP::Headers';
-        HTTP::Headers->new(@{ $value });
+        HTTP::Headers->new(@{$value});
     },
     default => sub {
         HTTP::Headers->new();
@@ -32,7 +32,7 @@ sub header {
     my $header = shift;
 
     if (@_) {
-        $self->headers->header( $header => @_ );
+        $self->headers->header($header => @_);
     }
     else {
         return $self->headers->header($header);
@@ -44,8 +44,8 @@ sub push_header {
     my $header = shift;
 
     if (@_) {
-        foreach my $h(@_) {
-            $self->headers->push_header( $header => $h );
+        foreach my $h (@_) {
+            $self->headers->push_header($header => $h);
         }
     }
     else {
@@ -62,9 +62,9 @@ sub headers_to_array {
             map {
                 my $v = $_;
                 $v =~ s/^(.+)\r?\n(.*)$/$1\r\n $2/;
-                ( $k => $v )
+                ($k => $v)
             } $self->headers->header($_);
-          } $self->headers->header_field_names
+        } $self->headers->header_field_names
     ];
 
     return $headers;

@@ -10,9 +10,7 @@ use Dancer::FileUtils;
 use File::Spec;
 
 # our app/dispatcher object
-my $app = Dancer::Core::App->new(
-    name => 'main',
-);
+my $app = Dancer::Core::App->new(name => 'main',);
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 
 # first basic tests
@@ -41,17 +39,18 @@ for my $p ('/', '/mywebsite') {
 is $app->environment, 'development';
 
 my $routes_regexps = $app->routes_regexps_for('get');
-is (scalar(@$routes_regexps), 4, "route regexps are OK");
+is(scalar(@$routes_regexps), 4, "route regexps are OK");
 
 for my $path ('/', '/blog', '/mywebsite', '/mywebsite/blog',) {
     my $env = {
         REQUEST_METHOD => 'GET',
-        PATH_INFO => $path };
+        PATH_INFO      => $path
+    };
 
     my $expected = {
-        '/' => '/',
-        '/blog' => '/blog',
-        '/mywebsite' => '/',
+        '/'               => '/',
+        '/blog'           => '/blog',
+        '/mywebsite'      => '/',
         '/mywebsite/blog' => '/blog',
     };
 
@@ -72,23 +71,29 @@ $app->lexical_prefix(
         $app->add_route(
             method => 'get',
             regexp => '/',
-            code => sub { '/foo' });
+            code   => sub {'/foo'}
+        );
 
         $app->add_route(
             method => 'get',
             regexp => '/second',
-            code => sub { '/foo/second' });
+            code   => sub {'/foo/second'}
+        );
 
-        $app->lexical_prefix('/bar' => sub {
-            $app->add_route(
-                method => 'get',
-                regexp => '/',
-                code => sub { '/foo/bar' });
-            $app->add_route(
-                method => 'get',
-                regexp => '/second',
-                code => sub { '/foo/bar/second' });
-        });
+        $app->lexical_prefix(
+            '/bar' => sub {
+                $app->add_route(
+                    method => 'get',
+                    regexp => '/',
+                    code   => sub {'/foo/bar'}
+                );
+                $app->add_route(
+                    method => 'get',
+                    regexp => '/second',
+                    code   => sub {'/foo/bar/second'}
+                );
+            }
+        );
     },
 );
 
@@ -96,22 +101,25 @@ $app->lexical_prefix(
 $app->add_route(
     method => 'get',
     regexp => '/root',
-    code => sub { '/root' }
+    code   => sub {'/root'}
 );
 
 # make sure a meaningless lexical prefix is ignored
-$app->lexical_prefix( '/' => sub {
-    $app->add_route(
-        method => 'get',
-        regexp => '/somewhere',
-        code   => sub {'/somewhere'},
-    );
-});
+$app->lexical_prefix(
+    '/' => sub {
+        $app->add_route(
+            method => 'get',
+            regexp => '/somewhere',
+            code   => sub {'/somewhere'},
+        );
+    }
+);
 
-for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere') {
+for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere')
+{
     my $env = {
         REQUEST_METHOD => 'GET',
-        PATH_INFO => $path,
+        PATH_INFO      => $path,
     };
 
     my $resp = $dispatcher->dispatch($env)->to_psgi;
@@ -128,20 +136,24 @@ like(
     "caught an exception in the lexical prefix callback",
 );
 
-$app->add_hook(Dancer::Core::Hook->new(
-    name => 'before',
-    code => sub { 1 },
-));
+$app->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'before',
+        code => sub {1},
+    )
+);
 
-$app->add_hook(Dancer::Core::Hook->new(
-    name => 'before',
-    code => sub { Foo->failure; },
-));
+$app->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'before',
+        code => sub { Foo->failure; },
+    )
+);
 
 $app->compile_hooks;
 my $env = {
     REQUEST_METHOD => 'GET',
-    PATH_INFO => '/',
+    PATH_INFO      => '/',
 };
 
 like(
@@ -150,17 +162,15 @@ like(
     'before filter nonexistent method failure',
 );
 
-$app->replace_hook('core.app.before_request', [ sub { 1 } ]);
+$app->replace_hook('core.app.before_request', [sub {1}]);
 $app->compile_hooks;
 $env = {
     REQUEST_METHOD => 'GET',
-    PATH_INFO => '/',
+    PATH_INFO      => '/',
 };
 
-is(
-    exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
-    undef,
-    'Successful to_psgi of response',
+is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
+    undef, 'Successful to_psgi of response',
 );
 
 done_testing;

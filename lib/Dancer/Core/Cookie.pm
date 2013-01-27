@@ -1,4 +1,4 @@
-# ABSTRACT: A cookie representing class 
+# ABSTRACT: A cookie representing class
 
 package Dancer::Core::Cookie;
 use Moo;
@@ -34,19 +34,18 @@ sub to_header {
     my $self   = shift;
     my $header = '';
 
-    my $value       = join('&', map { uri_escape($_) } $self->value);
-    my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
+    my $value = join('&', map { uri_escape($_) } $self->value);
+    my $no_httponly = defined($self->http_only) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
-    push @headers, "path=" . $self->path        if $self->path;
-    push @headers, "expires=" . $self->expires  if $self->expires;
-    push @headers, "domain=" . $self->domain    if $self->domain;
-    push @headers, "Secure"                     if $self->secure;
-    push @headers, 'HttpOnly'                   unless $no_httponly;
+    push @headers, "path=" . $self->path       if $self->path;
+    push @headers, "expires=" . $self->expires if $self->expires;
+    push @headers, "domain=" . $self->domain   if $self->domain;
+    push @headers, "Secure"                    if $self->secure;
+    push @headers, 'HttpOnly' unless $no_httponly;
 
     return join '; ', @headers;
 }
-
 
 
 =attr value
@@ -70,8 +69,8 @@ has value => (
 );
 
 around value => sub {
-    my $orig = shift;
-    my $self = shift;
+    my $orig  = shift;
+    my $self  = shift;
     my $array = $orig->($self, @_);
     return wantarray ? @$array : $array->[0];
 };
@@ -87,7 +86,6 @@ has name => (
     isa      => Str,
     required => 1,
 );
-
 
 
 =attr expires
@@ -118,7 +116,8 @@ has expires => (
     isa      => Str,
     required => 0,
     coerce   => sub {
-       my $time = shift;
+        my $time = shift;
+
         # First, normalize things like +2h to # of seconds
         $time = _parse_duration($time) if $time !~ /^\d+$/;
 
@@ -149,9 +148,9 @@ The cookie's path.
 =cut
 
 has path => (
-    is       => 'rw',
-    isa      => Str,
-    default  => sub { '/' },
+    is        => 'rw',
+    isa       => Str,
+    default   => sub {'/'},
     predicate => 1,
 );
 
@@ -166,7 +165,7 @@ has secure => (
     is       => 'rw',
     isa      => Bool,
     required => 0,
-    default  => sub { 0 },
+    default  => sub {0},
 );
 
 =attr http_only
@@ -184,9 +183,8 @@ has http_only => (
     is       => 'rw',
     isa      => Bool,
     required => 0,
-    default  => sub { 0 },
+    default  => sub {0},
 );
-
 
 
 #
@@ -210,6 +208,7 @@ sub _epoch_to_gmtstring {
 
 # This map is taken from Cache and Cache::Cache
 # map of expiration formats to their respective time in seconds
+#<<< no perl tidy
 my %Units = ( map(($_,             1), qw(s second seconds sec secs)),
               map(($_,            60), qw(m minute minutes min mins)),
               map(($_,         60*60), qw(h hr hour hours)),
@@ -217,11 +216,12 @@ my %Units = ( map(($_,             1), qw(s second seconds sec secs)),
               map(($_,    60*60*24*7), qw(w week weeks)),
               map(($_,   60*60*24*30), qw(M month months)),
               map(($_,  60*60*24*365), qw(y year years)) );
+#>>>
 
 # This code is taken from Time::Duration::Parse, except if it isn't
 # understood it just passes it through and it adds the current time.
 sub _parse_duration {
-    my $timespec = shift;
+    my $timespec      = shift;
     my $orig_timespec = $timespec;
 
     # Treat a plain number as a number of seconds (and parse it later)
@@ -234,14 +234,17 @@ sub _parse_duration {
     $timespec =~ s/\b(\d+):(\d\d)\b/$1h $2m/g;
 
     my $duration = 0;
-    while ($timespec =~ s/^\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)(?:\s*(?:,|and)\s*)*//i) {
-        my($amount, $unit) = ($1, $2);
+    while ($timespec
+        =~ s/^\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)(?:\s*(?:,|and)\s*)*//i)
+    {
+        my ($amount, $unit) = ($1, $2);
         $unit = lc($unit) unless length($unit) == 1;
 
         if (my $value = $Units{$unit}) {
             $amount =~ s/,/./;
             $duration += $amount * $value;
-        } else {
+        }
+        else {
             return $orig_timespec;
         }
     }

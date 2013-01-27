@@ -13,19 +13,19 @@ has type => (
 );
 
 has environment => (is => 'ro');
-has location => (is => 'ro');
+has location    => (is => 'ro');
 
 has context => (
-    is => 'rw',
-    isa => InstanceOf['Dancer::Core::Context'],
-    clearer => 'clear_context',
+    is        => 'rw',
+    isa       => InstanceOf ['Dancer::Core::Context'],
+    clearer   => 'clear_context',
     predicate => 1,
 );
 
 has config => (
-    is => 'rw',
-    isa  => HashRef,
-    default => sub  { {} },
+    is      => 'rw',
+    isa     => HashRef,
+    default => sub { {} },
 );
 
 requires '_build_type';

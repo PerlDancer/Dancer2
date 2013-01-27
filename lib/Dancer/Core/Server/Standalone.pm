@@ -28,17 +28,17 @@ A L<HTTP::Server::Simple::PSGI> server.
 
 has backend => (
     is      => 'ro',
-    isa     => InstanceOf['HTTP::Server::Simple::PSGI'],
+    isa     => InstanceOf ['HTTP::Server::Simple::PSGI'],
     lazy    => 1,
     builder => '_build_backend',
 );
 
 sub _build_backend {
     my $self    = shift;
-    my $backend = HTTP::Server::Simple::PSGI->new( $self->port );
+    my $backend = HTTP::Server::Simple::PSGI->new($self->port);
 
-    $backend->host( $self->host     );
-    $backend->app(  $self->psgi_app );
+    $backend->host($self->host);
+    $backend->app($self->psgi_app);
 
     return $backend;
 }
@@ -53,8 +53,8 @@ sub start {
     my $self = shift;
 
     $self->is_daemon
-        ? $self->backend->background()
-        : $self->backend->run();
+      ? $self->backend->background()
+      : $self->backend->run();
 }
 
 1;

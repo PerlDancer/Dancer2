@@ -7,18 +7,15 @@ use Test::More;
 {
 
     package App;
+
     BEGIN {
         use Dancer;
         set session => 'Simple';
     }
 
-    use t::lib::SubApp1 with => {
-        session => engine('session')
-    };
+    use t::lib::SubApp1 with => {session => engine('session')};
 
-    use t::lib::SubApp2 with => {
-        session => engine('session')
-    };
+    use t::lib::SubApp2 with => {session => engine('session')};
 }
 
 use Dancer::Test apps => ['App', 't::lib::SubApp1', 't::lib::SubApp2'];

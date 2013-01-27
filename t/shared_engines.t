@@ -24,7 +24,8 @@ Test::TCP::test_tcp(
         like $res->content, qr{42}, "session is set in foo";
 
         my $engine = t::lib::Foo->dsl->engine('session');
-        is $engine->{__marker__}, 1, "the session engine in subapp is the same";
+        is $engine->{__marker__}, 1,
+          "the session engine in subapp is the same";
 
         File::Temp::cleanup();
     },
@@ -37,7 +38,7 @@ Test::TCP::test_tcp(
             engine('session')->{'__marker__'} = 1;
         }
 
-        use t::lib::Foo with => { session => engine('session') };
+        use t::lib::Foo with => {session => engine('session')};
 
         get '/main' => sub {
             session('test' => 42);

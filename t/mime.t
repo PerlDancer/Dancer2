@@ -18,11 +18,14 @@ is($mime->for_name('foo'), 'text/foo', 'mime type foo is found');
 $mime->add_alias(bar => 'foo');
 is($mime->for_name('bar'), 'text/foo', 'mime type bar is found');
 
-is($mime->for_file('foo.bar'), 'text/foo', 'mime type for extension .bar is found');
+is($mime->for_file('foo.bar'),
+    'text/foo', 'mime type for extension .bar is found');
 
-is($mime->for_file('foobar'), $mime->default, 'mime type for no extension is the default');
+is($mime->for_file('foobar'),
+    $mime->default, 'mime type for no extension is the default');
 
-is($mime->add_alias(xpto => 'BAR'), 'text/foo', 'mime gets correctly lowercased for user types');
+is($mime->add_alias(xpto => 'BAR'),
+    'text/foo', 'mime gets correctly lowercased for user types');
 
 is $mime->add_alias(xpto => 'SVG') => 'image/svg+xml',
   'mime gets correctly lowercased for system types';

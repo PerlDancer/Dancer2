@@ -14,35 +14,33 @@ with 'Dancer::Core::Role::Hookable';
 
 sub supported_hooks {
     qw(
-    handler.file.before_render
-    handler.file.after_render
-    )
+      handler.file.before_render
+      handler.file.after_render
+    );
 }
 
 has mime => (
-    is => 'ro',
-    isa => InstanceOf['Dancer::Core::MIME'],
+    is      => 'ro',
+    isa     => InstanceOf ['Dancer::Core::MIME'],
     default => sub { Dancer::Core::MIME->new },
 );
 
 has encoding => (
-    is => 'ro',
-    default => sub { 'utf-8' },
+    is      => 'ro',
+    default => sub {'utf-8'},
 );
 
-has public_dir => (
-    is => 'rw',
-);
+has public_dir => (is => 'rw',);
 
 has regexp => (
-    is => 'ro',
-    default => sub { '/**' },
+    is      => 'ro',
+    default => sub {'/**'},
 );
 
 sub BUILD {
     my ($self) = @_;
 
-    if (! defined $self->public_dir) {
+    if (!defined $self->public_dir) {
         my $public =
              $self->app->config->{public}
           || $ENV{DANCER_PUBLIC}
@@ -56,7 +54,7 @@ sub register {
     my ($self, $app) = @_;
 
     # don't register the handler if no valid public dir
-    return if ! -d $self->public_dir;
+    return if !-d $self->public_dir;
 
     $app->add_route(
         method => $_,
@@ -90,12 +88,12 @@ sub code {
         my $file_path = path($self->public_dir, @tokens);
         $self->execute_hook('handler.file.before_render', $file_path);
 
-        if (! -f $file_path) {
+        if (!-f $file_path) {
             $ctx->response->has_passed(1);
             return;
         }
 
-        if (! -r $file_path) {
+        if (!-r $file_path) {
             return $self->response_403($ctx);
         }
 
@@ -108,14 +106,15 @@ sub code {
 
         my @stat = stat $file_path;
 
-        $ctx->response->header('Content-Type') or
-            $ctx->response->header('Content-Type', $content_type);
+        $ctx->response->header('Content-Type')
+          or $ctx->response->header('Content-Type', $content_type);
 
-        $ctx->response->header('Content-Length') or
-            $ctx->response->header('Content-Length', $stat[7]);
+        $ctx->response->header('Content-Length')
+          or $ctx->response->header('Content-Length', $stat[7]);
 
-        $ctx->response->header('Last-Modified') or
-            $ctx->response->header('Last-Modified', HTTP::Date::time2str($stat[9]));
+        $ctx->response->header('Last-Modified')
+          or $ctx->response->header('Last-Modified',
+            HTTP::Date::time2str($stat[9]));
 
         $ctx->response->content($content);
         $self->execute_hook('handler.file.after_render', $ctx->response);

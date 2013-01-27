@@ -50,6 +50,7 @@ If you need to give argumentto the loading module, please use the method C<load_
 
 sub load {
     my ($class, $module, $version) = @_;
+
     # 0 is a valid version, so testing trueness of $version is not enough
     if (defined $version && length $version) {
         my ($res, $error) = $class->load_with_params($module);
@@ -60,6 +61,7 @@ sub load {
         $error and return wantarray ? (0, $error) : 0;
         return 1;
     }
+
     # normal 'use', can be done via require + import
     my ($res, $error) = $class->load_with_params($module);
     return wantarray ? ($res, $error) : $res;
@@ -121,11 +123,13 @@ sub load_with_params {
     my ($class, $module, @args) = @_;
     my ($res, $error) = $class->require($module);
     $res or return wantarray ? (0, $error) : 0;
+
     # From perlfunc : If no "import" method can be found then the call is
     # skipped, even if there is an AUTOLOAD method.
     if ($module->can('import')) {
+
         # bump Exporter Level to import symbols in the caller
-        local $Exporter::ExportLevel = ( $Exporter::ExportLevel || 0 ) + 1;
+        local $Exporter::ExportLevel = ($Exporter::ExportLevel || 0) + 1;
         local $@;
         eval { $module->import(@args) };
         my $error = $@;

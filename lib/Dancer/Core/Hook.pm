@@ -13,25 +13,27 @@ use Carp;
 =cut
 
 has name => (
-    is => 'rw',
-    isa => Str,
+    is       => 'rw',
+    isa      => Str,
     required => 1,
-    coerce => sub {
+    coerce   => sub {
         my ($hook_name) = @_;
+
         # XXX at the moment, we have a filer position named "before_template".
         # this one is renamed "before_template_render", so we need to alias it.
         # maybe we need to deprecate 'before_template' to enforce the use
         # of 'hook before_template_render => sub {}' ?
-        $hook_name = 'before_template_render' if $hook_name eq 'before_template';
+        $hook_name = 'before_template_render'
+          if $hook_name eq 'before_template';
         return $hook_name;
     },
 );
 
 has code => (
-    is => 'ro',
-    isa => CodeRef,
+    is       => 'ro',
+    isa      => CodeRef,
     required => 1,
-    coerce => sub {
+    coerce   => sub {
         my ($hook) = @_;
         sub {
             my $res;

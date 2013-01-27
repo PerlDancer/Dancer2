@@ -10,7 +10,6 @@ my $l = Dancer::Logger::Console->new(app_name => 'test', log_level => 'core');
 
 for my $level (qw{core debug warning error}) {
     my $stderr = capture_stderr { $l->$level("$level") };
-    like $stderr, qr{$level in t/logger_console.t},
-        "$level message sent";
+    like $stderr, qr{$level in t/logger_console.t}, "$level message sent";
 }
 done_testing;

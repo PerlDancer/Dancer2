@@ -5,8 +5,9 @@ use File::Basename 'dirname';
 use Test::More;
 
 {
+
     package Foo;
-    
+
     use Dancer;
 
     get '/template_name' => sub {
@@ -14,9 +15,8 @@ use Test::More;
     };
 }
 
-use Dancer::Test apps => [ 'Foo' ];
+use Dancer::Test apps => ['Foo'];
 
-response_content_is "/template_name", 'Tiny', 
-    "template name";
+response_content_is "/template_name", 'Tiny', "template name";
 
 done_testing;

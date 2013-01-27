@@ -1,10 +1,11 @@
 package t::lib::TestApp;
 use Dancer;
+
 # this app is intended to cover 100% of the DSL!
 
 # set some MIME aliases...
-mime->add_type( foo => 'text/foo' );
-mime->add_alias( f => 'foo' );
+mime->add_type(foo => 'text/foo');
+mime->add_alias(f => 'foo');
 
 set 'default_mime_type' => 'text/bar';
 
@@ -18,7 +19,7 @@ hook 'before' => sub {
         halt;
     }
 };
-get '/haltme' => sub { "should not be there" };
+get '/haltme' => sub {"should not be there"};
 
 hook 'after' => sub {
     my $response = shift;
@@ -26,25 +27,31 @@ hook 'after' => sub {
         $response->content("rewritten!");
     }
 };
-get '/rewrite_me' => sub { "body should not be this one" };
+get '/rewrite_me' => sub {"body should not be this one"};
 
 
 # some settings
-set some_var => 1;
+set some_var           => 1;
 setting some_other_var => 1;
-set multiple_vars => 4, can_be_set => 2;
+set multiple_vars      => 4, can_be_set => 2;
 
 get '/config' => sub {
-    return config->{some_var}.' '.config->{some_other_var}.' and '.
-      setting('multiple_vars').setting('can_be_set');
+    return
+        config->{some_var} . ' '
+      . config->{some_other_var} . ' and '
+      . setting('multiple_vars')
+      . setting('can_be_set');
 };
 
 if ($] >= 5.010) {
+
     # named captures
-    get qr{/(?<class> usr | content | post )/(?<action> delete | find )/(?<id> \d+ )}x => sub {
-        join(":",sort %{captures()});
-    };
-};
+    get
+      qr{/(?<class> usr | content | post )/(?<action> delete | find )/(?<id> \d+ )}x
+      => sub {
+        join(":", sort %{captures()});
+      };
+}
 
 # chained routes with pass
 get '/user/**' => sub {
@@ -54,7 +61,7 @@ get '/user/**' => sub {
 };
 
 get '/user/*/home' => sub {
-    my $user = var('user'); # should be set by the previous route
+    my $user = var('user');    # should be set by the previous route
     "hello $user";
 };
 
@@ -84,8 +91,8 @@ get '/header_twice/:name/:valueA/:valueB' => sub {
 };
 
 # any
-any ['get','post'], '/any' => sub {
-    "Called with method ".request->method;
+any ['get', 'post'], '/any' => sub {
+    "Called with method " . request->method;
 };
 
 # true and false
@@ -106,13 +113,13 @@ get '/content_type/:type' => sub {
 
 # prefix
 prefix '/prefix' => sub {
-    get '/bar' => sub { '/prefix/bar' };
+    get '/bar' => sub {'/prefix/bar'};
     prefix '/prefix1' => sub {
-        get '/bar' => sub { '/prefix/prefix1/bar' };
+        get '/bar' => sub {'/prefix/prefix1/bar'};
     };
 
     prefix '/prefix2';
-    get '/foo' => sub { '/prefix/prefix2/foo' };
+    get '/foo' => sub {'/prefix/prefix2/foo'};
 };
 
 1;

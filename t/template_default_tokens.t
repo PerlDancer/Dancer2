@@ -5,20 +5,21 @@ use File::Basename 'dirname';
 use Test::More;
 
 eval { require Template; Template->import(); 1 }
-    or plan skip_all => 'Template::Toolkit probably missing.';
+  or plan skip_all => 'Template::Toolkit probably missing.';
 
-my $views = File::Spec->rel2abs(
-    File::Spec->catfile(dirname(__FILE__), 'views'));
+my $views =
+  File::Spec->rel2abs(File::Spec->catfile(dirname(__FILE__), 'views'));
 
 {
+
     package Foo;
-    
+
     use Dancer;
-    set session  => 'Simple';
+    set session => 'Simple';
 
     set views    => $views;
     set template => "template_toolkit";
-    set foo     => "in settings";
+    set foo      => "in settings";
 
     get '/view/:foo' => sub {
         var foo     => "in var";

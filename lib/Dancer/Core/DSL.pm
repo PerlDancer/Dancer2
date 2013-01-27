@@ -15,77 +15,77 @@ sub dsl_keywords {
     # the flag means : 1 = is global, 0 = is not global. global means can be
     # called from anywhere. not global means must be called from within a route
     # handler
-    [
-        [any          => 1],
-        [app          => 1],
-        [captures     => 0],
-        [config       => 1],
-        [content_type => 0],
-        [context      => 0],
-        [cookie       => 0],
-        [cookies      => 0],
-        [core_debug   => 1],
-        [dance        => 1],
-        [dancer_app   => 1],
-        [dancer_version => 1],
+    [   [any                  => 1],
+        [app                  => 1],
+        [captures             => 0],
+        [config               => 1],
+        [content_type         => 0],
+        [context              => 0],
+        [cookie               => 0],
+        [cookies              => 0],
+        [core_debug           => 1],
+        [dance                => 1],
+        [dancer_app           => 1],
+        [dancer_version       => 1],
         [dancer_major_version => 1],
-        [debug        => 1],
-        [del          => 1],
-        [dirname      => 1],
-        [dsl          => 1],
-        [engine       => 1],
-        [error        => 1],
-        [false        => 1],
-        [forward      => 0],
-        [from_dumper  => 1],
-        [from_json    => 1],
-        [from_yaml    => 1],
-        [get          => 1],
-        [halt         => 0],
-        [header       => 0],
-        [headers      => 0],
-        [hook         => 1],
-        [load_app     => 1],
-        [log          => 1],
-        [mime         => 1],
-        [options      => 1],
-        [param        => 0],
-        [params       => 0],
-        [pass         => 0],
-        [patch        => 1],
-        [path         => 1],
-        [post         => 1],
-        [prefix       => 1],
-        [push_header  => 0],
-        [put          => 1],
-        [redirect     => 0],
-        [request      => 0],
-        [response     => 0],
-        [runner       => 1],
-        [send_error   => 0],
-        [send_file    => 0],
-        [session      => 0],
-        [set          => 1],
-        [setting      => 1],
-        [splat        => 0],
-        [start        => 1],
-        [status       => 0],
-        [template     => 0],
-        [to_dumper    => 1],
-        [to_json      => 1],
-        [to_yaml      => 1],
-        [true         => 1],
-        [upload       => 0],
-        [uri_for      => 0],
-        [var          => 0],
-        [vars         => 0],
-        [warning      => 1],
+        [debug                => 1],
+        [del                  => 1],
+        [dirname              => 1],
+        [dsl                  => 1],
+        [engine               => 1],
+        [error                => 1],
+        [false                => 1],
+        [forward              => 0],
+        [from_dumper          => 1],
+        [from_json            => 1],
+        [from_yaml            => 1],
+        [get                  => 1],
+        [halt                 => 0],
+        [header               => 0],
+        [headers              => 0],
+        [hook                 => 1],
+        [load_app             => 1],
+        [log                  => 1],
+        [mime                 => 1],
+        [options              => 1],
+        [param                => 0],
+        [params               => 0],
+        [pass                 => 0],
+        [patch                => 1],
+        [path                 => 1],
+        [post                 => 1],
+        [prefix               => 1],
+        [push_header          => 0],
+        [put                  => 1],
+        [redirect             => 0],
+        [request              => 0],
+        [response             => 0],
+        [runner               => 1],
+        [send_error           => 0],
+        [send_file            => 0],
+        [session              => 0],
+        [set                  => 1],
+        [setting              => 1],
+        [splat                => 0],
+        [start                => 1],
+        [status               => 0],
+        [template             => 0],
+        [to_dumper            => 1],
+        [to_json              => 1],
+        [to_yaml              => 1],
+        [true                 => 1],
+        [upload               => 0],
+        [uri_for              => 0],
+        [var                  => 0],
+        [vars                 => 0],
+        [warning              => 1],
     ];
 }
 
-sub dancer_app { shift->app }
+sub dancer_app     { shift->app }
 sub dancer_version { Dancer->VERSION }
-sub dancer_major_version { 
+
+sub dancer_major_version {
     return (split /\./, dancer_version)[0];
 }
 
@@ -93,11 +93,11 @@ sub debug   { shift->log(debug   => @_) }
 sub warning { shift->log(warning => @_) }
 sub error   { shift->log(error   => @_) }
 
-sub true  { 1 }
-sub false { 0 }
+sub true  {1}
+sub false {0}
 
 sub dirname { shift and Dancer::FileUtils::dirname(@_) }
-sub path    { shift and Dancer::FileUtils::path(@_)    }
+sub path    { shift and Dancer::FileUtils::path(@_) }
 
 
 sub config { shift->app->settings }
@@ -139,7 +139,8 @@ sub send_file { shift->app->send_file(@_) }
 
 sub hook {
     my ($self, $name, $code) = @_;
-    $self->app->add_hook(Dancer::Core::Hook->new(name => $name, code => $code));
+    $self->app->add_hook(
+        Dancer::Core::Hook->new(name => $name, code => $code));
 }
 
 sub load_app {
@@ -150,7 +151,7 @@ sub load_app {
     croak "Unable to load application \"$app_name\" : $@" if $@;
 
     croak "$app_name is not a Dancer application"
-      if !  $app_name->can('dancer_app');
+      if !$app_name->can('dancer_app');
     my $app = $app_name->dancer_app;
 
 # FIXME not working yet
@@ -168,13 +169,13 @@ sub halt { shift->app->context->response->halt }
 
 sub get {
     my $app = shift->app;
-    $app->add_route( method => 'get',  regexp => $_[0], code => $_[1] );
-    $app->add_route( method => 'head', regexp => $_[0], code => $_[1] );
+    $app->add_route(method => 'get',  regexp => $_[0], code => $_[1]);
+    $app->add_route(method => 'head', regexp => $_[0], code => $_[1]);
 }
 
 sub post {
     my $app = shift->app;
-    $app->add_route( method => 'post', regexp => $_[0], code => $_[1] );
+    $app->add_route(method => 'post', regexp => $_[0], code => $_[1]);
 }
 
 sub any {
@@ -184,7 +185,7 @@ sub any {
     if ($methods) {
         if (ref($methods) ne 'ARRAY') {
             unshift @params, $methods;
-            $methods = [ qw(get post put del options patch) ];
+            $methods = [qw(get post put del options patch)];
         }
     }
 
@@ -195,22 +196,22 @@ sub any {
 
 sub put {
     my $app = shift->app;
-    $app->add_route( method => 'put', regexp => $_[0], code   => $_[1] );
+    $app->add_route(method => 'put', regexp => $_[0], code => $_[1]);
 }
 
 sub del {
     my $app = shift->app;
-    $app->add_route( method => 'delete', regexp => $_[0], code   => $_[1] );
+    $app->add_route(method => 'delete', regexp => $_[0], code => $_[1]);
 }
 
 sub options {
     my $app = shift->app;
-    $app->add_route( method => 'options', regexp => $_[0], code   => $_[1] );
+    $app->add_route(method => 'options', regexp => $_[0], code => $_[1]);
 }
 
 sub patch {
     my $app = shift->app;
-    $app->add_route( method => 'patch', regexp => $_[0], code   => $_[1] );
+    $app->add_route(method => 'patch', regexp => $_[0], code => $_[1]);
 }
 
 #
@@ -231,12 +232,12 @@ sub dance { shift->start(@_) }
 # Response alterations
 #
 
-sub status { shift->response->status(@_) }
-sub push_header { shift->response->push_header(@_) }
-sub header { shift->response->header(@_) }
-sub headers { shift->response->header(@_) }
+sub status       { shift->response->status(@_) }
+sub push_header  { shift->response->push_header(@_) }
+sub header       { shift->response->header(@_) }
+sub headers      { shift->response->header(@_) }
 sub content_type { shift->response->content_type(@_) }
-sub pass { shift->response->pass }
+sub pass         { shift->response->pass }
 
 #
 # Route handler helpers
@@ -265,15 +266,16 @@ sub redirect { shift->context->redirect(@_) }
 sub forward { shift->request->forward(@_) }
 
 sub vars { shift->context->vars }
-sub var { shift->context->var(@_) }
+sub var  { shift->context->var(@_) }
 
 sub cookies { shift->context->cookies }
 
 sub mime {
     my $self = shift;
     if ($self->app) {
-        return $self->app->mime_type
-    } else {
+        return $self->app->mime_type;
+    }
+    else {
         my $runner = $self->runner;
         $runner->mime_type->reset_default;
         return $runner->mime_type;
@@ -288,7 +290,7 @@ sub send_error {
     my $x = Dancer::Core::Error->new(
         message => $message,
         context => $self->app->context,
-        ( status => $status ) x !!$status,
+        (status => $status) x !!$status,
     )->throw;
 
     $x;

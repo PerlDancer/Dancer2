@@ -16,8 +16,8 @@ the HTTP method of the route (lowercase). Required.
 =cut
 
 has method => (
-    is => 'ro',
-    isa => DancerMethod,
+    is       => 'ro',
+    isa      => DancerMethod,
     required => 1,
 );
 
@@ -28,9 +28,9 @@ The code reference to execute when the route is ran. Required.
 =cut
 
 has code => (
-    is => 'ro',
+    is       => 'ro',
     required => 1,
-    isa => CodeRef,
+    isa      => CodeRef,
 );
 
 =attr regexp
@@ -41,13 +41,11 @@ Required. Coerce from Dancer's route I<patterns>.
 =cut
 
 has regexp => (
-    is => 'rw',
+    is       => 'rw',
     required => 1,
 );
 
-has spec_route => (
-    is => 'rw',
-);
+has spec_route => (is => 'rw',);
 
 =attr prefix
 
@@ -56,8 +54,8 @@ The prefix to prepend to the C<regexp>. Optional.
 =cut
 
 has prefix => (
-    is => 'ro',
-    isa => Maybe[DancerPrefix],
+    is        => 'ro',
+    isa       => Maybe [DancerPrefix],
     predicate => 1,
 );
 
@@ -68,8 +66,8 @@ A HashRef of conditions on which the matching will depend. Optional.
 =cut
 
 has options => (
-    is => 'ro',
-    isa => HashRef,
+    is      => 'ro',
+    isa     => HashRef,
     trigger => \&_check_options,
 );
 
@@ -94,21 +92,21 @@ has options => (
 # private attributes
 
 has _should_capture => (
-    is => 'rw',
+    is  => 'rw',
     isa => Bool,
 );
 
 has _match_data => (
-    is => 'rw',
-    isa => HashRef,
+    is      => 'rw',
+    isa     => HashRef,
     trigger => sub {
         my ($self, $value) = @_;
     },
 );
 
 has _params => (
-    is => 'rw',
-    isa => ArrayRef,
+    is      => 'rw',
+    isa     => ArrayRef,
     default => sub { [] },
 );
 
@@ -130,10 +128,10 @@ sub match {
 
     # the regex comments are how we know if we captured
     # a splat or a megasplat
-    if( my @splat_or_megasplat
-            = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g ) {
-        for ( @values ) {
-            $_ = [ split '/' => $_ ] if ( shift @splat_or_megasplat ) =~ /megasplat/;
+    if (my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g) {
+        for (@values) {
+            $_ = [split '/' => $_]
+              if (shift @splat_or_megasplat) =~ /megasplat/;
         }
     }
 
@@ -189,9 +187,9 @@ sub execute {
 sub BUILD {
     my ($self) = @_;
 
-    # prepend the prefix to the regexp if any
-    # this is done in BUILD instead of a trigger in order to be sure that the regexp
-    # attribute is set when this is ran.
+# prepend the prefix to the regexp if any
+# this is done in BUILD instead of a trigger in order to be sure that the regexp
+# attribute is set when this is ran.
     $self->_init_prefix if defined $self->prefix;
 
     # now we can build the regexp
@@ -213,7 +211,8 @@ sub _init_prefix {
 #    }
 
     if (ref($regexp) eq 'Regexp') {
-        croak "Cannot combine a prefix ($prefix) with a regular expression ($regexp)";
+        croak
+          "Cannot combine a prefix ($prefix) with a regular expression ($regexp)";
     }
 
     if ($self->regexp eq '/') {
@@ -222,11 +221,11 @@ sub _init_prefix {
         # - /prefix/
         # - /prefix
         # this is done by creating a regex for this case
-        my $qpattern = quotemeta( $self->regexp);
-        my $qprefix  = quotemeta( $self->prefix );
+        my $qpattern  = quotemeta($self->regexp);
+        my $qprefix   = quotemeta($self->prefix);
         my $new_regxp = qr/^$qprefix(?:$qpattern)?$/;
 
-        return $self->regexp( $new_regxp );
+        return $self->regexp($new_regxp);
     }
 
     return $self->regexp($prefix . $self->regexp);
@@ -250,7 +249,7 @@ sub _init_regexp {
 
     $self->_should_capture($should_capture);
     $self->_params($params || []);
-    $self->regexp( $compiled );
+    $self->regexp($compiled);
 }
 
 sub _build_regexp_from_string {
