@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More import => [ '!pass' ];
+use Test::More import => ['!pass'];
 
 use Dancer qw(:tests);
 use Dancer::Test;
@@ -12,6 +12,10 @@ eval "
     };
 ";
 
-like( $@, qr{Bareword "pass" not allowed while "strict subs"}, 'pass were not imported');
+like(
+    $@,
+    qr{Bareword "pass" not allowed while "strict subs"},
+    'pass were not imported'
+);
 
 done_testing;

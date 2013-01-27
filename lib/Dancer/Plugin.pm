@@ -62,33 +62,29 @@ sub register {
     my $plugin = caller;
     my $caller = caller(1);
     my ($keyword, $code, $options) = @_;
-    $options ||= { is_global => 1 };
+    $options ||= {is_global => 1};
 
     $keyword =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
       or croak "You can't use '$keyword', it is an invalid name"
-        . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
+      . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
 
-    if (
-        grep { $_ eq $keyword }
-        map  { s/^(?:\$|%|&|@|\*)//; $_ }
-        ( map { $_->[0] } @{ Dancer::Core::DSL->dsl_keywords } )
-    ) {
+    if (grep { $_ eq $keyword }
+        map { s/^(?:\$|%|&|@|\*)//; $_ }
+        (map { $_->[0] } @{Dancer::Core::DSL->dsl_keywords})
+      )
+    {
         croak "You can't use '$keyword', this is a reserved keyword";
     }
 
     while (my ($plugin, $keywords) = each %$_keywords) {
         if (grep { $_->[0] eq $keyword } @$keywords) {
             croak "You can't use $keyword, "
-                . "this is a keyword reserved by $plugin";
+              . "this is a keyword reserved by $plugin";
         }
     }
 
     $_keywords->{$plugin} ||= [];
-    push @{$_keywords->{$plugin}}, [
-        $keyword,
-        $code,
-        $options->{is_global}
-    ];
+    push @{$_keywords->{$plugin}}, [$keyword, $code, $options->{is_global}];
 }
 
 =method register_plugin
@@ -120,15 +116,15 @@ sub register_plugin {
     my %params = @_;
 
     # For backward compatibility, no params means "supports only Dancer 1"
-    $params{for_versions} = [ 1 ] 
-        if ! defined $params{for_versions};
+    $params{for_versions} = [1]
+      if !defined $params{for_versions};
 
     my $supported_versions = $params{for_versions};
     croak "register_plugin must be called with an array ref"
-        if ref $supported_versions ne ref([]);
+      if ref $supported_versions ne ref([]);
 
     # if the caller has not a dsl, we cant register the plugin
-    return if ! $caller->can('dsl');
+    return if !$caller->can('dsl');
 
     my $dancer_major_version = $caller->dancer_app->api_version;
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
@@ -156,13 +152,13 @@ sub register_plugin {
         }
     }
 
-    # create the import method of the caller (the actual plugin) in order to make it
-    # imports all the DSL's keyword when it's used.
-    my $import     = sub {
+# create the import method of the caller (the actual plugin) in order to make it
+# imports all the DSL's keyword when it's used.
+    my $import = sub {
         my $plugin = shift;
 
         # caller(1) because our import method is wrapped, see below
-        my $caller  = caller(1);
+        my $caller = caller(1);
 
         for my $k (@{$_keywords->{$plugin}}) {
             my ($keyword, $code, $is_global) = @{$k};
@@ -180,8 +176,8 @@ sub register_plugin {
         no warnings 'redefine';
         my $original_import = *{"${app_caller}::import"}{CODE};
         $original_import ||= sub { };
-        *{"${app_caller}::import"} = sub { 
-            $original_import->(@_); 
+        *{"${app_caller}::import"} = sub {
+            $original_import->(@_);
             $import->(@_);
         };
     }
@@ -204,7 +200,7 @@ Note that Dancer 1 will return undef as the object reference.
 
 =cut
 
-sub plugin_args { @_ }
+sub plugin_args {@_}
 
 =method plugin_setting
 
@@ -254,7 +250,7 @@ sub register_hook {
 
     my $current_hooks = [];
     if ($plugin->can('supported_hooks')) {
-        $current_hooks = [ $plugin->supported_hooks ];
+        $current_hooks = [$plugin->supported_hooks];
     }
 
     my $current_aliases = {};
@@ -265,7 +261,7 @@ sub register_hook {
     $plugin =~ s/^Dancer::Plugin:://;
     $plugin =~ s/::/_/g;
 
-    my $base_name = "plugin.".lc($plugin);
+    my $base_name = "plugin." . lc($plugin);
     for my $hook (@hooks) {
         my $hook_name = "${base_name}.$hook";
 
@@ -276,8 +272,8 @@ sub register_hook {
     {
         no strict 'refs';
         no warnings 'redefine';
-        *{"${caller}::supported_hooks"} = sub { @$current_hooks };
-        *{"${caller}::hook_aliases"} = sub { $current_aliases };
+        *{"${caller}::supported_hooks"} = sub {@$current_hooks};
+        *{"${caller}::hook_aliases"}    = sub {$current_aliases};
     }
 }
 
@@ -298,7 +294,7 @@ The hook must have been registered by the plugin first, with C<register_hook>.
 
 sub execute_hook {
     my $position = shift;
-    my $dsl = _get_dsl();
+    my $dsl      = _get_dsl();
     croak "No DSL object found" if !defined $dsl;
     $dsl->execute_hook($position, @_);
 }
@@ -308,31 +304,32 @@ sub execute_hook {
 sub import {
     my $class  = shift;
     my $plugin = caller;
-        
+
 
     # First, export Dancer::Plugins symbols
     my @export = qw(
-        execute_hook
-        register_hook
-        register_plugin
-        register
-        plugin_setting
-        plugin_args
+      execute_hook
+      register_hook
+      register_plugin
+      register
+      plugin_setting
+      plugin_args
     );
+
     for my $symbol (@export) {
         no strict 'refs';
         *{"${plugin}::${symbol}"} = *{"Dancer::Plugin::${symbol}"};
     }
 
     my $dsl = _get_dsl();
-    return if ! defined $dsl;
+    return if !defined $dsl;
 
-    # Support for Dancer 1 syntax for plugin.
-    # Then, compile Dancer's DSL keywords into self-contained keywords for the
-    # plugin (actually, we call all the symbols by giving them $caller->dsl as
-    # their first argument).
-    # These modified versions of the DSL are then exported in the namespace of the
-    # plugin.
+ # Support for Dancer 1 syntax for plugin.
+ # Then, compile Dancer's DSL keywords into self-contained keywords for the
+ # plugin (actually, we call all the symbols by giving them $caller->dsl as
+ # their first argument).
+ # These modified versions of the DSL are then exported in the namespace of the
+ # plugin.
     for my $symbol ($dsl->dsl_keywords_as_list) {
 
         # get the original symbol from the real DSL
@@ -350,7 +347,7 @@ sub import {
     # Finally, make sure our caller becomes a Moo::Role
     # Perl 5.8.5+ mandatory for that trick
     @_ = ('Moo::Role');
-    goto &Moo::Role::import
+    goto &Moo::Role::import;
 }
 
 sub _get_dsl {

@@ -7,8 +7,8 @@ use Dancer::Core::Types;
 requires 'register';
 
 has app => (
-    is => 'ro',
-    isa => InstanceOf['Dancer::Core::App'],
+    is  => 'ro',
+    isa => InstanceOf ['Dancer::Core::App'],
 );
 
 1;

@@ -6,7 +6,7 @@ use Test::Fatal;
 use Dancer::Factory::Engine;
 
 is Dancer::Factory::Engine::_camelize('foo_bar_baz'), 'FooBarBaz';
-is Dancer::Factory::Engine::_camelize('FooBarBaz'), 'FooBarBaz';
+is Dancer::Factory::Engine::_camelize('FooBarBaz'),   'FooBarBaz';
 
 like(
     exception { my $l = Dancer::Factory::Engine->create(unknown => 'stuff') },

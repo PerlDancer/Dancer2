@@ -25,9 +25,7 @@ setting it manually with C<set>:
 
 =cut
 
-has '+engine' => (
-    isa => InstanceOf['Template'],
-);
+has '+engine' => (isa => InstanceOf ['Template'],);
 
 sub _build_engine {
     my $self      = shift;
@@ -35,16 +33,16 @@ sub _build_engine {
     my %tt_config = (
         ANYCASE  => 1,
         ABSOLUTE => 1,
-        length($charset) ? ( ENCODING => $charset ) : (),
+        length($charset) ? (ENCODING => $charset) : (),
         %{$self->config},
     );
 
     my $start_tag = $self->config->{'start_tag'};
-    my $stop_tag  = $self->config->{'stop_tag'} || $self->config->{end_tag};
+    my $stop_tag = $self->config->{'stop_tag'} || $self->config->{end_tag};
     $tt_config{'START_TAG'} = $start_tag
       if defined $start_tag && $start_tag ne '[%';
-    $tt_config{'END_TAG'}   = $stop_tag
-      if defined $stop_tag && $stop_tag  ne '%]';
+    $tt_config{'END_TAG'} = $stop_tag
+      if defined $stop_tag && $stop_tag ne '%]';
 
     $tt_config{'INCLUDE_PATH'} ||= $self->views;
 
@@ -63,14 +61,16 @@ L<Template::Toolkit> for rendering.
 sub render {
     my ($self, $template, $tokens) = @_;
 
-    if ( ! ref $template ) {
-        -f $template or croak "'$template' doesn't exist or not a regular file";
+    if (!ref $template) {
+        -f $template
+          or croak "'$template' doesn't exist or not a regular file";
     }
 
     my $content = "";
     my $charset = $self->charset;
-    my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
-    $self->engine->process($template, $tokens, \$content, @options) or croak $self->engine->error;
+    my @options = length($charset) ? (binmode => ":encoding($charset)") : ();
+    $self->engine->process($template, $tokens, \$content, @options)
+      or croak $self->engine->error;
     return $content;
 }
 

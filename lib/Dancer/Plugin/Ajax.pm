@@ -59,6 +59,7 @@ register 'ajax' => sub {
     for my $e (@rest) { $code = $e if (ref($e) eq 'CODE') }
 
     my $ajax_route = sub {
+
         # must be an XMLHttpRequest
         if (not $dsl->request->is_ajax) {
             $dsl->pass and return 0;
@@ -72,10 +73,10 @@ register 'ajax' => sub {
         return $response;
     };
 
-    $dsl->any( ['get', 'post'] => $pattern, $ajax_route );
+    $dsl->any(['get', 'post'] => $pattern, $ajax_route);
 };
 
-register_plugin for_versions => [ 2 ];
+register_plugin for_versions => [2];
 1;
 
 

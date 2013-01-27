@@ -1,4 +1,5 @@
 package Dancer;
+
 # ABSTRACT: Lightweight yet powerful web application framework
 
 use strict;
@@ -57,7 +58,7 @@ Returns the current runner. It is of type L<Dancer::Core::Runner>.
 
 my $runner;
 
-sub runner { $runner }
+sub runner {$runner}
 
 =method my $runner=import;
 
@@ -103,7 +104,7 @@ If any additional argument processing is needed, it will be done at this point.
 =cut
 
 sub import {
-    my ($class, @args) = @_;
+    my ($class,  @args)   = @_;
     my ($caller, $script) = caller;
 
     strict->import;
@@ -113,37 +114,39 @@ sub import {
     my $syntax_only = 0;
     my $as_script   = 0;
     foreach (@args) {
-        if ( $_ eq ':moose' ) {
+        if ($_ eq ':moose') {
             push @final_args, '!before' => 1, '!after' => 1;
         }
-        elsif ( $_ eq ':tests' ) {
+        elsif ($_ eq ':tests') {
             push @final_args, '!pass' => 1;
         }
-        elsif ( $_ eq ':syntax' ) {
+        elsif ($_ eq ':syntax') {
             $syntax_only = 1;
         }
         elsif ($_ eq ':script') {
             $as_script = 1;
-        } elsif ( substr($_, 0, 1) eq '!') {
+        }
+        elsif (substr($_, 0, 1) eq '!') {
             push @final_args, $_, 1;
-        } else {
+        }
+        else {
             push @final_args, $_;
         }
     }
 
     scalar(@final_args) % 2
-      and die "parameters to 'use Dancer' should be one of : 'key => value', ':moose', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
+      and die
+      "parameters to 'use Dancer' should be one of : 'key => value', ':moose', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
     my %final_args = @final_args;
 
     $final_args{dsl} ||= 'Dancer::Core::DSL';
 
     # never instantiated the runner, should do it now
     if (not defined $runner) {
+
         # TODO should support commandline options as well
 
-        $runner = Dancer::Core::Runner->new(
-            caller => $script,
-        );
+        $runner = Dancer::Core::Runner->new(caller => $script,);
     }
 
     my $local_libdir = Dancer::FileUtils::path($runner->location, 'lib');
@@ -156,14 +159,14 @@ sub import {
         location        => $runner->location,
         runner_config   => $runner->config,
         postponed_hooks => $runner->postponed_hooks,
-       (api_version     => int $api_version) x !! $api_version,
+        (api_version => int $api_version) x !!$api_version,
     );
 
-    $api_version = 0;  # reset variable for next 'use Dancer X' call
+    $api_version = 0;    # reset variable for next 'use Dancer X' call
 
     core_debug("binding import method to $caller");
     _set_import_method_to_caller($caller);
-    
+
     # register the app within the runner instance
     core_debug("binding app to $caller");
     $runner->server->register_application($app);
@@ -172,7 +175,7 @@ sub import {
 
     # load the DSL, defaulting to Dancer::Core::DSL
     Dancer::ModuleLoader->require($final_args{dsl})
-        or die "Couldn't require '" . $final_args{dsl} . "'\n";
+      or die "Couldn't require '" . $final_args{dsl} . "'\n";
     my $dsl = $final_args{dsl}->new(app => $app);
     $dsl->export_symbols_to($caller, \%final_args);
 
@@ -193,7 +196,7 @@ sub _set_import_method_to_caller {
 
         my $with = $options{with};
         for my $key (keys %$with) {
-            $self->dancer_app->setting( $key => $with->{$key} ); 
+            $self->dancer_app->setting($key => $with->{$key});
         }
     };
 

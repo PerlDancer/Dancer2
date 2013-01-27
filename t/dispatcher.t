@@ -22,21 +22,21 @@ $app->setting(logger => engine('logger'));
 $app->add_route(
     method => 'get',
     regexp => '/',
-    code => sub { "home" },
+    code   => sub {"home"},
 );
 
 # an error route
-$app->add_route (
+$app->add_route(
     method => 'get',
     regexp => '/error',
-    code => sub { Fail->fail; },
+    code   => sub { Fail->fail; },
 );
 
 # A chain of two route for /user/$foo
 $app->add_route(
     method => 'get',
     regexp => '/user/:name',
-    code => sub {
+    code   => sub {
         my $ctx = shift;
         $buffer->{user} = $ctx->request->params->{'name'};
         $ctx->response->has_passed(1);
@@ -46,7 +46,7 @@ $app->add_route(
 $app->add_route(
     method => 'get',
     regexp => '/user/*?',
-    code => sub {
+    code   => sub {
         my $ctx = shift;
         "Hello " . $ctx->request->params->{'name'};
     },
@@ -60,24 +60,23 @@ my @tests = (
         },
         expected => [
             200,
-            [   
-                'Content-Length' => 4,
+            [   'Content-Length' => 4,
                 'Content-Type'   => 'text/html; charset=UTF-8'
             ],
             ["home"]
-          ]
+        ]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/user/Johnny',
         },
         expected => [
-            200, [
-                'Content-Length' => 12, 
-                'Content-Type' => 'text/html; charset=UTF-8'
+            200,
+            [   'Content-Length' => 12,
+                'Content-Type'   => 'text/html; charset=UTF-8'
             ],
             ["Hello Johnny"]
-          ]
+        ]
     },
     {   env => {
             REQUEST_METHOD => 'GET',
@@ -85,8 +84,7 @@ my @tests = (
         },
         expected => [
             302,
-            [
-                'Location'       => 'http://perldancer.org',
+            [   'Location'       => 'http://perldancer.org',
                 'Content-Length' => '0',
                 'Content-Type'   => 'text/html',
             ],
@@ -106,33 +104,38 @@ my @tests = (
 );
 
 # simulates a redirect with halt
-$app->add_hook(Dancer::Core::Hook->new(
-    name => 'before',
-    code => sub {
-        my $ctx = shift;
-        if ($ctx->request->path_info eq '/haltme') {
-            $ctx->response->header(Location => 'http://perldancer.org');
-            $ctx->response->status(302);
-            $ctx->response->is_halted(1);
-        }
-      },
-));
+$app->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'before',
+        code => sub {
+            my $ctx = shift;
+            if ($ctx->request->path_info eq '/haltme') {
+                $ctx->response->header(Location => 'http://perldancer.org');
+                $ctx->response->status(302);
+                $ctx->response->is_halted(1);
+            }
+        },
+    )
+);
 
 my $was_in_second_filter = 0;
-$app->add_hook(Dancer::Core::Hook->new(
-    name => 'before',
-    code => sub {
-        my $ctx = shift;
-        if ($ctx->request->path_info eq '/haltme') {
-            $was_in_second_filter = 1; # should not happen because first filter halted the flow
-        }
-      },
-));
+$app->add_hook(
+    Dancer::Core::Hook->new(
+        name => 'before',
+        code => sub {
+            my $ctx = shift;
+            if ($ctx->request->path_info eq '/haltme') {
+                $was_in_second_filter =
+                  1;   # should not happen because first filter halted the flow
+            }
+        },
+    )
+);
 
 $app->add_route(
     method => 'get',
     regexp => '/haltme',
-    code => sub { "should not get there" },
+    code   => sub {"should not get there"},
 );
 $app->compile_hooks;
 
@@ -141,19 +144,20 @@ plan tests => 13;
 my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
 my $counter = 0;
 foreach my $test (@tests) {
-    my $env = $test->{env};
+    my $env      = $test->{env};
     my $expected = $test->{expected};
 
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
-    is        $resp->[0] => $expected->[0], "Return code ok.";
+    is $resp->[0] => $expected->[0], "Return code ok.";
 
-    ok(Dancer::Test::_include_in_headers($resp->[1], $expected->[1]), 
+    ok(Dancer::Test::_include_in_headers($resp->[1], $expected->[1]),
         "expected headers are there");
 
     if (ref($expected->[2]) eq "Regexp") {
-        like   $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";
-    } else {
+        like $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";
+    }
+    else {
         is_deeply $resp->[2] => $expected->[2], "Contents ok. (test $counter)";
     }
     $counter++;
@@ -164,17 +168,21 @@ foreach my $test (
             REQUEST_METHOD => 'GET',
             PATH_INFO      => '/error',
         },
-        expected => [500,
+        expected => [
+            500,
             ['Content-Length', "Content-Type", 'text/plain'],
-            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s]
-    }) {
-    my $env = $test->{env};
+            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s
+        ]
+    }
+  )
+{
+    my $env      = $test->{env};
     my $expected = $test->{expected};
 
     my $resp = $dispatcher->dispatch($env);
 
     is $resp->status => $expected->[0], "Return code ok.";
-    ok( $resp->header('Content-Length') >= 140, "Length ok.");
+    ok($resp->header('Content-Length') >= 140, "Length ok.");
     like $resp->content, $expected->[2], "contents ok";
 }
 

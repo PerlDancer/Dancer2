@@ -5,39 +5,41 @@ use Test::More;
 
 subtest 'basic redirects' => sub {
     {
+
         package App;
         use Dancer;
 
-        get '/'         => sub { 'home' };
+        get '/'         => sub {'home'};
         get '/bounce'   => sub { redirect '/' };
         get '/redirect' => sub { header 'X-Foo' => 'foo'; redirect '/'; };
         get '/redirect_querystring' => sub { redirect '/login?failed=1' };
     }
     use Dancer::Test apps => ['App'];
 
-    response_status_is  [ GET => '/' ] => 200;
-    response_content_is [ GET => '/' ] => "home";
+    response_status_is  [GET => '/'] => 200;
+    response_content_is [GET => '/'] => "home";
 
-    response_status_is  [ GET => '/bounce' ] => 302;
+    response_status_is [GET => '/bounce'] => 302;
 
     my $expected_headers = [
         'Location'     => 'http://localhost/',
         'Content-Type' => 'text/html',
         'X-Foo'        => 'foo',
     ];
-    response_headers_include [ GET => '/redirect' ] => $expected_headers;
+    response_headers_include [GET => '/redirect'] => $expected_headers;
 
     $expected_headers = [
         'Location'     => 'http://localhost/login?failed=1',
         'Content-Type' => 'text/html',
     ];
-    response_headers_include [ GET => '/redirect_querystring' ] =>
+    response_headers_include [GET => '/redirect_querystring'] =>
       $expected_headers;
 };
 
 # redirect absolute
 subtest 'absolute and relative redirects' => sub {
-    { 
+    {
+
         package App;
         use Dancer;
 
@@ -49,24 +51,25 @@ subtest 'absolute and relative redirects' => sub {
     use Dancer::Test apps => ['App'];
 
     response_headers_include
-      [ GET => '/absolute_with_host' ],
-      [ Location => 'http://foo.com/somewhere' ];
+      [GET      => '/absolute_with_host'],
+      [Location => 'http://foo.com/somewhere'];
 
     response_headers_include
-      [ GET => '/absolute' ],
-      [ Location => 'http://localhost/absolute' ];
+      [GET      => '/absolute'],
+      [Location => 'http://localhost/absolute'];
 
     response_headers_include
-      [ GET => '/relative' ],
-      [ Location => 'http://localhost/somewhere/else' ];
+      [GET      => '/relative'],
+      [Location => 'http://localhost/somewhere/else'];
 };
 
 subtest 'redirect behind a proxy' => sub {
-    { 
+    {
+
         package App;
         use Dancer;
         set behind_proxy => 1;
-        get '/bounce'   => sub { redirect '/' };
+        get '/bounce' => sub { redirect '/' };
     }
     use Dancer::Test apps => ['App'];
 

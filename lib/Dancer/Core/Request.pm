@@ -1,4 +1,5 @@
 package Dancer::Core::Request;
+
 # ABSTRACT: Interface for accessing incoming requests
 
 use Moo;
@@ -82,15 +83,12 @@ Install URL::Encode::XS and CGI::Deurl::XS for extra speed.
 Dancer::Core::Request will use it if they detect their presence.
 
 =cut
+
 # check presence of XS module to speedup request
-eval {
-    require URL::Encode::XS;
-};
+eval { require URL::Encode::XS; };
 our $XS_URL_DECODE = !$@;
 
-eval {
-    require CGI::Deurl::XS;
-};
+eval { require CGI::Deurl::XS; };
 our $XS_PARSE_QUERY_STRING = !$@;
 
 
@@ -99,13 +97,14 @@ my @http_env_keys = (
     'user_agent',      'accept_language', 'accept_charset',
     'accept_encoding', 'keep_alive',      'connection',
     'accept',          'accept_type',     'referer',
+
     # 'host' is managed manually
 );
 
 has $_ => (
-      is  => 'rw',
-      isa => Str,
-  ) for @http_env_keys;
+    is  => 'rw',
+    isa => Str,
+) for @http_env_keys;
 
 =method env()
 
@@ -115,8 +114,8 @@ Return the current environment (C<%ENV>), as a hashref.
 
 # then all the native attributes
 has env => (
-    is => 'ro',
-    isa => HashRef,
+    is      => 'ro',
+    isa     => HashRef,
     default => sub { {} },
 );
 
@@ -128,9 +127,9 @@ Return the path requested by the client.
 =cut
 
 has path => (
-    is => 'rw',
-    isa => Str,
-    lazy => 1,
+    is      => 'rw',
+    isa     => Str,
+    lazy    => 1,
     builder => '_build_path',
 );
 
@@ -147,8 +146,8 @@ sub _build_path {
 
     # fallback to REQUEST_URI if nothing found
     # we have to decode it, according to PSGI specs.
-    if ( defined $self->request_uri ) {
-        $path ||= $self->_url_decode( $self->request_uri );
+    if (defined $self->request_uri) {
+        $path ||= $self->_url_decode($self->request_uri);
     }
 
     croak "Cannot resolve path" if not $path;
@@ -157,9 +156,9 @@ sub _build_path {
 }
 
 has path_info => (
-    is => 'rw',
-    isa => Str,
-    lazy => 1,
+    is      => 'rw',
+    isa     => Str,
+    lazy    => 1,
     builder => '_build_path_info',
 );
 
@@ -185,8 +184,8 @@ requested method.
 =cut
 
 has method => (
-    is => 'rw',
-    isa => DancerHTTPMethod,
+    is      => 'rw',
+    isa     => DancerHTTPMethod,
     default => sub {
         my $self = shift;
         $self->env->{REQUEST_METHOD} || 'GET';
@@ -201,7 +200,7 @@ Return the content type of the request.
 =cut
 
 has content_type => (
-    is => 'rw',
+    is  => 'rw',
     isa => Str,
 );
 
@@ -212,7 +211,7 @@ Return the content length of the request.
 =cut
 
 has content_length => (
-    is => 'rw',
+    is  => 'rw',
     isa => Num,
 );
 
@@ -226,13 +225,13 @@ and kept the raw body untouched in there.
 =cut
 
 has body => (
-    is => 'rw',
-    isa => Str,
-    default => sub{''},
+    is      => 'rw',
+    isa     => Str,
+    default => sub {''},
 );
 
 has id => (
-    is => 'rw',
+    is  => 'rw',
     isa => Num,
 );
 
@@ -248,40 +247,40 @@ C<uploads> hash table.
 =cut 
 
 has uploads => (
-    is => 'rw',
+    is  => 'rw',
     isa => HashRef,
 );
 
 # Really needed? as we have is_ajax() ...
 has ajax => (
-    is => 'rw',
+    is  => 'rw',
     isa => Bool,
 );
 
 has body_is_parsed => (
-    is => 'rw',
-    isa => Bool,
-    default => sub{0},
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
 );
 
 has is_behind_proxy => (
-    is => 'rw',
-    isa => Bool,
-    default => sub{0},
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
 );
 
-sub host { 
+sub host {
     my ($self) = @_;
 
     return ($self->is_behind_proxy)
-      ? ($self->env->{HTTP_X_FORWARDED_HOST} || 
-         $self->env->{X_FORWARDED_HOST}
-        )
+      ? ($self->env->{HTTP_X_FORWARDED_HOST}
+          || $self->env->{X_FORWARDED_HOST})
       : $self->env->{HTTP_HOST};
-};
+}
 
 
 #from Dancer::Core::Role::Headers
+
 =method header($name)
 
 Return the value of the given header, if present. If the header has multiple
@@ -319,7 +318,6 @@ object with the given arguments.
 Alias to the C<params> accessor, for backward-compatibility with C<CGI> interface.
 
 =cut
-
 
 
 =method address()
@@ -372,19 +370,21 @@ Return the scheme of the request
 =cut
 
 
-sub scheme                {
+sub scheme {
     my ($self) = @_;
     my $scheme;
     if ($self->is_behind_proxy) {
-        $scheme = $self->env->{'X_FORWARDED_PROTOCOL'}
-               || $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
-               || $self->env->{'HTTP_FORWARDED_PROTO'}
-               || "";
+        $scheme =
+             $self->env->{'X_FORWARDED_PROTOCOL'}
+          || $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
+          || $self->env->{'HTTP_FORWARDED_PROTO'}
+          || "";
     }
-    return $scheme
-        || $self->env->{'psgi.url_scheme'}
-        || $self->env->{'PSGI.URL_SCHEME'}
-        || "";
+    return
+         $scheme
+      || $self->env->{'psgi.url_scheme'}
+      || $self->env->{'PSGI.URL_SCHEME'}
+      || "";
 }
 
 =method secure()
@@ -425,17 +425,18 @@ Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
 
 =cut
 
-sub secure                { $_[0]->scheme eq 'https' }
-sub uri                   { $_[0]->request_uri }
-sub is_head               { $_[0]->{method} eq 'HEAD' }
-sub is_post               { $_[0]->{method} eq 'POST' }
-sub is_get                { $_[0]->{method} eq 'GET' }
-sub is_put                { $_[0]->{method} eq 'PUT' }
-sub is_delete             { $_[0]->{method} eq 'DELETE' }
-sub is_patch              { $_[0]->{method} eq 'PATCH' }
+sub secure    { $_[0]->scheme eq 'https' }
+sub uri       { $_[0]->request_uri }
+sub is_head   { $_[0]->{method} eq 'HEAD' }
+sub is_post   { $_[0]->{method} eq 'POST' }
+sub is_get    { $_[0]->{method} eq 'GET' }
+sub is_put    { $_[0]->{method} eq 'PUT' }
+sub is_delete { $_[0]->{method} eq 'DELETE' }
+sub is_patch  { $_[0]->{method} eq 'PATCH' }
+
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
-sub input_handle   { $_[0]->env->{'psgi.input'} || $_[0]->env->{'PSGI.INPUT'} }
+sub input_handle { $_[0]->env->{'psgi.input'} || $_[0]->env->{'PSGI.INPUT'} }
 
 our $_count = 0;
 
@@ -443,7 +444,7 @@ sub BUILD {
     my ($self) = @_;
 
     $self->{content_length} = $self->env->{CONTENT_LENGTH} || 0;
-    $self->{content_type}   = $self->env->{CONTENT_TYPE} || '';
+    $self->{content_type}   = $self->env->{CONTENT_TYPE}   || '';
     $self->{id}             = ++$_count;
 
     $self->{_chunk_size}    = 4096;
@@ -483,25 +484,24 @@ sub make_forward_to {
     my ($self, $url, $params, $options) = @_;
 
     # we clone the env to make sure we don't alter the existing one in $self
-    my $env = { %{$self->env} };
+    my $env = {%{$self->env}};
 
     $env->{PATH_INFO} = $url;
 
     my $new_request = (ref $self)->new(env => $env, body_is_parsed => 1);
-    my $new_params  = _merge_params(scalar($self->params),
-                                    $params || {});
+    my $new_params = _merge_params(scalar($self->params), $params || {});
 
     if (exists($options->{method})) {
         $new_request->method($options->{method});
     }
 
-    $new_request->{params}  = $new_params;
+    $new_request->{params} = $new_params;
     $new_request->_set_body_params($self->{_body_params});
     $new_request->_set_query_params($self->{_query_params});
     $new_request->_set_route_params($self->{_route_params});
     $new_request->{_params_are_decoded} = 1;
-    $new_request->{body}    = $self->body;
-    $new_request->{headers} = $self->headers;
+    $new_request->{body}                = $self->body;
+    $new_request->{headers}             = $self->headers;
 
     return $new_request;
 }
@@ -523,9 +523,8 @@ instance, C<method> pointing to a new request method).
 
 sub forward {
     my $new_request = shift->make_forward_to(@_);
-    return Dancer->runner->server->dispatcher->dispatch(
-               $new_request->env, $new_request
-           )->content;
+    return Dancer->runner->server->dispatcher->dispatch($new_request->env,
+        $new_request)->content;
 }
 
 sub _merge_params {
@@ -536,6 +535,7 @@ sub _merge_params {
     }
     return $params;
 }
+
 =method base()
 
 Returns an absolute URI for the base of the application.  Returns a L<URI>
@@ -586,7 +586,7 @@ sub uri_base {
     my $uri   = $self->_common_uri;
     my $canon = $uri->canonical;
 
-    if ( $uri->path eq '/' ) {
+    if ($uri->path eq '/') {
         $canon =~ s{/$}{};
     }
 
@@ -607,7 +607,7 @@ sub uri_for {
     my ($self, $part, $params, $dont_escape) = @_;
 
     my $uri = $self->base;
-    
+
     # Make sure there's exactly one slash between the base and the new part
     my $base = $uri->path;
     $base =~ s|/$||;
@@ -662,15 +662,16 @@ returned.
 If another value is given for C<$source>, then an exception is triggered.
 
 =cut
+
 sub params {
     my ($self, $source) = @_;
     my @caller = caller;
 
     if (not $self->{_params_are_decoded}) {
-        $self->{params}        = _decode($self->{params});
-        $self->{_body_params}  = _decode($self->{_body_params});
-        $self->{_query_params} = _decode($self->{_query_params});
-        $self->{_route_params} = _decode($self->{_route_params});
+        $self->{params}              = _decode($self->{params});
+        $self->{_body_params}        = _decode($self->{_body_params});
+        $self->{_query_params}       = _decode($self->{_query_params});
+        $self->{_route_params}       = _decode($self->{_route_params});
         $self->{_params_are_decoded} = 1;
     }
 
@@ -696,7 +697,7 @@ sub params {
 
 sub captures { shift->params->{captures} }
 
-sub splat { @{shift->params->{splat}||[]} }
+sub splat { @{shift->params->{splat} || []} }
 
 sub param { shift->params->{$_[0]} }
 
@@ -716,7 +717,7 @@ sub _decode {
     }
 
     if (ref($h) eq 'ARRAY') {
-        return [ map { _decode($_) } @$h ];
+        return [map { _decode($_) } @$h];
     }
 
     return $h;
@@ -817,7 +818,8 @@ sub _build_params {
     $self->_parse_get_params();
     if ($self->{body_is_parsed}) {
         $self->{_body_params} ||= {};
-    } else {
+    }
+    else {
         $self->_parse_post_params();
     }
 
@@ -856,7 +858,8 @@ sub _parse_get_params {
     return if !defined $source || $source eq '';
 
     if ($XS_PARSE_QUERY_STRING) {
-        return $self->{_query_params} = CGI::Deurl::XS::parse_query_string($source) // {};
+        return $self->{_query_params} =
+          CGI::Deurl::XS::parse_query_string($source) // {};
     }
 
     foreach my $token (split /[&;]/, $source) {
@@ -980,9 +983,9 @@ sub _build_uploads {
 }
 
 has cookies => (
-    is => 'rw',
-    isa => HashRef,
-    lazy => 1,
+    is      => 'rw',
+    isa     => HashRef,
+    lazy    => 1,
     builder => '_build_cookies',
 );
 
@@ -993,18 +996,19 @@ sub _build_cookies {
     return {} unless defined $env_str;
 
     my $cookies = {};
-    foreach my $cookie ( split( /[,;]\s/, $env_str ) ) {
+    foreach my $cookie (split(/[,;]\s/, $env_str)) {
+
         # here, we don't want more than the 2 first elements
         # a cookie string can contains something like:
         # cookie_name="foo=bar"
         # we want `cookie_name' as the value and `foo=bar' as the value
-        my( $name,$value ) = split(/\s*=\s*/, $cookie, 2);
+        my ($name, $value) = split(/\s*=\s*/, $cookie, 2);
         my @values;
-        if ( $value ne '' ) {
-            @values = map { uri_unescape($_) } split( /[&;]/, $value );
+        if ($value ne '') {
+            @values = map { uri_unescape($_) } split(/[&;]/, $value);
         }
         $cookies->{$name} =
-          Dancer::Core::Cookie->new( name => $name, value => \@values );
+          Dancer::Core::Cookie->new(name => $name, value => \@values);
     }
     return $cookies;
 }

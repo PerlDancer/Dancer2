@@ -5,15 +5,16 @@ use Test::Fatal;
 
 use Dancer::Core::Hook;
 
-my $h = Dancer::Core::Hook->new(name => 'before_template', code => sub { 'BT' });
+my $h = Dancer::Core::Hook->new(name => 'before_template', code => sub {'BT'});
 is $h->name, 'before_template_render';
 is $h->code->(), 'BT';
 
 {
+
     package Foo;
     use Moo;
     with 'Dancer::Core::Role::Hookable';
-    sub supported_hooks {  'foobar' }
+    sub supported_hooks {'foobar'}
 }
 
 my $f = Foo->new;
@@ -24,7 +25,7 @@ like(
     'execute_hook needs a hook name',
 );
 
-my $count = 0;
+my $count     = 0;
 my $some_hook = Dancer::Core::Hook->new(
     name => 'foobar',
     code => sub {
@@ -32,10 +33,8 @@ my $some_hook = Dancer::Core::Hook->new(
     }
 );
 
-ok(
-    ! exception { $f->add_hook($some_hook) },
-    'Supported hook can be installed',
-);
+ok(!exception { $f->add_hook($some_hook) },
+    'Supported hook can be installed',);
 
 like(
     exception {
@@ -43,7 +42,8 @@ like(
             Dancer::Core::Hook->new(
                 name => 'unknown_hook',
                 code => sub { $count++; }
-            ));
+            )
+        );
     },
     qr{Unsupported hook 'unknown_hook'},
     'Unsupported hook cannot be installed',
@@ -53,12 +53,12 @@ $f->execute_hook('foobar');
 is $count, 1;
 
 like(
-    exception { $f->replace_hook( 'doesnotexist', [] ) },
+    exception { $f->replace_hook('doesnotexist', []) },
     qr{Hook 'doesnotexist' must be installed first},
     'Nonexistent hook fails',
 );
 
-my $new_hooks = [ sub {$count--}, sub {$count--}, sub {$count--} ];
+my $new_hooks = [sub { $count-- }, sub { $count-- }, sub { $count-- }];
 $f->replace_hook('foobar', $new_hooks);
 $f->execute_hook('foobar');
 is $count, -2, 'replaced hooks were installed and executed';

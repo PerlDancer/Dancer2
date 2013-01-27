@@ -12,8 +12,8 @@ sub _html_sitemap {
 register foo_wrap_request => sub {
     my ($self) = plugin_args(@_);
     return $self->request;
-},
-{ is_global => 0 };
+  },
+  {is_global => 0};
 
 register foo_route => sub {
     my ($self) = plugin_args(@_);
@@ -24,12 +24,12 @@ register foo_route => sub {
 sub _retreive_get_urls {
     my ($route, @urls);
 
-    for my $app ( @{ runner->server->apps } ) {
+    for my $app (@{runner->server->apps}) {
         my $routes = $app->routes;
 
         # push the static get routes into an array.
-        get_route:
-        for my $get_route ( @{ $routes->{get} } ) {
+      get_route:
+        for my $get_route (@{$routes->{get}}) {
             my $regexp = $get_route->regexp;
 
             # If the pattern is a true comprehensive regexp or the route
@@ -41,15 +41,15 @@ sub _retreive_get_urls {
             $regexp =~ s/\?//g;
 
             # Other than that, its cool to be added.
-            push (@urls, $regexp)
-                if ! grep { $regexp =~ m/$_/i }
-                          @$Dancer::Plugin::SiteMap::OMIT_ROUTES;
+            push(@urls, $regexp)
+              if !grep { $regexp =~ m/$_/i }
+              @$Dancer::Plugin::SiteMap::OMIT_ROUTES;
         }
     }
 
     return sort(@urls);
-};
+}
 
 
-register_plugin for_versions => [ 2 ];
+register_plugin for_versions => [2];
 1;

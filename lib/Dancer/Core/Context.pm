@@ -1,4 +1,5 @@
 package Dancer::Core::Context;
+
 # ABSTRACT: handles everything proper to a request's context.
 
 use Moo;
@@ -11,36 +12,36 @@ use Dancer::Core::Response;
 use Dancer::Core::Cookie;
 
 has app => (
-    is => 'rw',
-    isa => InstanceOf['Dancer::Core::App'],
+    is       => 'rw',
+    isa      => InstanceOf ['Dancer::Core::App'],
     weak_ref => 1,
 );
 
 # the PSGI-env to use for building the request to process
 # this is the only mandatory argument to a context
 has env => (
-    is => 'ro',
+    is       => 'ro',
     required => 1,
-    isa => HashRef,
+    isa      => HashRef,
 );
 
 # the incoming request
 has request => (
-    is => 'rw',
-    lazy => 1,
+    is      => 'rw',
+    lazy    => 1,
     builder => '_build_request',
-    isa => InstanceOf['Dancer::Core::Request'],
+    isa     => InstanceOf ['Dancer::Core::Request'],
 );
 
 sub _build_request {
     my ($self) = @_;
-    Dancer::Core::Request->new( env => $self->env );
+    Dancer::Core::Request->new(env => $self->env);
 }
 
 # a buffer for per-request variables
 has buffer => (
-    is => 'rw',
-    isa => HashRef,
+    is      => 'rw',
+    isa     => HashRef,
     default => sub { {} },
 );
 
@@ -56,8 +57,8 @@ sub var {
 # a set of changes to apply to the response
 # that HashRef will should be passed as attributes to a response object
 has response => (
-    is => 'rw',
-    isa => InstanceOf['Dancer::Core::Response'],
+    is      => 'rw',
+    isa     => InstanceOf ['Dancer::Core::Response'],
     default => sub { Dancer::Core::Response->new },
 );
 
@@ -70,7 +71,8 @@ sub cookie {
 
     # writer
     my ($name, $value, %options) = @_;
-    my $c = Dancer::Core::Cookie->new(name => $name, value => $value, %options);
+    my $c =
+      Dancer::Core::Cookie->new(name => $name, value => $value, %options);
     $self->response->push_header('Set-Cookie' => $c->to_header);
 }
 

@@ -8,9 +8,9 @@ with 'Dancer::Core::Role::Engine';
 
 sub supported_hooks {
     qw(
-    engine.serializer.before
-    engine.serializer.after
-    )
+      engine.serializer.before
+      engine.serializer.after
+    );
 }
 
 sub _build_type {'Serializer'}
@@ -31,7 +31,7 @@ around serialize => sub {
 };
 
 # attribute vs method?
-sub content_type { 'text/plain' }
+sub content_type {'text/plain'}
 
 # most serializer don't have to overload this one
 sub support_content_type {
