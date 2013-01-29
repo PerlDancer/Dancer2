@@ -321,7 +321,7 @@ sub send_file {
     (ref($path) eq 'SCALAR')
       and return $$path;
 
-    my $file_handler = Dancer::Handler::File->new(
+    my $file_handler = Dancer::Handler::v2::File->new(
         app             => $self,
         postponed_hooks => $self->postponed_hooks,
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef),

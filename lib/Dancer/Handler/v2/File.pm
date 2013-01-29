@@ -1,6 +1,6 @@
 # ABSTRACT: TODO
 
-package Dancer::Handler::File;
+package Dancer::Handler::v2::File;
 use Carp 'croak';
 use Moo;
 use HTTP::Date;
