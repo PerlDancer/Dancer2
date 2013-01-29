@@ -11,7 +11,7 @@ sub create {
 
     $type = _camelize($type);
     $name = _camelize($name);
-    my $engine_class = "Dancer::${type}::${name}";
+    my $engine_class = "Dancer::${type}::v2::${name}";
 
     eval "use $engine_class";
     croak "Unable to load class for $type engine $name: $@" if $@;
