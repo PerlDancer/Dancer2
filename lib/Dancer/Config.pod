@@ -316,7 +316,7 @@ in standalone mode,
     logger: console
 
 Various other logger backends are available on CPAN, including
-L<Dancer::Logger::Syslog>, L<Dancer::Logger::Log4perl>, L<Dancer::Logger::PSGI>
+L<Dancer::Logger::v2::Syslog>, L<Dancer::Logger::v2::Log4perl>, L<Dancer::Logger::v2::PSGI>
 (which can, with the aid of Plack middlewares, send log messages to a browser's
 console window) and others.
 

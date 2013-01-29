@@ -1,6 +1,6 @@
 # ABSTRACT: Blackhole-like silent logging engine for Dancer
 
-package Dancer::Logger::Null;
+package Dancer::Logger::v2::Null;
 use Moo;
 with 'Dancer::Core::Role::Logger';
 
