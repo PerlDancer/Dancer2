@@ -1,6 +1,6 @@
 # ABSTRACT: Serializer for handling YAML data
 
-package Dancer::Serializer::YAML;
+package Dancer::Serializer::v2::YAML;
 use Moo;
 use Carp 'croak';
 with 'Dancer::Core::Role::Serializer';
@@ -9,13 +9,13 @@ with 'Dancer::Core::Role::Serializer';
 
 sub from_yaml {
     my ($yaml) = @_;
-    my $s = Dancer::Serializer::YAML->new;
+    my $s = Dancer::Serializer::v2::YAML->new;
     $s->deserialize($yaml);
 }
 
 sub to_yaml {
     my ($data) = @_;
-    my $s = Dancer::Serializer::YAML->new;
+    my $s = Dancer::Serializer::v2::YAML->new;
     $s->serialize($data);
 }
 

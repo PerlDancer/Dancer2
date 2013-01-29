@@ -1,6 +1,6 @@
 # ABSTRACT: Serializer for handling JSON data
 
-package Dancer::Serializer::JSON;
+package Dancer::Serializer::v2::JSON;
 use Moo;
 use JSON ();
 
@@ -16,12 +16,12 @@ Turn Perl data structures into JSON output and vice-versa.
 
 # helpers
 sub from_json {
-    my $s = Dancer::Serializer::JSON->new;
+    my $s = Dancer::Serializer::v2::JSON->new;
     $s->deserialize(@_);
 }
 
 sub to_json {
-    my $s = Dancer::Serializer::JSON->new;
+    my $s = Dancer::Serializer::v2::JSON->new;
     $s->serialize(@_);
 }
 
