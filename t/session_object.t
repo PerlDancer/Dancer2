@@ -5,9 +5,9 @@ use warnings;
 use Test::More;
 
 use Dancer::Core::Session;
-use Dancer::SessionFactory::Simple;
+use Dancer::Session::v2::Simple;
 
-my $ENGINE = Dancer::SessionFactory::Simple->new;
+my $ENGINE = Dancer::Session::v2::Simple->new;
 
 my $CPRNG_AVAIL =
     Dancer::ModuleLoader->require("Math::Random::ISAAC::XS") &&

@@ -50,7 +50,6 @@ sub _add_postponed_hooks {
     my $caller = ref($self);
     my ($dancer, $h_type, $h_name, @rest) = map {lc} split /::/, $caller;
     $h_name = $rest[0]  if $h_name eq 'Role';
-    $h_type = 'session' if $h_type eq 'sessionfactory';
     if ($h_type =~ /(template|logger|serializer|session)/) {
         $h_name = $h_type;
         $h_type = 'engine';
