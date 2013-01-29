@@ -12,7 +12,7 @@ use Test::More tests => 4;
 
     is dancer_app->api_version => 1, 'can be forced to api v1';
 
-    is ref(setting 'template') => 'Dancer::Template::Simple',
+    is ref(setting 'template') => 'Dancer::Template::v2::Simple',
       'v1 template is Simple';
 }
 
@@ -25,7 +25,7 @@ use Test::More tests => 4;
 
     is dancer_app->api_version => 2, 'default is 2';
 
-    is ref(setting 'template') => 'Dancer::Template::Tiny',
+    is ref(setting 'template') => 'Dancer::Template::v2::Tiny',
       'v2 template is Tiny';
 }
 

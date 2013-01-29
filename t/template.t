@@ -9,17 +9,17 @@ use File::Basename 'dirname';
 eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
 
-use_ok('Dancer::Template::TemplateToolkit');
+use_ok('Dancer::Template::v2::TemplateToolkit');
 
 my $views =
   File::Spec->rel2abs(File::Spec->catfile(dirname(__FILE__), 'views'));
 
-my $tt = Dancer::Template::TemplateToolkit->new(
+my $tt = Dancer::Template::v2::TemplateToolkit->new(
     views  => $views,
     layout => 'main.tt',
 );
 
-isa_ok $tt, 'Dancer::Template::TemplateToolkit';
+isa_ok $tt, 'Dancer::Template::v2::TemplateToolkit';
 ok $tt->does('Dancer::Core::Role::Template');
 
 $tt->add_hook(

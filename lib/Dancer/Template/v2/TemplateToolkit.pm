@@ -1,6 +1,6 @@
 # ABSTRACT: Template toolkit engine for Dancer
 
-package Dancer::Template::TemplateToolkit;
+package Dancer::Template::v2::TemplateToolkit;
 
 use strict;
 use warnings;

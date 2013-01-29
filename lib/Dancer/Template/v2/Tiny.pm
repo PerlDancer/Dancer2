@@ -1,4 +1,4 @@
-package Dancer::Template::Tiny;
+package Dancer::Template::v2::Tiny;
 
 # ABSTRACT: Template::Tiny engine for Dancer
 

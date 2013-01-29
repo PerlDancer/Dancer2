@@ -423,10 +423,10 @@ your templates are located in the 'templates' directory, do the following:
 
     set views => path(dirname(__FILE__), 'templates');
 
-By default, the internal template engine is used (L<Dancer::Template::Simple>)
+By default, the internal template engine is used (L<Dancer::Template::v2::Simple>)
 but you may want to upgrade to Template::Toolkit. If you do so, you have to
 enable this engine in your settings as explained in
-L<Dancer::Template::TemplateToolkit>. If you do so, you'll also have to import
+L<Dancer::Template::v2::TemplateToolkit>. If you do so, you'll also have to import
 the L<Template> module in your application code. Note that Dancer configures
 the Template::Toolkit engine to use <% %> brackets instead of its default
 [% %] brackets, although you can change this in your config file.
