@@ -14,7 +14,7 @@ read/write config entries.
 
 =cut
 
-use Dancer::Factory::Engine;
+use Dancer::Core::Factory;
 use File::Spec;
 use Config::Any;
 use Dancer::Core::Types;
@@ -223,7 +223,7 @@ my $_setters = {
         if (!exists($engine_options->{log_level}) and exists($config->{log})) {
             $engine_options->{log_level} = $config->{log};
         }
-        return Dancer::Factory::Engine->create(
+        return Dancer::Core::Factory->create(
             logger => $value,
             %{$engine_options},
             app_name        => $self->name,
@@ -238,7 +238,7 @@ my $_setters = {
         my $engine_options =
           $self->_get_config_for_engine(session => $value, $config);
 
-        return Dancer::Factory::Engine->create(
+        return Dancer::Core::Factory->create(
             session_factory => $value,
             %{$engine_options},
             postponed_hooks => $self->get_postponed_hooks,
@@ -255,7 +255,7 @@ my $_setters = {
         $engine_attrs->{layout} ||= $config->{layout};
         $engine_attrs->{views} ||= path($self->config_location, 'views');
 
-        return Dancer::Factory::Engine->create(
+        return Dancer::Core::Factory->create(
             template => $value,
             %{$engine_attrs},
             postponed_hooks => $self->get_postponed_hooks,
@@ -273,7 +273,7 @@ my $_setters = {
         my $engine_options =
           $self->_get_config_for_engine(serializer => $value, $config);
 
-        return Dancer::Factory::Engine->create(
+        return Dancer::Core::Factory->create(
             serializer      => $value,
             config          => $engine_options,
             postponed_hooks => $self->get_postponed_hooks,

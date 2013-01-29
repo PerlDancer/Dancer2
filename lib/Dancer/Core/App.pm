@@ -409,7 +409,7 @@ sub init_route_handlers {
         my $config = $handlers_config->{$handler_name};
         $config = {} if !ref($config);
         $config->{app} = $self;
-        my $handler = Dancer::Factory::Engine->create(
+        my $handler = Dancer::Core::Factory->create(
             Handler => $handler_name,
             %$config,
             postponed_hooks => $self->postponed_hooks,
