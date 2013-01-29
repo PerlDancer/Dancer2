@@ -9,7 +9,11 @@ use Dancer::SessionFactory::Simple;
 
 my $ENGINE = Dancer::SessionFactory::Simple->new;
 
-diag $ENGINE->_cprng_available
+my $CPRNG_AVAIL =
+    Dancer::ModuleLoader->require("Math::Random::ISAAC::XS") &&
+    Dancer::ModuleLoader->require("Crypt::URandom");
+
+diag $CPRNG_AVAIL
     ? "Crypto strength tokens"
     : "Default strength tokens";
 
