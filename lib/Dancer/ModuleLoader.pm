@@ -17,7 +17,7 @@ To do such things takes a bit of code for localizing C<$@> and C<eval>ing. That
 code has been refactored into this module to help Dancer core developers.
 
 B<Please only use this for Dancer core modules>. If you're writing an external
-Dancer module (L<Dancer::Template::Tiny>, L<Dancer::Session::Cookie>, etc.),
+Dancer module (L<Dancer::Template::v2::Tiny>, L<Dancer::Session::Cookie>, etc.),
 please simply "C<use ModuleYouNeed>" in your code and don't use this module.
 
 WARNING, all the following methods are CLASS methods.

@@ -1,6 +1,6 @@
 # ABSTRACT: TODO
 
-package Dancer::Handler::AutoPage;
+package Dancer::Handler::v2::AutoPage;
 use Moo;
 use Carp 'croak';
 use Dancer::Core::Types;

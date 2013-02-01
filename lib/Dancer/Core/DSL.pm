@@ -302,37 +302,37 @@ sub send_error {
 sub from_json {
     my $app = shift->app;
     require 'Dancer/Serializer/JSON.pm';
-    Dancer::Serializer::JSON::from_json(@_);
+    Dancer::Serializer::v2::JSON::from_json(@_);
 }
 
 sub to_json {
     my $app = shift->app;
     require 'Dancer/Serializer/JSON.pm';
-    Dancer::Serializer::JSON::to_json(@_);
+    Dancer::Serializer::v2::JSON::to_json(@_);
 }
 
 sub from_yaml {
     my $app = shift->app;
     require 'Dancer/Serializer/YAML.pm';
-    Dancer::Serializer::YAML::from_yaml(@_);
+    Dancer::Serializer::v2::YAML::from_yaml(@_);
 }
 
 sub to_yaml {
     my $app = shift->app;
     require 'Dancer/Serializer/YAML.pm';
-    Dancer::Serializer::YAML::to_yaml(@_);
+    Dancer::Serializer::v2::YAML::to_yaml(@_);
 }
 
 sub from_dumper {
     my $app = shift->app;
     require 'Dancer/Serializer/Dumper.pm';
-    Dancer::Serializer::Dumper::from_dumper(@_);
+    Dancer::Serializer::v2::Dumper::from_dumper(@_);
 }
 
 sub to_dumper {
     my $app = shift->app;
     require 'Dancer/Serializer/Dumper.pm';
-    Dancer::Serializer::Dumper::to_dumper(@_);
+    Dancer::Serializer::v2::Dumper::to_dumper(@_);
 }
 
 sub log { shift->app->log(@_) }

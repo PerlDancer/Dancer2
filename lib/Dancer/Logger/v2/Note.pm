@@ -1,6 +1,6 @@
 # ABSTRACT: Test::More note() logging engine for Dancer
 
-package Dancer::Logger::Note;
+package Dancer::Logger::v2::Note;
 use Moo;
 use Test::More;
 with 'Dancer::Core::Role::Logger';

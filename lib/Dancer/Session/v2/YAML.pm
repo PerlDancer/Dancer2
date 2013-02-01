@@ -1,4 +1,4 @@
-package Dancer::SessionFactory::YAML;
+package Dancer::Session::v2::YAML;
 
 # ABSTRACT: YAML-file-based session backend for Dancer
 

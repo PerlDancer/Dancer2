@@ -1,6 +1,6 @@
 # ABSTRACT: Serializer for handling Dumper data
 
-package Dancer::Serializer::Dumper;
+package Dancer::Serializer::v2::Dumper;
 
 use Moo;
 use Carp 'croak';
@@ -19,12 +19,12 @@ Turn Perl data structures into L<Data::Dumper> output and vice-versa.
 
 # helpers
 sub from_dumper {
-    my $s = Dancer::Serializer::Dumper->new;
+    my $s = Dancer::Serializer::v2::Dumper->new;
     $s->deserialize(@_);
 }
 
 sub to_dumper {
-    my $s = Dancer::Serializer::Dumper->new;
+    my $s = Dancer::Serializer::v2::Dumper->new;
     $s->serialize(@_);
 }
 

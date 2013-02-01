@@ -1,8 +1,8 @@
 # ABSTRACT: Capture dancer logs
 
-package Dancer::Logger::Capture;
+package Dancer::Logger::v2::Capture;
 use Moo;
-use Dancer::Logger::Capture::Trap;
+use Dancer::Logger::v2::Capture::Trap;
 
 with 'Dancer::Core::Role::Logger';
 
@@ -10,7 +10,7 @@ with 'Dancer::Core::Role::Logger';
 
     set logger => "capture";
 
-    my $trap = Dancer::Logger::Capture->trap;
+    my $trap = Dancer::Logger::v2::Capture->trap;
     my $logs = $trap->read;
 
 	#a real-world example
@@ -22,7 +22,7 @@ with 'Dancer::Core::Role::Logger';
     warning "Danger!  Warning!";
     debug   "I like pie.";
 
-    my $trap = Dancer::Logger::Capture->trap;
+    my $trap = Dancer::Logger::v2::Capture->trap;
     is_deeply $trap->read, [
         { level => "warning", message => "Danger!  Warning!" },
         { level => "debug",   message => "I like pie.", }
@@ -40,7 +40,7 @@ It's primary purpose is for testing.
 
 =method trap
 
-Returns the L<Dancer::Logger::Capture::Trap> object used to capture
+Returns the L<Dancer::Logger::v2::Capture::Trap> object used to capture
 and read logs.
 
 =cut
@@ -51,7 +51,7 @@ has trapper => (
     builder => '_build_trapper',
 );
 
-sub _build_trapper { Dancer::Logger::Capture::Trap->new }
+sub _build_trapper { Dancer::Logger::v2::Capture::Trap->new }
 
 sub log {
     my ($self, $level, $message) = @_;
@@ -64,6 +64,6 @@ sub log {
 
 =head1 SEE ALSO
 
-L<Dancer::Logger>, L<Dancer::Logger::Capture::Trap>
+L<Dancer::Logger>, L<Dancer::Logger::v2::Capture::Trap>
 
 =cut

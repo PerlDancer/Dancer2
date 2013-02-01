@@ -1,6 +1,6 @@
 #ABSTRACT: Pure Perl 5 template engine for Dancer
 
-package Dancer::Template::Simple;
+package Dancer::Template::v2::Simple;
 use strict;
 use warnings;
 use Carp;
@@ -20,12 +20,12 @@ powerful one, it's written in pure Perl and has no C bindings to accelerate the
 template processing.
 
 If you want to power an application with Dancer in production environment, it's
-strongly advised to switch to Dancer::Template::TemplateToolkit.
+strongly advised to switch to Dancer::Template::v2::TemplateToolkit.
 
 =head1 SYNTAX
 
-A template written for Dancer::Template::Simple should be working just fine with
-Dancer::Template::TemplateToolkit. The opposite is not true though.
+A template written for Dancer::Template::v2::Simple should be working just fine with
+Dancer::Template::v2::TemplateToolkit. The opposite is not true though.
 
 =over 4
 

@@ -321,7 +321,7 @@ sub send_file {
     (ref($path) eq 'SCALAR')
       and return $$path;
 
-    my $file_handler = Dancer::Handler::File->new(
+    my $file_handler = Dancer::Handler::v2::File->new(
         app             => $self,
         postponed_hooks => $self->postponed_hooks,
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef),
@@ -409,7 +409,7 @@ sub init_route_handlers {
         my $config = $handlers_config->{$handler_name};
         $config = {} if !ref($config);
         $config->{app} = $self;
-        my $handler = Dancer::Factory::Engine->create(
+        my $handler = Dancer::Core::Factory->create(
             Handler => $handler_name,
             %$config,
             postponed_hooks => $self->postponed_hooks,

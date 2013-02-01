@@ -1,6 +1,6 @@
 # ABSTRACT: TODO
 
-package Dancer::Logger::Console;
+package Dancer::Logger::v2::Console;
 use Moo;
 with 'Dancer::Core::Role::Logger';
 

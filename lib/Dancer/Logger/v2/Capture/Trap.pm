@@ -1,6 +1,6 @@
 # ABSTRACT: a place to store captured Dancer logs
 
-package Dancer::Logger::Capture::Trap;
+package Dancer::Logger::v2::Capture::Trap;
 use Moo;
 use Dancer::Core::Types;
 
@@ -28,14 +28,14 @@ __END__
 
 =head1 SYNOPSIS
 
-    my $trap = Dancer::Logger::Capture::Trap->new;
+    my $trap = Dancer::Logger::v2::Capture::Trap->new;
     $trap->store( $level, $message );
     my $logs = $trap->read;
 
 =head1 DESCRIPTION
 
 This is a place to store and retrieve capture Dancer logs used by
-L<Dancer::Logger::Capture>.
+L<Dancer::Logger::v2::Capture>.
 
 =head2 Methods
 
@@ -61,6 +61,6 @@ For example...
 
 =head1 SEE ALSO
 
-L<Dancer::Logger::Capture>
+L<Dancer::Logger::v2::Capture>
 
 =cut
