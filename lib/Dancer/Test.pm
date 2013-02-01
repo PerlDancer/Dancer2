@@ -227,7 +227,7 @@ registry.
 =cut 
 
 sub route_exists {
-    response_status_is(@_, 200);
+    response_status_is($_[0], 200, $_[1]);
 }
 
 =func route_doesnt_exist([$method, $path], $test_name)
