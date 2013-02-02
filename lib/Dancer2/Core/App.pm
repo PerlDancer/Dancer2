@@ -173,9 +173,7 @@ sub template {
     my ($self) = shift;
     my $template = $self->engine('template');
 
-    $template->context($self->context);
     my $content = $template->process(@_);
-    $template->clear_context();
 
     return $content;
 }
@@ -474,6 +472,11 @@ has context => (
     trigger => sub {
         my ($self, $ctx) = @_;
         $self->_init_for_context($ctx),;
+        for my $type ( qw/logger serializer session template/ ) {
+            my $engine = $self->settings->{$type}
+                or next;
+            defined( $ctx ) ? $engine->context($ctx) : $engine->clear_context;
+        }
     },
 );
 
