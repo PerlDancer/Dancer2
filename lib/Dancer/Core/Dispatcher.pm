@@ -58,9 +58,6 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-            $DB::single = 1;
-
-            
             $context->request->deserialize
                 if $context->request->serializer( $app->settings->{serializer} );
 

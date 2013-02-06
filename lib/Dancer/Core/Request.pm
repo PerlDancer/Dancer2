@@ -424,16 +424,14 @@ has data => (
 sub deserialize {
     my $self = shift;
 
-    $DB::single = 1;
-
     return unless $self->serializer;
 
     # Content-Type may contain additional parameters
     # (http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7)
     # which should be safe to ignore at this level.
     # So accept either e.g. text/xml or text/xml; charset=utf-8
-    my $content_type = $self->content_type;
-    $content_type =~ s/ \s* ; .+ $ //x;
+    my ($content_type) = split /\s*;/, $self->content_type, 2;
+
     return unless $self->serializer->support_content_type($content_type);
 
     return 
