@@ -31,8 +31,10 @@ sub dispatch {
 # Once per didspatching! We should not create one context for each app or we're
 # going to parse multiple time the request body/
     my $context = Dancer::Core::Context->new(env => $env);
-
-    foreach my $app (@{$self->apps}) {
+    
+    my $i = 0;
+    APP_LOOP: while ( $i < @{ $self->apps } ) {
+        my $app = $self->apps->[$i];
 
         # warn "walking through routes of ".$app->name;
 
@@ -61,14 +63,18 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-   # if the request has been altered by a before filter, we should not continue
-   # with this route handler, we should continue to walk through the
-   # rest
-
-            # next if $context->request->path_info ne $path_info
-            #         || $context->request->method ne uc($http_method);
-
             $app->execute_hook('core.app.before_request', $context);
+
+           # if the request has been altered by a before filter, we should not continue
+           # with this route handler, we should continue to walk through the
+           # rest
+
+            if ($context->request->path_info ne $path_info
+                    || $context->request->method ne uc($http_method) ) {
+                $i = 0;
+                redo APP_LOOP;
+            }
+
             my $response = $context->response;
 
             my $content;
@@ -124,6 +130,8 @@ sub dispatch {
             $app->context(undef);
             return $response;
         }
+        
+        $i++;
     }
 
     return $self->response_not_found($context);
