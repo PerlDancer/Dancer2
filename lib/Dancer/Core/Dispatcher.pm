@@ -58,6 +58,12 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
+            $DB::single = 1;
+
+            
+            $context->request->deserialize
+                if $context->request->serializer( $app->settings->{serializer} );
+
             # if the request has been altered by a before filter, we should not continue
             # with this route handler, we should continue to walk through the
             # rest
