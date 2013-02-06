@@ -27,7 +27,7 @@ route_doesnt_exist $_ for @routes;
 get '/foo' => sub {'fighter'};
 $routes[-1]->status(200);
 
-route_exists $_ for @routes;
+route_exists $_, "route $_ exists" for @routes;
 
 for (@routes) {
     my $response = dancer_response $_;
