@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 44;
+use Test::More tests => 45;
 
 use Dancer2 ':syntax';
 use Dancer2::Test;
@@ -48,3 +48,7 @@ response_status_isnt $_ => 203 for @routes;
 response_headers_include $_ => [Server => "Perl Dancer2 $Dancer2::VERSION"]
   for @routes;
 
+## Check parameters get through ok
+get '/param' => sub { param('test') };
+my $param_response = dancer_response(GET => '/param', { params => { test => 'hello' } });
+is $param_response->content, 'hello', 'PARAMS get echoed by route';

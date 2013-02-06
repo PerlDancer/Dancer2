@@ -147,7 +147,7 @@ sub _build_request_from_env {
             push @params,
               uri_escape($p) . '=' . uri_escape($options->{params}->{$p});
         }
-        $env->{REQUEST_URI} = join('&', @params);
+        $env->{QUERY_STRING} = join('&', @params);
     }
 
     my $request = Dancer2::Core::Request->new(env => $env);
@@ -194,7 +194,7 @@ sub _build_env_from_request {
         foreach my $p (keys %{$params}) {
             push @params, uri_escape($p) . '=' . uri_escape($params->{$p});
         }
-        $env->{REQUEST_URI} = join('&', @params);
+        $env->{QUERY_STRING} = join('&', @params);
     }
 
     # TODO files
