@@ -14,7 +14,11 @@ get '/default' => sub {
 };
 
 hook before => sub {
-    request->path_info('/default');
+    my $context = shift;
+    return if $context->request->path eq '/default';
+
+    $context->response( forward('/default') );
+    $context->response->halt;
 };
 
 response_content_like ( [ GET => '/' ], qr{Default}, 
