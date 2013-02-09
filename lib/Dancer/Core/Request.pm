@@ -524,7 +524,7 @@ instance, C<method> pointing to a new request method).
 sub forward {
     my $new_request = shift->make_forward_to(@_);
     return Dancer->runner->server->dispatcher->dispatch($new_request->env,
-        $new_request)->content;
+        $new_request);
 }
 
 sub _merge_params {
