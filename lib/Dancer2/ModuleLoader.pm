@@ -5,6 +5,8 @@ package Dancer2::ModuleLoader;
 use strict;
 use warnings;
 
+use Module::Runtime qw/ use_module /;
+
 =head1 DESCRIPTION
 
 Sometimes in Dancer2 core we need to use modules, but we don't want to declare
@@ -51,16 +53,7 @@ If you need to give argumentto the loading module, please use the method C<load_
 sub load {
     my ($class, $module, $version) = @_;
 
-    # 0 is a valid version, so testing trueness of $version is not enough
-    if (defined $version && length $version) {
-        my ($res, $error) = $class->load_with_params($module);
-        $res or return wantarray ? (0, $error) : 0;
-        local $@;
-        eval { $module->VERSION($version) };
-        $error = $@;
-        $error and return wantarray ? (0, $error) : 0;
-        return 1;
-    }
+    $class->require( $module, $version );
 
     # normal 'use', can be done via require + import
     my ($res, $error) = $class->load_with_params($module);
@@ -81,7 +74,7 @@ Runs a "C<require ModuleYouNeed>".
 If you are unsure what you need (C<require> or C<load>), learn the differences
 between C<require> and C<use>.
 
-Takes in arguments the module name.
+Takes in arguments the module name, and an optional version.
 
 In scalar context, returns 1 if successful, 0 if not.
 In list context, returns 1 if successful, C<(0, "error message")> if not.
@@ -89,14 +82,11 @@ In list context, returns 1 if successful, C<(0, "error message")> if not.
 =cut
 
 sub require {
-    my ($class, $module) = @_;
-    local $@;
-    my $module_filename = $module;
-    $module_filename =~ s!::|'!/!g;
-    $module_filename .= '.pm';
-    eval { require $module_filename };
-    my $error = $@;
-    $error and return wantarray ? (0, $error) : 0;
+    my ($class, $module, $version) = @_;
+
+    eval { use_module( $module, ( $version ) x defined $version ) } 
+        or return wantarray ? (0, $@) : 0;
+
     return 1;
 }
 

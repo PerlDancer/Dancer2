@@ -1,3 +1,9 @@
+{{$NEXT}}
+
+    [BUG FIXES]
+    * Dancer2::ModuleLoader now use Module::Runtime at its core
+        (issue #166, Yanick Champoux)
+
 2.02 - 2013-02-24   (Alexis Sukrieh)
 
     [ DOCUMENTATION ]
