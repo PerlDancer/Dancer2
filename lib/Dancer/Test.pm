@@ -163,6 +163,11 @@ sub _build_request_from_env {
         }
     }
 
+    # content-type
+    if ( $options->{content_type} ) {
+        $request->content_type( $options->{content_type} );
+    }
+
     # TODO files
 
     return ($request, $env);
