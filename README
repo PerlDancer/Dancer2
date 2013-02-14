@@ -28,7 +28,7 @@ Dancer 2.0 code-lines ratio: 93.78% (11253/11999)
 Dancer 2.0 DSL is missing: after, before, before_template, from_xml, load, to_xml
 Dancer 2.0 DSL has these new keywords: app, context, core_debug, dancer_app, dancer_version, dancer_major_version, dsl, log, response, runner
 
-Most ot the plugins on CPAN might not be working as well, feedback welcome
+Most of the plugins on CPAN might not be working as well, feedback welcome
 again.
 
 See http://www.sukria.net/fr/archives/2011/09/30/dancer2-prototype/
