@@ -87,6 +87,18 @@ sub register {
     push @{$_keywords->{$plugin}}, [$keyword, $code, $options->{is_global}];
 }
 
+my $_hooks = {};
+
+sub set_hook {
+    my $plugin = caller;
+    my $caller = caller(1);
+    my ($name, $code) = @_;
+
+    $_hooks->{$plugin} ||= [];
+    push @{$_hooks->{$plugin}}, [$name, $code];
+}
+
+
 =method register_plugin
 
 A Dancer plugin must end with this statement. This lets the plugin register all
@@ -163,6 +175,11 @@ sub register_plugin {
         for my $k (@{$_keywords->{$plugin}}) {
             my ($keyword, $code, $is_global) = @{$k};
             $caller->dsl->register($keyword, $is_global);
+        }
+
+        for my $h (@{$_hooks->{$plugin}}) {
+            my ($name, $code) = @{$h};
+            $caller->dsl->hook($name, $code);
         }
 
         Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
@@ -312,6 +329,7 @@ sub import {
       register_hook
       register_plugin
       register
+      set_hook
       plugin_setting
       plugin_args
     );
