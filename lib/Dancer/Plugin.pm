@@ -179,7 +179,12 @@ sub register_plugin {
 
         for my $h (@{$_hooks->{$plugin}}) {
             my ($name, $code) = @{$h};
-            $caller->dsl->hook($name, $code);
+
+            # compile it with $caller->dsl so that the hook gets access
+            # to the caller's app
+            my $compiled = sub { $code->($caller->dsl, @_) };
+
+            $caller->dsl->hook($name, $compiled);
         }
 
         Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
