@@ -1,0 +1,2 @@
+Config message: [% config_msg %]
+Hooked message: [% flash %]
