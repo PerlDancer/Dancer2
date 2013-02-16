@@ -7,9 +7,11 @@ use Test::More;
 my $mocked_epoch = 1355676244;    # "Sun, 16-Dec-2012 16:44:04 GMT"
 
 # The order is important!
-use Test::MockTime 'set_absolute_time';
+eval "use Test::MockTime 'set_absolute_time'; 1"
+    or plan skip_all => 'Test::MockTime not present';
+
 set_absolute_time($mocked_epoch);
-use Dancer::Core::Time;
+require Dancer::Core::Time;
 
 my @tests = (
     ["1h"      => 3600  => "Sun, 16-Dec-2012 17:44:04 GMT"],
