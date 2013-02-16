@@ -91,7 +91,6 @@ my $_hooks = {};
 
 sub set_hook {
     my $plugin = caller;
-    my $caller = caller(1);
     my ($name, $code) = @_;
 
     $_hooks->{$plugin} ||= [];
