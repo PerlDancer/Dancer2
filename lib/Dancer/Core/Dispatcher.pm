@@ -61,9 +61,12 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-   # if the request has been altered by a before filter, we should not continue
-   # with this route handler, we should continue to walk through the
-   # rest
+            $context->request->deserialize
+                if $context->request->serializer( $app->settings->{serializer} );
+
+            # if the request has been altered by a before filter, we should not continue
+            # with this route handler, we should continue to walk through the
+            # rest
 
             # next if $context->request->path_info ne $path_info
             #         || $context->request->method ne uc($http_method);

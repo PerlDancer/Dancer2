@@ -202,6 +202,10 @@ Return the content type of the request.
 has content_type => (
     is  => 'rw',
     isa => Str,
+    lazy => 1,
+    default => sub {
+        $_[0]->env->{CONTENT_TYPE} || '';
+    },
 );
 
 =method content_length()
@@ -213,6 +217,10 @@ Return the content length of the request.
 has content_length => (
     is  => 'rw',
     isa => Num,
+    lazy => 1,
+    default => sub {
+        $_[0]->env->{CONTENT_LENGTH} || 0;
+    },
 );
 
 =method body()
@@ -387,6 +395,68 @@ sub scheme {
       || "";
 }
 
+=method serializer( $serializer )
+
+Set or returns the optional serializer object used to deserialize request
+parameters
+
+=cut
+
+has serializer => (
+    is => 'rw',
+    isa => Maybe(ConsumerOf['Dancer::Core::Role::Serializer']),
+    required => 0,
+);
+
+=method data()
+
+If the application has a serializer and if the request has serialized
+content, returns the deserialized structure as a hashref.
+
+=cut
+
+has data => (
+    is => 'ro',
+    lazy => 1,
+    default => \&deserialize,
+);
+
+sub deserialize {
+    my $self = shift;
+
+    return unless $self->serializer;
+
+    # Content-Type may contain additional parameters
+    # (http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7)
+    # which should be safe to ignore at this level.
+    # So accept either e.g. text/xml or text/xml; charset=utf-8
+    my ($content_type) = split /\s*;/, $self->content_type, 2;
+
+    return unless $self->serializer->support_content_type($content_type);
+
+    return 
+      unless grep { $self->method eq $_ } qw/ PUT POST PATCH /;
+
+    # try to deserialize
+    my $data = eval {
+        $self->serializer->deserialize($self->body)
+    };
+    if ($@) {
+        # TODO add logging
+        return;
+    }
+
+    $self->{_body_params} = $data;
+
+    # TODO surely there is a better way
+    $self->{params} = {
+        %{  $self->{params} || {} },
+        %$data,
+    };
+
+    return $data;
+}
+
 =method secure()
 
 Return true of false, indicating whether the connection is secure
@@ -443,8 +513,6 @@ our $_count = 0;
 sub BUILD {
     my ($self) = @_;
 
-    $self->{content_length} = $self->env->{CONTENT_LENGTH} || 0;
-    $self->{content_type}   = $self->env->{CONTENT_TYPE}   || '';
     $self->{id}             = ++$_count;
 
     $self->{_chunk_size}    = 4096;
