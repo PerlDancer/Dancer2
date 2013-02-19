@@ -3,18 +3,19 @@ package t::lib::AppHooks;
 use Dancer ':syntax';
 use t::lib::PluginHook;
 
-setting appdir => 't';
-setting(engines =>
-  {session => { YAML => {session_dir => 't/sessions'}}});
-setting session  => 'YAML';
+set appdir => 't';
+set engines =>
+  { session => { YAML => {session_dir => 't/sessions'} } };
+set session   => 'YAML';
+set template  => 'tiny';
 
-setting( plugins => {
+set plugins => {
     't::lib::PluginHook' => { 
         test_separation => 'Set by t::lib::AppHooks'
     } 
-} );
+};
 
-get '/next' => sub {    
+get '/next' => sub {
     return template 'PluginHooks';
 };
 

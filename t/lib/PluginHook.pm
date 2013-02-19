@@ -19,24 +19,13 @@ register flash => sub {
     return $value;
 };
 
-eval {
-    set_hook (before_template_render => sub {
-        my $dsl    = shift;
-        my $tokens = shift;
-        $tokens->{flash}      = session('_my_flash');
-        $tokens->{config_msg} = 
-            $dsl->setting('plugins')->{'t::lib::PluginHook'}->{test_separation};
-    });
+hook before_template_render => sub {
+    my $dsl    = shift;
+    my $tokens = shift;
+    $tokens->{flash}      = session('_my_flash');
+    $tokens->{config_msg} = 
+        $dsl->setting('plugins')->{'t::lib::PluginHook'}->{test_separation};
 };
-
-if ($@) {
-    hook before_template_render => sub {
-        my $tokens = shift;
-        $tokens->{flash}      = session('_my_flash');
-        $tokens->{config_msg} = 
-            setting('plugins')->{'t::lib::PluginHook'}->{test_separation};
-    };
-}
     
 register_plugin for_versions => [1, 2];
 

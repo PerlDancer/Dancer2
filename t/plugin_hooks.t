@@ -32,6 +32,7 @@ Test::TCP::test_tcp(
     server => sub {
         use Dancer '!pass';
         use t::lib::AppHooks;
+        
         my $port = shift;
         set(show_errors  => 1,
             startup_info => 0,

@@ -54,9 +54,10 @@ frome everywhere (eg: C<dancer_version> or C<setting>).
 
 =cut
 
-# singleton for storing all keywords,
+# singletons for storing all keywords and hooks,
 # their code and the plugin they come from
 my $_keywords = {};
+my $_hooks    = {};
 
 sub register {
     my $plugin = caller;
@@ -86,17 +87,6 @@ sub register {
     $_keywords->{$plugin} ||= [];
     push @{$_keywords->{$plugin}}, [$keyword, $code, $options->{is_global}];
 }
-
-my $_hooks = {};
-
-sub set_hook {
-    my $plugin = caller;
-    my ($name, $code) = @_;
-
-    $_hooks->{$plugin} ||= [];
-    push @{$_hooks->{$plugin}}, [$name, $code];
-}
-
 
 =method register_plugin
 
@@ -333,7 +323,6 @@ sub import {
       register_hook
       register_plugin
       register
-      set_hook
       plugin_setting
       plugin_args
     );
@@ -366,6 +355,20 @@ sub import {
         *{"${plugin}::${symbol}"} = $compiled;
     }
 
+    {
+        # Hooks will be saved in a singleton for execution within
+        # apps which use the plugin
+        no strict 'refs';
+        no warnings 'redefine';
+        my $code = sub {
+            my $plugin = caller;
+            my ($name, $code) = @_;
+            $_hooks->{$plugin} ||= [];
+            push @{ $_hooks->{$plugin} }, [$name, $code];
+        };
+        *{"${plugin}::hook"} = $code;        
+    }
+    
     # Finally, make sure our caller becomes a Moo::Role
     # Perl 5.8.5+ mandatory for that trick
     @_ = ('Moo::Role');
