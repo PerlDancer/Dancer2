@@ -7,6 +7,8 @@ perl:
     - "5.10"
 
 install:
+#Interrogate perl env options
+    - env | grep PERL
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
     - cpanm Class::Method::Modifiers
 #MIME::Base64 not getting installed on older Perls, so force it
