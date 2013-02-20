@@ -7,14 +7,10 @@ perl:
     - "5.10"
 
 install:
-#Interrogate perl env options
-    - env | grep PERL
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
-    - cpanm Class::Method::Modifiers
-#MIME::Base64 not getting installed on older Perls, so force it
-    - cpanm MIME::Base64
-    - cpanm Dist::Zilla
-    - dzil authordeps --missing | cpanm || { cat ~/.cpanm/build.log ; false ; }
-    - dzil listdeps --author --missing | cpanm || { cat ~/.cpanm/build.log ; false ; }
+    - cpanm --no-skip-satisfied Class::Method::Modifiers
+    - cpanm --no-skip-satisfied Dist::Zilla
+    - dzil authordeps --missing | cpanm  --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
+    - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
 script:
     - dzil test --author --release
