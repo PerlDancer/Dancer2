@@ -13,8 +13,6 @@ sub supported_hooks {
     );
 }
 
-sub _build_type {'Serializer'}
-
 requires 'serialize';
 requires 'deserialize';
 requires 'loaded';

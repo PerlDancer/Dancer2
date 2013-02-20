@@ -38,10 +38,6 @@ sub supported_hooks {
       /;
 }
 
-sub _build_type {
-    'SessionFactory';
-}    # XXX vs 'Session'?  Unused, so I can't tell -- xdg
-
 =attr cookie_name
 
 The name of the cookie to create for storing the session key
