@@ -1,6 +1,6 @@
 # ABSTRACT: in-memory session backend for Dancer
 
-package Dancer::SessionFactory::Simple;
+package Dancer::Session::Simple;
 use Moo;
 use Dancer::Core::Types;
 use Carp;

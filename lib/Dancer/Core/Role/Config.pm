@@ -239,7 +239,7 @@ my $_setters = {
           $self->_get_config_for_engine(session => $value, $config);
 
         return Dancer::Factory::Engine->create(
-            session_factory => $value,
+            session => $value,
             %{$engine_options},
             postponed_hooks => $self->get_postponed_hooks,
         );
