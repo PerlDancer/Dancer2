@@ -3,14 +3,15 @@
 use strict;
 use warnings;
 use Test::More;
+use Dancer::ModuleLoader;
 
 my $mocked_epoch = 1355676244;    # "Sun, 16-Dec-2012 16:44:04 GMT"
 
 # The order is important!
-eval "use Test::MockTime 'set_absolute_time'; 1"
+Dancer::ModuleLoader->require('Test::MockTime')
     or plan skip_all => 'Test::MockTime not present';
 
-set_absolute_time($mocked_epoch);
+Test::MockTime::set_fixed_time($mocked_epoch);
 require Dancer::Core::Time;
 
 my @tests = (
