@@ -1,5 +1,5 @@
 package t::lib::FooPlugin;
-use Dancer::Plugin;
+use Dancer2::Plugin;
 
 get '/sitemap' => sub {
     _html_sitemap();
@@ -43,7 +43,7 @@ sub _retreive_get_urls {
             # Other than that, its cool to be added.
             push(@urls, $regexp)
               if !grep { $regexp =~ m/$_/i }
-              @$Dancer::Plugin::SiteMap::OMIT_ROUTES;
+              @$Dancer2::Plugin::SiteMap::OMIT_ROUTES;
         }
     }
 

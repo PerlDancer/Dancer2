@@ -6,7 +6,7 @@ use Test::More tests => 2;
 {
     package MyApp;
 
-    use Dancer;
+    use Dancer2;
 
     set serializer => 'JSON';
 
@@ -21,9 +21,9 @@ use Test::More tests => 2;
     };
 }
 
-use Dancer::Test apps => [ 'MyApp' ];
+use Dancer2::Test apps => [ 'MyApp' ];
 
-is dancer_response( Dancer::Core::Request->new(
+is dancer_response( Dancer2::Core::Request->new(
     method => 'PUT',
     path => "/from_$_",
     content_type => 'application/json',

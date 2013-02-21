@@ -3,16 +3,16 @@ use warnings FATAL => 'all';
 use Test::More;
 use Test::Fatal;
 
-use Dancer::Core::Request;
+use Dancer2::Core::Request;
 
 use File::Temp 0.22;
 use File::Basename qw/dirname basename/;
 use File::Spec;
 
 diag "If you want extract speed, install URL::Encode::XS"
-  if !$Dancer::Core::Request::XS_URL_DECODE;
+  if !$Dancer2::Core::Request::XS_URL_DECODE;
 diag "If you want extract speed, install CGI::Deurl::XS"
-  if !$Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+  if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub test_path {
     my ($file, $dir) = @_;
@@ -60,7 +60,7 @@ SHOGUN6
 
     do {
         open my $in, '<', \$content;
-        my $req = Dancer::Core::Request->new(
+        my $req = Dancer2::Core::Request->new(
             env => {
                 'psgi.input'   => $in,
                 CONTENT_LENGTH => length($content),
@@ -105,7 +105,7 @@ SHOGUN6
         is $test_upload_file6[0]->content(':raw'), 'SHOGUN6';
 
         my $upload = $req->upload('test_upload_file6');
-        isa_ok $upload, 'Dancer::Core::Request::Upload';
+        isa_ok $upload, 'Dancer2::Core::Request::Upload';
         is $upload->filename, 'yappo6.txt', 'filename is ok';
         ok $upload->file_handle, 'file handle is defined';
         is $req->params->{'test_upload_file6'}, 'yappo6.txt',
@@ -142,7 +142,7 @@ SHOGUN6
         {
             no strict 'refs';
             no warnings 'redefine';
-            *{"Dancer::FileUtils::open_file"} = sub {0};
+            *{"Dancer2::FileUtils::open_file"} = sub {0};
         }
         $upload->{_fh} = undef;
         like(
@@ -154,20 +154,20 @@ SHOGUN6
     };
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer::Core::Request::XS_URL_DECODE;
+diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
 diag "Run test with XS_PARSE_QUERY_STRING"
-  if $Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+  if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
-if ($Dancer::Core::Request::XS_PARSE_QUERY_STRING) {
+if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
     diag "Run test without XS_PARSE_QUERY_STRING";
-    $Dancer::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer::Core::Request::_count                = 0;
+    $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
+    $Dancer2::Core::Request::_count                = 0;
     run_test();
 }
-if ($Dancer::Core::Request::XS_URL_DECODE) {
+if ($Dancer2::Core::Request::XS_URL_DECODE) {
     diag "Run test without XS_URL_DECODE";
-    $Dancer::Core::Request::XS_URL_DECODE = 0;
-    $Dancer::Core::Request::_count        = 0;
+    $Dancer2::Core::Request::XS_URL_DECODE = 0;
+    $Dancer2::Core::Request::_count        = 0;
     run_test();
 }
 

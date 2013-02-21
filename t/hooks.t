@@ -25,7 +25,7 @@ my @hooks = qw(
 
 my $tests_flags = {};
 {
-    use Dancer;
+    use Dancer2;
 
 
     for my $hook (@hooks) {
@@ -75,7 +75,7 @@ my $tests_flags = {};
     main->dancer_app->finish;
 }
 
-use Dancer::Test;
+use Dancer2::Test;
 
 subtest 'request hooks' => sub {
     my $r = dancer_response get => '/';

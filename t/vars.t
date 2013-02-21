@@ -4,10 +4,10 @@ use Test::More import => ['!pass'];
 
 plan tests => 2;
 
-use Dancer::Test;
+use Dancer2::Test;
 
 {
-    use Dancer;
+    use Dancer2;
 
     hook before => sub {
         var("xpto" => "foo");

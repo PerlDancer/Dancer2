@@ -41,7 +41,7 @@ Test::TCP::test_tcp(
     },
     server => sub {
         my $port = shift;
-        use Dancer;
+        use Dancer2;
 
         get '/name/:name' => sub {
             "Your name: " . params->{name};
@@ -61,7 +61,7 @@ Test::TCP::test_tcp(
 
         set charset => 'utf-8';
 
-        Dancer->runner->server->port($port);
+        Dancer2->runner->server->port($port);
         start;
     },
 );

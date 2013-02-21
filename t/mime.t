@@ -4,10 +4,10 @@ use warnings;
 use Test::More tests => 12;
 
 BEGIN {
-    use_ok 'Dancer::Core::MIME';
+    use_ok 'Dancer2::Core::MIME';
 }
 
-my $mime = Dancer::Core::MIME->new();
+my $mime = Dancer2::Core::MIME->new();
 
 is_deeply($mime->custom_types, {}, 'user defined mime_types are empty');
 

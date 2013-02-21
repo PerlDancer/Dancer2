@@ -9,7 +9,7 @@ BEGIN {
 use vars qw{$VAR1 $VAR2};
 use Test::More;
 use File::Spec::Functions ':ALL';
-use Dancer::Template::Implementation::ForkedTiny ();
+use Dancer2::Template::Implementation::ForkedTiny ();
 use FindBin qw($Bin);
 
 my $SAMPLES = catdir($Bin, 'samples');
@@ -56,8 +56,8 @@ foreach my $template (@TEMPLATES) {
     # Create the processor normally
     my %params = (INCLUDE_PATH => $SAMPLES,);
     %params = (%params, %$VAR2) if $VAR2;
-    my $template = Dancer::Template::Implementation::ForkedTiny->new(%params);
-    isa_ok($template, 'Dancer::Template::Implementation::ForkedTiny');
+    my $template = Dancer2::Template::Implementation::ForkedTiny->new(%params);
+    isa_ok($template, 'Dancer2::Template::Implementation::ForkedTiny');
 
     # Execute the template
     $template->process(\$tt, $VAR1, \my $out);

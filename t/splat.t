@@ -2,12 +2,12 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 
-use Dancer::Test;
+use Dancer2::Test;
 
 my @splat;
 
 {
-    use Dancer;
+    use Dancer2;
     get '/*/*/*' => sub {
         @splat = splat;
     };

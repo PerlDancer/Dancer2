@@ -11,9 +11,9 @@ my $_logs = [];
 
 {
 
-    package Dancer::Logger::Test;
+    package Dancer2::Logger::Test;
     use Moo;
-    with 'Dancer::Core::Role::Logger';
+    with 'Dancer2::Core::Role::Logger';
 
     sub log {
         my ($self, $level, $message) = @_;
@@ -21,15 +21,15 @@ my $_logs = [];
     }
 }
 
-my $logger = Dancer::Logger::Test->new(app_name => 'test');
+my $logger = Dancer2::Logger::Test->new(app_name => 'test');
 
 is $logger->log_level, 'debug';
 $logger->debug("foo");
 like $_logs->[0], qr{debug \@2010-06-1\d \d\d:00:00> foo in t/logger.t};
 
 subtest 'logger capture' => sub {
-    use Dancer::Logger::Capture;
-    use Dancer;
+    use Dancer2::Logger::Capture;
+    use Dancer2;
 
     set logger => 'capture';
 

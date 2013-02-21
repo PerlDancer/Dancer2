@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
-use Dancer::Core::Context;
+use Dancer2::Core::Context;
 
 my $env = {
     'psgi.url_scheme' => 'http',
@@ -23,12 +23,12 @@ my $env = {
     REMOTE_USER     => 'sukria',
 };
 
-my $c = Dancer::Core::Context->new(env => $env);
+my $c = Dancer2::Core::Context->new(env => $env);
 
-isa_ok $c->request, 'Dancer::Core::Request';
+isa_ok $c->request, 'Dancer2::Core::Request';
 is $c->request->method, 'GET';
 
-isa_ok $c->cookies->{'dancer.session'}, 'Dancer::Core::Cookie';
+isa_ok $c->cookies->{'dancer.session'}, 'Dancer2::Core::Cookie';
 is $c->cookies->{'dancer.session'}->value,  1234;
 is $c->cookies->{'dancer.session'}->name,   'dancer.session';
 is $c->cookies->{'dancer.session'}->secure, 0;

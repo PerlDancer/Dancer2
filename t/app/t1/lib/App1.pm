@@ -1,6 +1,6 @@
 package App1;
 use strict;
 use warnings;
-use Dancer;
+use Dancer2;
 
 1;

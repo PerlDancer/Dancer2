@@ -1,12 +1,12 @@
 package MyDancerDSL;
 
 use Moo;
-use Dancer::Core::Hook;
-use Dancer::Core::Error;
-use Dancer::FileUtils;
+use Dancer2::Core::Hook;
+use Dancer2::Core::Error;
+use Dancer2::FileUtils;
 use Carp;
 
-extends 'Dancer::Core::DSL';
+extends 'Dancer2::Core::DSL';
 
 around dsl_keywords => sub {
     my $orig     = shift;
@@ -22,11 +22,11 @@ around dsl_keywords => sub {
     return $keywords;
 };
 
-sub gateau { goto &Dancer::Core::DSL::cookie }
-sub moteur { goto &Dancer::Core::DSL::engine }
-sub stop   { goto &Dancer::Core::DSL::halt }
-sub prend  { goto &Dancer::Core::DSL::get }
-sub envoie { goto &Dancer::Core::DSL::post }
-sub entete { goto &Dancer::Core::DSL::header }
+sub gateau { goto &Dancer2::Core::DSL::cookie }
+sub moteur { goto &Dancer2::Core::DSL::engine }
+sub stop   { goto &Dancer2::Core::DSL::halt }
+sub prend  { goto &Dancer2::Core::DSL::get }
+sub envoie { goto &Dancer2::Core::DSL::post }
+sub entete { goto &Dancer2::Core::DSL::header }
 
 1;

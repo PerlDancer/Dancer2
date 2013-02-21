@@ -8,14 +8,14 @@ use Test::More;
 
     package Foo;
 
-    use Dancer;
+    use Dancer2;
 
     get '/template_name' => sub {
         return engine('template')->name;
     };
 }
 
-use Dancer::Test apps => ['Foo'];
+use Dancer2::Test apps => ['Foo'];
 
 response_content_is "/template_name", 'Tiny', "template name";
 

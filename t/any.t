@@ -5,7 +5,7 @@ use Test::More import => ['!pass'];
 {
 
     package App;
-    use Dancer;
+    use Dancer2;
 
     any ['get', 'post'] => '/test' => sub {
         request->method;
@@ -16,7 +16,7 @@ use Test::More import => ['!pass'];
     };
 }
 
-use Dancer::Test apps => ['App'];
+use Dancer2::Test apps => ['App'];
 
 my $r = dancer_response(POST => '/test');
 is $r->content, 'POST';

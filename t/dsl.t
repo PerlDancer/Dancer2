@@ -2,8 +2,8 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 
-use Dancer;
-use Dancer::Test;
+use Dancer2;
+use Dancer2::Test;
 
 any ['get', 'post'], '/' => sub {
     request->method;

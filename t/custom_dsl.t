@@ -4,8 +4,8 @@ use Test::More import => ['!pass'];
 
 use FindBin qw($Bin);
 use lib "$Bin/t/lib";
-use Dancer dsl => 'MyDancerDSL';
-use Dancer::Test;
+use Dancer2 dsl => 'MyDancerDSL';
+use Dancer2::Test;
 
 
 envoie '/' => sub {
