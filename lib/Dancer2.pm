@@ -15,10 +15,9 @@ use Dancer2::ModuleLoader;
 #set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '2.00';
+$Dancer2::VERSION ||= '2.0001'; # 2.0.1
 
 our $AUTHORITY = 'SUKRIA';
-
 
 my $api_version = 0;
 
@@ -39,7 +38,16 @@ sub VERSION {
 This is the main module for the Dancer2 distribution. It contains logic for creating
 a new Dancer2 application.
 
-=head1 AUDIENCE
+=head1 OVERVIEW
+
+Dancer2 is the new generation lightweight web-framework for Perl. It's a
+complete rewrite of L<Dancer> based on L<Moo>.
+
+An application can be as simple as this simple hello world script:
+
+    use Dancer2;
+    get '/' => sub { "Hello World" };
+    dance;
 
 This doc describes the Dancer2 application core and therefore meant for Dancer2
 core developers. If you're a user of Dancer2, you should forget about this and

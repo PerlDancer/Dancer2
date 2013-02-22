@@ -1,3 +1,4 @@
+package Dancer2::Config;
 # ABSTRACT: Configure Dancer2 to suit your needs
 # PODNAME: Dancer2::Config
 

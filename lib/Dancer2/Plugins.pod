@@ -1,6 +1,8 @@
+package Dancer2::Plugins;
 # ABSTRACT: Recommended Dancer2 plugins 
 # PODNAME: Dancer2::Plugins
 
+=pod
 =head1 DESCRIPTION
 
 Dancer2 aims to keep the core as small as possible, but there are a growing

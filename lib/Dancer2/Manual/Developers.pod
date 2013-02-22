@@ -15,7 +15,7 @@ Go to L<http://git-scm.com>, and get a git client for your platform
 
 =head1 Get Dancer2 sources from GitHub
 
-Go to L<https://github.com/PerlDancer2/Dancer22>. Then you can either grab a tarball, or clone read-only, or fork the project.
+Go to L<https://github.com/PerlDancer2/Dancer2>. Then you can either grab a tarball, or clone read-only, or fork the project.
 
 I recommend you to fork the project into your github account, so that you can
 go write modifications, and provide patches (Pull Requests) to upstream easily.

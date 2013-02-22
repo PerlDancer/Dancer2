@@ -1,5 +1,8 @@
+package Dancer2::Cookbook;
 # ABSTRACT: Example-driven quick-start to the Dancer2 web framework
 # PODNAME: Dancer2::Cookbook
+
+=pod
 
 =head1 DESCRIPTION
 

@@ -31,6 +31,9 @@ sub hook_aliases {
         after_template_render  => 'engine.template.after_render',
         before_serializer      => 'engine.serializer.before',
         after_serializer       => 'engine.serializer.after',
+        init_error             => 'core.error.init',
+        before_error           => 'core.error.before',
+        after_error            => 'core.error.after',
     };
 }
 
