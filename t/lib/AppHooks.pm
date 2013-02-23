@@ -1,6 +1,6 @@
 package t::lib::AppHooks;
 
-use Dancer ':syntax';
+use Dancer2;
 use t::lib::PluginHook;
 
 set appdir => 't';

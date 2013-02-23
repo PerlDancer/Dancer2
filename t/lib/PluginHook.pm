@@ -1,6 +1,6 @@
 package t::lib::PluginHook;
 
-use Dancer::Plugin;
+use Dancer2::Plugin;
 use strict;
 use warnings;
 

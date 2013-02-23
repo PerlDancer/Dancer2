@@ -30,7 +30,7 @@ Test::TCP::test_tcp(
         File::Temp::cleanup();
     },
     server => sub {
-        use Dancer '!pass';
+        use Dancer2 '!pass';
         use t::lib::AppHooks;
         
         my $port = shift;
@@ -39,7 +39,7 @@ Test::TCP::test_tcp(
             environment  => 'production',
             port         => $port
         );
-        Dancer->runner->server->port($port);
+        Dancer2->runner->server->port($port);
         start;
     },
 );
