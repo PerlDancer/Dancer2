@@ -578,15 +578,15 @@ Happy dancing!
 
 =item *
 
-http://perldancer.org
+L<http://perldancer.org>
 
 =item *
 
-http://github.com/PerlDancer/Dancer2
+L<http://github.com/PerlDancer/Dancer2>
 
 =item *
 
-http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Plugins.pod
+L<Dancer2::Plugins>
 
 =back
 
