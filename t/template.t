@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Dancer::Core::Hook;
+use Dancer2::Core::Hook;
 
 use File::Spec;
 use File::Basename 'dirname';
@@ -9,21 +9,21 @@ use File::Basename 'dirname';
 eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
 
-use_ok('Dancer::Template::TemplateToolkit');
+use_ok('Dancer2::Template::TemplateToolkit');
 
 my $views =
   File::Spec->rel2abs(File::Spec->catfile(dirname(__FILE__), 'views'));
 
-my $tt = Dancer::Template::TemplateToolkit->new(
+my $tt = Dancer2::Template::TemplateToolkit->new(
     views  => $views,
     layout => 'main.tt',
 );
 
-isa_ok $tt, 'Dancer::Template::TemplateToolkit';
-ok $tt->does('Dancer::Core::Role::Template');
+isa_ok $tt, 'Dancer2::Template::TemplateToolkit';
+ok $tt->does('Dancer2::Core::Role::Template');
 
 $tt->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'engine.template.before_render',
         code => sub {
             my $tokens = shift;
@@ -33,7 +33,7 @@ $tt->add_hook(
 );
 
 $tt->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'engine.template.before_layout_render',
         code => sub {
             my $tokens  = shift;
@@ -46,7 +46,7 @@ $tt->add_hook(
 );
 
 $tt->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'engine.template.after_layout_render',
         code => sub {
             my $content = shift;
@@ -56,7 +56,7 @@ $tt->add_hook(
 );
 
 $tt->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'engine.template.after_render',
         code => sub {
             my $content = shift;

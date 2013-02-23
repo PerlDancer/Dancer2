@@ -1,12 +1,12 @@
 use Test::More;
 use strict;
 use warnings FATAL => 'all';
-use Dancer::Core::Request;
+use Dancer2::Core::Request;
 
 diag "If you want extract speed, install URL::Encode::XS"
-  if !$Dancer::Core::Request::XS_URL_DECODE;
+  if !$Dancer2::Core::Request::XS_URL_DECODE;
 diag "If you want extract speed, install CGI::Deurl::XS"
-  if !$Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+  if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub run_test {
     {
@@ -23,7 +23,7 @@ sub run_test {
             $ENV{QUERY_STRING} = join(
                 $separator,
                 (   'name=Alexis%20Sukrieh', 'IRC%20Nickname=sukria',
-                    'Project=Perl+Dancer',   'hash=2',
+                    'Project=Perl+Dancer2',   'hash=2',
                     'hash=4',                'int1=1',
                     'int2=0'
                 )
@@ -32,13 +32,13 @@ sub run_test {
             my $expected_params = {
                 'name'         => 'Alexis Sukrieh',
                 'IRC Nickname' => 'sukria',
-                'Project'      => 'Perl Dancer',
+                'Project'      => 'Perl Dancer2',
                 'hash'         => [2, 4],
                 int1           => 1,
                 int2           => 0,
             };
 
-            my $req = Dancer::Core::Request->new(env => \%ENV);
+            my $req = Dancer2::Core::Request->new(env => \%ENV);
             is $req->path,   '/',   'path is set';
             is $req->method, 'GET', 'method is set';
             ok $req->is_get, "request method is GET";
@@ -73,7 +73,7 @@ sub run_test {
             hash => [2, 4, 6],
         };
 
-        my $req = Dancer::Core::Request->new(env => $env);
+        my $req = Dancer2::Core::Request->new(env => $env);
         is $req->path,   '/',    'path is set';
         is $req->method, 'POST', 'method is set';
         ok $req->is_post, 'method is post';
@@ -119,7 +119,7 @@ sub run_test {
             meth => 'post',
         };
 
-        my $req = Dancer::Core::Request->new(env => $env);
+        my $req = Dancer2::Core::Request->new(env => $env);
         is $req->path,   '/',    'path is set';
         is $req->method, 'POST', 'method is set';
 
@@ -131,20 +131,20 @@ sub run_test {
     }
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer::Core::Request::XS_URL_DECODE;
+diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
 diag "Run test with XS_PARSE_QUERY_STRING"
-  if $Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+  if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
-if ($Dancer::Core::Request::XS_PARSE_QUERY_STRING) {
+if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
     diag "Run test without XS_PARSE_QUERY_STRING";
-    $Dancer::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer::Core::Request::_count                = 0;
+    $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
+    $Dancer2::Core::Request::_count                = 0;
     run_test();
 }
-if ($Dancer::Core::Request::XS_URL_DECODE) {
+if ($Dancer2::Core::Request::XS_URL_DECODE) {
     diag "Run test without XS_URL_DECODE";
-    $Dancer::Core::Request::XS_URL_DECODE = 0;
-    $Dancer::Core::Request::_count        = 0;
+    $Dancer2::Core::Request::XS_URL_DECODE = 0;
+    $Dancer2::Core::Request::_count        = 0;
     run_test();
 }
 

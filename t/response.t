@@ -1,22 +1,22 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
-use Dancer qw':tests';
-use Dancer::Core::Response;
+use Dancer2 qw':tests';
+use Dancer2::Core::Response;
 
-my $r = Dancer::Core::Response->new(content => "hello");
+my $r = Dancer2::Core::Response->new(content => "hello");
 is $r->status,  200;
 is $r->content, 'hello';
 
 note "content_type";
-$r = Dancer::Core::Response->new(
+$r = Dancer2::Core::Response->new(
     headers => ['Content-Type' => 'text/html'],
     content => 'foo',
 );
 
 is_deeply $r->to_psgi,
   [ 200,
-    [   Server         => "Perl Dancer $Dancer::VERSION",
+    [   Server         => "Perl Dancer2 $Dancer2::VERSION",
         'Content-Type' => 'text/html',
     ],
     ['foo']

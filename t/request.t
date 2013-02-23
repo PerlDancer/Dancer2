@@ -2,12 +2,12 @@ use strict;
 use warnings;
 use Test::More;
 
-use Dancer::Core::Request;
+use Dancer2::Core::Request;
 
 diag "If you want extract speed, install URL::Encode::XS"
-  if !$Dancer::Core::Request::XS_URL_DECODE;
+  if !$Dancer2::Core::Request::XS_URL_DECODE;
 diag "If you want extract speed, install CGI::Deurl::XS"
-  if !$Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+  if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub run_test {
     my $env = {
@@ -29,7 +29,7 @@ sub run_test {
         REMOTE_USER          => 'sukria',
     };
 
-    my $req = Dancer::Core::Request->new(env => $env);
+    my $req = Dancer2::Core::Request->new(env => $env);
 
     note "tests for accessors";
 
@@ -92,7 +92,7 @@ sub run_test {
 
     {
         note "testing begind proxy";
-        $req = Dancer::Core::Request->new(
+        $req = Dancer2::Core::Request->new(
             env             => $env,
             is_behind_proxy => 1
         );
@@ -114,20 +114,20 @@ sub run_test {
         SERVER_PROTOCOL   => 'HTTP/1.1',
     };
 
-    $req = Dancer::Core::Request->new(env => $env);
+    $req = Dancer2::Core::Request->new(env => $env);
     is($req->uri_base, 'http://localhost:5000',
         'remove trailing slash if only one',
     );
 
     $env->{'SCRIPT_NAME'} = '/foo/';
-    $req = Dancer::Core::Request->new(env => $env);
+    $req = Dancer2::Core::Request->new(env => $env);
     is($req->uri_base, 'http://localhost:5000/foo/',
         'keeping trailing slash if not only',
     );
 
     $env->{'PATH_INFO'}   = '/';
     $env->{'SCRIPT_NAME'} = '';
-    $req = Dancer::Core::Request->new(env => $env);
+    $req = Dancer2::Core::Request->new(env => $env);
     is($req->uri_base, 'http://localhost:5000',);
 
 
@@ -139,7 +139,7 @@ sub run_test {
         'QUERY_STRING'   => 'foo=bar&number=42',
     };
 
-    $req = Dancer::Core::Request->new(env => $env);
+    $req = Dancer2::Core::Request->new(env => $env);
     is $req->path,   '/',   'path is /';
     is $req->method, 'GET', 'method is get';
     is_deeply scalar($req->params), {foo => 'bar', number => 42},
@@ -159,20 +159,20 @@ sub run_test {
       'params are not touched';
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer::Core::Request::XS_URL_DECODE;
+diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
 diag "Run test with XS_PARSE_QUERY_STRING"
-  if $Dancer::Core::Request::XS_PARSE_QUERY_STRING;
+  if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
-if ($Dancer::Core::Request::XS_PARSE_QUERY_STRING) {
+if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
     diag "Run test without XS_PARSE_QUERY_STRING";
-    $Dancer::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer::Core::Request::_count                = 0;
+    $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
+    $Dancer2::Core::Request::_count                = 0;
     run_test();
 }
-if ($Dancer::Core::Request::XS_URL_DECODE) {
+if ($Dancer2::Core::Request::XS_URL_DECODE) {
     diag "Run test without XS_URL_DECODE";
-    $Dancer::Core::Request::XS_URL_DECODE = 0;
-    $Dancer::Core::Request::_count        = 0;
+    $Dancer2::Core::Request::XS_URL_DECODE = 0;
+    $Dancer2::Core::Request::_count        = 0;
     run_test();
 }
 

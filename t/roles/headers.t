@@ -7,7 +7,7 @@ use Test::More;
 
     package Foo;
     use Moo;
-    with 'Dancer::Core::Role::Headers';
+    with 'Dancer2::Core::Role::Headers';
 }
 
 my $f = Foo->new(headers => ['X-Foo' => 42, 'X-Bar' => 43]);

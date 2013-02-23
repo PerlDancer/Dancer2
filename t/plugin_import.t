@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 
 {
-    use Dancer;
+    use Dancer2;
     use t::lib::PluginWithImport;
 
     get '/test' => sub {
@@ -13,7 +13,7 @@ use Test::More;
     };
 }
 
-use Dancer::Test;
+use Dancer2::Test;
 
 response_content_is '/test', 'dancer_plugin_with_import_keyword',
   "the plugin exported its keyword";

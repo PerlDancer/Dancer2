@@ -57,7 +57,7 @@ foreach my $engine (@engines) {
         server => sub {
             my $port = shift;
 
-            use Dancer;
+            use Dancer2;
 
             my @to_destroy;
 
@@ -97,7 +97,7 @@ foreach my $engine (@engines) {
                 port         => $port
             );
 
-            Dancer->runner->server->port($port);
+            Dancer2->runner->server->port($port);
             start;
         },
     );

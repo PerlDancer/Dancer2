@@ -5,18 +5,18 @@ use warnings;
 
 use Test::More tests => 44;
 
-use Dancer ':syntax';
-use Dancer::Test;
-use Dancer::Core::Request;
+use Dancer2 ':syntax';
+use Dancer2::Test;
+use Dancer2::Core::Request;
 
 my @routes = (
     '/foo',
     [GET => '/foo'],
-    Dancer::Core::Request->new(
+    Dancer2::Core::Request->new(
         path   => '/foo',
         method => 'GET',
     ),
-    Dancer::Core::Response->new(
+    Dancer2::Core::Response->new(
         content => 'fighter',
         status  => 404,
     )
@@ -31,7 +31,7 @@ route_exists $_, "route $_ exists" for @routes;
 
 for (@routes) {
     my $response = dancer_response $_;
-    isa_ok $response      => 'Dancer::Core::Response';
+    isa_ok $response      => 'Dancer2::Core::Response';
     is $response->content => 'fighter';
 }
 
@@ -45,6 +45,6 @@ response_content_unlike $_ => qr/ought/ for @routes;
 response_status_is $_   => 200 for @routes;
 response_status_isnt $_ => 203 for @routes;
 
-response_headers_include $_ => [Server => "Perl Dancer $Dancer::VERSION"]
+response_headers_include $_ => [Server => "Perl Dancer2 $Dancer2::VERSION"]
   for @routes;
 

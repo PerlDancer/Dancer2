@@ -129,7 +129,7 @@ foreach my $engine (@engines) {
         server => sub {
             my $port = shift;
 
-            use Dancer;
+            use Dancer2;
 
             get '/no_session_data' => sub {
                 return "session not modified";
@@ -168,7 +168,7 @@ foreach my $engine (@engines) {
                 port         => $port
             );
 
-            Dancer->runner->server->port($port);
+            Dancer2->runner->server->port($port);
             start;
         },
     );

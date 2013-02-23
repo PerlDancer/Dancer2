@@ -3,18 +3,18 @@ use warnings;
 use Test::More import => ['!pass'];
 use Carp 'croak';
 
-use Dancer (qw':tests');
-use Dancer::Test;
-use Dancer::Core::App;
-use Dancer::Core::Route;
-use Dancer::Core::Dispatcher;
-use Dancer::Core::Hook;
+use Dancer2 (qw':tests');
+use Dancer2::Test;
+use Dancer2::Core::App;
+use Dancer2::Core::Route;
+use Dancer2::Core::Dispatcher;
+use Dancer2::Core::Hook;
 
 set logger => 'Null';
 
 # init our test fixture
 my $buffer = {};
-my $app = Dancer::Core::App->new(name => 'main');
+my $app = Dancer2::Core::App->new(name => 'main');
 
 $app->setting(logger => engine('logger'));
 
@@ -105,7 +105,7 @@ my @tests = (
 
 # simulates a redirect with halt
 $app->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'before',
         code => sub {
             my $ctx = shift;
@@ -120,7 +120,7 @@ $app->add_hook(
 
 my $was_in_second_filter = 0;
 $app->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'before',
         code => sub {
             my $ctx = shift;
@@ -141,7 +141,7 @@ $app->compile_hooks;
 
 plan tests => 13;
 
-my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
+my $dispatcher = Dancer2::Core::Dispatcher->new(apps => [$app]);
 my $counter = 0;
 foreach my $test (@tests) {
     my $env      = $test->{env};
@@ -151,7 +151,7 @@ foreach my $test (@tests) {
 
     is $resp->[0] => $expected->[0], "Return code ok.";
 
-    ok(Dancer::Test::_include_in_headers($resp->[1], $expected->[1]),
+    ok(Dancer2::Test::_include_in_headers($resp->[1], $expected->[1]),
         "expected headers are there");
 
     if (ref($expected->[2]) eq "Regexp") {

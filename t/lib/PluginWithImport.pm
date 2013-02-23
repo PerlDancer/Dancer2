@@ -4,7 +4,7 @@ package t::lib::PluginWithImport;
 
 =head1 DESCRIPTION
 
-In order to demonstrate that Dancer::Plugin won't loose the original 
+In order to demonstrate that Dancer2::Plugin won't loose the original 
 import method of the plugin.
 
 =cut
@@ -12,8 +12,8 @@ import method of the plugin.
 use strict;
 use warnings;
 
-use Dancer;
-use Dancer::Plugin;
+use Dancer2;
+use Dancer2::Plugin;
 
 my $_stuff = {};
 sub stuff {$_stuff}

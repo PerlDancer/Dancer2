@@ -1,15 +1,15 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
-use Dancer::Test;
+use Dancer2::Test;
 
-subtest 'use basic Dancer::Plugin' => sub {
-    use_ok 'Dancer::Plugin';
+subtest 'use basic Dancer2::Plugin' => sub {
+    use_ok 'Dancer2::Plugin';
 };
 
 subtest 'global and route keywords' => sub {
     {
-        use Dancer;
+        use Dancer2;
         use t::lib::FooPlugin;
 
         get '/' => sub {
@@ -33,8 +33,8 @@ subtest 'global and route keywords' => sub {
 
 subtest 'plugin old syntax' => sub {
     {
-        use Dancer;
-        use t::lib::Dancer1Plugin;
+        use Dancer2;
+        use t::lib::DancerPlugin;
 
         around_get;
     }
@@ -45,8 +45,8 @@ subtest 'plugin old syntax' => sub {
 
 subtest caller_dsl => sub {
     {
-        use Dancer;
-        use t::lib::Dancer1Plugin;
+        use Dancer2;
+        use t::lib::DancerPlugin;
     }
 
     my $r = dancer_response GET => '/sitemap';
@@ -57,7 +57,7 @@ subtest 'hooks in plugins' => sub {
     my $counter = 0;
 
     {
-        use Dancer;
+        use Dancer2;
         use t::lib::Hookee;
 
         hook 'third_hook' => sub {

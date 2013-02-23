@@ -1,6 +1,6 @@
 package t::lib::Hookee;
 
-use Dancer::Plugin;
+use Dancer2::Plugin;
 
 register_hook 'start_hookee', 'stop_hookee';
 register_hook 'third_hook';

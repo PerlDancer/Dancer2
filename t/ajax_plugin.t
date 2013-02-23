@@ -5,15 +5,15 @@ use Test::More import => ['!pass'];
 {
 
     package App;
-    use Dancer;
-    use Dancer::Plugin::Ajax;
+    use Dancer2;
+    use Dancer2::Plugin::Ajax;
 
     ajax '/test' => sub {
         "{some: 'json'}";
     };
 }
 
-use Dancer::Test apps => ['App'];
+use Dancer2::Test apps => ['App'];
 
 my $r = dancer_response(
     POST => '/test',

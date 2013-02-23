@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 use Test::More;
-use Dancer::Template::Tiny;
+use Dancer2::Template::Tiny;
 
-my $f = Dancer::Template::Tiny->new();
-isa_ok $f, 'Dancer::Template::Tiny';
-ok($f->does('Dancer::Core::Role::Engine'));
-ok($f->does('Dancer::Core::Role::Template'));
+my $f = Dancer2::Template::Tiny->new();
+isa_ok $f, 'Dancer2::Template::Tiny';
+ok($f->does('Dancer2::Core::Role::Engine'));
+ok($f->does('Dancer2::Core::Role::Template'));
 
 is $f->name, 'Tiny';
 is $f->type, 'Template';
