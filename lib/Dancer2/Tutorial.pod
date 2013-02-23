@@ -582,7 +582,7 @@ http://perldancer.org
 
 =item *
 
-http://github.com/sukria/Dancer2
+http://github.com/PerlDancer/Dancer2
 
 =item *
 

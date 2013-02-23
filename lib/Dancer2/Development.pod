@@ -106,7 +106,7 @@ L<http://github.com/PerlDancer/Dancer2/issues>.
 =head2 Reporting Bugs
 
 We prefer to have all our bug reports on GitHub, in the issues section:
-L<http://github.com/sukria/Dancer2/issues>. It's possible though to report bugs
+L<http://github.com/PerlDancer/Dancer2/issues>. It's possible though to report bugs
 on RT as well: L<https://rt.cpan.org/Dist/Display.html?Queue=Dancer2>
 
 Please make sure the bug you're reporting does not yet exist. In doubt please
@@ -144,7 +144,7 @@ Clone your fork to have a local copy using the following command:
 As a contributor, you should B<always> work on the C<devel> branch of
 your clone (C<master> is used only for building releases).
 
-    $ git remote add upstream https://github.com/sukria/Dancer2.git
+    $ git remote add upstream https://github.com/PerlDancer/Dancer2.git
     $ git fetch upstream
     $ git checkout -b devel upstream/devel
 
