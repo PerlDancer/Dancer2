@@ -36,11 +36,8 @@ has plugins => (
     default => sub { [] },
 );
 
-has api_version => (
-    is      => 'ro',
-    isa     => Num,
-    default => sub {2},
-);
+# FIXME not needed anymore, I suppose...
+sub api_version { 2 }
 
 =method register_plugin
 
@@ -109,7 +106,7 @@ sub _build_default_config {
 
     return {
         %{$self->runner_config},
-        template => $self->api_version == 1 ? 'Simple' : 'Tiny',
+        template => 'Tiny',
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}

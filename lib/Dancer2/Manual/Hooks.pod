@@ -1,6 +1,7 @@
-package Dancer2::Core::Hooks;
+package Dancer2::Manual::Hooks;
+
 # ABSTRACT: Reference manual for all hooks supported by Dancer2's core.
-# PODNAME: Dancer2::Core::Hooks;
+# PODNAME: Dancer2::Manual::Hooks;
 
 =pod
 
