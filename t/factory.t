@@ -10,7 +10,7 @@ is Dancer2::Core::Factory::_camelize('FooBarBaz'),   'FooBarBaz';
 
 like(
     exception { my $l = Dancer2::Core::Factory->create(unknown => 'stuff') },
-    qr{Unable to load class for Unknown component Stuff: Can't locate},
+    qr{Unable to load class for Unknown component Stuff:},
     'Failure to load nonexistent class',
 );
 
