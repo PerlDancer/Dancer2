@@ -1,4 +1,16 @@
-2.0000_01
+2.02 - 2013-02-24   (Alexis Sukrieh)
+
+    [ DOCUMENTATION ]
+    * No more "TODO" tokens in the documentations
+    * More documentation for Core classes
+    (Alexis Sukrieh)
+
+    [ ENHANCEMENTS ]
+    * Removed the "api_version" code that is useless and was breaking some
+      tests.
+    (Alexis Sukrieh)
+
+2.01
 
     [ ENHANCEMENTS ]
     * Dancer::Test takes a hash instead of an array for better backward
