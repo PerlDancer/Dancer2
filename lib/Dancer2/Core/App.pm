@@ -444,7 +444,7 @@ sub compile_hooks {
             my $compiled = sub {
 
                 # don't run the filter if halt has been used
-                return if $self->context->response->is_halted;
+                return if ($self->context && $self->context->response->is_halted);
 
                 # TODO: log entering the hook '$position'
                 #warn "entering hook '$position'";
