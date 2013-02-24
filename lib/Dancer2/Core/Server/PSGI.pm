@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Dummy class for passing the PSGI app to a PSGI server
 
 package Dancer2::Core::Server::PSGI;
 use Moo;
@@ -9,74 +9,7 @@ with 'Dancer2::Core::Role::Server';
 
 =head1 DESCRIPTION
 
-This is a server implementation for PSGI. It contains all the code to handle a
-PSGI request.
-
-=head1 SYNOPSIS
-
-	sub start {
-    	my $self = shift;
-	    my $app  = $self->psgi_app();
-
-	    foreach my $setting (qw/plack_middlewares plack_middlewares_map/) {
-	        if (Dancer2::Config::setting($setting)) {
-	            my $method = 'apply_'.$setting;
-	            $app = $self->$method($app);
-	        }
-	    }
-    	return $app;
-	}
-
-	sub apply_plack_middlewares_map {
-	    my ($self, $app) = @_;
-
-	    my $mw_map = Dancer2::Config::setting('plack_middlewares_map');
-
-	    foreach my $req (qw(Plack::App::URLMap Plack::Builder)) {
-	        croak "$req is needed to use apply_plack_middlewares_map"
-	          unless Dancer2::ModuleLoader->load($req);
-	    }
-
-	    my $urlmap = Plack::App::URLMap->new;
-
-	    while ( my ( $path, $mw ) = each %$mw_map ) {
-	        my $builder = Plack::Builder->new();
-	        map { $builder->add_middleware(@$_) } @$mw;
-	        $urlmap->map( $path => $builder->to_app($app) );
-	    }
-
-	    $urlmap->map('/' => $app) unless $mw_map->{'/'};
-	    return $urlmap->to_app;
-	}
-
-	sub apply_plack_middlewares {
-	    my ($self, $app) = @_;
-
-	    my $middlewares = Dancer2::Config::setting('plack_middlewares');
-	
-	    croak "Plack::Builder is needed for middlewares support"
-	      unless Dancer2::ModuleLoader->load('Plack::Builder');
-	
-	    my $builder = Plack::Builder->new();
-	
-	    ref $middlewares eq "ARRAY"
-	      or croak "'plack_middlewares' setting must be an ArrayRef";
-
-	    map {
-	        Dancer2::Logger::core "add middleware " . $_->[0];
-	        $builder->add_middleware(@$_)
-	    } @$middlewares;
-
-	    $app = $builder->to_app($app);
-	
-	    return $app;
-	}
-
-	sub init_request_headers {
-	    my ($self, $env) = @_;
-	    my $plack = Plack::Request->new($env);
-	    Dancer2::SharedData->headers($plack->headers);
-	}
+When used as a server, this class just return the PSGI application.
 
 =method name
 
@@ -84,7 +17,7 @@ The server's name: B<PSGI>.
 
 =method start
 
-Starts the server.
+Return the PSGI application
 
 =cut
 

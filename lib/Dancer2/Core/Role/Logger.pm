@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Role for logger engines
 
 package Dancer2::Core::Role::Logger;
 use Dancer2::Core::Types;

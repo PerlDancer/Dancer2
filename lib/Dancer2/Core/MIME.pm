@@ -1,6 +1,6 @@
-package Dancer2::Core::MIME;
+# ABSTRACT: Class to ease manipulation of MIME types
 
-# ABSTRACT: TODO
+package Dancer2::Core::MIME;
 
 use strict;
 use warnings;

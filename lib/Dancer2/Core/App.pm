@@ -1,6 +1,20 @@
-# ABSTRACT: TODO
+# ABSTRACT: encapsulation of Dancer2 packages
 
 package Dancer2::Core::App;
+
+=head1 DESCRIPTION
+
+Everything a package that uses Dancer2 does is encapsulated into a
+C<Dancer2::Core::App> instance. This class defines all that can be done in such
+objects.
+
+Mainly, it will contain all the route handlers, the configuration settings and
+the hooks that are defined in the calling package.
+
+Note that with Dancer2, everything that is done within a package is scoped to
+that package, thanks to that encapsulation.
+
+=cut
 
 use strict;
 use warnings;

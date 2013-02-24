@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Role for DSL
 
 package Dancer2::Core::Role::DSL;
 use Moo::Role;

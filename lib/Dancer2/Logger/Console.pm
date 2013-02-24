@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Console logger
 
 package Dancer2::Logger::Console;
 use Moo;

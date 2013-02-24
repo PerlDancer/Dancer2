@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Role for template engines
 
 package Dancer2::Core::Role::Template;
 

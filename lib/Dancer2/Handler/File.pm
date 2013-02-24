@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: class for handling file content rendering
 
 package Dancer2::Handler::File;
 use Carp 'croak';

@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Class for dispatching request to the appropriate route handler
 
 package Dancer2::Core::Dispatcher;
 use Moo;

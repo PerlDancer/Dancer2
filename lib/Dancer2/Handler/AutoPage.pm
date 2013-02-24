@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Class for handling the AutoPage feature
 
 package Dancer2::Handler::AutoPage;
 use Moo;

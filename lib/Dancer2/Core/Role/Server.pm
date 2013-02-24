@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Role for Server classes
 
 package Dancer2::Core::Role::Server;
 use Moo::Role;
@@ -15,8 +15,8 @@ use Dancer2::Core::Context;
 
 =head1 DESCRIPTION
 
-This is a server role that helps define what servers need to implement and
-provide some helpful attributes and methods for server implementations.
+This role defines what servers need to implement and provide some helpful
+attributes and methods for server implementations.
 
 This role requires implementations that consume it to provide a C<name>
 subroutine.

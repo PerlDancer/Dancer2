@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Basic standalone HTTP server for Dancer2
 
 package Dancer2::Core::Server::Standalone;
 
@@ -11,6 +11,8 @@ use HTTP::Server::Simple::PSGI;
 
 This is a server implementation for a stand-alone server. It contains all the
 code to start an L<HTTP::Server::Simple::PSGI> server and handle the requests.
+
+This class consumes the role L<Dancer2::Core::Server::Standalone>.
 
 =method name
 

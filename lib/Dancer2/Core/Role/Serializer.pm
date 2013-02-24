@@ -1,4 +1,4 @@
-# ABSTRACT: TODO
+# ABSTRACT: Role for Serializer engines
 
 package Dancer2::Core::Role::Serializer;
 use Dancer2::Core::Types;
@@ -14,6 +14,13 @@ sub supported_hooks {
 }
 
 sub _build_type {'Serializer'}
+
+=head1 REQUIREMENTS
+
+Classes that consume that role must implement the following methods
+C<serialize>, C<deserialize> and C<loaded>.
+
+=cut
 
 requires 'serialize';
 requires 'deserialize';
