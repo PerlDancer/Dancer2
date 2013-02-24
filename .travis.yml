@@ -9,7 +9,6 @@ perl:
 install:
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
     - cpanm --no-skip-satisfied Class::Method::Modifiers
-    - cpanm --no-skip-satisfied Dist::Zilla
     - dzil authordeps --missing | cpanm  --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
     - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
 script:
