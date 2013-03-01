@@ -143,8 +143,8 @@ just pass them in.
 
 So what does the F<show_entries.tt> template look like? This:
 
-  <% IF session.logged_in %>
-    <form action="<% add_entry_url %>" method=post class=add-entry>
+  [% IF session.logged_in %]
+    <form action="[% add_entry_url %]" method=post class=add-entry>
       <dl>
         <dt>Title:
         <dd><input type=text size=30 name=title>
@@ -153,15 +153,15 @@ So what does the F<show_entries.tt> template look like? This:
         <dd><input type=submit value=Share>
       </dl>
     </form>
-  <% END %>
+  [% END %]
   <ul class=entries>
-  <% IF entries.size %>
-    <% FOREACH id IN entries.keys.nsort %>
-      <li><h2><% entries.$id.title %></h2><% entries.$id.text %>
-    <% END %>
-  <% ELSE %>
+  [% IF entries.size %]
+    [% FOREACH id IN entries.keys.nsort %]
+      <li><h2>[% entries.$id.title %]</h2>[% entries.$id.text %]
+    [% END %]
+  [% ELSE %]
     <li><em>Unbelievable.  No entries here so far</em>
-  <% END %>
+  [% END %]
   </ul>
 
 Again, since this isn't a tutorial specifically about Template Toolkit, I'm
@@ -304,8 +304,8 @@ see what verb is in the request.  If it's B<not> a POST, we drop down to the
 C<template> directive and display the F<login.tt> template.
 
   <h2>Login</h2>
-  <% IF err %><p class=error><strong>Error:</strong> <% err %><% END %>
-  <form action="<% login_url %>" method=post>
+  [% IF err %]<p class=error><strong>Error:</strong> [% err %][% END %]
+  <form action="[% login_url %]" method=post>
     <dl>
       <dt>Username:
       <dd><input type=text name=username>
@@ -387,22 +387,22 @@ For this web application, the layout template looks like this.
   <html>
   <head>
     <title>Dancr</title>
-    <link rel=stylesheet type=text/css href="<% css_url %>">
+    <link rel=stylesheet type=text/css href="[% css_url %]">
   </head>
   <body>
     <div class=page>
     <h1>Dancr</h1>
        <div class=metanav>
-       <% IF not session.logged_in %>
-         <a href="<% login_url %>">log in</a>
-       <% ELSE %>
-         <a href="<% logout_url %>">log out</a>
-       <% END %>
+       [% IF not session.logged_in %]
+         <a href="[% login_url %]">log in</a>
+       [% ELSE %]
+         <a href="[% logout_url %]">log out</a>
+       [% END %]
     </div>
-    <% IF msg %>
-      <div class=flash> <% msg %> </div>
-    <% END %>
-    <% content %>
+    [% IF msg %]
+      <div class=flash> [% msg %] </div>
+    [% END %]
+    [% content %]
   </div>
   </body>
   </html>
