@@ -7,10 +7,10 @@ package Dancer2::Manual;
 
 =head1 DESCRIPTION
 
-Dancer2 is a free and open source micro web application framework written in
-Perl.
+Dancer2 is a free and open source web application framework written in Perl.
 
-It's a complete rewrite of L<Dancer> based on L<Moo>.
+It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more robust
+and extensible fully-OO design.
 
 =head1 INSTALL
 
