@@ -12,19 +12,19 @@ with 'Dancer2::Core::Role::Hookable';
 =head1 SYNOPSIS
 
     # taken from send_file:
-    use Dancer2::Error;
+    use Dancer2::Core::Error;
 
-    my $error = Dancer2::Error->new(
+    my $error = Dancer2::Core::Error->new(
         status    => 404,
         message => "No such file: `$path'"
     );
 
-    Dancer2::Response->set($error->render);
+    Dancer2::Core::Response->set($error->render);
 
 =head1 DESCRIPTION
 
-With Dancer2::Error you can throw reasonable-looking errors to the user instead
-of crashing the application and filling up the logs.
+With Dancer2::Core::Error you can throw reasonable-looking errors to the user
+instead of crashing the application and filling up the logs.
 
 This is usually used in debugging environments, and it's what Dancer2 uses as
 well under debugging to catch errors and show them on screen.
@@ -32,7 +32,7 @@ well under debugging to catch errors and show them on screen.
 
 =method my $error=new Dancer2::Core::Error(status    => 404, message => "No such file: `$path'");
 
-Create a new Dancer2::Error object. For available arguments see ATTRIBUTES.
+Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES.
 
 =cut
 

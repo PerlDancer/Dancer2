@@ -12,7 +12,7 @@ use overload '""' => \&_get_value;
 
     use Dancer2::Core::Cookie;
 
-    my $cookie = Dancer2::Cookie->new(
+    my $cookie = Dancer2::Core::Cookie->new(
         name => $cookie_name, value => $cookie_value
     );
 
@@ -26,7 +26,7 @@ Dancer2::Cookie provides a HTTP cookie object to work with cookies.
 
 =method my $cookie=new Dancer2::Cookie (%opts);
 
-Create a new Dancer2::Cookie object.
+Create a new Dancer2::Core::Cookie object.
 
 You can set any attribute described in the I<ATTRIBUTES> section above.
 

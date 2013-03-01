@@ -32,7 +32,8 @@ This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application. 
 
 If you are looking for info on how to write a webapp with Dancer2 you probably 
-want to look at L<Dancer2::Manual> or L<Dancer2::Cookbook>.
+want to look at L<Dancer2::Manual> or L<Dancer2::Cookbook>.  For a documentation
+of the Dancer2's DSL, you'll want to read L<Dancer2::Manual::DSL>.
 
 You are also welcome to join our mailing list at dancer-users@perldancer.org, 
 and we're also on IRC: #dancer on irc.perl.org.
