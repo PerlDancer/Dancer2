@@ -81,22 +81,40 @@ route handlers.
 
 =over 8
 
-=item B<GET>        The GET method retrieves information (when defining a route
-                    handler for the GET method, Dancer2 automatically defines a
-                    route handler for the HEAD method, in order to honour HEAD
-                    requests for each of your GET route handlers).
-                    To define a GET action, use the B<get> keyword.
+=item B<GET> The GET method retrieves information, and is the most common
 
-=item B<POST>       The POST method is used to create a resource on the
-                    server.
-                    To define a POST action, use the B<post> keyword.
+GET requests should be used for typical "fetch" requests - retrieving
+information.  They should not be used for requests which change data on the
+server or have other effects.
 
-=item B<PUT>        The PUT method is used to update an existing resource.
-                    To define a PUT action, use the B<put> keyword.
+When defining a route handler for the GET method, Dancer2 automatically defines
+a route handler for the HEAD method, in order to honour HEAD requests for each 
+of your GET route handlers).
 
-=item B<DELETE>     The DELETE method requests that the origin server delete
-                    the resource identified by the Request-URI.
-                    To define a DELETE action, use the B<del> keyword.
+To define a GET action, use the L<get|Dancer2::Manual::Keywords/get> keyword.
+
+=item B<POST> The POST method is used to create a resource on the server.
+
+To define a POST action, use the L<post|Dancer2::Manual::Keywords/post> keyword.
+
+=item B<PUT> The PUT method is used to replace an existing resource.
+
+To define a PUT action, use the L<put|Dancer2::Manual::Keywords/put> keyword.
+
+a PUT request should replace the existing resource with that specified - for
+instance - if you wanted to just update an email address for a user, you'd have
+to specify all attributes of the user again; to make a partial update, a
+C<PATCH> request is used.
+
+=item B<PATCH> The PATCH method updates some attributes of an existing resource.
+
+To define a PATCH action, use the L<patch|Dancer2::Manual::Keywoards/patch>
+keyword.
+
+=item B<DELETE> The DELETE method requests that the origin server delete the 
+resource identified by the Request-URI.
+
+To define a DELETE action, use the L<del|Dancer2::Manual::Keywords/del> keyword.
 
 =back
 
