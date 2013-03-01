@@ -12,6 +12,11 @@ Dancer2 is a free and open source web application framework written in Perl.
 It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more robust
 and extensible fully-OO design.
 
+It's designed to be powerful and flexible, but very easy to use - getting up and
+running with your web app is trivial, and an ecosystem of adaptors for common
+template engines, session storage and logging methods and plugings to make
+common tasks easy mean you can do what you want to do, your way, easily.
+
 =head1 INSTALL
 
 Installation of Dancer2 is simple:
