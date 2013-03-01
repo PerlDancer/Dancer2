@@ -32,7 +32,7 @@ Unix-like systems:
 (If you don't have root access, omit the 'sudo', and cpanminus will install
 Dancer2 and prereqs into C<~/perl5>.)
 
-=head1 BOOTSTRAPING
+=head1 BOOTSTRAPPING (starting a new app)
 
 Create a web application using the dancer script:
 
