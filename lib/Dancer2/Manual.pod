@@ -1,10 +1,6 @@
 # ABSTRACT: A gentle introduction to Dancer2
 package Dancer2::Manual;
 
-=encoding utf8
-
-=pod
-
 =head1 DESCRIPTION
 
 Dancer2 is a free and open source web application framework written in Perl.
