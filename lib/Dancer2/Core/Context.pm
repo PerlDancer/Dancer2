@@ -67,7 +67,10 @@ sub cookies { shift->request->cookies(@_) }
 sub cookie {
     my $self = shift;
 
-    return $self->request->cookies->{$_[0]} if @_ == 1;
+	if (@_ == 1) {
+		my $cookie = $self->request->cookies->{$_[0]}	or return;
+		return $cookie->value;
+	}
 
     # writer
     my ($name, $value, %options) = @_;
