@@ -51,7 +51,7 @@ has plugins => (
 );
 
 # FIXME not needed anymore, I suppose...
-sub api_version { 2 }
+sub api_version {2}
 
 =method register_plugin
 
@@ -120,7 +120,7 @@ sub _build_default_config {
 
     return {
         %{$self->runner_config},
-        template => 'Tiny',
+        template       => 'Tiny',
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
@@ -152,7 +152,7 @@ sub session {
 
     # shortcut reads if no session exists, so we don't
     # instantiate sessions for no reason
-    if ( @_ == 2 ) {
+    if (@_ == 2) {
         return unless $self->context->has_session;
     }
 
@@ -450,7 +450,8 @@ sub compile_hooks {
             my $compiled = sub {
 
                 # don't run the filter if halt has been used
-                return if ($self->context && $self->context->response->is_halted);
+                return
+                  if ($self->context && $self->context->response->is_halted);
 
                 # TODO: log entering the hook '$position'
                 #warn "entering hook '$position'";
@@ -478,10 +479,10 @@ has context => (
     trigger => sub {
         my ($self, $ctx) = @_;
         $self->_init_for_context($ctx),;
-        for my $type ( qw/logger serializer session template/ ) {
+        for my $type (qw/logger serializer session template/) {
             my $engine = $self->settings->{$type}
-                or next;
-            defined( $ctx ) ? $engine->context($ctx) : $engine->clear_context;
+              or next;
+            defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
         }
     },
 );

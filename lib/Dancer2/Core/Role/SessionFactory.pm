@@ -201,10 +201,9 @@ alternative method for session ID generation is desired.
 =cut
 
 {
-    my $COUNTER = 0;
-    my $CPRNG_AVAIL =
-        Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS") &&
-        Dancer2::ModuleLoader->require("Crypt::URandom");
+    my $COUNTER     = 0;
+    my $CPRNG_AVAIL = Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS")
+      && Dancer2::ModuleLoader->require("Crypt::URandom");
 
     # don't initialize until generate_id is called so the ISAAC algorithm
     # is seeded after any pre-forking
@@ -214,25 +213,29 @@ alternative method for session ID generation is desired.
     sub generate_id {
         my ($self) = @_;
 
-        if ( $CPRNG_AVAIL ) {
+        if ($CPRNG_AVAIL) {
             $CPRNG ||= Math::Random::ISAAC::XS->new(
-                map { unpack("N", Crypt::URandom::urandom(4)) } 1 .. 256
-            );
+                map { unpack("N", Crypt::URandom::urandom(4)) } 1 .. 256);
+
             # include $$ to ensure $CPRNG wasn't forked by accident
             return encode_base64url(
-                pack("N6", time, $$, $CPRNG->irand, $CPRNG->irand, $CPRNG->irand, $CPRNG->irand)
+                pack("N6",
+                    time,          $$,            $CPRNG->irand,
+                    $CPRNG->irand, $CPRNG->irand, $CPRNG->irand)
             );
         }
         else {
-            my $seed = (rand(1_000_000_000)    # a random number
-              . __FILE__                    # the absolute path as a secret key
-              .  $COUNTER++    # impossible to have two consecutive dups
-              . $$            # the process ID as another private constant
-              . "$self"       # the instance's memory address for more entropy
-              . join('', shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9))
-                # a shuffled list of 62 chars, another random component
+            my $seed = (
+                rand(1_000_000_000)   # a random number
+                  . __FILE__          # the absolute path as a secret key
+                  . $COUNTER++        # impossible to have two consecutive dups
+                  . $$         # the process ID as another private constant
+                  . "$self"    # the instance's memory address for more entropy
+                  . join('', shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9))
+
+                  # a shuffled list of 62 chars, another random component
             );
-            return encode_base64url( pack( "Na*", time, sha1($seed) ) );
+            return encode_base64url(pack("Na*", time, sha1($seed)));
         }
 
     }

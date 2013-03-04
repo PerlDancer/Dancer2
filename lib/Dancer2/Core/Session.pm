@@ -82,7 +82,7 @@ Boolean value for whether data in the session has been modified.
 has is_dirty => (
     is      => 'rw',
     isa     => Bool,
-    default => sub { 0 },
+    default => sub {0},
 );
 
 
