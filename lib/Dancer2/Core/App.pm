@@ -150,6 +150,12 @@ sub engine {
 sub session {
     my ($self, $key, $value) = @_;
 
+    # shortcut reads if no session exists, so we don't
+    # instantiate sessions for no reason
+    if ( @_ == 2 ) {
+        return unless $self->context->has_session;
+    }
+
     my $session = $self->context->session;
     croak "No session available, a session engine needs to be set"
       if !defined $session;
