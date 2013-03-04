@@ -170,6 +170,7 @@ sub create {
 
     $self->execute_hook('engine.session.before_create', $session);
 
+    # XXX why do we _flush now?  Seems unnecessary -- xdg, 2013-03-03
     eval { $self->_flush($session->id, $session->data) };
     croak "Unable to create a new session: $@"
       if $@;
@@ -307,6 +308,10 @@ sub destroy {
 
 Make sure the session object is stored in the factory's backend. This method is
 called to notify the backend about the change in the session object.
+
+The Dancer application will not call flush unless the session C<is_dirty>
+attribute is true to avoid unnecessary writes to the database when no
+data has been modified.
 
 An exception is triggered if the session is unable to be updated in the backend.
 

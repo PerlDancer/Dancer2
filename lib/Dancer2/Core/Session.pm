@@ -73,6 +73,19 @@ has expires => (
     },
 );
 
+=attr is_dirty
+
+Boolean value for whether data in the session has been modified.
+
+=cut
+
+has is_dirty => (
+    is      => 'rw',
+    isa     => Bool,
+    default => sub { 0 },
+);
+
+
 =method read
 
 Reader on the session data
@@ -95,12 +108,13 @@ Writer on the session data
 
   $session->write('something', $value);
 
-Returns C<$value>.
+Sets C<is_dirty> to true. Returns C<$value>.
 
 =cut
 
 sub write {
     my ($self, $key, $value) = @_;
+    $self->is_dirty(1);
     $self->data->{$key} = $value;
 }
 
@@ -110,12 +124,13 @@ Deletes a key from session data
 
   $session->delete('something');
 
-Returns the value deleted from the session.
+Sets C<is_dirty> to true. Returns the value deleted from the session.
 
 =cut
 
 sub delete {
     my ($self, $key, $value) = @_;
+    $self->is_dirty(1);
     delete $self->data->{$key};
 }
 

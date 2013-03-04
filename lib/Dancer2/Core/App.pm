@@ -385,7 +385,7 @@ sub _init_hooks {
 
                 if ($self->context->has_session) {
                     my $session = $self->context->session;
-                    $engine->flush(session => $session);
+                    $engine->flush(session => $session) if $session->is_dirty;
                     $engine->set_cookie_header(
                         response => $response,
                         session  => $session
