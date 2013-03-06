@@ -84,7 +84,8 @@ In list context, returns 1 if successful, C<(0, "error message")> if not.
 sub require {
     my ($class, $module, $version) = @_;
 
-    eval { use_module( $module, ( $version ) x defined $version ) } 
+    eval { defined $version ? use_module( $module, $version ) 
+                            : use_module( $module ) } 
         or return wantarray ? (0, $@) : 0;
 
     return 1;
