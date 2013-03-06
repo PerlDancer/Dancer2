@@ -40,7 +40,7 @@ has charset => (
 has default_tmpl_ext => (
     is      => 'rw',
     isa     => Str,
-    default => sub { shift->config->{default_tmpl_ext} || 'tt' },
+    default => sub { shift->config->{extension} || 'tt' },
 );
 
 has views => (
