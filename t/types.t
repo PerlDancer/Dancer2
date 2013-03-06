@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More tests => 46;
 use Test::Fatal;
-use Dancer::Core::Types;
+use Dancer2::Core::Types;
 
 
 ok(exception { Str->(undef) }, 'Str does not accept undef value',);
@@ -79,7 +79,7 @@ ok(exception { CodeRef->(undef) }, 'CodeRef does not accept undef value',);
 
     package InstanceChecker::zad7;
     use Moo;
-    use Dancer::Core::Types;
+    use Dancer2::Core::Types;
     has foo => (is => 'ro', isa => InstanceOf ['Foo']);
 }
 
@@ -96,99 +96,99 @@ ok( exception { InstanceOf('Foo')->(undef) },
     'InstanceOf does not accept undef value',
 );
 
-is(exception { DancerPrefix->('/foo') }, undef, 'DancerPrefix',);
+is(exception { Dancer2Prefix->('/foo') }, undef, 'Dancer2Prefix',);
 
 like(
-    exception { DancerPrefix->('bar/something') },
-    qr{bar/something is not a DancerPrefix},
-    'DancerPrefix fail',
+    exception { Dancer2Prefix->('bar/something') },
+    qr{bar/something is not a Dancer2Prefix},
+    'Dancer2Prefix fail',
 );
 
-# see DancerPrefix definition, undef is a valid value
+# see Dancer2Prefix definition, undef is a valid value
 like(
-    exception { DancerPrefix->(undef) },
-    qr/undef is not a DancerPrefix/,
-    'DancerPrefix does not accept undef value',
+    exception { Dancer2Prefix->(undef) },
+    qr/undef is not a Dancer2Prefix/,
+    'Dancer2Prefix does not accept undef value',
 );
 
-is(exception { DancerAppName->('Foo') }, undef, 'DancerAppName',);
+is(exception { Dancer2AppName->('Foo') }, undef, 'Dancer2AppName',);
 
-is(exception { DancerAppName->('Foo::Bar') }, undef, 'DancerAppName',);
+is(exception { Dancer2AppName->('Foo::Bar') }, undef, 'Dancer2AppName',);
 
-is(exception { DancerAppName->('Foo::Bar::Baz') }, undef, 'DancerAppName',);
-
-like(
-    exception { DancerAppName->('Foo:Bar') },
-    qr{Foo:Bar is not a DancerAppName},
-    'DancerAppName fails with single colons',
-);
+is(exception { Dancer2AppName->('Foo::Bar::Baz') }, undef, 'Dancer2AppName',);
 
 like(
-    exception { DancerAppName->('Foo:::Bar') },
-    qr{Foo:::Bar is not a DancerAppName},
-    'DancerAppName fails with tripe colons',
+    exception { Dancer2AppName->('Foo:Bar') },
+    qr{Foo:Bar is not a Dancer2AppName},
+    'Dancer2AppName fails with single colons',
 );
 
 like(
-    exception { DancerAppName->('7Foo') },
-    qr{7Foo is not a DancerAppName},
-    'DancerAppName fails with beginning number',
+    exception { Dancer2AppName->('Foo:::Bar') },
+    qr{Foo:::Bar is not a Dancer2AppName},
+    'Dancer2AppName fails with tripe colons',
 );
 
 like(
-    exception { DancerAppName->('Foo::45Bar') },
-    qr{Foo::45Bar is not a DancerAppName},
-    'DancerAppName fails with beginning number',
+    exception { Dancer2AppName->('7Foo') },
+    qr{7Foo is not a Dancer2AppName},
+    'Dancer2AppName fails with beginning number',
 );
 
 like(
-    exception { DancerAppName->('-F') },
-    qr{-F is not a DancerAppName},
-    'DancerAppName fails with special character',
+    exception { Dancer2AppName->('Foo::45Bar') },
+    qr{Foo::45Bar is not a Dancer2AppName},
+    'Dancer2AppName fails with beginning number',
 );
 
 like(
-    exception { DancerAppName->('Foo::-') },
-    qr{Foo::- is not a DancerAppName},
-    'DancerAppName fails with special character',
+    exception { Dancer2AppName->('-F') },
+    qr{-F is not a Dancer2AppName},
+    'Dancer2AppName fails with special character',
 );
 
 like(
-    exception { DancerAppName->('Foo^') },
-    qr{\QFoo^\E is not a DancerAppName},
-    'DancerAppName fails with special character',
-);
-
-ok( exception { DancerAppName->(undef) },
-    'DancerAppName does not accept undef value',
+    exception { Dancer2AppName->('Foo::-') },
+    qr{Foo::- is not a Dancer2AppName},
+    'Dancer2AppName fails with special character',
 );
 
 like(
-    exception { DancerAppName->('') },
-    qr{Empty string is not a DancerAppName},
-    'DancerAppName fails an empty string value',
+    exception { Dancer2AppName->('Foo^') },
+    qr{\QFoo^\E is not a Dancer2AppName},
+    'Dancer2AppName fails with special character',
 );
 
-is(exception { DancerMethod->('post') }, undef, 'DancerMethod',);
+ok( exception { Dancer2AppName->(undef) },
+    'Dancer2AppName does not accept undef value',
+);
 
 like(
-    exception { DancerMethod->('POST') },
-    qr{POST is not a DancerMethod},
-    'DancerMethod fail',
+    exception { Dancer2AppName->('') },
+    qr{Empty string is not a Dancer2AppName},
+    'Dancer2AppName fails an empty string value',
 );
 
-ok( exception { DancerMethod->(undef) },
-    'DancerMethod does not accept undef value',
-);
-
-is(exception { DancerHTTPMethod->('POST') }, undef, 'DancerHTTPMethod',);
+is(exception { Dancer2Method->('post') }, undef, 'Dancer2Method',);
 
 like(
-    exception { DancerHTTPMethod->('post') },
-    qr{post is not a DancerHTTPMethod},
-    'DancerHTTPMethod fail',
+    exception { Dancer2Method->('POST') },
+    qr{POST is not a Dancer2Method},
+    'Dancer2Method fail',
 );
 
-ok( exception { DancerHTTPMethod->(undef) },
-    'DancerMethod does not accept undef value',
+ok( exception { Dancer2Method->(undef) },
+    'Dancer2Method does not accept undef value',
+);
+
+is(exception { Dancer2HTTPMethod->('POST') }, undef, 'Dancer2HTTPMethod',);
+
+like(
+    exception { Dancer2HTTPMethod->('post') },
+    qr{post is not a Dancer2HTTPMethod},
+    'Dancer2HTTPMethod fail',
+);
+
+ok( exception { Dancer2HTTPMethod->(undef) },
+    'Dancer2Method does not accept undef value',
 );

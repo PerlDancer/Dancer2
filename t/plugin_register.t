@@ -2,17 +2,17 @@ use strict;
 use warnings;
 
 use Test::More import => ['!pass'];
-use Dancer::Test;
+use Dancer2::Test;
 use Test::Fatal;
 
 subtest 'reserved keywords' => sub {
-    use Dancer::Plugin;
+    use Dancer2::Plugin;
     like(
         exception {
             register dance => sub {1}
         },
         qr/You can't use 'dance', this is a reserved keyword/,
-        "Can't use Dancer's reserved keywords",
+        "Can't use Dancer2's reserved keywords",
     );
 
     like(
@@ -28,7 +28,7 @@ subtest 'plugin reserved keywords' => sub {
     {
 
         package Foo;
-        use Dancer::Plugin;
+        use Dancer2::Plugin;
 
         Test::More::is(
             Test::Fatal::exception {
@@ -42,7 +42,7 @@ subtest 'plugin reserved keywords' => sub {
     {
 
         package Bar;
-        use Dancer::Plugin;
+        use Dancer2::Plugin;
 
         Test::More::like(
             Test::Fatal::exception {
@@ -58,11 +58,11 @@ subtest 'plugin version' => sub {
 
     package Foo;
     our $VERSION = '1.034';
-    use Dancer;
-    use Dancer::Plugin;
+    use Dancer2;
+    use Dancer2::Plugin;
 
     eval {register_plugin};
-    Test::More::like $@, qr{Foo 1.034 does not support Dancer 2};
+    Test::More::like $@, qr{Foo 1.034 does not support Dancer2 2};
 };
 
 

@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Test::More;
 
-use Dancer::Core::Session;
-use Dancer::SessionFactory::Simple;
+use Dancer2::Core::Session;
+use Dancer2::Session::Simple;
 
-my $ENGINE = Dancer::SessionFactory::Simple->new;
+my $ENGINE = Dancer2::Session::Simple->new;
 
 my $CPRNG_AVAIL =
-    Dancer::ModuleLoader->require("Math::Random::ISAAC::XS") &&
-    Dancer::ModuleLoader->require("Crypt::URandom");
+    Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS") &&
+    Dancer2::ModuleLoader->require("Crypt::URandom");
 
 diag $CPRNG_AVAIL
     ? "Crypto strength tokens"

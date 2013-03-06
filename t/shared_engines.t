@@ -33,7 +33,7 @@ Test::TCP::test_tcp(
         my $port = shift;
 
         BEGIN {
-            use Dancer;
+            use Dancer2;
             set session => 'Simple';
             engine('session')->{'__marker__'} = 1;
         }
@@ -45,7 +45,7 @@ Test::TCP::test_tcp(
         };
 
         setting appdir => $tempdir;
-        Dancer->runner->server->port($port);
+        Dancer2->runner->server->port($port);
         start;
     },
 );

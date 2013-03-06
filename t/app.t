@@ -2,19 +2,19 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Fatal;
-use Dancer;
-use Dancer::Core::App;
-use Dancer::Core::Dispatcher;
-use Dancer::Core::Hook;
-use Dancer::FileUtils;
+use Dancer2;
+use Dancer2::Core::App;
+use Dancer2::Core::Dispatcher;
+use Dancer2::Core::Hook;
+use Dancer2::FileUtils;
 use File::Spec;
 
 # our app/dispatcher object
-my $app = Dancer::Core::App->new(name => 'main',);
-my $dispatcher = Dancer::Core::Dispatcher->new(apps => [$app]);
+my $app = Dancer2::Core::App->new(name => 'main',);
+my $dispatcher = Dancer2::Core::Dispatcher->new(apps => [$app]);
 
 # first basic tests
-isa_ok $app, 'Dancer::Core::App';
+isa_ok $app, 'Dancer2::Core::App';
 
 # some routes to play with
 my @routes = (
@@ -137,14 +137,14 @@ like(
 );
 
 $app->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'before',
         code => sub {1},
     )
 );
 
 $app->add_hook(
-    Dancer::Core::Hook->new(
+    Dancer2::Core::Hook->new(
         name => 'before',
         code => sub { Foo->failure; },
     )

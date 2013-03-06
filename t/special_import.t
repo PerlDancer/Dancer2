@@ -2,8 +2,8 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 
-use Dancer qw(:tests);
-use Dancer::Test;
+use Dancer2 qw(:tests);
+use Dancer2::Test;
 
 eval "
     any ['get', 'post'], '/'  => sub {

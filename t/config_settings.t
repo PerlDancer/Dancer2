@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More;
 
-use Dancer;
+use Dancer2;
 
 # testing default values
 is(setting('port'), '3000', "default value for 'port' is OK");

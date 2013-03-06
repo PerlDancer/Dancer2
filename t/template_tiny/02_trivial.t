@@ -7,7 +7,7 @@ BEGIN {
     $^W = 1;
 }
 use Test::More tests => 1;
-use Dancer::Template::Implementation::ForkedTiny ();
+use Dancer2::Template::Implementation::ForkedTiny ();
 
 sub process {
     my $stash    = shift;
@@ -15,7 +15,7 @@ sub process {
     my $expected = shift;
     my $message  = shift || 'Template processed ok';
     my $output   = '';
-    Dancer::Template::Implementation::ForkedTiny->new->process(\$input,
+    Dancer2::Template::Implementation::ForkedTiny->new->process(\$input,
         $stash, \$output);
     is($output, $expected, $message);
 }

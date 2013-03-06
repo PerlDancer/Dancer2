@@ -1,5 +1,5 @@
 package t::lib::TestApp;
-use Dancer;
+use Dancer2;
 
 # this app is intended to cover 100% of the DSL!
 

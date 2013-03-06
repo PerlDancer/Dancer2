@@ -7,14 +7,14 @@ BEGIN {
     $^W = 1;
 }
 use Test::More tests => 6;
-use Dancer::Template::Implementation::ForkedTiny ();
+use Dancer2::Template::Implementation::ForkedTiny ();
 
 sub preprocess {
     my $template = $_[0];
     my $expected = $_[1];
     my $message  = $_[2] || 'Template preprocessd ok';
     my $prepared =
-      Dancer::Template::Implementation::ForkedTiny->new->preprocess($template);
+      Dancer2::Template::Implementation::ForkedTiny->new->preprocess($template);
     is($prepared, $expected, $message);
     is($template, $_[0],
         '->proprocess does not modify original template variable');

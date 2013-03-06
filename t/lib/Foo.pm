@@ -1,5 +1,5 @@
 package t::lib::Foo;
-use Dancer;
+use Dancer2;
 
 get '/in_foo' => sub {
     session('test');

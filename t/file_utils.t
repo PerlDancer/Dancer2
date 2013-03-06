@@ -3,14 +3,16 @@ use warnings;
 use Test::More tests => 11;
 use Test::Fatal;
 use File::Spec;
+BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
 use File::Temp 0.22;
 
-use Dancer::FileUtils qw/read_file_content path_or_empty path/;
+use Dancer2::FileUtils qw/read_file_content path_or_empty path/;
 
 sub write_file {
     my ($file, $content) = @_;
 
     open CONF, '>', $file or die "cannot write file $file : $!";
+    binmode CONF;
     print CONF $content;
     close CONF;
 }
@@ -22,17 +24,17 @@ sub hexe {
 }
 
 like(
-    exception { Dancer::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') },
+    exception { Dancer2::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') },
     qr{/slfkjsdlkfjsdlf' using mode '<'},
     'Failure opening nonexistent file',
 );
 
-my $content = Dancer::FileUtils::read_file_content();
+my $content = Dancer2::FileUtils::read_file_content();
 is $content, undef;
 
-is Dancer::FileUtils::normalize_path(), undef;
+is Dancer2::FileUtils::normalize_path(), undef;
 
-my $p = Dancer::FileUtils::dirname('/somewhere');
+my $p = Dancer2::FileUtils::dirname('/somewhere');
 is $p, '/';
 
 my $tmp = File::Temp->new();

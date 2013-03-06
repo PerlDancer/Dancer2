@@ -14,7 +14,7 @@ my $views =
 
     package Foo;
 
-    use Dancer;
+    use Dancer2;
     set session => 'Simple';
 
     set views    => $views;
@@ -28,10 +28,10 @@ my $views =
     };
 }
 
-use Dancer::Test apps => ['Foo'];
+use Dancer2::Test apps => ['Foo'];
 
 my $expected = "perl_version: $]
-dancer_version: ${Dancer::VERSION}
+dancer_version: ${Dancer2::VERSION}
 settings.foo: in settings
 params.foo: 42
 session.foo in session

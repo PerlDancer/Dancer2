@@ -7,13 +7,13 @@ BEGIN {
     *CORE::GLOBAL::time = sub { return 1276560000 }
 }
 
-use Dancer::Core::Cookie;
+use Dancer2::Core::Cookie;
 
 note "Constructor";
 
-my $cookie = Dancer::Core::Cookie->new(name => "foo");
+my $cookie = Dancer2::Core::Cookie->new(name => "foo");
 
-isa_ok $cookie => 'Dancer::Core::Cookie';
+isa_ok $cookie => 'Dancer2::Core::Cookie';
 can_ok $cookie => 'to_header';
 
 
@@ -127,7 +127,7 @@ my @cake = (
 );
 
 for my $cook (@cake) {
-    my $c = Dancer::Core::Cookie->new(%{$cook->{cookie}});
+    my $c = Dancer2::Core::Cookie->new(%{$cook->{cookie}});
     is $c->to_header => $cook->{expected};
 }
 

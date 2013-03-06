@@ -2,11 +2,11 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 
-use Dancer::Core::App;
-use Dancer::Core::Context;
-use Dancer::Core::Response;
-use Dancer::Core::Request;
-use Dancer::Core::Error;
+use Dancer2::Core::App;
+use Dancer2::Core::Context;
+use Dancer2::Core::Response;
+use Dancer2::Core::Request;
+use Dancer2::Core::Error;
 
 my $env = {
     'psgi.url_scheme' => 'http',
@@ -27,11 +27,11 @@ my $env = {
     REMOTE_USER     => 'sukria',
 };
 
-my $a = Dancer::Core::App->new(name => 'main');
-my $c = Dancer::Core::Context->new(env => $env, app => $a);
+my $a = Dancer2::Core::App->new(name => 'main');
+my $c = Dancer2::Core::Context->new(env => $env, app => $a);
 
 subtest 'basic defaults of Error object' => sub {
-    my $e = Dancer::Core::Error->new(context => $c,);
+    my $e = Dancer2::Core::Error->new(context => $c,);
     is $e->status,  500,                                 'code';
     is $e->title,   'Error 500 - Internal Server Error', 'title';
     is $e->message, undef,                               'message';
@@ -41,14 +41,14 @@ subtest "send_error in route" => sub {
     {
 
         package App;
-        use Dancer;
+        use Dancer2;
 
         get '/error' => sub {
             send_error "This is a custom error message";
         };
     }
 
-    use Dancer::Test apps => ['App'];
+    use Dancer2::Test apps => ['App'];
     my $r = dancer_response GET => '/error';
 
     is $r->status, 500, 'send_error sets the status to 500';
@@ -60,7 +60,7 @@ subtest "send_error with custom stuff" => sub {
     {
 
         package App;
-        use Dancer;
+        use Dancer2;
 
         get '/error/:x' => sub {
             my $x = param('x');
@@ -75,10 +75,10 @@ subtest "send_error with custom stuff" => sub {
 };
 
 subtest 'Response->error()' => sub {
-    my $resp = Dancer::Core::Response->new;
+    my $resp = Dancer2::Core::Response->new;
 
     isa_ok $resp->error(message => 'oops', status => 418),
-      'Dancer::Core::Error';
+      'Dancer2::Core::Error';
 
     is $resp->status    => 418,        'response code is 418';
     like $resp->content => qr/oops/,   'response content overriden by error';

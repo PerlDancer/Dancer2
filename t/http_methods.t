@@ -3,8 +3,8 @@ use warnings;
 
 use Test::More tests => 6;
 
-use Dancer;
-use Dancer::Test;
+use Dancer2;
+use Dancer2::Test;
 
 my %method = (
     get     => 'GET',

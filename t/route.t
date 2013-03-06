@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 use Test::Fatal;
 
-use Dancer::Core::Route;
+use Dancer2::Core::Route;
 
 my @tests = (
     [['get', '/', sub {11}], '/', [{}, 11]],
@@ -50,7 +50,7 @@ for my $t (@tests) {
     if (ref($expected) eq 'Regexp') {
         like(
             exception {
-                my $r = Dancer::Core::Route->new(
+                my $r = Dancer2::Core::Route->new(
                     method => $route->[0],
                     regexp => $route->[1],
                     code   => $route->[2],
@@ -62,13 +62,13 @@ for my $t (@tests) {
         );
     }
     else {
-        my $r = Dancer::Core::Route->new(
+        my $r = Dancer2::Core::Route->new(
             method => $route->[0],
             regexp => $route->[1],
             code   => $route->[2],
             prefix => $route->[3],
         );
-        isa_ok $r, 'Dancer::Core::Route';
+        isa_ok $r, 'Dancer2::Core::Route';
 
         my $m = $r->match($route->[0] => $path);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
@@ -87,7 +87,7 @@ SKIP: {
     my $route_regex =
       qr{/(?<class> user | content | post )/(?<action> delete | find )/(?<id> \d+ )}x;
 
-    my $r = Dancer::Core::Route->new(
+    my $r = Dancer2::Core::Route->new(
         regexp => $route_regex,
         code   => sub {
             'ok';

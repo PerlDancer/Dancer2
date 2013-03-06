@@ -64,7 +64,7 @@ for my $session_expires (3600, '1h', '1 hour') {
         server => sub {
             my $port = shift;
 
-            use Dancer;
+            use Dancer2;
 
             get '/has_session' => sub {
                 return context->has_session;
@@ -109,7 +109,7 @@ for my $session_expires (3600, '1h', '1 hour') {
                 port         => $port
             );
 
-            Dancer->runner->server->port($port);
+            Dancer2->runner->server->port($port);
             start;
         },
     );

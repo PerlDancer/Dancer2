@@ -7,7 +7,7 @@ use Test::More;
 
     package PrettyError;
 
-    use Dancer;
+    use Dancer2;
 
     engine('template')->views('t/corpus/pretty');
     $ENV{DANCER_PUBLIC} = 't/corpus/pretty_public';
@@ -28,7 +28,7 @@ use Test::More;
 
 }
 
-use Dancer::Test apps => ['PrettyError'];
+use Dancer2::Test apps => ['PrettyError'];
 
 subtest "/error" => sub {
     my $r = dancer_response GET => '/error';

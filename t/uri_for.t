@@ -3,13 +3,13 @@ use strict;
 use warnings;
 
 {
-    use Dancer;
+    use Dancer2;
     get '/foo' => sub {
         return uri_for('/foo');
     };
 }
 
-use Dancer::Test;
+use Dancer2::Test;
 response_status_is [GET => '/foo'], 200;
 
 response_content_is [GET => '/foo'],
