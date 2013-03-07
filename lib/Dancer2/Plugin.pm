@@ -324,12 +324,12 @@ sub import {
     my $dsl = _get_dsl();
     return if !defined $dsl;
 
- # Support for Dancer2 1 syntax for plugin.
- # Then, compile Dancer2's DSL keywords into self-contained keywords for the
- # plugin (actually, we call all the symbols by giving them $caller->dsl as
- # their first argument).
- # These modified versions of the DSL are then exported in the namespace of the
- # plugin.
+    # Support for Dancer2 1 syntax for plugin.
+    # Then, compile Dancer2's DSL keywords into self-contained keywords for the
+    # plugin (actually, we call all the symbols by giving them $caller->dsl as
+    # their first argument).
+    # These modified versions of the DSL are then exported in the namespace of the
+    # plugin.
     for my $symbol ($dsl->dsl_keywords_as_list) {
 
         # get the original symbol from the real DSL
