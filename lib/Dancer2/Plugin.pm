@@ -22,22 +22,30 @@ use Dancer2::Core::DSL;
 
 =method register
 
+    register 'my_keyword' => sub { ... } => \%options;
+
 Allows the plugin to define a keyword that will be exported to the caller's
 namespace.
 
 The first argument is the symbol name, the second one the coderef to execute
 when the symbol is called.
 
-The coderef receives as its first argument the Dancer2::Core::DSL object. Any
-Dancer2 keyword wrapped by the plugin should be called with the $dsl object like
-the following:
+The coderef receives as its first argument the Dancer2::Core::DSL object.
+
+Instead of importing C<use Dancer ':syntax'>, plugins B<must> use the DSL
+object to access application components and work with them directly.
 
     sub {
         my $dsl = shift;
         my @args = @_;
 
-        $dsl->some_dancer_thing;
-        ...
+        my $app = $dsl->app;
+        my $context = $app->context;
+        my $request = $context->request;
+
+        if ( $app->session( "logged_in" ) ) {
+            ...
+        }
     };
 
 As an optional third argument, it's possible to give a hash ref to C<register>
@@ -125,7 +133,7 @@ the symbols defined with C<register> as exported symbols.
 
 Since version 2, Dancer2 requires any plugin to declare explicitly which version
 of the core it supports. This is done for safer upgrade of major versions and
-allow Dancer2 2 to detect legacy plugins that have not been ported to the new
+allow Dancer2 to detect legacy plugins that have not been ported to the new
 core. To do so, the plugin must list the major versions of the core it supports
 in an arrayref, like the following:
 
@@ -135,8 +143,8 @@ in an arrayref, like the following:
     # Or if it only works for 2:
     register_plugin for_versions => [ 2 ];
 
-If the C<for_versions> option is omitted, it dfaults to C<[ 1 ]> meaning the
-plugin was written for Dancer2 1 and has not been ported to Dancer2 2. This is a
+If the C<for_versions> option is omitted, it defaults to C<[ 1 ]> meaning the
+plugin was written for Dancer 1 and has not been ported to Dancer 2. This is a
 rather violent convention but will help a lot the migration of the ecosystem.
 
 =cut
@@ -223,15 +231,15 @@ sub register_plugin {
 =method plugin_args
 
 Simple method to retrieve the parameters or arguments passed to a
-plugin-defined keyword. Although not relevant for Dancer2 1 only, or
-Dancer2 2 only, plugins, it is useful for universal plugins.
+plugin-defined keyword. Although not relevant for Dancer 1 only, or
+Dancer 2 only, plugins, it is useful for universal plugins.
 
   register foo => sub {
-     my ($self, @args) = plugin_args(@_);
+     my ($dsl, @args) = plugin_args(@_);
      ...
   }
 
-Note that Dancer2 1 will return undef as the object reference.
+Note that Dancer 1 will return undef as the DSL object.
 
 =cut
 
@@ -401,21 +409,21 @@ sub _get_dsl {
 
 =head1 EXAMPLE PLUGIN
 
-The following code is a dummy plugin that provides a keyword 'block_links_from'.
+The following code is a dummy plugin that provides a keyword 'logout' that
+destroys the current session and redirects to a new URL specified in
+the config file as C<after_logout>.
 
-  package Dancer2::Plugin::LinkBlocker;
+  package Dancer2::Plugin::Logout;
   use Dancer2::Plugin;
 
-  register block_links_from => sub {
-    my $dsl = shift;
+  register logout => sub {
+    my $dsl     = shift;
+    my $context = $dsl->app->context;
+    my $conf    = plugin_setting();
 
-    my $conf = plugin_setting();
-    my $re = join ('|', @{$conf->{hosts}});
-    $dsl->before( sub {
-        if ($dsl->request->referer && $dsl->request->referer =~ /$re/) {
-            $dsl->status(403) || $conf->{http_code};
-        }
-    });
+    $context->destroy_session;
+
+    return $context->redirect( $conf->{after_logout} );
   };
 
   register_plugin for_versions => [ 2 ] ;
@@ -427,8 +435,8 @@ And in your application:
     package My::Webapp;
 
     use Dancer2;
-    use Dancer2::Plugin::LinkBlocker;
+    use Dancer2::Plugin::Logout;
 
-    block_links_from; # this is exported by the plugin
+    get '/logout' => sub { logout };
 
 =cut
