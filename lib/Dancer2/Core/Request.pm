@@ -644,7 +644,7 @@ This means that if your base is I<http://myserver/>, C<uri_base> will return
 I<http://myserver> (notice no trailing slash). This is considered very useful
 when using templates to do the following thing:
 
-    <link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
+    <link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
 
 =cut
 
