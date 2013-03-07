@@ -8,6 +8,7 @@ use Dancer2::Core::Request;
 use File::Temp 0.22;
 use File::Basename qw/dirname basename/;
 use File::Spec;
+use Encode qw(encode_utf8);
 
 diag "If you want extract speed, install URL::Encode::XS"
   if !$Dancer2::Core::Request::XS_URL_DECODE;
@@ -56,6 +57,7 @@ SHOGUN6
 };
     $content =~ s/\r\n/\n/g;
     $content =~ s/\n/\r\n/g;
+    $content = encode_utf8($content);
 
 
     do {
