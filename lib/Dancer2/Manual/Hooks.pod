@@ -130,7 +130,7 @@ receives the generated content as the first argument.
 =head2 File rendering
 
 Whenever a content is produced out of the parsing of a static file, the
-L<Dancer::Handler::File> component is used. This component provides two hooks,
+L<Dancer2::Handler::File> component is used. This component provides two hooks,
 C<before_file_render> and C<after_file_render>.
 
 C<before_file_render> hooks are called just before starting to parse the file,
