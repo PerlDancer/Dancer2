@@ -1,4 +1,4 @@
-{{$NEXT}}
+0.03 - 2013-03-07 (Alexis Sukrieh)
 
     [ ENHANCEMENTS ]
     * Don't create a session when just checking if a value exists
@@ -18,7 +18,7 @@
     * changed <% to [% in documentations (Alexander Karelas)
     * Improve Dancer2::Plugin documentation (David Golden)
 
-2.02 - 2013-02-24   (Alexis Sukrieh)
+0.02 - 2013-02-24   (Alexis Sukrieh)
 
     [ DOCUMENTATION ]
     * No more "TODO" tokens in the documentations
@@ -30,7 +30,7 @@
       tests.
     (Alexis Sukrieh)
 
-2.01
+0.01
 
     [ ENHANCEMENTS ]
     * Dancer::Test takes a hash instead of an array for better backward
