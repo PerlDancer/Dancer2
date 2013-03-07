@@ -3,11 +3,20 @@
     [ ENHANCEMENTS ]
     * Don't create a session when just checking if a value exists
       (David Golden) 
+    * Only flush sessions if they are dirty 
+      (David Golden)
+    * Allow the default template file extension to be changed. 
+      (David Precious)
+    * Add on_plugin_import function to Dancer2::Plugin (David Golden)
+      (Fix for issue #284)
 
     [BUG FIXES]
     * Dancer2::ModuleLoader now use Module::Runtime at its core
       (issue #166, Yanick Champoux)
 
+    [ DOCUMENTATION ]
+    * changed <% to [% in documentations (Alexander Karelas)
+    * Improve Dancer2::Plugin documentation (David Golden)
 
 2.02 - 2013-02-24   (Alexis Sukrieh)
 
