@@ -58,6 +58,10 @@ frome everywhere (eg: C<dancer_version> or C<setting>).
 # their code and the plugin they come from
 my $_keywords = {};
 
+# singleton for applying code-blocks at import time
+# so their code gets the callers DSL
+my $_on_import = {};
+
 sub register {
     my $plugin = caller;
     my $caller = caller(1);
@@ -85,6 +89,33 @@ sub register {
 
     $_keywords->{$plugin} ||= [];
     push @{$_keywords->{$plugin}}, [$keyword, $code, $options->{is_global}];
+}
+
+=method on_plugin_import
+
+Allows the plugin to take action each time it is imported.
+It is prototyped to take a single code block argument, which will be called
+with the DSL object of the package importing it.
+
+For example, here is a way to install a hook in the importing app:
+
+    on_plugin_import {
+        my $dsl = shift;
+        $dsl->app->add_hook(
+            Dancer2::Core::Hook->new(
+                name => 'before',
+                code => sub { ... },
+            );
+        );
+    };
+
+=cut
+
+sub on_plugin_import(&) {
+    my $code = shift;
+    my $plugin = caller;
+    $_on_import->{$plugin} ||= [];
+    push @{$_on_import->{$plugin}}, $code;
 }
 
 =method register_plugin
@@ -168,6 +199,10 @@ sub register_plugin {
         Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
         $caller->dsl->export_symbols_to($caller);
         $caller->dsl->dancer_app->register_plugin($caller->dsl);
+
+        for my $sub (@{$_on_import->{$plugin}}) {
+            $sub->( $caller->dsl );
+        }
     };
 
     my $app_caller = caller();
@@ -312,6 +347,7 @@ sub import {
       register_hook
       register_plugin
       register
+      on_plugin_import
       plugin_setting
       plugin_args
     );
