@@ -1,10 +1,24 @@
-{{$NEXT}}
+0.03 - 2013-03-07 (Alexis Sukrieh)
+
+    [ ENHANCEMENTS ]
+    * Don't create a session when just checking if a value exists
+      (David Golden) 
+    * Only flush sessions if they are dirty 
+      (David Golden)
+    * Allow the default template file extension to be changed. 
+      (David Precious)
+    * Add on_plugin_import function to Dancer2::Plugin (David Golden)
+      (Fix for issue #284)
 
     [BUG FIXES]
     * Dancer2::ModuleLoader now use Module::Runtime at its core
-        (issue #166, Yanick Champoux)
+      (issue #166, Yanick Champoux)
 
-2.02 - 2013-02-24   (Alexis Sukrieh)
+    [ DOCUMENTATION ]
+    * changed <% to [% in documentations (Alexander Karelas)
+    * Improve Dancer2::Plugin documentation (David Golden)
+
+0.02 - 2013-02-24   (Alexis Sukrieh)
 
     [ DOCUMENTATION ]
     * No more "TODO" tokens in the documentations
@@ -16,7 +30,7 @@
       tests.
     (Alexis Sukrieh)
 
-2.01
+0.01
 
     [ ENHANCEMENTS ]
     * Dancer::Test takes a hash instead of an array for better backward
