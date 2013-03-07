@@ -8,7 +8,7 @@ When a class consumes this role, it gets a C<headers> attribute and all the
 helper methods to manipulate it.
 
 This logic is contained in this role in order to reuse the code between
-L<Dancer::Core::Response> and L<Dancer::Core::Request> objects.
+L<Dancer2::Core::Response> and L<Dancer2::Core::Request> objects.
 
 =cut
 
