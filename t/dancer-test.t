@@ -3,11 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 45;
+use Test::More tests => 47;
 
 use Dancer2 ':syntax';
 use Dancer2::Test;
 use Dancer2::Core::Request;
+use File::Temp;
 
 my @routes = (
     '/foo',
@@ -52,3 +53,21 @@ response_headers_include $_ => [Server => "Perl Dancer2 $Dancer2::VERSION"]
 get '/param' => sub { param('test') };
 my $param_response = dancer_response(GET => '/param', { params => { test => 'hello' } });
 is $param_response->content, 'hello', 'PARAMS get echoed by route';
+
+post '/upload' => sub { 
+    my $file = upload('test');
+    return $file->content;
+};
+## Check we can upload files
+my $file_response = dancer_response(POST => '/upload', {
+    files => [{ filename => 'test.txt', name => 'test', data => 'testdata' }] } );
+is $file_response->content, 'testdata', 'file uploaded with supplied data';
+
+my $temp = File::Temp->new;
+print $temp 'testfile';
+close($temp);
+
+$file_response = dancer_response(POST => '/upload', {
+    files => [{ filename => $temp->filename, name => 'test' }] } );
+is $file_response->content, 'testfile', 'file uploaded with supplied filename';
+
