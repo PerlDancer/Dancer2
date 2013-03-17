@@ -53,7 +53,8 @@ if (!-e $path) {
     is(path_or_empty($path), '', 'path_or_empty on non-existent path',);
 }
 
-is(path_or_empty('/tmp'), '/tmp');
+my $tmpdir = File::Temp->newdir;
+is(path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
 
 #slightly tricky paths on different platforms
 is(path('/', 'b', '/c'), '/b//c', 'path /,b,/c -> /b//c');
