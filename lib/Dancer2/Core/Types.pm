@@ -100,9 +100,11 @@ my $definitions = [
             $_[0] =~ $namespace;
         },
         message => sub {
-            return exception_message(length($_[0]) ? $_[0] : 'Empty string',
-                'a Dancer2AppName');
-          }
+            return exception_message(
+                defined($_[0]) && length($_[0]) ? $_[0] : 'Empty string',
+                'a Dancer2AppName'
+            );
+        }
     },
     {   name       => 'Dancer2Method',
         subtype_of => 'Str',
