@@ -131,16 +131,16 @@ sub on_plugin_import(&) {
 A Dancer2 plugin must end with this statement. This lets the plugin register all
 the symbols defined with C<register> as exported symbols.
 
-Since version 2, Dancer2 requires any plugin to declare explicitly which version
+Since version 2, Dancer requires any plugin to declare explicitly which version
 of the core it supports. This is done for safer upgrade of major versions and
-allow Dancer2 to detect legacy plugins that have not been ported to the new
+allow Dancer to detect legacy plugins that have not been ported to the new
 core. To do so, the plugin must list the major versions of the core it supports
 in an arrayref, like the following:
 
-    # For instance, if the plugin works with Dancer2 1 and 2:
+    # For instance, if the plugin works with Dancer 1 and 2:
     register_plugin for_versions => [ 1, 2 ];
 
-    # Or if it only works for 2:
+    # Or if it only works for Dancer 2:
     register_plugin for_versions => [ 2 ];
 
 If the C<for_versions> option is omitted, it defaults to C<[ 1 ]> meaning the
@@ -154,7 +154,7 @@ sub register_plugin {
     my $caller = caller(1);
     my %params = @_;
 
-    # For backward compatibility, no params means "supports only Dancer2 1"
+    # For backward compatibility, no params means "supports only Dancer 1"
     $params{for_versions} = [1]
       if !defined $params{for_versions};
 
@@ -168,7 +168,7 @@ sub register_plugin {
     my $dancer_major_version = $caller->dancer_app->api_version;
     my $plugin_version = eval "\$${plugin}::VERSION" || '??';
 
-    # make sure the plugin is compatible with this version of Dancer2
+    # make sure the plugin is compatible with this version of Dancer
     if ($ENV{DANCER_FORCE_PLUGIN_REGISTRATION}) {
         print STDERR "DANCER_FORCE_PLUGIN_REGISTRATION\n";
     }
@@ -368,8 +368,8 @@ sub import {
     my $dsl = _get_dsl();
     return if !defined $dsl;
 
-    # Support for Dancer2 1 syntax for plugin.
-    # Then, compile Dancer2's DSL keywords into self-contained keywords for the
+    # Support for Dancer 1 syntax for plugin.
+    # Then, compile Dancer 2's DSL keywords into self-contained keywords for the
     # plugin (actually, we call all the symbols by giving them $caller->dsl as
     # their first argument).
     # These modified versions of the DSL are then exported in the namespace of the
