@@ -5,6 +5,7 @@ use Test::Fatal;
 
 use Dancer2::Core::Request;
 
+use Carp;
 use File::Temp 0.22;
 use File::Basename qw/dirname basename/;
 use File::Spec;
@@ -138,19 +139,29 @@ SHOGUN6
         }
 
 
-        note "testing failing open for tempfile";
-
-        # mocking open_file to make it fail
-        {
-            no strict 'refs';
-            no warnings 'redefine';
-            *{"Dancer2::FileUtils::open_file"} = sub {0};
+        note "testing failing open for tempfile"; {
+            # mocking open_file to make it fail
+            my $upload_file_coderef;
+            {
+                no strict 'refs';
+                $upload_file_coderef = *{"Dancer2::Core::Request::Upload::open_file"}{CODE};
+                no warnings 'redefine';
+                *{"Dancer2::Core::Request::Upload::open_file"} = sub {
+                    croak "Can't open mocked-tempfile using mode '<'";
+                };
+            }
+            $upload->{_fh} = undef;
+            like(
+                exception { $upload->file_handle },
+                qr{Can't open.* using mode '<'},
+            );
+            # unmock open_file
+            {
+                no strict 'refs';
+                no warnings 'redefine';
+                *{"Dancer2::Core::Request::Upload::open_file"} = $upload_file_coderef;
+            }
         }
-        $upload->{_fh} = undef;
-        like(
-            exception { $upload->file_handle },
-            qr{Can't open.* using mode '<'},
-        );
 
         unlink($file) if ($^O eq 'MSWin32');
     };
