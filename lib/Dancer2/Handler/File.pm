@@ -7,6 +7,7 @@ use HTTP::Date;
 use Dancer2::FileUtils 'path', 'read_file_content';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
+use Dancer2::ModuleLoader;
 use File::Spec;
 
 with 'Dancer2::Core::Role::Handler';
@@ -37,6 +38,16 @@ has regexp => (
     is      => 'ro',
     default => sub {'/**'},
 );
+
+sub create {
+    my ($class, $type, $app, %options) = @_;
+
+    my ($ok, $error) = Dancer2::ModuleLoader->require($class);
+    if ( ! $ok ) {
+        croak "Unable to load class for $type component $app: $error";
+    }
+    return $class->new(app => $app, %options);
+}
 
 sub BUILD {
     my ($self) = @_;
