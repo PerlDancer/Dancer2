@@ -283,13 +283,13 @@ sub mime {
 }
 
 sub cookie {
-	my $self = shift;
+    my $self = shift;
 
-	if (@_ == 1) {
-		my $cookie = $self->context->cookie(@_)	or return;
-		return $cookie->value;
-	}
-	return $self->context->cookie(@_)
+    if (@_ == 1) {
+        my $cookie = $self->context->cookie(@_) or return;
+        return $cookie->value;
+    }
+    return $self->context->cookie(@_)
 }
 
 sub send_error {
