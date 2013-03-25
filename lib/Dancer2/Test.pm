@@ -101,7 +101,7 @@ In addition, you can supply the file contents as the C<data> key:
 
 You can also supply a hashref of headers:
 
-    headers => { 'Content-Type' => 'text/plain }
+    headers => { 'Content-Type' => 'text/plain' }
 
 =cut
 
