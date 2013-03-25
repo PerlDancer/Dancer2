@@ -9,6 +9,7 @@ use Test::More;
 use Test::Builder;
 use URI::Escape;
 use Data::Dumper;
+use File::Temp;
 
 use parent 'Exporter';
 our @EXPORT = qw(
@@ -52,7 +53,7 @@ my $_dispatcher = Dancer2::Core::Dispatcher->new;
 
 =func dancer_response ($method, $path, $params, $arg_env);
 
-Returns a Dancer2::Response object for the given request.
+Returns a Dancer2::Core::Response object for the given request.
 
 Only $method and $path are required.
 
@@ -60,11 +61,11 @@ $params is a hashref with 'body' as a string; 'headers' can be an arrayref or
 a HTTP::Headers object, 'files' can be arrayref of hashref, containing some 
 files to upload:
 
-	dancer_response($method, $path, 
-		{ params => $params, 
-			body => $body, 
-			headers => $headers, 
-			files => [{filename => '/path/to/file', name => 'my_file'}] 
+    dancer_response($method, $path, 
+        { params => $params, 
+          body => $body, 
+          headers => $headers, 
+          files => [{filename => '/path/to/file', name => 'my_file'}] 
 		}
 	);
 
@@ -96,6 +97,10 @@ In addition, you can supply the file contents as the C<data> key:
     $response = dancer_response(POST => '/upload', {
         files => [{name => 'test', filename => "filename.ext", data => $data}]
     });
+
+You can also supply a hashref of headers:
+
+    headers => { 'Content-Type' => 'text/plain }
 
 =cut
 
@@ -163,12 +168,41 @@ sub _build_request_from_env {
         }
     }
 
+    # files
+    if ( $options->{files} ) {
+        for my $file (@{$options->{files}}) {
+            my $headers  = $file->{headers};
+            $headers->{'Content-Type'} ||= 'text/plain';
+
+            my $temp = File::Temp->new();
+            if ( $file->{data} ) {
+                print $temp $file->{data};
+                close($temp);
+            }
+            else {
+                require File::Copy;
+                File::Copy::copy($file->{filename}, $temp);
+            }
+
+            my $upload = Dancer2::Core::Request::Upload->new(
+                filename => $file->{filename},
+                size     => -s $temp->filename,
+                tempname => $temp->filename,
+                headers  => $headers,
+            );
+
+            ## keep temp_fh in scope so it doesn't get deleted too early
+            ## But will get deleted by the time the test is finished.
+            $upload->{temp_fh} = $temp;
+
+            $request->uploads->{$file->{name}} = $upload;
+        }
+    }
+
     # content-type
     if ( $options->{content_type} ) {
         $request->content_type( $options->{content_type} );
     }
-
-    # TODO files
 
     return ($request, $env);
 }
