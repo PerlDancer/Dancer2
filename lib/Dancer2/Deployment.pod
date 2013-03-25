@@ -167,6 +167,10 @@ C<Content-Encoding> set to C<gzip> or C<deflate>
 You can use Plack::Builder to mount multiple Dancer2 applications on
 a L<PSGI> webserver like L<Starman>.
 
+B<The code below does not work. It's the most important section on this page. Please fix.>
+B<For example, there exists no set_running_app method anywhere in the D2.>
+B<Also, nowhere else on the web can this information be found.>
+
 Start by creating a simple app.psgi file:
 
     use Dancer2 ':syntax';
