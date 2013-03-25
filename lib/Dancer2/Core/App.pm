@@ -336,15 +336,20 @@ sub send_file {
     (ref($path) eq 'SCALAR')
       and return $$path;
 
-    my $file_handler = Dancer2::Handler::File->new(
-        app             => $self,
+    my $conf = {};
+    $conf->{app} = $self;
+    my $file_handler = Dancer2::Core::Factory->create(
+        Handler => 'File',
+        %$conf,
         postponed_hooks => $self->postponed_hooks,
         public_dir => ($options{system_path} ? File::Spec->rootdir : undef),
     );
 
-    for my $h (keys %{$self->route_handlers->{File}->hooks}) {
-        my $hooks = $self->route_handlers->{File}->hooks->{$h};
-        $file_handler->replace_hook($h, $hooks);
+    if ($self->route_handlers->{File}) {
+        for my $h (keys %{$self->route_handlers->{File}->hooks}) {
+            my $hooks = $self->route_handlers->{File}->hooks->{$h};
+            $file_handler->replace_hook($h, $hooks);
+        }
     }
 
     $self->context->request->path_info($path);
