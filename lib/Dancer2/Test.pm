@@ -62,12 +62,13 @@ a HTTP::Headers object, 'files' can be arrayref of hashref, containing some
 files to upload:
 
     dancer_response($method, $path, 
-        { params => $params, 
-          body => $body, 
-          headers => $headers, 
-          files => [{filename => '/path/to/file', name => 'my_file'}] 
-		}
-	);
+        {
+            params => $params, 
+            body => $body, 
+            headers => $headers, 
+            files => [ { filename => '/path/to/file', name => 'my_file' } ],
+        }
+    );
 
 A good reason to use this function is for testing POST requests. Since POST
 requests may not be idempotent, it is necessary to capture the content and
