@@ -149,9 +149,15 @@ sub _build_request_from_env {
 
     if (defined $options->{params}) {
         my @params;
-        foreach my $p (keys %{$options->{params}}) {
-            push @params,
-              uri_escape($p) . '=' . uri_escape($options->{params}->{$p});
+        while( my ($p, $value) = each %{$options->{params}} ) {
+            if ( ref($value) eq 'ARRAY' ) {
+                for my $v (@$value) {
+                    push @params, uri_escape($p) . '=' . uri_escape($v);
+                }
+            }
+            else {
+                push @params, uri_escape($p) . '=' . uri_escape($value);
+            }
         }
         $env->{QUERY_STRING} = join('&', @params);
     }
@@ -226,8 +232,15 @@ sub _build_env_from_request {
     # TODO
     if (my $params = $request->{_query_params}) {
         my @params;
-        foreach my $p (keys %{$params}) {
-            push @params, uri_escape($p) . '=' . uri_escape($params->{$p});
+        while(my ($p, $value) = each %{$params}) {
+            if ( ref($value) eq 'ARRAY' ) {
+                for my $v (@$value) {
+                    push @params, uri_escape($p) . '=' . uri_escape($v);
+                }
+            }
+            else {
+                push @params, uri_escape($p) . '=' . uri_escape($value);
+            }
         }
         $env->{QUERY_STRING} = join('&', @params);
     }
