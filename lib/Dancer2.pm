@@ -21,8 +21,8 @@ $Dancer2::VERSION ||= '0.01'; # 2.0.1
 
 =head1 DESCRIPTION
 
-Dancer2 is the new generation of Dancer, the lightweight web-framework for 
-Perl. Dancer2 is a complete rewrite of L<Dancer> based on L<Moo>. 
+Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for 
+Perl. Dancer2 is a complete rewrite based on L<Moo>. 
 
 As usual, Dancer is easy and fun:
     use Dancer2;
@@ -202,7 +202,6 @@ L<Data::Dumper>
 sub core_debug {
     my $msg = shift;
     my (@stuff) = @_;
-    use Data::Dumper;
 
     my $vars = @stuff ? Dumper(\@stuff) : '';
 
