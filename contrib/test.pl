@@ -1,4 +1,4 @@
-use Dancer 2.0;
+use Dancer2;
 use Data::Dumper;
 # use Dancer::Plugin::Foo;
 # use Dancer::Plugin::Bar;
