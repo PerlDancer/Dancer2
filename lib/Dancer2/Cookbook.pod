@@ -173,7 +173,7 @@ with the L<splat|Dancer2/splat> keyword:
 A L<before|Dancer2/before> filter declares code which should be handled before
 a request is passed to the appropriate route.
 
-    before sub {
+    hook before => sub {
         var note => 'Hi there';
         request->path('/foo/oversee')
     };
