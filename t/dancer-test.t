@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 47;
+use Test::More tests => 48;
 
 use Dancer2 ':syntax';
 use Dancer2::Test;
@@ -71,3 +71,13 @@ $file_response = dancer_response(POST => '/upload', {
     files => [{ filename => $temp->filename, name => 'test' }] } );
 is $file_response->content, 'testfile', 'file uploaded with supplied filename';
 
+## Check multiselect/multi parameters get through ok
+get '/multi' => sub {
+    my $t = param('test');
+    return join('', @$t) if ref($t) eq 'ARRAY';
+    return 'bad';
+};
+$param_response = dancer_response(GET => '/multi', {
+    params => { test => ['foo', 'bar'] } });
+is $param_response->content, 'foobar',
+    'multi values for same key get echoed back';
