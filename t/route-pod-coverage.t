@@ -1,20 +1,26 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More;
 
 use t::lib::TestPod;
-
 use Dancer2::Test apps => ['t::lib::TestPod'];
 
-is_pod_covered ' is pod covered';
+is_pod_covered 'is pod covered';
 
-my $expected_data = {
+my $pod_structure = {
     't::lib::TestPod' => {
-        has_pod => 1,
-        routes  => [['get', '/in_testpod']]
+        'has_pod' => 1,
+        'routes'  => [
+            "post /in_testpod/*",
+            "post /me:id",
+            "get /in_testpod",
+            "get /hello",
+            "get /me:id"
+        ]
     }
 };
-my $pod_coverage = route_pod_coverage;
-is_deeply($pod_coverage, $expected_data,
-    'comparing expected pod data with existing pod data');
+
+is_deeply(route_pod_coverage, $pod_structure, 'my pod looks like expected' );
+
+done_testing;
