@@ -706,20 +706,15 @@ sub is_pod_covered {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     foreach my $app (@{$_dispatcher->apps}) {
-
+        my %undocumented_route = (map { $_ => 1 }
+              @{$route_pod_coverage->{$app->name}{undocumented_routes}});
         $tb->subtest(
-            $app->name . " routes pod coverage",
+            $app->name . $test_name,
             sub {
                 foreach
                   my $route (@{$route_pod_coverage->{$app->name}{routes}})
                 {
-                    ok( !(  grep { $route eq $_ } @{
-                                $route_pod_coverage->{$app->name}
-                                  {undocumented_routes}
-                            }
-                        ),
-                        $app->name . " " . $route . " " . $test_name
-                    );
+                    ok(!$undocumented_route{$route}, "$route is documented");
                 }
             }
         );
