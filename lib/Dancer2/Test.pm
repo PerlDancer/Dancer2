@@ -625,14 +625,14 @@ sub route_pod_coverage {
 
                 for ( my $idx = 0 ; $idx < @$pod_dataref ; $idx++ ) {
                     my $pod_part = $pod_dataref->[$idx];
-		     
+
                     next if ref $pod_part ne 'ARRAY';
                     foreach my $ref_part (@$pod_part) {
                         if (ref($ref_part) eq "ARRAY") {
                             push @$pod_dataref, $ref_part;
                         }
                     }
-		   
+
                     my $pod_string = lc $pod_part->[2];
                     $pod_string =~ s/['|"|\s]+/ /g;
                     $pod_string =~ s/\s$//g;
