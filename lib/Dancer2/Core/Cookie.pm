@@ -16,6 +16,10 @@ use overload '""' => \&_get_value;
         name => $cookie_name, value => $cookie_value
     );
 
+    my $value = $cookie->value;
+
+    print "$cookie"; # objects stringify to their value.
+
 =head1 DESCRIPTION
 
 Dancer2::Cookie provides a HTTP cookie object to work with cookies.
@@ -53,6 +57,13 @@ sub to_header {
 =attr value
 
 The cookie's value.
+
+(Note that cookie objects use overloading to stringify to their value, so if 
+you say e.g. return "Hi, $cookie", you'll get the cookie's value there.)
+
+In list context, returns a list of potentially multiple values; in scalar
+context, returns just the first value.  (So, if you expect a cookie to have
+multiple values, use list context.)
 
 =cut 
 
