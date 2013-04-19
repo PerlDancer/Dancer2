@@ -6,6 +6,7 @@ use URI::Escape;
 use Dancer2::Core::Types;
 use Dancer2::Core::Time;
 use Carp 'croak';
+use overload '""' => \&_get_value;
 
 =head1 SYNOPSIS
 
@@ -75,6 +76,11 @@ around value => sub {
     my $array = $orig->($self, @_);
     return wantarray ? @$array : $array->[0];
 };
+
+# this is only for overloading; need a real sub to refer to, as the Moose
+# attribute accessor won't be available at that point.
+sub _get_value { shift->value }
+
 
 =attr name
 
