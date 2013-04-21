@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# PODNAME: dancer2 - helper script to create new Dancer2 applications
 
 use strict;
 use warnings;
