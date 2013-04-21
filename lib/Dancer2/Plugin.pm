@@ -62,9 +62,10 @@ frome everywhere (eg: C<dancer_version> or C<setting>).
 
 =cut
 
-# singleton for storing all keywords,
+# singletons for storing all keywords and hooks,
 # their code and the plugin they come from
 my $_keywords = {};
+my $_hooks    = {};
 
 # singleton for applying code-blocks at import time
 # so their code gets the callers DSL
@@ -202,6 +203,16 @@ sub register_plugin {
         for my $k (@{$_keywords->{$plugin}}) {
             my ($keyword, $code, $is_global) = @{$k};
             $caller->dsl->register($keyword, $is_global);
+        }
+
+        for my $h (@{$_hooks->{$plugin}}) {
+            my ($name, $code) = @{$h};
+
+            # compile it with $caller->dsl so that the hook gets access
+            # to the caller's app
+            my $compiled = sub { $code->($caller->dsl, @_) };
+
+            $caller->dsl->hook($name, $compiled);
         }
 
         Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
@@ -388,6 +399,20 @@ sub import {
         *{"${plugin}::${symbol}"} = $compiled;
     }
 
+    {
+        # Hooks will be saved in a singleton for execution within
+        # apps which use the plugin
+        no strict 'refs';
+        no warnings 'redefine';
+        my $code = sub {
+            my $plugin = caller;
+            my ($name, $code) = @_;
+            $_hooks->{$plugin} ||= [];
+            push @{ $_hooks->{$plugin} }, [$name, $code];
+        };
+        *{"${plugin}::hook"} = $code;        
+    }
+    
     # Finally, make sure our caller becomes a Moo::Role
     # Perl 5.8.5+ mandatory for that trick
     @_ = ('Moo::Role');

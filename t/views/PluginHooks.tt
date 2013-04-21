@@ -1,0 +1,3 @@
+Config message: [% config_msg %]
+Hooked message: [% flash %]
+Dancer version: [% dancer_version %]
