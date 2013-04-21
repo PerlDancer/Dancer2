@@ -106,9 +106,11 @@ sub dispatch {
             }
             else {
                 # serialize if needed
-                if (defined $app->config->{serializer}) {
-                    $content = $app->config->{serializer}->serialize($content)
-                      if ref($content);
+                # TODO make the response object self-serializable? With a 
+                # is_serialized attribute
+                if ( my $serializer = ref($content) && $app->config->{serializer} ) {
+                    $content = $serializer->serialize($content);
+                    $response->content_type($serializer->content_type);
                 }
 
                 $response->content(defined $content ? $content : '');
