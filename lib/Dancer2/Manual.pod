@@ -1,9 +1,8 @@
+# ABSTRACT: A gentle introduction to Dancer2
+# PODNAME: Dancer2::Manual
 package Dancer2::Manual;
 
 =encoding utf8
-
-# ABSTRACT: A gentle introduction to Dancer2
-# PODNAME: Dancer2::Manual
 
 =pod
 
@@ -31,24 +30,11 @@ Dancer2 and prereqs into C<~/perl5>.)
 
 =head1 BOOTSTRAPING
 
-In this current version, Dancer2 does not provide a helper script to bootstrap
-an application structre, but that will come soon as a separate distribution
-(probably Dancer2::Bootstrap).
+Create a web application using the dancer script:
 
-Meanwhile, you can use Dancer's original helper script as very few changes are
-necessary to make the app work with Dancer2:
+    dancer2 -a MyApp && cd MyApp
 
-Create a web application using the dancer script (found in L<Dancer>):
-
-    dancer -a MyApp && cd MyApp
-
-Replace Dancer by Dancer2 in the application's code:
-
-    for f in $(find {lib,bin} -type f) ; do cat $f | sed -e 's/Dancer/Dancer2/g' > $f.2 && mv $f.2 $f; done
-
-And voilà!
-
-You can now run the web application:
+And voilà! You can now run the web application:
 
     bin/app.pl
 
