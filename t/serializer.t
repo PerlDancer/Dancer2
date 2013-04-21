@@ -6,14 +6,14 @@ use Test::More tests => 3;
 {
     package MyApp;
 
-    use Dancer;
+    use Dancer2;
 
     set serializer => 'JSON';
 
     get '/foo' => sub { return { bar => 'baz' } };
 }
 
-use Dancer::Test apps => [ 'MyApp' ];
+use Dancer2::Test apps => [ 'MyApp' ];
 
 my $resp = dancer_response( '/foo' );
 
