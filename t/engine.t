@@ -9,6 +9,5 @@ ok($f->does('Dancer2::Core::Role::Engine'));
 ok($f->does('Dancer2::Core::Role::Template'));
 
 is $f->name, 'Tiny';
-is $f->type, 'Template';
 
 done_testing;

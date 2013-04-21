@@ -15,18 +15,6 @@ This role consumes the L<Dancer2::Core::Role::Hookable> role.
 
 with 'Dancer2::Core::Role::Hookable';
 
-=attr type
-
-An attribute to host the name of the engine, mandatory
-
-=cut
-
-has type => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => 1,
-);
-
 =attr environment 
 
 The value of the current environment
@@ -61,7 +49,5 @@ has config => (
     isa     => HashRef,
     default => sub { {} },
 );
-
-requires '_build_type';
 
 1;
