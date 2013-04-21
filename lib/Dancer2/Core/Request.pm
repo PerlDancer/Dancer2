@@ -927,7 +927,7 @@ sub _parse_get_params {
 
     if ($XS_PARSE_QUERY_STRING) {
         return $self->{_query_params} =
-          CGI::Deurl::XS::parse_query_string($source) // {};
+          CGI::Deurl::XS::parse_query_string($source) || {};
     }
 
     foreach my $token (split /[&;]/, $source) {
