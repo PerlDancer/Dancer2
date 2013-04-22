@@ -22,6 +22,8 @@ note "Setting values";
 is $cookie->value("foo") => "foo";
 is $cookie->value        => "foo";
 
+is $cookie . "bar", "foobar", "Stringifies to desired value";
+
 ok $cookie->value([qw(a b c)]);
 is $cookie->value => 'a';
 is_deeply [$cookie->value] => [qw(a b c)];
