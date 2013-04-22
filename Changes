@@ -1,3 +1,29 @@
+0.04 - 2013-04-22 (Alexis Sukrieh)
+
+    [ BUG FIXES ]
+    * Fix "Internal Sever Error" when sending a file with send_file 
+      (Dinis Rebolo)
+    * Allow the setting of the 'views' directory, like stated in documentation
+      (Alexander Karelas)
+
+    [ ENHANCEMENTS ]
+    * Implement Dancer2::Test file uploads (Steven Humphrey)
+    * Give Dancer2::Test the ability to handle multiselect inputs 
+      (Steven Humphrey)
+    * Make Cookie objects stringify to their value. (David Precious)
+    * New routines for Dancer2::Test to check pod coverage in apps routes
+      (Dinis Rebolo)
+    * New script dancer2 to bootstrap an application (mokko)
+    * Fix tests when running under Windows environments (Russell Jenkins)
+    * Serializing modify the response's content type (Yanick Champoux)
+    
+    [ DOCUMENTATION ]
+    * Make introduction more fluid in Dancer2's POD. (mokko)
+
+    [ PACKAGING ]
+    * Remove prereq Digest::SHA (mokko)
+    * Dancer::P::Bcrypt recomends Dancer::P::Passphrase (Blabos de Blebe)
+
 0.03 - 2013-03-07 (Alexis Sukrieh)
 
     [ ENHANCEMENTS ]
