@@ -1,13 +1,13 @@
 package Dancer2::Manual::Developers;
 
-# PODNAME: Dancer2::Manual::Developers
-# ABSTRACT: Steps to follow to hack on Dancer2
+# ABSTRACT: How to contriute to Dancer2
 
 =pod
 
 This document is for developers. If you want to try out Dancer2, hack it
 a bit, fix bugs, improve documentations, provide patches, etc. , you need to be
-able to build it and understand some basic stuff. This document tries to help in this regard.
+able to build it and understand some basics. This document helps you in this 
+regard.
 
 =head1 Get Git
 
@@ -15,7 +15,8 @@ Go to L<http://git-scm.com>, and get a git client for your platform
 
 =head1 Get Dancer2 sources from GitHub
 
-Go to L<https://github.com/PerlDancer2/Dancer2>. Then you can either grab a tarball, or clone read-only, or fork the project.
+Go to L<https://github.com/PerlDancer2/Dancer2>. Then you can either grab a 
+tarball, or clone read-only, or fork the project.
 
 I recommend you to fork the project into your github account, so that you can
 go write modifications, and provide patches (Pull Requests) to upstream easily.
@@ -29,7 +30,7 @@ You need Perl, and Dist::Zilla, and a few additional modules. This section
 describes how to get to a point where all the test passes and Dancer2 is
 usable, starting from nothing, using Perlbrew.
 
-=head2 Get Perlbrew
+=head2 Get Perlbrew (Optional)
 
 Perlbrew allows you to have multiple version of Perl on your system, alongside
 your system built-in Perl. It's very handy, and doesn't require administration
@@ -38,7 +39,7 @@ permissions.
 Go to L<http://perlbrew.pl/> and follow the instructions to install the
 C<perlbrew> program.
 
-=head2 Install Perl
+=head2 Install Perl in Perlbrew (Optional)
 
 Now you need to pick up a version of Perl you'll install. Depending on what the
 current stable version is, the following line will have to be adapted. At the
@@ -72,22 +73,19 @@ Now you are using the fresh Perl, you can check it with:
 
   which perl
 
-=head2 Install cpanm
+=head2 Install cpanm (optional)
 
 To be able to easily and quickly install Perl modules, I recommend using C<cpanm>
 
   perlbrew install-cpanm
 
-=head2 Install Dist::Zilla
+=head2 Install Dist::Zilla (required)
 
-Dancer2 uses Dist::Zilla ( L<http://dzil.org/> ). Dist::Zilla is a program to
-make it easier to write, package, manage, and release free software.
-
-However, it's not built in Perl, so let's install it:
+Dancer2 uses Dist::Zilla ( L<http://dzil.org/> ), or dzil for short. 
+Dist::Zilla is a program to make it easier to write, package, manage, and release 
+free software. It's not built in Perl, so let's install it:
 
   cpanm -n Dist::Zilla
-
-That will take some time, but should install properly.
 
 After that is done, you should be able to launch C<dzil>:
 
@@ -112,18 +110,18 @@ After that is done, you should be able to launch C<dzil>:
 
 If that's the case, all's good.
 
-=head2 Install dist.ini dependencies
+=head2 Install dist.ini dependencies (required)
 
 The Dancer2 sources come with a C<dist.ini>. That's the configuration files for
-C<Dist::Zilla>, so that it knows how to build Dancer2. However, in this
-configuration files, we use several C<Dist::Zilla> plugins, that are not yet
-installed. Let's do that with:
+C<Dist::Zilla>, so that it knows how to build Dancer2. Let's use dist.ini 
+install C<Dist::Zilla> plugins which are not yet installed on your system (or 
+perl installation):
 
   dzil authordeps | cpanm -n
 
 That should install a bunch of stuff
 
-=head2 Install Dancer2 dependencies
+=head2 Install Dancer2 dependencies (required)
 
 Now that C<Dist::Zilla> is up and running, you should install the dependencies
 required by Dancer2:
@@ -132,10 +130,14 @@ required by Dancer2:
 
 When that is done, you're good to go !
 
-=head1 Test Dancer2
+=head1 Building/testing Dancer2
 
-Launching the Dancer2 test suite is easy:
+Now you can use dzil to do a bunch of different things, for example building
+Dancer2 or to test it
+
+  dzil build
 
   dzil test
 
 =cut
+#todo: port things from D1 on how to use git
