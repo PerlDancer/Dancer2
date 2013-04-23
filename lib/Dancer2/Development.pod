@@ -1,6 +1,5 @@
 package Dancer2::Development;
 # ABSTRACT: Guide for developers interested in contributing to Dancer2
-# PODNAME: Dancer2::Development
 
 =pod
 

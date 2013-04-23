@@ -1,6 +1,5 @@
 package Dancer2::Plugins;
 # ABSTRACT: Recommended Dancer2 plugins 
-# PODNAME: Dancer2::Plugins
 
 =pod
 =head1 DESCRIPTION
