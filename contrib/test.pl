@@ -1,3 +1,4 @@
+#!perl
 use Dancer2;
 use Data::Dumper;
 # use Dancer::Plugin::Foo;
