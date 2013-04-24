@@ -1,5 +1,4 @@
 # ABSTRACT: A gentle introduction to Dancer2
-# PODNAME: Dancer2::Manual
 package Dancer2::Manual;
 
 =encoding utf8
