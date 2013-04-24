@@ -1,19 +1,17 @@
 package Dancer2::Config;
 # ABSTRACT: Configure Dancer2 to suit your needs
 
-=pod
-
 =head1 DESCRIPTION
 
 The Dancer2 configuration (as implemented by L< Dancer2::Core::Role::Config >)
 handles reading and changing the configuration of your Dancer2 apps.  This
-document aims to describe how to manipulate Dancer2's configuration settings
-(through code or by file), and to document the various settings that are
-available in Dancer2.
+document describes how to manipulate Dancer2's configuration settings (through 
+code or by file), and to document the various settings that are available in 
+Dancer2.
 
 =head1 MANIPULATING SETTINGS VIA CODE
 
-You can change a setting with the keyword C<set>, like the following:
+You can change a setting with the keyword C<set>:
 
     use Dancer2;
 
@@ -26,38 +24,34 @@ You can change a setting with the keyword C<set>, like the following:
 
 There's nothing wrong with using C< set > to configure your application.  In
 fact you might have some great reasons for doing so.  For greater flexibilty,
-ease of deployment, etc., you should consider extracting those settings into
-a configuration file.
+ease of deployment, etc., you should also consider extracting those settings 
+into a configuration file.
 
 =head2 Configuration file path and file names
 
-Dancer2 will first look for the file F< config.ext > (where .ext is the type
-of configuration file you are using) in the root directory of your
-application.  This is considered your global Dancer2 config file.  If you do
-not care to have separate settings for production and development environments
-(B< not > a recommended practice!), then this file is all you need.
+Dancer2 will first look for the file F<config.ext> (where .ext is the type
+of configuration file you are using) in the root directory of your application.  
+This is considered your global Dancer2 config file.  If you do not care to have 
+separate settings for production and development environments (B<not> a 
+recommended practice!), then this file is all you need.
 
-Next, Dancer2 will look in the F< environments > directory for a configuration
-file specific to the platform you are deploying to (F< production.ext > and
-F< development.ext >, for example).  Any settings in these files that are named
+Next, Dancer2 will look in the F<environments> directory for a configuration
+file specific to the platform you are deploying to (F<production.ext> and
+F<development.ext>, for example).  Any settings in these files that are named
 the same as settings in your global configuration file will take precedence
-over those settings in the global file.  The rest of the settings are merged
+over those settings in the global file. The rest of the settings are merged
 and Dancer2 uses the combination of settings from the two files as its
 operating configuration.
-
-Dancer2 will B< not > guess what type of file format you are using - it will
-attempt to read your configuration file using a parser that is applicable to
-the file extension you use for your configuration file.
 
 =head2 Supported configuration file formats
 
 Dancer2 supports any configuration file format that is supported by
-L< Config::Any >.  At the time of this writing, that includes YAML (.yml and
+L<Config::Any>.  At the time of this writing, that includes YAML (.yml and
 .yaml), JSON (.jsn and .json), INI (.ini), Apache-style configurations (.cnf
 and .conf), XML (.xml), and Perl-style hashes (.pl and .perl).
 
 Make sure you pick the appropriate extension for your configuration file name,
-as Dancer2 will not guess the type of format you are using.
+as Dancer2 guesses the type of format based on the file extension.
 
 =head2 Sample configuration files
 
