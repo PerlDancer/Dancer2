@@ -4,20 +4,21 @@ package Dancer2::Plugin;
 
 =head1 DESCRIPTION
 
-You can extend Dancer2 by writing your own Plugin.
-
-A plugin is a module that exports a bunch of symbols to the current namespace
-(the caller will see all the symbols defined via C<register>).
+You can extend Dancer2 by writing your own plugin. A plugin is a module that 
+exports a bunch of symbols to the current namespace (the caller will see all 
+the symbols defined via C<register>). 
 
 Note that you have to C<use> the plugin wherever you want to use its symbols.
 For instance, if you have Webapp::App1 and Webapp::App2, both loaded from your
 main application, they both need to C<use FooPlugin> if they want to use the
 symbols exported by C<FooPlugin>.
 
+For a more gentle introduction to Dancer2 plugins, see L<Dancer2::Plugins>.
+
 =cut
 
 use Moo::Role;
-use Carp 'croak';
+use Carp 'croak', 'carp';
 use Dancer2::Core::DSL;
 
 =method register
@@ -51,10 +52,10 @@ object to access application components and work with them directly.
 As an optional third argument, it's possible to give a hash ref to C<register>
 in order to set some options.
 
-The option C<is_global> (boolean) is used to declare a global/non keyword (by
-default all keywords are global). A non global keyword must be called from
-within a route handler (eg: C<session> or C<param>) whereas a global one can be called
-frome everywhere (eg: C<dancer_version> or C<setting>).
+The option C<is_global> (boolean) is used to declare a global/non-global keyword 
+(by default all keywords are global). A non-global keyword must be called from
+within a route handler (eg: C<session> or C<param>) whereas a global one can be
+called frome everywhere (eg: C<dancer_version> or C<setting>).
 
     register my_symbol_to_export => sub {
         # ... some code
@@ -120,7 +121,7 @@ For example, here is a way to install a hook in the importing app:
 =cut
 
 sub on_plugin_import(&) {
-    my $code = shift;
+    my $code   = shift;
     my $plugin = caller;
     $_on_import->{$plugin} ||= [];
     push @{$_on_import->{$plugin}}, $code;
@@ -129,23 +130,23 @@ sub on_plugin_import(&) {
 =method register_plugin
 
 A Dancer2 plugin must end with this statement. This lets the plugin register all
-the symbols defined with C<register> as exported symbols.
+the symbols defined with C<register> as exported symbols:
 
-Since version 2, Dancer requires any plugin to declare explicitly which version
-of the core it supports. This is done for safer upgrade of major versions and
-allow Dancer to detect legacy plugins that have not been ported to the new
-core. To do so, the plugin must list the major versions of the core it supports
-in an arrayref, like the following:
+    register_plugin;
 
-    # For instance, if the plugin works with Dancer 1 and 2:
-    register_plugin for_versions => [ 1, 2 ];
+Register_plugin returns 1 on success and undef if it fails.
 
-    # Or if it only works for Dancer 2:
+=head3 Deprecation note 
+
+Earlier version of Dancer2 needed the keyword <for_version> to indicate for
+which version of Dancer the plugin was written, e.g.
+
     register_plugin for_versions => [ 2 ];
 
-If the C<for_versions> option is omitted, it defaults to C<[ 1 ]> meaning the
-plugin was written for Dancer 1 and has not been ported to Dancer 2. This is a
-rather violent convention but will help a lot the migration of the ecosystem.
+Today, plugins for Dancer2 are only expected to work for Dancer2 and the 
+C<for_version> keyword is ignored. If you try to load a plugin for Dancer2
+that does not meet the requirements of a Dancer2 plugin, you will get an error 
+message.
 
 =cut
 
@@ -154,29 +155,8 @@ sub register_plugin {
     my $caller = caller(1);
     my %params = @_;
 
-    # For backward compatibility, no params means "supports only Dancer 1"
-    $params{for_versions} = [1]
-      if !defined $params{for_versions};
-
-    my $supported_versions = $params{for_versions};
-    croak "register_plugin must be called with an array ref"
-      if ref $supported_versions ne ref([]);
-
-    # if the caller has not a dsl, we cant register the plugin
+    # if the caller has no dsl method, we cant register the plugin
     return if !$caller->can('dsl');
-
-    my $dancer_major_version = $caller->dancer_app->api_version;
-    my $plugin_version = eval "\$${plugin}::VERSION" || '??';
-
-    # make sure the plugin is compatible with this version of Dancer
-    if ($ENV{DANCER_FORCE_PLUGIN_REGISTRATION}) {
-        print STDERR "DANCER_FORCE_PLUGIN_REGISTRATION\n";
-    }
-    else {
-        croak
-          "$plugin $plugin_version does not support Dancer2 $dancer_major_version."
-          if !grep { $_ eq $dancer_major_version } @$supported_versions;
-    }
 
     # the plugin consumes the DSL role
     Moo::Role->apply_role_to_package($plugin, 'Dancer2::Core::Role::DSL');
@@ -191,8 +171,8 @@ sub register_plugin {
         }
     }
 
-# create the import method of the caller (the actual plugin) in order to make it
-# imports all the DSL's keyword when it's used.
+    # create the import method of the caller (the actual plugin) in order to make it
+    # imports all the DSL's keyword when it's used.
     my $import = sub {
         my $plugin = shift;
 
@@ -209,10 +189,9 @@ sub register_plugin {
         $caller->dsl->dancer_app->register_plugin($caller->dsl);
 
         for my $sub (@{$_on_import->{$plugin}}) {
-            $sub->( $caller->dsl );
+            $sub->($caller->dsl);
         }
     };
-
     my $app_caller = caller();
     {
         no strict 'refs';
@@ -224,6 +203,7 @@ sub register_plugin {
             $import->(@_);
         };
     }
+    return 1;    #as in D1
 
     # The plugin is ready now.
 }
@@ -348,7 +328,6 @@ sub import {
     my $class  = shift;
     my $plugin = caller;
 
-
     # First, export Dancer2::Plugins symbols
     my @export = qw(
       execute_hook
@@ -368,6 +347,11 @@ sub import {
     my $dsl = _get_dsl();
     return if !defined $dsl;
 
+    # DEPRECATION NOTICE 
+    # We expect plugin to be written with a $dsl object now, so 
+    # this keywords will trigger a deprecation notice and will be removed in a later
+    # version of Dancer2.
+
     # Support for Dancer 1 syntax for plugin.
     # Then, compile Dancer 2's DSL keywords into self-contained keywords for the
     # plugin (actually, we call all the symbols by giving them $caller->dsl as
@@ -382,7 +366,10 @@ sub import {
         my $code = *{"Dancer2::Core::DSL::$symbol"}{CODE};
 
         # compile it with $caller->dsl
-        my $compiled = sub { $code->($dsl, @_) };
+        my $compiled = sub {
+            carp "DEPRECATED: $plugin calls '$symbol' instead of '\$dsl->$symbol'.";
+            $code->($dsl, @_);
+        };
 
         # bind the newly compiled symbol to the caller's namespace.
         *{"${plugin}::${symbol}"} = $compiled;
