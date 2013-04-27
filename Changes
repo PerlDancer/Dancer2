@@ -1,3 +1,14 @@
+NEXT
+
+    [ DEPRECATION ]
+
+    * Dancer2::Plugin drops support for Dancer 1 (issue #207)
+      a DEPRECATION notice is issued when a plugin uses the old syntax
+      (Alexis Sukrieh, Mokko, David Golden)
+
+    [ DOCUMENTATION ]
+    * Lots of documentation cleanup (Mokko) 
+
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
     [ BUG FIXES ]
