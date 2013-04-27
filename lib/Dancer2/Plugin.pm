@@ -18,7 +18,7 @@ For a more gentle introduction to Dancer2 plugins, see L<Dancer2::Plugins>.
 =cut
 
 use Moo::Role;
-use Carp 'croak';
+use Carp 'croak', 'carp';
 use Dancer2::Core::DSL;
 
 =method register
@@ -148,7 +148,6 @@ C<for_version> keyword is ignored. If you try to load a plugin for Dancer2
 that does not meet the requirements of a Dancer2 plugin, you will get an error 
 message.
 
-
 =cut
 
 sub register_plugin {
@@ -172,8 +171,8 @@ sub register_plugin {
         }
     }
 
-# create the import method of the caller (the actual plugin) in order to make it
-# imports all the DSL's keyword when it's used.
+    # create the import method of the caller (the actual plugin) in order to make it
+    # imports all the DSL's keyword when it's used.
     my $import = sub {
         my $plugin = shift;
 
@@ -329,7 +328,6 @@ sub import {
     my $class  = shift;
     my $plugin = caller;
 
-
     # First, export Dancer2::Plugins symbols
     my @export = qw(
       execute_hook
@@ -349,12 +347,17 @@ sub import {
     my $dsl = _get_dsl();
     return if !defined $dsl;
 
- # Support for Dancer 1 syntax for plugin.
- # Then, compile Dancer 2's DSL keywords into self-contained keywords for the
- # plugin (actually, we call all the symbols by giving them $caller->dsl as
- # their first argument).
- # These modified versions of the DSL are then exported in the namespace of the
- # plugin.
+    # DEPRECATION NOTICE 
+    # We expect plugin to be written with a $dsl object now, so 
+    # this keywords will trigger a deprecation notice and will be removed in a later
+    # version of Dancer2.
+
+    # Support for Dancer 1 syntax for plugin.
+    # Then, compile Dancer 2's DSL keywords into self-contained keywords for the
+    # plugin (actually, we call all the symbols by giving them $caller->dsl as
+    # their first argument).
+    # These modified versions of the DSL are then exported in the namespace of the
+    # plugin.
     for my $symbol ($dsl->dsl_keywords_as_list) {
 
         # get the original symbol from the real DSL
@@ -363,7 +366,10 @@ sub import {
         my $code = *{"Dancer2::Core::DSL::$symbol"}{CODE};
 
         # compile it with $caller->dsl
-        my $compiled = sub { $code->($dsl, @_) };
+        my $compiled = sub {
+            carp "DEPRECATED: $plugin calls '$symbol' instead of '\$dsl->$symbol'.";
+            $code->($dsl, @_);
+        };
 
         # bind the newly compiled symbol to the caller's namespace.
         *{"${plugin}::${symbol}"} = $compiled;

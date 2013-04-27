@@ -3,10 +3,6 @@ use warnings;
 use Test::More import => ['!pass'];
 use Dancer2::Test;
 
-subtest 'use basic Dancer2::Plugin' => sub {
-    use_ok 'Dancer2::Plugin';
-};
-
 subtest 'global and route keywords' => sub {
     {
         use Dancer2;
