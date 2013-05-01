@@ -103,7 +103,6 @@ __END__
 	# set the $thing into a content $type.
 	my $type = $mime->name_or_type($thing);
 
-
 	# get current defined default mime type
 	my $type = $mime->default;
 
@@ -113,10 +112,8 @@ __END__
 
 =head1 DESCRIPTION
 
-Dancer::MIME initialises MIME::Types at compile time, to ensure it's done before
-the fork in a preforking webserver like mod_perl or Starman. Not doing this
-leads to all MIME types being returned as "text/plain", as MIME::Types fails to
-load its mappings from the DATA handle.
+Dancer::MIME is a thin wrapper around L<MIME::Types> providing helpful methods
+for MIME handling.
 
 =head1 ATTRIBUTES
 
@@ -126,37 +123,36 @@ The mime_type which is found with MIME::Types.
 
 =head2 custom_types
 
-custom_types is the mime_type that defaults to the user defined mime_type.
+Custom user-defined MIME types that are added the with C<add_type>.
 
 =head2 default
 
-default mime_type is the default defined MIME::Types.The default mime_type is
-text/plain.
+Default MIME type defined by MIME::Types, set to: B<application/data>.
 
 =head1 METHODS
 
 =head2 reset_default
 
-This method resets mime_type to the default type.
+This method resets C<mime_type> to the default type.
 
 =head2 add_type
 
-This method adds the new mime type.
+This method adds the new MIME type.
 
-=head2  add_alias
+=head2 add_alias
 
-The add_alias sets a mime type alias.
+The C<add_alias> sets a MIME type alias.
 
 =head2 for_name
 
-The method for_name gets mime type for an alias.
+The method C<for_name> gets MIME type for an alias.
 
 =head2 for_file
 
-This method gets mime type for a file based on extension.
+This method gets MIME type for a file based on extension.
 
 =head2 name_or_type
 
-This method sets the customized mime name or default mime type into a content
+This method sets the customized MIME name or default MIME type into a content
 type.
 
