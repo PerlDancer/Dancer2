@@ -3,8 +3,6 @@ package Dancer2::Manual;
 
 =encoding utf8
 
-=pod
-
 =head1 DESCRIPTION
 
 Dancer2 is a free and open source micro web application framework written in
@@ -12,9 +10,19 @@ Perl.
 
 It's a complete rewrite of L<Dancer> based on L<Moo>.
 
-=head1 INSTALL
+=head1 INSTALLATION
 
-Installation of Dancer2 is simple:
+Installing Dancer2 is simple. If you want to develop Dancer2 webapps from 
+scratch, we recommend that you install both L<Dancer2> and the scaffolding 
+app L<App::Dancer2> which lets you create new Dancer2 scripts easily:
+    
+    cpanm Dancer2 App::Dancer2
+
+If you just want to run a Dancer2 webapp on your server, you only need Dancer2,
+of course.
+
+There are plenty of other ways to install Dancer2. Here are some worth knowing 
+about:
 
     perl -MCPAN -e 'install Dancer2'
 
@@ -29,9 +37,9 @@ Dancer2 and prereqs into C<~/perl5>.)
 
 =head1 BOOTSTRAPING
 
-Create a web application using the dancer script:
+Create a web application using the scaffolding script L<App::Dancer2>:
 
-    dancer2 -a MyApp && cd MyApp
+    dancer2 -app MyApp && cd MyApp
 
 And voilà! You can now run the web application:
 
