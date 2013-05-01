@@ -1,8 +1,6 @@
 package Dancer2::Cookbook;
 # ABSTRACT: Example-driven quick-start to the Dancer2 web framework
 
-=pod
-
 =head1 DESCRIPTION
 
 A quick-start guide with examples to get you up and running with the Dancer2 web
@@ -14,8 +12,8 @@ framework.
 =head2 Your first Dancer2 web app
 
 Dancer2 has been designed to be easy to work with - it's trivial to write a
-simple web app, but still has the power to work with larger projects.  To start
-with, let's make an incredibly simple "Hello World" example:
+simple web app, but Dancer2 still has the power to work with larger projects.  
+For the beginning, let's make an incredibly simple "Hello World" example:
 
     #!/usr/bin/perl
 
@@ -33,7 +31,6 @@ a webserver listening on the default port (3000); now you can make a request
     $ curl http://localhost:3000/hello/Bob
     Why, hello there Bob
 
-(or the name of the machine you ran it on, if it's not your local system),
 and it will say hello.  The C<:name> part is a named parameter within the
 route specification, whose value is made available through C<params>
 - more on that later.
@@ -48,11 +45,11 @@ L<import_warnings|Dancer2::Config/import_warnings> setting to a false value.
 =head2 Starting a Dancer2 project
 
 The first simple example is fine for trivial projects, but for anything more
-complex, you'll want a more maintainable solution - enter the C<dancer> helper
-script, which will build the framework of your application with a single
-command:
+complex, you'll want a more maintainable solution - enter the C<dancer2> helper
+script from L<App::Dancer2>, which will build the framework of your application 
+with a single command:
 
-    $ dancer -a mywebapp
+    $ dancer2 -app mywebapp
     + mywebapp
     + mywebapp/config.yml
     + mywebapp/environments
@@ -85,6 +82,9 @@ will live), an environments directory (where environment-specific settings
 live), a module containing the actual guts of your application, a script to
 start it - or to run your web app via Plack/PSGI - more on that later.
 
+You may have to install the App::Dancer2 separately for this to work. For example: 
+
+    $ cpanm App::Dancer2
 
 
 =head1 DANCE ROUTINES: ROUTES
