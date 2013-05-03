@@ -131,6 +131,7 @@ sub default_config {
         content_type => ($ENV{DANCER_CONTENT_TYPE} || 'text/html'),
         charset      => ($ENV{DANCER_CHARSET}      || ''),
         warnings     => ($ENV{DANCER_WARNINGS}     || 0),
+        startup_info => ($ENV{DANCER_STARTUP_INFO} || 1),
         traces       => ($ENV{DANCER_TRACES}       || 0),
         logger       => ($ENV{DANCER_LOGGER}       || 'console'),
         host         => ($ENV{DANCER_SERVER}       || '0.0.0.0'),
