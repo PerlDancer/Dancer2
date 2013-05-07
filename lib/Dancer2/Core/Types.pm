@@ -13,7 +13,6 @@ use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 
-
 =head1 DESCRIPTION
 
 Type definitions for Moo attributes. These are defined as subroutines. 
@@ -70,28 +69,37 @@ and I<OPTIONS>.
 =cut
 
 my $definitions = [
-    {   name    => 'ReadableFilePath',
-        test    => sub { -e $_[0] && -r $_[0] },
-        message => sub { return exception_message($_[0], 'ReadableFilePath') }
+    {
+        name => 'ReadableFilePath',
+        test => sub { -e $_[0] && -r $_[0] },
+        message =>
+          sub { return exception_message( $_[0], 'ReadableFilePath' ) },
+        inflate => 0,
     },
-    {   name    => 'WritableFilePath',
-        test    => sub { -e $_[0] && -w $_[0] },
-        message => sub { return exception_message($_[0], 'WritableFilePath') }
+    {
+        name => 'WritableFilePath',
+        test => sub { -e $_[0] && -w $_[0] },
+        message =>
+          sub { return exception_message( $_[0], 'WritableFilePath' ) },
+        inflate => 0,
     },
 
     # Dancer2-specific types
-    {   name       => 'Dancer2Prefix',
+    {
+        name       => 'Dancer2Prefix',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
 
             # a prefix must start with the char '/'
             # index is much faster than =~ /^\//
-            index($_[0], '/') == 0;
+            index( $_[0], '/' ) == 0;
         },
-        message => sub { return exception_message($_[0], 'a Dancer2Prefix') }
+        message => sub { return exception_message( $_[0], 'a Dancer2Prefix' ) },
+        inflate => 0,
     },
-    {   name       => 'Dancer2AppName',
+    {
+        name       => 'Dancer2AppName',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
@@ -100,26 +108,31 @@ my $definitions = [
             $_[0] =~ $namespace;
         },
         message => sub {
-            return exception_message(length($_[0]) ? $_[0] : 'Empty string',
-                'a Dancer2AppName');
-          }
-    },
-    {   name       => 'Dancer2Method',
-        subtype_of => 'Str',
-        from       => 'MooX::Types::MooseLike::Base',
-        test       => sub {
-            grep {/^$_[0]$/} qw(get head post put delete options patch);
+            return exception_message( length( $_[0] ) ? $_[0] : 'Empty string',
+                'a Dancer2AppName' );
         },
-        message => sub { return exception_message($_[0], 'a Dancer2Method') }
+        inflate => 0,
     },
-    {   name       => 'Dancer2HTTPMethod',
+    {
+        name       => 'Dancer2Method',
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
-            grep {/^$_[0]$/} qw(GET HEAD POST PUT DELETE OPTIONS PATCH);
+            grep { /^$_[0]$/ } qw(get head post put delete options patch);
+        },
+        message => sub { return exception_message( $_[0], 'a Dancer2Method' ) },
+        inflate => 0,
+    },
+    {
+        name       => 'Dancer2HTTPMethod',
+        subtype_of => 'Str',
+        from       => 'MooX::Types::MooseLike::Base',
+        test       => sub {
+            grep { /^$_[0]$/ } qw(GET HEAD POST PUT DELETE OPTIONS PATCH);
         },
         message =>
-          sub { return exception_message($_[0], 'a Dancer2HTTPMethod') }
+          sub { return exception_message( $_[0], 'a Dancer2HTTPMethod' ) },
+        inflate => 0,
     },
 ];
 
@@ -150,18 +163,19 @@ for my $type (
         test => sub {
             return
                  $_[0]
-              && blessed($_[0])
-              && ref($_[0]) eq 'Dancer2::Core::' . $type;
+              && blessed( $_[0] )
+              && ref( $_[0] ) eq 'Dancer2::Core::' . $type;
         },
+        inflate => 0,
         message =>
-          sub {"The value `$_[0]' does not pass the constraint check."}
+          sub { "The value `$_[0]' does not pass the constraint check." }
     };
 }
 
-MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
+MooX::Types::MooseLike::register_types( $definitions, __PACKAGE__ );
 
 # Export everything by default.
-@EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK);
+@EXPORT = ( @MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK );
 
 1;
 
@@ -170,4 +184,3 @@ MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 L<MooX::Types::MooseLike> for more available types
 
 =cut
-

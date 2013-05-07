@@ -1,6 +1,6 @@
 # ABSTRACT: A gentle introduction to Dancer2
 package Dancer2::Manual;
-
+1;
 =encoding utf8
 
 =pod

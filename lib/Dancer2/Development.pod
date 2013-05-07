@@ -326,3 +326,4 @@ invited to fork it if they want to submit patches, as explained in the
 I<Patch submission> section.
 
 =cut
+1;

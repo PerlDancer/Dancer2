@@ -896,3 +896,6 @@ C<plack_middlewares_map>. You'll need L<Plack::App::URLMap> to do that.
     plack_middlewares_map:
         '/':      ['Debug']
         '/timer': ['Timer'],
+
+=cut
+1;
