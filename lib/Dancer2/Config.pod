@@ -478,3 +478,4 @@ and setting `DANCER_ENVDIR` will be similar to:
 L<Dancer2>
 
 =cut
+1;

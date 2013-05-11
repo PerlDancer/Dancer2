@@ -520,3 +520,4 @@ Launch your application:
     plackup -s FCGI --listen /tmp/fcgi.sock bin/app.pl
 
 =cut
+1;

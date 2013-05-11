@@ -126,3 +126,4 @@ C<Dancer2::Plugin> to see what may have been released since this document was
 last updated!
 
 =cut
+1;

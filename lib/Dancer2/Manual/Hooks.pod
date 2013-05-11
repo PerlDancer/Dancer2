@@ -148,3 +148,5 @@ produced.
        my $response = shift; 
     };
 
+=cut
+1;
