@@ -16,8 +16,6 @@ with 'Dancer2::Core::Role::Config';
 
 Runs Dancer2 app.
 
-Inherits from L<Dancer2::Core::Role::Config>.
-
 =head2 environment
 
 The environment string. The options, in this order, are:

@@ -8,8 +8,10 @@ perl:
 
 install:
     - cpanm git://github.com/mokko/pod-weaver-section-extends.git@built git://github.com/mokko/pod-weaver-section-consumes.git@built
+    - mv weaver.ini _weaver.ini #consume & extends confuse listdeps 
     - dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
-    - dzil listdeps --author --missing # debug output is useful
+#    - dzil listdeps --author --missing # debug output is useful
     - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
+    - mv _weaver.ini weaver.ini
 script:
     - dzil test --author --release
