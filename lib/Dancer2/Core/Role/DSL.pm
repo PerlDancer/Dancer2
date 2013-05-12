@@ -1,4 +1,4 @@
-# ABSTRACT: Role for DSL
+# ABSTRACT: Role for all domain specific languages (DSL) in Dancer2
 
 package Dancer2::Core::Role::DSL;
 use Moo::Role;

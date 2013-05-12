@@ -97,7 +97,6 @@ my %error_title = (
 
 =cut
 
-
 sub supported_hooks {
     qw/
       core.error.before
@@ -110,16 +109,14 @@ sub supported_hooks {
 # Attributes alphabetically
 #
 
-
 =attr charset
 =cut
 
 has charset => (
     is      => 'ro',
     isa     => Str,
-    default => sub {'UTF-8'},
+    default => sub { 'UTF-8' },
 );
-
 
 =attr content
 =cut
@@ -133,17 +130,18 @@ has content => (
         # we check for a template, for a static file and,
         # if all else fail, the default error page
 
-        if ($self->has_context and $self->template) {
+        if ( $self->has_context and $self->template ) {
             return $self->context->app->template(
                 $self->template,
-                {   title   => $self->title,
+                {
+                    title   => $self->title,
                     content => $self->message,
                     status  => $self->status,
                 }
             );
         }
 
-        if (my $content = $self->static_page) {
+        if ( my $content = $self->static_page ) {
             return $content;
         }
 
@@ -157,11 +155,15 @@ has content => (
 
 has content_type => (
     is      => 'ro',
-    default => sub {'text/html'},
+    default => sub { 'text/html' },
 );
 
-
 =attr context
+
+See L<Dancer2::Core::Context>
+
+Elsewhere context is rw and accept undef, see D2::Core::App, but not in
+Role::Engine.
 
 =cut
 
@@ -171,7 +173,6 @@ has context => (
     predicate => 1,
 );
 
-
 =attr exception
 
 =cut
@@ -180,7 +181,6 @@ has exception => (
     is  => 'rw',
     isa => Str,
 );
-
 
 =attr message
 
@@ -207,6 +207,24 @@ has response => (
     },
 );
 
+=attr show_errors
+
+If we have a context, we take show_errors from the app's settings, but it 
+is quite possible that we don't have show_errors and then we default not 
+showing errors. 
+
+=cut
+
+#good architecture?
+
+has show_errors => (
+    is      => 'ro',
+    isa     => Bool,
+    default => sub {
+        $_[0]->has_context
+          && $_[0]->context->app->settings('show_errors') ? 1 : 0;
+    },
+);
 
 =attr serializer
 
@@ -226,7 +244,6 @@ has session => (
     isa => ConsumerOf ['Dancer2::Core::Role::Session'],
 );
 
-
 =attr static_page
 
 =cut
@@ -242,8 +259,8 @@ sub _build_static_page {
 
     # TODO there must be a better way to get it
     my $public_dir = $ENV{DANCER_PUBLIC}
-      || ($self->has_context
-        && path($self->context->app->config_location, 'public'));
+      || ( $self->has_context
+        && path( $self->context->app->config_location, 'public' ) );
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 
@@ -264,33 +281,41 @@ This is only an attribute getter, you'll have to set it at C<new>.
 
 has status => (
     is      => 'ro',
-    default => sub {500},
+    default => sub { 500 },
     isa     => Num,
 );
 
 =attr template
+
+used to be called error_template
+
+Todo:
+Provide the path (?) a template. By default we look first for 
+a template for current error code and if unsuccessful use default template
+template based on 
+
+currently returns a status. That can't be right.
+
 
 =cut
 
 has template => (
     is => 'ro',
 
-#    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
+    #    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
     lazy    => 1,
-    builder => '_build_error_template',
+    builder => '_build_template',
 );
 
-sub _build_error_template {
+sub _build_template {
     my ($self) = @_;
 
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
     return $self->status
-      if -f $self->context->app->engine('template')->view($self->status);
-
-    return undef;
+      if -f $self->context->app->engine('template')->view( $self->status );
+    return undef;    #currently no default.tt
 }
-
 
 =attr title
 
@@ -310,8 +335,8 @@ has title => (
 sub _build_title {
     my ($self) = @_;
     my $title = 'Error ' . $self->status;
-    $title .= ' - ' . $error_title{$self->status}
-      if $error_title{$self->status};
+    $title .= ' - ' . $error_title{ $self->status }
+      if $error_title{ $self->status };
 
     return $title;
 }
@@ -325,20 +350,17 @@ The error type.
 has type => (
     is      => 'ro',
     isa     => Str,
-    default => sub {'Runtime Error'},
+    default => sub { 'Runtime Error' },
 );
-
 
 #
 # real METHODS
 #
 
-
 sub BUILD {
     my ($self) = @_;
-    $self->execute_hook('core.error.init', $self);
+    $self->execute_hook( 'core.error.init', $self );
 }
-
 
 =method backtrace
 
@@ -355,55 +377,55 @@ sub backtrace {
     my ($self) = @_;
 
     my $message =
-      qq|<pre class="error">| . _html_encode($self->message) . "</pre>";
+      qq|<pre class="error">| . _html_encode( $self->message ) . "</pre>";
 
     # the default perl warning/error pattern
-    my ($file, $line) = ($message =~ /at (\S+) line (\d+)/);
+    my ( $file, $line ) = ( $message =~ /at (\S+) line (\d+)/ );
 
     # the Devel::SimpleTrace pattern
-    ($file, $line) = ($message =~ /at.*\((\S+):(\d+)\)/)
+    ( $file, $line ) = ( $message =~ /at.*\((\S+):(\d+)\)/ )
       unless $file and $line;
 
     # no file/line found, cannot open a file for context
-    return $message unless ($file and $line);
+    return $message unless ( $file and $line );
 
     # file and line are located, let's read the source Luke!
-    my $fh = open_file('<', $file) or return $message;
+    my $fh = open_file( '<', $file ) or return $message;
     my @lines = <$fh>;
     close $fh;
 
     my $backtrace = $message;
 
-    $backtrace
-      .= qq|<div class="title">| . "$file around line $line" . "</div>";
+    $backtrace .=
+      qq|<div class="title">| . "$file around line $line" . "</div>";
 
     $backtrace .= qq|<pre class="content">|;
 
     $line--;
-    my $start = (($line - 3) >= 0)             ? ($line - 3) : 0;
-    my $stop  = (($line + 3) < scalar(@lines)) ? ($line + 3) : scalar(@lines);
+    my $start = ( ( $line - 3 ) >= 0 ) ? ( $line - 3 ) : 0;
+    my $stop =
+      ( ( $line + 3 ) < scalar(@lines) ) ? ( $line + 3 ) : scalar(@lines);
 
-    for (my $l = $start; $l <= $stop; $l++) {
+    for ( my $l = $start ; $l <= $stop ; $l++ ) {
         chomp $lines[$l];
 
-        if ($l == $line) {
-            $backtrace
-              .= qq|<span class="nu">|
-              . tabulate($l + 1, $stop + 1)
+        if ( $l == $line ) {
+            $backtrace .=
+                qq|<span class="nu">|
+              . tabulate( $l + 1, $stop + 1 )
               . qq|</span> <span style="color: red;">|
-              . _html_encode($lines[$l])
+              . _html_encode( $lines[$l] )
               . "</span>\n";
         }
         else {
-            $backtrace
-              .= qq|<span class="nu">|
-              . tabulate($l + 1, $stop + 1)
+            $backtrace .=
+                qq|<span class="nu">|
+              . tabulate( $l + 1, $stop + 1 )
               . "</span> "
-              . _html_encode($lines[$l]) . "\n";
+              . _html_encode( $lines[$l] ) . "\n";
         }
     }
     $backtrace .= "</pre>";
-
 
     return $backtrace;
 }
@@ -420,7 +442,7 @@ sub default_error_page {
         version => Dancer2->VERSION,
     };
 
-    Template::Tiny->new->process(\<<"END_TEMPLATE", $opts, \my $output);
+    Template::Tiny->new->process( \<<"END_TEMPLATE", $opts, \my $output );
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
@@ -443,7 +465,6 @@ END_TEMPLATE
     return $output;
 }
 
-
 =head2 dumper
 
 This uses L<Data::Dumper> to create nice content output with a few predefined
@@ -456,20 +477,19 @@ sub dumper {
 
     # Take a copy of the data, so we can mask sensitive-looking stuff:
     my %data     = %$obj;
-    my $censored = _censor(\%data);
+    my $censored = _censor( \%data );
 
     #use Data::Dumper;
-    my $dd = Data::Dumper->new([\%data]);
+    my $dd = Data::Dumper->new( [ \%data ] );
     $dd->Terse(1)->Quotekeys(0)->Indent(1);
     my $content = $dd->Dump();
     $content =~ s{(\s*)(\S+)(\s*)=>}{$1<span class="key">$2</span>$3 =&gt;}g;
     if ($censored) {
-        $content
-          .= "\n\nNote: Values of $censored sensitive-looking keys hidden\n";
+        $content .=
+          "\n\nNote: Values of $censored sensitive-looking keys hidden\n";
     }
     return $content;
 }
-
 
 =method environment
 
@@ -491,7 +511,7 @@ sub environment {
       . "</pre>";
     my $settings =
         qq|<div class="title">Settings</div><pre class="content">|
-      . dumper($self->app->settings)
+      . dumper( $self->app->settings )
       . "</pre>";
     my $source =
         qq|<div class="title">Stack</div><pre class="content">|
@@ -499,15 +519,14 @@ sub environment {
       . "</pre>";
     my $session = "";
 
-    if ($self->session) {
+    if ( $self->session ) {
         $session =
             qq[<div class="title">Session</div><pre class="content">]
-          . dumper($self->session->data)
+          . dumper( $self->session->data )
           . "</pre>";
     }
     return "$source $settings $session $env";
 }
-
 
 #todo: neither used in D2 nor documented at the moment
 sub full_message {
@@ -529,11 +548,11 @@ sub get_caller {
     my @stack;
 
     my $deepness = 0;
-    while (my ($package, $file, $line) = caller($deepness++)) {
+    while ( my ( $package, $file, $line ) = caller( $deepness++ ) ) {
         push @stack, "$package in $file l. $line";
     }
 
-    return join("\n", reverse(@stack));
+    return join( "\n", reverse(@stack) );
 }
 
 =method tabulate
@@ -543,12 +562,11 @@ Small subroutine to help output nicer.
 =cut 
 
 sub tabulate {
-    my ($number, $max) = @_;
+    my ( $number, $max ) = @_;
     my $len = length($max);
     return $number if length($number) == $len;
     return " $number";
 }
-
 
 =method throw($response)
 
@@ -564,18 +582,31 @@ sub throw {
 
     croak "error has no response to throw" unless $self->response;
 
-    $self->execute_hook('core.error.before', $self);
-
-    $self->response->status($self->status);
-    $self->response->header($self->content_type);
-    $self->response->content($self->content);
+    $self->execute_hook( 'core.error.before', $self );
+    if ( !$self->show_errors ) {
+        $self = $self->new_internal_error;
+    }
+    $self->response->status( $self->status );
+    $self->response->header( $self->content_type );
+    $self->response->content( $self->content );
     $self->response->halt(1);
-
-    $self->execute_hook('core.error.after', $self->response);
-
+    $self->execute_hook( 'core.error.after', $self->response );
     return $self->response;
 }
 
+#todo: 1) if a template is defined use that; else use default template
+sub new_internal_error {
+    my $self = shift;
+    my %arg = (
+        status       => 500,
+        title        => 'Internal Server Error',
+        content      => "Internal Server Error\n\nMessage\n",
+        content_type => 'text/plain',
+    );
+    $arg{context} = $self->context if $$self->context;
+
+    __PACKAGE__->new(%arg);
+}
 
 #
 # private
@@ -594,17 +625,17 @@ C<dumper> calls this method to censor things like passwords and such.
 
 sub _censor {
     my $hash = shift;
-    if (!$hash || ref $hash ne 'HASH') {
+    if ( !$hash || ref $hash ne 'HASH' ) {
         carp "_censor given incorrect input: $hash";
         return;
     }
 
     my $censored = 0;
-    for my $key (keys %$hash) {
-        if (ref $hash->{$key} eq 'HASH') {
-            $censored += _censor($hash->{$key});
+    for my $key ( keys %$hash ) {
+        if ( ref $hash->{$key} eq 'HASH' ) {
+            $censored += _censor( $hash->{$key} );
         }
-        elsif ($key =~ /(pass|card?num|pan|secret)/i) {
+        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
             $hash->{$key} = "Hidden (looks potentially sensitive)";
             $censored++;
         }
@@ -635,21 +666,22 @@ sub _html_encode {
     return $value;
 }
 
+#not used anymore?
 sub _render_html {
     my $self = shift;
 
     # error_template defaults to something, always
-    my $template_name = $self->error_template;
+    my $template_name = $self->template;
 
     my $ops = {
         title   => $self->title,
         content => $self->message,
         status  => $self->status,
-        defined $self->exception ? (exception => $self->exception) : (),
+        defined $self->exception ? ( exception => $self->exception ) : (),
     };
-    my $content = $self->template->apply_renderer($template_name, $ops);
-    $self->response->status($self->status);
-    $self->response->header('Content-Type' => 'text/html');
+    my $content = $self->template->apply_renderer( $template_name, $ops );
+    $self->response->status( $self->status );
+    $self->response->header( 'Content-Type' => 'text/html' );
     return $content;
 }
 

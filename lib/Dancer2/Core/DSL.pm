@@ -1,4 +1,4 @@
-# ABSTRACT: Dancer2's Domain Specific Language (DSL)
+# ABSTRACT: Dancer2's regular domain specific language (DSL)
 
 package Dancer2::Core::DSL;
 
