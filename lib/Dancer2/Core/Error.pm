@@ -6,20 +6,22 @@ use Carp;
 use Dancer2::Core::Types;
 use Data::Dumper;
 use Dancer2::FileUtils 'path';
+use Dancer2::Core::Response;
 
 with 'Dancer2::Core::Role::Hookable';
 
 =head1 SYNOPSIS
 
     # taken from send_file:
-    use Dancer2::Error;
+    use Dancer2::Core::Error;
 
-    my $error = Dancer2::Error->new(
+    my $error = Dancer2::Core::Error->new(
         status    => 404,
         message => "No such file: `$path'"
     );
 
-    Dancer2::Response->set($error->render);
+    $error->throw;
+
 
 =head1 DESCRIPTION
 
@@ -105,13 +107,10 @@ sub supported_hooks {
       /;
 }
 
-=attr show_errors
-=cut
+#
+# Attributes alphabetically
+#
 
-has show_errors => (
-    is  => 'ro',
-    isa => Bool,
-);
 
 =attr charset
 =cut
@@ -122,194 +121,9 @@ has charset => (
     default => sub {'UTF-8'},
 );
 
-=attr type
 
-The error type.
-
+=attr content
 =cut
-
-has type => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub {'Runtime Error'},
-);
-
-=attr title
-
-The title of the error page.
-
-This is only an attribute getter, you'll have to set it at C<new>.
-
-=cut
-
-has title => (
-    is      => 'rw',
-    isa     => Str,
-    lazy    => 1,
-    builder => '_build_title',
-);
-
-sub _build_title {
-    my ($self) = @_;
-    my $title = 'Error ' . $self->status;
-    $title .= ' - ' . $error_title{$self->status}
-      if $error_title{$self->status};
-
-    return $title;
-}
-
-has template => (
-    is => 'ro',
-
-#    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
-    lazy    => 1,
-    builder => '_build_error_template',
-);
-
-sub _build_error_template {
-    my ($self) = @_;
-
-    # look for a template named after the status number.
-    # E.g.: views/404.tt  for a TT template
-    return $self->status
-      if -f $self->context->app->engine('template')->view($self->status);
-
-    return undef;
-}
-
-has static_page => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_static_page',
-);
-
-sub _build_static_page {
-    my ($self) = @_;
-
-    # TODO there must be a better way to get it
-    my $public_dir = $ENV{DANCER_PUBLIC}
-      || ($self->has_context
-        && path($self->context->app->config_location, 'public'));
-
-    my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
-
-    open my $fh, $filename or return undef;
-
-    local $/ = undef;    # slurp time
-
-    return <$fh>;
-}
-
-
-sub default_error_page {
-    my $self = shift;
-
-    require Template::Tiny;
-
-    my $opts = {
-        title   => $self->title,
-        charset => $self->charset,
-        content => $self->message,
-        version => Dancer2->VERSION,
-    };
-
-    Template::Tiny->new->process(\<<"END_TEMPLATE", $opts, \my $output);
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-<head>
-<title>[% title %]</title>
-<link rel="stylesheet" href="/css/error.css" />
-<meta http-equiv="Content-type" content="text/html; charset='[% charset %]'" />
-</head>
-<body>
-<h1>[% title %]</h1>
-<div id="content">
-[% content %]
-</div>
-<div id="footer">
-Powered by <a href="http://perldancer.org/">Dancer2</a> [% version %]
-</div>
-</body>
-</html>
-END_TEMPLATE
-
-    return $output;
-}
-
-
-=attr status
-
-The status that caused the error.
-
-This is only an attribute getter, you'll have to set it at C<new>.
-
-=cut
-
-has status => (
-    is      => 'ro',
-    default => sub {500},
-    isa     => Num,
-);
-
-=attr message
-
-The message of the error page.
-
-=cut
-
-has message => (
-    is  => 'rw',
-    isa => Str,
-);
-
-sub full_message {
-    my ($self) = @_;
-    my $html_output = "<h2>" . $self->type . "</h2>";
-    $html_output .= $self->backtrace;
-    $html_output .= $self->environment;
-    return $html_output;
-}
-
-has serializer => (
-    is  => 'ro',
-    isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
-);
-
-has session => (
-    is  => 'ro',
-    isa => ConsumerOf ['Dancer2::Core::Role::Session'],
-);
-
-has context => (
-    is        => 'ro',
-    isa       => InstanceOf ['Dancer2::Core::Context'],
-    predicate => 1,
-);
-
-sub BUILD {
-    my ($self) = @_;
-    $self->execute_hook('core.error.init', $self);
-}
-
-has exception => (
-    is  => 'rw',
-    isa => Str,
-);
-
-has response => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        $_[0]->has_context
-          ? $_[0]->context->response
-          : Dancer2::Core::Response->new;
-    },
-);
-
-has content_type => (
-    is      => 'ro',
-    default => sub {'text/html'},
-);
 
 has content => (
     is      => 'ro',
@@ -338,31 +152,194 @@ has content => (
     },
 );
 
-=method throw($response)
-
-Populates the content of the response with the error's information.
-If I<$response> is not given, acts on the I<context> 
-attribute's response.
+=attr content_type
 
 =cut
 
-sub throw {
-    my $self = shift;
-    $self->response(shift) if @_;
+has content_type => (
+    is      => 'ro',
+    default => sub {'text/html'},
+);
 
-    croak "error has no response to throw at" unless $self->response;
 
-    $self->execute_hook('core.error.before', $self);
+=attr context
 
-    $self->response->status($self->status);
-    $self->response->header($self->content_type);
-    $self->response->content($self->content);
-    $self->response->halt(1);
+=cut
 
-    $self->execute_hook('core.error.after', $self->response);
+has context => (
+    is        => 'ro',
+    isa       => InstanceOf ['Dancer2::Core::Context'],
+    predicate => 1,
+);
 
-    return $self->response;
+
+=attr exception
+
+=cut
+
+has exception => (
+    is  => 'rw',
+    isa => Str,
+);
+
+
+=attr message
+
+The message of the error page.
+
+=cut
+
+has message => (
+    is  => 'rw',
+    isa => Str,
+);
+
+=attr response
+
+=cut
+
+has response => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        $_[0]->has_context
+          ? $_[0]->context->response
+          : Dancer2::Core::Response->new;
+    },
+);
+
+
+=attr serializer
+
+=cut
+
+has serializer => (
+    is  => 'ro',
+    isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
+);
+
+=attr session
+
+=cut
+
+has session => (
+    is  => 'ro',
+    isa => ConsumerOf ['Dancer2::Core::Role::Session'],
+);
+
+
+=attr static_page
+
+=cut
+
+has static_page => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_static_page',
+);
+
+sub _build_static_page {
+    my ($self) = @_;
+
+    # TODO there must be a better way to get it
+    my $public_dir = $ENV{DANCER_PUBLIC}
+      || ($self->has_context
+        && path($self->context->app->config_location, 'public'));
+
+    my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
+
+    open my $fh, $filename or return undef;
+
+    local $/ = undef;    # slurp time
+
+    return <$fh>;
 }
+
+=attr status
+
+The status that caused the error.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=cut
+
+has status => (
+    is      => 'ro',
+    default => sub {500},
+    isa     => Num,
+);
+
+=attr template
+
+=cut
+
+has template => (
+    is => 'ro',
+
+#    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
+    lazy    => 1,
+    builder => '_build_error_template',
+);
+
+sub _build_error_template {
+    my ($self) = @_;
+
+    # look for a template named after the status number.
+    # E.g.: views/404.tt  for a TT template
+    return $self->status
+      if -f $self->context->app->engine('template')->view($self->status);
+
+    return undef;
+}
+
+
+=attr title
+
+The title of the error page.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=cut
+
+has title => (
+    is      => 'rw',
+    isa     => Str,
+    lazy    => 1,
+    builder => '_build_title',
+);
+
+sub _build_title {
+    my ($self) = @_;
+    my $title = 'Error ' . $self->status;
+    $title .= ' - ' . $error_title{$self->status}
+      if $error_title{$self->status};
+
+    return $title;
+}
+
+=attr type
+
+The error type.
+
+=cut
+
+has type => (
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'Runtime Error'},
+);
+
+
+#
+# real METHODS
+#
+
+
+sub BUILD {
+    my ($self) = @_;
+    $self->execute_hook('core.error.init', $self);
+}
+
 
 =method backtrace
 
@@ -432,19 +409,41 @@ sub backtrace {
     return $backtrace;
 }
 
+sub default_error_page {
+    my $self = shift;
 
-=method tabulate
+    require Template::Tiny;
 
-Small subroutine to help output nicer.
+    my $opts = {
+        title   => $self->title,
+        charset => $self->charset,
+        content => $self->message,
+        version => Dancer2->VERSION,
+    };
 
-=cut 
+    Template::Tiny->new->process(\<<"END_TEMPLATE", $opts, \my $output);
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>[% title %]</title>
+<link rel="stylesheet" href="/css/error.css" />
+<meta http-equiv="Content-type" content="text/html; charset='[% charset %]'" />
+</head>
+<body>
+<h1>[% title %]</h1>
+<div id="content">
+[% content %]
+</div>
+<div id="footer">
+Powered by <a href="http://perldancer.org/">Dancer2</a> [% version %]
+</div>
+</body>
+</html>
+END_TEMPLATE
 
-sub tabulate {
-    my ($number, $max) = @_;
-    my $len = length($max);
-    return $number if length($number) == $len;
-    return " $number";
+    return $output;
 }
+
 
 =head2 dumper
 
@@ -511,6 +510,15 @@ sub environment {
 }
 
 
+#todo: neither used in D2 nor documented at the moment
+sub full_message {
+    my ($self) = @_;
+    my $html_output = "<h2>" . $self->type . "</h2>";
+    $html_output .= $self->backtrace;
+    $html_output .= $self->environment;
+    return $html_output;
+}
+
 =method get_caller
 
 Creates a strack trace of callers.
@@ -529,7 +537,50 @@ sub get_caller {
     return join("\n", reverse(@stack));
 }
 
+=method tabulate
+
+Small subroutine to help output nicer.
+
+=cut 
+
+sub tabulate {
+    my ($number, $max) = @_;
+    my $len = length($max);
+    return $number if length($number) == $len;
+    return " $number";
+}
+
+
+=method throw($response)
+
+Populates the content of the response with the error's information.
+If I<$response> is not given, acts on the I<context> 
+attribute's response.
+
+=cut
+
+sub throw {
+    my $self = shift;
+    $self->response(shift) if @_;
+
+    croak "error has no response to throw" unless $self->response;
+
+    $self->execute_hook('core.error.before', $self);
+
+    $self->response->status($self->status);
+    $self->response->header($self->content_type);
+    $self->response->content($self->content);
+    $self->response->halt(1);
+
+    $self->execute_hook('core.error.after', $self->response);
+
+    return $self->response;
+}
+
+
+#
 # private
+#
 
 # Given a hashref, censor anything that looks sensitive.  Returns number of
 # items which were "censored".
