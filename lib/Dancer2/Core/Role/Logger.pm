@@ -2,7 +2,7 @@
 
 package Dancer2::Core::Role::Logger;
 use Dancer2::Core::Types;
-
+use Carp;
 use POSIX qw/strftime/;
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
@@ -67,12 +67,14 @@ sub _should {
 
 sub format_message {
     my ($self, $level, $message) = @_;
-    chomp $message;
+    $message=$message? chomp $message : 'undef';
 
     $level = sprintf('%5s', $level);
     $message = Encode::encode($self->auto_encoding_charset, $message)
       if $self->auto_encoding_charset;
 
+    #todo: caller doesn't behave as expected in Moo see 
+    #http://stackoverflow.com/questions/13895306/whos-calling-with-moose
     my @stack = caller(2);
 
     my $block_handler = sub {
