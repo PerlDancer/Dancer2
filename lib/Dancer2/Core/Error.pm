@@ -12,7 +12,6 @@ with 'Dancer2::Core::Role::Hookable';
 
 =head1 SYNOPSIS
 
-    # taken from send_file:
     use Dancer2::Core::Error;
 
     my $error = Dancer2::Core::Error->new(
