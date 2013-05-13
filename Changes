@@ -6,6 +6,9 @@ NEXT
       a DEPRECATION notice is issued when a plugin uses the old syntax
       (Alexis Sukrieh, Mokko, David Golden)
 
+    [ ENHANCEMENTS ]
+    * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
+
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko) 
 
