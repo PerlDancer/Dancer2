@@ -1,8 +1,6 @@
 use strict;
 use warnings;
-
 use Test::More;
-
 use Dancer2;
 
 # testing default values
