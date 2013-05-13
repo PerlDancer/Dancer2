@@ -215,8 +215,6 @@ showing errors.
 
 =cut
 
-#good architecture?
-
 has show_errors => (
     is      => 'ro',
     isa     => Bool,
@@ -294,7 +292,8 @@ Provide the path (?) a template. By default we look first for
 a template for current error code and if unsuccessful use default template
 template based on 
 
-currently returns a status. That can't be right.
+currently returns a status. That can't be right. I thought it should be 
+either a filepath or the content of that file.
 
 
 =cut
@@ -309,12 +308,12 @@ has template => (
 
 sub _build_template {
     my ($self) = @_;
+    return undef if ( !$self->has_context );
 
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
     return $self->status
       if -f $self->context->app->engine('template')->view( $self->status );
-    return undef;    #currently no default.tt
 }
 
 =attr title
@@ -594,16 +593,17 @@ sub throw {
     return $self->response;
 }
 
-#todo: 1) if a template is defined use that; else use default template
 sub new_internal_error {
     my $self = shift;
-    my %arg = (
+    my %arg  = (
         status       => 500,
         title        => 'Internal Server Error',
         content      => "Internal Server Error\n\nMessage\n",
         content_type => 'text/plain',
     );
-    $arg{context} = $self->context if $$self->context;
+    foreach (qw (context template)) {
+        $arg{$_} = $self->$_ if $self->$_;
+    }
 
     __PACKAGE__->new(%arg);
 }
