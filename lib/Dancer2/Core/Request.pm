@@ -1051,6 +1051,13 @@ sub _build_uploads {
     $self->_build_params();
 }
 
+=method cookies()
+
+Returns a reference to a hash containing cookies, where the keys are the names of the
+cookies and values are L<Dancer2::Core::Cookie> objects.
+
+=cut
+
 has cookies => (
     is      => 'rw',
     isa     => HashRef,
