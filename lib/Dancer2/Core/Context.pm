@@ -78,7 +78,7 @@ By-name interface to variables stored in this context object.
 
   my $stored = $context->var('some_variable');
 
-returns the value of 'variable', while
+returns the value of 'some_variable', while
 
   $context->var('some_variable' => 'value');
 
