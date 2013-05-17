@@ -11,6 +11,7 @@ NEXT
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko) 
+    * Documenting Dnacer2::Handler::AutoPage (Sabiha Imran, Sawyer X)
 
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
