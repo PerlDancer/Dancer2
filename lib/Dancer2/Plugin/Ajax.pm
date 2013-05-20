@@ -5,7 +5,7 @@ package Dancer2::Plugin::Ajax;
 use strict;
 use warnings;
 
-use Dancer2 ':syntax';
+use Dancer2;
 use Dancer2::Plugin;
 
 =head1 SYNOPSIS
@@ -46,10 +46,18 @@ The action built is a POST request.
 
 =cut
 
-hook 'before' => sub {
-    if (request->is_ajax) {
-        content_type('text/xml');
-    }
+on_plugin_import {
+    my $dsl = shift;
+    $dsl->app->add_hook(
+        Dancer2::Core::Hook->new(
+            name => 'before',
+            code => sub {
+                if ($dsl->request->is_ajax) {
+                    $dsl->request->content_type('text/xml');
+                }
+            }
+        )
+    );
 };
 
 register 'ajax' => sub {
@@ -76,7 +84,7 @@ register 'ajax' => sub {
     $dsl->any(['get', 'post'] => $pattern, $ajax_route);
 };
 
-register_plugin for_versions => [2];
+register_plugin;
 1;
 
 

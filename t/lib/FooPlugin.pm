@@ -1,12 +1,13 @@
 package t::lib::FooPlugin;
 use Dancer2::Plugin;
 
-get '/sitemap' => sub {
-    _html_sitemap();
+on_plugin_import {
+    my $dsl = shift;
+    $dsl->get( '/sitemap' => sub { _html_sitemap( $dsl ) });
 };
 
 sub _html_sitemap {
-    join(', ', _retreive_get_urls());
+    join(', ', _retreive_get_urls( @_ ));
 }
 
 register foo_wrap_request => sub {
@@ -22,9 +23,10 @@ register foo_route => sub {
 
 # taken from SiteMap
 sub _retreive_get_urls {
+    my $dsl = shift;
     my ($route, @urls);
 
-    for my $app (@{runner->server->apps}) {
+    for my $app (@{$dsl->runner->server->apps}) {
         my $routes = $app->routes;
 
         # push the static get routes into an array.

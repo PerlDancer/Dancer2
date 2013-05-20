@@ -1,6 +1,5 @@
 package Dancer2::Tutorial;
 # ABSTRACT: An example to get you dancing
-# PODNAME: Dancer2::Tutorial
 
 =pod
 
