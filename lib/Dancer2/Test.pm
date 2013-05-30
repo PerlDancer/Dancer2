@@ -296,7 +296,7 @@ in Dancer2's registry.
 =cut
 
 sub route_doesnt_exist {
-    response_status_is(@_, 404);
+    response_status_is($_[0],404,$_[1]);
 }
 
 =func response_status_isnt([$method, $path], $status, $test_name)
