@@ -79,3 +79,80 @@ sub for_name {
 }
 
 1;
+
+__END__
+
+=head1 SYNOPSIS
+
+	use Dancer2::Core::MIME;
+
+	my $mime = Dancer::MIME->new();
+
+	# get mime type for an alias
+	my $type = $mime->for_name('css');
+
+	# set a new mime type
+	my $type = $mime->add_type( foo => 'text/foo' );
+
+	# set a mime type alias
+	my $alias = $mime->add_alias( f => 'foo' );
+
+	# get mime type for a file (based on extension)
+	my $file = $mime->for_file( "foo.bar" );
+
+	# set the $thing into a content $type.
+	my $type = $mime->name_or_type($thing);
+
+	# get current defined default mime type
+	my $type = $mime->default;
+
+	# set the default mime type using config.yml
+	# or using the set keyword
+	set default_mime_type => 'text/plain';
+
+=head1 DESCRIPTION
+
+Dancer::MIME is a thin wrapper around L<MIME::Types> providing helpful methods
+for MIME handling.
+
+=head1 ATTRIBUTES
+
+=head2 mime_type
+
+The mime_type which is found with MIME::Types.
+
+=head2 custom_types
+
+Custom user-defined MIME types that are added the with C<add_type>.
+
+=head2 default
+
+Default MIME type defined by MIME::Types, set to: B<application/data>.
+
+=head1 METHODS
+
+=head2 reset_default
+
+This method resets C<mime_type> to the default type.
+
+=head2 add_type
+
+This method adds the new MIME type.
+
+=head2 add_alias
+
+The C<add_alias> sets a MIME type alias.
+
+=head2 for_name
+
+The method C<for_name> gets MIME type for an alias.
+
+=head2 for_file
+
+This method gets MIME type for a file based on extension.
+
+=head2 name_or_type
+
+This method sets the customized MIME name or default MIME type into a content
+type.
+

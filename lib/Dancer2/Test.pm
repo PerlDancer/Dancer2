@@ -296,7 +296,7 @@ in Dancer2's registry.
 =cut
 
 sub route_doesnt_exist {
-    response_status_is(@_, 404);
+    response_status_is($_[0],404,$_[1]);
 }
 
 =func response_status_isnt([$method, $path], $status, $test_name)
@@ -599,7 +599,7 @@ sub route_pod_coverage {
     foreach my $app (@{ $_dispatcher->apps }) {
         my $routes           = $app->routes;
         my $available_routes = [];
-        foreach my $method ( keys %$routes ) {
+        foreach my $method ( sort { $b cmp $a } keys %$routes ) {
             foreach my $r ( @{ $routes->{$method} } ) {
                 # we don't need pod coverage for head
                 next if $method eq 'head';

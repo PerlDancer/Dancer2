@@ -4,8 +4,6 @@ package Dancer2;
 
 use strict;
 use warnings;
-use Carp;
-
 use Data::Dumper;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
@@ -17,14 +15,15 @@ our $AUTHORITY = 'SUKRIA';
 # set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '0.01'; # 2.0.1
+$Dancer2::VERSION ||= '0.04';    # 2.0.4
 
 =head1 DESCRIPTION
 
 Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for 
 Perl. Dancer2 is a complete rewrite based on L<Moo>. 
 
-As usual, Dancer is easy and fun:
+Dancer2 is easy and fun:
+
     use Dancer2;
     get '/' => sub { "Hello World" };
     dance;
@@ -48,13 +47,21 @@ my $runner;
 
 sub runner {$runner}
 
-=method my $runner=import;
+=method import;
 
-This subroutine does most of the work.
+If it doesn't exist already, C<import> creates a new runner, imports strict 
+and warnings, loads additional libraries, creates a new Dancer2 app (of type 
+L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
 
-First it imports strict and warnings.
+If any additional argument processing is needed, it will be done at this point.
 
-Then it does the following for these import options:
+Import gets called when you use Dancer2. You can specify import options giving 
+you control over the keywords that will be imported into your webapp and other 
+things:
+
+    use Dancer2 ':syntax';
+
+=head3 Import Options
 
 =over 4
 
@@ -78,16 +85,6 @@ parameter parsing and built-in web server.
 Do not process arguments.
 
 =back
-
-It creates a new runner if one does not exist already.
-
-It will then load additional libraries.
-
-Then create a new Dancer2 app, of type L<Dancer2::Core::App>.
-
-Then it will export all the DSL symbols to the caller.
-
-If any additional argument processing is needed, it will be done at this point.
 
 =cut
 
@@ -164,13 +161,13 @@ sub import {
     my $dsl = $final_args{dsl}->new(app => $app);
     $dsl->export_symbols_to($caller, \%final_args);
 
-#
-#    # if :syntax option exists, don't change settings
-#    return if $syntax_only;
-#
-#    $as_script = 1 if $ENV{PLACK_ENV};
-#
-#    Dancer2::GetOpt->process_args() if !$as_script;
+    #
+    #    # if :syntax option exists, don't change settings
+    #    return if $syntax_only;
+    #
+    #    $as_script = 1 if $ENV{PLACK_ENV};
+    #
+    #    Dancer2::GetOpt->process_args() if !$as_script;
 }
 
 sub _set_import_method_to_caller {

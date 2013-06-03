@@ -1,34 +1,21 @@
-This is the prototype for Dancer2
+                                    Dancer2 
 
-You can test it with:
-
-  $ perl -Ilib ./contrib/test.pl
-
-Also the progress of the DSL migration can be checked with ./progress.sh
-
-And the test coverage ./cover.sh
-
-*************** FEEDBACK WANTED ******************
-
-The best way to help us with Dancer2 is to test it on existing real-life
-applications.
-
-You will certainly find something that doesnot work out-of-the box with this
-prototype, then send a report to the email mailing list - dancer-users@dancer.pm
-or the IRC channel - #dancer on irc.perl.org
-
-Thanks.
+               Lightweight yet powerful web application framework
 
 
-*************** Progress *************************
+Dancer2 is the new generation lightweight web-framework for Perl. It's a
+complete rewrite of Dancer based on Moo.
 
-Dancer 2.0 is at 90.00% ( 54 symbols supported on 60)
-Dancer 2.0 code-lines ratio: 93.78% (11253/11999)
+An application can be as simple as this simple hello world script:
 
-Dancer 2.0 DSL is missing: after, before, before_template, from_xml, load, to_xml
-Dancer 2.0 DSL has these new keywords: app, context, core_debug, dancer_app, dancer_version, dancer_major_version, dsl, log, response, runner
+    use Dancer2;
+    get '/' => sub { 
+        "Hello World" 
+    };
+    dance;
 
-Most of the plugins on CPAN might not be working as well, feedback welcome
-again.
+Yes, you can use Dancer2 in production. It works. 
 
-See http://www.sukria.net/fr/archives/2011/09/30/dancer2-prototype/
+You can get more information about the Dancer project on the website:
+http://perldancer.org
+

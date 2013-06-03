@@ -1,8 +1,5 @@
 package Dancer2::Development;
-# ABSTRACT: Guide for developers interested in contributing to Dancer2
-# PODNAME: Dancer2::Development
-
-=pod
+# ABSTRACT: Guide for anyone interested in contributing to Dancer2
 
 =head1 DESCRIPTION
 
@@ -10,11 +7,13 @@ This guide has been written to help anyone interested in contributing to the
 development of Dancer2.
 
 First of all - thank you for your interest in the project!  It's the community
-of helpful contributors who've helped Dancer2 experience phenomenal growth to get
-to where it is today.
+of helpful contributors who've helped Dancer2 grow phenomenally. Without the 
+community we wouldn't be where we are today!
 
 Please read this guide before contributing to Dancer2, to avoid wasted effort and
 maximizing the chances of your contributions being used.
+
+
 
 =head1 WAYS TO CONTRIBUTE
 
@@ -61,9 +60,10 @@ a quick web client.
 
 =head2 Documentation
 
-While we value documentation very much, it's difficult to keep it up-to-date.
+We value documentation very much, but it's difficult to keep it up-to-date.
 If you find a typo or an error in the documentation please do let us know -
-ideally by submitting a patch with your fix (see "Patch Submission").
+ideally by submitting a patch (pull request) with your fix or suggestion 
+(see "Patch Submission").
 
 =head2 Contribute to CPAN Testers
 
@@ -73,8 +73,8 @@ L<http://wiki.cpantesters.org/wiki/TestDuringInstall> for more information.
 
 =head2 Code
 
-You can write extensions (plugins) for Dancer2 extending Dancer2's core
-functionality or contribute to Dancer2's core code, see "Patch Submission" below.
+You can write extensions (plugins) for Dancer2 extending core functionality or
+contribute to Dancer2's core code, see "Patch Submission" below.
 
 =head1 GENERAL DEVELOPMENT GUIDELINES
 
@@ -112,7 +112,98 @@ on RT as well: L<https://rt.cpan.org/Dist/Display.html?Queue=Dancer2>
 Please make sure the bug you're reporting does not yet exist. In doubt please
 ask on IRC.
 
-=head2 Patch Submission
+
+
+=head1 ENVIRONMENT AND PATCH SUBMISSION
+
+=head2 Set up a development environment
+
+If you want to submit a patch for Dancer2, you need git and very likely also 
+L<Dist::Zilla>. We also recommend perlbrew (see below) or, alternatively, 
+L<App::Plenv>) to test and develop Dancer2 on a recent version of perl. We also
+suggest L<App::cpanminus>) to quickly and comfortably install perl modules.
+
+In the following sections we provide tips for the installation of some of these 
+tools together with Dancer. Please also see the documentation that comes with 
+these tools for more info.
+
+=head3 Perlbrew tips (Optional)
+
+Install perlbrew for example with 
+    
+    cpanm App::perlbrew
+
+Check which perls are available
+
+    perlbrew available
+
+At the time of writing it looks like this
+
+  perl-5.17.1
+  perl-5.16.0
+  perl-5.14.2
+  perl-5.12.4
+  perl-5.10.1
+  perl-5.8.9
+  perl-5.6.2
+  perl5.005_04
+  perl5.004_05
+  perl5.003_07
+
+Then go on and install a version inside Perlbrew. I recommend you give a name
+to the installation (C<--as> option), as well as compiling without the tests
+(C<--n> option) to speed it up.
+
+  perlbrew install -n perl-5.14.2 --as dancer_development -j 3
+
+Wait a while, and it should be done. Switch to your new Perl with:
+
+  perlbrew switch dancer_development
+
+Now you are using the fresh Perl, you can check it with:
+
+  which perl
+
+Install cpanm on your brewed version of perl.
+
+  perlbrew install-cpanm
+
+
+=head2 Install various dependencies (required)
+
+Install Dist::Zilla
+
+    $ cpanm Dist::Zilla
+
+
+=head2 Get Dancer2 sources
+
+Get the Dancer sources from github (for a more complete git workflow see 
+below):
+
+Clone your fork to have a local copy using the following command:
+
+    $ git clone git://github.com/perldancer/Dancer2.git
+
+The Dancer2 sources come with a C<dist.ini>. That's the configuration files for
+C<Dist::Zilla>, so that it knows how to build Dancer2. Let's use dist.ini 
+to install additional C<Dist::Zilla> plugins which are not yet installed on your system (or 
+perl installation):
+
+    $ dzil authordeps | cpanm -n
+
+That should install a bunch of stuff. Now that C<Dist::Zilla> is up and running, you should 
+install the dependencies required by Dancer2:
+
+    $ dzil listdeps | cpanm -n
+
+When that is done, you're good to go! You can use dzil to build and test Dancer2:
+
+    $ dzil build
+    $ dzil test
+
+
+=head2 Patch Submission (Github workflow)
 
 The Dancer2 development team uses GitHub to collaborate.  We greatly appreciate
 contributions submitted via GitHub, as it makes tracking these contributions and
