@@ -9,9 +9,14 @@ NEXT
     [ ENHANCEMENTS ]
     * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
 
+    [ BUG FIXES ]
+    * GH#272: test function 'route_doesnt_exist' was not handling test comment
+         properly. (Jeff Boes, Yanick Champoux)
+
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko) 
-    * Documenting Dnacer2::Handler::AutoPage (Sabiha Imran, Sawyer X)
+    * Documenting Dancer2::Handler::AutoPage (Sabiha Imran, Sawyer X)
+    * Documenting Dancer2::Core::Dispatcher (Babitha Balachandran)
 
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
