@@ -599,7 +599,7 @@ sub route_pod_coverage {
     foreach my $app (@{ $_dispatcher->apps }) {
         my $routes           = $app->routes;
         my $available_routes = [];
-        foreach my $method ( keys %$routes ) {
+        foreach my $method ( sort { $b cmp $a } keys %$routes ) {
             foreach my $r ( @{ $routes->{$method} } ) {
                 # we don't need pod coverage for head
                 next if $method eq 'head';
