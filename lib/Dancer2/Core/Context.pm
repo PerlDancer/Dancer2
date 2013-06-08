@@ -127,7 +127,7 @@ sub _build_session {
         # if we have a session cookie, try to retrieve the session
         if (defined $session_id) {
             eval { $session = $engine->retrieve(id => $session_id) };
-            croak "Fail to retreive session: $@"
+            croak "Fail to retrieve session: $@"
               if $@ && $@ !~ /Unable to retrieve session/;
         }
     }

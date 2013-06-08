@@ -7,7 +7,7 @@ on_plugin_import {
 };
 
 sub _html_sitemap {
-    join(', ', _retreive_get_urls( @_ ));
+    join(', ', _retrieve_get_urls( @_ ));
 }
 
 register foo_wrap_request => sub {
@@ -22,7 +22,7 @@ register foo_route => sub {
 };
 
 # taken from SiteMap
-sub _retreive_get_urls {
+sub _retrieve_get_urls {
     my $dsl = shift;
     my ($route, @urls);
 
