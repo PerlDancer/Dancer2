@@ -22,7 +22,7 @@ has default_content_type => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ($self, $env, $request) = @_;
+    my ($self, $env, $request, $curr_context) = @_;
 
 #    warn "dispatching ".$env->{PATH_INFO}
 #       . " with ".join(", ", map { $_->name } @{$self->apps });
@@ -31,6 +31,11 @@ sub dispatch {
 # Once per didspatching! We should not create one context for each app or we're
 # going to parse multiple time the request body/
     my $context = Dancer2::Core::Context->new(env => $env);
+
+    if($curr_context)
+    {
+        $context->session($curr_context->session);
+    }
 
     foreach my $app (@{$self->apps}) {
 
