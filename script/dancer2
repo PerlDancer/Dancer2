@@ -348,11 +348,11 @@ WriteMakefile(
     clean               => { FILES => '$cleanfiles-*' },
 );
 ",
-'index.tt'  => 
-'  
-<!-- 
-    Credit goes to the Ruby on Rails team for this page 
-    has been heavily based on the default Rails page that is 
+'index.tt'  =>
+'
+<!--
+    Credit goes to the Ruby on Rails team for this page
+    has been heavily based on the default Rails page that is
     built with a scaffolded application.
 
     Thanks a lot to them for their work.
@@ -373,7 +373,7 @@ WriteMakefile(
               <li><a href="https://github.com/PerlDancer/Dancer2/">GitHub Community</a></li>
             </ul>
           </li>
-          
+
           <li>
             <h3>Browse the documentation</h3>
 
@@ -412,7 +412,7 @@ WriteMakefile(
         <div id="getting-started">
           <h1>Getting started</h1>
           <h2>Here&rsquo;s how to get dancing:</h2>
-                    
+
           <h3><a href="#" id="about_env_link">About your application\'s environment</a></h3>
 
           <div id="about-content" style="display: none;">
@@ -460,7 +460,7 @@ WriteMakefile(
     </script>
 
 
-          <ol>          
+          <ol>
             <li>
               <h2>Tune your application</h2>
 
@@ -478,9 +478,9 @@ WriteMakefile(
               <p>
               The default route that displays this page can be removed,
               it\'s just here to help you get started. The template used to
-              generate this content is located in 
+              generate this content is located in
               <code>views/index.tt</code>.
-              You can add some routes to <tt>lib/'.$LIB_PATH.$LIB_FILE.'</tt>. 
+              You can add some routes to <tt>lib/'.$LIB_PATH.$LIB_FILE.'</tt>.
               </p>
             </li>
 
@@ -531,7 +531,7 @@ use FindBin '\$RealBin';
 use Plack::Runner;
 
 # For some reason Apache SetEnv directives dont propagate
-# correctly to the dispatchers, so forcing PSGI and env here 
+# correctly to the dispatchers, so forcing PSGI and env here
 # is safer.
 set apphandler => 'PSGI';
 set environment => 'production';
@@ -550,7 +550,7 @@ use FindBin '\$RealBin';
 use Plack::Handler::FCGI;
 
 # For some reason Apache SetEnv directives dont propagate
-# correctly to the dispatchers, so forcing PSGI and env here 
+# correctly to the dispatchers, so forcing PSGI and env here
 # is safer.
 set apphandler => 'PSGI';
 set environment => 'production';
@@ -952,10 +952,10 @@ show_errors: 1
 
 # auto_reload is a development and experimental feature
 # you should enable it by yourself if you want it
-# Module::Refresh is needed 
-# 
+# Module::Refresh is needed
+#
 # Be aware it's unstable and may cause a memory leak.
-# DO NOT EVER USE THIS FEATURE IN PRODUCTION 
+# DO NOT EVER USE THIS FEATURE IN PRODUCTION
 # OR TINY KITTENS SHALL DIE WITH LOTS OF SUFFERING
 auto_reload: 0
 ",
@@ -972,7 +972,7 @@ logger: "file"
 # don\'t consider warnings critical
 warnings: 0
 
-# hide errors 
+# hide errors
 show_errors: 0
 
 # cache route resolution for maximum performance
