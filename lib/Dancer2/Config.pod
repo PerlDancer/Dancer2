@@ -289,34 +289,20 @@ the Dancer2 version to the "Server" header. Default to true.
 
 You can also use the environment variable C<DANCER_SERVER_TOKENS>.
 
-=head3 log_path (string)
-
-Folder where the ``file C<logger>'' saves logfiles.
-
-=head3 log_file (string)
-
-Name of the file to create when ``file C<logger>'' is active. It
-defaults to the C<environment> setting contents.
-
 =head3 logger (enum)
 
-Select which logger to use.  For example, to write to log files in C<log_path>:
+Select which logger to use.  For example, to write to log files with
+L<Dancer2::Logger::File>:
 
-    logger: file
+    logger: File
 
 Or to direct log messages to the console from which you started your Dancer2 app
-in standalone mode,
+with L<Dancer2::Logger::Console>:
 
-    logger: console
+    logger: Console
 
-Various other logger backends are available on CPAN, including
-L<Dancer2::Logger::Syslog>, L<Dancer2::Logger::Log4perl>, L<Dancer2::Logger::PSGI>
-(which can, with the aid of Plack middlewares, send log messages to a browser's
-console window) and others.
-
-=head3 log (enum)
-
-See the Logger engine bellow.
+Loggers are configured with a corresponding L</Logger engine> section, as
+shown below.
 
 =head3 show_errors (boolean)
 
@@ -370,19 +356,20 @@ still not see the changes reflected until you start your app.
 
 =head2 Logger engine
 
-=head3 log_level
+The logger must be configured in a separate C<engines> section, like so:
 
-This is the old top-level C<log> entry that is still supported. With
-Dancer2 2 we suggest you use C<log_level> under the Loger engine
-configuration:
+
+   logger: Console
 
    engines:
      logger:
-       console:
+       Console:
          log_level: core
 
-With this approach you can set different log levels accordingly with
-the logger you use.
+All loggers support the configuration options below.  See documentation
+for a particular logger for other supported options.
+
+=head3 log_level
 
 This option tells which log messages should be actually
 logged. Possible values are B<core>, B<debug>, B<warning> or B<error>.
@@ -404,7 +391,6 @@ logged. Possible values are B<core>, B<debug>, B<warning> or B<error>.
 During development, you'll probably want to use C<debug> to see your own debug
 messages, and C<core> if you need to see what Dancer2 is doing.  In production,
 you'll likely want C<error> or C<warning> only, for less-chatty logs.
-
 
 =head2 Session engine
 
