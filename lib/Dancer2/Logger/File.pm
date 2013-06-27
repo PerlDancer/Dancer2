@@ -8,6 +8,7 @@ use Dancer2::Core::Types;
 with 'Dancer2::Core::Role::Logger';
 
 use File::Spec;
+use Fcntl qw(:flock SEEK_END);
 use Dancer2::FileUtils qw(open_file);
 use IO::File;
 
@@ -94,8 +95,13 @@ sub log {
 
     return unless (ref $fh && $fh->opened);
 
+    flock($fh, LOCK_EX)
+      or carp "locking logfile $self->{logfile} failed: $!";
+    seek($fh, 0, SEEK_END);
     $fh->print($self->format_message($level => $message))
       or carp "writing to logfile $self->{logfile} failed";
+    flock($fh, LOCK_UN)
+      or carp "unlocking logfile $self->{logfile} failed: $!";
 }
 
 1;
