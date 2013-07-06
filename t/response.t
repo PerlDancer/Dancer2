@@ -49,5 +49,10 @@ is $r->push_header('X-Bar'), '234';
 
 is scalar(@{$r->headers_to_array}), 10;
 
+# check that we drop the content on 204
+$r = Dancer2::Core::Response->new(content => "foo");
+$r->status(204);
+is $r->content, '';
+is $r->header('Content-Length'), 0;
 
 done_testing;

@@ -58,6 +58,14 @@ has status => (
         return $status if looks_like_number($status);
         Dancer2::HTTP->status($status);
     },
+
+    # This trigger makes sure we drop the content whenever
+    # we set the status to [23]04.
+    trigger => sub {
+        my ($self, $value) = @_;
+        $self->content('') if $value =~ /^(?:1\d{2}|[23]04)$/;
+        $value;
+    },
 );
 
 has content => (
