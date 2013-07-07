@@ -109,8 +109,11 @@ sub supported_hooks {
 =cut
 
 has show_errors => (
-    is  => 'ro',
-    isa => Bool,
+    is      => 'ro',
+    isa     => Bool,
+    default => sub {
+        $_[0]->context->app->setting('show_errors') if $_[0]->has_context;
+    },
 );
 
 =attr charset
@@ -354,9 +357,12 @@ sub throw {
 
     $self->execute_hook('core.error.before', $self);
 
+    my $message = $self->content;
+    $message .= "\n\n".$self->exception if $self->show_errors && defined $self->exception;
+
     $self->response->status($self->status);
     $self->response->header($self->content_type);
-    $self->response->content($self->content);
+    $self->response->content($message);
     $self->response->halt(1);
 
     $self->execute_hook('core.error.after', $self->response);

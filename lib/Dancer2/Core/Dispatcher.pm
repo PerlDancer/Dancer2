@@ -85,7 +85,7 @@ sub dispatch {
                 my $error = $@;
                 if ($error) {
                     $app->log(error => "Route exception: $error");
-                    return $self->response_internal_error($error);
+                    return $self->response_internal_error($context, $error);
                 }
             }
 
@@ -135,14 +135,16 @@ sub dispatch {
 }
 
 sub response_internal_error {
-    my ($self, $error) = @_;
+    my ($self, $context, $error) = @_;
 
     # warn "got error: $error";
 
     return Dancer2::Core::Error->new(
+        context      => $context,
         status       => 500,
         title        => 'Internal Server Error',
-        content      => "Internal Server Error\n\n$error\n",
+        content      => "Internal Server Error",
+        exception    => $error,
         content_type => 'text/plain'
     )->throw;
 }
@@ -188,7 +190,7 @@ __END__
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
     # Capture internal error of a response (if any) after a dispatch
-    $dispatcher->response_internal_error($error);
+    $dispatcher->response_internal_error($context, $error);
 
     # Capture response not found for an application the after dispatch
     $dispatcher->response_not_found($context);
