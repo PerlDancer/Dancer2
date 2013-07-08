@@ -86,5 +86,22 @@ subtest 'Response->error()' => sub {
     ok $resp->is_halted, 'response is halted';
 };
 
+subtest 'Error with show_errors: 0' => sub {
+    my $err = Dancer2::Core::Error->new(
+        context     => $c,
+        exception   => 'our exception',
+        show_errors => 0
+    )->throw;
+    unlike $err->content => qr/our exception/;
+};
+
+subtest 'Error with show_errors: 1' => sub {
+    my $err = Dancer2::Core::Error->new(
+        context     => $c,
+        exception   => 'our exception',
+        show_errors => 1
+    )->throw;
+    like $err->content => qr/our exception/;
+};
 
 done_testing;
