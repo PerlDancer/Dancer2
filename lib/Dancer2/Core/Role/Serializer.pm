@@ -27,11 +27,10 @@ requires 'deserialize';
 requires 'loaded';
 
 around serialize => sub {
-    my ($orig, $self) = (shift, shift);
-    my ($data) = @_;
+    my ($orig, $self, @data) = @_;
 
-    $self->execute_hook('engine.serializer.before', $data);
-    my $serialized = $self->$orig($data);
+    $self->execute_hook('engine.serializer.before', @data);
+    my $serialized = $self->$orig(@data);
     $self->execute_hook('engine.serializer.after', $serialized);
 
     return $serialized;
