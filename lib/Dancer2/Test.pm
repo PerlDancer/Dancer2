@@ -836,7 +836,7 @@ sub _find_dancer_apps_for_dispatcher {
 
     for (my $deep = 0; $deep < 5; $deep++) {
         my $caller = caller($deep);
-        next if !$caller->can('dancer_app');
+        next if !$caller || !$caller->can('dancer_app');
 
         return $_dispatcher->apps([$caller->dancer_app]);
     }
