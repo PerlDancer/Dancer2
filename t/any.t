@@ -24,7 +24,7 @@ is $r->content, 'POST';
 $r = dancer_response(GET => '/test');
 is $r->content, 'GET';
 
-for my $method (qw(GET HEAD POST PUT DELETE OPTIONS PATCH)) {
+for my $method (qw(GET POST PUT DELETE OPTIONS PATCH)) {
     my $r = dancer_response($method => '/all');
     is $r->content, $method;
 }
