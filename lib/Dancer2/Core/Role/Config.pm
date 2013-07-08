@@ -289,7 +289,6 @@ my $_setters = {
         $Carp::Verbose = $traces ? 1 : 0;
     },
 };
-$_setters->{log_path} = $_setters->{log_file};
 
 sub _compile_config_entry {
     my ($self, $name, $value, $config) = @_;
