@@ -181,4 +181,14 @@ is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
     undef, 'Successful to_psgi of response',
 );
 
+# test duplicate routes when the path is a regex
+$app = Dancer2::Core::App->new(name => 'main',);
+my $regexp_route = {method => 'get', 'regexp' => qr!/(\d+)!, code => sub {1}};
+$app->add_route(%$regexp_route);
+$stderr = capture_stderr {
+    eval {$app->add_route(%$regexp_route)}
+};
+like $stderr, qr/with method GET is already defined/;
+ok $@, 'Died when adding twice the same route';
+
 done_testing;
