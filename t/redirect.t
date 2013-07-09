@@ -68,25 +68,26 @@ subtest 'redirect behind a proxy' => sub {
 
         package App;
         use Dancer2;
+        prefix '/test2';
         set behind_proxy => 1;
-        get '/bounce' => sub { redirect '/' };
+        get '/bounce' => sub { redirect '/test2' };
     }
     use Dancer2::Test apps => ['App'];
 
     $ENV{X_FORWARDED_HOST} = "nice.host.name";
     response_headers_include
-      [GET      => '/bounce'],
-      [Location => 'http://nice.host.name/'],
+      [GET      => '/test2/bounce'],
+      [Location => 'http://nice.host.name/test2'],
       "behind a proxy, host() is read from X_FORWARDED_HOST";
 
     $ENV{HTTP_FORWARDED_PROTO} = "https";
-    response_headers_include [GET => '/bounce'] =>
-      [Location => 'https://nice.host.name/'],
+    response_headers_include [GET => '/test2/bounce'] =>
+      [Location => 'https://nice.host.name/test2'],
       "... and the scheme is read from HTTP_FORWARDED_PROTO";
 
     $ENV{X_FORWARDED_PROTOCOL} = "ftp";    # stupid, but why not?
-    response_headers_include [GET => '/bounce'] =>
-      [Location => 'ftp://nice.host.name/'],
+    response_headers_include [GET => '/test2/bounce'] =>
+      [Location => 'ftp://nice.host.name/test2'],
       "... or from X_FORWARDED_PROTOCOL";
 };
 
