@@ -571,9 +571,10 @@ has routes => (
 Register a new route handler.
 
     $app->add_route(
-        method => 'get',
-        regexp => '/somewhere',
-        code => sub { ... }
+        method  => 'get',
+        regexp  => '/somewhere',
+        code    => sub { ... },
+        options => $conditions,
     );
 
 =cut

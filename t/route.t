@@ -43,7 +43,7 @@ my @tests = (
     ],
 );
 
-plan tests => 38;
+plan tests => 40;
 
 for my $t (@tests) {
     my ($route, $path, $expected) = @$t;
@@ -119,3 +119,29 @@ SKIP: {
       "named captures work";
 }
 
+{
+    my $route_w_options = Dancer2::Core::Route->new(
+        method    => 'get',
+        regexp    => '/',
+        code      => sub{'options'},
+        options => {'agent' => 'cURL'},
+    );
+
+    my $req = Dancer2::Core::Request->new(
+        path   => '/',
+        method => 'get',
+        env    => {'HTTP_USER_AGENT' => 'mozilla'},
+    );
+
+    my $m = $route_w_options->match($req);
+    ok !defined $m;
+
+    $req = Dancer2::Core::Request->new(
+        path   => '/',
+        method => 'get',
+        env    => {'HTTP_USER_AGENT' => 'cURL'},
+    );
+
+    $m = $route_w_options->match($req);
+    ok defined $m;
+}
