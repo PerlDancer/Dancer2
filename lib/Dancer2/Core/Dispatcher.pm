@@ -52,7 +52,6 @@ sub dispatch {
 
             # warn "testing route ".$route->regexp;
 
-        # TODO next if $r->has_options && (not $r->validate_options($request));
         # TODO store in route cache
 
             # go to the next route if no match

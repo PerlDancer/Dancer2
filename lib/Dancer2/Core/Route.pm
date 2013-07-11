@@ -66,29 +66,25 @@ A HashRef of conditions on which the matching will depend. Optional.
 =cut
 
 has options => (
-    is      => 'ro',
-    isa     => HashRef,
-    trigger => \&_check_options,
+    is       => 'ro',
+    isa      => HashRef,
+    trigger  => \&_check_options,
+    predicate => 1,
 );
 
-# TODO this should be done elsewhere
-#sub _check_options {
-#    my ($self, $options) = @_;
-#
-##  TODO  my @_supported_options = Dancer2::Request->get_attributes();
-#    my @_supported_options;
-#    my %_options_aliases = (agent => 'user_agent');
-#
-#    return 1 unless defined $options;
-#
-#    for my $opt (keys %{$options}) {
-#        croak "Not a valid option for route matching: `$opt'"
-#          if not(    (grep {/^$opt$/} @{$_supported_options[0]})
-#                  || (grep {/^$opt$/} keys(%_options_aliases)));
-#    }
-#    return 1;
-#}
-#
+sub _check_options {
+   my ($self, $options) = @_;
+   return 1 unless defined $options;
+
+   my @supported_options = (qw/content_type agent user_agent content_length
+                               path_info/);
+   for my $opt (keys %{$options}) {
+       croak "Not a valid option for route matching: `$opt'"
+         if not(grep {/^$opt$/} @supported_options);
+   }
+   return 1;
+}
+
 # private attributes
 
 has _should_capture => (
@@ -122,6 +118,10 @@ against the path) or undef if not.
 
 sub match {
     my ($self, $request) = @_;
+
+    if ($self->has_options) {
+        return unless $self->validate_options($request);
+    }
 
     my %params;
     my @values = $request->path =~ $self->regexp;
@@ -282,6 +282,15 @@ sub _build_regexp_from_string {
     $string =~ s/\//\\\//g;
 
     return ["^$string\$", \@params, $capture];
+}
+
+sub validate_options {
+    my ($self, $request) = @_;
+
+    while (my ($option, $value) = each %{$self->options}) {
+        return 0 if (not $request->$option) || ($request->$option !~ $value);
+    }
+    return 1;
 }
 
 1;
