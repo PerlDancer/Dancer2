@@ -11,11 +11,24 @@ use Dancer2::Core::Request;
 use Dancer2::Core::Response;
 use Dancer2::Core::Cookie;
 
+=attr app
+
+Reference to the L<Dancer2::Core::App> object for the current application. 
+
+=cut
+
+
 has app => (
     is       => 'rw',
     isa      => InstanceOf ['Dancer2::Core::App'],
     weak_ref => 1,
 );
+
+=attr env
+
+Read-only accessor to a PSGI environment hash.
+
+=cut
 
 # the PSGI-env to use for building the request to process
 # this is the only mandatory argument to a context
@@ -24,6 +37,12 @@ has env => (
     required => 1,
     isa      => HashRef,
 );
+
+=attr request
+
+A L<Dancer2::Core::Request> object, built from the PSGI environment variable for this request.
+
+=cut
 
 # the incoming request
 has request => (
@@ -45,7 +64,27 @@ has buffer => (
     default => sub { {} },
 );
 
+=method vars
+
+Returns a hashref of all per-request variables stored in this object.
+
+=cut
+
 sub vars { shift->buffer }
+
+=method var
+
+By-name interface to variables stored in this context object.
+
+  my $stored = $context->var('some_variable');
+
+returns the value of 'some_variable', while
+
+  $context->var('some_variable' => 'value');
+
+will set it.
+
+=cut
 
 sub var {
     my $self = shift;
@@ -53,6 +92,12 @@ sub var {
       ? $self->buffer->{$_[0]} = $_[1]
       : $self->buffer->{$_[0]};
 }
+
+=attr response
+
+A L<Dancer2::Core::Response> object, used to set content, headers and HTTP status codes.
+
+=cut
 
 # a set of changes to apply to the response
 # that HashRef will should be passed as attributes to a response object
@@ -62,7 +107,19 @@ has response => (
     default => sub { Dancer2::Core::Response->new },
 );
 
+=method cookies
+
+Shortcut that dispatches to L<Dancer2::Core::Request>'s cookies method.
+
+=cut
+
 sub cookies { shift->request->cookies(@_) }
+
+=method cookie
+
+Get a cookie from the L<request> object, or set one in the L<response> object.
+
+=cut
 
 sub cookie {
     my $self = shift;
@@ -75,6 +132,13 @@ sub cookie {
       Dancer2::Core::Cookie->new(name => $name, value => $value, %options);
     $self->response->push_header('Set-Cookie' => $c->to_header);
 }
+
+=method redirect($destination, $status)
+
+Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
+be made into an absolute URI, relative to the URI in the request.
+
+=cut
 
 sub redirect {
     my ($self, $destination, $status) = @_;
