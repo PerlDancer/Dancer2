@@ -121,10 +121,10 @@ against the path) or undef if not.
 =cut
 
 sub match {
-    my ($self, $method, $path) = @_;
+    my ($self, $request) = @_;
 
     my %params;
-    my @values = $path =~ $self->regexp;
+    my @values = $request->path =~ $self->regexp;
 
     # the regex comments are how we know if we captured
     # a splat or a megasplat

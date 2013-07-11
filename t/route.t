@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Test::Fatal;
 
+use Dancer2::Core::Request;
 use Dancer2::Core::Route;
 
 my @tests = (
@@ -70,12 +71,19 @@ for my $t (@tests) {
         );
         isa_ok $r, 'Dancer2::Core::Route';
 
-        my $m = $r->match($route->[0] => $path);
+        my $request = Dancer2::Core::Request->new(
+            method => $route->[0], path => $path
+        );
+        my $m = $r->match($request);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
         is $r->execute, $expected->[1], "got expected result for '$path'";
 
         # failing request
-        $m = $r->match(get => '/something_that_doesnt_exist');
+        my $failing_request = Dancer2::Core::Request->new(
+            method => 'get',
+            path   => '/something_that_doesnt_exist',
+        );
+        $m = $r->match($failing_request);
         is $m, undef, "dont match failing request";
     }
 }
@@ -95,7 +103,11 @@ SKIP: {
         method => 'get',
     );
 
-    my $m = $r->match(get => '/user/delete/234');
+    my $request = Dancer2::Core::Request->new(
+        method => 'get',
+        path   => '/user/delete/234',
+    );
+    my $m = $r->match($request);
 
     is_deeply $m,
       { captures => {
