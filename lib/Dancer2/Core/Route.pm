@@ -203,20 +203,12 @@ sub _init_prefix {
     my $prefix = $self->prefix;
     my $regexp = $self->regexp;
 
-# NOTE apparently this cannot work
-#    if (ref($regexp) eq 'Regexp') {
-#        return $self->regexp(qr{${prefix}${regexp}})
-#          if $regexp !~ /^$prefix/;
-#        return;
-#    }
-
     if (ref($regexp) eq 'Regexp') {
-        croak
-          "Cannot combine a prefix ($prefix) with a regular expression ($regexp)";
-    }
-
-    if ($self->regexp eq '/') {
-
+        my $regexp = $self->regexp;
+        if ($regexp !~ /^$prefix/) {
+            $self->regexp(qr{${prefix}${regexp}});
+        }
+    } elsif ($self->regexp eq '/') {
         # if pattern is '/', we should match:
         # - /prefix/
         # - /prefix
@@ -225,10 +217,10 @@ sub _init_prefix {
         my $qprefix   = quotemeta($self->prefix);
         my $new_regxp = qr/^$qprefix(?:$qpattern)?$/;
 
-        return $self->regexp($new_regxp);
+        $self->regexp($new_regxp);
+    }else{
+        $self->regexp($prefix . $self->regexp);
     }
-
-    return $self->regexp($prefix . $self->regexp);
 }
 
 sub _init_regexp {
