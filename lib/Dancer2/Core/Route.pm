@@ -11,7 +11,7 @@ use Carp 'croak';
 
 =attr method
 
-the HTTP method of the route (lowercase). Required.
+The HTTP method of the route (lowercase). Required.
 
 =cut
 
@@ -135,7 +135,7 @@ sub match {
         }
     }
 
-    # if some named captures found, return captures
+    # if some named captures are found, return captures
     # no warnings is for perl < 5.10
     if (my %captures =
         do { no warnings; %+ }
@@ -173,7 +173,7 @@ sub match {
 
 =method execute
 
-Runs the coderef of the route
+Runs the coderef of the route.
 
 =cut
 
@@ -227,7 +227,7 @@ sub _init_regexp {
     my ($self) = @_;
     my $value = $self->regexp;
 
-    # store the original valeu fo the route
+    # store the original value for the route
     $self->spec_route($value);
 
     # already a Regexp, so capture is true
