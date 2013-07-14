@@ -76,8 +76,8 @@ is $file_response->content, 'testfile', 'file uploaded with supplied filename';
 ## Check multiselect/multi parameters get through ok
 get '/multi' => sub {
     my $t = param('test');
-	return 'bad' if ref($t) ne 'ARRAY';
-	my $p = join('', @$t);
+    return 'bad' if ref($t) ne 'ARRAY';
+    my $p = join('', @$t);
     return $p;
 };
 $param_response = dancer_response(GET => '/multi', {
@@ -87,7 +87,7 @@ is $param_response->content, 'foobar',
 
 my $russian_test = decode('UTF-8', uri_unescape("%D0%B8%D1%81%D0%BF%D1%8B%D1%82%D0%B0%D0%BD%D0%B8%D0%B5"));
 $param_response = dancer_response(GET => '/multi', {
-	params => { test => [ 'test/', $russian_test ] }
+    params => { test => [ 'test/', $russian_test ] }
 });
 is $param_response->content, 'test/' . encode('UTF-8', $russian_test),
-	'multi utf8 value properly merge';
+    'multi utf8 value properly merge';
