@@ -4,6 +4,7 @@ package Dancer2::Serializer::Dumper;
 
 use Moo;
 use Carp 'croak';
+use Encode;
 use Data::Dumper;
 
 with 'Dancer2::Core::Role::Serializer';
@@ -42,7 +43,7 @@ sub serialize {
 
     {
         local $Data::Dumper::Purity = 1;
-        return Dumper($entity);
+        return Encode::encode('UTF-8', Dumper($entity));
     }
 }
 
@@ -55,6 +56,7 @@ Deserialize a Dumper string into a Perl data structure
 sub deserialize {
     my ($self, $content) = @_;
 
+    $content = Encode::decode('UTF-8', $content) if !utf8::is_utf8($content);
     my $res = eval "my \$VAR1; $content";
     croak "unable to deserialize : $@" if $@;
     return $res;

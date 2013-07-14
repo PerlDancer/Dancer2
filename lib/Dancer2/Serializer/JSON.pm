@@ -47,6 +47,7 @@ sub serialize {
     if ($config->{convert_blessed}) {
         $options->{convert_blessed} = $config->{convert_blessed};
     }
+    $options->{utf8} = 1 if !defined $options->{utf8};
 
     JSON::to_json($entity, $options);
 }
@@ -59,6 +60,8 @@ Deserialize a JSON string into a Perl data structure
 
 sub deserialize {
     my ($self, $entity, $options) = @_;
+
+    $options->{utf8} = 1 if !defined $options->{utf8};
     JSON::from_json($entity, $options);
 }
 

@@ -447,7 +447,8 @@ sub deserialize {
 
     # try to deserialize
     my $data = eval {
-        $self->serializer->deserialize($self->body)
+        $self->{_params_are_decoded} = 1;
+        $self->serializer->deserialize($self->body);
     };
     if ($@) {
         # TODO add logging
