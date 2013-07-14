@@ -109,7 +109,13 @@ sub dispatch {
                 # TODO make the response object self-serializable? With a
                 # is_serialized attribute
                 if ( my $serializer = ref($content) && $app->config->{serializer} ) {
-                    $content = $serializer->serialize($content);
+                    my $options = {};
+                    if (lc($app->config->{charset}) eq 'utf-8') {
+                      if (ref($serializer) eq 'Dancer2::Serializer::JSON') {
+                        $options->{utf8} = 1;
+                      }
+                    }
+                    $content = $serializer->serialize($content, $options);
                     $response->content_type($serializer->content_type);
                 }
 
