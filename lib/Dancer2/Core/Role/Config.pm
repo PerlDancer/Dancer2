@@ -267,7 +267,8 @@ my $_setters = {
           $self->_get_config_for_engine(template => $value, $config);
         my $engine_attrs = {config => $engine_options};
         $engine_attrs->{layout} ||= $config->{layout};
-        $engine_attrs->{views} ||= $config->{'views'} || path($self->location, 'views');
+        $engine_attrs->{views}  ||= $config->{views}
+            || path($self->location, 'views');
 
         return Dancer2::Core::Factory->create(
             template => $value,
@@ -301,6 +302,18 @@ my $_setters = {
         my ($self, $traces) = @_;
         require Carp;
         $Carp::Verbose = $traces ? 1 : 0;
+    },
+    views => sub {
+        my ($self, $value, $config) = @_;
+        if (ref($self) eq 'Dancer2::Core::App' && defined $self->server) {
+            $self->engine('template')->views($value);
+        }
+    },
+    layout => sub {
+        my ($self, $value, $config) = @_;
+        if (ref($self) eq 'Dancer2::Core::App' && defined $self->server) {
+            $self->engine('template')->layout($value);
+        }
     },
 };
 
