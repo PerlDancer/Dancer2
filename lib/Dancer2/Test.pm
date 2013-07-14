@@ -155,11 +155,11 @@ sub _build_request_from_env {
         while( my ($p, $value) = each %{$options->{params}} ) {
             if ( ref($value) eq 'ARRAY' ) {
                 for my $v (@$value) {
-                    push @params, uri_escape($p) . '=' . uri_escape($v);
+                    push @params, uri_escape_utf8($p) . '=' . uri_escape_utf8($v);
                 }
             }
             else {
-                push @params, uri_escape($p) . '=' . uri_escape($value);
+                push @params, uri_escape_utf8($p) . '=' . uri_escape_utf8($value);
             }
         }
         $env->{QUERY_STRING} = join('&', @params);
@@ -238,11 +238,11 @@ sub _build_env_from_request {
         while(my ($p, $value) = each %{$params}) {
             if ( ref($value) eq 'ARRAY' ) {
                 for my $v (@$value) {
-                    push @params, uri_escape($p) . '=' . uri_escape($v);
+                    push @params, uri_escape_utf8($p) . '=' . uri_escape_utf8($v);
                 }
             }
             else {
-                push @params, uri_escape($p) . '=' . uri_escape($value);
+                push @params, uri_escape_utf8($p) . '=' . uri_escape_utf8($value);
             }
         }
         $env->{QUERY_STRING} = join('&', @params);

@@ -3,12 +3,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 48;
+use Test::More tests => 49;
 
 use Dancer2 ':syntax';
 use Dancer2::Test;
 use Dancer2::Core::Request;
 use File::Temp;
+use Encode;
+use URI::Escape;
 
 my @routes = (
     '/foo',
@@ -74,10 +76,18 @@ is $file_response->content, 'testfile', 'file uploaded with supplied filename';
 ## Check multiselect/multi parameters get through ok
 get '/multi' => sub {
     my $t = param('test');
-    return join('', @$t) if ref($t) eq 'ARRAY';
-    return 'bad';
+    return 'bad' if ref($t) ne 'ARRAY';
+    my $p = join('', @$t);
+    return $p;
 };
 $param_response = dancer_response(GET => '/multi', {
     params => { test => ['foo', 'bar'] } });
 is $param_response->content, 'foobar',
     'multi values for same key get echoed back';
+
+my $russian_test = decode('UTF-8', uri_unescape("%D0%B8%D1%81%D0%BF%D1%8B%D1%82%D0%B0%D0%BD%D0%B8%D0%B5"));
+$param_response = dancer_response(GET => '/multi', {
+    params => { test => [ 'test/', $russian_test ] }
+});
+is $param_response->content, 'test/' . encode('UTF-8', $russian_test),
+    'multi utf8 value properly merge';
