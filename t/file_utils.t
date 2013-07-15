@@ -11,10 +11,10 @@ use Dancer2::FileUtils qw/read_file_content path_or_empty path/;
 sub write_file {
     my ($file, $content) = @_;
 
-    open CONF, '>', $file or die "cannot write file $file : $!";
-    binmode CONF;
-    print CONF $content;
-    close CONF;
+    open my $fh, '>', $file or die "cannot write file $file : $!";
+    binmode $fh, ':encoding(utf-8)';
+    print $fh $content;
+    close $fh;
 }
 
 sub hexe {
@@ -38,14 +38,15 @@ my $p = Dancer2::FileUtils::dirname('/somewhere');
 is $p, '/';
 
 my $tmp = File::Temp->new();
-write_file($tmp, "one$/two");
+my $two = "²❷";
+write_file($tmp, "one$/$two");
 
 $content = read_file_content($tmp);
-is hexe($content), hexe("one$/two");
+is hexe($content), hexe("one$/$two");
 
 my @content = read_file_content($tmp);
 is hexe($content[0]), hexe("one$/");
-is $content[1], 'two';
+is $content[1], "$two";
 
 # returns UNDEF on non-existant path
 my $path = 'bla/blah';
