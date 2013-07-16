@@ -264,7 +264,7 @@ my $_setters = {
           $self->_get_config_for_engine(template => $value, $config);
         my $engine_attrs = {config => $engine_options};
         $engine_attrs->{layout} ||= $config->{layout};
-        $engine_attrs->{views} ||= $config->{'views'} || path($self->config_location, 'views');
+        $engine_attrs->{views} ||= $config->{'views'} || path($self->location, 'views');
 
         return Dancer2::Core::Factory->create(
             template => $value,

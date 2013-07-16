@@ -124,7 +124,7 @@ sub _build_default_config {
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
-                  || path($self->config_location, 'public')
+                  || path($self->location, 'public')
             },
             AutoPage => 1,
         },
