@@ -160,8 +160,6 @@ has location => (
     },
 );
 
-sub _build_config_location { $_[0]->location }
-
 sub _build_location {
     my ($self, $script) = @_;
 
