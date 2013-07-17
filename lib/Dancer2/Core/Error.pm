@@ -175,7 +175,7 @@ sub _build_error_template {
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
     return $self->status
-      if -f $self->context->app->engine('template')->view($self->status);
+      if -f $self->context->app->engine('template')->view_pathname($self->status);
 
     return undef;
 }
