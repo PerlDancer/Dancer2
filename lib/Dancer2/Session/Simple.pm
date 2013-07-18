@@ -58,6 +58,6 @@ sub _flush {
 
 =head1 SEE ALSO
 
-See L<Dancer2::Session> for details about session usage in route handlers.
+See L<Dancer2::Core::Session> for details about session usage in route handlers.
 
 =cut
