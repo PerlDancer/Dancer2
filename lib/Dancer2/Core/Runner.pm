@@ -136,6 +136,8 @@ sub default_config {
         host         => ($ENV{DANCER_SERVER}       || '0.0.0.0'),
         port         => ($ENV{DANCER_PORT}         || '3000'),
         is_daemon    => ($ENV{DANCER_DAEMON}       || 0),
+        views        => ($ENV{DANCER_VIEWS}        ||
+                         path($self->config_location, 'views')),
         appdir       => $self->location,
         import_warnings => 1,
     };

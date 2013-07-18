@@ -82,4 +82,25 @@ layout bottom
 
 content added in after_layout_render';
 
+{
+
+    package Foo;
+
+    use Dancer2;
+    set views    => '/this/is/our/path';
+
+    get '/default_views'          => sub {set 'views'};
+    get '/set_views_via_settings' => sub {set views => '/other/path' };
+    get '/get_views_via_settings' => sub {set 'views'};
+}
+
+use Dancer2::Test apps => ['Foo'];
+
+my $r = dancer_response GET => '/default_views';
+is $r->content, '/this/is/our/path';
+
+dancer_response      GET => '/set_views_via_settings';
+$r = dancer_response GET => '/get_views_via_settings';
+is $r->content, '/other/path';
+
 done_testing;
