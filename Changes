@@ -5,6 +5,7 @@ NEXT
     * Dancer2::Plugin drops support for Dancer 1 (issue #207)
       a DEPRECATION notice is issued when a plugin uses the old syntax
       (Alexis Sukrieh, Mokko, David Golden)
+    * Drop support for 'use Dancer2 :moose' (Franck Cuny)
 
     [ ENHANCEMENTS ]
     * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
@@ -26,10 +27,10 @@ NEXT
     * GH#293: fix defaults tests for a newly generated app (Franck Cuny)
     * GH#216: check 'show_errors' when returning an internal error (Franck Cuny)
     * GH#246: Add serialization of log messages (Stefan Hornburg)
-    * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes
+    * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes (Franck Cuny)
 
     [ DOCUMENTATION ]
-    * Lots of documentation cleanup (Mokko) 
+    * Lots of documentation cleanup (Mokko, David Precious)
     * Documenting Dancer2::Handler::AutoPage (Sabiha Imran, Sawyer X)
     * Documenting Dancer2::Core::Dispatcher (Babitha Balachandran)
     * Documenting Dancer2::Manual::DSL (David Precious, Franck Cuny)
