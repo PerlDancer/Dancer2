@@ -55,4 +55,11 @@ $r->status(204);
 is $r->content, '';
 is $r->header('Content-Length'), 0;
 
+# stringify HTTP status
+$r = Dancer2::Core::Response->new(content => "foo", status => "Not Found");
+is $r->status, 404;
+
+$r = Dancer2::Core::Response->new(content => "foo", status => "not_modified");
+is $r->status, 304;
+
 done_testing;

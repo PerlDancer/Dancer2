@@ -999,7 +999,7 @@ render the response accordingly.
 
 The status keyword receives either a numeric status code or its name in
 lower case, with underscores as a separator for blanks - see the list in
-L<Dancer::HTTP/"HTTP CODES">.
+L<Dancer2::Core::HTTP/"HTTP CODES">.
 
 =head2 template
 

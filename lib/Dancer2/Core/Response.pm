@@ -10,9 +10,9 @@ use Encode;
 use Dancer2::Core::Types;
 
 use Scalar::Util qw/looks_like_number blessed/;
-## use Dancer2::HTTP;
 use Dancer2 ();
 use Dancer2::Core::MIME;
+use Dancer2::Core::HTTP;
 
 use overload
   '@{}' => sub { $_[0]->to_psgi },
@@ -56,7 +56,7 @@ has status => (
     coerce  => sub {
         my ($status) = @_;
         return $status if looks_like_number($status);
-        Dancer2::HTTP->status($status);
+        Dancer2::Core::HTTP->status($status);
     },
 
     # This trigger makes sure we drop the content whenever
