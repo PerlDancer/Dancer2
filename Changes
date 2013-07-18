@@ -26,6 +26,7 @@ NEXT
     * GH#293: fix defaults tests for a newly generated app (Franck Cuny)
     * GH#216: check 'show_errors' when returning an internal error (Franck Cuny)
     * GH#246: Add serialization of log messages (Stefan Hornburg)
+    * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko) 
