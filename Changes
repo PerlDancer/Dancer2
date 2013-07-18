@@ -8,15 +8,34 @@ NEXT
 
     [ ENHANCEMENTS ]
     * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
+    * Don't inflate custom types (Graham Knop)
+    * Encode UTF8 params in Dancer2::Test (Vincent Bachelier)
+    * Make Dancer2::Core::Request more lazy (Franck Cuny)
+    * Don't use rootdir for app location (David Golden)
+    * Improve File logger (David Golden)
+    * Drop body when status is 1x or [23]04 (Franck Cuny)
+    * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
 
     [ BUG FIXES ]
     * GH#272: test function 'route_doesnt_exist' was not handling test comment
          properly. (Jeff Boes, Yanick Champoux)
+    * GH#228: handle UTF-8 correctly in JSON serializer (Steven Humphrey)
+    * GH#270: handle correctly serializer's options (Keith Broughton)
+    * GH#274: `dancer -v' returns the correct version (Dinis Rebolo)
+    * GH#286: for HEAD request, drop response's body (Franck Cuny)
+    * GH#293: fix defaults tests for a newly generated app (Franck Cuny)
+    * GH#216: check 'show_errors' when returning an internal error (Franck Cuny)
+    * GH#246: Add serialization of log messages (Stefan Hornburg)
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko) 
     * Documenting Dancer2::Handler::AutoPage (Sabiha Imran, Sawyer X)
     * Documenting Dancer2::Core::Dispatcher (Babitha Balachandran)
+    * Documenting Dancer2::Manual::DSL (David Precious, Franck Cuny)
+    * Various typo (Shlomi Fish, Colin Kuskie, Stefan Hornburg, Rick Yakubowski)
+    * Documenting some internals (Colin Kuskie)
+    * Documenting Dancer2::Core::MIME (Babitha B.)
+    * Documenting Manual::Developers (Maurice Mengel)
 
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
