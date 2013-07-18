@@ -66,11 +66,6 @@ things:
 
 =over 4
 
-=item C<:moose>
-
-No importing of C<before> and C<after> hooks into your namespace. This is to
-prevent conflict with L<Moose> et al.
-
 =item C<:tests>
 
 No importing of C<pass> function. This is to prevent conflict with
@@ -100,10 +95,7 @@ sub import {
     my $syntax_only = 0;
     my $as_script   = 0;
     foreach (@args) {
-        if ($_ eq ':moose') {
-            push @final_args, '!before' => 1, '!after' => 1;
-        }
-        elsif ($_ eq ':tests') {
+        if ($_ eq ':tests') {
             push @final_args, '!pass' => 1;
         }
         elsif ($_ eq ':syntax') {
@@ -122,7 +114,7 @@ sub import {
 
     scalar(@final_args) % 2
       and die
-      "parameters to 'use Dancer2' should be one of : 'key => value', ':moose', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
+      "parameters to 'use Dancer2' should be one of : 'key => value', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
     my %final_args = @final_args;
 
     $final_args{dsl} ||= 'Dancer2::Core::DSL';
