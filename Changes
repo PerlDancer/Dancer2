@@ -28,6 +28,7 @@ NEXT
     * GH#216: check 'show_errors' when returning an internal error (Franck Cuny)
     * GH#246: Add serialization of log messages (Stefan Hornburg)
     * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes (Franck Cuny)
+    * GH#308: Add support for ENV{DANCER_CONFDIR} and ENV{DANCER_ENVDIR} (Franck Cuny)
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko, David Precious)
