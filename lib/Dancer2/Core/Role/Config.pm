@@ -43,8 +43,9 @@ has environments_location => (
     isa     => Str,
     lazy    => 1,
     default => sub {
-        $ENV{DANCER_ENVDIR} ||
-            File::Spec->catdir($_[0]->location, 'environments')
+        $ENV{DANCER_ENVDIR}
+            || File::Spec->catdir($_[0]->config_location, 'environments')
+            || File::Spec->catdir($_[0]->location, 'environments')
     },
 );
 
