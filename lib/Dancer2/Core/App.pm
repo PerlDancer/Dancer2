@@ -90,8 +90,6 @@ has location => (
     default => sub { File::Spec->rel2abs('.') },
 );
 
-sub _build_config_location { goto &location }
-
 sub _build_environment {'development'}
 
 =attr runner_config
@@ -124,7 +122,7 @@ sub _build_default_config {
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
-                  || path($self->config_location, 'public')
+                  || path($self->location, 'public')
             },
             AutoPage => 1,
         },

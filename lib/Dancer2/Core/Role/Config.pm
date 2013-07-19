@@ -31,10 +31,23 @@ has config_location => (
     is      => 'ro',
     isa     => ReadableFilePath,
     lazy    => 1,
-    builder => '_build_config_location',
+    default => sub { $ENV{DANCER_CONFDIR} || $_[0]->location },
 );
 
-requires '_build_config_location';
+# The type for this attribute is Str because we don't require
+# an existing directory with configuration files for the
+# environments.  An application without environments is still
+# valid and works.
+has environments_location => (
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    default => sub {
+        $ENV{DANCER_ENVDIR}
+            || File::Spec->catdir($_[0]->config_location, 'environments')
+            || File::Spec->catdir($_[0]->location, 'environments')
+    },
+);
 
 has config => (
     is      => 'rw',
@@ -86,10 +99,9 @@ sub _build_config_files {
 
     foreach my $ext (@exts) {
         foreach
-          my $file (["config.$ext"], ['environments', "$running_env.$ext"])
+          my $file ([$location, "config.$ext"], [$self->environments_location, "$running_env.$ext"])
         {
-
-            my $path = path($location, @{$file});
+            my $path = path(@{$file});
             next if !-r $path;
 
             push @files, $path;
@@ -253,7 +265,7 @@ my $_setters = {
           $self->_get_config_for_engine(template => $value, $config);
         my $engine_attrs = {config => $engine_options};
         $engine_attrs->{layout} ||= $config->{layout};
-        $engine_attrs->{views} ||= $config->{'views'} || path($self->config_location, 'views');
+        $engine_attrs->{views} ||= $config->{'views'} || path($self->location, 'views');
 
         return Dancer2::Core::Factory->create(
             template => $value,
