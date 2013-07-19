@@ -31,7 +31,6 @@ use Dancer2::Core::Hook;
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
-with 'Dancer2::Core::Role::Config';
 
 sub supported_hooks {
     qw/
@@ -89,6 +88,8 @@ has location => (
     isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
     default => sub { File::Spec->rel2abs('.') },
 );
+
+with 'Dancer2::Core::Role::Config';
 
 sub _build_environment {'development'}
 

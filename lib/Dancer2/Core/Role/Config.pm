@@ -21,6 +21,8 @@ use Dancer2::Core::Types;
 use Dancer2::FileUtils qw/dirname path/;
 use Carp 'croak', 'carp';
 
+requires 'location';
+
 =method config_location
 
 Gets the location from the configuration. Same as C<< $object->location >>.

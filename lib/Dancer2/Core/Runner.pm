@@ -10,8 +10,6 @@ use Dancer2::FileUtils;
 use File::Basename;
 use File::Spec;
 
-with 'Dancer2::Core::Role::Config';
-
 =head1 DESCRIPTION
 
 Runs Dancer2 app.
@@ -159,6 +157,8 @@ has location => (
         return $value;
     },
 );
+
+with 'Dancer2::Core::Role::Config';
 
 sub _build_location {
     my ($self, $script) = @_;
