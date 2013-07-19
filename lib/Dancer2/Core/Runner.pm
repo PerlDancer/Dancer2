@@ -134,6 +134,7 @@ sub default_config {
         host         => ($ENV{DANCER_SERVER}       || '0.0.0.0'),
         port         => ($ENV{DANCER_PORT}         || '3000'),
         is_daemon    => ($ENV{DANCER_DAEMON}       || 0),
+        startup_info => ($ENV{DANCER_STARTUP_INFO} || 0),
         appdir       => $self->location,
         import_warnings => 1,
     };
