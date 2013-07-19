@@ -5,7 +5,7 @@ package Dancer2::Core::Server::Standalone;
 use Moo;
 use Dancer2::Core::Types;
 with 'Dancer2::Core::Role::Server';
-use HTTP::Server::Simple::PSGI;
+use parent 'HTTP::Server::Simple::PSGI';
 
 =head1 DESCRIPTION
 
@@ -37,12 +37,8 @@ has backend => (
 
 sub _build_backend {
     my $self    = shift;
-    my $backend = HTTP::Server::Simple::PSGI->new($self->port);
-
-    $backend->host($self->host);
-    $backend->app($self->psgi_app);
-
-    return $backend;
+    $self->app($self->psgi_app);
+    return $self;
 }
 
 =method start
@@ -57,6 +53,31 @@ sub start {
     $self->is_daemon
       ? $self->backend->background()
       : $self->backend->run();
+}
+
+=method print_banner
+
+=cut
+
+sub print_banner {
+    my $self = shift;
+    my $pid = $$;
+
+    return unless $self->runner->config->{startup_info};
+
+    print STDERR ">> Dancer v2.$Dancer2::VERSION server pid $pid listening "
+        ."on http://".$self->host.":".$self->port."\n";
+
+    # all loaded plugins
+    foreach my $module ( grep { $_ =~ m{^Dancer2/Plugin/} } keys %INC ) {
+        warn "fjkdsjflsdjflksd";
+        $module =~ s{/}{::}g;  # change / to ::
+        $module =~ s{\.pm$}{}; # remove .pm at the end
+        my $version = $module->VERSION;
+
+        defined $version or $version = 'no version number defined';
+        print STDERR ">> $module ($version)\n";
+    }
 }
 
 1;

@@ -959,6 +959,9 @@ show_errors: 1
 # DO NOT EVER USE THIS FEATURE IN PRODUCTION 
 # OR TINY KITTENS SHALL DIE WITH LOTS OF SUFFERING
 auto_reload: 0
+
+# show banner
+startup_info: 1
 ",
 
 'production.yml' =>
