@@ -31,7 +31,6 @@ use Dancer2::Core::Hook;
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
-with 'Dancer2::Core::Role::Config';
 
 sub supported_hooks {
     qw/
@@ -90,7 +89,7 @@ has location => (
     default => sub { File::Spec->rel2abs('.') },
 );
 
-sub _build_config_location { goto &location }
+with 'Dancer2::Core::Role::Config';
 
 sub _build_environment {'development'}
 
@@ -124,7 +123,7 @@ sub _build_default_config {
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
-                  || path($self->config_location, 'public')
+                  || path($self->location, 'public')
             },
             AutoPage => 1,
         },

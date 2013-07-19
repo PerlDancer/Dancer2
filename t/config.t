@@ -8,6 +8,7 @@ use Dancer2::Core::Runner;
 use Dancer2::Core::Role::Config;
 use Dancer2::FileUtils qw/dirname path/;
 use File::Spec;
+use File::Temp;
 
 my $runner = Dancer2::Core::Runner->new(caller => 'main');
 my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
@@ -21,7 +22,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     sub name {'Prod'}
 
     sub _build_environment     {'production'}
-    sub _build_config_location {$location}
+    sub location               {$location}
     sub default_config         { $runner->default_config }
 
     package Dev;
@@ -29,7 +30,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     with 'Dancer2::Core::Role::Config';
 
     sub _build_environment     {'development'}
-    sub _build_config_location {$location}
+    sub location               {$location}
     sub default_config         { $runner->default_config }
 
     package Failure;
@@ -37,7 +38,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     with 'Dancer2::Core::Role::Config';
 
     sub _build_environment     {'failure'}
-    sub _build_config_location {$location}
+    sub location               {$location}
     sub default_config         { $runner->default_config }
 
     package Staging;
@@ -45,7 +46,7 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     with 'Dancer2::Core::Role::Config';
 
     sub _build_environment     {"staging"}
-    sub _build_config_location {$location}
+    sub location               {$location}
     sub default_config         { $runner->default_config }
 
 }
@@ -118,5 +119,12 @@ unlike(exception { Foo->foo() }, qr{Foo::foo}, "traces are not enabled",);
 
 $f->setting(traces => 1);
 like(exception { Foo->foo() }, qr{Foo::foo}, "traces are enabled",);
+
+{
+    my $tmpdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
+    $ENV{DANCER_CONFDIR} = $tmpdir;
+    my $f = Prod->new;
+    is $f->config_location, $tmpdir;
+}
 
 done_testing;
