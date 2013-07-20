@@ -1,42 +1,46 @@
-[ CORE TEAM ]
+[ CORE DEVELOPERS ]
 
-Alberto Simões <ambs+dancer@perl-hackers.net>
-Alexis Sukrieh <sukria@cpan.org>
-Damien Krotkine <dams@cpan.org>
-David Golden <dagolden@cpan.org>
-David Precious <davidp@preshweb.co.uk>
-Franck Cuny <franck@lumberjaph.net>
-SawyerX <xsawyerx@cpan.org>
-Yanick Champoux <yanick@cpan.org>
+Alexis Sukrieh
+Franck Cuny
+David Golden
 
 [ CONTRIBUTORS ]
-Alexander Karelas <alex.karelas@gmail.com>
-Alexandr Ciornii <alexchorny@gmail.com>
-Andrew Grangaard <granny-github@ofb.net>
-Andrew Inishev <inish777@gmail.com>
-Blabos de Blebe <blabos@blabos.org>
-Breno G. de Oliveira <garu@cpan.org>
-Christian Walde <walde.christian@googlemail.com>
-Colin Kuskie <colink@perldreamer.com>
-Dale Gallagher <zoot@zootzone.com>
-Dinis Rebolo <dinisrebolo@gmail.com>
-Graham Knop <haarg@haarg.org>
-Hobbestigrou <natal@hederatech.com>
-James Aitken <loonypandora@gmail.com>
-Jason A. Crome <cromedome@gmail.com>
-Jonathan Scott Duff <duff@pobox.com>
-Julio Fraire <julio.fraire@gmail.com>
-Keith Broughton <keithbro256@gmail.com>
-Mateu X Hunter <hunter@missoula.org>
-Matt Phillips <mphillips@oanda.com>
-Matt S Trout <mst@shadowcat.co.uk>
-Maurice <mauricemengel@gmail.com>
-Olivier Mengué <dolmen@cpan.org>
-Rick Yakubowski <richard@orpha-systems.com>
-Russell Jenkins <veryrusty@gmail.com>
-Sam Kington <github@illuminated.co.uk>
-Shlomi Fish <shlomif@shlomifish.org>
-Stefan Hornburg (Racke) <racke@linuxia.de>
-Steven Humphrey <shumphrey@inview.co.uk>
-Tom Hukins <tom@eborcom.com>
-Vincent Bachelier <vincent@weborama.com>
+
+Alexander Karelas
+Alexandr Ciornii
+Alberto Simões
+Andrew Grangaard
+Andrew Inishev
+Blabos de Blebe
+Breno G. de Oliveira
+Christian Walde
+Colin Kuskie
+Dale Gallagher
+Damien Krotkine
+David Golden
+David Precious
+Dinis Rebolo
+Franck Cuny
+Graham Knop
+Hobbestigrou
+James Aitken
+Jason A. Crome
+Jonathan Scott Duff
+Julio Fraire
+Keith Broughton
+Mateu X Hunter
+Matt Phillips
+Matt S Trout
+Maurice
+mokko
+Olivier Mengué
+Rick Yakubowski
+Russell Jenkins
+Sam Kington
+Sawyer X
+Shlomi Fish
+Stefan Hornburg (Racke)
+Steven Humphrey
+Tom Hukins
+Vincent Bachelier
+Yanick Champoux
