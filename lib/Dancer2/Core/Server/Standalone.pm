@@ -60,8 +60,6 @@ sub print_banner {
     my $self = shift;
     my $pid  = $$;      #Todo:how to get background pid?
 
-    print "startupinfo:" . $self->runner->config->{'startup_info'} . "\n";
-
     # we only print the info if we need to
     $self->runner->config->{'startup_info'} or return;
 
