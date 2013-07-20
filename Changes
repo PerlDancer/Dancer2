@@ -21,6 +21,7 @@ NEXT
     * Add support for prefix with route defined with regex (Franck Cuny)
     * Methods to return path of views and layout in the Template role 
       (Franck Cuny, Yanick Champoux).
+    * GH#31, GH#221: Config merging support (Russell Jenkins)
 
     [ BUG FIXES ]
     * GH#272: test function 'route_doesnt_exist' was not handling test comment
