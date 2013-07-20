@@ -27,10 +27,14 @@ NEXT
     * GH#293: fix defaults tests for a newly generated app (Franck Cuny)
     * GH#216: check 'show_errors' when returning an internal error (Franck Cuny)
     * GH#246: Add serialization of log messages (Stefan Hornburg)
-    * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes (Franck Cuny)
-    * GH#308: Add support for ENV{DANCER_CONFDIR} and ENV{DANCER_ENVDIR} (Franck Cuny)
+    * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes
+      (Franck Cuny)
+    * GH#308: Add support for ENV{DANCER_CONFDIR} and ENV{DANCER_ENVDIR}
+      (Franck Cuny)
     * GH#210: Don't print startup banner if startup_info is set to 0
-         (Maurice Mengel, Franck Cuny)
+      (Maurice Mengel, Franck Cuny)
+    * plugin_setting does not trigger a DEPRECATION warning anymore 
+      (Report by Alberto Simões, fix by Alexis Sukrieh)
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko, David Precious)
