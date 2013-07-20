@@ -13,7 +13,6 @@ use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 
-
 =head1 DESCRIPTION
 
 Type definitions for Moo attributes. These are defined as subroutines. 
@@ -167,9 +166,11 @@ for my $type (
 
 MooX::Types::MooseLike::register_types($definitions, __PACKAGE__);
 
-# Export everything by default.
-@EXPORT = (@MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK);
-
+# Re-export everything by default, as per GH#156
+@EXPORT = (
+    @MooX::Types::MooseLike::Base::EXPORT_OK,
+    @MooX::Types::MooseLike::Numeric::EXPORT_OK, @EXPORT_OK
+);
 1;
 
 =head1 SEE ALSO

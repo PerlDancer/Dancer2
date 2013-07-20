@@ -1,8 +1,10 @@
 use strict;
 use warnings;
-use Test::More tests => 46;
+use Test::More;
 use Test::Fatal;
 use Dancer2::Core::Types;
+use MooX::Types::MooseLike::Base;
+use MooX::Types::MooseLike::Numeric;
 
 
 ok(exception { Str->(undef) }, 'Str does not accept undef value',);
@@ -192,3 +194,14 @@ like(
 ok( exception { Dancer2HTTPMethod->(undef) },
     'Dancer2Method does not accept undef value',
 );
+
+#as per gH #156
+foreach my $type (
+    @MooX::Types::MooseLike::Base::EXPORT_OK,
+    @MooX::Types::MooseLike::Numeric::EXPORT_OK
+  )
+{
+    ok(defined &$type, "type '$type' exists");
+}
+
+done_testing;
