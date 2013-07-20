@@ -21,9 +21,9 @@ The value of the current environment
 
 =cut
 
-has environment => (is => 'ro');
+has environment => ( is => 'ro' );
 
-has location    => (is => 'ro');
+has location => ( is => 'ro' );
 
 =attr context
 

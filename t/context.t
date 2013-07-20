@@ -23,7 +23,7 @@ my $env = {
     REMOTE_USER     => 'sukria',
 };
 
-my $c = Dancer2::Core::Context->new(env => $env);
+my $c = Dancer2::Core::Context->new( env => $env );
 
 isa_ok $c->request, 'Dancer2::Core::Request';
 is $c->request->method, 'GET';

@@ -36,19 +36,20 @@ Serialize a Perl data structure into a JSON string.
 
 
 sub serialize {
-    my ($self, $entity, $options) = @_;
+    my ( $self, $entity, $options ) = @_;
 
     # Why doesn't $self->config have this?
     my $config = $self->config;
 
-    if ($config->{allow_blessed} && !defined $options->{allow_blessed}) {
+    if ( $config->{allow_blessed} && !defined $options->{allow_blessed} ) {
         $options->{allow_blessed} = $config->{allow_blessed};
     }
-    if ($config->{convert_blessed}) {
+    if ( $config->{convert_blessed} ) {
         $options->{convert_blessed} = $config->{convert_blessed};
     }
+    $options->{utf8} = 1 if !defined $options->{utf8};
 
-    JSON::to_json($entity, $options);
+    JSON::to_json( $entity, $options );
 }
 
 =method deserialize
@@ -58,8 +59,10 @@ Deserialize a JSON string into a Perl data structure
 =cut
 
 sub deserialize {
-    my ($self, $entity, $options) = @_;
-    JSON::from_json($entity, $options);
+    my ( $self, $entity, $options ) = @_;
+
+    $options->{utf8} = 1 if !defined $options->{utf8};
+    JSON::from_json( $entity, $options );
 }
 
 =method content_type

@@ -161,21 +161,21 @@ This method does not need to be implemented in the class.
 sub create {
     my ($self) = @_;
 
-    my %args = (id => $self->generate_id,);
+    my %args = ( id => $self->generate_id, );
 
     $args{expires} = $self->cookie_duration
       if $self->has_cookie_duration;
 
     my $session = Dancer2::Core::Session->new(%args);
 
-    $self->execute_hook('engine.session.before_create', $session);
+    $self->execute_hook( 'engine.session.before_create', $session );
 
     # XXX why do we _flush now?  Seems unnecessary -- xdg, 2013-03-03
-    eval { $self->_flush($session->id, $session->data) };
+    eval { $self->_flush( $session->id, $session->data ) };
     croak "Unable to create a new session: $@"
       if $@;
 
-    $self->execute_hook('engine.session.after_create', $session);
+    $self->execute_hook( 'engine.session.after_create', $session );
     return $session;
 }
 
@@ -215,13 +215,15 @@ alternative method for session ID generation is desired.
 
         if ($CPRNG_AVAIL) {
             $CPRNG ||= Math::Random::ISAAC::XS->new(
-                map { unpack("N", Crypt::URandom::urandom(4)) } 1 .. 256);
+                map { unpack( "N", Crypt::URandom::urandom(4) ) } 1 .. 256 );
 
             # include $$ to ensure $CPRNG wasn't forked by accident
             return encode_base64url(
-                pack("N6",
+                pack(
+                    "N6",
                     time,          $$,            $CPRNG->irand,
-                    $CPRNG->irand, $CPRNG->irand, $CPRNG->irand)
+                    $CPRNG->irand, $CPRNG->irand, $CPRNG->irand
+                )
             );
         }
         else {
@@ -231,11 +233,11 @@ alternative method for session ID generation is desired.
                   . $COUNTER++        # impossible to have two consecutive dups
                   . $$         # the process ID as another private constant
                   . "$self"    # the instance's memory address for more entropy
-                  . join('', shuffle('a' .. 'z', 'A' .. 'Z', 0 .. 9))
+                  . join( '', shuffle( 'a' .. 'z', 'A' .. 'Z', 0 .. 9 ) )
 
                   # a shuffled list of 62 chars, another random component
             );
-            return encode_base64url(pack("Na*", time, sha1($seed)));
+            return encode_base64url( pack( "Na*", time, sha1($seed) ) );
         }
 
     }
@@ -257,16 +259,16 @@ argument and must return a hash reference of session data.
 requires '_retrieve';
 
 sub retrieve {
-    my ($self, %params) = @_;
+    my ( $self, %params ) = @_;
     my $id = $params{id};
 
-    $self->execute_hook('engine.session.before_retrieve', $id);
+    $self->execute_hook( 'engine.session.before_retrieve', $id );
 
     my $data = eval { $self->_retrieve($id) };
     croak "Unable to retrieve session with id '$id'"
       if $@;
 
-    my %args = (id => $id,);
+    my %args = ( id => $id, );
 
     $args{data} = $data
       if $data and ref $data eq 'HASH';
@@ -276,7 +278,7 @@ sub retrieve {
 
     my $session = Dancer2::Core::Session->new(%args);
 
-    $self->execute_hook('engine.session.after_retrieve', $session);
+    $self->execute_hook( 'engine.session.after_retrieve', $session );
     return $session;
 }
 
@@ -295,15 +297,15 @@ argumenet and destroy the underlying data.
 requires '_destroy';
 
 sub destroy {
-    my ($self, %params) = @_;
+    my ( $self, %params ) = @_;
     my $id = $params{id};
-    $self->execute_hook('engine.session.before_destroy', $id);
+    $self->execute_hook( 'engine.session.before_destroy', $id );
 
     eval { $self->_destroy($id) };
     croak "Unable to destroy session with id '$id': $@"
       if $@;
 
-    $self->execute_hook('engine.session.after_destroy', $id);
+    $self->execute_hook( 'engine.session.after_destroy', $id );
     return $id;
 }
 
@@ -328,15 +330,15 @@ and a hash reference of session data.
 requires '_flush';
 
 sub flush {
-    my ($self, %params) = @_;
+    my ( $self, %params ) = @_;
     my $session = $params{session};
-    $self->execute_hook('engine.session.before_flush', $session);
+    $self->execute_hook( 'engine.session.before_flush', $session );
 
-    eval { $self->_flush($session->id, $session->data) };
+    eval { $self->_flush( $session->id, $session->data ) };
     croak "Unable to flush session: $@"
       if $@;
 
-    $self->execute_hook('engine.session.after_flush', $session);
+    $self->execute_hook( 'engine.session.after_flush', $session );
     return $session->id;
 }
 
@@ -362,9 +364,11 @@ differently (such as signalling to middleware).
 =cut
 
 sub set_cookie_header {
-    my ($self, %params) = @_;
-    $params{response}->push_header('Set-Cookie',
-        $self->cookie(session => $params{session})->to_header);
+    my ( $self, %params ) = @_;
+    $params{response}->push_header(
+        'Set-Cookie',
+        $self->cookie( session => $params{session} )->to_header
+    );
 }
 
 =head2 cookie
@@ -376,7 +380,7 @@ Coerce a session object into a L<Dancer2::Core::Cookie> object.
 =cut
 
 sub cookie {
-    my ($self, %params) = @_;
+    my ( $self, %params ) = @_;
     my $session = $params{session};
     croak "cookie() requires a valid 'session' parameter"
       unless ref($session) && $session->isa("Dancer2::Core::Session");
@@ -392,7 +396,7 @@ sub cookie {
     $cookie{domain} = $self->cookie_domain
       if $self->has_cookie_domain;
 
-    if (my $expires = $session->expires) {
+    if ( my $expires = $session->expires ) {
         $cookie{expires} = $expires;
     }
 
@@ -417,7 +421,7 @@ sub sessions {
     my $sessions = $self->_sessions;
 
     croak "_sessions() should return an array ref"
-      if ref($sessions) ne ref([]);
+      if ref($sessions) ne ref( [] );
 
     return $sessions;
 }

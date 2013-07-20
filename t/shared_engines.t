@@ -8,14 +8,14 @@ use Test::More;
 use Test::TCP 1.13;
 use YAML;
 
-my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
+my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 Test::TCP::test_tcp(
     client => sub {
         my $port = shift;
 
         my $ua = LWP::UserAgent->new;
-        $ua->cookie_jar({file => "$tempdir/.cookies.txt"});
+        $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
 
         my $res = $ua->get("http://127.0.0.1:$port/main");
         like $res->content, qr{42}, "session is set in main";
@@ -38,10 +38,10 @@ Test::TCP::test_tcp(
             engine('session')->{'__marker__'} = 1;
         }
 
-        use t::lib::Foo with => {session => engine('session')};
+        use t::lib::Foo with => { session => engine('session') };
 
         get '/main' => sub {
-            session('test' => 42);
+            session( 'test' => 42 );
         };
 
         setting appdir => $tempdir;

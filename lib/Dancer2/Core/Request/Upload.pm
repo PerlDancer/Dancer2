@@ -84,7 +84,7 @@ Returns a read-only file handle on the temporary file.
 sub file_handle {
     my ($self) = @_;
     return $self->{_fh} if defined $self->{_fh};
-    my $fh = open_file('<', $self->tempname);
+    my $fh = open_file( '<', $self->tempname );
     $self->{_fh} = $fh;
 }
 
@@ -97,9 +97,9 @@ false for failure.
 =cut    
 
 sub copy_to {
-    my ($self, $target) = @_;
+    my ( $self, $target ) = @_;
     require File::Copy;
-    File::Copy::copy($self->{tempname}, $target);
+    File::Copy::copy( $self->{tempname}, $target );
 }
 
 =method $upload->link_to('/path/to/target');
@@ -110,8 +110,8 @@ false for failure.
 =cut
 
 sub link_to {
-    my ($self, $target) = @_;
-    CORE::link($self->{tempname}, $target);
+    my ( $self, $target ) = @_;
+    CORE::link( $self->{tempname}, $target );
 }
 
 =method my $content=$upload->content;
@@ -121,7 +121,7 @@ Returns a scalar containing the contents of the temporary file.
 =cut
 
 sub content {
-    my ($self, $layer) = @_;
+    my ( $self, $layer ) = @_;
     return $self->{_content}
       if defined $self->{_content};
 
@@ -130,9 +130,9 @@ sub content {
     my $content = undef;
     my $handle  = $self->file_handle;
 
-    binmode($handle, $layer);
+    binmode( $handle, $layer );
 
-    while ($handle->read(my $buffer, 8192)) {
+    while ( $handle->read( my $buffer, 8192 ) ) {
         $content .= $buffer;
     }
 
@@ -148,7 +148,7 @@ Returns basename for "filename".
 sub basename {
     my ($self) = @_;
     require File::Basename;
-    File::Basename::basename($self->filename);
+    File::Basename::basename( $self->filename );
 }
 
 

@@ -15,7 +15,7 @@ my @splat;
 
 my $resp = dancer_response(
     get => '/foo/bar/baz',
-    {params => {foo => 42},}
+    { params => { foo => 42 }, }
 );
 
 is_deeply [@splat], [qw(foo bar baz)], "splat behaves as expected";

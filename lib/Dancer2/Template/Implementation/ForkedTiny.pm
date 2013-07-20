@@ -13,7 +13,7 @@ sub new {
     my $self = bless {
         start_tag => '[%',
         end_tag   => '%]',
-        @_[1 .. $#_]
+        @_[ 1 .. $#_ ]
       },
       $_[0];
 
@@ -81,27 +81,27 @@ sub new {
 sub preprocess {
     my $self = shift;
     my $text = shift;
-    $self->_preprocess(\$text);
+    $self->_preprocess( \$text );
     return $text;
 }
 
 sub process {
     my $self  = shift;
-    my $copy  = ${shift()};
+    my $copy  = ${ shift() };
     my $stash = shift || {};
 
     local $@  = '';
     local $^W = 0;
 
     # Preprocess to establish unique matching tag sets
-    $self->_preprocess(\$copy);
+    $self->_preprocess( \$copy );
 
     # Process down the nested tree of conditions
-    my $result = $self->_process($stash, $copy);
+    my $result = $self->_process( $stash, $copy );
     if (@_) {
-        ${$_[0]} = $result;
+        ${ $_[0] } = $result;
     }
-    elsif (defined wantarray) {
+    elsif ( defined wantarray ) {
         require Carp;
         Carp::carp(
             'Returning of template results is deprecated in Template::Tiny 0.11'
@@ -135,7 +135,7 @@ sub _preprocess {
 }
 
 sub _process {
-    my ($self, $stash, $text) = @_;
+    my ( $self, $stash, $text ) = @_;
 
     $text =~ s/
         $self->{CONDITION}
@@ -170,17 +170,17 @@ sub _process {
 
 # Special handling for foreach
 sub _foreach {
-    my ($self, $stash, $term, $expr, $text) = @_;
+    my ( $self, $stash, $term, $expr, $text ) = @_;
 
     # Resolve the expression
-    my $list = $self->_expression($stash, $expr);
-    if (ref $list ne 'ARRAY') {
+    my $list = $self->_expression( $stash, $expr );
+    if ( ref $list ne 'ARRAY' ) {
         return '';
     }
 
     # Iterate
     return join '',
-      map { $self->_process({%$stash, $term => $_}, $text) } @$list;
+      map { $self->_process( { %$stash, $term => $_ }, $text ) } @$list;
 }
 
 # Evaluates a stash expression
@@ -190,15 +190,15 @@ sub _expression {
     foreach (@path) {
 
         # Support for private keys
-        return undef if substr($_, 0, 1) eq '_';
+        return undef if substr( $_, 0, 1 ) eq '_';
 
         # Split by data type
         my $type = ref $cursor;
-        if ($type eq 'ARRAY') {
+        if ( $type eq 'ARRAY' ) {
             return '' unless /^(?:0|[0-9]\d*)\z/;
             $cursor = $cursor->[$_];
         }
-        elsif ($type eq 'HASH') {
+        elsif ( $type eq 'HASH' ) {
             $cursor = $cursor->{$_};
         }
         elsif ($type) {

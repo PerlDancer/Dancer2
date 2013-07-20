@@ -2,15 +2,14 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use Dancer2::Test;
-
-subtest 'use basic Dancer2::Plugin' => sub {
-    use_ok 'Dancer2::Plugin';
-};
+use JSON;
 
 subtest 'global and route keywords' => sub {
     {
         use Dancer2;
         use t::lib::FooPlugin;
+
+        sub location {'/tmp'}
 
         get '/' => sub {
             foo_wrap_request->env->{'PATH_INFO'};
@@ -18,17 +17,25 @@ subtest 'global and route keywords' => sub {
 
         get '/app' => sub { app->name };
 
+        get '/plugin_setting' => sub { to_json(p_config) };
+
         foo_route;
     }
 
-    my $r = dancer_response(GET => '/');
-    is($r->content, '/', 'route defined by a plugin');
+    my $r = dancer_response( GET => '/' );
+    is( $r->content, '/', 'route defined by a plugin' );
 
-    $r = dancer_response(GET => '/foo');
-    is($r->content, 'foo', 'DSL keyword wrapped by a plugin');
+    $r = dancer_response( GET => '/foo' );
+    is( $r->content, 'foo', 'DSL keyword wrapped by a plugin' );
 
-    $r = dancer_response(GET => '/app');
-    is($r->content, 'main', 'app name is correct');
+    $r = dancer_response( GET => '/plugin_setting' );
+    is( $r->content,
+        encode_json( { plugin => "42" } ),
+        'plugin_setting returned the expected config'
+    );
+
+    $r = dancer_response( GET => '/app' );
+    is( $r->content, 'main', 'app name is correct' );
 };
 
 subtest 'plugin old syntax' => sub {
@@ -50,7 +57,8 @@ subtest caller_dsl => sub {
     }
 
     my $r = dancer_response GET => '/sitemap';
-    is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$';
+    is $r->content,
+      '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/plugin_setting$, ^\/sitemap$';
 };
 
 subtest 'hooks in plugins' => sub {
@@ -61,7 +69,7 @@ subtest 'hooks in plugins' => sub {
         use t::lib::Hookee;
 
         hook 'third_hook' => sub {
-            var(hook => 'third hook');
+            var( hook => 'third hook' );
         };
 
         hook 'start_hookee' => sub {
@@ -81,11 +89,11 @@ subtest 'hooks in plugins' => sub {
     }
 
     is $counter, 0, "the hook has not been executed";
-    my $r = dancer_response(GET => '/hooks_plugin');
-    is($r->content, 'hook for plugin', '... route is rendered');
+    my $r = dancer_response( GET => '/hooks_plugin' );
+    is( $r->content, 'hook for plugin', '... route is rendered' );
     is $counter, 1, "... and the hook has been executed exactly once";
 
-    dancer_response(GET => '/hook_with_var');
+    dancer_response( GET => '/hook_with_var' );
 };
 
 

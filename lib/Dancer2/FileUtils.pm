@@ -36,8 +36,8 @@ file reading subroutines or using additional modules.
 
     open my $fh, '<', $file or die "$!\n";
     set_file_mode($fh);
-    my @content = read_file_content($fh);
-    my $content = read_file_content($fh);
+    my @content = read_glob_content($fh);
+    my $content = read_glob_content($fh);
     
 
     use Dancer2::FileUtils qw/open_file/;
@@ -45,7 +45,7 @@ file reading subroutines or using additional modules.
     my $fh = open_file('<', $file) or die $message;
 
 
-	use Dancer2::FileUtils 'set_file_mode';
+    use Dancer2::FileUtils 'set_file_mode';
 
     set_file_mode($fh);
 
@@ -134,7 +134,7 @@ defaults to utf-8 if setting not present).
 =cut
 
 sub open_file {
-    my ($mode, $filename) = @_;
+    my ( $mode, $filename ) = @_;
 
     open my $fh, $mode, $filename
       or croak "Can't open '$filename' using mode '$mode'";
@@ -159,7 +159,7 @@ in scalar context returns the entire contents of the file.
 
 sub read_file_content {
     my $file = shift or return;
-    my $fh = open_file('<', $file);
+    my $fh = open_file( '<', $file );
 
     return wantarray
       ? read_glob_content($fh)
@@ -171,18 +171,19 @@ sub read_file_content {
     use Dancer2::FileUtils 'read_glob_content';
 
     open my $fh, '<', $file or die "$!\n";
+    binmode $fh, ':encoding(utf-8)';
     my @content = read_glob_content($fh);
     my $content = read_glob_content($fh);
 
-Same as I<read_file_content>, only it accepts a file handle. Returns the
-content and B<closes the file handle>.
+Similar to I<read_file_content>, only it accepts a file handle. It is
+assumed that the appropriate PerlIO layers are applied to the file handle.
+Returns the content and B<closes the file handle>.
 
 =cut
 
 
 sub read_glob_content {
     my $fh = shift;
-    binmode $fh;
 
     my @content = <$fh>;
     close $fh;

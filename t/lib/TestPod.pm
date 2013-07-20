@@ -18,6 +18,7 @@ testpod
 =cut
 
 get '/in_testpod' => sub {
+
     # code;
 };
 
@@ -28,7 +29,8 @@ testpod
 =cut
 
 get '/hello' => sub {
-    # code;  
+
+    # code;
 };
 
 =item post '/in_testpod/*'
@@ -54,6 +56,7 @@ post '/in_testpod/*' => sub {
 =cut
 
 get "/me:id" => sub {
+
     # code;
 };
 
@@ -70,6 +73,7 @@ post /me:id
 =cut
 
 post "/me:id" => sub {
+
     # code;
 };
 

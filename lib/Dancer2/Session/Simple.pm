@@ -31,11 +31,11 @@ engine in a Dancer2 application.
 
 sub _sessions {
     my ($self) = @_;
-    return [keys %{$SESSIONS}];
+    return [ keys %{$SESSIONS} ];
 }
 
 sub _retrieve {
-    my ($class, $id) = @_;
+    my ( $class, $id ) = @_;
     my $s = $SESSIONS->{$id};
 
     croak "Invalid session ID: $id"
@@ -45,12 +45,12 @@ sub _retrieve {
 }
 
 sub _destroy {
-    my ($class, $id) = @_;
+    my ( $class, $id ) = @_;
     delete $SESSIONS->{$id};
 }
 
 sub _flush {
-    my ($class, $id, $data) = @_;
+    my ( $class, $id, $data ) = @_;
     $SESSIONS->{$id} = $data;
 }
 
@@ -58,6 +58,6 @@ sub _flush {
 
 =head1 SEE ALSO
 
-See L<Dancer2::Session> for details about session usage in route handlers.
+See L<Dancer2::Core::Session> for details about session usage in route handlers.
 
 =cut

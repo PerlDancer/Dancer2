@@ -27,11 +27,11 @@ my $env = {
     REMOTE_USER     => 'sukria',
 };
 
-my $a = Dancer2::Core::App->new(name => 'main');
-my $c = Dancer2::Core::Context->new(env => $env, app => $a);
+my $a = Dancer2::Core::App->new( name => 'main' );
+my $c = Dancer2::Core::Context->new( env => $env, app => $a );
 
 subtest 'basic defaults of Error object' => sub {
-    my $e = Dancer2::Core::Error->new(context => $c,);
+    my $e = Dancer2::Core::Error->new( context => $c, );
     is $e->status,  500,                                 'code';
     is $e->title,   'Error 500 - Internal Server Error', 'title';
     is $e->message, undef,                               'message';
@@ -77,7 +77,7 @@ subtest "send_error with custom stuff" => sub {
 subtest 'Response->error()' => sub {
     my $resp = Dancer2::Core::Response->new;
 
-    isa_ok $resp->error(message => 'oops', status => 418),
+    isa_ok $resp->error( message => 'oops', status => 418 ),
       'Dancer2::Core::Error';
 
     is $resp->status    => 418,        'response code is 418';
@@ -86,5 +86,22 @@ subtest 'Response->error()' => sub {
     ok $resp->is_halted, 'response is halted';
 };
 
+subtest 'Error with show_errors: 0' => sub {
+    my $err = Dancer2::Core::Error->new(
+        context     => $c,
+        exception   => 'our exception',
+        show_errors => 0
+    )->throw;
+    unlike $err->content => qr/our exception/;
+};
+
+subtest 'Error with show_errors: 1' => sub {
+    my $err = Dancer2::Core::Error->new(
+        context     => $c,
+        exception   => 'our exception',
+        show_errors => 1
+    )->throw;
+    like $err->content => qr/our exception/;
+};
 
 done_testing;

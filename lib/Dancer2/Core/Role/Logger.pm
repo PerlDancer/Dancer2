@@ -4,6 +4,7 @@ package Dancer2::Core::Role::Logger;
 use Dancer2::Core::Types;
 
 use POSIX qw/strftime/;
+use Data::Dumper;
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
@@ -60,25 +61,25 @@ has log_level => (
 );
 
 sub _should {
-    my ($self, $msg_level) = @_;
+    my ( $self, $msg_level ) = @_;
     my $conf_level = $self->log_level;
     return $_levels->{$conf_level} <= $_levels->{$msg_level};
 }
 
 sub format_message {
-    my ($self, $level, $message) = @_;
+    my ( $self, $level, $message ) = @_;
     chomp $message;
 
-    $level = sprintf('%5s', $level);
-    $message = Encode::encode($self->auto_encoding_charset, $message)
+    $level = sprintf( '%5s', $level );
+    $message = Encode::encode( $self->auto_encoding_charset, $message )
       if $self->auto_encoding_charset;
 
     my @stack = caller(2);
 
     my $block_handler = sub {
-        my ($block, $type) = @_;
-        if ($type eq 't') {
-            return "[" . strftime($block, localtime(time)) . "]";
+        my ( $block, $type ) = @_;
+        if ( $type eq 't' ) {
+            return "[" . strftime( $block, localtime(time) ) . "]";
         }
         else {
             Carp::carp("{$block}$type not supported");
@@ -89,10 +90,12 @@ sub format_message {
     my $chars_mapping = {
         a => sub { $self->app_name },
         t => sub {
-            Encode::decode(setting('charset'),
-                POSIX::strftime("%d/%b/%Y %H:%M:%S", localtime(time)));
+            Encode::decode(
+                setting('charset'),
+                POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) )
+            );
         },
-        T => sub { POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time)) },
+        T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
         P => sub {$$},
         L => sub {$level},
         m => sub {$message},
@@ -104,7 +107,7 @@ sub format_message {
         my $char = shift;
 
         my $cb = $chars_mapping->{$char};
-        if (!$cb) {
+        if ( !$cb ) {
             Carp::carp "\%$char not supported.";
             return "-";
         }
@@ -123,9 +126,35 @@ sub format_message {
     return $fmt . "\n";
 }
 
-sub core    { $_[0]->_should('core')    and $_[0]->log('core',    $_[1]) }
-sub debug   { $_[0]->_should('debug')   and $_[0]->log('debug',   $_[1]) }
-sub warning { $_[0]->_should('warning') and $_[0]->log('warning', $_[1]) }
-sub error   { $_[0]->_should('error')   and $_[0]->log('error',   $_[1]) }
+sub _serialize {
+    my @vars = @_;
+
+    return join q{}, map {
+        ref $_
+          ? Data::Dumper->new( [$_] )->Terse(1)->Purity(1)->Indent(0)
+          ->Sortkeys(1)->Dump()
+          : ( defined($_) ? $_ : 'undef' )
+    } @vars;
+}
+
+sub core {
+    my ( $self, @args ) = @_;
+    $self->_should('core') and $self->log( 'core', _serialize(@args) );
+}
+
+sub debug {
+    my ( $self, @args ) = @_;
+    $self->_should('debug') and $self->log( 'debug', _serialize(@args) );
+}
+
+sub warning {
+    my ( $self, @args ) = @_;
+    $self->_should('warning') and $self->log( 'warning', _serialize(@args) );
+}
+
+sub error {
+    my ( $self, @args ) = @_;
+    $self->_should('error') and $self->log( 'error', _serialize(@args) );
+}
 
 1;

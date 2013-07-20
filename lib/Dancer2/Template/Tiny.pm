@@ -54,10 +54,10 @@ even though L<Template::Tiny> doesn't really support it. :)
 =cut
 
 has '+engine' =>
-  (isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny'],);
+  ( isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny'], );
 
 sub _build_engine {
-    Dancer2::Template::Implementation::ForkedTiny->new(%{$_[0]->config});
+    Dancer2::Template::Implementation::ForkedTiny->new( %{ $_[0]->config } );
 }
 
 =method render
@@ -68,9 +68,9 @@ the template.
 =cut
 
 sub render {
-    my ($self, $template, $tokens) = @_;
+    my ( $self, $template, $tokens ) = @_;
 
-    (ref $template || -f $template)
+    ( ref $template || -f $template )
       or die "$template is not a regular file or reference";
 
     my $template_data =
@@ -80,7 +80,7 @@ sub render {
 
     my $content;
 
-    $self->engine->process(\$template_data, $tokens, \$content,)
+    $self->engine->process( \$template_data, $tokens, \$content, )
       or die "Could not process template file '$template'";
 
     return $content;

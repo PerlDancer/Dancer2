@@ -15,16 +15,19 @@ sub process {
     my $expected = shift;
     my $message  = shift || 'Template processed ok';
     my $output   = '';
-    Dancer2::Template::Implementation::ForkedTiny->new->process(\$input,
-        $stash, \$output);
-    is($output, $expected, $message);
+    Dancer2::Template::Implementation::ForkedTiny->new->process(
+        \$input,
+        $stash, \$output
+    );
+    is( $output, $expected, $message );
 }
 
 
 ######################################################################
 # Main Tests
 
-process({foo => 'World'}, <<'END_TEMPLATE', <<'END_EXPECTED', 'Trivial ok');
+process( { foo => 'World' },
+    <<'END_TEMPLATE', <<'END_EXPECTED', 'Trivial ok' );
 Hello [% foo %]!
 END_TEMPLATE
 Hello World!

@@ -69,7 +69,7 @@ has expires => (
     coerce => sub {
         my $value = shift;
         $value += time if $value =~ /^[\-\+]?\d+$/;
-        Dancer2::Core::Time->new(expression => $value)->epoch;
+        Dancer2::Core::Time->new( expression => $value )->epoch;
     },
 );
 
@@ -97,7 +97,7 @@ Returns C<undef> if the key does not exist in the session.
 =cut
 
 sub read {
-    my ($self, $key) = @_;
+    my ( $self, $key ) = @_;
     return $self->data->{$key};
 }
 
@@ -113,7 +113,7 @@ Sets C<is_dirty> to true. Returns C<$value>.
 =cut
 
 sub write {
-    my ($self, $key, $value) = @_;
+    my ( $self, $key, $value ) = @_;
     $self->is_dirty(1);
     $self->data->{$key} = $value;
 }
@@ -129,7 +129,7 @@ Sets C<is_dirty> to true. Returns the value deleted from the session.
 =cut
 
 sub delete {
-    my ($self, $key, $value) = @_;
+    my ( $self, $key, $value ) = @_;
     $self->is_dirty(1);
     delete $self->data->{$key};
 }

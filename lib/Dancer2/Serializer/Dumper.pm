@@ -38,7 +38,7 @@ Serialize a Perl data structure into a Dumper string.
 =cut 
 
 sub serialize {
-    my ($self, $entity) = @_;
+    my ( $self, $entity ) = @_;
 
     {
         local $Data::Dumper::Purity = 1;
@@ -53,7 +53,7 @@ Deserialize a Dumper string into a Perl data structure
 =cut
 
 sub deserialize {
-    my ($self, $content) = @_;
+    my ( $self, $content ) = @_;
 
     my $res = eval "my \$VAR1; $content";
     croak "unable to deserialize : $@" if $@;

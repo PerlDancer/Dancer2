@@ -6,17 +6,22 @@ use Dancer2::Plugin;
 my $counter = 0;
 
 register around_get => sub {
-    get '/foo/plugin' => sub {
-        'foo plugin';
-    };
+    my $dsl = shift;
+    $dsl->get(
+        '/foo/plugin' => sub {
+            'foo plugin';
+        }
+    );
 };
 
 register install_hooks => sub {
-    hook 'before' => sub {
-        session before_plugin => ++$counter;
-    };
+    my $dsl = shift;
+    $dsl->hook(
+        'before' => sub {
+            $dsl->session( before_plugin => ++$counter );
+        }
+    );
 };
 
-register_plugin for_versions => [2];
-
+register_plugin;
 1;

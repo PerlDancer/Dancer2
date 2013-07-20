@@ -54,9 +54,9 @@ has trapper => (
 sub _build_trapper { Dancer2::Logger::Capture::Trap->new }
 
 sub log {
-    my ($self, $level, $message) = @_;
+    my ( $self, $level, $message ) = @_;
 
-    $self->trapper->store($level => $message);
+    $self->trapper->store( $level => $message );
     return;
 }
 

@@ -14,17 +14,19 @@ sub preprocess {
     my $expected = $_[1];
     my $message  = $_[2] || 'Template preprocessd ok';
     my $prepared =
-      Dancer2::Template::Implementation::ForkedTiny->new->preprocess($template);
-    is($prepared, $expected, $message);
-    is($template, $_[0],
-        '->proprocess does not modify original template variable');
+      Dancer2::Template::Implementation::ForkedTiny->new->preprocess(
+        $template);
+    is( $prepared, $expected, $message );
+    is( $template, $_[0],
+        '->proprocess does not modify original template variable'
+    );
 }
 
 
 ######################################################################
 # Main Tests
 
-preprocess( <<'END_TEMPLATE', <<'END_EXPECTED', 'Simple IF');
+preprocess( <<'END_TEMPLATE', <<'END_EXPECTED', 'Simple IF' );
 foo
 [% IF foo %]
 foobar
@@ -38,7 +40,7 @@ foobar
 bar
 END_EXPECTED
 
-preprocess( <<'END_TEMPLATE', <<'END_EXPECTED', 'Simple UNLESS');
+preprocess( <<'END_TEMPLATE', <<'END_EXPECTED', 'Simple UNLESS' );
 foo
 [% UNLESS foo %]
 foobar
@@ -52,7 +54,7 @@ foobar
 bar
 END_EXPECTED
 
-preprocess( <<'END_TEMPLATE', <<'END_EXPECTED', 'Simple FOREACH');
+preprocess( <<'END_TEMPLATE', <<'END_EXPECTED', 'Simple FOREACH' );
 foo
 [% FOREACH element IN lists %]
 foobar

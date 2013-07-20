@@ -14,9 +14,10 @@ set logger => 'Null';
 
 # init our test fixture
 my $buffer = {};
-my $app = Dancer2::Core::App->new(name => 'main');
+my $app = Dancer2::Core::App->new( name => 'main' );
 
-$app->setting(logger => engine('logger'));
+$app->setting( logger      => engine('logger') );
+$app->setting( show_errors => 1 );
 
 # a simple / route
 $app->add_route(
@@ -109,8 +110,8 @@ $app->add_hook(
         name => 'before',
         code => sub {
             my $ctx = shift;
-            if ($ctx->request->path_info eq '/haltme') {
-                $ctx->response->header(Location => 'http://perldancer.org');
+            if ( $ctx->request->path_info eq '/haltme' ) {
+                $ctx->response->header( Location => 'http://perldancer.org' );
                 $ctx->response->status(302);
                 $ctx->response->is_halted(1);
             }
@@ -124,7 +125,7 @@ $app->add_hook(
         name => 'before',
         code => sub {
             my $ctx = shift;
-            if ($ctx->request->path_info eq '/haltme') {
+            if ( $ctx->request->path_info eq '/haltme' ) {
                 $was_in_second_filter =
                   1;   # should not happen because first filter halted the flow
             }
@@ -141,7 +142,7 @@ $app->compile_hooks;
 
 plan tests => 13;
 
-my $dispatcher = Dancer2::Core::Dispatcher->new(apps => [$app]);
+my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 my $counter = 0;
 foreach my $test (@tests) {
     my $env      = $test->{env};
@@ -151,10 +152,11 @@ foreach my $test (@tests) {
 
     is $resp->[0] => $expected->[0], "Return code ok.";
 
-    ok(Dancer2::Test::_include_in_headers($resp->[1], $expected->[1]),
-        "expected headers are there");
+    ok( Dancer2::Test::_include_in_headers( $resp->[1], $expected->[1] ),
+        "expected headers are there"
+    );
 
-    if (ref($expected->[2]) eq "Regexp") {
+    if ( ref( $expected->[2] ) eq "Regexp" ) {
         like $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";
     }
     else {
@@ -170,7 +172,7 @@ foreach my $test (
         },
         expected => [
             500,
-            ['Content-Length', "Content-Type", 'text/plain'],
+            [ 'Content-Length', "Content-Type", 'text/plain' ],
             qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s
         ]
     }
@@ -182,7 +184,7 @@ foreach my $test (
     my $resp = $dispatcher->dispatch($env);
 
     is $resp->status => $expected->[0], "Return code ok.";
-    ok($resp->header('Content-Length') >= 140, "Length ok.");
+    ok( $resp->header('Content-Length') >= 140, "Length ok." );
     like $resp->content, $expected->[2], "contents ok";
 }
 

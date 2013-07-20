@@ -23,9 +23,9 @@ Use Test::More's diag() to output the log message.
 
 
 sub log {
-    my ($self, $level, $message) = @_;
+    my ( $self, $level, $message ) = @_;
 
-    Test::More::diag($self->format_message($level => $message));
+    Test::More::diag( $self->format_message( $level => $message ) );
 }
 
 1;

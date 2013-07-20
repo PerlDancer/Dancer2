@@ -29,7 +29,7 @@ sub run_test {
         REMOTE_USER          => 'sukria',
     };
 
-    my $req = Dancer2::Core::Request->new(env => $env);
+    my $req = Dancer2::Core::Request->new( env => $env );
 
     note "tests for accessors";
 
@@ -46,33 +46,33 @@ sub run_test {
     is $req->user,                  'sukria';
     is $req->script_name,           '/foo';
     is $req->scheme,                'http';
-    ok(!$req->secure);
+    ok( !$req->secure );
     is $req->method,         'GET';
     is $req->request_method, 'GET';
-    ok($req->is_get);
-    ok(!$req->is_post);
-    ok(!$req->is_put);
-    ok(!$req->is_delete);
-    ok(!$req->is_patch);
-    ok(!$req->is_head);
+    ok( $req->is_get );
+    ok( !$req->is_post );
+    ok( !$req->is_put );
+    ok( !$req->is_delete );
+    ok( !$req->is_patch );
+    ok( !$req->is_head );
 
     is $req->id,        1;
     is $req->to_string, '[#1] GET /foo/bar/baz';
 
     note "tests params";
-    is_deeply { $req->params }, {foo => 42, bar => [12, 13, 14]};
+    is_deeply { $req->params }, { foo => 42, bar => [ 12, 13, 14 ] };
 
     my $forward = $req->make_forward_to('/somewhere');
     is $forward->path_info, '/somewhere';
     is $forward->method,    'GET';
     note "tests for uri_for";
     is $req->base, 'http://localhost:5000/foo';
-    is $req->uri_for('bar', {baz => 'baz'}),
+    is $req->uri_for( 'bar', { baz => 'baz' } ),
       'http://localhost:5000/foo/bar?baz=baz';
 
     is $req->uri_for('/bar'), 'http://localhost:5000/foo/bar';
     ok $req->uri_for('/bar')->isa('URI'), 'uri_for returns a URI';
-    ok $req->uri_for('/bar', undef, 1)->isa('URI'),
+    ok $req->uri_for( '/bar', undef, 1 )->isa('URI'),
       'uri_for returns a URI (with $dont_escape)';
 
     is $req->request_uri, '/foo/bar/baz';
@@ -114,21 +114,21 @@ sub run_test {
         SERVER_PROTOCOL   => 'HTTP/1.1',
     };
 
-    $req = Dancer2::Core::Request->new(env => $env);
-    is($req->uri_base, 'http://localhost:5000',
+    $req = Dancer2::Core::Request->new( env => $env );
+    is( $req->uri_base, 'http://localhost:5000',
         'remove trailing slash if only one',
     );
 
     $env->{'SCRIPT_NAME'} = '/foo/';
-    $req = Dancer2::Core::Request->new(env => $env);
-    is($req->uri_base, 'http://localhost:5000/foo/',
+    $req = Dancer2::Core::Request->new( env => $env );
+    is( $req->uri_base, 'http://localhost:5000/foo/',
         'keeping trailing slash if not only',
     );
 
     $env->{'PATH_INFO'}   = '/';
     $env->{'SCRIPT_NAME'} = '';
-    $req = Dancer2::Core::Request->new(env => $env);
-    is($req->uri_base, 'http://localhost:5000',);
+    $req = Dancer2::Core::Request->new( env => $env );
+    is( $req->uri_base, 'http://localhost:5000', );
 
 
     note "testing forward";
@@ -139,23 +139,23 @@ sub run_test {
         'QUERY_STRING'   => 'foo=bar&number=42',
     };
 
-    $req = Dancer2::Core::Request->new(env => $env);
+    $req = Dancer2::Core::Request->new( env => $env );
     is $req->path,   '/',   'path is /';
     is $req->method, 'GET', 'method is get';
-    is_deeply scalar($req->params), {foo => 'bar', number => 42},
+    is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are parsed';
 
     $req = $req->make_forward_to("/new/path");
     is $req->path,   '/new/path', 'path is changed';
     is $req->method, 'GET',       'method is unchanged';
-    is_deeply scalar($req->params), {foo => 'bar', number => 42},
+    is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
 
-    $req = $req->make_forward_to("/new/path", undef, {method => 'POST'});
+    $req = $req->make_forward_to( "/new/path", undef, { method => 'POST' } );
 
     is $req->path,   '/new/path', 'path is changed';
     is $req->method, 'POST',      'method is changed';
-    is_deeply scalar($req->params), {foo => 'bar', number => 42},
+    is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
 }
 

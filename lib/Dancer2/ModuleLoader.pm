@@ -51,13 +51,13 @@ If you need to give argumentto the loading module, please use the method C<load_
 =cut
 
 sub load {
-    my ($class, $module, $version) = @_;
+    my ( $class, $module, $version ) = @_;
 
     $class->require( $module, $version );
 
     # normal 'use', can be done via require + import
-    my ($res, $error) = $class->load_with_params($module);
-    return wantarray ? ($res, $error) : $res;
+    my ( $res, $error ) = $class->load_with_params($module);
+    return wantarray ? ( $res, $error ) : $res;
 }
 
 =method require
@@ -82,11 +82,14 @@ In list context, returns 1 if successful, C<(0, "error message")> if not.
 =cut
 
 sub require {
-    my ($class, $module, $version) = @_;
+    my ( $class, $module, $version ) = @_;
 
-    eval { defined $version ? use_module( $module, $version ) 
-                            : use_module( $module ) } 
-        or return wantarray ? (0, $@) : 0;
+    eval {
+        defined $version
+          ? use_module( $module, $version )
+          : use_module($module);
+    }
+      or return wantarray ? ( 0, $@ ) : 0;
 
     return 1;
 }
@@ -111,20 +114,20 @@ In list context, returns 1 if successful, C<(0, "error message")> if not.
 =cut
 
 sub load_with_params {
-    my ($class, $module, @args) = @_;
-    my ($res, $error) = $class->require($module);
-    $res or return wantarray ? (0, $error) : 0;
+    my ( $class, $module, @args ) = @_;
+    my ( $res, $error ) = $class->require($module);
+    $res or return wantarray ? ( 0, $error ) : 0;
 
     # From perlfunc : If no "import" method can be found then the call is
     # skipped, even if there is an AUTOLOAD method.
-    if ($module->can('import')) {
+    if ( $module->can('import') ) {
 
         # bump Exporter Level to import symbols in the caller
-        local $Exporter::ExportLevel = ($Exporter::ExportLevel || 0) + 1;
+        local $Exporter::ExportLevel = ( $Exporter::ExportLevel || 0 ) + 1;
         local $@;
         eval { $module->import(@args) };
         my $error = $@;
-        $error and return wantarray ? (0, $error) : 0;
+        $error and return wantarray ? ( 0, $error ) : 0;
     }
     return 1;
 }
@@ -151,12 +154,12 @@ In list context, returns 1 if successful, C<(0, "error message")> if not.
 =cut
 
 sub use_lib {
-    my ($class, @args) = @_;
+    my ( $class, @args ) = @_;
     use lib;
     local $@;
     lib->import(@args);
     my $error = $@;
-    $error and return wantarray ? (0, $error) : 0;
+    $error and return wantarray ? ( 0, $error ) : 0;
     return 1;
 }
 

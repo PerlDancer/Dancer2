@@ -9,13 +9,12 @@ use Dancer2::Session::Simple;
 
 my $ENGINE = Dancer2::Session::Simple->new;
 
-my $CPRNG_AVAIL =
-    Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS") &&
-    Dancer2::ModuleLoader->require("Crypt::URandom");
+my $CPRNG_AVAIL = Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS")
+  && Dancer2::ModuleLoader->require("Crypt::URandom");
 
 diag $CPRNG_AVAIL
-    ? "Crypto strength tokens"
-    : "Default strength tokens";
+  ? "Crypto strength tokens"
+  : "Default strength tokens";
 
 subtest 'session attributes' => sub {
     my $s1 = $ENGINE->create;
@@ -24,17 +23,17 @@ subtest 'session attributes' => sub {
     ok defined($id), 'id is defined';
 
     my $s2 = $ENGINE->create;
-    isnt($s1->id, $s2->id, "IDs are not the same");
+    isnt( $s1->id, $s2->id, "IDs are not the same" );
 };
 
 my $count = 10_000;
 subtest "$count session IDs and no dups" => sub {
     my $seen      = {};
     my $iteration = 0;
-    foreach my $i (1 .. $count) {
+    foreach my $i ( 1 .. $count ) {
         my $s1 = $ENGINE->create;
         my $id = $s1->id;
-        if (exists $seen->{$id}) {
+        if ( exists $seen->{$id} ) {
             last;
         }
         $seen->{$id} = 1;

@@ -10,8 +10,8 @@ use Dancer2::FileUtils;
 use File::Spec;
 
 # our app/dispatcher object
-my $app = Dancer2::Core::App->new(name => 'main',);
-my $dispatcher = Dancer2::Core::Dispatcher->new(apps => [$app]);
+my $app = Dancer2::Core::App->new( name => 'main', );
+my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 
 # first basic tests
 isa_ok $app, 'Dancer2::Core::App';
@@ -29,19 +29,24 @@ my @routes = (
 );
 
 # testing with and without prefixes
-for my $p ('/', '/mywebsite') {
+for my $p ( '/', '/mywebsite' ) {
     for my $r (@routes) {
         $app->prefix($p);
         $app->add_route(%$r);
     }
 }
 
+# can't add twice the same route
+eval { $app->add_route( %{ $routes[0] } ) };
+like $@, qr/with method GET is already defined/,
+  'Died when adding twice the same route';
+
 is $app->environment, 'development';
 
 my $routes_regexps = $app->routes_regexps_for('get');
-is(scalar(@$routes_regexps), 4, "route regexps are OK");
+is( scalar(@$routes_regexps), 4, "route regexps are OK" );
 
-for my $path ('/', '/blog', '/mywebsite', '/mywebsite/blog',) {
+for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
     my $env = {
         REQUEST_METHOD => 'GET',
         PATH_INFO      => $path
@@ -115,7 +120,8 @@ $app->lexical_prefix(
     }
 );
 
-for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere')
+for
+  my $path ( '/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere' )
 {
     my $env = {
         REQUEST_METHOD => 'GET',
@@ -130,7 +136,7 @@ for my $path ('/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere')
 note "test a failure in the callback of a lexical prefix";
 like(
     exception {
-        $app->lexical_prefix('/test' => sub { Failure->game_over() });
+        $app->lexical_prefix( '/test' => sub { Failure->game_over() } );
     },
     qr{Unable to run the callback for prefix '/test': Can't locate object method "game_over" via package "Failure"},
     "caught an exception in the lexical prefix callback",
@@ -162,7 +168,7 @@ like(
     'before filter nonexistent method failure',
 );
 
-$app->replace_hook('core.app.before_request', [sub {1}]);
+$app->replace_hook( 'core.app.before_request', [ sub {1} ] );
 $app->compile_hooks;
 $env = {
     REQUEST_METHOD => 'GET',
@@ -172,5 +178,16 @@ $env = {
 is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
     undef, 'Successful to_psgi of response',
 );
+
+# test duplicate routes when the path is a regex
+$app = Dancer2::Core::App->new( name => 'main', );
+my $regexp_route = {
+    method => 'get', 'regexp' => qr!/(\d+)!, code => sub {1}
+};
+$app->add_route(%$regexp_route);
+
+eval { $app->add_route(%$regexp_route) };
+like $@, qr/with method GET is already defined/,
+  'Died when adding twice the same route';
 
 done_testing;

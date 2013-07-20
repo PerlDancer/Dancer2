@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 
 BEGIN {
+
     # Freeze time at Tue, 15-Jun-2010 00:00:00 GMT
     *CORE::GLOBAL::time = sub { return 1276560000 }
 }
@@ -11,7 +12,7 @@ use Dancer2::Core::Cookie;
 
 note "Constructor";
 
-my $cookie = Dancer2::Core::Cookie->new(name => "foo");
+my $cookie = Dancer2::Core::Cookie->new( name => "foo" );
 
 isa_ok $cookie => 'Dancer2::Core::Cookie';
 can_ok $cookie => 'to_header';
@@ -24,13 +25,13 @@ is $cookie->value        => "foo";
 
 is $cookie . "bar", "foobar", "Stringifies to desired value";
 
-ok $cookie->value([qw(a b c)]);
+ok $cookie->value( [qw(a b c)] );
 is $cookie->value => 'a';
-is_deeply [$cookie->value] => [qw(a b c)];
+is_deeply [ $cookie->value ] => [qw(a b c)];
 
-ok $cookie->value({x => 1, y => 2});
+ok $cookie->value( { x => 1, y => 2 } );
 like $cookie->value => qr/^[xy]$/;    # hashes doesn't store order...
-is_deeply [sort $cookie->value] => [sort (1, 2, 'x', 'y')];
+is_deeply [ sort $cookie->value ] => [ sort ( 1, 2, 'x', 'y' ) ];
 
 
 note "accessors and defaults";
@@ -91,7 +92,7 @@ my %times = (
     "+2 something"                => "+2 something",
 );
 
-for my $exp (keys %times) {
+for my $exp ( keys %times ) {
     my $want = $times{$exp};
 
     $cookie->expires($exp);
@@ -109,7 +110,7 @@ my @cake = (
             secure  => 1
         },
         expected =>
-          sprintf("bar=foo; path=/; expires=%s; Secure", $times{'+2h'}),
+          sprintf( "bar=foo; path=/; expires=%s; Secure", $times{'+2h'} ),
     },
     {   cookie => {
             name      => 'bar',
@@ -129,7 +130,7 @@ my @cake = (
 );
 
 for my $cook (@cake) {
-    my $c = Dancer2::Core::Cookie->new(%{$cook->{cookie}});
+    my $c = Dancer2::Core::Cookie->new( %{ $cook->{cookie} } );
     is $c->to_header => $cook->{expected};
 }
 
