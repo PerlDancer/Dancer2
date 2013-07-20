@@ -4,9 +4,9 @@ package Dancer2::Core::Role::Handler;
 use Moo::Role;
 use Dancer2::Core::Types;
 
-=head1 REQUIRMENTS
+=head1 REQUIREMENTS
 
-That role requires that the method C<register> is implemented.
+This role requires the method C<register> to be implemented.
 
 =cut
 
