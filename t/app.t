@@ -36,6 +36,11 @@ for my $p ('/', '/mywebsite') {
     }
 }
 
+# can't add twice the same route
+eval { $app->add_route(%{$routes[0]}) };
+like $@, qr/with method GET is already defined/,
+  'Died when adding twice the same route';
+
 is $app->environment, 'development';
 
 my $routes_regexps = $app->routes_regexps_for('get');
@@ -172,5 +177,14 @@ $env = {
 is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
     undef, 'Successful to_psgi of response',
 );
+
+# test duplicate routes when the path is a regex
+$app = Dancer2::Core::App->new(name => 'main',);
+my $regexp_route = {method => 'get', 'regexp' => qr!/(\d+)!, code => sub {1}};
+$app->add_route(%$regexp_route);
+    
+eval { $app->add_route(%$regexp_route)};
+like $@, qr/with method GET is already defined/,
+  'Died when adding twice the same route';
 
 done_testing;

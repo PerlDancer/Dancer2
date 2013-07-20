@@ -584,7 +584,37 @@ sub add_route {
       Dancer2::Core::Route->new(%route_attrs, prefix => $self->prefix,);
 
     my $method = $route->method;
-    push @{$self->routes->{$method}}, $route;
+
+    croak "Route '"
+      . $route->spec_route
+      . "' with method "
+      . uc($method)
+      . " is already defined"
+     if $self->route_exists($route);
+
+     push @{$self->routes->{$method}}, $route;
+}
+
+=head2 route_exists
+
+Check if a route already exists.
+
+    my $route = Dancer2::Core::Route->new(...);
+    if ($app->route_exists($route)) {
+        ...
+    }
+
+=cut
+
+sub route_exists {
+    my ($self, $route) = @_;
+
+    my $routes = $self->routes->{$route->method};
+
+    foreach my $existing_route (@$routes) {
+        return 1 if $existing_route->spec_route eq $route->spec_route;
+    }
+    return 0;
 }
 
 =head2 routes_regexps_for
