@@ -37,13 +37,13 @@ my @tests = (
 
     [['get', qr{stuff(\d+)}, sub {44}], '/stuff48', [{splat => [48]}, 44]],
 
-    [   ['get', qr{stuff(\d+)}, sub {44}, '/foo'],
+    [   ['get', qr{/stuff(\d+)}, sub {44}, '/foo'],
         '/foo/stuff48',
-        qr {Cannot combine a prefix \(/foo\) with a regular expression},
+        [{splat => [48]}, 44],
     ],
 );
 
-plan tests => 40;
+plan tests => 43;
 
 for my $t (@tests) {
     my ($route, $path, $expected) = @$t;

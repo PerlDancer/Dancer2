@@ -18,6 +18,7 @@ NEXT
     * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
     * Prevent duplicate routes from being created (Franck Cuny)
     * Add support for route options (Franck Cuny)
+    * Add support for prefix with route defined with regex (Franck Cuny)
 
     [ BUG FIXES ]
     * GH#272: test function 'route_doesnt_exist' was not handling test comment
