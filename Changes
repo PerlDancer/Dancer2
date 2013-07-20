@@ -22,7 +22,7 @@ NEXT
 
     [ BUG FIXES ]
     * GH#272: test function 'route_doesnt_exist' was not handling test comment
-         properly. (Jeff Boes, Yanick Champoux)
+      properly. (Jeff Boes, Yanick Champoux)
     * GH#228: handle UTF-8 correctly in JSON serializer (Steven Humphrey)
     * GH#270: handle correctly serializer's options (Keith Broughton)
     * GH#274: `dancer -v' returns the correct version (Dinis Rebolo)
@@ -39,6 +39,7 @@ NEXT
     * plugin_setting does not trigger a DEPRECATION warning anymore 
       (Report by Alberto Simões, fix by Alexis Sukrieh)
     * GH#251: Support for on-the-fly changes of layouts/views (Franck Cuny)
+    * GH#302: Avoid double encoding in Handler::File (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko, David Precious)
