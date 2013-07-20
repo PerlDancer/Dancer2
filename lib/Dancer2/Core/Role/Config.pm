@@ -19,6 +19,7 @@ use File::Spec;
 use Config::Any;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw/dirname path/;
+use Hash::Merge::Simple;
 use Carp 'croak', 'carp';
 
 requires 'location';
@@ -149,14 +150,14 @@ sub _build_config {
     my ($self) = @_;
     my $location = $self->config_location;
 
-    my $config = {};
-    $config = $self->default_config
-      if $self->can('default_config');
+    my $default = {};
+    $default = $self->default_config
+        if $self->can('default_config');
 
-    foreach my $file (@{$self->config_files}) {
-        my $current = $self->load_config_file($file);
-        $config = {%{$config}, %{$current}};
-    }
+    my $config = Hash::Merge::Simple->merge( $default,
+        map {$self->load_config_file($_)}
+            @{$self->config_files}
+    );
 
     $config = $self->_normalize_config($config);
     return $self->_compile_config($config);
