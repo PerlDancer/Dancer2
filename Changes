@@ -17,6 +17,7 @@ NEXT
     * Drop body when status is 1x or [23]04 (Franck Cuny)
     * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
     * Prevent duplicate routes from being created (Franck Cuny)
+    * Add support for route options (Franck Cuny)
 
     [ BUG FIXES ]
     * GH#272: test function 'route_doesnt_exist' was not handling test comment

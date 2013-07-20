@@ -52,11 +52,10 @@ sub dispatch {
 
             # warn "testing route ".$route->regexp;
 
-        # TODO next if $r->has_options && (not $r->validate_options($request));
         # TODO store in route cache
 
             # go to the next route if no match
-            my $match = $route->match($http_method => $path_info)
+            my $match = $route->match($context->request)
               or next ROUTE;
 
             $context->request->_set_route_params($match);

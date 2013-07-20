@@ -167,15 +167,37 @@ sub prefix {
 
 sub halt { shift->app->context->response->halt }
 
+sub _route_parameters {
+    my ($regexp, $code, $options);
+    (scalar @_ == 3) ? (($regexp, $code, $options) = ($_[0], $_[2], $_[1])) :
+                       (($regexp, $code, $options) = ($_[0], $_[1], {}));
+    return ($regexp, $code, $options);
+}
+
 sub get {
     my $app = shift->app;
-    $app->add_route(method => 'get',  regexp => $_[0], code => $_[1]);
-    $app->add_route(method => 'head', regexp => $_[0], code => $_[1]);
+
+    my ($regexp, $code, $options) = _route_parameters(@_);
+    for my $method(qw/get head/){
+        $app->add_route(
+            method  => $method,
+            regexp  => $regexp,
+            code    => $code,
+            options => $options
+        );
+    }
 }
 
 sub post {
     my $app = shift->app;
-    $app->add_route(method => 'post', regexp => $_[0], code => $_[1]);
+
+    my ($regexp, $code, $options) = _route_parameters(@_);
+    $app->add_route(
+        method  => 'post',
+        regexp  => $regexp,
+        code    => $code,
+        options => $options
+);
 }
 
 sub any {
@@ -196,22 +218,50 @@ sub any {
 
 sub put {
     my $app = shift->app;
-    $app->add_route(method => 'put', regexp => $_[0], code => $_[1]);
+
+    my ($regexp, $code, $options) = _route_parameters(@_);
+    $app->add_route(
+        method  => 'put',
+        regexp  => $regexp,
+        code    => $code,
+        options => $options,
+    );
 }
 
 sub del {
     my $app = shift->app;
-    $app->add_route(method => 'delete', regexp => $_[0], code => $_[1]);
+
+    my ($regexp, $code, $options) = _route_parameters(@_);
+    $app->add_route(
+        method  => 'delete',
+        regexp  => $regexp,
+        code    => $code,
+        options => $options,
+    );
 }
 
 sub options {
     my $app = shift->app;
-    $app->add_route(method => 'options', regexp => $_[0], code => $_[1]);
+
+    my ($regexp, $code, $options) = _route_parameters(@_);
+    $app->add_route(
+        method  => 'options',
+        regexp  => $regexp,
+        code    => $code,
+        options => $options,
+    );
 }
 
 sub patch {
     my $app = shift->app;
-    $app->add_route(method => 'patch', regexp => $_[0], code => $_[1]);
+
+    my ($regexp, $code, $options) = _route_parameters(@_);
+    $app->add_route(
+        method  => 'patch',
+        regexp  => $regexp,
+        code    => $code,
+        options => $options,
+    );
 }
 
 #
