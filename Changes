@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.05      2013-07-20 18:51:53 Europe/Paris
+
     [ DEPRECATION ]
 
     * Dancer2::Plugin drops support for Dancer 1 (issue #207)
