@@ -21,6 +21,12 @@ register foo_route => sub {
     $self->get('/foo', sub {'foo'});
 };
 
+register p_config => sub {
+    my $dsl = shift;
+    my $config = plugin_setting;
+    return $config;
+};
+
 # taken from SiteMap
 sub _retrieve_get_urls {
     my $dsl = shift;

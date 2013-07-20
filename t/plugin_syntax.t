@@ -2,11 +2,14 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use Dancer2::Test;
+use JSON;
 
 subtest 'global and route keywords' => sub {
     {
         use Dancer2;
         use t::lib::FooPlugin;
+
+        sub location { '/tmp' }
 
         get '/' => sub {
             foo_wrap_request->env->{'PATH_INFO'};
@@ -14,6 +17,8 @@ subtest 'global and route keywords' => sub {
 
         get '/app' => sub { app->name };
 
+        get '/plugin_setting' => sub { to_json(p_config) };
+        
         foo_route;
     }
 
@@ -22,6 +27,12 @@ subtest 'global and route keywords' => sub {
 
     $r = dancer_response(GET => '/foo');
     is($r->content, 'foo', 'DSL keyword wrapped by a plugin');
+
+    $r = dancer_response(GET => '/plugin_setting');
+    is(
+        $r->content, 
+        encode_json({ plugin => "42" }),
+        'plugin_setting returned the expected config');
 
     $r = dancer_response(GET => '/app');
     is($r->content, 'main', 'app name is correct');
@@ -46,7 +57,7 @@ subtest caller_dsl => sub {
     }
 
     my $r = dancer_response GET => '/sitemap';
-    is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/sitemap$';
+    is $r->content, '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/plugin_setting$, ^\/sitemap$';
 };
 
 subtest 'hooks in plugins' => sub {

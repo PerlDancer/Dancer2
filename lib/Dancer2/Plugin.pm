@@ -250,8 +250,9 @@ for B<Dancer2::Plugin::Foo::Bar>, use:
 
 sub plugin_setting {
     my $plugin = caller;
+    my $dsl = _get_dsl();
     (my $plugin_name = $plugin) =~ s/Dancer2::Plugin:://;
-    my $app = $plugin->dancer_app;
+    my $app    = $dsl->dancer_app;
     return $app->config->{'plugins'}->{$plugin_name} ||= {};
 }
 
