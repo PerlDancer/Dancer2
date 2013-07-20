@@ -43,7 +43,7 @@ my @tests = (
     ],
 );
 
-plan tests => 40;
+plan tests => 43;
 
 for my $t (@tests) {
     my ($route, $path, $expected) = @$t;
