@@ -8,6 +8,7 @@ use Dancer2::Core::Dispatcher;
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use File::Spec;
+use Capture::Tiny 0.12 'capture_stderr';
 
 # our app/dispatcher object
 my $app = Dancer2::Core::App->new(name => 'main',);
@@ -35,6 +36,13 @@ for my $p ('/', '/mywebsite') {
         $app->add_route(%$r);
     }
 }
+
+# can't add twice the same route
+my $stderr = capture_stderr {
+    eval {$app->add_route(%{$routes[0]})}
+};
+like $stderr, qr/with method GET is already defined/;
+ok $@, 'Died when adding twice the same route';
 
 is $app->environment, 'development';
 
@@ -172,5 +180,15 @@ $env = {
 is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
     undef, 'Successful to_psgi of response',
 );
+
+# test duplicate routes when the path is a regex
+$app = Dancer2::Core::App->new(name => 'main',);
+my $regexp_route = {method => 'get', 'regexp' => qr!/(\d+)!, code => sub {1}};
+$app->add_route(%$regexp_route);
+$stderr = capture_stderr {
+    eval {$app->add_route(%$regexp_route)}
+};
+like $stderr, qr/with method GET is already defined/;
+ok $@, 'Died when adding twice the same route';
 
 done_testing;
