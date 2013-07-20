@@ -6,6 +6,7 @@ use Moo;
 use Dancer2::Core::Hook;
 use Dancer2::Core::Error;
 use Dancer2::FileUtils;
+use Dancer2::ModuleLoader;
 use Carp;
 
 with 'Dancer2::Core::Role::DSL';
@@ -147,8 +148,8 @@ sub load_app {
     my ($self, $app_name, %options) = @_;
 
     # set the application
-    eval "use $app_name";
-    croak "Unable to load application \"$app_name\" : $@" if $@;
+    my ($res, $error) = Dancer2::ModuleLoader->load($app_name);
+    $res or croak "Unable to load application \"$app_name\" : $error";
 
     croak "$app_name is not a Dancer2 application"
       if !$app_name->can('dancer_app');

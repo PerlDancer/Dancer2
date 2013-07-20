@@ -7,6 +7,7 @@ use Dancer2::Core::MIME;
 use Carp 'croak';
 
 use Dancer2::FileUtils;
+use Dancer2::ModuleLoader;
 use File::Basename;
 use File::Spec;
 
@@ -85,8 +86,8 @@ sub _build_server {
     my $server_name  = $self->config->{apphandler};
     my $server_class = "Dancer2::Core::Server::${server_name}";
 
-    eval "use $server_class";
-    croak "Unable to load $server_class : $@" if $@;
+    my ($res, $error) = Dancer2::ModuleLoader->load($server_class);
+    $res or croak "Unable to load $server_class : $error";
 
     return $server_class->new(
         host      => $self->config->{host},
