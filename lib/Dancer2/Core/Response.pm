@@ -34,11 +34,23 @@ has has_passed => (
 
 sub pass { shift->has_passed(1) }
 
+=attr is_encoded
+
+Flag to tell if the content has already been encoded.
+
+=cut
+
 has is_encoded => (
     is      => 'rw',
     isa     => Bool,
     default => sub {0},
 );
+
+=attr is_halted
+
+Flag to tell whether or not the response should continue to be processed.
+
+=cut
 
 has is_halted => (
     is      => 'rw',
@@ -46,7 +58,20 @@ has is_halted => (
     default => sub {0},
 );
 
+=method halt
+
+Shortcut to halt the current response by setting the is_halted flag.
+
+=cut
+
 sub halt { shift->is_halted(1) }
+
+=attr status
+
+The HTTP status for the response.
+
+=cut
+
 
 has status => (
     is      => 'rw',
@@ -67,6 +92,16 @@ has status => (
         $value;
     },
 );
+
+=attr content
+
+The content for the response, stored as a string.  If a reference is passed, the
+response will try coerce it to a string via double quote interpolation.
+
+Whenever the content changes, it recalculates and updates the Content-Length header,
+unless the response has_passed.
+
+=cut
 
 has content => (
     is      => 'rw',
@@ -90,6 +125,18 @@ has content => (
     },
 );
 
+=method encode_content
+
+Encodes the stored content according to the stored L<content_type>.  If the content_type
+is a text format C<^text>, then no encoding will take place.
+
+Interally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
+
+If it encodes the content, then it will return the encoded content.  In all other
+cases it returns C<false>.
+
+=cut
+
 sub encode_content {
     my ($self) = @_;
     return if $self->is_encoded;
@@ -108,10 +155,23 @@ sub encode_content {
     return $content;
 }
 
+=method to_psgi
+
+Converts the response object to a PSGI array.
+
+=cut
+
 sub to_psgi {
     my ($self) = @_;
     return [$self->status, $self->headers_to_array, [$self->content],];
 }
+
+
+=method content_type($type)
+
+A little sugar for setting or accessing the content_type of the response, via the headers.
+
+=cut
 
 # sugar for accessing the content_type header, with mimetype care
 sub content_type {
@@ -141,6 +201,14 @@ sub is_forwarded {
     my $self = shift;
     $self->_forward;
 }
+
+=method redirect ($destination, $status)
+
+Sets a header in this response to give a redirect to $destination, and sets the
+status to $status.  If $status is omitted, or false, then it defaults to a status of
+302.
+
+=cut
 
 sub redirect {
     my ($self, $destination, $status) = @_;

@@ -45,6 +45,7 @@ NEXT
     * Documenting some internals (Colin Kuskie)
     * Documenting Dancer2::Core::MIME (Babitha B.)
     * Documenting Manual::Developers (Maurice Mengel)
+    * Documenting Dancer2::Core::Response (Colin Kuskie)
 
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
