@@ -1,3 +1,6 @@
 main: 1
 charset: 'UTF-8'
 show_errors: 1
+
+application:
+   some_feature: foo

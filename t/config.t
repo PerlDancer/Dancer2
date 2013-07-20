@@ -45,7 +45,17 @@ my $location = File::Spec->rel2abs(path(dirname(__FILE__), 'config'));
     use Moo;
     with 'Dancer2::Core::Role::Config';
 
-    sub _build_environment     {"staging"}
+    sub _build_environment     {'staging'}
+    sub location               {$location}
+    sub default_config         { $runner->default_config }
+
+    package Merging;
+    use Moo;
+    with 'Dancer2::Core::Role::Config';
+
+    sub name {'Merging'}
+
+    sub _build_environment     {'merging'}
     sub location               {$location}
     sub default_config         { $runner->default_config }
 
@@ -87,6 +97,16 @@ like(
     exception { $fail->config },
     qr{YAML}, 'Configuration file parsing failure',
 );
+
+note "config merging";
+my $m = Merging->new;
+# Check the 'application' top-level key; its the only key that
+# is currently a HoH in the test configurations
+is_deeply $m->config->{application},
+  { some_feature    => 'bar',
+    another_setting => 'baz',
+  },
+  "full merging of configuration hashes";
 
 note "config parsing";
 
