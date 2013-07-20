@@ -25,7 +25,7 @@ setting it manually with C<set>:
 
 =cut
 
-has '+engine' => (isa => InstanceOf ['Template'],);
+has '+engine' => ( isa => InstanceOf ['Template'], );
 
 sub _build_engine {
     my $self      = shift;
@@ -33,8 +33,8 @@ sub _build_engine {
     my %tt_config = (
         ANYCASE  => 1,
         ABSOLUTE => 1,
-        length($charset) ? (ENCODING => $charset) : (),
-        %{$self->config},
+        length($charset) ? ( ENCODING => $charset ) : (),
+        %{ $self->config },
     );
 
     my $start_tag = $self->config->{'start_tag'};
@@ -59,17 +59,17 @@ L<Template::Toolkit> for rendering.
 =cut
 
 sub render {
-    my ($self, $template, $tokens) = @_;
+    my ( $self, $template, $tokens ) = @_;
 
-    if (!ref $template) {
+    if ( !ref $template ) {
         -f $template
           or croak "'$template' doesn't exist or not a regular file";
     }
 
     my $content = "";
     my $charset = $self->charset;
-    my @options = length($charset) ? (binmode => ":encoding($charset)") : ();
-    $self->engine->process($template, $tokens, \$content, @options)
+    my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
+    $self->engine->process( $template, $tokens, \$content, @options )
       or croak $self->engine->error;
     return $content;
 }

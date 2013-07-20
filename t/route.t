@@ -7,48 +7,53 @@ use Dancer2::Core::Request;
 use Dancer2::Core::Route;
 
 my @tests = (
-    [['get', '/', sub {11}], '/', [{}, 11]],
-    [['get', '/', sub {11}],
+    [ [ 'get', '/', sub {11} ], '/', [ {}, 11 ] ],
+    [   [ 'get', '/', sub {11} ],
         '/failure',
-        [undef, 11]
+        [ undef, 11 ]
     ],
 
-    [   ['get', '/hello/:name', sub {22}],
+    [   [ 'get', '/hello/:name', sub {22} ],
         '/hello/sukria',
-        [{name => 'sukria'}, 22]
+        [ { name => 'sukria' }, 22 ]
     ],
 
-    [['get', '/', sub {33}, '/forum'], '/forum',  [{splat => [1]}, 33]],
-    [['get', '/', sub {33}, '/forum'], '/forum/', [{splat => [1]}, 33]],
-    [['get', '/mywebsite', sub {33}, '/forum'], '/forum/mywebsite', [{}, 33]],
+    [ [ 'get', '/', sub {33}, '/forum' ], '/forum', [ { splat => [1] }, 33 ] ],
+    [   [ 'get', '/', sub {33}, '/forum' ], '/forum/', [ { splat => [1] }, 33 ]
+    ],
+    [   [ 'get', '/mywebsite', sub {33}, '/forum' ], '/forum/mywebsite',
+        [ {}, 33 ]
+    ],
 
     # splat test
-    [   ['get', '/file/*.*', sub {44}],
+    [   [ 'get', '/file/*.*', sub {44} ],
         '/file/dist.ini',
-        [{splat => ['dist', 'ini']}, 44]
+        [ { splat => [ 'dist', 'ini' ] }, 44 ]
     ],
 
     # megasplat test
-    [   ['get', '/file/**/*', sub {44}],
+    [   [ 'get', '/file/**/*', sub {44} ],
         '/file/some/where/42',
-        [{splat => [['some', 'where'], '42']}, 44]
+        [ { splat => [ [ 'some', 'where' ], '42' ] }, 44 ]
     ],
 
 
-    [['get', qr{stuff(\d+)}, sub {44}], '/stuff48', [{splat => [48]}, 44]],
+    [   [ 'get', qr{stuff(\d+)}, sub {44} ], '/stuff48',
+        [ { splat => [48] }, 44 ]
+    ],
 
-    [   ['get', qr{/stuff(\d+)}, sub {44}, '/foo'],
+    [   [ 'get', qr{/stuff(\d+)}, sub {44}, '/foo' ],
         '/foo/stuff48',
-        [{splat => [48]}, 44],
+        [ { splat => [48] }, 44 ],
     ],
 );
 
 plan tests => 43;
 
 for my $t (@tests) {
-    my ($route, $path, $expected) = @$t;
+    my ( $route, $path, $expected ) = @$t;
 
-    if (ref($expected) eq 'Regexp') {
+    if ( ref($expected) eq 'Regexp' ) {
         like(
             exception {
                 my $r = Dancer2::Core::Route->new(
@@ -71,9 +76,8 @@ for my $t (@tests) {
         );
         isa_ok $r, 'Dancer2::Core::Route';
 
-        my $request = Dancer2::Core::Request->new(
-            method => $route->[0], path => $path
-        );
+        my $request =
+          Dancer2::Core::Request->new( method => $route->[0], path => $path );
         my $m = $r->match($request);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
         is $r->execute, $expected->[1], "got expected result for '$path'";
@@ -121,16 +125,16 @@ SKIP: {
 
 {
     my $route_w_options = Dancer2::Core::Route->new(
-        method    => 'get',
-        regexp    => '/',
-        code      => sub{'options'},
-        options => {'agent' => 'cURL'},
+        method  => 'get',
+        regexp  => '/',
+        code    => sub {'options'},
+        options => { 'agent' => 'cURL' },
     );
 
     my $req = Dancer2::Core::Request->new(
         path   => '/',
         method => 'get',
-        env    => {'HTTP_USER_AGENT' => 'mozilla'},
+        env    => { 'HTTP_USER_AGENT' => 'mozilla' },
     );
 
     my $m = $route_w_options->match($req);
@@ -139,7 +143,7 @@ SKIP: {
     $req = Dancer2::Core::Request->new(
         path   => '/',
         method => 'get',
-        env    => {'HTTP_USER_AGENT' => 'cURL'},
+        env    => { 'HTTP_USER_AGENT' => 'cURL' },
     );
 
     $m = $route_w_options->match($req);

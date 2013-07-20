@@ -16,21 +16,22 @@ sub extract_cookie {
         next unless $c =~ /dancer\.session/;
         my @parts = split /;\s+/, $c;
         my %hash =
-          map { my ($k, $v) = split /\s*=\s*/; $v ||= 1; (lc($k), $v) } @parts;
-        $hash{expires} = str2time($hash{expires})
+          map { my ( $k, $v ) = split /\s*=\s*/; $v ||= 1; ( lc($k), $v ) }
+          @parts;
+        $hash{expires} = str2time( $hash{expires} )
           if $hash{expires};
         return \%hash;
     }
     return;
 }
 
-my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
+my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 my @engines = qw(YAML Simple);
 
-if ($ENV{DANCER_TEST_COOKIE}) {
+if ( $ENV{DANCER_TEST_COOKIE} ) {
     push @engines, "cookie";
-    setting(session_cookie_key => "secret/foo*@!");
+    setting( session_cookie_key => "secret/foo*@!" );
 }
 
 foreach my $engine (@engines) {
@@ -41,7 +42,7 @@ foreach my $engine (@engines) {
             my $port = shift;
 
             my $ua = LWP::UserAgent->new;
-            $ua->cookie_jar({file => "$tempdir/.cookies.txt"});
+            $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
 
             # no session cookie set if session not referenced
             my $res = $ua->get("http://127.0.0.1:$port/no_session_data");
@@ -157,9 +158,12 @@ foreach my $engine (@engines) {
             };
 
             setting appdir => $tempdir;
-            setting(engines =>
-                  {session => {$engine => {session_dir => 't/sessions'}}});
-            setting(session => $engine);
+            setting(
+                engines => {
+                    session => { $engine => { session_dir => 't/sessions' } }
+                }
+            );
+            setting( session => $engine );
 
             set(show_errors  => 1,
                 startup_info => 0,

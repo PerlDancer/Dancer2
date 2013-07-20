@@ -20,7 +20,7 @@ response_content_is '/test', 'dancer_plugin_with_import_keyword',
 
 is_deeply(
     t::lib::PluginWithImport->stuff,
-    {'t::lib::PluginWithImport' => 'imported'},
+    { 't::lib::PluginWithImport' => 'imported' },
     "the original import method of the plugin is still there"
 );
 

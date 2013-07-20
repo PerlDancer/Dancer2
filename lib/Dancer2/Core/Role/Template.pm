@@ -54,7 +54,10 @@ has name => (
     builder => 1,
 );
 
-sub _build_name { (my $name = ref shift) =~ s/^Dancer2::Template:://; $name; }
+sub _build_name {
+    ( my $name = ref shift ) =~ s/^Dancer2::Template:://;
+    $name;
+}
 
 
 =method charset
@@ -118,7 +121,7 @@ has engine => (
 );
 
 sub _template_name {
-    my ($self, $view) = @_;
+    my ( $self, $view ) = @_;
     my $def_tmpl_ext = $self->default_tmpl_ext();
     $view .= ".$def_tmpl_ext" if $view !~ /\.\Q$def_tmpl_ext\E$/;
     return $view;
@@ -131,10 +134,10 @@ Returns the full path to the requested view.
 =cut
 
 sub view_pathname {
-    my ($self, $view) = @_;
+    my ( $self, $view ) = @_;
 
     $view = $self->_template_name($view);
-    return path($self->views, $view);
+    return path( $self->views, $view );
 }
 
 =method layout_pathname($layout)
@@ -144,9 +147,9 @@ Returns the full path to the requested layout.
 =cut
 
 sub layout_pathname {
-    my ($self, $layout) = @_;
+    my ( $self, $layout ) = @_;
     $layout = $self->_template_name($layout);
-    return path($self->views, 'layouts', $layout);
+    return path( $self->views, 'layouts', $layout );
 }
 
 =method render_layout($layout, $tokens, \$content)
@@ -156,12 +159,12 @@ Render the layout with the applied tokens
 =cut
 
 sub render_layout {
-    my ($self, $layout, $tokens, $content) = @_;
+    my ( $self, $layout, $tokens, $content ) = @_;
 
     $layout = $self->layout_pathname($layout);
 
     # FIXME: not sure if I can "just call render"
-    $self->render($layout, {%$tokens, content => $content});
+    $self->render( $layout, { %$tokens, content => $content } );
 }
 
 =method apply_renderer($view, $tokens)
@@ -169,14 +172,14 @@ sub render_layout {
 =cut
 
 sub apply_renderer {
-    my ($self, $view, $tokens) = @_;
+    my ( $self, $view, $tokens ) = @_;
     $view = $self->view_pathname($view) if !ref $view;
     $tokens = $self->_prepare_tokens_options($tokens);
 
-    $self->execute_hook('engine.template.before_render', $tokens);
+    $self->execute_hook( 'engine.template.before_render', $tokens );
 
-    my $content = $self->render($view, $tokens);
-    $self->execute_hook('engine.template.after_render', \$content);
+    my $content = $self->render( $view, $tokens );
+    $self->execute_hook( 'engine.template.after_render', \$content );
 
     # make sure to avoid ( undef ) in list context return
     defined $content and return $content;
@@ -188,7 +191,7 @@ sub apply_renderer {
 =cut
 
 sub apply_layout {
-    my ($self, $content, $tokens, $options) = @_;
+    my ( $self, $content, $tokens, $options ) = @_;
 
     $tokens = $self->_prepare_tokens_options($tokens);
 
@@ -198,20 +201,23 @@ sub apply_layout {
    # is.
     my $layout =
       exists $options->{layout}
-      ? ($options->{layout} ? $options->{layout} : undef)
-      : ($self->layout || $self->context->app->config->{layout});
+      ? ( $options->{layout} ? $options->{layout} : undef )
+      : ( $self->layout || $self->context->app->config->{layout} );
 
     # that should only be $self->config, but the layout ain't there ???
 
     defined $content or return;
     defined $layout  or return $content;
 
-    $self->execute_hook('engine.template.before_layout_render',
-        $tokens, \$content);
+    $self->execute_hook(
+        'engine.template.before_layout_render',
+        $tokens, \$content
+    );
 
-    my $full_content = $self->render_layout($layout, $tokens, $content);
+    my $full_content = $self->render_layout( $layout, $tokens, $content );
 
-    $self->execute_hook('engine.template.after_layout_render', \$full_content);
+    $self->execute_hook( 'engine.template.after_layout_render',
+        \$full_content );
 
     # make sure to avoid ( undef ) in list context return
     defined $full_content and return $full_content;
@@ -219,14 +225,14 @@ sub apply_layout {
 }
 
 sub _prepare_tokens_options {
-    my ($self, $tokens) = @_;
+    my ( $self, $tokens ) = @_;
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
     $tokens->{perl_version}   = $];
     $tokens->{dancer_version} = Dancer2->VERSION;
 
-    if (defined $self->context) {
+    if ( defined $self->context ) {
         $tokens->{settings} = $self->context->app->config;
         $tokens->{request}  = $self->context->request;
         $tokens->{params}   = $self->context->request->params;
@@ -244,8 +250,8 @@ sub _prepare_tokens_options {
 =cut
 
 sub process {
-    my ($self, $view, $tokens, $options) = @_;
-    my ($content, $full_content);
+    my ( $self, $view, $tokens, $options ) = @_;
+    my ( $content, $full_content );
 
     # it's important that $tokens is not undef, so that things added to it via
     # a before_template in apply_renderer survive to the apply_layout. GH#354
@@ -256,11 +262,11 @@ sub process {
 
     $content =
         $view
-      ? $self->apply_renderer($view, $tokens)
+      ? $self->apply_renderer( $view, $tokens )
       : delete $options->{content};
 
     defined $content
-      and $full_content = $self->apply_layout($content, $tokens, $options);
+      and $full_content = $self->apply_layout( $content, $tokens, $options );
 
     defined $full_content
       and return $full_content;

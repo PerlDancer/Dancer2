@@ -13,11 +13,11 @@ use Test::More;
     $ENV{DANCER_PUBLIC} = 't/corpus/static';
 
     get '/' => sub {
-        send_file 'index.html'
+        send_file 'index.html';
     };
 
     get '/image' => sub {
-        send_file '1x1.png'
+        send_file '1x1.png';
     };
 }
 

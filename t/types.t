@@ -5,16 +5,18 @@ use Test::Fatal;
 use Dancer2::Core::Types;
 
 
-ok(exception { Str->(undef) }, 'Str does not accept undef value',);
+ok( exception { Str->(undef) }, 'Str does not accept undef value', );
 
-is(exception { Str->('something') }, undef, 'Str',);
+is( exception { Str->('something') }, undef, 'Str', );
 
-like(exception { Str->({foo => 'something'}) },
-    qr{HASH\(\w+\) is not a string}, 'Str',);
+like(
+    exception { Str->( { foo => 'something' } ) },
+    qr{HASH\(\w+\) is not a string}, 'Str',
+);
 
-is(exception { Num->(34) }, undef, 'Num',);
+is( exception { Num->(34) }, undef, 'Num', );
 
-ok(exception { Num->(undef) }, 'Num does not accept undef value',);
+ok( exception { Num->(undef) }, 'Num does not accept undef value', );
 
 like(
     exception { Num->('not a number') },
@@ -22,15 +24,15 @@ like(
     'Num fail',
 );
 
-is(exception { Bool->(1) }, undef, 'Bool true value',);
+is( exception { Bool->(1) }, undef, 'Bool true value', );
 
-is(exception { Bool->(0) }, undef, 'Bool false value',);
+is( exception { Bool->(0) }, undef, 'Bool false value', );
 
-is(exception { Bool->(undef) }, undef, 'Bool does accepts undef value',);
+is( exception { Bool->(undef) }, undef, 'Bool does accepts undef value', );
 
-like(exception { Bool->('2') }, qr{2 is not a Boolean}, 'Bool fail',);
+like( exception { Bool->('2') }, qr{2 is not a Boolean}, 'Bool fail', );
 
-is(exception { RegexpRef->(qr{.*}) }, undef, 'Regexp',);
+is( exception { RegexpRef->(qr{.*}) }, undef, 'Regexp', );
 
 like(
     exception { RegexpRef->('/.*/') },
@@ -38,9 +40,9 @@ like(
     'Regexp fail',
 );
 
-ok(exception { RegexpRef->(undef) }, 'Regexp does not accept undef value',);
+ok( exception { RegexpRef->(undef) }, 'Regexp does not accept undef value', );
 
-is(exception { HashRef->({goo => 'le'}) }, undef, 'HashRef',);
+is( exception { HashRef->( { goo => 'le' } ) }, undef, 'HashRef', );
 
 like(
     exception { HashRef->('/.*/') },
@@ -48,9 +50,9 @@ like(
     'HashRef fail',
 );
 
-ok(exception { HashRef->(undef) }, 'HashRef does not accept undef value',);
+ok( exception { HashRef->(undef) }, 'HashRef does not accept undef value', );
 
-is(exception { ArrayRef->([1, 2, 3, 4]) }, undef, 'ArrayRef',);
+is( exception { ArrayRef->( [ 1, 2, 3, 4 ] ) }, undef, 'ArrayRef', );
 
 like(
     exception { ArrayRef->('/.*/') },
@@ -58,10 +60,10 @@ like(
     'ArrayRef fail',
 );
 
-ok(exception { ArrayRef->(undef) }, 'ArrayRef does not accept undef value',);
+ok( exception { ArrayRef->(undef) }, 'ArrayRef does not accept undef value', );
 
 is( exception {
-        CodeRef->(sub {44});
+        CodeRef->( sub {44} );
     },
     undef,
     'CodeRef',
@@ -73,21 +75,22 @@ like(
     'CodeRef fail',
 );
 
-ok(exception { CodeRef->(undef) }, 'CodeRef does not accept undef value',);
+ok( exception { CodeRef->(undef) }, 'CodeRef does not accept undef value', );
 
 {
 
     package InstanceChecker::zad7;
     use Moo;
     use Dancer2::Core::Types;
-    has foo => (is => 'ro', isa => InstanceOf ['Foo']);
+    has foo => ( is => 'ro', isa => InstanceOf ['Foo'] );
 }
 
-is(exception { InstanceChecker::zad7->new(foo => bless {}, 'Foo') },
-    undef, 'InstanceOf',);
+is( exception { InstanceChecker::zad7->new( foo => bless {}, 'Foo' ) },
+    undef, 'InstanceOf',
+);
 
 like(
-    exception { InstanceChecker::zad7->new(foo => bless {}, 'Bar') },
+    exception { InstanceChecker::zad7->new( foo => bless {}, 'Bar' ) },
     qr{Bar=HASH\(\w+\) is not an instance of the class: Foo},
     'InstanceOf fail',
 );
@@ -96,7 +99,7 @@ ok( exception { InstanceOf('Foo')->(undef) },
     'InstanceOf does not accept undef value',
 );
 
-is(exception { Dancer2Prefix->('/foo') }, undef, 'Dancer2Prefix',);
+is( exception { Dancer2Prefix->('/foo') }, undef, 'Dancer2Prefix', );
 
 like(
     exception { Dancer2Prefix->('bar/something') },
@@ -111,11 +114,12 @@ like(
     'Dancer2Prefix does not accept undef value',
 );
 
-is(exception { Dancer2AppName->('Foo') }, undef, 'Dancer2AppName',);
+is( exception { Dancer2AppName->('Foo') }, undef, 'Dancer2AppName', );
 
-is(exception { Dancer2AppName->('Foo::Bar') }, undef, 'Dancer2AppName',);
+is( exception { Dancer2AppName->('Foo::Bar') }, undef, 'Dancer2AppName', );
 
-is(exception { Dancer2AppName->('Foo::Bar::Baz') }, undef, 'Dancer2AppName',);
+is( exception { Dancer2AppName->('Foo::Bar::Baz') }, undef, 'Dancer2AppName',
+);
 
 like(
     exception { Dancer2AppName->('Foo:Bar') },
@@ -169,7 +173,7 @@ like(
     'Dancer2AppName fails an empty string value',
 );
 
-is(exception { Dancer2Method->('post') }, undef, 'Dancer2Method',);
+is( exception { Dancer2Method->('post') }, undef, 'Dancer2Method', );
 
 like(
     exception { Dancer2Method->('POST') },
@@ -181,7 +185,7 @@ ok( exception { Dancer2Method->(undef) },
     'Dancer2Method does not accept undef value',
 );
 
-is(exception { Dancer2HTTPMethod->('POST') }, undef, 'Dancer2HTTPMethod',);
+is( exception { Dancer2HTTPMethod->('POST') }, undef, 'Dancer2HTTPMethod', );
 
 like(
     exception { Dancer2HTTPMethod->('post') },

@@ -4,8 +4,8 @@ use Dancer2;
 # this app is intended to cover 100% of the DSL!
 
 # set some MIME aliases...
-mime->add_type(foo => 'text/foo');
-mime->add_alias(f => 'foo');
+mime->add_type( foo => 'text/foo' );
+mime->add_alias( f => 'foo' );
 
 set 'default_mime_type' => 'text/bar';
 
@@ -14,7 +14,7 @@ get '/' => sub { app->name };
 
 # /haltme should bounce to /
 hook 'before' => sub {
-    if (request->path_info eq '/haltme') {
+    if ( request->path_info eq '/haltme' ) {
         redirect '/';
         halt;
     }
@@ -23,7 +23,7 @@ get '/haltme' => sub {"should not be there"};
 
 hook 'after' => sub {
     my $response = shift;
-    if (request->path_info eq '/rewrite_me') {
+    if ( request->path_info eq '/rewrite_me' ) {
         $response->content("rewritten!");
     }
 };
@@ -43,13 +43,13 @@ get '/config' => sub {
       . setting('can_be_set');
 };
 
-if ($] >= 5.010) {
+if ( $] >= 5.010 ) {
 
     # named captures
     get
       qr{/(?<class> usr | content | post )/(?<action> delete | find )/(?<id> \d+ )}x
       => sub {
-        join(":", sort %{captures()});
+        join( ":", sort %{ captures() } );
       };
 }
 
@@ -91,18 +91,18 @@ get '/header_twice/:name/:valueA/:valueB' => sub {
 };
 
 # any
-any ['get', 'post'], '/any' => sub {
+any [ 'get', 'post' ], '/any' => sub {
     "Called with method " . request->method;
 };
 
 # true and false
 get '/booleans' => sub {
-    join(":", true, false);
+    join( ":", true, false );
 };
 
 # mimes
 get '/mime/:name' => sub {
-    mime->for_name(param('name'));
+    mime->for_name( param('name') );
 };
 
 # content_type

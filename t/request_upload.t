@@ -17,7 +17,7 @@ diag "If you want extract speed, install CGI::Deurl::XS"
   if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub test_path {
-    my ($file, $dir) = @_;
+    my ( $file, $dir ) = @_;
     is dirname($file), $dir, "dir of $file is $dir";
 }
 
@@ -115,36 +115,41 @@ SHOGUN6
           "filename is accessible via params";
 
         # copy_to, link_to
-        my $dest_dir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
-        my $dest_file = File::Spec->catfile($dest_dir, $upload->basename);
+        my $dest_dir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
+        my $dest_file = File::Spec->catfile( $dest_dir, $upload->basename );
         $upload->copy_to($dest_file);
-        ok((-f $dest_file), "file '$dest_file' has been copied");
+        ok( ( -f $dest_file ), "file '$dest_file' has been copied" );
 
-        my $dest_file_link = File::Spec->catfile($dest_dir, "hardlink");
+        my $dest_file_link = File::Spec->catfile( $dest_dir, "hardlink" );
         $upload->link_to($dest_file_link);
-        ok((-f $dest_file_link),
-            "hardlink '$dest_file_link' has been created");
+        ok( ( -f $dest_file_link ),
+            "hardlink '$dest_file_link' has been created"
+        );
 
         # make sure cleanup is performed when the HTTP::Body object is purged
         my $file = $upload->tempname;
-        ok((-f $file), 'temp file exists while HTTP::Body lives');
+        ok( ( -f $file ), 'temp file exists while HTTP::Body lives' );
         undef $req->{_http_body};
       SKIP: {
             skip
               "Win32 can't remove file/link while open, deadlock with HTTP::Body",
               1
-              if ($^O eq 'MSWin32');
-            ok((!-f $file),
-                'temp file is removed when HTTP::Body object dies');
+              if ( $^O eq 'MSWin32' );
+            ok( ( !-f $file ),
+                'temp file is removed when HTTP::Body object dies'
+            );
         }
 
 
-        note "testing failing open for tempfile"; {
+        note "testing failing open for tempfile";
+        {
+
             # mocking open_file to make it fail
             my $upload_file_coderef;
             {
                 no strict 'refs';
-                $upload_file_coderef = *{"Dancer2::Core::Request::Upload::open_file"}{CODE};
+                $upload_file_coderef =
+                  *{"Dancer2::Core::Request::Upload::open_file"}{CODE};
                 no warnings 'redefine';
                 *{"Dancer2::Core::Request::Upload::open_file"} = sub {
                     croak "Can't open mocked-tempfile using mode '<'";
@@ -155,15 +160,17 @@ SHOGUN6
                 exception { $upload->file_handle },
                 qr{Can't open.* using mode '<'},
             );
+
             # unmock open_file
             {
                 no strict 'refs';
                 no warnings 'redefine';
-                *{"Dancer2::Core::Request::Upload::open_file"} = $upload_file_coderef;
+                *{"Dancer2::Core::Request::Upload::open_file"} =
+                  $upload_file_coderef;
             }
         }
 
-        unlink($file) if ($^O eq 'MSWin32');
+        unlink($file) if ( $^O eq 'MSWin32' );
     };
 }
 

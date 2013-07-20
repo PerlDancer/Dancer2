@@ -9,7 +9,7 @@ use File::Temp 0.22;
 use Dancer2::FileUtils qw/read_file_content path_or_empty path/;
 
 sub write_file {
-    my ($file, $content) = @_;
+    my ( $file, $content ) = @_;
 
     open my $fh, '>', $file or die "cannot write file $file : $!";
     binmode $fh, ':encoding(utf-8)';
@@ -24,7 +24,7 @@ sub hexe {
 }
 
 like(
-    exception { Dancer2::FileUtils::open_file('<', '/slfkjsdlkfjsdlf') },
+    exception { Dancer2::FileUtils::open_file( '<', '/slfkjsdlkfjsdlf' ) },
     qr{/slfkjsdlkfjsdlf' using mode '<'},
     'Failure opening nonexistent file',
 );
@@ -39,24 +39,24 @@ is $p, '/';
 
 my $tmp = File::Temp->new();
 my $two = "²❷";
-write_file($tmp, "one$/$two");
+write_file( $tmp, "one$/$two" );
 
 $content = read_file_content($tmp);
 is hexe($content), hexe("one$/$two");
 
 my @content = read_file_content($tmp);
-is hexe($content[0]), hexe("one$/");
+is hexe( $content[0] ), hexe("one$/");
 is $content[1], "$two";
 
 # returns UNDEF on non-existant path
 my $path = 'bla/blah';
-if (!-e $path) {
-    is(path_or_empty($path), '', 'path_or_empty on non-existent path',);
+if ( !-e $path ) {
+    is( path_or_empty($path), '', 'path_or_empty on non-existent path', );
 }
 
 my $tmpdir = File::Temp->newdir;
-is(path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
+is( path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
 
 #slightly tricky paths on different platforms
-is(path('/', 'b', '/c'), '/b//c', 'path /,b,/c -> /b//c');
-is(path('/', '/b',), '/b', 'path /, /b -> /b');
+is( path( '/', 'b', '/c' ), '/b//c', 'path /,b,/c -> /b//c' );
+is( path( '/', '/b', ), '/b', 'path /, /b -> /b' );

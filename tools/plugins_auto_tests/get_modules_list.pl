@@ -22,17 +22,17 @@ plugin in the package name.
 my $es = ElasticSearch->new( servers => 'api.metacpan.org', no_refresh => 1 );
 
 my $scroller = $es->scrolled_search(
-    query       => { match_all => { } },
+    query       => { match_all => {} },
     search_type => 'scan',
     scroll      => '5m',
     index       => 'v0',
     type        => 'release',
     size        => 100,
-    filter => {
-            term => {
-                     'release.dependency.module' => 'Dancer'
-                    }
-              },
+    filter      => {
+        term => {
+            'release.dependency.module' => 'Dancer'
+        }
+    },
 
 );
 

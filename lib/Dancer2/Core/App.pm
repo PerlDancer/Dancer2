@@ -57,14 +57,14 @@ sub api_version {2}
 =cut
 
 sub register_plugin {
-    my ($self, $plugin) = @_;
+    my ( $self, $plugin ) = @_;
     Dancer2::core_debug("Registered $plugin");
-    push @{$self->plugins}, $plugin;
+    push @{ $self->plugins }, $plugin;
 }
 
 around BUILDARGS => sub {
     my $orig = shift;
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     $args{postponed_hooks} ||= {};
     return $class->$orig(%args);
 };
@@ -118,12 +118,12 @@ sub _build_default_config {
     my ($self) = @_;
 
     return {
-        %{$self->runner_config},
+        %{ $self->runner_config },
         template       => 'Tiny',
         route_handlers => {
             File => {
                 public_dir => $ENV{DANCER_PUBLIC}
-                  || path($self->location, 'public')
+                  || path( $self->location, 'public' )
             },
             AutoPage => 1,
         },
@@ -134,11 +134,11 @@ sub _build_default_config {
 
 sub settings {
     my ($self) = @_;
-    +{%{Dancer2->runner->config}, %{$self->config}};
+    +{ %{ Dancer2->runner->config }, %{ $self->config } };
 }
 
 sub engine {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
 
     my $e = $self->settings->{$name};
     croak "No '$name' engine defined" if not defined $e;
@@ -147,11 +147,11 @@ sub engine {
 }
 
 sub session {
-    my ($self, $key, $value) = @_;
+    my ( $self, $key, $value ) = @_;
 
     # shortcut reads if no session exists, so we don't
     # instantiate sessions for no reason
-    if (@_ == 2) {
+    if ( @_ == 2 ) {
         return unless $self->context->has_session;
     }
 
@@ -166,8 +166,8 @@ sub session {
     return $session->read($key) if @_ == 2;
 
     # write to the session or delete if value is undef
-    if (defined $value) {
-        $session->write($key => $value);
+    if ( defined $value ) {
+        $session->write( $key => $value );
     }
     else {
         $session->delete($key);
@@ -193,24 +193,24 @@ sub hook_candidates {
     }
 
     my @route_handlers;
-    for my $handler_name (keys %{$self->route_handlers}) {
+    for my $handler_name ( keys %{ $self->route_handlers } ) {
         my $handler = $self->route_handlers->{$handler_name};
         push @route_handlers, $handler
           if blessed($handler) && $handler->can('supported_hooks');
     }
 
     # TODO : get the list of all plugins registered
-    my @plugins = @{$self->plugins};
+    my @plugins = @{ $self->plugins };
 
-    (@route_handlers, @engines, @plugins);
+    ( @route_handlers, @engines, @plugins );
 }
 
 sub all_hook_aliases {
     my ($self) = @_;
 
     my $aliases = $self->hook_aliases;
-    for my $plugin (@{$self->plugins}) {
-        $aliases = {%{$aliases}, %{$plugin->hook_aliases},};
+    for my $plugin ( @{ $self->plugins } ) {
+        $aliases = { %{$aliases}, %{ $plugin->hook_aliases }, };
     }
 
     return $aliases;
@@ -225,11 +225,11 @@ has postponed_hooks => (
 # add_hook will add the hook to the first "hook candidate" it finds that support
 # it. If none, then it will try to add the hook to the current application.
 around add_hook => sub {
-    my ($orig, $self) = (shift, shift);
+    my ( $orig, $self ) = ( shift, shift );
 
     # saving caller information
-    my ($package, $file, $line) = caller(4);    # deep to 4 : user's app code
-    my $add_hook_caller = [$package, $file, $line];
+    my ( $package, $file, $line ) = caller(4);    # deep to 4 : user's app code
+    my $add_hook_caller = [ $package, $file, $line ];
 
     my ($hook)       = @_;
     my $name         = $hook->name;
@@ -246,7 +246,7 @@ around add_hook => sub {
     # at this point the hook name must be formated like:
     # '$type.$candidate.$name', eg: 'engine.template.before_render' or
     # 'plugin.database.before_dbi_connect'
-    my ($hookable_type, $hookable_name, $hook_name) = split(/\./, $name);
+    my ( $hookable_type, $hookable_name, $hook_name ) = split( /\./, $name );
 
     croak "Invalid hook name `$name'"
       unless defined $hookable_name && defined $hook_name;
@@ -255,7 +255,7 @@ around add_hook => sub {
       if !grep /^$hookable_type$/, qw(core engine handler plugin);
 
     # register the hooks for existing hookable candidates
-    foreach my $hookable ($self->hook_candidates) {
+    foreach my $hookable ( $self->hook_candidates ) {
         $hookable->add_hook(@_) if $hookable->has_hook($name);
     }
 
@@ -276,10 +276,10 @@ around add_hook => sub {
 };
 
 around execute_hook => sub {
-    my ($orig, $self) = (shift, shift);
-    my ($hook, @args) = @_;
-    if (!$self->has_hook($hook)) {
-        foreach my $cand ($self->hook_candidates) {
+    my ( $orig, $self ) = ( shift, shift );
+    my ( $hook, @args ) = @_;
+    if ( !$self->has_hook($hook) ) {
+        foreach my $cand ( $self->hook_candidates ) {
             return $cand->execute_hook(@_) if $cand->has_hook($hook);
         }
     }
@@ -291,8 +291,8 @@ sub mime_type {
     my ($self) = @_;
     my $runner = Dancer2->runner;
 
-    if (exists($self->config->{default_mime_type})) {
-        $runner->mime_type->default($self->config->{default_mime_type});
+    if ( exists( $self->config->{default_mime_type} ) ) {
+        $runner->mime_type->default( $self->config->{default_mime_type} );
     }
     else {
         $runner->mime_type->reset_default;
@@ -316,23 +316,23 @@ sub log {
 #   -- mst
 
 sub send_file {
-    my ($self, $path, %options) = @_;
+    my ( $self, $path, %options ) = @_;
     my $env = $self->context->env;
 
-    ($options{'streaming'} && !$env->{'psgi.streaming'})
+    ( $options{'streaming'} && !$env->{'psgi.streaming'} )
       and croak "Streaming is not supported on this server.";
 
-    (exists $options{'content_type'})
+    ( exists $options{'content_type'} )
       and $self->context->response->header(
-        'Content-Type' => $options{content_type});
+        'Content-Type' => $options{content_type} );
 
-    (exists $options{filename})
-      and $self->context->response->header('Content-Disposition' =>
-          "attachment; filename=\"$options{filename}\"");
+    ( exists $options{filename} )
+      and $self->context->response->header( 'Content-Disposition' =>
+          "attachment; filename=\"$options{filename}\"" );
 
     # if we're given a SCALAR reference, we're going to send the data
     # pretending it's a file (on-the-fly file sending)
-    (ref($path) eq 'SCALAR')
+    ( ref($path) eq 'SCALAR' )
       and return $$path;
 
     my $conf = {};
@@ -341,18 +341,18 @@ sub send_file {
         Handler => 'File',
         %$conf,
         postponed_hooks => $self->postponed_hooks,
-        public_dir => ($options{system_path} ? File::Spec->rootdir : undef),
+        public_dir => ( $options{system_path} ? File::Spec->rootdir : undef ),
     );
 
-    if ($self->route_handlers->{File}) {
-        for my $h (keys %{$self->route_handlers->{File}->hooks}) {
+    if ( $self->route_handlers->{File} ) {
+        for my $h ( keys %{ $self->route_handlers->{File}->hooks } ) {
             my $hooks = $self->route_handlers->{File}->hooks->{$h};
-            $file_handler->replace_hook($h, $hooks);
+            $file_handler->replace_hook( $h, $hooks );
         }
     }
 
     $self->context->request->path_info($path);
-    return $file_handler->code->($self->context, $self->prefix);
+    return $file_handler->code->( $self->context, $self->prefix );
 
     # TODO Streaming support
 }
@@ -387,15 +387,16 @@ sub _init_hooks {
                 # update the session ID if needed, then set the session cookie
                 # in the response
 
-                if ($self->context->has_session) {
+                if ( $self->context->has_session ) {
                     my $session = $self->context->session;
-                    $engine->flush(session => $session) if $session->is_dirty;
+                    $engine->flush( session => $session )
+                      if $session->is_dirty;
                     $engine->set_cookie_header(
                         response => $response,
                         session  => $session
                     );
                 }
-                elsif ($self->context->has_destroyed_session) {
+                elsif ( $self->context->has_destroyed_session ) {
                     my $session = $self->context->destroyed_session;
                     $engine->set_cookie_header(
                         response  => $response,
@@ -424,7 +425,7 @@ sub init_route_handlers {
     my ($self) = @_;
 
     my $handlers_config = $self->config->{route_handlers};
-    for my $handler_name (keys %{$handlers_config}) {
+    for my $handler_name ( keys %{$handlers_config} ) {
         my $config = $handlers_config->{$handler_name};
         $config = {} if !ref($config);
         $config->{app} = $self;
@@ -439,7 +440,7 @@ sub init_route_handlers {
 
 sub register_route_handlers {
     my ($self) = @_;
-    for my $handler_name (keys %{$self->route_handlers}) {
+    for my $handler_name ( keys %{ $self->route_handlers } ) {
         my $handler = $self->route_handlers->{$handler_name};
         $handler->register($self);
     }
@@ -448,14 +449,14 @@ sub register_route_handlers {
 sub compile_hooks {
     my ($self) = @_;
 
-    for my $position ($self->supported_hooks) {
+    for my $position ( $self->supported_hooks ) {
         my $compiled_hooks = [];
-        for my $hook (@{$self->hooks->{$position}}) {
+        for my $hook ( @{ $self->hooks->{$position} } ) {
             my $compiled = sub {
 
                 # don't run the filter if halt has been used
                 return
-                  if ($self->context && $self->context->response->is_halted);
+                  if ( $self->context && $self->context->response->is_halted );
 
                 # TODO: log entering the hook '$position'
                 #warn "entering hook '$position'";
@@ -467,7 +468,7 @@ sub compile_hooks {
 
             push @{$compiled_hooks}, $compiled;
         }
-        $self->replace_hook($position, $compiled_hooks);
+        $self->replace_hook( $position, $compiled_hooks );
     }
 }
 
@@ -479,9 +480,9 @@ has name => (
 # holds a context whenever a request is processed
 has context => (
     is      => 'rw',
-    isa     => Maybe [InstanceOf ['Dancer2::Core::Context']],
+    isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
     trigger => sub {
-        my ($self, $ctx) = @_;
+        my ( $self, $ctx ) = @_;
         $self->_init_for_context($ctx),;
         for my $type (qw/logger serializer session template/) {
             my $engine = $self->settings->{$type}
@@ -526,7 +527,7 @@ current one.
 =cut
 
 sub lexical_prefix {
-    my ($self, $prefix, $cb) = @_;
+    my ( $self, $prefix, $cb ) = @_;
     undef $prefix if $prefix eq '/';
 
     # save the app prefix
@@ -534,8 +535,8 @@ sub lexical_prefix {
 
     # alter the prefix for the callback
     my $new_prefix =
-        (defined $app_prefix ? $app_prefix : '')
-      . (defined $prefix     ? $prefix     : '');
+        ( defined $app_prefix ? $app_prefix : '' )
+      . ( defined $prefix     ? $prefix     : '' );
 
     # if the new prefix is empty, it's a meaningless prefix, just ignore it
     $self->prefix($new_prefix) if length $new_prefix;
@@ -579,10 +580,10 @@ Register a new route handler.
 =cut
 
 sub add_route {
-    my ($self, %route_attrs) = @_;
+    my ( $self, %route_attrs ) = @_;
 
     my $route =
-      Dancer2::Core::Route->new(%route_attrs, prefix => $self->prefix,);
+      Dancer2::Core::Route->new( %route_attrs, prefix => $self->prefix, );
 
     my $method = $route->method;
 
@@ -591,9 +592,9 @@ sub add_route {
       . "' with method "
       . uc($method)
       . " is already defined"
-     if $self->route_exists($route);
+      if $self->route_exists($route);
 
-     push @{$self->routes->{$method}}, $route;
+    push @{ $self->routes->{$method} }, $route;
 }
 
 =head2 route_exists
@@ -608,9 +609,9 @@ Check if a route already exists.
 =cut
 
 sub route_exists {
-    my ($self, $route) = @_;
+    my ( $self, $route ) = @_;
 
-    my $routes = $self->routes->{$route->method};
+    my $routes = $self->routes->{ $route->method };
 
     foreach my $existing_route (@$routes) {
         return 1 if $existing_route->spec_route eq $route->spec_route;
@@ -629,8 +630,8 @@ Returns an ArrayRef with the results.
 =cut
 
 sub routes_regexps_for {
-    my ($self, $method) = @_;
-    return [map { $_->regexp } @{$self->routes->{$method}}];
+    my ( $self, $method ) = @_;
+    return [ map { $_->regexp } @{ $self->routes->{$method} } ];
 }
 
 1;

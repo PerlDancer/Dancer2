@@ -51,8 +51,8 @@ has log_dir => (
     is      => 'rw',
     isa     => Str,
     trigger => sub {
-        my ($self, $dir) = @_;
-        if (!-d $dir && !mkdir $dir) {
+        my ( $self, $dir ) = @_;
+        if ( !-d $dir && !mkdir $dir ) {
             return carp
               "Log directory \"$dir\" does not exist and unable to create it.";
         }
@@ -64,10 +64,9 @@ has log_dir => (
 
 sub _build_log_dir {
     my ($self) = @_;
-      ;
-    return defined($self->config->{log_path})
+    return defined( $self->config->{log_path} )
       ? $self->config->{log_path}
-      : File::Spec->catdir($self->location, 'logs');
+      : File::Spec->catdir( $self->location, 'logs' );
 }
 
 has file_name => (
@@ -79,20 +78,20 @@ has file_name => (
 
 sub _build_file_name {
     my ($self) = @_;
-    return defined($self->config->{log_file})
+    return defined( $self->config->{log_file} )
       ? $self->config->{log_file}
-      : ($self->environment . ".log");
+      : ( $self->environment . ".log" );
 }
 
-has log_file => (is => 'rw', isa => Str);
-has fh => (is => 'rw');
+has log_file => ( is => 'rw', isa => Str );
+has fh => ( is => 'rw' );
 
 sub BUILD {
     my $self = shift;
-    my $logfile = File::Spec->catfile($self->log_dir, $self->file_name);
+    my $logfile = File::Spec->catfile( $self->log_dir, $self->file_name );
 
     my $fh;
-    unless ($fh = open_file('>>', $logfile)) {
+    unless ( $fh = open_file( '>>', $logfile ) ) {
         carp "unable to create or append to $logfile";
         return;
     }
@@ -109,17 +108,17 @@ Writes the log message to the file.
 =cut
 
 sub log {
-    my ($self, $level, $message) = @_;
+    my ( $self, $level, $message ) = @_;
     my $fh = $self->fh;
 
-    return unless (ref $fh && $fh->opened);
+    return unless ( ref $fh && $fh->opened );
 
-    flock($fh, LOCK_EX)
+    flock( $fh, LOCK_EX )
       or carp "locking logfile $self->{logfile} failed: $!";
-    seek($fh, 0, SEEK_END);
-    $fh->print($self->format_message($level => $message))
+    seek( $fh, 0, SEEK_END );
+    $fh->print( $self->format_message( $level => $message ) )
       or carp "writing to logfile $self->{logfile} failed";
-    flock($fh, LOCK_UN)
+    flock( $fh, LOCK_UN )
       or carp "unlocking logfile $self->{logfile} failed: $!";
 }
 

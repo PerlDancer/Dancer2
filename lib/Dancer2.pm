@@ -85,8 +85,8 @@ Do not process arguments.
 =cut
 
 sub import {
-    my ($class,  @args)   = @_;
-    my ($caller, $script) = caller;
+    my ( $class,  @args )   = @_;
+    my ( $caller, $script ) = caller;
 
     strict->import;
     utf8->import;
@@ -95,16 +95,16 @@ sub import {
     my $syntax_only = 0;
     my $as_script   = 0;
     foreach (@args) {
-        if ($_ eq ':tests') {
+        if ( $_ eq ':tests' ) {
             push @final_args, '!pass' => 1;
         }
-        elsif ($_ eq ':syntax') {
+        elsif ( $_ eq ':syntax' ) {
             $syntax_only = 1;
         }
-        elsif ($_ eq ':script') {
+        elsif ( $_ eq ':script' ) {
             $as_script = 1;
         }
-        elsif (substr($_, 0, 1) eq '!') {
+        elsif ( substr( $_, 0, 1 ) eq '!' ) {
             push @final_args, $_, 1;
         }
         else {
@@ -120,14 +120,14 @@ sub import {
     $final_args{dsl} ||= 'Dancer2::Core::DSL';
 
     # never instantiated the runner, should do it now
-    if (not defined $runner) {
+    if ( not defined $runner ) {
 
         # TODO should support commandline options as well
 
-        $runner = Dancer2::Core::Runner->new(caller => $script,);
+        $runner = Dancer2::Core::Runner->new( caller => $script, );
     }
 
-    my $local_libdir = Dancer2::FileUtils::path($runner->location, 'lib');
+    my $local_libdir = Dancer2::FileUtils::path( $runner->location, 'lib' );
     Dancer2::ModuleLoader->use_lib($local_libdir) if -d $local_libdir;
 
     # the app object
@@ -149,10 +149,10 @@ sub import {
     core_debug("exporting DSL symbols for $caller");
 
     # load the DSL, defaulting to Dancer2::Core::DSL
-    Dancer2::ModuleLoader->require($final_args{dsl})
+    Dancer2::ModuleLoader->require( $final_args{dsl} )
       or die "Couldn't require '" . $final_args{dsl} . "'\n";
-    my $dsl = $final_args{dsl}->new(app => $app);
-    $dsl->export_symbols_to($caller, \%final_args);
+    my $dsl = $final_args{dsl}->new( app => $app );
+    $dsl->export_symbols_to( $caller, \%final_args );
 
     #
     #    # if :syntax option exists, don't change settings
@@ -167,11 +167,11 @@ sub _set_import_method_to_caller {
     my ($caller) = @_;
 
     my $import = sub {
-        my ($self, %options) = @_;
+        my ( $self, %options ) = @_;
 
         my $with = $options{with};
-        for my $key (keys %$with) {
-            $self->dancer_app->setting($key => $with->{$key});
+        for my $key ( keys %$with ) {
+            $self->dancer_app->setting( $key => $with->{$key} );
         }
     };
 
@@ -193,9 +193,9 @@ sub core_debug {
     my $msg = shift;
     my (@stuff) = @_;
 
-    my $vars = @stuff ? Dumper(\@stuff) : '';
+    my $vars = @stuff ? Dumper( \@stuff ) : '';
 
-    my ($package, $filename, $line) = caller;
+    my ( $package, $filename, $line ) = caller;
     return unless $ENV{DANCER_DEBUG_CORE};
 
     chomp $msg;

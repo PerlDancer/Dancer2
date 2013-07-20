@@ -27,11 +27,11 @@ requires 'deserialize';
 requires 'loaded';
 
 around serialize => sub {
-    my ($orig, $self, @data) = @_;
+    my ( $orig, $self, @data ) = @_;
 
-    $self->execute_hook('engine.serializer.before', @data);
+    $self->execute_hook( 'engine.serializer.before', @data );
     my $serialized = $self->$orig(@data);
-    $self->execute_hook('engine.serializer.after', $serialized);
+    $self->execute_hook( 'engine.serializer.after', $serialized );
 
     return $serialized;
 };
@@ -41,11 +41,11 @@ sub content_type {'text/plain'}
 
 # most serializer don't have to overload this one
 sub support_content_type {
-    my ($self, $ct) = @_;
+    my ( $self, $ct ) = @_;
     return unless $ct;
 
     my @toks = split ';', $ct;
-    $ct = lc($toks[0]);
+    $ct = lc( $toks[0] );
     return $ct eq $self->content_type;
 }
 

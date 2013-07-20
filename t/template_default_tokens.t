@@ -8,7 +8,7 @@ eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
 
 my $views =
-  File::Spec->rel2abs(File::Spec->catfile(dirname(__FILE__), 'views'));
+  File::Spec->rel2abs( File::Spec->catfile( dirname(__FILE__), 'views' ) );
 
 {
 

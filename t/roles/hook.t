@@ -5,7 +5,8 @@ use Test::Fatal;
 
 use Dancer2::Core::Hook;
 
-my $h = Dancer2::Core::Hook->new(name => 'before_template', code => sub {'BT'});
+my $h =
+  Dancer2::Core::Hook->new( name => 'before_template', code => sub {'BT'} );
 is $h->name, 'before_template_render';
 is $h->code->(), 'BT';
 
@@ -33,8 +34,9 @@ my $some_hook = Dancer2::Core::Hook->new(
     }
 );
 
-ok(!exception { $f->add_hook($some_hook) },
-    'Supported hook can be installed',);
+ok( !exception { $f->add_hook($some_hook) },
+    'Supported hook can be installed',
+);
 
 like(
     exception {
@@ -53,12 +55,12 @@ $f->execute_hook('foobar');
 is $count, 1;
 
 like(
-    exception { $f->replace_hook('doesnotexist', []) },
+    exception { $f->replace_hook( 'doesnotexist', [] ) },
     qr{Hook 'doesnotexist' must be installed first},
     'Nonexistent hook fails',
 );
 
-my $new_hooks = [sub { $count-- }, sub { $count-- }, sub { $count-- }];
-$f->replace_hook('foobar', $new_hooks);
+my $new_hooks = [ sub { $count-- }, sub { $count-- }, sub { $count-- } ];
+$f->replace_hook( 'foobar', $new_hooks );
 $f->execute_hook('foobar');
 is $count, -2, 'replaced hooks were installed and executed';

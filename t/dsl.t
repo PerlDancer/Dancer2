@@ -5,7 +5,7 @@ use Test::More import => ['!pass'];
 use Dancer2;
 use Dancer2::Test;
 
-any ['get', 'post'], '/' => sub {
+any [ 'get', 'post' ], '/' => sub {
     request->method;
 };
 

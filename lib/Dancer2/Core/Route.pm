@@ -45,7 +45,7 @@ has regexp => (
     required => 1,
 );
 
-has spec_route => (is => 'rw',);
+has spec_route => ( is => 'rw', );
 
 =attr prefix
 
@@ -66,23 +66,25 @@ A HashRef of conditions on which the matching will depend. Optional.
 =cut
 
 has options => (
-    is       => 'ro',
-    isa      => HashRef,
-    trigger  => \&_check_options,
+    is        => 'ro',
+    isa       => HashRef,
+    trigger   => \&_check_options,
     predicate => 1,
 );
 
 sub _check_options {
-   my ($self, $options) = @_;
-   return 1 unless defined $options;
+    my ( $self, $options ) = @_;
+    return 1 unless defined $options;
 
-   my @supported_options = (qw/content_type agent user_agent content_length
-                               path_info/);
-   for my $opt (keys %{$options}) {
-       croak "Not a valid option for route matching: `$opt'"
-         if not(grep {/^$opt$/} @supported_options);
-   }
-   return 1;
+    my @supported_options = (
+        qw/content_type agent user_agent content_length
+          path_info/
+    );
+    for my $opt ( keys %{$options} ) {
+        croak "Not a valid option for route matching: `$opt'"
+          if not( grep {/^$opt$/} @supported_options );
+    }
+    return 1;
 }
 
 # private attributes
@@ -96,7 +98,7 @@ has _match_data => (
     is      => 'rw',
     isa     => HashRef,
     trigger => sub {
-        my ($self, $value) = @_;
+        my ( $self, $value ) = @_;
     },
 );
 
@@ -117,9 +119,9 @@ against the path) or undef if not.
 =cut
 
 sub match {
-    my ($self, $request) = @_;
+    my ( $self, $request ) = @_;
 
-    if ($self->has_options) {
+    if ( $self->has_options ) {
         return unless $self->validate_options($request);
     }
 
@@ -128,10 +130,11 @@ sub match {
 
     # the regex comments are how we know if we captured
     # a splat or a megasplat
-    if (my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g) {
+    if ( my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g )
+    {
         for (@values) {
-            $_ = [split '/' => $_]
-              if (shift @splat_or_megasplat) =~ /megasplat/;
+            $_ = [ split '/' => $_ ]
+              if ( shift @splat_or_megasplat ) =~ /megasplat/;
         }
     }
 
@@ -141,7 +144,7 @@ sub match {
         do { no warnings; %+ }
       )
     {
-        return $self->_match_data({captures => \%captures});
+        return $self->_match_data( { captures => \%captures } );
     }
 
     return unless @values;
@@ -155,20 +158,20 @@ sub match {
     # $request->{_route_pattern} = $self->regexp;
 
     # named tokens
-    my @tokens = @{$self->_params};
+    my @tokens = @{ $self->_params };
 
     if (@tokens) {
-        for (my $i = 0; $i < @tokens; $i++) {
-            $params{$tokens[$i]} = $values[$i];
+        for ( my $i = 0; $i < @tokens; $i++ ) {
+            $params{ $tokens[$i] } = $values[$i];
         }
-        return $self->_match_data(\%params);
+        return $self->_match_data( \%params );
     }
 
-    elsif ($self->_should_capture) {
-        return $self->_match_data({splat => \@values});
+    elsif ( $self->_should_capture ) {
+        return $self->_match_data( { splat => \@values } );
     }
 
-    return $self->_match_data({});
+    return $self->_match_data( {} );
 }
 
 =method execute
@@ -178,7 +181,7 @@ Runs the coderef of the route.
 =cut
 
 sub execute {
-    my ($self, @args) = @_;
+    my ( $self, @args ) = @_;
     return $self->code->(@args);
 }
 
@@ -203,23 +206,26 @@ sub _init_prefix {
     my $prefix = $self->prefix;
     my $regexp = $self->regexp;
 
-    if (ref($regexp) eq 'Regexp') {
+    if ( ref($regexp) eq 'Regexp' ) {
         my $regexp = $self->regexp;
-        if ($regexp !~ /^$prefix/) {
+        if ( $regexp !~ /^$prefix/ ) {
             $self->regexp(qr{${prefix}${regexp}});
         }
-    } elsif ($self->regexp eq '/') {
+    }
+    elsif ( $self->regexp eq '/' ) {
+
         # if pattern is '/', we should match:
         # - /prefix/
         # - /prefix
         # this is done by creating a regex for this case
-        my $qpattern  = quotemeta($self->regexp);
-        my $qprefix   = quotemeta($self->prefix);
+        my $qpattern  = quotemeta( $self->regexp );
+        my $qprefix   = quotemeta( $self->prefix );
         my $new_regxp = qr/^$qprefix(?:$qpattern)?$/;
 
         $self->regexp($new_regxp);
-    }else{
-        $self->regexp($prefix . $self->regexp);
+    }
+    else {
+        $self->regexp( $prefix . $self->regexp );
     }
 }
 
@@ -231,16 +237,16 @@ sub _init_regexp {
     $self->spec_route($value);
 
     # already a Regexp, so capture is true
-    if (ref($value) eq 'Regexp') {
+    if ( ref($value) eq 'Regexp' ) {
         $self->_should_capture(1);
         return $value;
     }
 
-    my ($compiled, $params, $should_capture) =
-      @{_build_regexp_from_string($value)};
+    my ( $compiled, $params, $should_capture ) =
+      @{ _build_regexp_from_string($value) };
 
     $self->_should_capture($should_capture);
-    $self->_params($params || []);
+    $self->_params( $params || [] );
     $self->regexp($compiled);
 }
 
@@ -251,7 +257,7 @@ sub _build_regexp_from_string {
     my @params;
 
     # look for route with params (/hello/:foo)
-    if ($string =~ /:/) {
+    if ( $string =~ /:/ ) {
         @params = $string =~ /:([^\/\.\?]+)/g;
         if (@params) {
             $string =~ s/(:[^\/\.\?]+)/\(\[\^\/\]\+\)/g;
@@ -273,14 +279,15 @@ sub _build_regexp_from_string {
     # escape slashes
     $string =~ s/\//\\\//g;
 
-    return ["^$string\$", \@params, $capture];
+    return [ "^$string\$", \@params, $capture ];
 }
 
 sub validate_options {
-    my ($self, $request) = @_;
+    my ( $self, $request ) = @_;
 
-    while (my ($option, $value) = each %{$self->options}) {
-        return 0 if (not $request->$option) || ($request->$option !~ $value);
+    while ( my ( $option, $value ) = each %{ $self->options } ) {
+        return 0
+          if ( not $request->$option ) || ( $request->$option !~ $value );
     }
     return 1;
 }

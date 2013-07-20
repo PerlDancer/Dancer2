@@ -62,7 +62,7 @@ my $HTTP_CODES = {
     505 => 'HTTP Version Not Supported',
 };
 
-for my $code (keys %$HTTP_CODES) {
+for my $code ( keys %$HTTP_CODES ) {
     my $str_http_code = $HTTP_CODES->{$code};
     $HTTP_CODES->{$str_http_code} = $code;
 
@@ -87,9 +87,9 @@ status.
 =cut
 
 sub status {
-    my ($class, $status) = @_;
+    my ( $class, $status ) = @_;
     return $status if $status =~ /^\d+/;
-    if (exists $HTTP_CODES->{$status}) {
+    if ( exists $HTTP_CODES->{$status} ) {
         return $HTTP_CODES->{$status};
     }
     return undef;

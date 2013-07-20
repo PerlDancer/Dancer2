@@ -41,7 +41,7 @@ my $tests_flags = {};
     set serializer => 'JSON';
 
     get '/send_file' => sub {
-        send_file(File::Spec->rel2abs(__FILE__), system_path => 1);
+        send_file( File::Spec->rel2abs(__FILE__), system_path => 1 );
     };
 
     get '/' => sub {
@@ -54,11 +54,11 @@ my $tests_flags = {};
 
     hook 'before_serializer' => sub {
         my $data = shift;
-        push @{$data}, (added_in_hook => 1);
+        push @{$data}, ( added_in_hook => 1 );
     };
 
     get '/json' => sub {
-        [foo => 42];
+        [ foo => 42 ];
     };
 
     get '/intercepted' => sub {'not intercepted'};
@@ -88,7 +88,7 @@ subtest 'request hooks' => sub {
 subtest 'serializer hooks' => sub {
     require 'JSON.pm';
     my $r = dancer_response get => '/json';
-    my $json = JSON::to_json([foo => 42, added_in_hook => 1]);
+    my $json = JSON::to_json( [ foo => 42, added_in_hook => 1 ] );
     is $r->content, $json, 'response is serialized';
     is $tests_flags->{before_serializer}, 1, 'before_serializer was called';
     is $tests_flags->{after_serializer},  1, 'after_serializer was called';
@@ -115,7 +115,7 @@ subtest 'template render hook' => sub {
 
 subtest 'before can halt' => sub {
     my $resp = dancer_response get => '/intercepted';
-    is join("\n", @{$resp->[2]}) => 'halted by before';
+    is join( "\n", @{ $resp->[2] } ) => 'halted by before';
 };
 
 done_testing;

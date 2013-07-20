@@ -15,12 +15,12 @@ my %method = (
     options => 'OPTIONS',
 );
 
-while (my ($method, $http) = each %method) {
+while ( my ( $method, $http ) = each %method ) {
     eval "$method '/' => sub { '$method' }";
-    response_content_is [$http => '/'], $method, $method;
+    response_content_is [ $http => '/' ], $method, $method;
 }
 
 eval "get '/head' => sub {'HEAD'}";
-my $resp = dancer_response('HEAD', '/head');
+my $resp = dancer_response( 'HEAD', '/head' );
 is $resp->content, '', 'HEAD';
 is $resp->header('Content-Length'), 4, 'Content-Length for HEAD';

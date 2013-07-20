@@ -40,20 +40,20 @@ sub hook_aliases {
 # after a hookable object is built, we go over its postponed hooks and register
 # them if any.
 after BUILD => sub {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
     $self->_add_postponed_hooks($args)
       if defined $args->{postponed_hooks};
 };
 
 sub _add_postponed_hooks {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
     my $postponed_hooks = $args->{postponed_hooks};
 
     # find the internal name of the hooks, from the caller name
     my $caller = ref($self);
-    my ($dancer, $h_type, $h_name, @rest) = map {lc} split /::/, $caller;
-    $h_name = $rest[0]  if $h_name eq 'Role';
-    if ($h_type =~ /(template|logger|serializer|session)/) {
+    my ( $dancer, $h_type, $h_name, @rest ) = map {lc} split /::/, $caller;
+    $h_name = $rest[0] if $h_name eq 'Role';
+    if ( $h_type =~ /(template|logger|serializer|session)/ ) {
         $h_name = $h_type;
         $h_type = 'engine';
     }
@@ -63,13 +63,13 @@ sub _add_postponed_hooks {
     $postponed_hooks = $postponed_hooks->{$h_type}{$h_name};
     return unless defined $postponed_hooks;
 
-    foreach my $name (keys %{$postponed_hooks}) {
+    foreach my $name ( keys %{$postponed_hooks} ) {
         my $hook   = $postponed_hooks->{$name}{hook};
         my $caller = $postponed_hooks->{$name}{caller};
 
         $self->has_hook($name)
           or croak "$h_name $h_type does not support the hook `$name'. ("
-          . join(", ", @{$caller}) . ")";
+          . join( ", ", @{$caller} ) . ")";
 
 #        Dancer2::core_debug("Adding hook '$name' to $self");
         $self->add_hook($hook);
@@ -79,28 +79,28 @@ sub _add_postponed_hooks {
 # mst++ for the hint
 sub _build_hooks {
     my ($self) = @_;
-    my %hooks = map +($_ => []), $self->supported_hooks;
+    my %hooks = map +( $_ => [] ), $self->supported_hooks;
     return \%hooks;
 }
 
 # This binds a coderef to an installed hook if not already
 # existing
 sub add_hook {
-    my ($self, $hook) = @_;
+    my ( $self, $hook ) = @_;
     my $name = $hook->name;
     my $code = $hook->code;
 
     croak "Unsupported hook '$name'"
       unless $self->has_hook($name);
 
-    push @{$self->hooks->{$name}}, $code;
+    push @{ $self->hooks->{$name} }, $code;
 }
 
 # allows the caller to replace the current list of hooks at the given position
 # this is useful if the object where this role is composed wants to compile the
 # hooks.
 sub replace_hook {
-    my ($self, $position, $hooks) = @_;
+    my ( $self, $position, $hooks ) = @_;
 
     croak "Hook '$position' must be installed first"
       unless $self->has_hook($position);
@@ -110,13 +110,13 @@ sub replace_hook {
 
 # Boolean flag to tells if the hook is registered or not
 sub has_hook {
-    my ($self, $hook_name) = @_;
+    my ( $self, $hook_name ) = @_;
     return exists $self->hooks->{$hook_name};
 }
 
 # Execute the hook at the given position
 sub execute_hook {
-    my ($self, $name, @args) = @_;
+    my ( $self, $name, @args ) = @_;
 
     croak "execute_hook needs a hook name"
       if !defined $name || !length($name);
@@ -128,7 +128,7 @@ sub execute_hook {
       if !$self->has_hook($name);
 
     my $res;
-    $res = $_->(@args) for @{$self->hooks->{$name}};
+    $res = $_->(@args) for @{ $self->hooks->{$name} };
     return $res;
 }
 

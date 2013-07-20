@@ -12,7 +12,7 @@ eval { require Template; Template->import(); 1 }
 use_ok('Dancer2::Template::TemplateToolkit');
 
 my $views =
-  File::Spec->rel2abs(File::Spec->catfile(dirname(__FILE__), 'views'));
+  File::Spec->rel2abs( File::Spec->catfile( dirname(__FILE__), 'views' ) );
 
 my $tt = Dancer2::Template::TemplateToolkit->new(
     views  => $views,
@@ -65,7 +65,7 @@ $tt->add_hook(
     )
 );
 
-my $result = $tt->process('index.tt', {var => 42});
+my $result = $tt->process( 'index.tt', { var => 42 } );
 is $result, 'layout top
 var = 42
 before_layout_render = 1
@@ -87,11 +87,11 @@ content added in after_layout_render';
     package Foo;
 
     use Dancer2;
-    set views    => '/this/is/our/path';
+    set views => '/this/is/our/path';
 
-    get '/default_views'          => sub {set 'views'};
-    get '/set_views_via_settings' => sub {set views => '/other/path' };
-    get '/get_views_via_settings' => sub {set 'views'};
+    get '/default_views'          => sub { set 'views' };
+    get '/set_views_via_settings' => sub { set views => '/other/path' };
+    get '/get_views_via_settings' => sub { set 'views' };
 }
 
 use Dancer2::Test apps => ['Foo'];
@@ -99,7 +99,7 @@ use Dancer2::Test apps => ['Foo'];
 my $r = dancer_response GET => '/default_views';
 is $r->content, '/this/is/our/path';
 
-dancer_response      GET => '/set_views_via_settings';
+dancer_response GET => '/set_views_via_settings';
 $r = dancer_response GET => '/get_views_via_settings';
 is $r->content, '/other/path';
 

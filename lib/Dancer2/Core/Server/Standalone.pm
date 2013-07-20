@@ -37,7 +37,7 @@ has backend => (
 
 sub _build_backend {
     my $self = shift;
-    $self->app($self->psgi_app);
+    $self->app( $self->psgi_app );
     return $self;
 }
 
@@ -72,7 +72,7 @@ sub print_banner {
       . $self->port . "\n";
 
     # all loaded plugins
-    foreach my $module (grep { $_ =~ m{^Dancer2/Plugin/} } keys %INC) {
+    foreach my $module ( grep { $_ =~ m{^Dancer2/Plugin/} } keys %INC ) {
         $module =~ s{/}{::}g;     # change / to ::
         $module =~ s{\.pm$}{};    # remove .pm at the end
         my $version = $module->VERSION;

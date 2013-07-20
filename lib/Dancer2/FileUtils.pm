@@ -134,7 +134,7 @@ defaults to utf-8 if setting not present).
 =cut
 
 sub open_file {
-    my ($mode, $filename) = @_;
+    my ( $mode, $filename ) = @_;
 
     open my $fh, $mode, $filename
       or croak "Can't open '$filename' using mode '$mode'";
@@ -159,7 +159,7 @@ in scalar context returns the entire contents of the file.
 
 sub read_file_content {
     my $file = shift or return;
-    my $fh = open_file('<', $file);
+    my $fh = open_file( '<', $file );
 
     return wantarray
       ? read_glob_content($fh)

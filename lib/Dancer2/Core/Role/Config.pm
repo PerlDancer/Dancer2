@@ -47,8 +47,8 @@ has environments_location => (
     lazy    => 1,
     default => sub {
         $ENV{DANCER_ENVDIR}
-            || File::Spec->catdir($_[0]->config_location, 'environments')
-            || File::Spec->catdir($_[0]->location, 'environments')
+          || File::Spec->catdir( $_[0]->config_location, 'environments' )
+          || File::Spec->catdir( $_[0]->location,        'environments' );
     },
 );
 
@@ -72,13 +72,13 @@ sub setting {
     my $self = shift;
     my @args = @_;
 
-    return (scalar @args == 1)
-      ? $self->settings->{$args[0]}
+    return ( scalar @args == 1 )
+      ? $self->settings->{ $args[0] }
       : $self->_set_config_entries(@args);
 }
 
 sub has_setting {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
     return exists $self->config->{$name};
 }
 
@@ -101,30 +101,30 @@ sub _build_config_files {
     my @files;
 
     foreach my $ext (@exts) {
-        foreach
-          my $file ([$location, "config.$ext"], [$self->environments_location, "$running_env.$ext"])
+        foreach my $file ( [ $location, "config.$ext" ],
+            [ $self->environments_location, "$running_env.$ext" ] )
         {
-            my $path = path(@{$file});
+            my $path = path( @{$file} );
             next if !-r $path;
 
             push @files, $path;
         }
     }
 
-    return [sort @files];
+    return [ sort @files ];
 }
 
 sub load_config_file {
-    my ($self, $file) = @_;
+    my ( $self, $file ) = @_;
     my $config;
 
     eval {
         my @files = ($file);
         my $tmpconfig =
-          Config::Any->load_files({files => \@files, use_ext => 1})->[0];
-        ($file, $config) = %{$tmpconfig};
+          Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
+        ( $file, $config ) = %{$tmpconfig};
     };
-    if (my $err = $@ || (!$config)) {
+    if ( my $err = $@ || ( !$config ) ) {
         croak "Unable to parse the configuration file: $file: $@";
     }
 
@@ -134,9 +134,9 @@ sub load_config_file {
 
 sub get_postponed_hooks {
     my ($self) = @_;
-    return (ref($self) eq 'Dancer2::Core::App')
+    return ( ref($self) eq 'Dancer2::Core::App' )
       ? (
-        (defined $self->server)
+        ( defined $self->server )
         ? $self->server->runner->postponed_hooks
         : {}
       )
@@ -152,11 +152,11 @@ sub _build_config {
 
     my $default = {};
     $default = $self->default_config
-        if $self->can('default_config');
+      if $self->can('default_config');
 
-    my $config = Hash::Merge::Simple->merge( $default,
-        map {$self->load_config_file($_)}
-            @{$self->config_files}
+    my $config = Hash::Merge::Simple->merge(
+        $default,
+        map { $self->load_config_file($_) } @{ $self->config_files }
     );
 
     $config = $self->_normalize_config($config);
@@ -164,38 +164,39 @@ sub _build_config {
 }
 
 sub _set_config_entries {
-    my ($self, @args) = @_;
+    my ( $self, @args ) = @_;
     my $no = scalar @args;
     while (@args) {
-        $self->_set_config_entry(shift(@args), shift(@args));
+        $self->_set_config_entry( shift(@args), shift(@args) );
     }
     return $no;
 }
 
 sub _set_config_entry {
-    my ($self, $name, $value) = @_;
+    my ( $self, $name, $value ) = @_;
 
-    $value = $self->_normalize_config_entry($name, $value);
-    $value = $self->_compile_config_entry($name, $value, $self->config);
+    $value = $self->_normalize_config_entry( $name, $value );
+    $value = $self->_compile_config_entry( $name, $value, $self->config );
     $self->config->{$name} = $value;
 }
 
 sub _normalize_config {
-    my ($self, $config) = @_;
+    my ( $self, $config ) = @_;
 
-    foreach my $key (keys %{$config}) {
+    foreach my $key ( keys %{$config} ) {
         my $value = $config->{$key};
-        $config->{$key} = $self->_normalize_config_entry($key, $value);
+        $config->{$key} = $self->_normalize_config_entry( $key, $value );
     }
     return $config;
 }
 
 sub _compile_config {
-    my ($self, $config) = @_;
+    my ( $self, $config ) = @_;
 
-    foreach my $key (keys %{$config}) {
+    foreach my $key ( keys %{$config} ) {
         my $value = $config->{$key};
-        $config->{$key} = $self->_compile_config_entry($key, $value, $config);
+        $config->{$key} =
+          $self->_compile_config_entry( $key, $value, $config );
     }
     return $config;
 }
@@ -203,7 +204,7 @@ sub _compile_config {
 my $_normalizers = {
     charset => sub {
         my ($charset) = @_;
-        return $charset if !length($charset || '');
+        return $charset if !length( $charset || '' );
 
         require Encode;
         my $encoding = Encode::find_encoding($charset);
@@ -220,7 +221,7 @@ my $_normalizers = {
 };
 
 sub _normalize_config_entry {
-    my ($self, $name, $value) = @_;
+    my ( $self, $name, $value ) = @_;
     $value = $_normalizers->{$name}->($value)
       if exists $_normalizers->{$name};
     return $value;
@@ -228,14 +229,16 @@ sub _normalize_config_entry {
 
 my $_setters = {
     logger => sub {
-        my ($self, $value, $config) = @_;
+        my ( $self, $value, $config ) = @_;
 
         return $value if ref($value);
         my $engine_options =
-          $self->_get_config_for_engine(logger => $value, $config);
+          $self->_get_config_for_engine( logger => $value, $config );
 
         # keep compatibility with old 'log' keyword to define log level.
-        if (!exists($engine_options->{log_level}) and exists($config->{log})) {
+        if (   !exists( $engine_options->{log_level} )
+            and exists( $config->{log} ) )
+        {
             $engine_options->{log_level} = $config->{log};
         }
         return Dancer2::Core::Factory->create(
@@ -247,11 +250,11 @@ my $_setters = {
     },
 
     session => sub {
-        my ($self, $value, $config) = @_;
+        my ( $self, $value, $config ) = @_;
         return $value if ref($value);
 
         my $engine_options =
-          $self->_get_config_for_engine(session => $value, $config);
+          $self->_get_config_for_engine( session => $value, $config );
 
         return Dancer2::Core::Factory->create(
             session => $value,
@@ -261,15 +264,15 @@ my $_setters = {
     },
 
     template => sub {
-        my ($self, $value, $config) = @_;
+        my ( $self, $value, $config ) = @_;
         return $value if ref($value);
 
         my $engine_options =
-          $self->_get_config_for_engine(template => $value, $config);
-        my $engine_attrs = {config => $engine_options};
+          $self->_get_config_for_engine( template => $value, $config );
+        my $engine_attrs = { config => $engine_options };
         $engine_attrs->{layout} ||= $config->{layout};
         $engine_attrs->{views}  ||= $config->{views}
-            || path($self->location, 'views');
+          || path( $self->location, 'views' );
 
         return Dancer2::Core::Factory->create(
             template => $value,
@@ -284,10 +287,10 @@ my $_setters = {
 #        Dancer2::Route::Cache->reset();
 #    },
     serializer => sub {
-        my ($self, $value, $config) = @_;
+        my ( $self, $value, $config ) = @_;
 
         my $engine_options =
-          $self->_get_config_for_engine(serializer => $value, $config);
+          $self->_get_config_for_engine( serializer => $value, $config );
 
         return Dancer2::Core::Factory->create(
             serializer      => $value,
@@ -296,39 +299,39 @@ my $_setters = {
         );
     },
     import_warnings => sub {
-        my ($self, $value) = @_;
+        my ( $self, $value ) = @_;
         $^W = $value ? 1 : 0;
     },
     traces => sub {
-        my ($self, $traces) = @_;
+        my ( $self, $traces ) = @_;
         require Carp;
         $Carp::Verbose = $traces ? 1 : 0;
     },
     views => sub {
-        my ($self, $value, $config) = @_;
-        if (ref($self) eq 'Dancer2::Core::App' && defined $self->server) {
+        my ( $self, $value, $config ) = @_;
+        if ( ref($self) eq 'Dancer2::Core::App' && defined $self->server ) {
             $self->engine('template')->views($value);
         }
     },
     layout => sub {
-        my ($self, $value, $config) = @_;
-        if (ref($self) eq 'Dancer2::Core::App' && defined $self->server) {
+        my ( $self, $value, $config ) = @_;
+        if ( ref($self) eq 'Dancer2::Core::App' && defined $self->server ) {
             $self->engine('template')->layout($value);
         }
     },
 };
 
 sub _compile_config_entry {
-    my ($self, $name, $value, $config) = @_;
+    my ( $self, $name, $value, $config ) = @_;
 
     my $trigger = $_setters->{$name};
     return $value unless defined $trigger;
 
-    return $trigger->($self, $value, $config);
+    return $trigger->( $self, $value, $config );
 }
 
 sub _get_config_for_engine {
-    my ($self, $engine, $name, $config) = @_;
+    my ( $self, $engine, $name, $config ) = @_;
 
     my $default_config = {
         environment => $self->environment,
@@ -336,12 +339,12 @@ sub _get_config_for_engine {
     };
     return $default_config unless defined $config->{engines};
 
-    if (!defined $config->{engines}{$engine}) {
+    if ( !defined $config->{engines}{$engine} ) {
         return $default_config;
     }
 
     my $engine_config = $config->{engines}{$engine}{$name} || {};
-    return {%{$default_config}, %{$engine_config},} || $default_config;
+    return { %{$default_config}, %{$engine_config}, } || $default_config;
 }
 
 1;

@@ -1,4 +1,4 @@
-# ABSTRACT: Role to provide commonly used responses 
+# ABSTRACT: Role to provide commonly used responses
 
 package Dancer2::Core::Role::StandardResponses;
 use Moo::Role;
@@ -13,9 +13,9 @@ message:
 =cut
 
 sub response {
-    my ($self, $ctx, $code, $message) = @_;
+    my ( $self, $ctx, $code, $message ) = @_;
     $ctx->response->status($code);
-    $ctx->response->header('Content-Type', 'text/plain');
+    $ctx->response->header( 'Content-Type', 'text/plain' );
     return $message;
 }
 
@@ -26,8 +26,8 @@ Produces a 400 response in the context given.
 =cut
 
 sub response_400 {
-    my ($self, $ctx) = @_;
-    $self->response($ctx, 400, 'Bad Request');
+    my ( $self, $ctx ) = @_;
+    $self->response( $ctx, 400, 'Bad Request' );
 }
 
 =method response_404
@@ -37,8 +37,8 @@ Produces a 404 response in the context given.
 =cut
 
 sub response_404 {
-    my ($self, $ctx) = @_;
-    $self->response($ctx, 404, 'Not Found');
+    my ( $self, $ctx ) = @_;
+    $self->response( $ctx, 404, 'Not Found' );
 }
 
 =method response_403
@@ -48,8 +48,8 @@ Produces a 403 response in the context given.
 =cut
 
 sub response_403 {
-    my ($self, $ctx) = @_;
-    $self->response($ctx, 403, 'Unauthorized');
+    my ( $self, $ctx ) = @_;
+    $self->response( $ctx, 403, 'Unauthorized' );
 }
 
 1;

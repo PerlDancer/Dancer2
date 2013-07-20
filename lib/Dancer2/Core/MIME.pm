@@ -16,13 +16,13 @@ use MIME::Types;
 # as MIME::Types fails to load its mappings from the DATA handle. See
 # t/04_static_file/003_mime_types_reinit.t and GH#136.
 BEGIN {
-    MIME::Types->new(only_complete => 1);
+    MIME::Types->new( only_complete => 1 );
 }
 
 has mime_type => (
     is      => 'ro',
     isa     => InstanceOf ['MIME::Types'],
-    default => sub { MIME::Types->new(only_complete => 1) },
+    default => sub { MIME::Types->new( only_complete => 1 ) },
     lazy    => 1,
 );
 
@@ -44,37 +44,37 @@ sub reset_default {
 }
 
 sub add_type {
-    my ($self, $name, $type) = @_;
+    my ( $self, $name, $type ) = @_;
     $self->custom_types->{$name} = $type;
     return;
 }
 
 sub add_alias {
-    my ($self, $alias, $orig) = @_;
+    my ( $self, $alias, $orig ) = @_;
     my $type = $self->for_name($orig);
-    $self->add_type($alias, $type);
+    $self->add_type( $alias, $type );
     return $type;
 }
 
 sub for_file {
-    my ($self, $filename) = @_;
+    my ( $self, $filename ) = @_;
     my ($ext) = $filename =~ /\.([^.]+)$/;
     return $self->default unless $ext;
     return $self->for_name($ext);
 }
 
 sub name_or_type {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
 
     return $name if $name =~ m{/};    # probably a mime type
     return $self->for_name($name);
 }
 
 sub for_name {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
     return
-         $self->custom_types->{lc $name}
-      || $self->mime_type->mimeTypeOf(lc $name)
+         $self->custom_types->{ lc $name }
+      || $self->mime_type->mimeTypeOf( lc $name )
       || $self->default;
 }
 

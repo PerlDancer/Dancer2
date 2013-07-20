@@ -15,16 +15,16 @@ use warnings;
 
 my $s;
 
-like(exception { $s = Foo->new }, qr{required.*host}, "host is mandatory",);
+like( exception { $s = Foo->new }, qr{required.*host}, "host is mandatory", );
 
 like(
-    exception { $s = Foo->new(host => 'localhost') },
+    exception { $s = Foo->new( host => 'localhost' ) },
     qr{required.*port}, "port is mandatory",
 );
 
-my $runner = Dancer2::Core::Runner->new(caller => $0);
-$s = Foo->new(host => 'localhost', port => 3000, runner => $runner);
-my $app = Dancer2::Core::App->new(name => 'main');
+my $runner = Dancer2::Core::Runner->new( caller => $0 );
+$s = Foo->new( host => 'localhost', port => 3000, runner => $runner );
+my $app = Dancer2::Core::App->new( name => 'main' );
 
 $s->register_application($app);
 

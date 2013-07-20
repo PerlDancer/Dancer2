@@ -10,9 +10,9 @@ use warnings;
 }
 
 use Dancer2::Test;
-response_status_is [GET => '/foo'], 200;
+response_status_is [ GET => '/foo' ], 200;
 
-response_content_is [GET => '/foo'],
+response_content_is [ GET => '/foo' ],
   'http://localhost/foo',
   "uri_for works as expected";
 

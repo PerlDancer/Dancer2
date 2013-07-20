@@ -7,7 +7,7 @@ use Carp 'croak';
 
 with 'Dancer2::Core::Role::Hookable';
 
-has app => (is => 'ro', required => 1);
+has app => ( is => 'ro', required => 1 );
 
 has keywords => (
     is      => 'rw',
@@ -26,26 +26,26 @@ sub _build_dsl_keywords {
 }
 
 sub register {
-    my ($self, $keyword, $is_global) = @_;
+    my ( $self, $keyword, $is_global ) = @_;
 
-    grep {/^$keyword$/} @{$self->keywords}
+    grep {/^$keyword$/} @{ $self->keywords }
       and croak "Keyword '$keyword' is not available.";
 
-    push @{$self->keywords}, [$keyword, $is_global];
+    push @{ $self->keywords }, [ $keyword, $is_global ];
 }
 
 sub dsl { $_[0] }
 
 sub dsl_keywords_as_list {
-    map { $_->[0] } @{shift->dsl_keywords()};
+    map { $_->[0] } @{ shift->dsl_keywords() };
 }
 
 # exports new symbol to caller
 sub export_symbols_to {
-    my ($self, $caller, $args) = @_;
+    my ( $self, $caller, $args ) = @_;
     my $exports = $self->_construct_export_map($args);
 
-    foreach my $export (keys %{$exports}) {
+    foreach my $export ( keys %{$exports} ) {
         no strict 'refs';
         my $existing = *{"${caller}::${export}"}{CODE};
 
@@ -60,18 +60,18 @@ sub export_symbols_to {
 # private
 
 sub _compile_keyword {
-    my ($self, $keyword, $is_global) = @_;
+    my ( $self, $keyword, $is_global ) = @_;
 
     my $compiled_code = sub {
-        core_debug("["
+        core_debug( "["
               . $self->app->name
               . "] -> $keyword("
-              . join(', ', map { defined() ? $_ : '<undef>' } @_)
-              . ")");
+              . join( ', ', map { defined() ? $_ : '<undef>' } @_ )
+              . ")" );
         $self->$keyword(@_);
     };
 
-    if (!$is_global) {
+    if ( !$is_global ) {
         my $code = $compiled_code;
         $compiled_code = sub {
             croak "Function '$keyword' must be called from a route handler"
@@ -84,15 +84,15 @@ sub _compile_keyword {
 }
 
 sub _construct_export_map {
-    my ($self, $args) = @_;
+    my ( $self, $args ) = @_;
     my %map;
-    foreach my $keyword (@{$self->keywords}) {
-        my ($keyword, $is_global) = @{$keyword};
+    foreach my $keyword ( @{ $self->keywords } ) {
+        my ( $keyword, $is_global ) = @{$keyword};
 
         # check if the keyword were excluded from importation
-        $args->{'!' . $keyword}
+        $args->{ '!' . $keyword }
           and next;
-        $map{$keyword} = $self->_compile_keyword($keyword, $is_global);
+        $map{$keyword} = $self->_compile_keyword( $keyword, $is_global );
     }
     return \%map;
 }
