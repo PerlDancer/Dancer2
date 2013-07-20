@@ -30,7 +30,7 @@ is(
 );
 
 is(
-    $tt->view('foo'),
+    $tt->view_pathname('foo'),
     File::Spec->catfile($views, 'foo.foo'),
     "view('foo') gives filename with right extension as configured",
 );
