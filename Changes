@@ -38,6 +38,7 @@ NEXT
       (Maurice Mengel, Franck Cuny)
     * plugin_setting does not trigger a DEPRECATION warning anymore 
       (Report by Alberto Simões, fix by Alexis Sukrieh)
+    * GH#251: Support for on-the-fly changes of layouts/views (Franck Cuny)
 
     [ DOCUMENTATION ]
     * Lots of documentation cleanup (Mokko, David Precious)
