@@ -22,7 +22,7 @@ has default_content_type => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ($self, $env, $request, $curr_context) = @_;
+    my ( $self, $env, $request, $curr_context ) = @_;
 
 
 #    warn "dispatching ".$env->{PATH_INFO}
@@ -37,7 +37,7 @@ sub dispatch {
         $context->session($curr_context->session);
     }
 
-    foreach my $app (@{$self->apps}) {
+    foreach my $app ( @{$self->apps} ) {
 
         # warn "walking through routes of ".$app->name;
 
