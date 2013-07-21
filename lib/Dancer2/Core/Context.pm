@@ -11,11 +11,24 @@ use Dancer2::Core::Request;
 use Dancer2::Core::Response;
 use Dancer2::Core::Cookie;
 
+=attr app
+
+Reference to the L<Dancer2::Core::App> object for the current application. 
+
+=cut
+
+
 has app => (
     is       => 'rw',
     isa      => InstanceOf ['Dancer2::Core::App'],
     weak_ref => 1,
 );
+
+=attr env
+
+Read-only accessor to a PSGI environment hash.
+
+=cut
 
 # the PSGI-env to use for building the request to process
 # this is the only mandatory argument to a context
@@ -24,6 +37,12 @@ has env => (
     required => 1,
     isa      => HashRef,
 );
+
+=attr request
+
+A L<Dancer2::Core::Request> object, built from the PSGI environment variable for this request.
+
+=cut
 
 # the incoming request
 has request => (
@@ -35,7 +54,7 @@ has request => (
 
 sub _build_request {
     my ($self) = @_;
-    Dancer2::Core::Request->new(env => $self->env);
+    Dancer2::Core::Request->new( env => $self->env );
 }
 
 # a buffer for per-request variables
@@ -45,14 +64,40 @@ has buffer => (
     default => sub { {} },
 );
 
+=method vars
+
+Returns a hashref of all per-request variables stored in this object.
+
+=cut
+
 sub vars { shift->buffer }
+
+=method var
+
+By-name interface to variables stored in this context object.
+
+  my $stored = $context->var('some_variable');
+
+returns the value of 'some_variable', while
+
+  $context->var('some_variable' => 'value');
+
+will set it.
+
+=cut
 
 sub var {
     my $self = shift;
     @_ == 2
-      ? $self->buffer->{$_[0]} = $_[1]
-      : $self->buffer->{$_[0]};
+      ? $self->buffer->{ $_[0] } = $_[1]
+      : $self->buffer->{ $_[0] };
 }
+
+=attr response
+
+A L<Dancer2::Core::Response> object, used to set content, headers and HTTP status codes.
+
+=cut
 
 # a set of changes to apply to the response
 # that HashRef will should be passed as attributes to a response object
@@ -62,22 +107,41 @@ has response => (
     default => sub { Dancer2::Core::Response->new },
 );
 
+=method cookies
+
+Shortcut that dispatches to L<Dancer2::Core::Request>'s cookies method.
+
+=cut
+
 sub cookies { shift->request->cookies(@_) }
+
+=method cookie
+
+Get a cookie from the L<request> object, or set one in the L<response> object.
+
+=cut
 
 sub cookie {
     my $self = shift;
 
-    return $self->request->cookies->{$_[0]} if @_ == 1;
+    return $self->request->cookies->{ $_[0] } if @_ == 1;
 
     # writer
-    my ($name, $value, %options) = @_;
+    my ( $name, $value, %options ) = @_;
     my $c =
-      Dancer2::Core::Cookie->new(name => $name, value => $value, %options);
-    $self->response->push_header('Set-Cookie' => $c->to_header);
+      Dancer2::Core::Cookie->new( name => $name, value => $value, %options );
+    $self->response->push_header( 'Set-Cookie' => $c->to_header );
 }
 
+=method redirect($destination, $status)
+
+Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
+be made into an absolute URI, relative to the URI in the request.
+
+=cut
+
 sub redirect {
-    my ($self, $destination, $status) = @_;
+    my ( $self, $destination, $status ) = @_;
 
     # RFC 2616 requires an absolute URI with a scheme,
     # turn the URI into that if it needs it
@@ -85,11 +149,11 @@ sub redirect {
     # Scheme grammar as defined in RFC 2396
     #  scheme = alpha *( alpha | digit | "+" | "-" | "." )
     my $scheme_re = qr{ [a-z][a-z0-9\+\-\.]* }ix;
-    if ($destination !~ m{^ $scheme_re : }x) {
-        $destination = $self->request->uri_for($destination, {}, 1);
+    if ( $destination !~ m{^ $scheme_re : }x ) {
+        $destination = $self->request->uri_for( $destination, {}, 1 );
     }
 
-    $self->response->redirect($destination, $status);
+    $self->response->redirect( $destination, $status );
 }
 
 
@@ -117,16 +181,16 @@ sub _build_session {
       if !defined $engine;
 
     # find the session cookie if any
-    if (!$self->destroyed_session) {
+    if ( !$self->destroyed_session ) {
         my $session_id;
-        my $session_cookie = $self->cookie($engine->cookie_name);
-        if (defined $session_cookie) {
+        my $session_cookie = $self->cookie( $engine->cookie_name );
+        if ( defined $session_cookie ) {
             $session_id = $session_cookie->value;
         }
 
         # if we have a session cookie, try to retrieve the session
-        if (defined $session_id) {
-            eval { $session = $engine->retrieve(id => $session_id) };
+        if ( defined $session_id ) {
+            eval { $session = $engine->retrieve( id => $session_id ) };
             croak "Fail to retrieve session: $@"
               if $@ && $@ !~ /Unable to retrieve session/;
         }
@@ -151,7 +215,8 @@ sub has_session {
       or return;
 
     return $self->{session}
-      || ($self->cookie($engine->cookie_name) && !$self->destroyed_session);
+      || ( $self->cookie( $engine->cookie_name )
+        && !$self->destroyed_session );
 }
 
 =attr destroyed_session
@@ -189,7 +254,7 @@ sub destroy_session {
     # a new session is created and supercedes it
     my $session = $self->session;
     $session->expires(-86400);    # yesterday
-    $engine->destroy(id => $session->id);
+    $engine->destroy( id => $session->id );
 
     # Clear session in context and invalidate session cookie in request
     $self->destroyed_session($session);

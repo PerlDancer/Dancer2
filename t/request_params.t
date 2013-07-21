@@ -17,13 +17,13 @@ sub run_test {
         $ENV{REQUEST_METHOD} = 'GET';
         $ENV{PATH_INFO}      = '/';
 
-        for my $separator ('&', ';') {
+        for my $separator ( '&', ';' ) {
             note "testing separator $separator";
 
             $ENV{QUERY_STRING} = join(
                 $separator,
                 (   'name=Alexis%20Sukrieh', 'IRC%20Nickname=sukria',
-                    'Project=Perl+Dancer2',   'hash=2',
+                    'Project=Perl+Dancer2',  'hash=2',
                     'hash=4',                'int1=1',
                     'int2=0'
                 )
@@ -33,21 +33,23 @@ sub run_test {
                 'name'         => 'Alexis Sukrieh',
                 'IRC Nickname' => 'sukria',
                 'Project'      => 'Perl Dancer2',
-                'hash'         => [2, 4],
+                'hash'         => [ 2, 4 ],
                 int1           => 1,
                 int2           => 0,
             };
 
-            my $req = Dancer2::Core::Request->new(env => \%ENV);
+            my $req = Dancer2::Core::Request->new( env => \%ENV );
             is $req->path,   '/',   'path is set';
             is $req->method, 'GET', 'method is set';
             ok $req->is_get, "request method is GET";
-            is_deeply scalar($req->params), $expected_params, 'params are OK';
+            is_deeply scalar( $req->params ), $expected_params,
+              'params are OK';
             is $req->params->{'name'}, 'Alexis Sukrieh',
               'params accessor works';
 
             my %params = $req->params;
-            is_deeply scalar($req->params), \%params, 'params wantarray works';
+            is_deeply scalar( $req->params ), \%params,
+              'params wantarray works';
         }
     }
 
@@ -70,21 +72,21 @@ sub run_test {
         my $expected_params = {
             name => 'john',
             foo  => 'bar',
-            hash => [2, 4, 6],
+            hash => [ 2, 4, 6 ],
         };
 
-        my $req = Dancer2::Core::Request->new(env => $env);
+        my $req = Dancer2::Core::Request->new( env => $env );
         is $req->path,   '/',    'path is set';
         is $req->method, 'POST', 'method is set';
         ok $req->is_post, 'method is post';
         my $request_to_string = $req->to_string;
         like $request_to_string, qr{\[#\d+\] POST /};
 
-        is_deeply scalar($req->params), $expected_params, 'params are OK';
+        is_deeply scalar( $req->params ), $expected_params, 'params are OK';
         is $req->params->{'name'}, 'john', 'params accessor works';
 
         my %params = $req->params;
-        is_deeply scalar($req->params), \%params, 'params wantarray works';
+        is_deeply scalar( $req->params ), \%params, 'params wantarray works';
 
     }
 
@@ -119,14 +121,14 @@ sub run_test {
             meth => 'post',
         };
 
-        my $req = Dancer2::Core::Request->new(env => $env);
+        my $req = Dancer2::Core::Request->new( env => $env );
         is $req->path,   '/',    'path is set';
         is $req->method, 'POST', 'method is set';
 
-        is_deeply scalar($req->params), $mixed_params, 'params are OK';
-        is_deeply scalar($req->params('body')), $post_params,
+        is_deeply scalar( $req->params ), $mixed_params, 'params are OK';
+        is_deeply scalar( $req->params('body') ), $post_params,
           'body params are OK';
-        is_deeply scalar($req->params('query')), $get_params,
+        is_deeply scalar( $req->params('query') ), $get_params,
           'query params are OK';
     }
 }

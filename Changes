@@ -1,22 +1,61 @@
-NEXT
+{{$NEXT}}
+
+0.05      2013-07-20 18:51:53 Europe/Paris
 
     [ DEPRECATION ]
 
     * Dancer2::Plugin drops support for Dancer 1 (issue #207)
       a DEPRECATION notice is issued when a plugin uses the old syntax
       (Alexis Sukrieh, Mokko, David Golden)
+    * Drop support for 'use Dancer2 :moose' (Franck Cuny)
 
     [ ENHANCEMENTS ]
     * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
+    * Don't inflate custom types (Graham Knop)
+    * Encode UTF8 params in Dancer2::Test (Vincent Bachelier)
+    * Make Dancer2::Core::Request more lazy (Franck Cuny)
+    * Don't use rootdir for app location (David Golden)
+    * Improve File logger (David Golden)
+    * Drop body when status is 1x or [23]04 (Franck Cuny)
+    * Add support for HTTP_X_FORWARDED_PROTO (Yanick Champoux)
+    * Prevent duplicate routes from being created (Franck Cuny)
+    * Add support for route options (Franck Cuny)
+    * Add support for prefix with route defined with regex (Franck Cuny)
+    * Methods to return path of views and layout in the Template role 
+      (Franck Cuny, Yanick Champoux).
+    * GH#31, GH#221: Config merging support (Russell Jenkins)
 
     [ BUG FIXES ]
     * GH#272: test function 'route_doesnt_exist' was not handling test comment
-         properly. (Jeff Boes, Yanick Champoux)
+      properly. (Jeff Boes, Yanick Champoux)
+    * GH#228: handle UTF-8 correctly in JSON serializer (Steven Humphrey)
+    * GH#270: handle correctly serializer's options (Keith Broughton)
+    * GH#274: `dancer -v' returns the correct version (Dinis Rebolo)
+    * GH#286: for HEAD request, drop response's body (Franck Cuny)
+    * GH#293: fix defaults tests for a newly generated app (Franck Cuny)
+    * GH#216: check 'show_errors' when returning an internal error (Franck Cuny)
+    * GH#246: Add serialization of log messages (Stefan Hornburg)
+    * GH#268: Dancer2::Core::Response->status accepts stringy HTTP codes
+      (Franck Cuny)
+    * GH#308: Add support for ENV{DANCER_CONFDIR} and ENV{DANCER_ENVDIR}
+      (Franck Cuny)
+    * GH#210: Don't print startup banner if startup_info is set to 0
+      (Maurice Mengel, Franck Cuny)
+    * plugin_setting does not trigger a DEPRECATION warning anymore 
+      (Report by Alberto Simões, fix by Alexis Sukrieh)
+    * GH#251: Support for on-the-fly changes of layouts/views (Franck Cuny)
+    * GH#302: Avoid double encoding in Handler::File (Russell Jenkins)
 
     [ DOCUMENTATION ]
-    * Lots of documentation cleanup (Mokko) 
+    * Lots of documentation cleanup (Mokko, David Precious)
     * Documenting Dancer2::Handler::AutoPage (Sabiha Imran, Sawyer X)
     * Documenting Dancer2::Core::Dispatcher (Babitha Balachandran)
+    * Documenting Dancer2::Manual::DSL (David Precious, Franck Cuny)
+    * Various typo (Shlomi Fish, Colin Kuskie, Stefan Hornburg, Rick Yakubowski)
+    * Documenting some internals (Colin Kuskie)
+    * Documenting Dancer2::Core::MIME (Babitha B.)
+    * Documenting Manual::Developers (Maurice Mengel)
+    * Documenting Dancer2::Core::Response (Colin Kuskie)
 
 0.04 - 2013-04-22 (Alexis Sukrieh)
 

@@ -62,7 +62,7 @@ subtest 'plugin_register' => sub {
     use Dancer2::Plugin;
 
     #no longer any version restrictions see GH#207, fails because no dsl
-    Test::More::ok(!register_plugin for_versions => [1]);
+    Test::More::ok( !register_plugin for_versions => [1] );
 };
 
 done_testing;

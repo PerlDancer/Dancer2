@@ -80,13 +80,13 @@ Where to store the session files.  Defaults to "./sessions".
 has session_dir => (
     is      => 'ro',
     isa     => Str,
-    default => sub { path('.', 'sessions') },
+    default => sub { path( '.', 'sessions' ) },
 );
 
 sub BUILD {
     my $self = shift;
 
-    if (!-d $self->session_dir) {
+    if ( !-d $self->session_dir ) {
         mkdir $self->session_dir
           or croak "Unable to create session dir : "
           . $self->session_dir . ' : '
@@ -98,14 +98,14 @@ sub _sessions {
     my ($self) = @_;
     my $sessions = [];
 
-    opendir(my $dh, $self->session_dir)
+    opendir( my $dh, $self->session_dir )
       or croak "Unable to open directory " . $self->session_dir . " : $!";
 
     my $suffix = $self->_suffix;
 
-    while (my $file = readdir($dh)) {
+    while ( my $file = readdir($dh) ) {
         next if $file eq '.' || $file eq '..';
-        if ($file =~ /(\w+)\Q$suffix\E/) {
+        if ( $file =~ /(\w+)\Q$suffix\E/ ) {
             push @{$sessions}, $1;
         }
     }
@@ -115,8 +115,8 @@ sub _sessions {
 }
 
 sub _retrieve {
-    my ($self, $id) = @_;
-    my $session_file = path($self->session_dir, $id . $self->_suffix);
+    my ( $self, $id ) = @_;
+    my $session_file = path( $self->session_dir, $id . $self->_suffix );
 
     return unless -f $session_file;
 
@@ -129,21 +129,21 @@ sub _retrieve {
 }
 
 sub _destroy {
-    my ($self, $id) = @_;
-    my $session_file = path($self->session_dir, $id . $self->_suffix);
+    my ( $self, $id ) = @_;
+    my $session_file = path( $self->session_dir, $id . $self->_suffix );
     return if !-f $session_file;
 
     unlink $session_file;
 }
 
 sub _flush {
-    my ($self, $id, $data) = @_;
-    my $session_file = path($self->session_dir, $id . $self->_suffix);
+    my ( $self, $id, $data ) = @_;
+    my $session_file = path( $self->session_dir, $id . $self->_suffix );
 
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     set_file_mode($fh);
-    $self->_freeze_to_handle($fh, $data);
+    $self->_freeze_to_handle( $fh, $data );
     close $fh or die "Can't close '$session_file': $!\n";
 
     return $data;

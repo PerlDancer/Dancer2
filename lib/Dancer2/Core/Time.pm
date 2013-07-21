@@ -83,7 +83,7 @@ sub _build_gmt_string {
     my $epoch = $self->epoch;
     return $epoch if $epoch !~ /^\d+$/;
 
-    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($epoch);
+    my ( $sec, $min, $hour, $mday, $mon, $year, $wday ) = gmtime($epoch);
     my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
     my @days   = qw(Sun Mon Tue Wed Thu Fri Sat);
 
@@ -91,7 +91,7 @@ sub _build_gmt_string {
       $days[$wday],
       $mday,
       $months[$mon],
-      ($year + 1900),
+      ( $year + 1900 ),
       $hour, $min, $sec;
 }
 
@@ -128,8 +128,8 @@ sub BUILD {
     my ($self) = @_;
 
     # if the expression is already a numeric value, assume it's an epoch
-    if ($self->expression =~ /^\d+$/) {
-        $self->epoch($self->expression);
+    if ( $self->expression =~ /^\d+$/ ) {
+        $self->epoch( $self->expression );
         $self->expression('0h');
     }
 }
@@ -151,11 +151,11 @@ my %Units = ( map(($_,             1), qw(s second seconds sec secs)),
 # This code is taken from Time::Duration::Parse, except if it isn't
 # understood it just passes it through and it adds the current time.
 sub _parse_duration {
-    my ($self, $timespec) = @_;
+    my ( $self, $timespec ) = @_;
     my $orig_timespec = $timespec;
 
     # Treat a plain number as a number of seconds (and parse it later)
-    if ($timespec =~ /^\s*([-+]?\d+(?:[.,]\d+)?)\s*$/) {
+    if ( $timespec =~ /^\s*([-+]?\d+(?:[.,]\d+)?)\s*$/ ) {
         $timespec = "$1s";
     }
 
@@ -164,13 +164,13 @@ sub _parse_duration {
     $timespec =~ s/\b(\d+):(\d\d)\b/$1h $2m/g;
 
     my $duration = 0;
-    while ($timespec
-        =~ s/^\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)(?:\s*(?:,|and)\s*)*//i)
+    while ( $timespec
+        =~ s/^\s*([-+]?\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)(?:\s*(?:,|and)\s*)*//i )
     {
-        my ($amount, $unit) = ($1, $2);
+        my ( $amount, $unit ) = ( $1, $2 );
         $unit = lc($unit) unless length($unit) == 1;
 
-        if (my $value = $Units{$unit}) {
+        if ( my $value = $Units{$unit} ) {
             $amount =~ s/,/./;
             $duration += $amount * $value;
         }
@@ -179,7 +179,7 @@ sub _parse_duration {
         }
     }
 
-    if ($timespec =~ /\S/) {
+    if ( $timespec =~ /\S/ ) {
         return $orig_timespec;
     }
 

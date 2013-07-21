@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 BEGIN {
+
     # Freeze time at Tue, 15-Jun-2010 00:00:00 GMT
     *CORE::GLOBAL::time = sub { return 1276560000 }
 }
@@ -16,12 +17,12 @@ my $_logs = [];
     with 'Dancer2::Core::Role::Logger';
 
     sub log {
-        my ($self, $level, $message) = @_;
-        push @$_logs, $self->format_message($level, $message);
+        my ( $self, $level, $message ) = @_;
+        push @$_logs, $self->format_message( $level, $message );
     }
 }
 
-my $logger = Dancer2::Logger::Test->new(app_name => 'test');
+my $logger = Dancer2::Logger::Test->new( app_name => 'test' );
 
 is $logger->log_level, 'debug';
 $logger->debug("foo");
@@ -39,8 +40,8 @@ subtest 'logger capture' => sub {
     my $app  = dancer_app;
     my $trap = $app->setting('logger')->trapper;
     is_deeply $trap->read,
-      [ {level => "warning", message => "Danger!  Warning!"},
-        {level => "debug",   message => "I like pie.",}
+      [ { level => "warning", message => "Danger!  Warning!" },
+        { level => "debug",   message => "I like pie.", }
       ];
 
     # each call to read cleans the trap

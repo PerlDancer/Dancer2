@@ -22,9 +22,9 @@ Use Test::More's note() to output the log message.
 =cut
 
 sub log {
-    my ($self, $level, $message) = @_;
+    my ( $self, $level, $message ) = @_;
 
-    Test::More::note($self->format_message($level => $message));
+    Test::More::note( $self->format_message( $level => $message ) );
 }
 
 1;

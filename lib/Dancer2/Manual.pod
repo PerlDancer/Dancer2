@@ -7,10 +7,15 @@ package Dancer2::Manual;
 
 =head1 DESCRIPTION
 
-Dancer2 is a free and open source micro web application framework written in
-Perl.
+Dancer2 is a free and open source web application framework written in Perl.
 
-It's a complete rewrite of L<Dancer> based on L<Moo>.
+It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more robust
+and extensible fully-OO design.
+
+It's designed to be powerful and flexible, but very easy to use - getting up and
+running with your web app is trivial, and an ecosystem of adaptors for common
+template engines, session storage and logging methods and plugings to make
+common tasks easy mean you can do what you want to do, your way, easily.
 
 =head1 INSTALL
 
@@ -27,7 +32,7 @@ Unix-like systems:
 (If you don't have root access, omit the 'sudo', and cpanminus will install
 Dancer2 and prereqs into C<~/perl5>.)
 
-=head1 BOOTSTRAPING
+=head1 BOOTSTRAPPING (starting a new app)
 
 Create a web application using the dancer script:
 
@@ -76,22 +81,40 @@ route handlers.
 
 =over 8
 
-=item B<GET>        The GET method retrieves information (when defining a route
-                    handler for the GET method, Dancer2 automatically defines a
-                    route handler for the HEAD method, in order to honour HEAD
-                    requests for each of your GET route handlers).
-                    To define a GET action, use the B<get> keyword.
+=item B<GET> The GET method retrieves information, and is the most common
 
-=item B<POST>       The POST method is used to create a resource on the
-                    server.
-                    To define a POST action, use the B<post> keyword.
+GET requests should be used for typical "fetch" requests - retrieving
+information.  They should not be used for requests which change data on the
+server or have other effects.
 
-=item B<PUT>        The PUT method is used to update an existing resource.
-                    To define a PUT action, use the B<put> keyword.
+When defining a route handler for the GET method, Dancer2 automatically defines
+a route handler for the HEAD method, in order to honour HEAD requests for each 
+of your GET route handlers).
 
-=item B<DELETE>     The DELETE method requests that the origin server delete
-                    the resource identified by the Request-URI.
-                    To define a DELETE action, use the B<del> keyword.
+To define a GET action, use the L<get|Dancer2::Manual::DSL/get> keyword.
+
+=item B<POST> The POST method is used to create a resource on the server.
+
+To define a POST action, use the L<post|Dancer2::Manual::DSL/post> keyword.
+
+=item B<PUT> The PUT method is used to replace an existing resource.
+
+To define a PUT action, use the L<put|Dancer2::Manual::DSL/put> keyword.
+
+a PUT request should replace the existing resource with that specified - for
+instance - if you wanted to just update an email address for a user, you'd have
+to specify all attributes of the user again; to make a partial update, a
+C<PATCH> request is used.
+
+=item B<PATCH> The PATCH method updates some attributes of an existing resource.
+
+To define a PATCH action, use the L<patch|Dancer2::Manual::Keywoards/patch>
+keyword.
+
+=item B<DELETE> The DELETE method requests that the origin server delete the 
+resource identified by the Request-URI.
+
+To define a DELETE action, use the L<del|Dancer2::Manual::DSL/del> keyword.
 
 =back
 

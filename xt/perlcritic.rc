@@ -1,0 +1,60 @@
+# nice output, to easily see the POD of the policy
+verbose  = [%p] %m at %f line %l, near '%r'\n
+# severity of 3 is a good start (1 is very strict, 5 very tolerant)
+severity = 3
+# we want to use // without //ms
+[-RegularExpressions::RequireDotMatchAnything]
+[-RegularExpressions::RequireLineBoundaryMatching]
+[-RegularExpressions::RequireExtendedFormatting]
+minimum_regex_length_to_complain_about = 5
+[-RegularExpressions::ProhibitComplexRegexes]
+# we don't want these POD rules
+[-Documentation::RequirePodSections]
+# We don't care about POD links 
+[-Documentation::RequirePodLinksIncludeText]
+# we use $@ and $!
+[-Variables::ProhibitPunctuationVars] 
+# We want to be able to use Carp::Verbose in our tests scripts, so
+# we add Carp to the whitelist
+[Variables::ProhibitPackageVars]
+packages = Data::Dumper File::Find FindBin Log::Log4perl Carp
+[-ValuesAndExpressions::ProhibitEmptyQuotes]
+# I really don't think q{/} is more readable than '/'...
+[-ValuesAndExpressions::ProhibitNoisyQuotes]
+# Perl::Critic recommends Readonly, but this IS BAD!
+# we use Const::Fast instead, but this policy keeps poping up.
+[-ValuesAndExpressions::ProhibitMagicNumbers]
+# we want to be able to build DSLs
+[-Modules::ProhibitAutomaticExportation]
+# We only want the main module to provide $VERSION
+[-Modules::RequireVersionVar]
+# we want to be able to define short getters
+[-Subroutines::RequireFinalReturn]
+# we cant do @_ mesures with that one
+[-Subroutines::RequireArgUnpacking]
+# name is a common used name for methods
+# but forbidden by this policy ...
+[-Subroutines::ProhibitBuiltinHomonyms]
+# some old libs use many args, we don't want to block that for now
+[-Subroutines::ProhibitManyArgs]
+# we allo protected subs
+[-Subroutines::ProhibitUnusedPrivateSubroutines]
+# We're not under CVS! :)
+[-Miscellanea::RequireRcsKeywords]
+[TestingAndDebugging::ProhibitNoStrict]
+allow = refs
+[TestingAndDebugging::ProhibitNoWarnings]
+allow = redefine prototype
+[TestingAndDebugging::RequireUseStrict]
+equivalent_modules = strictures Moo Moo::Role
+[TestingAndDebugging::RequireUseWarnings]
+equivalent_modules = strictures Moo Moo::Role
+# we use postifx controls
+[-ControlStructures::ProhibitPostfixControls]
+[-ControlStructures::ProhibitCascadingIfElse]
+# We want to use croak everywhere instead of die
+[ErrorHandling::RequireCarping]
+# allow backtick if capture result
+[InputOutput::ProhibitBacktickOperators]
+only_in_void_context = 1
+[-Variables::ProhibitAugmentedAssignmentInDeclaration]

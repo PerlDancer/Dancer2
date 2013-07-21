@@ -21,6 +21,6 @@ my $pod_structure = {
     }
 };
 
-is_deeply(route_pod_coverage, $pod_structure, 'my pod looks like expected' );
+is_deeply( route_pod_coverage, $pod_structure, 'my pod looks like expected' );
 
 done_testing;

@@ -7,7 +7,7 @@ use Test::More import => ['!pass'];
     package App;
     use Dancer2;
 
-    any ['get', 'post'] => '/test' => sub {
+    any [ 'get', 'post' ] => '/test' => sub {
         request->method;
     };
 
@@ -18,14 +18,14 @@ use Test::More import => ['!pass'];
 
 use Dancer2::Test apps => ['App'];
 
-my $r = dancer_response(POST => '/test');
+my $r = dancer_response( POST => '/test' );
 is $r->content, 'POST';
 
-$r = dancer_response(GET => '/test');
+$r = dancer_response( GET => '/test' );
 is $r->content, 'GET';
 
-for my $method (qw(GET HEAD POST PUT DELETE OPTIONS PATCH)) {
-    my $r = dancer_response($method => '/all');
+for my $method (qw(GET POST PUT DELETE OPTIONS PATCH)) {
+    my $r = dancer_response( $method => '/all' );
     is $r->content, $method;
 }
 

@@ -10,7 +10,7 @@ use Dancer2::Test;
     use Dancer2;
 
     hook before => sub {
-        var("xpto" => "foo");
+        var( "xpto" => "foo" );
         vars->{zbr} = 'ugh';
     };
 
@@ -23,5 +23,5 @@ use Dancer2::Test;
     };
 }
 
-response_content_is [GET => '/bar'], 'foo';
-response_content_is [GET => '/baz'], 'ugh';
+response_content_is [ GET => '/bar' ], 'foo';
+response_content_is [ GET => '/baz' ], 'ugh';

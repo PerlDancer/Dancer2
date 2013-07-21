@@ -108,7 +108,7 @@ requires '_build_name';
 sub _build_dispatcher {
     my ($self) = @_;
     my $d = Dancer2::Core::Dispatcher->new();
-    $d->apps($self->apps);
+    $d->apps( $self->apps );
     return $d;
 }
 
@@ -136,7 +136,7 @@ sub psgi_app {
         if ($@) {
             return [
                 500,
-                ['Content-Type' => 'text/plain'],
+                [ 'Content-Type' => 'text/plain' ],
                 ["Internal Server Error\n\n$@"],
             ];
         }
@@ -151,11 +151,14 @@ Adds another application to the C<apps> attribute (see above).
 =cut
 
 sub register_application {
-    my ($self, $app) = @_;
-    push @{$self->apps}, $app;
+    my ( $self, $app ) = @_;
+    push @{ $self->apps }, $app;
     $app->server($self);
     $app->server->runner->postponed_hooks(
-        {%{$app->server->runner->postponed_hooks}, %{$app->postponed_hooks}});
+        {   %{ $app->server->runner->postponed_hooks },
+            %{ $app->postponed_hooks }
+        }
+    );
 }
 
 1;

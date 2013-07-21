@@ -11,15 +11,15 @@ has storage => (
 );
 
 sub store {
-    my ($self, $level, $message) = @_;
-    push @{$self->storage}, {level => $level, message => $message};
+    my ( $self, $level, $message ) = @_;
+    push @{ $self->storage }, { level => $level, message => $message };
 }
 
 sub read {
     my $self = shift;
 
     my $logs = $self->storage;
-    $self->storage([]);
+    $self->storage( [] );
     return $logs;
 }
 

@@ -74,8 +74,8 @@ my $_on_import = {};
 sub register {
     my $plugin = caller;
     my $caller = caller(1);
-    my ($keyword, $code, $options) = @_;
-    $options ||= {is_global => 1};
+    my ( $keyword, $code, $options ) = @_;
+    $options ||= { is_global => 1 };
 
     $keyword =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
       or croak "You can't use '$keyword', it is an invalid name"
@@ -83,21 +83,22 @@ sub register {
 
     if (grep { $_ eq $keyword }
         map { s/^(?:\$|%|&|@|\*)//; $_ }
-        (map { $_->[0] } @{Dancer2::Core::DSL->dsl_keywords})
+        ( map { $_->[0] } @{ Dancer2::Core::DSL->dsl_keywords } )
       )
     {
         croak "You can't use '$keyword', this is a reserved keyword";
     }
 
-    while (my ($plugin, $keywords) = each %$_keywords) {
-        if (grep { $_->[0] eq $keyword } @$keywords) {
+    while ( my ( $plugin, $keywords ) = each %$_keywords ) {
+        if ( grep { $_->[0] eq $keyword } @$keywords ) {
             croak "You can't use $keyword, "
               . "this is a keyword reserved by $plugin";
         }
     }
 
     $_keywords->{$plugin} ||= [];
-    push @{$_keywords->{$plugin}}, [$keyword, $code, $options->{is_global}];
+    push @{ $_keywords->{$plugin} },
+      [ $keyword, $code, $options->{is_global} ];
 }
 
 =method on_plugin_import
@@ -124,7 +125,7 @@ sub on_plugin_import(&) {
     my $code   = shift;
     my $plugin = caller;
     $_on_import->{$plugin} ||= [];
-    push @{$_on_import->{$plugin}}, $code;
+    push @{ $_on_import->{$plugin} }, $code;
 }
 
 =method register_plugin
@@ -159,37 +160,37 @@ sub register_plugin {
     return if !$caller->can('dsl');
 
     # the plugin consumes the DSL role
-    Moo::Role->apply_role_to_package($plugin, 'Dancer2::Core::Role::DSL');
+    Moo::Role->apply_role_to_package( $plugin, 'Dancer2::Core::Role::DSL' );
 
     # bind all registered keywords to the plugin
     my $dsl = $caller->dsl;
-    for my $k (@{$_keywords->{$plugin}}) {
-        my ($keyword, $code, $is_global) = @{$k};
+    for my $k ( @{ $_keywords->{$plugin} } ) {
+        my ( $keyword, $code, $is_global ) = @{$k};
         {
             no strict 'refs';
             *{"${plugin}::${keyword}"} = $code;
         }
     }
 
-    # create the import method of the caller (the actual plugin) in order to make it
-    # imports all the DSL's keyword when it's used.
+# create the import method of the caller (the actual plugin) in order to make it
+# imports all the DSL's keyword when it's used.
     my $import = sub {
         my $plugin = shift;
 
         # caller(1) because our import method is wrapped, see below
         my $caller = caller(1);
 
-        for my $k (@{$_keywords->{$plugin}}) {
-            my ($keyword, $code, $is_global) = @{$k};
-            $caller->dsl->register($keyword, $is_global);
+        for my $k ( @{ $_keywords->{$plugin} } ) {
+            my ( $keyword, $code, $is_global ) = @{$k};
+            $caller->dsl->register( $keyword, $is_global );
         }
 
-        Moo::Role->apply_roles_to_object($caller->dsl, $plugin);
+        Moo::Role->apply_roles_to_object( $caller->dsl, $plugin );
         $caller->dsl->export_symbols_to($caller);
-        $caller->dsl->dancer_app->register_plugin($caller->dsl);
+        $caller->dsl->dancer_app->register_plugin( $caller->dsl );
 
-        for my $sub (@{$_on_import->{$plugin}}) {
-            $sub->($caller->dsl);
+        for my $sub ( @{ $_on_import->{$plugin} } ) {
+            $sub->( $caller->dsl );
         }
     };
     my $app_caller = caller();
@@ -250,8 +251,9 @@ for B<Dancer2::Plugin::Foo::Bar>, use:
 
 sub plugin_setting {
     my $plugin = caller;
-    (my $plugin_name = $plugin) =~ s/Dancer2::Plugin:://;
-    my $app = $plugin->dancer_app;
+    my $dsl    = _get_dsl();
+    ( my $plugin_name = $plugin ) =~ s/Dancer2::Plugin:://;
+    my $app = $dsl->dancer_app;
     return $app->config->{'plugins'}->{$plugin_name} ||= {};
 }
 
@@ -272,12 +274,12 @@ sub register_hook {
     my (@hooks) = @_;
 
     my $current_hooks = [];
-    if ($plugin->can('supported_hooks')) {
-        $current_hooks = [$plugin->supported_hooks];
+    if ( $plugin->can('supported_hooks') ) {
+        $current_hooks = [ $plugin->supported_hooks ];
     }
 
     my $current_aliases = {};
-    if ($plugin->can('hook_aliases')) {
+    if ( $plugin->can('hook_aliases') ) {
         $current_aliases = $plugin->hook_aliases;
     }
 
@@ -319,7 +321,7 @@ sub execute_hook {
     my $position = shift;
     my $dsl      = _get_dsl();
     croak "No DSL object found" if !defined $dsl;
-    $dsl->execute_hook($position, @_);
+    $dsl->execute_hook( $position, @_ );
 }
 
 # private
@@ -347,18 +349,18 @@ sub import {
     my $dsl = _get_dsl();
     return if !defined $dsl;
 
-    # DEPRECATION NOTICE 
-    # We expect plugin to be written with a $dsl object now, so 
-    # this keywords will trigger a deprecation notice and will be removed in a later
-    # version of Dancer2.
+# DEPRECATION NOTICE
+# We expect plugin to be written with a $dsl object now, so
+# this keywords will trigger a deprecation notice and will be removed in a later
+# version of Dancer2.
 
-    # Support for Dancer 1 syntax for plugin.
-    # Then, compile Dancer 2's DSL keywords into self-contained keywords for the
-    # plugin (actually, we call all the symbols by giving them $caller->dsl as
-    # their first argument).
-    # These modified versions of the DSL are then exported in the namespace of the
-    # plugin.
-    for my $symbol ($dsl->dsl_keywords_as_list) {
+ # Support for Dancer 1 syntax for plugin.
+ # Then, compile Dancer 2's DSL keywords into self-contained keywords for the
+ # plugin (actually, we call all the symbols by giving them $caller->dsl as
+ # their first argument).
+ # These modified versions of the DSL are then exported in the namespace of the
+ # plugin.
+    for my $symbol ( $dsl->dsl_keywords_as_list ) {
 
         # get the original symbol from the real DSL
         no strict 'refs';
@@ -367,8 +369,9 @@ sub import {
 
         # compile it with $caller->dsl
         my $compiled = sub {
-            carp "DEPRECATED: $plugin calls '$symbol' instead of '\$dsl->$symbol'.";
-            $code->($dsl, @_);
+            carp
+              "DEPRECATED: $plugin calls '$symbol' instead of '\$dsl->$symbol'.";
+            $code->( $dsl, @_ );
         };
 
         # bind the newly compiled symbol to the caller's namespace.
@@ -384,9 +387,9 @@ sub import {
 sub _get_dsl {
     my $dsl;
     my $deep = 2;
-    while (my $caller = caller($deep++)) {
+    while ( my $caller = caller( $deep++ ) ) {
         $dsl = $caller->dsl if $caller->can('dsl');
-        last if defined $dsl && length(ref($dsl));
+        last if defined $dsl && length( ref($dsl) );
     }
 
     return $dsl;

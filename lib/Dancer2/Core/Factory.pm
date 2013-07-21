@@ -8,14 +8,14 @@ use Dancer2::ModuleLoader;
 use Carp 'croak';
 
 sub create {
-    my ($class, $type, $name, %options) = @_;
+    my ( $class, $type, $name, %options ) = @_;
 
     $type = _camelize($type);
     $name = _camelize($name);
     my $component_class = "Dancer2::${type}::${name}";
 
-    my ($ok, $error) = Dancer2::ModuleLoader->require($component_class);
-    if ( ! $ok ) {
+    my ( $ok, $error ) = Dancer2::ModuleLoader->require($component_class);
+    if ( !$ok ) {
         croak "Unable to load class for $type component $name: $error";
     }
 
@@ -26,7 +26,7 @@ sub _camelize {
     my ($value) = @_;
 
     my $camelized = '';
-    for my $word (split /_/, $value) {
+    for my $word ( split /_/, $value ) {
         $camelized .= ucfirst($word);
     }
     return $camelized;

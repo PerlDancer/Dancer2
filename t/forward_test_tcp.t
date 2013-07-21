@@ -10,7 +10,7 @@ test_tcp(
         my $port = shift;
         set startup_info => 0;
         get '/'          => sub {
-            'home:' . join(',', params);
+            'home:' . join( ',', params );
         };
         get '/bounce/' => sub {
             return forward '/';
@@ -19,23 +19,23 @@ test_tcp(
             return forward '/';
         };
         get '/bounce2/adding_params/' => sub {
-            return forward '/', {withparams => 'foo'};
+            return forward '/', { withparams => 'foo' };
         };
         post '/simple_post_route/' => sub {
-            'post:' . join(',', params);
+            'post:' . join( ',', params );
         };
         get '/go_to_post/' => sub {
-            return forward '/simple_post_route/', {foo => 'bar'},
-              {method => 'post'};
+            return forward '/simple_post_route/', { foo => 'bar' },
+              { method => 'post' };
         };
         post '/'        => sub {'post-home'};
         post '/bounce/' => sub { forward('/') };
-            
+
         Dancer2->runner->server->port($port);
         start;
     },
     client => sub {
-        my ($port, $server_pid) = @_;
+        my ( $port, $server_pid ) = @_;
         my $ua  = LWP::UserAgent->new;
         my $res = $ua->get("http://127.0.0.1:$port/");
         is $res->code      => 200;

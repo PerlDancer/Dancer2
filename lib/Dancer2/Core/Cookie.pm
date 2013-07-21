@@ -12,7 +12,7 @@ use overload '""' => \&_get_value;
 
     use Dancer2::Core::Cookie;
 
-    my $cookie = Dancer2::Cookie->new(
+    my $cookie = Dancer2::Core::Cookie->new(
         name => $cookie_name, value => $cookie_value
     );
 
@@ -26,7 +26,7 @@ Dancer2::Cookie provides a HTTP cookie object to work with cookies.
 
 =method my $cookie=new Dancer2::Cookie (%opts);
 
-Create a new Dancer2::Cookie object.
+Create a new Dancer2::Core::Cookie object.
 
 You can set any attribute described in the I<ATTRIBUTES> section above.
 
@@ -40,8 +40,8 @@ sub to_header {
     my $self   = shift;
     my $header = '';
 
-    my $value = join('&', map { uri_escape($_) } $self->value);
-    my $no_httponly = defined($self->http_only) && $self->http_only == 0;
+    my $value = join( '&', map { uri_escape($_) } $self->value );
+    my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
     push @headers, "path=" . $self->path       if $self->path;
@@ -84,7 +84,7 @@ has value => (
 around value => sub {
     my $orig  = shift;
     my $self  = shift;
-    my $array = $orig->($self, @_);
+    my $array = $orig->( $self, @_ );
     return wantarray ? @$array : $array->[0];
 };
 
@@ -123,7 +123,7 @@ has expires => (
     isa      => Str,
     required => 0,
     coerce   => sub {
-        Dancer2::Core::Time->new(expression => $_[0])->gmt_string;
+        Dancer2::Core::Time->new( expression => $_[0] )->gmt_string;
     },
 );
 

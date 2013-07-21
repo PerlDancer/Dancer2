@@ -15,13 +15,13 @@ has _suffix => (
 with 'Dancer2::Core::Role::SessionFactory::File';
 
 sub _freeze_to_handle {
-    my ($self, $fh, $data) = @_;
+    my ( $self, $fh, $data ) = @_;
     print {$fh} YAML::Any::Dump($data);
     return;
 }
 
 sub _thaw_from_handle {
-    my ($self, $fh) = @_;
+    my ( $self, $fh ) = @_;
     return YAML::Any::LoadFile($fh);
 }
 

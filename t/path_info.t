@@ -21,7 +21,9 @@ hook before => sub {
     $context->response->halt;
 };
 
-response_content_like ( [ GET => '/' ], qr{Default}, 
-    'Changing request->path_info worked' );
+response_content_like(
+    [ GET => '/' ], qr{Default},
+    'Changing request->path_info worked'
+);
 
 done_testing();

@@ -16,25 +16,26 @@ sub extract_cookie {
         next unless $c =~ /dancer\.sid/;    # custom
         my @parts = split /;\s+/, $c;
         my %hash =
-          map { my ($k, $v) = split /\s*=\s*/; $v ||= 1; (lc($k), $v) } @parts;
-        $hash{expires} = str2time($hash{expires})
+          map { my ( $k, $v ) = split /\s*=\s*/; $v ||= 1; ( lc($k), $v ) }
+          @parts;
+        $hash{expires} = str2time( $hash{expires} )
           if $hash{expires};
         return \%hash;
     }
     return;
 }
 
-my $tempdir = File::Temp::tempdir(CLEANUP => 1, TMPDIR => 1);
+my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
-for my $session_expires (3600, '1h', '1 hour') {
+for my $session_expires ( 3600, '1h', '1 hour' ) {
     Test::TCP::test_tcp(
         client => sub {
             my $port = shift;
 
             my $ua = LWP::UserAgent->new;
-            $ua->cookie_jar({file => "$tempdir/.cookies.txt"});
+            $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
 
-            my ($res, $cookie);
+            my ( $res, $cookie );
 
             # set value into session
             $res = $ua->get("http://127.0.0.1:$port/foo/set_session/larry");
@@ -101,7 +102,7 @@ for my $session_expires (3600, '1h', '1 hour') {
                     },
                 }
             );
-            setting(session => 'Simple');
+            setting( session => 'Simple' );
 
             set(show_errors  => 1,
                 startup_info => 0,

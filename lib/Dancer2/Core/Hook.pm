@@ -8,7 +8,7 @@ use Carp;
 
   # inside a plugin
   use Dancer2::Hook;
-  Dancer2::Hook->register_hooks_name(qw/before_auth after_auth/);
+  Dancer2::Core::Hook->register_hooks_name(qw/before_auth after_auth/);
 
 =cut
 
@@ -67,7 +67,7 @@ Currently supported properties:
 Add a new hook name, so application developers can insert some code at this point.
 
     package My::Dancer2::Plugin;
-    Dancer2::Hook->instance->register_hooks_name(qw/before_auth after_auth/);
+    Dancer2::Core::Hook->instance->register_hooks_name(qw/before_auth after_auth/);
 
 =head2 hook_is_registered
 
