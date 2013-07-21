@@ -249,7 +249,7 @@ Sets a response object with the content given.
 When used as a return value from a filter, this breaks the execution flow and
 renders the response immediately:
 
-    hook before sub {
+    hook before => sub {
         if ($some_condition) {
             halt("Unauthorized");
             # This code is not executed :
