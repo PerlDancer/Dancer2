@@ -3,10 +3,10 @@ package Dancer2::Config;
 
 =head1 DESCRIPTION
 
-The Dancer2 configuration (as implemented by L< Dancer2::Core::Role::Config >)
+The Dancer2 configuration (as implemented by L<Dancer2::Core::Role::Config>)
 handles reading and changing the configuration of your Dancer2 apps.  This
-document describes how to manipulate Dancer2's configuration settings (through 
-code or by file), and to document the various settings that are available in 
+document describes how to manipulate Dancer2's configuration settings (through
+code or by file), and to document the various settings that are available in
 Dancer2.
 
 =head1 MANIPULATING SETTINGS VIA CODE
@@ -22,17 +22,17 @@ You can change a setting with the keyword C<set>:
 
 =head1 MANIPULATING SETTINGS VIA CONFIGURATION FILES
 
-There's nothing wrong with using C< set > to configure your application.  In
+There's nothing wrong with using C<set> to configure your application.  In
 fact you might have some great reasons for doing so.  For greater flexibilty,
-ease of deployment, etc., you should also consider extracting those settings 
+ease of deployment, etc., you should also consider extracting those settings
 into a configuration file.
 
 =head2 Configuration file path and file names
 
 Dancer2 will first look for the file F<config.ext> (where .ext is the type
-of configuration file you are using) in the root directory of your application.  
-This is considered your global Dancer2 config file.  If you do not care to have 
-separate settings for production and development environments (B<not> a 
+of configuration file you are using) in the root directory of your application.
+This is considered your global Dancer2 config file.  If you do not care to have
+separate settings for production and development environments (B<not> a
 recommended practice!), then this file is all you need.
 
 Next, Dancer2 will look in the F<environments> directory for a configuration
@@ -186,7 +186,7 @@ hand.
 
 =head3 default_mime_type (string)
 
-Dancer2's L<Dancer2::MIME> module uses C<application/data> as a default
+Dancer2's L<Dancer2::Core::MIME> module uses C<application/data> as a default
 mime type. This setting lets the user change it. For example, if you
 have a lot of files being served in the B<public> folder that do not
 have an extension, and are text files, set the C<default_mime_type> to
@@ -271,7 +271,7 @@ you import C<Dancer2>.  Set to a false value to disable this.
 If set to true, prints a banner at the server start with information such as
 versions and the environment (or "dancerfloor").
 
-Conforms to the environment variable DANCER_STARTUP_INFO.
+Conforms to the environment variable C<DANCER_STARTUP_INFO>.
 
 =head3 warnings (boolean)
 
@@ -400,12 +400,13 @@ This setting lets you enable a session engine for your web application. Be
 default, sessions are disabled in Dancer2, you must choose a session engine to
 use them.
 
-See L<Dancer2::Session> for supported engines and their respective configuration.
+See L<Dancer2::Core::Session> for supported engines and their respective configuration.
 
 =head3 session_expires
 
 The session expiry time in seconds, or as e.g. "2 hours" (see
-L<Dancer2::Cookie/expires>.  By default, there is no specific expiry time.
+L<Dancer2::Core::Cookie/expires>.  By default, there is no specific expiry
+time.
 
 =head3 session_name
 
@@ -450,11 +451,11 @@ served pages.
 =head2 DANCER_CONFDIR and DANCER_ENVDIR
 
 It's possible to set the configuration directory and environment directory using this two
-environment variables. Setting `DANCER_CONFDIR` will have the same effect as doing
+environment variables. Setting B<DANCER_CONFDIR> will have the same effect as doing
 
     set confdir => '/path/to/confdir'
 
-and setting `DANCER_ENVDIR` will be similar to:
+and setting B<DANCER_ENVDIR> will be similar to:
 
     set envdir => '/path/to/environments'
 
