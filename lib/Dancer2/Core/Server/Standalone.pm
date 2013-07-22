@@ -76,7 +76,7 @@ sub print_banner {
         my $version = $module->VERSION;
 
         defined $version or $version = 'no version number defined';
-        print ">> $module ($version)\n";
+        print STDERR ">> $module ($version)\n";
     }
 
 }
