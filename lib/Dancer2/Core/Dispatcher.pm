@@ -216,7 +216,7 @@ __END__
 
 =head2 apps
 
-The apps is an array reference to L<Dancer2::App>.
+The apps is an array reference to L<Dancer2::Core::App>.
 
 =head2 default_content_type
 
@@ -228,17 +228,19 @@ request. This attribute is read-only.
 =head2 dispatch
 
 The method C<dispatch> accepts the list of applications, hash reference of
-the attribute B<env> of L<Dancer2::Request> and request as input arguments.
+the attribute B<env> of L<Dancer2::Core::Request> and request as input
+arguments.
 
-C<dispatch> returns a response object of L<Dancer2::Response>.
+C<dispatch> returns a response object of L<Dancer2::Core::Response>.
 
 =head2 response_internal_error
 
 The C<response_internal_error> takes as input the list of applications and
-a variable error and returns an object of L<Dancer2::Error>.
+a variable error and returns an object of L<Dancer2::Core::Error>.
 
 =head2 response_not_found
 
 The C<response_not_found> consumes as input the list of applications and an
-object of type L<Dancer2::Context> and returns an object L<Dancer2::Error>.
+object of type L<Dancer2::Core::Context> and returns an object
+L<Dancer2::Core::Error>.
 
