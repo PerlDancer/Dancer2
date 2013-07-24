@@ -311,7 +311,7 @@ And in a production one:
     show_errors:  0
 
 Please note that you are not limited to writing configuration files in YAML.
-Dancer2 supports any file format that is supported by L< Config::Any >, such as
+Dancer2 supports any file format that is supported by L<Config::Any>, such as
 JSON, XML, INI files, and Apache-style config files.
 
 =head2 load
