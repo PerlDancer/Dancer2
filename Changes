@@ -2,6 +2,7 @@
 
     [ ENHANCEMENTS ]
     * Clean dzil configuration for perltidy (Alberto Simões)
+    * GH#327: Add support for 'info' log level (Russell Jenkins)
 
     [ BUG FIXES ]
     * GH#326, GH#232: don't end up with empty views and layout (Franck Cuny)
