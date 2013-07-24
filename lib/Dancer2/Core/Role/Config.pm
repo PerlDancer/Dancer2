@@ -312,12 +312,14 @@ my $_setters = {
         if ( ref($self) eq 'Dancer2::Core::App' && defined $self->server ) {
             $self->engine('template')->views($value);
         }
+        $value;
     },
     layout => sub {
         my ( $self, $value, $config ) = @_;
         if ( ref($self) eq 'Dancer2::Core::App' && defined $self->server ) {
             $self->engine('template')->layout($value);
         }
+        $value;
     },
 };
 
