@@ -766,7 +766,8 @@ Then you can choose which kind of messages you want to actually log:
 
     log: 'core'      # will log debug, warning and errors, and messages from
                      # Dancer2 itself
-    log: 'debug'     # will log debug, warning and errors
+    log: 'debug'     # will log debug, info, warning and errors
+    log: 'info'      # will log info, warning and errors
     log: 'warning'   # will log warning and errors
     log: 'error'     # will log only errors
 
@@ -777,8 +778,8 @@ information (file and line).
 
 =head3 Logging your own messages
 
-Just call  L<debug|Dancer2/debug>, L<warning|Dancer2/warning> or
-L<error|Dancer2/error> with your message:
+Just call  L<debug|Dancer2/debug>, L<info|Dancer2/info>, 
+L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
 
     debug "This is a debug message from my app.";
 
