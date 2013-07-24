@@ -372,7 +372,7 @@ for a particular logger for other supported options.
 =head3 log_level
 
 This option tells which log messages should be actually
-logged. Possible values are B<core>, B<debug>, B<warning> or B<error>.
+logged. Possible values are B<core>, B<info>, B<debug>, B<warning> or B<error>.
 
 =over 4
 
