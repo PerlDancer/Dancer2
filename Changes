@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Clean dzil configuration for perltidy (Alberto Simões)
+    * GH#327: Add support for 'info' log level (Russell Jenkins)
+
+    [ BUG FIXES ]
+    * GH#326, GH#232: don't end up with empty views and layout (Franck Cuny)
+    * GH#325: don't die or complain when two routes have the same path (Franck Cuny)
+
+    [ DOCUMENTATION ]
+    * POD cleanup (Sawyer, Franck Cuny)
+
 0.05      2013-07-20 18:51:53 Europe/Paris
 
     [ DEPRECATION ]

@@ -25,7 +25,7 @@
 -ci=2 # Continuation indent is 2 cols
 
 # we use version control, so just rewrite the file
--b
+# -b # -- should not be active for dzil plugin
 
 ## for the up-tight folk :)
 #-pt=2 # High parenthesis tightness

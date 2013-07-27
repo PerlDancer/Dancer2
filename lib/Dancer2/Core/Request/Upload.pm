@@ -12,7 +12,7 @@ use Dancer2::FileUtils qw(open_file);
 
 This class implements a representation of file uploads for Dancer2.
 These objects are accessible within route handlers via the request->uploads
-keyword. See L<Dancer2::Request> for details.
+keyword. See L<Dancer2::Core::Request> for details.
 
 
 =attr filename
