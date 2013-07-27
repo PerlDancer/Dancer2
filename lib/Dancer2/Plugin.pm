@@ -144,9 +144,9 @@ which version of Dancer the plugin was written, e.g.
 
     register_plugin for_versions => [ 2 ];
 
-Today, plugins for Dancer2 are only expected to work for Dancer2 and the 
-C<for_version> keyword is ignored. If you try to load a plugin for Dancer2
-that does not meet the requirements of a Dancer2 plugin, you will get an error 
+Today, plugins for Dancer2 are only expected to work for Dancer2 and the
+C<for_versions> keyword is ignored. If you try to load a plugin for Dancer2
+that does not meet the requirements of a Dancer2 plugin, you will get an error
 message.
 
 =cut

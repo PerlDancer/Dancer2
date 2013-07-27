@@ -54,15 +54,4 @@ subtest 'plugin reserved keywords' => sub {
     }
 };
 
-subtest 'plugin_register' => sub {
-
-    package Foo;
-    our $VERSION = '1.034';
-    use Dancer2;
-    use Dancer2::Plugin;
-
-    #no longer any version restrictions see GH#207, fails because no dsl
-    Test::More::ok( !register_plugin for_versions => [1] );
-};
-
 done_testing;
