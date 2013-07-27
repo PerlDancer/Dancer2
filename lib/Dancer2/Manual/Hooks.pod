@@ -140,13 +140,6 @@ receives a L<Dancer2::Core::Response> object as the first argument.
 I<This hook was named <after_error_render> in Dancer, and is now aliased to
 this hook.>
 
-C<on_handler_exception> is called when an exception has been caught, at the
-handler level, just before creating and rendering L<Dancer2::Core::Error>.
-
-  hook on_handler_exception => sub {
-    my $error = shift;
-  };
-
 C<on_route_exception> is called when an exception has been caught, at the
 route level, just before rethrowing it higher. This hook receives a
 L<Dancer2::Core::Context> and the error as arguments.
