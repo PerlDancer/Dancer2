@@ -63,7 +63,7 @@ sub _compile_keyword {
     my ( $self, $keyword, $is_global ) = @_;
 
     my $compiled_code = sub {
-        core_debug( "["
+        Dancer2::core_debug( "["
               . $self->app->name
               . "] -> $keyword("
               . join( ', ', map { defined() ? $_ : '<undef>' } @_ )
@@ -95,15 +95,6 @@ sub _construct_export_map {
         $map{$keyword} = $self->_compile_keyword( $keyword, $is_global );
     }
     return \%map;
-}
-
-# TODO move that elsewhere
-sub core_debug {
-    my $msg = shift;
-    return unless $ENV{DANCER_DEBUG_CORE};
-
-    chomp $msg;
-    print STDERR "core: $msg\n";
 }
 
 1;
