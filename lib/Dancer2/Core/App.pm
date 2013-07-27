@@ -462,8 +462,6 @@ sub compile_hooks {
                 return
                   if ( $self->context && $self->context->response->is_halted );
 
-                # TODO: log entering the hook '$position'
-                #warn "entering hook '$position'";
                 eval { $hook->(@_) };
 
                 # TODO : do something with exception there

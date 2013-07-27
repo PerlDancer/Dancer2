@@ -135,6 +135,9 @@ sub execute_hook {
     croak "Hook '$name' does not exist"
       if !$self->has_hook($name);
 
+    ref($self) eq 'Dancer2::Core::App' &&
+        $self->engine('logger')->core("Entering hook $name");
+
     my $res;
     $res = $_->(@args) for @{ $self->hooks->{$name} };
     return $res;
