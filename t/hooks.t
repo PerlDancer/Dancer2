@@ -82,6 +82,23 @@ my $tests_flags = {};
         like $error, qr/this is a route exception/;
     };
 
+    hook init_error => sub {
+        my ($error) = @_;
+        is ref($error), 'Dancer2::Core::Error';
+    };
+
+    hook before_error => sub {
+        my ($error) = @_;
+        is ref($error), 'Dancer2::Core::Error';
+    };
+
+    hook after_error => sub {
+        my ($response) = @_;
+        is ref($response), 'Dancer2::Core::Response';
+        ok !$response->is_halted;
+        is $response->content, 'Internal Server Error';
+    };
+
     # make sure we compile all the apps without starting a webserver
     main->dancer_app->finish;
 }
