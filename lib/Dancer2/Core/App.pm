@@ -36,6 +36,7 @@ sub supported_hooks {
     qw/
       core.app.before_request
       core.app.after_request
+      core.app.route_exception
       /;
 }
 

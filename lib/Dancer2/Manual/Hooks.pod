@@ -148,11 +148,11 @@ handler level, just before creating and rendering L<Dancer2::Core::Error>.
   };
 
 C<on_route_exception> is called when an exception has been caught, at the
-route level, just before rethrowing it higher. This hook receives the
-error as argument.
+route level, just before rethrowing it higher. This hook receives a
+L<Dancer2::Core::Context> and the error as arguments.
 
   hook on_route_exception => sub {
-    my $error = shift;
+    my ($context, $error) = @_;
   };
 
 =head2 File rendering

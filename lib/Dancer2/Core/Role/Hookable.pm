@@ -36,6 +36,7 @@ sub hook_aliases {
         init_error             => 'core.error.init',
         before_error           => 'core.error.before',
         after_error            => 'core.error.after',
+        on_route_exception     => 'core.app.route_exception',
 
         # compatibility from Dancer1
         before_error_render    => 'core.error.before',

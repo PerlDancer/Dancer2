@@ -84,6 +84,8 @@ sub dispatch {
                 my $error = $@;
                 if ($error) {
                     $app->log( error => "Route exception: $error" );
+                    $app->execute_hook(
+                        'core.app.route_exception', $context, $error);
                     return $self->response_internal_error( $context, $error );
                 }
             }
