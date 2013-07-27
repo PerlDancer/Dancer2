@@ -7,6 +7,7 @@
     [ BUG FIXES ]
     * GH#326, GH#232: don't end up with empty views and layout (Franck Cuny)
     * GH#325: don't die or complain when two routes have the same path (Franck Cuny)
+    * GH#320: fix plugin_setting deprecation warning (David Golden)
 
     [ DOCUMENTATION ]
     * POD cleanup (Sawyer, Franck Cuny)
