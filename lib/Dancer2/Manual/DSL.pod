@@ -354,10 +354,10 @@ This hook was named B<before_error_render> in Dancer, and is now aliased to this
 =item before
 
 This hook receives one argument, the route being executed (a
-L<Dancer2::Core::Route> object).
+L<Dancer2::Core::Context> object).
 
   hook before => sub {
-    my $route_handler = shift;
+    my $context = shift;
     ...
   };
 
