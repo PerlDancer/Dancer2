@@ -330,23 +330,26 @@ This hook receives as argument the path of the file to render.
   };
 
 
-=item before_error_init
+=item init_error
 
 This hook receives as argument a L<Dancer2::Core::Error> object.
 
-  hook before_error_init => sub {
+  hook init_error => sub {
     my $error = shift;
     ...
   };
 
+This hook was named B<before_error_init> in Dancer, and is now aliased to this hook.
 
-=item before_error_render
+=item before_error
 
 This hook receives as argument a L<Dancer2::Core::Error> object.
 
-  hook before_error_render => sub {
+  hook before_error => sub {
     my $error = shift;
   };
+
+This hook was named B<before_error_render> in Dancer, and is now aliased to this hook.
 
 =item before
 
@@ -459,13 +462,15 @@ This is equivalent to
     my $response = shift;
   };
 
-=item after_error_render
+=item after_error
 
 This hook receives as argument a L<Dancer2::Core::Response> object.
 
   hook after_error_render => sub {
     my $response = shift;
   };
+
+This hook was named B<after_error_render> in Dancer, and his now aliased to this hook.
 
 =item on_handler_exception
 

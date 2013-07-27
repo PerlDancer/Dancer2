@@ -29,11 +29,18 @@ sub hook_aliases {
         after_file_render      => 'handler.file.after_render',
         before_template_render => 'engine.template.before_render',
         after_template_render  => 'engine.template.after_render',
+        before_layout_render   => 'engine.template.before_layout_render',
+        after_layout_render    => 'engine.template.after_layout_render',
         before_serializer      => 'engine.serializer.before',
         after_serializer       => 'engine.serializer.after',
         init_error             => 'core.error.init',
         before_error           => 'core.error.before',
         after_error            => 'core.error.after',
+
+        # compatibility from Dancer1
+        before_error_render    => 'core.error.before',
+        after_error_render     => 'core.error.after',
+        before_error_init      => 'core.error.init',
     };
 }
 
