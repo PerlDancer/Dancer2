@@ -170,7 +170,7 @@ produced.
        my $response = shift;
     };
 
-=head Serializers
+=head2 Serializers
 
 C<before_serializer> is called before serializing the content, and eceives as
 argument the content to serialize.
