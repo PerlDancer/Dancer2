@@ -172,8 +172,8 @@ foreach my $test (
         },
         expected => [
             500,
-            [ 'Content-Length', "Content-Type", 'text/plain' ],
-            qr{^Internal Server Error\n\nCan't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}s
+            [ 'Content-Length', "Content-Type", 'text/html' ],
+            qr{Internal Server Error.*Can't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t/dispatcher\.t line \d+.*$}ms
         ]
     }
   )
