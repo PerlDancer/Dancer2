@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ ENHANCEMENTS ]
-    * Clean dzil configuration for perltidy (Alberto Simões)
+    * Clean up of the dzil configuration (Alberto Simões,Franck Cuny, Russel Jenkins)
     * GH#327: Add support for 'info' log level (Russell Jenkins)
     * Remove 'for_versions' usage from tests (Alberto Simões)
 
