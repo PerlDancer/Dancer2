@@ -52,11 +52,19 @@ has environments_location => (
     },
 );
 
+# TODO: make readonly and add method rebuild_config?
 has config => (
     is      => 'rw',
     isa     => HashRef,
     lazy    => 1,
     builder => '_build_config',
+);
+
+has engines => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_engines',
 );
 
 has environment => (
@@ -160,7 +168,8 @@ sub _build_config {
     );
 
     $config = $self->_normalize_config($config);
-    return $self->_compile_config($config);
+    return $config;
+    #return $self->_compile_config($config);
 }
 
 sub _set_config_entries {
@@ -178,6 +187,7 @@ sub _set_config_entry {
     $value = $self->_normalize_config_entry( $name, $value );
     $value = $self->_compile_config_entry( $name, $value, $self->config );
     $self->config->{$name} = $value;
+    $self->{'engines'} = $self->_build_engines;
 }
 
 sub _normalize_config {
@@ -298,22 +308,31 @@ my $_setters = {
             postponed_hooks => $self->get_postponed_hooks,
         );
     },
+
     import_warnings => sub {
         my ( $self, $value ) = @_;
         $^W = $value ? 1 : 0;
     },
+
     traces => sub {
         my ( $self, $traces ) = @_;
         require Carp;
         $Carp::Verbose = $traces ? 1 : 0;
     },
+
     views => sub {
         my ( $self, $value, $config ) = @_;
         if ( ref($self) eq 'Dancer2::Core::App' && defined $self->server ) {
-            $self->engine('template')->views($value);
+            #$self->config->{'template'}{'views'} = $value;
+            #$self->{'engines'}{'template'} = Dancer2::Core::Factory->create(
+            #    template        => $value,
+            #    config          => $engine_options,
+            #    postponed_hooks => $self->get_postponed_hooks,
+            #);
         }
         $value;
     },
+
     layout => sub {
         my ( $self, $value, $config ) = @_;
         if ( ref($self) eq 'Dancer2::Core::App' && defined $self->server ) {
@@ -347,6 +366,26 @@ sub _get_config_for_engine {
 
     my $engine_config = $config->{engines}{$engine}{$name} || {};
     return { %{$default_config}, %{$engine_config}, } || $default_config;
+}
+
+sub _build_engines {
+    my $self    = shift;
+    my $config  = $self->config;
+    my %engines = ();
+
+    foreach my $trigger_name ( keys %{$config} ) {
+        my $value = $config->{$trigger_name};
+        defined $_setters->{$trigger_name} or next;
+
+        my $maybe_object = $_setters->{$trigger_name}->( $self, $value, $config );
+
+        # populate if it's actually an object returned
+        if ( ref($maybe_object) ) {
+            $engines{$trigger_name} = $maybe_object;
+        }
+    }
+
+    return \%engines;
 }
 
 1;

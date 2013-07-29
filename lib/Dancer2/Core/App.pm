@@ -176,7 +176,7 @@ sub session {
 
 sub template {
     my ($self) = shift;
-    my $template = $self->engine('template');
+    my $template = $self->engines->{'template'};
 
     my $content = $template->process(@_);
 
@@ -304,7 +304,7 @@ sub log {
     my $self  = shift;
     my $level = shift;
 
-    my $logger = $self->setting('logger')
+    my $logger = $self->engines->{'logger'}
       or croak "No logger defined";
 
     $logger->$level(@_);
@@ -485,7 +485,7 @@ has context => (
         my ( $self, $ctx ) = @_;
         $self->_init_for_context($ctx),;
         for my $type (qw/logger serializer session template/) {
-            my $engine = $self->settings->{$type}
+            my $engine = $self->engines->{$type}
               or next;
             defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
         }
