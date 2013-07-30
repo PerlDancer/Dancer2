@@ -13,6 +13,6 @@ register some_other => sub {
     execute_hook('third_hook');
 };
 
-register_plugin for_versions => [2];
+register_plugin;
 
 1;

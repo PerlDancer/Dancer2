@@ -587,13 +587,6 @@ sub add_route {
 
     my $method = $route->method;
 
-    croak "Route '"
-      . $route->spec_route
-      . "' with method "
-      . uc($method)
-      . " is already defined"
-      if $self->route_exists($route);
-
     push @{ $self->routes->{$method} }, $route;
 }
 

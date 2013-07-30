@@ -36,7 +36,8 @@ use the current request object.
 =head1 HTTP environment variables
 
 All HTTP environment variables that are in %ENV will be provided in the
-Dancer2::Request object through specific accessors, here are those supported:
+L<Dancer2::Core::Request> object through specific accessors, here are those
+supported:
 
 =over 4
 
@@ -235,8 +236,8 @@ has content_length => (
 Return the raw body of the request, unparsed.
 
 If you need to access the body of the request, you have to use this accessor and
-should not try to read C<psgi.input> by hand. C<Dancer2::Request> already did it for you
-and kept the raw body untouched in there.
+should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
+already did it for you and kept the raw body untouched in there.
 =cut
 
 has body => (
@@ -253,7 +254,8 @@ has id => (
 =method uploads()
 
 Returns a reference to a hash containing uploads. Values can be either a
-L<Dancer2::Request::Upload> object, or an arrayref of L<Dancer2::Request::Upload>
+L<Dancer2::Core::Request::Upload> object, or an arrayref of
+L<Dancer2::Core::Request::Upload>
 objects.
 
 You should probably use the C<upload($name)> accessor instead of manually accessing the
@@ -310,7 +312,7 @@ objects.
 
 It uses the environment hash table given to build the request object:
 
-    Dancer2::Request->new(env => \%ENV);
+    Dancer2::Core::Request->new(env => \%ENV);
 
 It also accepts the C<body_is_parsed> boolean flag, if the new request object should
 not parse request body.

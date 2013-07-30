@@ -47,9 +47,10 @@ my $_levels = {
 
     # levels > 0 are for end-users only
     debug   => 1,
-    warn    => 2,
-    warning => 2,
-    error   => 3,
+    info    => 2,
+    warn    => 3,
+    warning => 3,
+    error   => 4,
 };
 
 has log_level => (
@@ -145,6 +146,11 @@ sub core {
 sub debug {
     my ( $self, @args ) = @_;
     $self->_should('debug') and $self->log( 'debug', _serialize(@args) );
+}
+
+sub info {
+    my ( $self, @args ) = @_;
+    $self->_should('info') and $self->log( 'info', _serialize(@args) );
 }
 
 sub warning {

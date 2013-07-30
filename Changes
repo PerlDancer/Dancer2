@@ -1,4 +1,21 @@
-0.05    2013-07-20  (Alexis Sukrieh)
+{{$NEXT}}
+
+0.06 2013-07-30 (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * Clean up of the dzil configuration (Alberto Simões,Franck Cuny, Russel Jenkins)
+    * GH#327: Add support for 'info' log level (Russell Jenkins)
+    * Remove 'for_versions' usage from tests (Alberto Simões)
+
+    [ BUG FIXES ]
+    * GH#326, GH#232: don't end up with empty views and layout (Franck Cuny)
+    * GH#325: don't die or complain when two routes have the same path (Franck Cuny)
+    * GH#320: fix plugin_setting deprecation warning (David Golden)
+
+    [ DOCUMENTATION ]
+    * POD cleanup (Sawyer X, Franck Cuny)
+
+0.05      2013-07-20 18:51:53 Europe/Paris
 
     [ DEPRECATION ]
 

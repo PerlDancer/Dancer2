@@ -29,7 +29,7 @@ register dancer_plugin_with_import_keyword => sub {
     'dancer_plugin_with_import_keyword';
 };
 
-register_plugin for_versions => [2];
+register_plugin;
 
 1;
 
