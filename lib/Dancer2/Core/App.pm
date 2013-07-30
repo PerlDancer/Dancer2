@@ -140,7 +140,9 @@ sub settings {
 sub engine {
     my ( $self, $name ) = @_;
 
-    my $e = $self->settings->{$name};
+    # XXX engines are always stored in ->engines,
+    # no need to pass via the settings
+    my $e = $self->engines->{$name};
     croak "No '$name' engine defined" if not defined $e;
 
     return $e;
@@ -304,7 +306,7 @@ sub log {
     my $self  = shift;
     my $level = shift;
 
-    my $logger = $self->engines->{'logger'}
+    my $logger = $self->engine('logger')
       or croak "No logger defined";
 
     $logger->$level(@_);
