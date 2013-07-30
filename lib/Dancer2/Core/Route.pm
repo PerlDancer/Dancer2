@@ -187,6 +187,20 @@ sub execute {
 
 # private subs
 
+sub BUILDARGS {
+    my ( $class, %args ) = @_;
+
+    my $regexp = $args{regexp};
+
+    # regexp must have a leading /
+    if ( ref($regexp) ne 'Regexp' ) {
+        index( $regexp, '/', 0 ) == 0
+            or die "regexp must begin with /\n";
+    }
+
+    return \%args;
+}
+
 sub BUILD {
     my ($self) = @_;
 
