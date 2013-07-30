@@ -190,13 +190,14 @@ L<Data::Dumper>
 =cut
 
 sub core_debug {
+    return unless $ENV{DANCER_DEBUG_CORE};
+
     my $msg = shift;
     my (@stuff) = @_;
 
     my $vars = @stuff ? Dumper( \@stuff ) : '';
 
     my ( $package, $filename, $line ) = caller;
-    return unless $ENV{DANCER_DEBUG_CORE};
 
     chomp $msg;
     print STDERR "core: $msg\n$vars";
