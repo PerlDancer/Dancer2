@@ -221,9 +221,7 @@ sub _init_prefix {
     my $regexp = $self->regexp;
 
     if ( ref($regexp) eq 'Regexp' ) {
-        if ( $regexp !~ /^$prefix/ ) {
-            $self->regexp(qr{\Q${prefix}\E${regexp}});
-        }
+        $self->regexp(qr{\Q${prefix}\E${regexp}});
     }
     elsif ( $self->regexp eq '/' ) {
 
