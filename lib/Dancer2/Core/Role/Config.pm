@@ -245,7 +245,7 @@ my $_setters = {
     session => sub {
         my ( $self, $value, $config ) = @_;
         return $value if ref($value);
-        return $self->_build_engine_session($value);
+        return $self->_build_engine_session($value, $config);
     },
 
     template => sub {
@@ -369,24 +369,22 @@ sub _build_engine_logger {
 }
 
 sub _build_engine_session {
-    my ($self, $value)  = @_;
+    my ($self, $value, $config)  = @_;
 
-    $value = $self->config->{'session'}
-        if !defined $value;
+    $config = $self->config if !defined $config;
+    $value  = $config->{'engines'} if !defined $value;
 
-    return undef
-        if !defined $value || ref($value);
+    $value = 'simple' if !defined $value;
+    return $value if ref($value);
 
     my $engine_options =
-          $self->_get_config_for_engine( session => $value, $self->config );
+          $self->_get_config_for_engine( session => $value, $config );
 
-    my $s = Dancer2::Core::Factory->create(
+    return Dancer2::Core::Factory->create(
         session => $value,
         %{$engine_options},
         postponed_hooks => $self->get_postponed_hooks,
     );
-    $self->config->{session} = $s;
-    return $s;
 }
 
 sub _build_engine_template {
