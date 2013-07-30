@@ -207,35 +207,19 @@ sub BUILDARGS {
             $prefix . $regexp;
     }
 
-    $args{spec_route} = $args{regexp};
+    # init regexp
+    $regexp = $args{regexp}; # updated value
+    $args{spec_route} = $regexp;
 
-    return \%args;
-}
-
-sub BUILD {
-    my ($self) = @_;
-
-    # now we can build the regexp
-    $self->_init_regexp;
-}
-
-sub _init_regexp {
-    my ($self) = @_;
-    my $value = $self->regexp;
-
-
-    # already a Regexp, so capture is true
-    if ( ref($value) eq 'Regexp' ) {
-        $self->_should_capture(1);
-        return $value;
+    if ( ref($regexp) eq 'Regexp') {
+        $args{_should_capture} = 1;
+    }
+    else {
+        @args{qw/ regexp _params _should_capture/} =
+            @{ _build_regexp_from_string($regexp) };
     }
 
-    my ( $compiled, $params, $should_capture ) =
-      @{ _build_regexp_from_string($value) };
-
-    $self->_should_capture($should_capture);
-    $self->_params( $params || [] );
-    $self->regexp($compiled);
+    return \%args;
 }
 
 sub _build_regexp_from_string {
