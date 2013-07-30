@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.06 2013-07-30 (Sawyer X)
+
     [ ENHANCEMENTS ]
     * Clean up of the dzil configuration (Alberto Simões,Franck Cuny, Russel Jenkins)
     * GH#327: Add support for 'info' log level (Russell Jenkins)
@@ -11,7 +13,7 @@
     * GH#320: fix plugin_setting deprecation warning (David Golden)
 
     [ DOCUMENTATION ]
-    * POD cleanup (Sawyer, Franck Cuny)
+    * POD cleanup (Sawyer X, Franck Cuny)
 
 0.05      2013-07-20 18:51:53 Europe/Paris
 
