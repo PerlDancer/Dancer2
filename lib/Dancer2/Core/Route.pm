@@ -45,7 +45,7 @@ has regexp => (
     required => 1,
 );
 
-has spec_route => ( is => 'rw', );
+has spec_route => ( is => 'ro' );
 
 =attr prefix
 
@@ -199,13 +199,15 @@ sub BUILDARGS {
             or die "regexp must begin with /\n";
     }
 
-    # init regexp
+    # init prefix
     if ( $prefix ) {
         $args{regexp} =
             ref($regexp) eq 'Regexp' ? qr{\Q${prefix}\E${regexp}} :
             $regexp eq '/'           ? qr{^\Q${prefix}\E/?$}      :
             $prefix . $regexp;
     }
+
+    $args{spec_route} = $args{regexp};
 
     return \%args;
 }
@@ -221,8 +223,6 @@ sub _init_regexp {
     my ($self) = @_;
     my $value = $self->regexp;
 
-    # store the original value for the route
-    $self->spec_route($value);
 
     # already a Regexp, so capture is true
     if ( ref($value) eq 'Regexp' ) {
