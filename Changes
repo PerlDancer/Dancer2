@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH#332: Clean up multiple definitions of core_debug (Franck Cuny)
+
 0.06 2013-07-30 (Sawyer X)
 
     [ ENHANCEMENTS ]
