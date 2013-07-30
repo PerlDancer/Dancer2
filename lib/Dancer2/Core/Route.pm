@@ -41,7 +41,7 @@ Required. Coerce from Dancer2's route I<patterns>.
 =cut
 
 has regexp => (
-    is       => 'rw',
+    is       => 'ro',
     required => 1,
 );
 
@@ -90,7 +90,7 @@ sub _check_options {
 # private attributes
 
 has _should_capture => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Bool,
 );
 
@@ -103,7 +103,7 @@ has _match_data => (
 );
 
 has _params => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => ArrayRef,
     default => sub { [] },
 );
