@@ -140,10 +140,8 @@ sub settings {
 sub engine {
     my ( $self, $name ) = @_;
 
-    # XXX engines are always stored in ->engines,
-    # no need to pass via the settings
-    my $e = $self->engines->{$name};
-    croak "No '$name' engine defined" if not defined $e;
+    my $e = $self->engines->{$name}
+        || croak "No '$name' engine defined" if not defined $e;
 
     return $e;
 }
