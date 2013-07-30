@@ -378,7 +378,7 @@ sub _init_hooks {
                 my $response = shift;
 
                 # make sure an engine is defined, if not, nothing to do
-                my $engine = $self->setting('session');
+                my $engine = $self->engine('session');
                 return if !defined $engine;
 
                 # make sure we have a context to examine
