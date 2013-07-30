@@ -224,15 +224,7 @@ sub _init_prefix {
         $self->regexp(qr{\Q${prefix}\E${regexp}});
     }
     elsif ( $self->regexp eq '/' ) {
-
-        # if pattern is '/', we should match:
-        # - /prefix/
-        # - /prefix
-        # this is done by creating a regex for this case
-        my $qprefix   = quotemeta( $self->prefix );
-        my $new_regxp = qr{^${qprefix}/?$};
-
-        $self->regexp($new_regxp);
+        $self->regexp(qr{^\Q${prefix}\E/?$});
     }
     else {
         $self->regexp( $prefix . $self->regexp );
