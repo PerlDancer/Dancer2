@@ -190,6 +190,7 @@ sub execute {
 sub BUILDARGS {
     my ( $class, %args ) = @_;
 
+    my $prefix = $args{prefix};
     my $regexp = $args{regexp};
 
     # regexp must have a leading /
@@ -198,37 +199,22 @@ sub BUILDARGS {
             or die "regexp must begin with /\n";
     }
 
+    # init regexp
+    if ( $prefix ) {
+        $args{regexp} =
+            ref($regexp) eq 'Regexp' ? qr{\Q${prefix}\E${regexp}} :
+            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$}      :
+            $prefix . $regexp;
+    }
+
     return \%args;
 }
 
 sub BUILD {
     my ($self) = @_;
 
-# prepend the prefix to the regexp if any
-# this is done in BUILD instead of a trigger in order to be sure that the regexp
-# attribute is set when this is ran.
-    $self->_init_prefix if defined $self->prefix;
-
     # now we can build the regexp
     $self->_init_regexp;
-}
-
-# alter the regexp according to the prefix set, if any.
-sub _init_prefix {
-    my ($self) = @_;
-
-    my $prefix = $self->prefix;
-    my $regexp = $self->regexp;
-
-    if ( ref($regexp) eq 'Regexp' ) {
-        $self->regexp(qr{\Q${prefix}\E${regexp}});
-    }
-    elsif ( $self->regexp eq '/' ) {
-        $self->regexp(qr{^\Q${prefix}\E/?$});
-    }
-    else {
-        $self->regexp( $prefix . $self->regexp );
-    }
 }
 
 sub _init_regexp {
