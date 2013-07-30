@@ -2,6 +2,7 @@
 
     [ ENHANCEMENTS ]
     * GH#332: Clean up multiple definitions of core_debug (Franck Cuny)
+    * GH#338: Clean up route builder (Mickey Nasriachi)
 
 0.06 2013-07-30 (Sawyer X)
 
