@@ -395,8 +395,8 @@ sub _build_engine_template {
     $value = $self->config->{'template'}
         if !defined $value;
 
-    return undef
-        if !defined $value || ref($value);
+    return undef  if !defined $value;
+    return $value if ref($value);
 
     my $engine_options =
           $self->_get_config_for_engine( template => $value, $self->config );
@@ -421,8 +421,8 @@ sub _build_engine_serializer {
     $value = $self->config->{'serializer'}
         if !defined $value;
 
-    return undef
-        if !defined $value || ref($value);
+    return undef  if !defined $value;
+    return $value if ref($value);
 
     my $engine_options =
         $self->_get_config_for_engine( serializer => $value, $self->config );
