@@ -221,9 +221,8 @@ sub _init_prefix {
     my $regexp = $self->regexp;
 
     if ( ref($regexp) eq 'Regexp' ) {
-        my $regexp = $self->regexp;
         if ( $regexp !~ /^$prefix/ ) {
-            $self->regexp(qr{${prefix}${regexp}});
+            $self->regexp(qr{\Q${prefix}\E${regexp}});
         }
     }
     elsif ( $self->regexp eq '/' ) {
@@ -232,9 +231,8 @@ sub _init_prefix {
         # - /prefix/
         # - /prefix
         # this is done by creating a regex for this case
-        my $qpattern  = quotemeta( $self->regexp );
         my $qprefix   = quotemeta( $self->prefix );
-        my $new_regxp = qr/^$qprefix(?:$qpattern)?$/;
+        my $new_regxp = qr{^${qprefix}/?$};
 
         $self->regexp($new_regxp);
     }
