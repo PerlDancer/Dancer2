@@ -338,10 +338,11 @@ sub _build_engine_logger {
     $config = $self->config     if !defined $config;
     $value  = $config->{logger} if !defined $value;
 
-    # if there's no value or if it's a ref (object)
-    # we pass
-    return undef
-        if !defined $value || ref($value);
+    # if the existing logger is an object, we pass
+    return $value if ref($value);
+
+    # by default, create a logger 'console'
+    $value = 'console' if !defined $value;
 
     # get the options for the engine
     my $engine_options =
@@ -356,17 +357,12 @@ sub _build_engine_logger {
         }
 
     # create the object
-    my $l = Dancer2::Core::Factory->create(
+    return Dancer2::Core::Factory->create(
         logger => $value,
         %{$engine_options},
         app_name        => $self->name,
         postponed_hooks => $self->get_postponed_hooks
     );
-    # store it in the config
-    $self->config->{logger} = $l;
-    # return
-    return $l;
-
     # XXX The fact that we have to store it in the config is really ugly.
     # I think the right way to access an engine is to always call $self->engine and
     # NEVER $self->config->{logger}.
