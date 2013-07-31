@@ -2,13 +2,11 @@
 
 [![Build Status](https://travis-ci.org/PerlDancer/Dancer2.png?branch=devel)](https://travis-ci.org/PerlDancer/Dancer2)
 
-Dancer2 is the new generation lightweight web-framework for Perl. It's a complete rewrite of Dancer based on Moo.
+Dancer2 is the new generation lightweight web-framework for Perl.
 
-Yes, you can use Dancer2 in production. It works. 
+You can install it from the CPAN:
 
-You can get more information about the Dancer project on the website: [http://perldancer.org](http://perldancer.org).
-
-### Examples
+    $ cpan install Dancer2
 
 An application can be as simple as this simple hello world script:
 
@@ -20,8 +18,15 @@ get '/' => sub {
 dance;
 ```
 
+You can run it with
+
+    $ perl app.pl
+
+and point your browser to [http://localhost:3000](http://localhost:3000) and voilà!
+
 ### Additional Resources
 
+* [Dancer's Website](http://perldancer.org)
 * [Most recent release on CPAN](https://metacpan.org/release/Dancer2)
 * [Builds status on Travis](https://travis-ci.org/PerlDancer/Dancer2)
 * [Our Mailing List](http://list.perldancer.org/cgi-bin/listinfo/dancer-users)
