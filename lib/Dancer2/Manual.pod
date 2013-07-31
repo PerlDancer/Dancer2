@@ -32,7 +32,7 @@ Unix-like systems:
 (If you don't have root access, omit the 'sudo', and cpanminus will install
 Dancer2 and prereqs into C<~/perl5>.)
 
-=head1 BOOTSTRAPPING (starting a new app)
+=head1 BOOTSTRAPPING A NEW APP
 
 Create a web application using the dancer script:
 
@@ -74,7 +74,7 @@ method 'get', so only GET requests will be honoured by that route:
     };
 
 
-=head2 HTTP METHODS
+=head2 HTTP Methods
 
 Here are some of the standard HTTP methods which you can use to define your
 route handlers.
@@ -133,7 +133,7 @@ Or even, a route handler that would match any HTTP methods:
     };
 
 
-=head2 ROUTE HANDLERS
+=head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
 through the `params' keyword, which returns a hashref.
@@ -142,7 +142,7 @@ This hashref is a merge of the route pattern matches and the request params.
 You can have more details about how params are built and how to access them in
 the L<Dancer2::Request> documentation.
 
-=head2 NAMED MATCHING
+=head2 Named Matching
 
 A route pattern can contain one or more tokens (a word prefixed with ':'). Each
 token found in a route pattern is used as a named-pattern match. Any match will
@@ -160,7 +160,7 @@ Tokens can be optional, for example:
     };
 
 
-=head2 WILDCARDS MATCHING
+=head2 Wildcards Matching
 
 A route can contain a wildcard (represented by a '*'). Each wildcard match will
 be returned in an arrayref, accessible via the `splat' keyword.
@@ -170,7 +170,7 @@ be returned in an arrayref, accessible via the `splat' keyword.
         # do something with $file.$ext here
     };
 
-=head2 REGULAR EXPRESSION MATCHING
+=head2 Regular Expression Matching
 
 A route can be defined with a Perl regular expression.
 
@@ -182,7 +182,7 @@ be defined explicitly with C<qr{}>, like the following:
         return "Hello $name";
     };
 
-=head2 CONDITIONAL MATCHING
+=head2 Conditional Matching
 
 Routes may include some matching conditions (on the useragent and the hostname
 at the moment):
@@ -195,7 +195,7 @@ at the moment):
       'all browsers except songbird'
     }
 
-=head2 PREFIX
+=head2 Prefix
 
 A prefix can be defined for each route handler, like this:
 
@@ -219,7 +219,7 @@ you can use lexical prefix like this:
 
     get '/page1' => sub {}; will match /page1
 
-=head1 ACTION SKIPPING
+=head2 Action Skipping
 
 An action can choose not to serve the current request and ask Dancer2 to process
 the request with the next matching route.
@@ -236,7 +236,47 @@ This is done with the B<pass> keyword, like in the following example
     };
 
 
-=head2 DEFAULT ERROR PAGES
+
+=head2 Load rules from external files
+
+You can use the load method to include additional routes into your application:
+
+    get '/go/:value', sub {
+        # foo
+    };
+
+    load 'more_routes.pl';
+
+    # then, in the file more_routes.pl:
+    get '/yes', sub {
+        'orly?';
+    };
+
+B<load> is just a wrapper for B<require>, but you can also specify a list of
+routes files:
+
+    load 'login_routes.pl', 'session_routes.pl', 'misc_routes.pl';
+
+=head2 Importing just the syntax
+
+If you want to use more complex file hierarchies, you can import just the
+syntax of Dancer2.
+
+    package App;
+
+    use Dancer2;            # App may contain generic routes
+    use App::User::Routes; # user-related routes
+
+Then in App/User/Routes.pm:
+
+    use Dancer2 ':syntax';
+
+    get '/user/view/:id' => sub {
+        ...
+    };
+
+
+=head2 Default Error Pages
 
 When an error is rendered (the action responded with a status code different
 than 200), Dancer2 first looks in the public directory for an HTML file matching
@@ -245,7 +285,7 @@ the error code (eg: 500.html or 404.html).
 If such a file exists, it's used to render the error, otherwise, a default
 error page will be rendered on the fly.
 
-=head2 EXECUTION ERRORS
+=head2 Execution Errors
 
 When an error occurs during the route execution, Dancer2 will render an error
 page with the HTTP status code 500.
@@ -456,26 +496,6 @@ Please note that you are not limited to writing configuration files in YAML.
 Dancer2 supports any file format that is supported by L<Config::Any>, such as
 JSON, XML, INI files, and Apache-style config files.
 
-=head2 load
-
-You can use the load method to include additional routes into your application:
-
-    get '/go/:value', sub {
-        # foo
-    };
-
-    load 'more_routes.pl';
-
-    # then, in the file more_routes.pl:
-    get '/yes', sub {
-        'orly?';
-    };
-
-B<load> is just a wrapper for B<require>, but you can also specify a list of
-routes files:
-
-    load 'login_routes.pl', 'session_routes.pl', 'misc_routes.pl';
-
 =head2 Accessing configuration data
 
 A Dancer2 application can access the information from its config file easily with
@@ -485,176 +505,7 @@ the config keyword:
         return "This is " . config->{appname};
     };
 
-
-=head1 Importing just the syntax
-
-If you want to use more complex file hierarchies, you can import just the
-syntax of Dancer2.
-
-    package App;
-
-    use Dancer2;            # App may contain generic routes
-    use App::User::Routes; # user-related routes
-
-Then in App/User/Routes.pm:
-
-    use Dancer2 ':syntax';
-
-    get '/user/view/:id' => sub {
-        ...
-    };
-
-=head1 LOGGING
-
-It's possible to log messages sent by the application. In the current version,
-only one method is possible for logging messages but future releases may add
-additional logging methods, for instance logging to syslog.
-
-In order to enable the logging system for your application, you first have to
-start the logger engine in your config file:
-
-    logger: 'file'
-
-Then you can choose which kind of messages you want to actually log:
-
-    log: 'debug'     # will log debug, info, warning and errors
-    log: 'info'      # will log info, warning and errors
-    log: 'warning'   # will log warning and errors
-    log: 'error'     # will log only errors
-
-A directory appdir/logs will be created and will host one logfile per
-environment. The log message contains the time it was written, the PID of the
-current process, the message and the caller information (file and line).
-
-To log messages, use the debug, info, warning and error methods, for instance:
-
-    debug "This is a debug message";
-
-
-=head1 USING TEMPLATES
-
-=head1 VIEWS
-
-It's possible to render the action's content with a template; this is called a
-view. The `appdir/views' directory is the place where views are located.
-
-You can change this location by changing the setting 'views', for instance if
-your templates are located in the 'templates' directory, do the following:
-
-    set views => path(dirname(__FILE__), 'templates');
-
-By default, the internal template engine is used (L<Dancer2::Template::Simple>)
-but you may want to upgrade to Template::Toolkit. If you do so, you have to
-enable this engine in your settings as explained in
-L<Dancer2::Template::TemplateToolkit>. If you do so, you'll also have to import
-the L<Template> module in your application code.
-
-All views must have a '.tt' extension. This may change in the future.
-
-In order to render a view, just call the 'template' keyword at the end of the
-action by giving the view name and the HASHREF of tokens to interpolate in the
-view (note that the request, session and route params are automatically
-accessible in the view, named request, session and params):
-
-    use Dancer2;
-    use Template;
-
-    get '/hello/:name' => sub {
-        template 'hello' => { number => 42 };
-    };
-
-And the appdir/views/hello.tt view can contain the following code:
-
-   <html>
-    <head></head>
-    <body>
-        <h1>Hello [% params.name %]</h1>
-        <p>Your lucky number is [% number %]</p>
-        <p>You are using [% request.user_agent %]</p>
-        [% IF session.user %]
-            <p>You're logged in as [% session.user %]</p>
-        [% END %]
-    </body>
-   </html>
-
-=head2 LAYOUTS
-
-A layout is a special view, located in the 'layouts' directory (inside the
-views directory) which must have a token named `content'. That token marks the
-place where to render the action view. This lets you define a global layout
-for your actions. Any tokens that you defined when you called the 'template'
-keyword are available in the layouts, as well as the standard session,
-request, and params tokens. This allows you to insert per-page content into
-the HTML boilerplate, such as page titles, current-page tags for navigation,
-etc.
-
-Here is an example of a layout: views/layouts/main.tt:
-
-    <html>
-        <head>[% page_title %]</head>
-        <body>
-        <div id="header">
-        ...
-        </div>
-
-        <div id="content">
-        [% content %]
-        </div>
-
-        </body>
-    </html>
-
-This layout can be used like the following:
-
-    use Dancer2;
-    set layout => 'main';
-
-    get '/' => sub {
-        template 'index' => { page_title => "Your website Homepage" };
-    };
-
-Of course, if a layout is set, it can also be disabled for a specific action,
-like the following:
-
-    use Dancer2;
-    set layout => 'main';
-
-    get '/nolayout' => sub {
-        template 'some_ajax_view',
-            { tokens_var => "42" },
-            { layout => 0 };
-    };
-
-=head1 STATIC FILES
-
-=head2 STATIC DIRECTORY
-
-Static files are served from the ./public directory. You can specify a
-different location by setting the 'public' option:
-
-    set public => path(dirname(__FILE__), 'static');
-
-Note that the public directory name is not included in the URL. A file
-./public/css/style.css is made available as example.com/css/style.css.
-
-=head2 STATIC FILE FROM A ROUTE HANDLER
-
-It's possible for a route handler to send a static file, as follows:
-
-    get '/download/*' => sub {
-        my $params = shift;
-        my ($file) = @{ $params->{splat} };
-
-        send_file $file;
-    };
-
-Or even if you want your index page to be a plain old index.html file, just do:
-
-    get '/' => sub {
-        send_file '/index.html'
-    };
-
-=head1 SETTINGS
+=head2 Settings
 
 It's possible to change quite every parameter of the application via the
 settings mechanism.
@@ -668,7 +519,7 @@ Environment-specific settings can also be defined in environment-specific files
 (for instance, you don't want auto_reload in production, and might want extra
 logging in development).  See the cookbook for examples.
 
-=head1 SERIALIZERS
+=head2 Serializers
 
 When writing a webservice, data serialization/deserialization is a common issue
 to deal with. Dancer2 can automatically handle that for you, via a serializer.
@@ -723,8 +574,159 @@ B<Accept-type> header of the request.
 =back
 
 
-=head1 DANCER2 DSL KEYWORDS
 
+=head2 Logging
+
+It's possible to log messages sent by the application. In the current version,
+only one method is possible for logging messages but future releases may add
+additional logging methods, for instance logging to syslog.
+
+In order to enable the logging system for your application, you first have to
+start the logger engine in your config file:
+
+    logger: 'file'
+
+Then you can choose which kind of messages you want to actually log:
+
+    log: 'debug'     # will log debug, info, warning and errors
+    log: 'info'      # will log info, warning and errors
+    log: 'warning'   # will log warning and errors
+    log: 'error'     # will log only errors
+
+A directory appdir/logs will be created and will host one logfile per
+environment. The log message contains the time it was written, the PID of the
+current process, the message and the caller information (file and line).
+
+To log messages, use the debug, info, warning and error methods, for instance:
+
+    debug "This is a debug message";
+
+=head2 Using Templates
+
+=head3 Views
+
+It's possible to render the action's content with a template; this is called a
+view. The `appdir/views' directory is the place where views are located.
+
+You can change this location by changing the setting 'views', for instance if
+your templates are located in the 'templates' directory, do the following:
+
+    set views => path(dirname(__FILE__), 'templates');
+
+By default, the internal template engine is used (L<Dancer2::Template::Simple>)
+but you may want to upgrade to Template::Toolkit. If you do so, you have to
+enable this engine in your settings as explained in
+L<Dancer2::Template::TemplateToolkit>. If you do so, you'll also have to import
+the L<Template> module in your application code.
+
+All views must have a '.tt' extension. This may change in the future.
+
+In order to render a view, just call the 'template' keyword at the end of the
+action by giving the view name and the HASHREF of tokens to interpolate in the
+view (note that the request, session and route params are automatically
+accessible in the view, named request, session and params):
+
+    use Dancer2;
+    use Template;
+
+    get '/hello/:name' => sub {
+        template 'hello' => { number => 42 };
+    };
+
+And the appdir/views/hello.tt view can contain the following code:
+
+   <html>
+    <head></head>
+    <body>
+        <h1>Hello [% params.name %]</h1>
+        <p>Your lucky number is [% number %]</p>
+        <p>You are using [% request.user_agent %]</p>
+        [% IF session.user %]
+            <p>You're logged in as [% session.user %]</p>
+        [% END %]
+    </body>
+   </html>
+
+=head3 Layouts
+
+A layout is a special view, located in the 'layouts' directory (inside the
+views directory) which must have a token named `content'. That token marks the
+place where to render the action view. This lets you define a global layout
+for your actions. Any tokens that you defined when you called the 'template'
+keyword are available in the layouts, as well as the standard session,
+request, and params tokens. This allows you to insert per-page content into
+the HTML boilerplate, such as page titles, current-page tags for navigation,
+etc.
+
+Here is an example of a layout: views/layouts/main.tt:
+
+    <html>
+        <head>[% page_title %]</head>
+        <body>
+        <div id="header">
+        ...
+        </div>
+
+        <div id="content">
+        [% content %]
+        </div>
+
+        </body>
+    </html>
+
+This layout can be used like the following:
+
+    use Dancer2;
+    set layout => 'main';
+
+    get '/' => sub {
+        template 'index' => { page_title => "Your website Homepage" };
+    };
+
+Of course, if a layout is set, it can also be disabled for a specific action,
+like the following:
+
+    use Dancer2;
+    set layout => 'main';
+
+    get '/nolayout' => sub {
+        template 'some_ajax_view',
+            { tokens_var => "42" },
+            { layout => 0 };
+    };
+
+=head2 Static Files
+
+=head3 Static Directory
+
+Static files are served from the ./public directory. You can specify a
+different location by setting the 'public' option:
+
+    set public => path(dirname(__FILE__), 'static');
+
+Note that the public directory name is not included in the URL. A file
+./public/css/style.css is made available as example.com/css/style.css.
+
+=head3 Static File from a Route Handler
+
+It's possible for a route handler to send a static file, as follows:
+
+    get '/download/*' => sub {
+        my $params = shift;
+        my ($file) = @{ $params->{splat} };
+
+        send_file $file;
+    };
+
+Or even if you want your index page to be a plain old index.html file, just do:
+
+    get '/' => sub {
+        send_file '/index.html'
+    };
+
+
+
+=head1 KEYWORDS
 
 =head2 any
 
