@@ -142,7 +142,7 @@ This hashref is a merge of the route pattern matches and the request params.
 You can have more details about how params are built and how to access them in
 the L<Dancer2::Request> documentation.
 
-=head2 Named Matching
+=head3 Named Matching
 
 A route pattern can contain one or more tokens (a word prefixed with ':'). Each
 token found in a route pattern is used as a named-pattern match. Any match will
@@ -160,7 +160,7 @@ Tokens can be optional, for example:
     };
 
 
-=head2 Wildcards Matching
+=head3 Wildcards Matching
 
 A route can contain a wildcard (represented by a '*'). Each wildcard match will
 be returned in an arrayref, accessible via the `splat' keyword.
@@ -170,7 +170,7 @@ be returned in an arrayref, accessible via the `splat' keyword.
         # do something with $file.$ext here
     };
 
-=head2 Regular Expression Matching
+=head3 Regular Expression Matching
 
 A route can be defined with a Perl regular expression.
 
@@ -182,7 +182,7 @@ be defined explicitly with C<qr{}>, like the following:
         return "Hello $name";
     };
 
-=head2 Conditional Matching
+=head3 Conditional Matching
 
 Routes may include some matching conditions (on the useragent and the hostname
 at the moment):
