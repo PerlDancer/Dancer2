@@ -24,7 +24,7 @@ You can run it with
 
 Now point your browser to [http://localhost:3000](http://localhost:3000) and voilà!
 
-### Additional Resources
+## Useful Resources
 
 * [Dancer's Website](http://perldancer.org)
 * [Most recent release on CPAN](https://metacpan.org/release/Dancer2)
@@ -40,7 +40,7 @@ This guide has been written to help anyone interested in contributing
 to the development of Dancer2.
 
 First of all - thank you for your interest in the project!  It's the
-community of helpful contributors who've helped Dancer2 grow
+community of helpful contributors who've helped Dancer grow
 phenomenally. Without the community we wouldn't be where we are today!
 
 Please read this guide before contributing to Dancer2, to avoid wasted
@@ -54,25 +54,19 @@ yet active project and any kind of help is very much appreciated!
 We value documentation very much, but it's difficult to keep it
 up-to-date.  If you find a typo or an error in the documentation
 please do let us know - ideally by submitting a patch (pull request)
-with your fix or suggestion (see "Patch Submission").
-
-### Contribute to CPAN Testers
-
-If you have access to perl on rare operating systems, please consider
-contributing tests. See
-http://wiki.cpantesters.org/wiki/TestDuringInstall for more
-information.
+with your fix or suggestion (see [Patch Submission](#patch-submission)).
 
 ### Code
 
 You can write extensions (plugins) for Dancer2 extending core
-functionality or contribute to Dancer2's core code, see "Patch
-Submission" below.
+functionality or contribute to Dancer2's core code, see
+[Patch Submission](#patch-submission) below.
 
 ## General Development Guidelines
 
 This section lists high-level recommendations for developing Dancer2,
-for more detailed guidelines, see "Coding Guidelines" below.
+for more detailed guidelines, see [Coding Guidelines](#coding-guidelines)
+below.
 
 ### Quality Assurance
 
@@ -88,19 +82,19 @@ functionality.
 
 ### Quality Supervision
 
-We can measure our quality using the CPAN testers platform:
-http://www.cpantesters.org
+We can measure our quality using the
+[CPAN testers platform](http://www.cpantesters.org).
 
 A good way to help the project is to find a failing build log on the
-CPAN testers: http://www.cpantesters.org/distro/D/Dancer2.html
+[CPAN testers](http://www.cpantesters.org/distro/D/Dancer2.html).
 
-If you find a failing test report, feel free to report it as a GitHub
-issue: http://github.com/PerlDancer/Dancer2/issues
+If you find a failing test report, feel free to report it as a
+[GitHub issue](http://github.com/PerlDancer/Dancer2/issues).
 
 ### Reporting Bugs
 
-We prefer to have all our bug reports on GitHub, in the issues section:
-http://github.com/PerlDancer/Dancer2/issues. 
+We prefer to have all our bug reports on GitHub, in the
+[issues section](http://github.com/PerlDancer/Dancer2/issues).
 
 Please make sure the bug you're reporting does not yet exist. In doubt
 please ask on IRC.
@@ -282,3 +276,6 @@ Here is the workflow for submitting a patch:
         $ git push origin devel
 
    You're now ready to start working on a new pull request!
+
+## License
+
