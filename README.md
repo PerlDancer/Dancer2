@@ -6,7 +6,7 @@ Dancer2 is the new generation lightweight web-framework for Perl. It's a complet
 
 Yes, you can use Dancer2 in production. It works. 
 
-You can get more information about the Dancer project on the website: [`http://perldancer.org`](http://perldancer.org).
+You can get more information about the Dancer project on the website: [http://perldancer.org](http://perldancer.org).
 
 ### Examples
 
@@ -24,8 +24,9 @@ dance;
 
 * [Most recent release on CPAN](https://metacpan.org/release/Dancer2)
 * [Builds status on Travis](https://travis-ci.org/PerlDancer/Dancer2)
+* [Our Mailing List](http://list.perldancer.org/cgi-bin/listinfo/dancer-users)
 * [Follow us on Twitter](https://twitter.com/perldancer)
-* [Find us on IRC](irc://irc.perl.org/#dancer)
+* [Find us on irc.per.org #dancer](irc://irc.perl.org/#dancer)
 * [The Advent Calendar](http://advent.perldancer.org/)
 
 
@@ -43,14 +44,6 @@ effort and maximizing the chances of your contributions being used.
 
 There are many ways to contribute to the project. Dancer2 is a young
 yet active project and any kind of help is very much appreciated!
-
-### Mailing list / IRC community
-
-Subscribing to the mailing list and/or hanging out on our IRC channel and
-providing assistance to new users is incredibly valuable.
-
-* Mailing list: http://lists.perldancer.org/cgi-bin/listinfo/dancer-users
-* IRC: `#dancer` on `irc.perl.org`, or web-based at http://www.perldancer.org/irc.
 
 ### Documentation
 
@@ -103,22 +96,23 @@ issue: http://github.com/PerlDancer/Dancer2/issues
 ### Reporting Bugs
 
 We prefer to have all our bug reports on GitHub, in the issues section:
-http://github.com/PerlDancer/Dancer2/issues. It's possible though to report bugs
-on RT as well: https://rt.cpan.org/Dist/Display.html?Queue=Dancer2
+http://github.com/PerlDancer/Dancer2/issues. 
 
 Please make sure the bug you're reporting does not yet exist. In doubt
 please ask on IRC.
-
 
 ## Environment and Patch Submission
 
 ### Set up a development environment
 
 If you want to submit a patch for Dancer2, you need git and very
-likely also _Dist::Zilla_. We also recommend perlbrew (see below) or,
-alternatively, _App::Plenv_) to test and develop Dancer2 on a recent
-version of perl. We also suggest _App::cpanminus_) to quickly and
-comfortably install perl modules.
+likely also [_Dist::Zilla_](https://metacpan.org/module/Dist::Zilla).
+We also recommend perlbrew (see below) or,
+alternatively, [_App::Plenv_](https://github.com/tokuhirom/plenv))
+to test and develop Dancer2 on a recent
+version of perl. We also suggest
+[_App::cpanminus_](https://metacpan.org/module/App::cpanminus)
+to quickly and comfortably install perl modules.
 
 In the following sections we provide tips for the installation of some
 of these tools together with Dancer. Please also see the documentation
@@ -128,11 +122,11 @@ that comes with these tools for more info.
 
 Install perlbrew for example with 
     
-    cpanm App::perlbrew
+    $ cpanm App::perlbrew
 
 Check which perls are available
 
-    perlbrew available
+    $ perlbrew available
 
 It should list the available perl versions, like this (incomplete) list:
 
@@ -146,19 +140,19 @@ Then go on and install a version inside Perlbrew. We recommend you
 give a name to the installation (`--as` option), as well as compiling
 without the tests (`--n` option) to speed it up.
 
-    perlbrew install -n perl-5.14.2 --as dancer_development -j 3
+    $ perlbrew install -n perl-5.14.2 --as dancer_development -j 3
 
 Wait a while, and it should be done. Switch to your new Perl with:
 
-    perlbrew switch dancer_development
+    $ perlbrew switch dancer_development
 
 Now you are using the fresh Perl, you can check it with:
 
-    which perl
+    $ which perl
 
 Install cpanm on your brewed version of perl.
 
-    perlbrew install-cpanm
+    $ perlbrew install-cpanm
 
 
 ### Install various dependencies (required)
@@ -237,7 +231,7 @@ Here is the workflow for submitting a patch:
    To do that, first create a local branch to build your pull request:
 
         # you should be in devel here
-        git checkout -b pr/$name
+        $ git checkout -b pr/$name
 
    Now you have created a local branch named _pr/$name_ where _$name_
    is the name you want (it should describe the purpose of the pull
@@ -273,16 +267,14 @@ Here is the workflow for submitting a patch:
    If your pull-request is merged into _devel_, then all you have to
    do is to remove your local and remote _pr/$name_ branch:
 
-        git checkout devel
-        git branch -D pr/$name
-        git push origin :pr/$name
+        $ git checkout devel
+        $ git branch -D pr/$name
+        $ git push origin :pr/$name
 
    And then, of course, you need to sync your local devel branch with
    the upstream:
 
-        git pull upstream devel
-        git push origin devel
+        $ git pull upstream devel
+        $ git push origin devel
 
    You're now ready to start working on a new pull request!
-
-
