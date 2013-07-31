@@ -54,13 +54,14 @@ yet active project and any kind of help is very much appreciated!
 We value documentation very much, but it's difficult to keep it
 up-to-date.  If you find a typo or an error in the documentation
 please do let us know - ideally by submitting a patch (pull request)
-with your fix or suggestion (see [Patch Submission](#patch-submission)).
+with your fix or suggestion (see
+[Patch Submission](#environment-and-patch-submission)).
 
 ### Code
 
 You can write extensions (plugins) for Dancer2 extending core
 functionality or contribute to Dancer2's core code, see
-[Patch Submission](#patch-submission) below.
+[Patch Submission](#environment-and-patch-submission) below.
 
 ## General Development Guidelines
 
