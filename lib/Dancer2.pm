@@ -62,10 +62,16 @@ sessions or cookies, using templates, configuring and logging, writing
 REST services and deploying your dancer application using different
 technologies.
 
-+item * Dancer2 Config
+=item * Dancer2 Config
 
 For configuration file details refer to L<Dancer2::Config>. It is a
 comprehensive list of all possible configuration options.
+
+=item * Dancer2 Plugins
+
+Refer L<Dancer2::Plugins> includes a list of (some) available Dancer2
+plugins. Note that although we try to keep this list up to date we
+rely on plugin authors to warn us about new modules.
 
 =back
 
