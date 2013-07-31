@@ -187,7 +187,7 @@ sub hook_candidates {
     my ($self) = @_;
 
     my @engines;
-    for my $e (qw(logger serializer template logger)) {
+    for my $e (@{$self->supported_engines}) {
         my $engine = eval { $self->engine($e) };
         push @engines, $engine if defined $engine;
     }
