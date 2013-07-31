@@ -31,12 +31,37 @@ Dancer2 is easy and fun:
 This is the main module for the Dancer2 distribution. It contains logic for 
 creating a new Dancer2 application. 
 
-If you are looking for info on how to write a webapp with Dancer2 you probably 
-want to look at L<Dancer2::Manual> or L<Dancer2::Cookbook>.  For a documentation
-of the Dancer2's DSL, you'll want to read L<Dancer2::Manual::DSL>.
-
 You are also welcome to join our mailing list at dancer-users@perldancer.org, 
 and we're also on IRC: #dancer on irc.perl.org.
+
+=head2 Documentation Index
+
+Documentation on Dancer2 is split up in different manpages. This is a
+comprehensive outline on where you will find your help.
+
+=over 4
+
+=item * Dancer2 Tutorial
+
+If you are new to Dancer philosophy we suggest you to start following
+our L<Dancer2::Tutorial>.
+
+=item * Dancer2 Manual
+
+L<Dancer2::Manual> is the reference for Dancer2. Here you will find information
+about the concepts on Dancer2 application development as well as a
+comprehensive reference to the Dancer2 domain specific language.
+
+=item * Dancer2 Cookbook
+
+There are some situations that are common to a lot of users. For
+example, application deployment. On L<Dancer2::Cookbook> you will find
+reciped for common tasks, from defining routes, storing data as
+sessions or cookies, using templates, configuring and logging, writing
+REST services and deploying your dancer application using different
+technologies.
+
+=back
 
 =func my $runner=runner();
 
