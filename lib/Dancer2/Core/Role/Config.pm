@@ -346,13 +346,6 @@ sub _build_engine_logger {
     my $engine_options =
         $self->_get_config_for_engine( logger => $value, $config );
 
-    # XXX actually, since this is dancer2, there's no reason to keep this as a compatiblity
-    if (   !exists( $engine_options->{log_level} )
-               and exists( $config->{log} ) )
-        {
-            $engine_options->{log_level} = $config->{log};
-        }
-
     return Dancer2::Core::Factory->create(
         logger => $value,
         %{$engine_options},
