@@ -20,7 +20,7 @@ get '/' => sub {
 dance;
 ```
 
-### External resources
+### Additional Resources
 
 * [Most recent release on CPAN](https://metacpan.org/release/Dancer2)
 * [Builds status on Travis](https://travis-ci.org/PerlDancer/Dancer2)
@@ -28,7 +28,6 @@ dance;
 * [Follow us on Twitter](https://twitter.com/perldancer)
 * [Find us on irc.per.org #dancer](irc://irc.perl.org/#dancer)
 * [The Advent Calendar](http://advent.perldancer.org/)
-
 
 ## Contributing
 
