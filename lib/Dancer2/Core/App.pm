@@ -141,7 +141,7 @@ sub engine {
     my ( $self, $name ) = @_;
 
     my $e = $self->engines->{$name}
-        || croak "No '$name' engine defined" if not defined $e;
+        || croak "No '$name' engine defined";
 
     return $e;
 }
