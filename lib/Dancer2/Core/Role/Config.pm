@@ -334,22 +334,18 @@ sub _build_engines {
 sub _build_engine_logger {
     my ($self, $value, $config) = @_;
 
-    # _build_engine_x is also called by a trigger
-    # so the value and config can be passed as arg
     $config = $self->config     if !defined $config;
     $value  = $config->{logger} if !defined $value;
 
-    # if the existing logger is an object, we pass
     return $value if ref($value);
 
-    # by default, create a logger 'console'
+    # XXX This is needed for the tests that create an app without
+    # a runner.
     $value = 'console' if !defined $value;
 
-    # get the options for the engine
     my $engine_options =
         $self->_get_config_for_engine( logger => $value, $config );
 
-    # keep compatibility with old 'log' keyword to define log level.
     # XXX actually, since this is dancer2, there's no reason to keep this as a compatiblity
     if (   !exists( $engine_options->{log_level} )
                and exists( $config->{log} ) )
@@ -357,26 +353,22 @@ sub _build_engine_logger {
             $engine_options->{log_level} = $config->{log};
         }
 
-    # create the object
     return Dancer2::Core::Factory->create(
         logger => $value,
         %{$engine_options},
         app_name        => $self->name,
         postponed_hooks => $self->get_postponed_hooks
     );
-    # XXX The fact that we have to store it in the config is really ugly.
-    # I think the right way to access an engine is to always call $self->engine and
-    # NEVER $self->config->{logger}.
 }
 
 sub _build_engine_session {
     my ($self, $value, $config)  = @_;
 
-    $config = $self->config if !defined $config;
+    $config = $self->config        if !defined $config;
     $value  = $config->{'session'} if !defined $value;
 
     $value = 'simple' if !defined $value;
-    return $value if ref($value);
+    return $value     if ref($value);
 
     my $engine_options =
           $self->_get_config_for_engine( session => $value, $config );
@@ -391,8 +383,8 @@ sub _build_engine_session {
 sub _build_engine_template {
     my ($self, $value, $config)  = @_;
 
-    $config = $self->config if !defined $config;
-    $value = $config->{'template'} if !defined $value;
+    $config = $self->config         if !defined $config;
+    $value  = $config->{'template'} if !defined $value;
 
     return undef  if !defined $value;
     return $value if ref($value);
@@ -415,7 +407,7 @@ sub _build_engine_template {
 sub _build_engine_serializer {
     my ($self, $value, $config) = @_;
 
-    $config = $self->config if !defined $config;
+    $config = $self->config         if !defined $config;
     $value  = $config->{serializer} if !defined $value;
 
     return undef  if !defined $value;
