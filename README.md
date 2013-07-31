@@ -176,9 +176,9 @@ Clone your fork to have a local copy using the following command:
 
      $ git clone git://github.com/perldancer/Dancer2.git
 
-The Dancer2 sources come with a C<dist.ini>. That's the configuration
+The Dancer2 sources come with a `dist.ini`. That's the configuration
 files for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
-use dist.ini to install additional C<Dist::Zilla> plugins which are
+use dist.ini to install additional `Dist::Zilla` plugins which are
 not yet installed on your system (or perl installation):
 
      $ dzil authordeps | cpanm -n
@@ -204,10 +204,10 @@ Dancer2 quickly!
 
 To help us achieve high-quality, stable releases, git-flow workflow is
 used to handle pull-requests, that means contributors must work on
-their C<devel> branch rather than on their C<master>.  (Master should
+their _devel_ branch rather than on their _master_.  (Master should
 be touched only by the core dev team when preparing a release to CPAN;
 all ongoing development happens in branches which are merged to the
-C<devel> branch.)
+_devel_ branch.)
 
 Here is the workflow for submitting a patch:
 
@@ -224,8 +224,8 @@ Here is the workflow for submitting a patch:
         $ git fetch upstream
         $ git checkout -b devel upstream/devel
 
-   This will create a local branch in your clone named C<devel> and
-   that will track the official C<devel> branch. That way, if you have
+   This will create a local branch in your clone named _devel_ and
+   that will track the official _devel_ branch. That way, if you have
    more or less commits than the upstream repo, you'll be immediately
    notified by git.
 
@@ -260,7 +260,7 @@ Here is the workflow for submitting a patch:
    is aware of it.
 
    You could also notify the core team on IRC, on `irc.perl.org`,
-   channel `#dancer` or <http://www.perldancer.org/irc
+   channel `#dancer` or http://www.perldancer.org/irc
 
 6. When the core team reviews your pull request, it will either accept
    (and then merge into _devel_) or refuse your request.
