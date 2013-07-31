@@ -324,14 +324,7 @@ sub _get_config_for_engine {
 }
 
 sub _build_engines {
-    my $self    = shift;
-
-    # Dancer2 supports 4 types of engines:
-    # - logger
-    # - session
-    # - template
-    # - serializer
-    # we build them first
+    my $self = shift;
     return {
         logger     => $self->_build_engine_logger(),
         session    => $self->_build_engine_session(),
