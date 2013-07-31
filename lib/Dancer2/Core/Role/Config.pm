@@ -142,14 +142,16 @@ sub load_config_file {
 
 sub get_postponed_hooks {
     my ($self) = @_;
-    return ( ref($self) eq 'Dancer2::Core::App' )
-      ? (
-        ( defined $self->server )
-        ? $self->server->runner->postponed_hooks
-        : {}
-      )
-      : $self->can('postponed_hooks') ? $self->postponed_hooks
-      :                                 {};
+    return $self->postponed_hooks;
+    # XXX FIXME
+    # return ( ref($self) eq 'Dancer2::Core::App' )
+    #   ? (
+    #     ( defined $self->server )
+    #     ? $self->server->runner->postponed_hooks
+    #     : {}
+    #   )
+    #   : $self->can('postponed_hooks') ? $self->postponed_hooks
+    #   :                                 {};
 }
 
 # private
@@ -239,19 +241,25 @@ my $_setters = {
     logger => sub {
         my ( $self, $value, $config ) = @_;
         return $value if ref($value);
-        return $self->_build_engine_logger($value, $config);
+        my $l = $self->_build_engine_logger($value, $config);
+        $self->engines->{logger} = $l;
+        return $l;
     },
 
     session => sub {
         my ( $self, $value, $config ) = @_;
         return $value if ref($value);
-        return $self->_build_engine_session($value, $config);
+        my $s = $self->_build_engine_session($value, $config);
+        $self->engines->{session} = $s;
+        return $s;
     },
 
     template => sub {
         my ( $self, $value, $config ) = @_;
         return if ref($value);
-        return $self->_build_engine_template($value);
+        my $t = $self->_build_engine_template($value, $config);
+        $self->engines->{template} = $t;
+        return $t;
     },
 
 #    route_cache => sub {
@@ -262,7 +270,9 @@ my $_setters = {
 
     serializer => sub {
         my ( $self, $value, $config ) = @_;
-        return $self->_build_engine_serializer($value);
+        my $s = $self->_build_engine_serializer($value, $config);
+        $self->engines->{serializer} = $s;
+        return $s;
     },
 
     import_warnings => sub {
@@ -372,7 +382,7 @@ sub _build_engine_session {
     my ($self, $value, $config)  = @_;
 
     $config = $self->config if !defined $config;
-    $value  = $config->{'engines'} if !defined $value;
+    $value  = $config->{'session'} if !defined $value;
 
     $value = 'simple' if !defined $value;
     return $value if ref($value);
@@ -388,50 +398,46 @@ sub _build_engine_session {
 }
 
 sub _build_engine_template {
-    my ($self, $value)  = @_;
+    my ($self, $value, $config)  = @_;
 
-    $value = $self->config->{'template'}
-        if !defined $value;
+    $config = $self->config if !defined $config;
+    $value = $config->{'template'} if !defined $value;
 
     return undef  if !defined $value;
     return $value if ref($value);
 
     my $engine_options =
-          $self->_get_config_for_engine( template => $value, $self->config );
+          $self->_get_config_for_engine( template => $value, $config );
 
     my $engine_attrs = { config => $engine_options };
-    $engine_attrs->{layout} ||= $self->config->{layout};
-    $engine_attrs->{views}  ||= $self->config->{views}
+    $engine_attrs->{layout} ||= $config->{layout};
+    $engine_attrs->{views}  ||= $config->{views}
         || path( $self->location, 'views' );
 
-    my $t = Dancer2::Core::Factory->create(
+    return Dancer2::Core::Factory->create(
         template => $value,
         %{$engine_attrs},
         postponed_hooks => $self->get_postponed_hooks,
     );
-    $self->config->{template} = $t;
-    return $t;
 }
 
 sub _build_engine_serializer {
-    my ($self, $value) = @_;
+    my ($self, $value, $config) = @_;
 
-    $value = $self->config->{'serializer'}
-        if !defined $value;
+    $config = $self->config if !defined $config;
+    $value  = $config->{serializer} if !defined $value;
 
     return undef  if !defined $value;
     return $value if ref($value);
 
     my $engine_options =
-        $self->_get_config_for_engine( serializer => $value, $self->config );
+        $self->_get_config_for_engine( serializer => $value, $config );
 
-    my $s = Dancer2::Core::Factory->create(
+    return Dancer2::Core::Factory->create(
         serializer      => $value,
         config          => $engine_options,
         postponed_hooks => $self->get_postponed_hooks,
     );
-    $self->config->{serializer} = $s;
-    return $s;
 }
 
 1;

@@ -24,6 +24,7 @@ Test::TCP::test_tcp(
         like $res->content, qr{42}, "session is set in foo";
 
         my $engine = t::lib::Foo->dsl->engine('session');
+        use YAML::XS;warn Dump $engine;
         is $engine->{__marker__}, 1,
           "the session engine in subapp is the same";
 

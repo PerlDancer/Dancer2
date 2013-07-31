@@ -37,7 +37,7 @@ my $tests_flags = {};
 
     # we set the engines after the hook, and that should work
     # thanks to the postponed hooks system
-    set template   => 'template_toolkit';
+    set template   => 'tiny';
     set serializer => 'JSON';
 
     get '/send_file' => sub {
