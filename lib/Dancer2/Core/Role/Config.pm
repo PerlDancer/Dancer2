@@ -58,6 +58,27 @@ has environment => (
     builder => '_build_environment',
 );
 
+has _engines_triggers => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_engines_triggers',
+);
+
+has _config_triggers => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_config_triggers',
+);
+
+has supported_engines => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    lazy    => 1,
+    default => sub {[qw/logger serializer session template/]},
+);
+
 sub settings { shift->config }
 
 sub setting {
@@ -221,70 +242,63 @@ sub _normalize_config_entry {
     return $value;
 }
 
-my $_setters = {
-    logger => sub {
-        my ( $self, $value, $config ) = @_;
-        return $value if ref($value);
-        my $l = $self->_build_engine_logger($value, $config);
-        $self->engines->{logger} = $l;
-        return $l;
-    },
+sub _build_engines_triggers {
+    my $self = shift;
 
-    session => sub {
-        my ( $self, $value, $config ) = @_;
-        return $value if ref($value);
-        my $s = $self->_build_engine_session($value, $config);
-        $self->engines->{session} = $s;
-        return $s;
-    },
+    my $triggers = {};
 
-    template => sub {
-        my ( $self, $value, $config ) = @_;
-        return if ref($value);
-        my $t = $self->_build_engine_template($value, $config);
-        $self->engines->{template} = $t;
-        return $t;
-    },
+    foreach my $engine (@{$self->supported_engines}) {
+        $triggers->{$engine} = sub {
+            my ($self, $value, $config) = @_;
 
-#    route_cache => sub {
-#        my ($setting, $value) = @_;
-#        require Dancer2::Route::Cache;
-#        Dancer2::Route::Cache->reset();
-#    },
+            return $value if ref($value);
 
-    serializer => sub {
-        my ( $self, $value, $config ) = @_;
-        my $s = $self->_build_engine_serializer($value, $config);
-        $self->engines->{serializer} = $s;
-        return $s;
-    },
+            my $method = "_build_engine_$engine";
+            my $e = $self->$method($value, $config);
+            $self->engines->{$engine} = $e;
+            return $e;
+        };
+    }
 
-    import_warnings => sub {
-        my ( $self, $value ) = @_;
-        $^W = $value ? 1 : 0;
-    },
+    return $triggers;
+}
 
-    traces => sub {
-        my ( $self, $traces ) = @_;
-        require Carp;
-        $Carp::Verbose = $traces ? 1 : 0;
-    },
+sub _build_config_triggers {
+    my $self = shift;
 
-    views => sub {
-        my ( $self, $value, $config ) = @_;
-        $self->engine('template')->views($value);
-    },
-
-    layout => sub {
-        my ( $self, $value, $config ) = @_;
-        $self->engine('template')->layout($value);
-    },
-};
+    # TODO route_cache
+    return {
+        import_warnings => sub {
+            my ( $self, $value ) = @_;
+            $^W = $value ? 1 : 0;
+        },
+        traces => sub {
+            my ( $self, $traces ) = @_;
+            require Carp;
+            $Carp::Verbose = $traces ? 1 : 0;
+        },
+        views => sub {
+            my ( $self, $value, $config ) = @_;
+            $self->engine('template')->views($value);
+        },
+        layout => sub {
+            my ( $self, $value, $config ) = @_;
+            $self->engine('template')->layout($value);
+        },
+    };
+}
 
 sub _compile_config_entry {
     my ( $self, $name, $value, $config ) = @_;
 
-    my $trigger = $_setters->{$name};
+    my $trigger;
+
+    if (grep {$name eq $_} @{$self->supported_engines}) {
+        $trigger = $self->_engines_triggers->{$name};
+    }else{
+        $trigger = $self->_config_triggers->{$name};
+    }
+
     return $value unless defined $trigger;
 
     return $trigger->( $self, $value, $config );
@@ -444,6 +458,8 @@ Gets the location from the configuration. Same as C<< $object->location >>.
 =attr environments
 
 =attr config_files
+
+=attr supported_engines
 
 =head1 METHODS
 
