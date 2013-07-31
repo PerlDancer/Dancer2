@@ -4,16 +4,6 @@ package Dancer2::Core::Role::Config;
 
 use Moo::Role;
 
-=head1 DESCRIPTION
-
-Provides a C<config> attribute that feeds itself by finding and parsing
-configuration files.
-
-Also provides a C<setting()> method which is supposed to be used by externals to
-read/write config entries.
-
-=cut
-
 use Dancer2::Core::Factory;
 use File::Spec;
 use Config::Any;
@@ -23,12 +13,6 @@ use Hash::Merge::Simple;
 use Carp 'croak', 'carp';
 
 requires 'location';
-
-=method config_location
-
-Gets the location from the configuration. Same as C<< $object->location >>.
-
-=cut
 
 has config_location => (
     is      => 'ro',
@@ -434,3 +418,41 @@ sub _build_engine_serializer {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Provides a C<config> attribute that feeds itself by finding and parsing
+configuration files.
+
+Also provides a C<setting()> method which is supposed to be used by externals to
+read/write config entries.
+
+=head1 ATTRIBUTES
+
+=attr config_location
+
+Gets the location from the configuration. Same as C<< $object->location >>.
+
+=attr environments_location
+
+=attr config
+
+=attr engines
+
+=attr environments
+
+=attr config_files
+
+=head1 METHODS
+
+=head1 settings
+
+=hea2 setting
+
+=head2 has_setting
+
+=head2 load_config_file
+
+=head2 get_postponed_hooks
