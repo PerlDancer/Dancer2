@@ -95,9 +95,9 @@ POST requests.
 
 =back
 
-=over 4
-
 =head2 Session Engines
+
+=over 4
 
 =item L<Dancer2::Session::Cookie>
 
