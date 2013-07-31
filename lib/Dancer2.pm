@@ -48,9 +48,10 @@ our L<Dancer2::Tutorial>.
 
 =item * Dancer2 Manual
 
-L<Dancer2::Manual> is the reference for Dancer2. Here you will find information
-about the concepts on Dancer2 application development as well as a
-comprehensive reference to the Dancer2 domain specific language.
+L<Dancer2::Manual> is the reference for Dancer2. Here you will find
+information about the concepts on Dancer2 application development as
+well as a comprehensive reference to the Dancer2 domain specific
+language.
 
 =item * Dancer2 Cookbook
 
@@ -60,6 +61,11 @@ reciped for common tasks, from defining routes, storing data as
 sessions or cookies, using templates, configuring and logging, writing
 REST services and deploying your dancer application using different
 technologies.
+
++item * Dancer2 Config
+
+For configuration file details refer to L<Dancer2::Config>. It is a
+comprehensive list of all possible configuration options.
 
 =back
 
