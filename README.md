@@ -6,7 +6,7 @@ Dancer2 is the new generation lightweight web-framework for Perl. It's a complet
 
 Yes, you can use Dancer2 in production. It works. 
 
-You can get more information about the Dancer project on the website: [`http://perldancer.org`](http://perldancer.org).
+You can get more information about the Dancer project on the website: [http://perldancer.org](http://perldancer.org).
 
 ### Examples
 
