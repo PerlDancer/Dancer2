@@ -23,7 +23,7 @@ You can change a setting with the keyword C<set>:
 =head1 MANIPULATING SETTINGS VIA CONFIGURATION FILES
 
 There's nothing wrong with using C<set> to configure your application.  In
-fact you might have some great reasons for doing so.  For greater flexibilty,
+fact you might have some great reasons for doing so.  For greater flexibility,
 ease of deployment, etc., you should also consider extracting those settings
 into a configuration file.
 
