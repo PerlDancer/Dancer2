@@ -22,7 +22,7 @@ You can run it with
 
     $ perl app.pl
 
-and point your browser to [http://localhost:3000](http://localhost:3000) and voilà!
+Now point your browser to [http://localhost:3000](http://localhost:3000) and voilà!
 
 ### Additional Resources
 
