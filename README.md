@@ -215,14 +215,14 @@ Here is the workflow for submitting a patch:
 
 2. Clone your fork to have a local copy using the following command:
 
-      $ git clone git://github.com/myname/Dancer2.git
+        $ git clone git://github.com/myname/Dancer2.git
 
 3. As a contributor, you should **always** work on the `devel` branch of
    your clone (`master` is used only for building releases).
 
-      $ git remote add upstream https://github.com/PerlDancer/Dancer2.git
-      $ git fetch upstream
-      $ git checkout -b devel upstream/devel
+        $ git remote add upstream https://github.com/PerlDancer/Dancer2.git
+        $ git fetch upstream
+        $ git checkout -b devel upstream/devel
 
    This will create a local branch in your clone named C<devel> and
    that will track the official C<devel> branch. That way, if you have
@@ -236,8 +236,8 @@ Here is the workflow for submitting a patch:
 
    To do that, first create a local branch to build your pull request:
 
-      # you should be in devel here
-      git checkout -b pr/$name
+        # you should be in devel here
+        git checkout -b pr/$name
 
    Now you have created a local branch named _pr/$name_ where _$name_
    is the name you want (it should describe the purpose of the pull
@@ -246,10 +246,10 @@ Here is the workflow for submitting a patch:
    In that branch, do all the commits you need (the more the better)
    and when done, push the branch to your fork:
 
-      # ... commits ...
-     git push origin pr/$name
+        # ... commits ...
+        git push origin pr/$name
 
-  You are now ready to send a pull request.
+   You are now ready to send a pull request.
 
 5. Send a _pull request_ via the GitHub interface. Make sure your pull
    request is based on the _pr/$name_ branch you've just pushed, so
@@ -273,15 +273,15 @@ Here is the workflow for submitting a patch:
    If your pull-request is merged into _devel_, then all you have to
    do is to remove your local and remote _pr/$name_ branch:
 
-      git checkout devel
-      git branch -D pr/$name
-      git push origin :pr/$name
+        git checkout devel
+        git branch -D pr/$name
+        git push origin :pr/$name
 
    And then, of course, you need to sync your local devel branch with
    the upstream:
 
-      git pull upstream devel
-      git push origin devel
+        git pull upstream devel
+        git push origin devel
 
    You're now ready to start working on a new pull request!
 
