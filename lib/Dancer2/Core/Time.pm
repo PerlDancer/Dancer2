@@ -6,7 +6,7 @@ package Dancer2::Core::Time;
 
 For consistency, whenever something needs to work with time, it
 needs to be expressed in seconds, with a timestamp. Although it's very
-convinient for the machine and calculations, it's not very handy for a
+convenient for the machine and calculations, it's not very handy for a
 human-being, for instance in a configuration file.
 
 This class provides everything needed to translate any human-understandable 

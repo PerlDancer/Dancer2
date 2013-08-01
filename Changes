@@ -1,7 +1,14 @@
 {{$NEXT}}
 
     [ ENHANCEMENTS ]
-    * Clean dzil configuration for perltidy (Alberto Simões)
+    * GH#332: Clean up multiple definitions of core_debug (Franck Cuny)
+    * GH#338: Clean up route builder (Mickey Nasriachi)
+    * Clean up of the dzil configuration (Alberto Simões)
+
+0.06 2013-07-30 (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * Clean up of the dzil configuration (Alberto Simões,Franck Cuny, Russel Jenkins)
     * GH#327: Add support for 'info' log level (Russell Jenkins)
     * Remove 'for_versions' usage from tests (Alberto Simões)
 
@@ -11,7 +18,7 @@
     * GH#320: fix plugin_setting deprecation warning (David Golden)
 
     [ DOCUMENTATION ]
-    * POD cleanup (Sawyer, Franck Cuny)
+    * POD cleanup (Sawyer X, Franck Cuny)
 
 0.05      2013-07-20 18:51:53 Europe/Paris
 

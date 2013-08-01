@@ -15,7 +15,7 @@ our $AUTHORITY = 'SUKRIA';
 # set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '0.05';    # 2.0.5
+$Dancer2::VERSION ||= '0.06';    # 2.0.6
 
 =head1 DESCRIPTION
 
@@ -190,13 +190,14 @@ L<Data::Dumper>
 =cut
 
 sub core_debug {
+    return unless $ENV{DANCER_DEBUG_CORE};
+
     my $msg = shift;
     my (@stuff) = @_;
 
     my $vars = @stuff ? Dumper( \@stuff ) : '';
 
     my ( $package, $filename, $line ) = caller;
-    return unless $ENV{DANCER_DEBUG_CORE};
 
     chomp $msg;
     print STDERR "core: $msg\n$vars";

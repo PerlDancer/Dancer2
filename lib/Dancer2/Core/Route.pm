@@ -41,11 +41,11 @@ Required. Coerce from Dancer2's route I<patterns>.
 =cut
 
 has regexp => (
-    is       => 'rw',
+    is       => 'ro',
     required => 1,
 );
 
-has spec_route => ( is => 'rw', );
+has spec_route => ( is => 'ro' );
 
 =attr prefix
 
@@ -90,7 +90,7 @@ sub _check_options {
 # private attributes
 
 has _should_capture => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Bool,
 );
 
@@ -103,7 +103,7 @@ has _match_data => (
 );
 
 has _params => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => ArrayRef,
     default => sub { [] },
 );
@@ -187,67 +187,39 @@ sub execute {
 
 # private subs
 
-sub BUILD {
-    my ($self) = @_;
+sub BUILDARGS {
+    my ( $class, %args ) = @_;
 
-# prepend the prefix to the regexp if any
-# this is done in BUILD instead of a trigger in order to be sure that the regexp
-# attribute is set when this is ran.
-    $self->_init_prefix if defined $self->prefix;
+    my $prefix = $args{prefix};
+    my $regexp = $args{regexp};
 
-    # now we can build the regexp
-    $self->_init_regexp;
-}
-
-# alter the regexp according to the prefix set, if any.
-sub _init_prefix {
-    my ($self) = @_;
-
-    my $prefix = $self->prefix;
-    my $regexp = $self->regexp;
-
-    if ( ref($regexp) eq 'Regexp' ) {
-        my $regexp = $self->regexp;
-        if ( $regexp !~ /^$prefix/ ) {
-            $self->regexp(qr{${prefix}${regexp}});
-        }
+    # regexp must have a leading /
+    if ( ref($regexp) ne 'Regexp' ) {
+        index( $regexp, '/', 0 ) == 0
+            or die "regexp must begin with /\n";
     }
-    elsif ( $self->regexp eq '/' ) {
 
-        # if pattern is '/', we should match:
-        # - /prefix/
-        # - /prefix
-        # this is done by creating a regex for this case
-        my $qpattern  = quotemeta( $self->regexp );
-        my $qprefix   = quotemeta( $self->prefix );
-        my $new_regxp = qr/^$qprefix(?:$qpattern)?$/;
+    # init prefix
+    if ( $prefix ) {
+        $args{regexp} =
+            ref($regexp) eq 'Regexp' ? qr{\Q${prefix}\E${regexp}} :
+            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$}      :
+            $prefix . $regexp;
+    }
 
-        $self->regexp($new_regxp);
+    # init regexp
+    $regexp = $args{regexp}; # updated value
+    $args{spec_route} = $regexp;
+
+    if ( ref($regexp) eq 'Regexp') {
+        $args{_should_capture} = 1;
     }
     else {
-        $self->regexp( $prefix . $self->regexp );
-    }
-}
-
-sub _init_regexp {
-    my ($self) = @_;
-    my $value = $self->regexp;
-
-    # store the original value for the route
-    $self->spec_route($value);
-
-    # already a Regexp, so capture is true
-    if ( ref($value) eq 'Regexp' ) {
-        $self->_should_capture(1);
-        return $value;
+        @args{qw/ regexp _params _should_capture/} =
+            @{ _build_regexp_from_string($regexp) };
     }
 
-    my ( $compiled, $params, $should_capture ) =
-      @{ _build_regexp_from_string($value) };
-
-    $self->_should_capture($should_capture);
-    $self->_params( $params || [] );
-    $self->regexp($compiled);
+    return \%args;
 }
 
 sub _build_regexp_from_string {
