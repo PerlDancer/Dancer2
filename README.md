@@ -253,7 +253,7 @@ Here is the workflow for submitting a patch:
    is aware of it.
 
    You could also notify the core team on IRC, on `irc.perl.org`,
-   channel `#dancer` or http://www.perldancer.org/irc
+   channel `#dancer` or via [web client](http://www.perldancer.org/irc).
 
 6. When the core team reviews your pull request, it will either accept
    (and then merge into _devel_) or refuse your request.
