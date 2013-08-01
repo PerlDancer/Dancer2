@@ -46,7 +46,7 @@ View the web application at:
 
     http://localhost:3000
 
-Note that as Dancer2 supports the L<PSGI> specification, you can also use the C<plackup> tool 
+Note that as Dancer2 supports the L<PSGI> specification, you can also use the C<plackup> tool
 (provided by L<Plack>) for launching the application:
 
     plackup ./bin/app.pl -p 5000
@@ -88,7 +88,7 @@ information.  They should not be used for requests which change data on the
 server or have other effects.
 
 When defining a route handler for the GET method, Dancer2 automatically defines
-a route handler for the HEAD method, in order to honour HEAD requests for each 
+a route handler for the HEAD method, in order to honour HEAD requests for each
 of your GET route handlers).
 
 To define a GET action, use the L<get|Dancer2::Manual/get> keyword.
@@ -111,7 +111,7 @@ C<PATCH> request is used.
 To define a PATCH action, use the L<patch|Dancer2::Manual/patch>
 keyword.
 
-=item B<DELETE> The DELETE method requests that the origin server delete the 
+=item B<DELETE> The DELETE method requests that the origin server delete the
 resource identified by the Request-URI.
 
 To define a DELETE action, use the L<del|Dancer2::Manual/del> keyword.
@@ -418,7 +418,7 @@ receives the error object as its first and unique argument.
 
     hook before_error => sub {
         my $error = shift;
-        # do something with $error 
+        # do something with $error
     };
 
 C<after_error> hooks are called whenever an error object has been thrown, it
@@ -447,7 +447,7 @@ content produced. It receives the response object (L<Dancer2::Core::Response>)
 produced.
 
     hook after_file_render => sub {
-       my $response = shift; 
+       my $response = shift;
     };
 
 
@@ -822,7 +822,7 @@ Returns the version of Dancer. If you need the major version, do something like:
 Logs a message of debug level:
 
     debug "This is a debug message";
-    
+
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log messages go.
 
 =head2 dirname
@@ -1170,7 +1170,7 @@ This hook receives as argument a L<Dancer2::Core::Response> object.
 =item on_handler_exception
 
 This hook is called when an exception has been caught, at the handler level,
-just before creating and rendering L<Dancer2::Core::Error>. 
+just before creating and rendering L<Dancer2::Core::Error>.
 
   hook on_handler_exception => sub {
     my $exception = shift;
@@ -1350,7 +1350,7 @@ This makes it possible to nest prefixes:
 
    prefix '/home' => sub {
        ## some routes
-       
+
       prefix '/private' => sub {
          ## here we are under /home/private...
 
@@ -1707,7 +1707,7 @@ Returns the response of processing the given template with the given parameters
 (and optional settings), wrapping it in the default or specified layout too, if
 layouts are in use.
 
-An example of a  route handler which returns the result of using template to 
+An example of a  route handler which returns the result of using template to
 build a response with the current template engine:
 
     get '/' => sub {
