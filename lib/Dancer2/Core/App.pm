@@ -484,7 +484,7 @@ has context => (
     trigger => sub {
         my ( $self, $ctx ) = @_;
         $self->_init_for_context($ctx),;
-        for my $type (qw/logger serializer session template/) {
+        for my $type (@{$self->supported_engines}) {
             my $engine = $self->engines->{$type}
               or next;
             defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
