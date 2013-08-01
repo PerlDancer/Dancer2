@@ -280,8 +280,8 @@ Here is the workflow for submitting a patch:
 
 ## Plugins
 
-| Name          | Type          | Link  |
-| ------------- |:-------------:| -----:|
+| Name          | Type        | Link  |
+| ------------- |-------------| ------|
 | Dancer2::Session::Cookie | Session | [CPAN](https://metacpan.org/module/Dancer2::Session::Cookie) |
 | Dancer2::Plugin::Syntax::GetPost | Syntactic sugar | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Syntax::GetPost) |
 | Dancer2::Plugin::BrowserDetect | | [CPAN](https://metacpan.org/module/Dancer2::Plugin::BrowserDetect) |
