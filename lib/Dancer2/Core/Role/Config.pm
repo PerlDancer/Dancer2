@@ -436,24 +436,56 @@ Gets the location from the configuration. Same as C<< $object->location >>.
 
 =attr environments_location
 
+Gets the directory were the environment files are stored.
+
 =attr config
+
+Returns the whole configuration.
 
 =attr engines
 
+Returns all the engines.
+
 =attr environments
+
+Returns the name of the environment.
 
 =attr config_files
 
+List of all the configuration files.
+
 =attr supported_engines
+
+The list of engines supported by Dancer.
+
+=over 4
+
+=item logger
+
+=item serializer
+
+=item session
+
+=item template
+
+=back
 
 =head1 METHODS
 
 =head1 settings
 
+Alias for config. Equivalent to <<$object->config>>.
+
 =hea2 setting
+
+Get or set an element from the configuration.
 
 =head2 has_setting
 
+Verifies that a key exists in the configuration.
+
 =head2 load_config_file
+
+Load the configuration files.
 
 =head2 get_postponed_hooks
