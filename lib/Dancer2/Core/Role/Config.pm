@@ -12,7 +12,18 @@ use Dancer2::FileUtils qw/dirname path/;
 use Hash::Merge::Simple;
 use Carp 'croak', 'carp';
 
-requires 'location';
+has location => (
+    is       => 'rw',
+    required => 1,
+    lazy     => 1,
+    default  => sub { File::Spec->rel2abs('.') },
+    coerce   => sub {
+        my ($value) = @_;
+        return File::Spec->rel2abs($value)
+          if !File::Spec->file_name_is_absolute($value);
+        return $value;
+    },
+);
 
 has config_location => (
     is      => 'ro',
@@ -429,6 +440,10 @@ Also provides a C<setting()> method which is supposed to be used by externals to
 read/write config entries.
 
 =head1 ATTRIBUTES
+
+=attr location
+
+Absolute path to the directory where the server started.
 
 =attr config_location
 
