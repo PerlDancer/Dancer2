@@ -26,14 +26,30 @@ requires 'serialize';
 requires 'deserialize';
 requires 'loaded';
 
+has error => (
+    is        => 'rw',
+    isa       => Str,
+    predicate => 1,
+);
+
 around serialize => sub {
     my ( $orig, $self, @data ) = @_;
-
     $self->execute_hook( 'engine.serializer.before', @data );
-    my $serialized = $self->$orig(@data);
-    $self->execute_hook( 'engine.serializer.after', $serialized );
+    my $serialized = eval {$self->$orig(@data);};
 
+    if ($@) {
+        $self->error($@);
+    }else{
+        $self->execute_hook( 'engine.serializer.after', $serialized );
+    }
     return $serialized;
+};
+
+around deserialize => sub {
+    my ( $orig, $self, @data ) = @_;
+    my $data = eval { $self->$orig(@data); };
+    $self->error($@) if $@;
+    return $data;
 };
 
 # attribute vs method?
