@@ -278,6 +278,28 @@ Here is the workflow for submitting a patch:
 
    You're now ready to start working on a new pull request!
 
+## Plugins
+
+| Name          | Type          | Link  |
+| ------------- |:-------------:| -----:|
+| Dancer2::Session::Cookie | Session | [CPAN](https://metacpan.org/module/Dancer2::Session::Cookie) |
+| Dancer2::Plugin::Syntax::GetPost | Syntactic sugar | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Syntax::GetPost) |
+| Dancer2::Plugin::BrowserDetect | | [CPAN](https://metacpan.org/module/Dancer2::Plugin::BrowserDetect) |
+| Dancer2::Plugin::RoutePodCoverage | Test | [CPAN](https://metacpan.org/module/Dancer2::Plugin::RoutePodCoverage) |
+| Dancer2::Plugin::Auth::Tiny | Auth | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Auth::Tiny) |
+| Dancer2::Plugin::Queue::MongoDB | Queue | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Queue::MongoDB) |
+| Dancer2::Plugin::Paginator | Pagination | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Paginator) |
+| Dancer2::Plugin::Deferred | Flash Message | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Deferred) |
+| Dancer2::Plugin::Adapter | Class Wrapper | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Adapter) |
+| Dancer2::Plugin::DBIC | Database | [CPAN](https://metacpan.org/module/Dancer2::Plugin::DBIC) |
+| Dancer2::Plugin::REST | API | [CPAN](https://metacpan.org/module/Dancer2::Plugin::REST) |
+| Dancer2::Plugin::Emailesque | Email | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Emailesque) |
+| Dancer2::Plugin::Cache::CHI | Cache | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Cache::CHI) |
+| Dancer2::Plugin::Queue | Queue | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Queue) |
+| Dancer2::Plugin::Database | Database | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Database) |
+| Dancer2::Plugin::Feed | Feed | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Feed) |
+
+
 ## License
 
 This library is free software; you can redistribute it and/or modify it under
