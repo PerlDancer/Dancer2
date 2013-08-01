@@ -69,6 +69,10 @@ has environment => (
     builder => '_build_environment',
 );
 
+sub _build_environment {
+    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
+}
+
 has _engines_triggers => (
     is      => 'ro',
     isa     => HashRef,

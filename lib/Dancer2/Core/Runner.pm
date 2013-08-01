@@ -111,10 +111,6 @@ has mime_type => (
     default => sub { Dancer2::Core::MIME->new(); },
 );
 
-sub _build_environment {
-    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
-}
-
 =method default_config
 
 It then sets up the default configuration.

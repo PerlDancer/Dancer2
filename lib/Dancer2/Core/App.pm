@@ -80,10 +80,6 @@ has server => (
     weak_ref => 1,
 );
 
-
-
-sub _build_environment {'development'}
-
 =attr runner_config
 
 =cut
