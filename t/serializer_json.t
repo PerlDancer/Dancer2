@@ -22,4 +22,12 @@ for my $test (@tests) {
     is( $actual, $expected );
 }
 
+use Dancer2::Core::Response;
+my $resp = Dancer2::Core::Response->new(
+    content => '---',
+    serializer => Dancer2::Serializer::JSON->new(),
+);
+
+$resp->serialize();
+
 done_testing();
