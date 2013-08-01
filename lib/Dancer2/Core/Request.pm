@@ -595,7 +595,7 @@ instance, C<method> pointing to a new request method).
 =cut
 
 sub forward {
-    my ( $self, $url, $params, $options, $context ) = @_;
+    my ( $self, $context, $url, $params, $options ) = @_;
     my $new_request = $self->make_forward_to( $url, $params, $options );
 
     return Dancer2->runner->server->dispatcher->dispatch(

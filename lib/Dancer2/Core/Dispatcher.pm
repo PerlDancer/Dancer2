@@ -32,7 +32,7 @@ sub dispatch {
 # going to parse multiple time the request body/
     my $context = Dancer2::Core::Context->new( env => $env );
 
-    if ($curr_context) {
+    if ( $curr_context && $curr_context->has_session ) {
         $context->session( $curr_context->session );
     }
 
