@@ -459,9 +459,7 @@ Get complete hash stored in session:
 
 
 
-=head1 APPEARANCE
-
-=head2 Using templates - views and layouts
+=head1 APPEARANCE: TEMPLATES AND LAYOUTS
 
 Returning plain content is all well and good for examples or trivial apps, but
 soon you'll want to use templates to maintain separation between your code and
@@ -470,7 +468,7 @@ your content.  Dancer2 makes this easy.
 Your route handlers can use the L<template|Dancer2/template> keyword to render
 templates.
 
-=head3 Views
+=head2 Views
 
 It's possible to render the action's content with a template, this is called a
 view. The `appdir/views' directory is the place where views are located.
@@ -511,7 +509,7 @@ For a full list of the tokens automatically added to your template
 (like C<session>, C<request> and C<vars>, refer to
 L<Dancer2::Core::Role::Template>).
 
-=head3 Layouts
+=head2 Layouts
 
 A layout is a special view, located in the 'layouts' directory (inside the views
 directory) which must have a token named 'content'. That token marks the place
@@ -562,9 +560,7 @@ THen in your layout, modify your css inclusion as follows:
 From now on, you can mount your application wherever you want, without
 any further modification of the css inclusion
 
-
-
-=head3 template and unicode
+=head2 Templates and unicode
 
 If you use L<Plack> and have some unicode problem with your Dancer2 application,
 don't forget to check if you have set your template engine to use unicode, and
@@ -577,8 +573,7 @@ config file will look like this:
         ENCODING: utf8
 
 
-
-=head3 TT's WRAPPER directive in Dancer2 (META variables, SETs)
+=head2 TT's WRAPPER directive in Dancer2
 
 Dancer2 already provides a WRAPPER-like ability, which we call a "layout". The
 reason we do not use TT's WRAPPER (which also makes it incompatible with it) is
@@ -664,7 +659,9 @@ And in a production one:
 
 
 
-=head2 Accessing configuration information from your app
+=head2 Accessing configuration information
+
+=head3 From inside your application
 
 A Dancer2 application can use the 'config' keyword to easily access the settings
 within its config file, for instance:
@@ -677,8 +674,7 @@ This makes keeping your application's settings all in one place simple and easy
 - you shouldn't need to worry about implementing all that yourself :)
 
 
-
-=head2 Accessing configuration information from a separate script
+=head3 From a separate script
 
 You may well want to access your webapp's configuration from outside your
 webapp. You could, of course, use the YAML module of your choice and load your
@@ -876,6 +872,8 @@ be run as a simple cgi-script out-of-the-box. No additional web-server
 configuration needed.  Your web server should recognize .cgi files and be able
 to serve Perl scripts.  The Perl module Plack::Runner is required.
 
+=head3 Running on Apache (CGI and FCGI)
+
 Start by adding the following to your apache configuration (httpd.conf or
 sites-available/*site*):
 
@@ -937,6 +935,89 @@ By:
 Of course remember to update your rewrite rules, if you have set any:
 
     RewriteRule (.*) /dispatch.fcgi$1 [L]
+
+
+=head4 Running under an appdir
+
+If you want to deploy multiple applications under the same VirtualHost, using
+one application per directory for example, you can do the following.
+
+This example uses the FastCGI dispatcher that comes with Dancer2, but you should
+be able to adapt this to use any other way of deployment described in this
+guide. The only purpose of this example is to show how to deploy multiple
+applications under the same base directory/virtualhost.
+
+    <VirtualHost *:80>
+        ServerName localhost
+        DocumentRoot "/path/to/rootdir"
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+
+        <Directory "/path/to/rootdir">
+            AllowOverride None
+            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+            Order allow,deny
+            Allow from all
+            AddHandler fastcgi-script .fcgi
+        </Directory>
+
+        RewriteRule /App1(.*)$ /App1/public/dispatch.fcgi$1 [QSA,L]
+        RewriteRule /App2(.*)$ /App2/public/dispatch.fcgi$1 [QSA,L]
+        ...
+        RewriteRule /AppN(.*)$ /AppN/public/dispatch.fcgi$1 [QSA,L]
+    </VirtualHost>
+
+Of course, if your Apache configuration allows that, you can put the
+RewriteRules in a .htaccess file directly within the application's directory,
+which lets you add a new application without changing the Apache configuration.
+
+=head3 Running on lighttpd (CGI)
+
+To run as a CGI app on lighttpd, just create a soft link to the dispatch.cgi
+script (created when you run dancer -a MyApp) inside your system's cgi-bin
+folder. Make sure mod_cgi is enabled.
+
+    ln -s /path/to/MyApp/public/dispatch.cgi /usr/lib/cgi-bin/mycoolapp.cgi
+
+=head3 Running on lighttpd (FastCGI)
+
+Make sure mod_fcgi is enabled. You also must have L<FCGI> installed.
+
+This example configuration uses TCP/IP:
+
+    $HTTP["url"] == "^/app" {
+        fastcgi.server += (
+            "/app" => (
+                "" => (
+                    "host" => "127.0.0.1",
+                    "port" => "5000",
+                    "check-local" => "disable",
+                )
+            )
+        )
+    }
+
+Launch your application:
+
+    plackup -s FCGI --port 5000 bin/app.pl
+
+This example configuration uses a socket:
+
+    $HTTP["url"] =~ "^/app" {
+        fastcgi.server += (
+            "/app" => (
+                "" => (
+                    "socket" => "/tmp/fcgi.sock",
+                    "check-local" => "disable",
+                )
+            )
+        )
+    }
+
+Launch your application:
+
+    plackup -s FCGI --listen /tmp/fcgi.sock bin/app.pl
+
 
 =head2 Plack middlewares
 
@@ -1094,11 +1175,48 @@ and now use L<Starman>
 
     plackup -a app.psgi -s Starman
 
-=head3 Creating a service
+
+
+=head3 Running from Apache with Plack
+
+You can run your app from Apache using PSGI (Plack), with a config like the
+following:
+
+    <VirtualHost myapp.example.com>
+        ServerName www.myapp.example.com
+        ServerAlias myapp.example.com
+        DocumentRoot /websites/myapp.example.com
+
+        <Directory /home/myapp/myapp>
+            AllowOverride None
+            Order allow,deny
+            Allow from all
+        </Directory>
+
+        <Location />
+            SetHandler perl-script
+            PerlHandler Plack::Handler::Apache2
+            PerlSetVar psgi_app /websites/myapp.example.com/app.pl
+        </Location>
+
+        ErrorLog  /websites/myapp.example.com/logs/error_log
+        CustomLog /websites/myapp.example.com/logs/access_log common
+    </VirtualHost>
+
+To set the environment you want to use for your application (production or development), you can set it this way:
+
+    <VirtualHost>
+        ...
+        SetEnv DANCER_ENVIRONMENT "production"
+        ...
+    </VirtualHost>
+
+
+=head2 Creating a service
 
 You can turn your app into proper service running in background using one of the following examples:
 
-=head4 Using Ubic
+=head3 Using Ubic
 
 L<Ubic> is an extensible perlish service manager. You can use it to start and stop any services, automatically start them on reboots or daemon failures, and implement custom status checks.
 
@@ -1123,7 +1241,7 @@ A basic PSGI service description (usually in /etc/ubic/service/application):
 Run C<ubic start application> to start the service.
 
 
-=head4 Using daemontools
+=head3 Using daemontools
 
 daemontools is a collection of tools for managing UNIX services. You can use it to easily start/restart/stop services.
 
@@ -1138,7 +1256,7 @@ A basic script to start an application: (in /service/application/run)
     /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.pl -p 5000
 
 
-=head3 Running stand-alone behind a proxy / load balancer
+=head2 Running stand-alone behind a proxy / load balancer
 
 Another option would be to run your app stand-alone as described above, but then
 use a proxy or load balancer to accept incoming requests (on the standard port
@@ -1146,7 +1264,7 @@ use a proxy or load balancer to accept incoming requests (on the standard port
 
 This could be achieved using various software; examples would include:
 
-=head4 Using Apache's mod_proxy
+=head3 Using Apache's mod_proxy
 
 You could set up a VirtualHost for your web app, and proxy all requests through
 to it:
@@ -1175,7 +1293,7 @@ It is also important to set permissions for proxying for security purposes, belo
       Allow from all
     </Proxy>
 
-=head4 Using perlbal
+=head3 Using perlbal
 
 C<perlbal> is a single-threaded event-based server written in Perl supporting HTTP load
 balancing, web serving, and a mix of the two, available from
@@ -1214,7 +1332,7 @@ provided with perlbal, but you'll probably want something like:
 
 
 
-=head4 Using balance
+=head3 Using balance
 
 C<balance> is a simple load-balancer from Inlab Software, available from
 L<http://www.inlab.de/balance.html>.
@@ -1234,7 +1352,7 @@ multiple Dancer2 apps on multiple other machines:
     balance -b 10.0.0.1 80 10.0.0.2:3000 10.0.0.3:3000 10.0.0.4:3000
 
 
-=head4 Using Lighttpd
+=head3 Using Lighttpd
 
 You can use Lighttp's mod_proxy:
 
@@ -1246,9 +1364,10 @@ You can use Lighttp's mod_proxy:
         )
     }
 
-This configuration will proxy all request to the B</application> path to the path B</> on localhost:3000.
+This configuration will proxy all request to the B</application> path
+to the path B</> on localhost:3000.
 
-=head4 Using Nginx
+=head3 Using Nginx
 
 with Nginx:
 
@@ -1285,128 +1404,8 @@ You will need plackup to start a worker listening on a socket :
     cd YOUR_PROJECT_PATH
     sudo -u www plackup -E production -s Starman --workers=2 -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.pl
 
-A good way to start this is to use C<daemontools> and place this line with
-all environments variables in the "run" file.
+A good way to start this is to use C<daemontools> and place this line
+with all environments variables in the "run" file.
 
-=head2 Running from Apache
-
-You can run your Dancer2 app from Apache using the following examples:
-
-
-=head3 Running from Apache with Plack
-
-You can run your app from Apache using PSGI (Plack), with a config like the
-following:
-
-    <VirtualHost myapp.example.com>
-        ServerName www.myapp.example.com
-        ServerAlias myapp.example.com
-        DocumentRoot /websites/myapp.example.com
-
-        <Directory /home/myapp/myapp>
-            AllowOverride None
-            Order allow,deny
-            Allow from all
-        </Directory>
-
-        <Location />
-            SetHandler perl-script
-            PerlHandler Plack::Handler::Apache2
-            PerlSetVar psgi_app /websites/myapp.example.com/app.pl
-        </Location>
-
-        ErrorLog  /websites/myapp.example.com/logs/error_log
-        CustomLog /websites/myapp.example.com/logs/access_log common
-    </VirtualHost>
-
-To set the environment you want to use for your application (production or development), you can set it this way:
-
-    <VirtualHost>
-        ...
-        SetEnv DANCER_ENVIRONMENT "production"
-        ...
-    </VirtualHost>
-
-=head3 Running from Apache under appdir
-
-If you want to deploy multiple applications under the same VirtualHost, using
-one application per directory for example, you can do the following.
-
-This example uses the FastCGI dispatcher that comes with Dancer2, but you should
-be able to adapt this to use any other way of deployment described in this
-guide. The only purpose of this example is to show how to deploy multiple
-applications under the same base directory/virtualhost.
-
-    <VirtualHost *:80>
-        ServerName localhost
-        DocumentRoot "/path/to/rootdir"
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-
-        <Directory "/path/to/rootdir">
-            AllowOverride None
-            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-            Order allow,deny
-            Allow from all
-            AddHandler fastcgi-script .fcgi
-        </Directory>
-
-        RewriteRule /App1(.*)$ /App1/public/dispatch.fcgi$1 [QSA,L]
-        RewriteRule /App2(.*)$ /App2/public/dispatch.fcgi$1 [QSA,L]
-        ...
-        RewriteRule /AppN(.*)$ /AppN/public/dispatch.fcgi$1 [QSA,L]
-    </VirtualHost>
-
-Of course, if your Apache configuration allows that, you can put the
-RewriteRules in a .htaccess file directly within the application's directory,
-which lets you add a new application without changing the Apache configuration.
-
-
-=head2 Running on lighttpd (CGI)
-
-To run as a CGI app on lighttpd, just create a soft link to the dispatch.cgi
-script (created when you run dancer -a MyApp) inside your system's cgi-bin
-folder. Make sure mod_cgi is enabled.
-
-    ln -s /path/to/MyApp/public/dispatch.cgi /usr/lib/cgi-bin/mycoolapp.cgi
-
-=head2 Running on lighttpd (FastCGI)
-
-Make sure mod_fcgi is enabled. You also must have L<FCGI> installed.
-
-This example configuration uses TCP/IP:
-
-    $HTTP["url"] == "^/app" {
-        fastcgi.server += (
-            "/app" => (
-                "" => (
-                    "host" => "127.0.0.1",
-                    "port" => "5000",
-                    "check-local" => "disable",
-                )
-            )
-        )
-    }
-
-Launch your application:
-
-    plackup -s FCGI --port 5000 bin/app.pl
-
-This example configuration uses a socket:
-
-    $HTTP["url"] =~ "^/app" {
-        fastcgi.server += (
-            "/app" => (
-                "" => (
-                    "socket" => "/tmp/fcgi.sock",
-                    "check-local" => "disable",
-                )
-            )
-        )
-    }
-
-Launch your application:
-
-    plackup -s FCGI --listen /tmp/fcgi.sock bin/app.pl
 
 =cut
