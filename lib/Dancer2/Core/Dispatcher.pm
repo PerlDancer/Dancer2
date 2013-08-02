@@ -154,10 +154,7 @@ sub response_internal_error {
     return Dancer2::Core::Error->new(
         context      => $context,
         status       => 500,
-        title        => 'Internal Server Error',
-        content      => "Internal Server Error",
         exception    => $error,
-        content_type => 'text/plain'
     )->throw;
 }
 
