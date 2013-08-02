@@ -1,6 +1,7 @@
 {{$NEXT}}
 
     [ ENHANCEMENTS ]
+    * GH#331: Hook cleanups and documentation. (Franck Cuny)
     * GH#335: Serializing cleanup. (Franck Cuny)
     * GH#332: Clean up multiple definitions of core_debug (Franck Cuny)
     * GH#338: Clean up route builder (Mickey Nasriachi)
