@@ -60,8 +60,13 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-            $context->request->deserialize
-              if $context->request->serializer( $app->settings->{serializer} );
+            if ($context->request->has_serializer) {
+                $context->request->deserialize;
+                if ($context->request->serializer->has_error) {
+                    $app->log("core" => "Failed to deserialize the request : "
+                                  .$context->request->serializer->error);
+                }
+            }
 
    # if the request has been altered by a before filter, we should not continue
    # with this route handler, we should continue to walk through the
@@ -75,7 +80,6 @@ sub dispatch {
 
             my $content;
             if ( $response->is_halted ) {
-
                 # if halted, it comes from the 'before' hook. Take its content
                 $content = $response->content;
             }
@@ -84,6 +88,8 @@ sub dispatch {
                 my $error = $@;
                 if ($error) {
                     $app->log( error => "Route exception: $error" );
+                    $app->execute_hook(
+                        'core.app.route_exception', $context, $error);
                     return $self->response_internal_error( $context, $error );
                 }
             }
@@ -104,17 +110,6 @@ sub dispatch {
                 $response = $context->response($content);
             }
             else {
-
-                # serialize if needed
-                # TODO make the response object self-serializable? With a
-                # is_serialized attribute
-                if ( my $serializer =
-                    ref($content) && $app->config->{serializer} )
-                {
-                    $content = $serializer->serialize($content);
-                    $response->content_type( $serializer->content_type );
-                }
-
                 $response->content( defined $content ? $content : '' );
                 $response->encode_content;
             }

@@ -32,6 +32,20 @@ has has_passed => (
     default => sub {0},
 );
 
+=method serializer( $serializer )
+
+Set or returns the optional serializer object used to deserialize request
+parameters
+
+=cut
+
+has serializer => (
+    is       => 'rw',
+    isa      => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
+    required => 0,
+    predicate => 1,
+);
+
 sub pass { shift->has_passed(1) }
 
 =attr is_encoded
@@ -117,13 +131,19 @@ has content => (
    # changes
     trigger => sub {
         my ( $self, $value ) = @_;
-
         $self->header( 'Content-Length' => length($value) )
           if !$self->has_passed;
 
         $value;
     },
 );
+
+before content => sub {
+    my $self = shift;
+    if (ref($_[0]) and $self->has_serializer) {
+        $_[0] = $self->serialize($_[0]);
+    }
+};
 
 =method encode_content
 
@@ -238,6 +258,18 @@ sub error {
     $error->throw;
 
     return $error;
+}
+
+sub serialize {
+    my ($self, $content) = @_;
+
+    return unless $self->has_serializer;
+
+    $content = $self->serializer->serialize($content);
+    return if !defined $content;
+
+    $self->content_type($self->serializer->content_type);
+    return $content;
 }
 
 1;

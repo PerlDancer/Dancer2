@@ -7,8 +7,6 @@ use Dancer2::Core::Types;
 use Data::Dumper;
 use Dancer2::FileUtils 'path';
 
-with 'Dancer2::Core::Role::Hookable';
-
 =head1 SYNOPSIS
 
     # taken from send_file:
@@ -95,15 +93,6 @@ my %error_title = (
 =method supported_hooks ();
 
 =cut
-
-
-sub supported_hooks {
-    qw/
-      core.error.before
-      core.error.after
-      core.error.init
-      /;
-}
 
 =attr show_errors
 =cut
@@ -292,7 +281,8 @@ has context => (
 
 sub BUILD {
     my ($self) = @_;
-    $self->execute_hook( 'core.error.init', $self );
+    $self->has_context &&
+        $self->context->app->execute_hook( 'core.error.init', $self );
 }
 
 has exception => (
@@ -356,7 +346,8 @@ sub throw {
 
     croak "error has no response to throw at" unless $self->response;
 
-    $self->execute_hook( 'core.error.before', $self );
+    $self->has_context &&
+        $self->context->app->execute_hook( 'core.error.before', $self );
 
     my $message = $self->content;
     $message .= "\n\n" . $self->exception
@@ -365,10 +356,11 @@ sub throw {
     $self->response->status( $self->status );
     $self->response->header( $self->content_type );
     $self->response->content($message);
+
+    $self->has_context &&
+        $self->context->app->execute_hook('core.error.after', $self->response);
+
     $self->response->halt(1);
-
-    $self->execute_hook( 'core.error.after', $self->response );
-
     return $self->response;
 }
 
