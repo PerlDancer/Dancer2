@@ -7,6 +7,10 @@
     * GH#338: Clean up route builder (Mickey Nasriachi)
     * Clean up of the dzil configuration (Alberto Simões)
 
+    [ BUG FIXES ]
+    * GH#334: Fix for GH#86, to display custom 500 page/template on
+      internal server errors (Russell Jenkins)
+
     [ DOCUMENTATION ]
     * GH#345: Documentation reorganization (Alberto Simões, Franck Cuny)
 
