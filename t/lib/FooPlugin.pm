@@ -58,5 +58,5 @@ sub _retrieve_get_urls {
 }
 
 
-register_plugin for_versions => [2];
+register_plugin;
 1;

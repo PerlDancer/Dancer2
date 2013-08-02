@@ -55,7 +55,7 @@ in order to set some options.
 The option C<is_global> (boolean) is used to declare a global/non-global keyword 
 (by default all keywords are global). A non-global keyword must be called from
 within a route handler (eg: C<session> or C<param>) whereas a global one can be
-called frome everywhere (eg: C<dancer_version> or C<setting>).
+called from everywhere (eg: C<dancer_version> or C<setting>).
 
     register my_symbol_to_export => sub {
         # ... some code
@@ -144,9 +144,9 @@ which version of Dancer the plugin was written, e.g.
 
     register_plugin for_versions => [ 2 ];
 
-Today, plugins for Dancer2 are only expected to work for Dancer2 and the 
-C<for_version> keyword is ignored. If you try to load a plugin for Dancer2
-that does not meet the requirements of a Dancer2 plugin, you will get an error 
+Today, plugins for Dancer2 are only expected to work for Dancer2 and the
+C<for_versions> keyword is ignored. If you try to load a plugin for Dancer2
+that does not meet the requirements of a Dancer2 plugin, you will get an error
 message.
 
 =cut
