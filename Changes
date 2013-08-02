@@ -7,6 +7,9 @@
     * GH#338: Clean up route builder (Mickey Nasriachi)
     * Clean up of the dzil configuration (Alberto Simões)
 
+    [ DOCUMENTATION ]
+    * GH#345: Documentation reorganization (Alberto Simões, Franck Cuny)
+
 0.06 2013-07-30 (Sawyer X)
 
     [ ENHANCEMENTS ]
