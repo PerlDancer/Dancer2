@@ -1,36 +1,61 @@
-use Test::More import => ['!pass'], tests => 2;
-use Dancer2;
-use Dancer2::Test;
+use Test::More;
 use strict;
 use warnings;
+use LWP::UserAgent;
 
-set session => 'Simple';
+use Test::TCP 1.13;
+use File::Temp;
 
-get '/set_chained_session' => sub {
-    session 'zbr' => 'ugh';
-    forward '/set_session';
+my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
+
+my $server = sub {
+    my $port = shift;
+
+    use Dancer2;
+    set session => 'Simple';
+
+    get '/set_chained_session' => sub {
+        session 'zbr' => 'ugh';
+        forward '/set_session';
+    };
+
+    get '/set_session' => sub {
+        session 'foo' => 'bar';
+        forward '/get_session';
+    };
+
+    get '/get_session' => sub {
+        session 'more' => 'one';
+        sprintf("%s:%s:%s", session("more"), session('foo') , session('zbr')||"")
+    };
+
+    get '/clear' => sub {
+        session "foo" => undef;
+        session "zbr" => undef;
+        session "more" => undef;
+    };
+
+    Dancer2->runner->server->port($port);
+    start;
 };
 
-get '/set_session' => sub {
-    session 'foo' => 'bar';
-    forward '/get_session';
+my $client = sub {
+    my $port = shift;
+    my $ua = LWP::UserAgent->new;
+    $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
+
+    my $res = $ua->get("http://127.0.0.1:$port/set_chained_session");
+    is $res->content, q{one:bar:ugh}, 'Session value preserved after chained forwards';
+
+    $res = $ua->get("http://127.0.0.1:$port/get_session");
+    is $res->content, q{one:bar:ugh}, 'Session values preserved between calls';
+
+    $res = $ua->get("http://127.0.0.1:$port/clear");
+
+    $res = $ua->get("http://127.0.0.1:$port/set_session");
+    is $res->content, q{one:bar:}, 'Session value preserved after forward from route';
 };
 
-get '/get_session' => sub {
-    sprintf("%s:%s", session('foo') , session('zbr')||"")
-};
+Test::TCP::test_tcp( client => $client, server => $server);
 
-get '/clear' => sub {
-    session "foo" => undef;
-    session "zbr" => undef;
-};
-
-
-response_content_is( [ GET => '/set_chained_session' ], q{bar:ugh},
-                     'Session value preserved after chained forwards' );
-
-dancer_response( GET => '/clear');
-
-
-response_content_is( [ GET => '/set_session' ], q{bar:},
-                     'Session value preserved after forward from route' );
+done_testing;
