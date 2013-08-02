@@ -9,8 +9,11 @@ This manual documents all the hooks that are supported by the core framework.
 =head2 Request workflow
 
 C<before> hooks are evaluated before each request within the context of the
-request and can modify the request and response. It's possible to define
-variables which will be accessible in the action blocks with the keyword 'var'.
+request and receives as argument the context (a L<Dancer2::Core::Context>
+object).
+
+It's possible to define variables which will be accessible in the action blocks
+with the keyword 'var'.
 
     hook before => sub {
         var note => 'Hi there';
@@ -21,7 +24,6 @@ variables which will be accessible in the action blocks with the keyword 'var'.
         my ($match) = splat; # 'oversee';
         vars->{note}; # 'Hi there'
     };
-
 
 For another example, this can be used along with session support to easily
 give non-logged-in users a login page:
@@ -34,22 +36,25 @@ give non-logged-in users a login page:
         }
     };
 
-
-The request keyword returns the current Dancer2::Request object representing the
-incoming request. See the documentation of the L<Dancer2::Core::Request> module for
-details.
+The request keyword returns the current L<Dancer2::Core::Request> object
+representing the incoming request.
 
 C<after> hooks are evaluated after the response has been built by a route
 handler, and can alter the response itself, just before it's sent to the
 client.
 
+This hook runs after a request has been processed, but before the response is
+sent.
+
+It receives a L<Dancer2::Core::Response> object, which it can modify
+if it needs to make changes to the response which is about to be sent.
+
 The filter is given the response object as its first argument:
 
     hook after => sub {
         my $response = shift;
-        $response->{content} = 'after filter got here!';
+        $response->(content, 'after filter got here!');
     };
-
 
 =head2 Templates
 
@@ -108,23 +113,40 @@ passed to the hook.
 
     hook init_error => sub {
         my $error = shift;
-        # do something with $error 
+        # do something with $error
     };
+
+I<This hook was named B<before_error_init> in Dancer, and is now aliased to
+this hook.>
 
 C<before_error> hooks are called whenever an error is going to be thrown, it
 receives the error object as its first and unique argument.
 
     hook before_error => sub {
         my $error = shift;
-        # do something with $error 
+        # do something with $error
     };
+
+I<This hook was named B<before_error_render> in Dancer, and is now aliased to
+this hook.>
 
 C<after_error> hooks are called whenever an error object has been thrown, it
-receives the generated content as the first argument.
+receives a L<Dancer2::Core::Response> object as the first argument.
 
     hook after_error => sub {
-        my $content = shift;
+        my $response = shift;
     };
+
+I<This hook was named <after_error_render> in Dancer, and is now aliased to
+this hook.>
+
+C<on_route_exception> is called when an exception has been caught, at the
+route level, just before rethrowing it higher. This hook receives a
+L<Dancer2::Core::Context> and the error as arguments.
+
+  hook on_route_exception => sub {
+    my ($context, $error) = @_;
+  };
 
 =head2 File rendering
 
@@ -145,6 +167,24 @@ content produced. It receives the response object (L<Dancer2::Core::Response>)
 produced.
 
     hook after_file_render => sub {
-       my $response = shift; 
+       my $response = shift;
     };
+
+=head2 Serializers
+
+C<before_serializer> is called before serializing the content, and eceives as
+argument the content to serialize.
+
+  hook before_serializer => sub {
+    my @data = @_;
+    $response->content->{start_time} = time();
+  };
+
+C<after_serializer> is called after the payload was serialized, and receives
+the serialized content as an argument.
+
+  hook before_deserializer => sub {
+    my $content = shift;
+  };
+
 
