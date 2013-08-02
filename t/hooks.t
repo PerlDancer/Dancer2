@@ -96,7 +96,7 @@ my $tests_flags = {};
         my ($response) = @_;
         is ref($response), 'Dancer2::Core::Response';
         ok !$response->is_halted;
-        is $response->content, 'Internal Server Error';
+        like $response->content, qr/Internal Server Error/;
     };
 
     # make sure we compile all the apps without starting a webserver
