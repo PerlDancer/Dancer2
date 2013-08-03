@@ -26,4 +26,4 @@ response_content_is $resp => '{"bar":"baz"}';
 response_headers_include $resp, [ 'Content-Type' => 'application/json' ];
 
 my $serializer = Dancer2::Serializer::Dumper->new();
-ok $serializer->content_type, 'text/x-dump', 'content-type is set correctly';
+is $serializer->content_type, 'text/x-data-dumper', 'content-type is set correctly';
