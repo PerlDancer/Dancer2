@@ -332,7 +332,14 @@ sub _get_config_for_engine {
         return $default_config;
     }
 
-    my $engine_config = $config->{engines}{$engine}{$name} || {};
+    my $engine_config = {};
+
+    # XXX we need to move the camilize function out from Core::Factory
+    # - Franck, 2013/08/03
+    for my $config_key ($name, Dancer2::Core::Factory::_camelize($name)) {
+        $engine_config = $config->{engines}{$engine}{$config_key}
+            if defined $config->{engines}->{$engine}{$config_key};
+    }
     return { %{$default_config}, %{$engine_config}, } || $default_config;
 }
 
