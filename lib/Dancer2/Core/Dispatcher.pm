@@ -141,8 +141,8 @@ sub dispatch {
 # the C-L header everytime we change the value, we need to modify a around
 # modifier to change the value of content and restore the length.
 around 'dispatch' => sub {
-    my ( $orig, $self, $env, $request ) = @_;
-    my $response = $orig->( $self, $env, $request );
+    my ( $orig, $self, $env, $request, $curr_context ) = @_;
+    my $response = $orig->( $self, $env, $request, $curr_context );
     return $response unless defined $request && $request->is_head;
     my $cl = $response->header('Content-Length');
     $response->content('');
