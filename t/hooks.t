@@ -2,13 +2,12 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use File::Spec;
-use Capture::Tiny 0.12 'capture_stderr';
-
 use Carp;
 
-eval { require Template; Template->import(); 1 }
-  or plan skip_all => 'Template::Toolkit probably missing';
+use Capture::Tiny 0.12 'capture_stderr';
 
+Dancer2::ModuleLoader->require('Template')
+  or plan skip_all => 'Template::Toolkit not present';
 
 my @hooks = qw(
   before_request

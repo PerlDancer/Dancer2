@@ -107,7 +107,7 @@ my $definitions = [
         },
         message => sub {
             return exception_message(
-                length( $_[0] ) ? $_[0] : 'Empty string',
+                ($_[0] && length( $_[0] )) ? $_[0] : 'Empty string',
                 'a Dancer2AppName'
             );
         },
