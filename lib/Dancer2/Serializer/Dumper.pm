@@ -16,6 +16,13 @@ Turn Perl data structures into L<Data::Dumper> output and vice-versa.
 
 =cut
 
+=attr content_type
+
+Return 'text/x-data-dumper'
+
+=cut
+
+has '+content_type' => (default => 'text/x-data-dumper');
 
 # helpers
 sub from_dumper {
@@ -35,7 +42,7 @@ sub loaded {1}
 
 Serialize a Perl data structure into a Dumper string.
 
-=cut 
+=cut
 
 sub serialize {
     my ( $self, $entity ) = @_;
@@ -59,14 +66,6 @@ sub deserialize {
     croak "unable to deserialize : $@" if $@;
     return $res;
 }
-
-=method content_type
-
-Return 'text/x-data-dumper'
-
-=cut
-
-sub content_type {'text/x-data-dumper'}
 
 1;
 
