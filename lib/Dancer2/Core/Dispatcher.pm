@@ -22,7 +22,8 @@ has default_content_type => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ( $self, $env, $request ) = @_;
+    my ( $self, $env, $request, $curr_context ) = @_;
+
 
 #    warn "dispatching ".$env->{PATH_INFO}
 #       . " with ".join(", ", map { $_->name } @{$self->apps });
@@ -32,7 +33,11 @@ sub dispatch {
 # going to parse multiple time the request body/
     my $context = Dancer2::Core::Context->new( env => $env );
 
-    foreach my $app ( @{ $self->apps } ) {
+    if ($curr_context && $curr_context->has_session) {
+        $context->session($curr_context->session);
+    }
+
+    foreach my $app ( @{$self->apps} ) {
 
         # warn "walking through routes of ".$app->name;
 
@@ -137,8 +142,8 @@ sub dispatch {
 # the C-L header everytime we change the value, we need to modify a around
 # modifier to change the value of content and restore the length.
 around 'dispatch' => sub {
-    my ( $orig, $self, $env, $request ) = @_;
-    my $response = $orig->( $self, $env, $request );
+    my ( $orig, $self, $env, $request, $curr_context ) = @_;
+    my $response = $orig->( $self, $env, $request, $curr_context );
     return $response unless defined $request && $request->is_head;
     my $cl = $response->header('Content-Length');
     $response->content('');
