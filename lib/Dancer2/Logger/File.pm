@@ -40,16 +40,13 @@ Here is an example configuration that use this logger and stores logs in F</var/
         log_dir: "/var/log/myapp"
         file_name: "myapp.log"
 
-For backwards compatibility, the C<log_path> parameter may be given
-at the top level of the config file to set the C<log_dir> attribute
-and the C<log_file> parameter may be given to set the C<file_name>
-attribute.
-
 =cut
 
 has log_dir => (
     is      => 'rw',
     isa     => Str,
+    lazy    => 1,
+    builder => '_build_log_dir',
     trigger => sub {
         my ( $self, $dir ) = @_;
         if ( !-d $dir && !mkdir $dir ) {
@@ -58,16 +55,9 @@ has log_dir => (
         }
         return carp "Log directory \"$dir\" is not writable." if !-w $dir;
     },
-    builder => '_build_log_dir',
-    lazy    => 1,
 );
 
-sub _build_log_dir {
-    my ($self) = @_;
-    return defined( $self->config->{log_path} )
-      ? $self->config->{log_path}
-      : File::Spec->catdir( $self->location, 'logs' );
-}
+sub _build_log_dir {File::Spec->catdir( $_[0]->location, 'logs' )}
 
 has file_name => (
     is      => 'ro',
@@ -76,15 +66,10 @@ has file_name => (
     lazy    => 1
 );
 
-sub _build_file_name {
-    my ($self) = @_;
-    return defined( $self->config->{log_file} )
-      ? $self->config->{log_file}
-      : ( $self->environment . ".log" );
-}
+sub _build_file_name {$_[0]->environment . ".log"}
 
 has log_file => ( is => 'rw', isa => Str );
-has fh => ( is => 'rw' );
+has fh       => ( is => 'rw' );
 
 sub BUILD {
     my $self = shift;
