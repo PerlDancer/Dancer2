@@ -64,6 +64,6 @@ sub log {
 
 =head1 SEE ALSO
 
-L<Dancer2::Logger>, L<Dancer2::Logger::Capture::Trap>
+L<Dancer2::Core::Role::Logger>, L<Dancer2::Logger::Capture::Trap>
 
 =cut
