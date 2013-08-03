@@ -33,7 +33,6 @@ has app_name => (
     isa => Str,
 );
 
-
 has log_format => (
     is      => 'rw',
     isa     => Str,
@@ -164,3 +163,133 @@ sub error {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Any class that conumes this role will be able to implement to write log messages.
+
+In order to implement this role, the consumer B<must> implement the C<log>
+method. This method will receives as argument the C<level> and the C<message>.
+
+=head1 CONFIGURATION
+
+The B<logger> configuration variable tells Dancer2 which engine to use.
+
+You can change it either in your config.yml file:
+
+    # logging to console
+    logger: "console"
+
+The log format can also be configured,
+please see L<Dancer2::Core::Role::Logger/"logger_format"> for details.
+
+
+=head1 METHODS
+
+=method core
+
+Log messages as B<core>.
+
+=method debug
+
+Log messages as B<debug>.
+
+=method info
+
+Log messages as B<info>.
+
+=method warning
+
+Log messages as B<warning>.
+
+=method error
+
+Log messages as B<error>.
+
+=method format_message
+
+Provides a common message formating.
+
+=attr auto_encoding_charset
+
+Charset to use when writing a message.
+
+=attr app_name
+
+Name of the application. Can be used in the message.
+
+=attr log_format
+
+This is a format string (or a preset name) to specify the log format.
+
+The possible values are:
+
+=over 4
+
+=item %h
+
+host emitting the request
+
+=item %t
+
+date (local timezone, formatted like %d/%b/%Y %H:%M:%S)
+
+=item %T
+
+date (local timezone, formatted like %Y-%m-%d %H:%M:%S)
+
+=item %u
+
+date (UTC timezone, formatted like %d/%b/%Y %H:%M:%S)
+
+=item %U
+
+date (UTC timezone, formatted like %Y-%m-%d %H:%M:%S)
+
+=item %P
+
+PID
+
+=item %L
+
+log level
+
+=item %D
+
+timer
+
+=item %m
+
+message
+
+=item %f
+
+file name that emit the message
+
+=item %l
+
+line from the file
+
+=item %i
+
+request ID
+
+=item %{$fmt}t
+
+timer formatted with a valid time format
+
+=item %{header}h
+
+header value
+
+=item %h
+
+=over 4
+
+=item %h
+
+=attr log_level
+
+Level to use by default.
