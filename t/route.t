@@ -96,8 +96,12 @@ for my $t (@tests) {
 SKIP: {
     skip "Need perl >= 5.10", 1 unless $] >= 5.010;
 
-    my $route_regex =
-      qr{/(?<class> user | content | post )/(?<action> delete | find )/(?<id> \d+ )}x;
+    ## Regexp is parsed in compile time. So, eval with QUOTES to force to parse later.
+    my $route_regex;
+
+    eval q{
+    $route_regex = qr{/(?<class> user | content | post )/(?<action> delete | find )/(?<id> \d+ )}x;
+      };
 
     my $r = Dancer2::Core::Route->new(
         regexp => $route_regex,
@@ -111,6 +115,7 @@ SKIP: {
         method => 'get',
         path   => '/user/delete/234',
     );
+
     my $m = $r->match($request);
 
     is_deeply $m,

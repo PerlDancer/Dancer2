@@ -31,11 +31,16 @@ use Dancer2::Core::Hook;
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
+with 'Dancer2::Core::Role::Config';
 
 sub supported_hooks {
     qw/
       core.app.before_request
       core.app.after_request
+      core.app.route_exception
+      core.error.before
+      core.error.after
+      core.error.init
       /;
 }
 
@@ -78,20 +83,6 @@ has server => (
     isa      => ConsumerOf ['Dancer2::Core::Role::Server'],
     weak_ref => 1,
 );
-
-=attr location
-
-=cut
-
-has location => (
-    is  => 'ro',
-    isa => sub { -d $_[0] or croak "Not a regular location: $_[0]" },
-    default => sub { File::Spec->rel2abs('.') },
-);
-
-with 'Dancer2::Core::Role::Config';
-
-sub _build_environment {'development'}
 
 =attr runner_config
 
@@ -140,8 +131,8 @@ sub settings {
 sub engine {
     my ( $self, $name ) = @_;
 
-    my $e = $self->settings->{$name};
-    croak "No '$name' engine defined" if not defined $e;
+    my $e = $self->engines->{$name}
+        || croak "No '$name' engine defined";
 
     return $e;
 }
@@ -176,7 +167,7 @@ sub session {
 
 sub template {
     my ($self) = shift;
-    my $template = $self->engine('template');
+    my $template = $self->engines->{'template'};
 
     my $content = $template->process(@_);
 
@@ -187,7 +178,7 @@ sub hook_candidates {
     my ($self) = @_;
 
     my @engines;
-    for my $e (qw(logger serializer template logger)) {
+    for my $e (@{$self->supported_engines}) {
         my $engine = eval { $self->engine($e) };
         push @engines, $engine if defined $engine;
     }
@@ -304,7 +295,7 @@ sub log {
     my $self  = shift;
     my $level = shift;
 
-    my $logger = $self->setting('logger')
+    my $logger = $self->engine('logger')
       or croak "No logger defined";
 
     $logger->$level(@_);
@@ -376,7 +367,7 @@ sub _init_hooks {
                 my $response = shift;
 
                 # make sure an engine is defined, if not, nothing to do
-                my $engine = $self->setting('session');
+                my $engine = $self->engine('session');
                 return if !defined $engine;
 
                 # make sure we have a context to examine
@@ -458,8 +449,6 @@ sub compile_hooks {
                 return
                   if ( $self->context && $self->context->response->is_halted );
 
-                # TODO: log entering the hook '$position'
-                #warn "entering hook '$position'";
                 eval { $hook->(@_) };
 
                 # TODO : do something with exception there
@@ -484,8 +473,8 @@ has context => (
     trigger => sub {
         my ( $self, $ctx ) = @_;
         $self->_init_for_context($ctx),;
-        for my $type (qw/logger serializer session template/) {
-            my $engine = $self->settings->{$type}
+        for my $type (@{$self->supported_engines}) {
+            my $engine = $self->engines->{$type}
               or next;
             defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
         }

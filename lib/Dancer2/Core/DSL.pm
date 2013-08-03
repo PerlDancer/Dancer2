@@ -24,7 +24,6 @@ sub dsl_keywords {
         [ context              => 0 ],
         [ cookie               => 0 ],
         [ cookies              => 0 ],
-        [ core_debug           => 1 ],
         [ dance                => 1 ],
         [ dancer_app           => 1 ],
         [ dancer_version       => 1 ],
@@ -317,7 +316,10 @@ sub param { shift->request->param(@_) }
 
 sub redirect { shift->context->redirect(@_) }
 
-sub forward { shift->request->forward(@_) }
+sub forward {
+    my $self = shift;
+    $self->request->forward($self->context, @_);
+}
 
 sub vars { shift->context->vars }
 sub var  { shift->context->var(@_) }
@@ -391,14 +393,6 @@ sub to_dumper {
 }
 
 sub log { shift->app->log(@_) }
-
-sub core_debug {
-    my $msg = shift;
-    return unless $ENV{DANCER_DEBUG_CORE};
-
-    chomp $msg;
-    print STDERR "core: $msg\n";
-}
 
 =head1 SEE ALSO
 

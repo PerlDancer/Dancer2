@@ -413,9 +413,10 @@ parameters
 =cut
 
 has serializer => (
-    is       => 'rw',
-    isa      => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
-    required => 0,
+    is        => 'rw',
+    isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
+    required  => 0,
+    predicate => 1,
 );
 
 =method data()
@@ -448,12 +449,8 @@ sub deserialize {
       unless grep { $self->method eq $_ } qw/ PUT POST PATCH /;
 
     # try to deserialize
-    my $data = eval { $self->serializer->deserialize( $self->body ) };
-    if ($@) {
-
-        # TODO add logging
-        return;
-    }
+    my $data = $self->serializer->deserialize($self->body);
+    return if !defined $data;
 
     $self->{_body_params} = $data;
 
@@ -598,10 +595,13 @@ instance, C<method> pointing to a new request method).
 =cut
 
 sub forward {
-    my $new_request = shift->make_forward_to(@_);
+    my ( $self, $context, $url, $params, $options ) = @_;
+    my $new_request = $self->make_forward_to( $url, $params, $options );
+
     return Dancer2->runner->server->dispatcher->dispatch(
         $new_request->env,
-        $new_request
+        $new_request,
+        $context,
     );
 }
 

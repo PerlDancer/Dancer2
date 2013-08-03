@@ -7,7 +7,6 @@ use warnings;
 use Scalar::Util 'blessed', 'looks_like_number';
 use MooX::Types::MooseLike 0.16 'exception_message';
 use MooX::Types::MooseLike::Base qw/:all/;
-use MooX::Types::MooseLike::Numeric qw/:all/;
 
 use Exporter 'import';
 our @EXPORT;
@@ -107,7 +106,7 @@ my $definitions = [
         },
         message => sub {
             return exception_message(
-                length( $_[0] ) ? $_[0] : 'Empty string',
+                ($_[0] && length( $_[0] )) ? $_[0] : 'Empty string',
                 'a Dancer2AppName'
             );
         },

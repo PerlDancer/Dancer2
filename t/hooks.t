@@ -2,12 +2,12 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use File::Spec;
-
 use Carp;
 
-eval { require Template; Template->import(); 1 }
-  or plan skip_all => 'Template::Toolkit probably missing';
+use Capture::Tiny 0.12 'capture_stderr';
 
+Dancer2::ModuleLoader->require('Template')
+  or plan skip_all => 'Template::Toolkit not present';
 
 my @hooks = qw(
   before_request
@@ -21,6 +21,8 @@ my @hooks = qw(
 
   before_serializer
   after_serializer
+
+  on_route_exception
 );
 
 my $tests_flags = {};
@@ -37,7 +39,7 @@ my $tests_flags = {};
 
     # we set the engines after the hook, and that should work
     # thanks to the postponed hooks system
-    set template   => 'template_toolkit';
+    set template   => 'tiny';
     set serializer => 'JSON';
 
     get '/send_file' => sub {
@@ -63,12 +65,37 @@ my $tests_flags = {};
 
     get '/intercepted' => sub {'not intercepted'};
 
+    get '/route_exception' => sub {die 'this is a route exception'};
+
     hook before => sub {
         my $c = shift;
         return unless $c->request->path eq '/intercepted';
 
         $c->response->content('halted by before');
         $c->response->halt;
+    };
+
+    hook on_route_exception => sub {
+        my ($context, $error) = @_;
+        is ref($context), 'Dancer2::Core::Context';
+        like $error, qr/this is a route exception/;
+    };
+
+    hook init_error => sub {
+        my ($error) = @_;
+        is ref($error), 'Dancer2::Core::Error';
+    };
+
+    hook before_error => sub {
+        my ($error) = @_;
+        is ref($error), 'Dancer2::Core::Error';
+    };
+
+    hook after_error => sub {
+        my ($response) = @_;
+        is ref($response), 'Dancer2::Core::Response';
+        ok !$response->is_halted;
+        like $response->content, qr/Internal Server Error/;
     };
 
     # make sure we compile all the apps without starting a webserver
@@ -116,6 +143,10 @@ subtest 'template render hook' => sub {
 subtest 'before can halt' => sub {
     my $resp = dancer_response get => '/intercepted';
     is join( "\n", @{ $resp->[2] } ) => 'halted by before';
+};
+
+subtest 'route_exception' => sub {
+    capture_stderr { dancer_response get => '/route_exception' };
 };
 
 done_testing;
