@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.07      2013-08-04 01:14:59 Asia/Jerusalem
+
     [ ENHANCEMENTS ]
     * GH#344, GH#284: Now forward() calls preserve sessions (cym0n, Alberto Simões)
     * Separation of engines from triggers and configuration (Sawyer X, Franck Cuny)
