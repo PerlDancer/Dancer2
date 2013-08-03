@@ -53,7 +53,11 @@ around deserialize => sub {
 };
 
 # attribute vs method?
-sub content_type {'text/plain'}
+has content_type => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
+);
 
 # most serializer don't have to overload this one
 sub support_content_type {

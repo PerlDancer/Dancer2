@@ -5,6 +5,8 @@ use Moo;
 use Carp 'croak';
 with 'Dancer2::Core::Role::Serializer';
 
+has '+content_type' => (default => 'text/x-yaml');
+
 # helpers
 
 sub from_yaml {
@@ -34,9 +36,8 @@ sub deserialize {
     YAML::Any::Load($content);
 }
 
-sub content_type {'text/x-yaml'}
-
 1;
+
 __END__
 
 =pod
