@@ -50,4 +50,29 @@ subtest 'logger capture' => sub {
     is_deeply $trap->read, [];
 };
 
+subtest 'logger file' => sub {
+    use Dancer2;
+    use File::Temp qw/tempdir/;
+
+    my $dir = tempdir( CLEANUP => 1 );
+
+    set engines => {
+        logger => {
+            File => {
+                log_dir   => $dir,
+                file_name => 'test',
+            }
+        }
+    };
+    # XXX this sucks, we need to set the engine *before* the logger
+    # - Franck, 2013/08/03
+    set logger  => 'file';
+
+    warning "Danger! Warning!";
+
+    open my $log_file, '<', File::Spec->catfile($dir, 'test');
+    my $txt = <$log_file>;
+    like $txt, qr/Danger! Warning!/;
+};
+
 done_testing;
