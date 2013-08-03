@@ -11,6 +11,8 @@ use Dancer2::ModuleLoader;
 use File::Basename;
 use File::Spec;
 
+with 'Dancer2::Core::Role::Config';
+
 =head1 DESCRIPTION
 
 Runs Dancer2 app.
@@ -109,10 +111,6 @@ has mime_type => (
     default => sub { Dancer2::Core::MIME->new(); },
 );
 
-sub _build_environment {
-    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
-}
-
 =method default_config
 
 It then sets up the default configuration.
@@ -143,26 +141,7 @@ sub default_config {
     };
 }
 
-=attr location
 
-Absolute path to the directory where the server started.
-
-=cut
-
-has location => (
-    is  => 'rw',
-    isa => Str,
-
-    # make sure the path given is always absolute
-    coerce => sub {
-        my ($value) = @_;
-        return File::Spec->rel2abs($value)
-          if !File::Spec->file_name_is_absolute($value);
-        return $value;
-    },
-);
-
-with 'Dancer2::Core::Role::Config';
 
 sub _build_location {
     my ( $self, $script ) = @_;
