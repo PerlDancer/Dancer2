@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ ENHANCEMENTS ]
-    * GH#344: Now forward() calls preserve sessions (cym0n, Alberto Simões)
+    * GH#344, GH#284: Now forward() calls preserve sessions (cym0n, Alberto Simões)
     * GH#347: Remove old compatibility option 'log_path' (Franck Cuny)
     * GH#331: Hook cleanups and documentation. (Franck Cuny)
     * GH#335: Serializing cleanup. (Franck Cuny)
