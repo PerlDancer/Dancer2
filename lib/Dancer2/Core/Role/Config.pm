@@ -498,11 +498,11 @@ The list of engines supported by Dancer.
 
 =head1 METHODS
 
-=head1 settings
+=head2 settings
 
 Alias for config. Equivalent to <<$object->config>>.
 
-=hea2 setting
+=head2 setting
 
 Get or set an element from the configuration.
 

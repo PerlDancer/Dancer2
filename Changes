@@ -11,6 +11,7 @@
     [ BUG FIXES ]
     * GH#334: Fix for GH#86, to display custom 500 page/template on
       internal server errors (Russell Jenkins)
+    * GH#346: Fix tests on 5.8.9 (Albert Simões)
 
     [ DOCUMENTATION ]
     * GH#345: Documentation reorganization (Alberto Simões, Franck Cuny)
