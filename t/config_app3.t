@@ -2,7 +2,11 @@ use strict;
 use warnings;
 
 use Test::More;
-use Path::Class;
+
+# The order is important!
+Dancer2::ModuleLoader->require('Path::Class')
+  or plan skip_all => 'Path::Class not present';
+
 use t::app::t2::lib::App3;
 
 is( App3->runner->config->{app}->{config}, 'ok', 'config loaded properly' );
