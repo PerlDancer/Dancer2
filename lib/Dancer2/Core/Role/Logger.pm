@@ -286,10 +286,6 @@ header value
 
 =item %h
 
-=over 4
-
-=item %h
-
 =attr log_level
 
 Level to use by default.
