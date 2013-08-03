@@ -2,6 +2,7 @@
 
     [ ENHANCEMENTS ]
     * GH#344, GH#284: Now forward() calls preserve sessions (cym0n, Alberto Simões)
+    * Separation of engines from triggers and configuration (Sawyer X, Franck Cuny)
     * GH#347: Remove old compatibility option 'log_path' (Franck Cuny)
     * GH#156, GH#250, GH#349: Remove unused module (Alberto Simões, mokko)
     * GH#331: Hook cleanups and documentation. (Franck Cuny)
