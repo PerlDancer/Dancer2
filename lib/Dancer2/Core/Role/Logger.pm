@@ -284,7 +284,7 @@ timer formatted with a valid time format
 
 header value
 
-=item %h
+=back
 
 =attr log_level
 
