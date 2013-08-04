@@ -3,6 +3,9 @@
     [ ENHANCEMENTS ]
     * GH#352: Define content_type as a property for serializers. (Franck Cuny)
 
+    [ DOCUMENTATION ]
+    * GH#348: Documentation of Role::Logger (Franck Cuny)
+
 0.07      2013-08-04 01:14:59 Asia/Jerusalem
 
     [ ENHANCEMENTS ]
