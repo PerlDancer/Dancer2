@@ -137,7 +137,9 @@ sub start {
     my ($self) = @_;
     my $server = $self->server;
 
-    $_->finish for @{ $server->apps };
+    foreach my $app ( @{ $server->apps } ) {
+        $app->finish;
+    }
 
     # update the server config if needed
     my $port      = $self->setting('server_port');
