@@ -292,13 +292,12 @@ sub mime_type {
 }
 
 sub log {
-    my $self  = shift;
-    my $level = shift;
+    my ($self, $level, @args)  = @_;
 
     my $logger = $self->engine('logger')
       or croak "No logger defined";
 
-    $logger->$level(@_);
+    $logger->$level(@args);
 }
 
 # XXX I think this should live on the context or response - but
