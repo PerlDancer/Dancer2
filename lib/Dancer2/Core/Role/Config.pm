@@ -13,15 +13,9 @@ use Hash::Merge::Simple;
 use Carp 'croak', 'carp';
 
 has location => (
-    is       => 'rw',
-    lazy     => 1,
-    builder  => '_build_location',
-    coerce   => sub {
-        my ($value) = @_;
-        return File::Spec->rel2abs($value)
-          if !File::Spec->file_name_is_absolute($value);
-        return $value;
-    },
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_location',
 );
 
 has config_location => (

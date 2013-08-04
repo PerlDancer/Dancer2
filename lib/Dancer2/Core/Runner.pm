@@ -108,12 +108,20 @@ sub _build_location {
             $subdir_found = 1;
             last;
         }
+
         $subdir = Dancer2::FileUtils::path( $subdir, '..' );
         last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
 
     }
 
-    return $subdir_found ? $subdir : $location;
+    my $path = $subdir_found ? $subdir : $location;
+
+    # return if absolute
+    File::Spec->file_name_is_absolute($path)
+        and return $path;
+
+    # convert relative to absolute
+    return File::Spec->rel2abs($path);
 }
 
 sub BUILD {
