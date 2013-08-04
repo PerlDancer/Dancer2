@@ -24,13 +24,14 @@ sub code {
     sub {
         my $ctx = shift;
 
+        my $page = $ctx->request->path_info;
+
         my $template = $ctx->app->engine('template');
         if ( !defined $template ) {
             $ctx->response->has_passed(1);
             return;
         }
 
-        my $page      = $ctx->request->params->{'page'};
         my $view_path = $template->view_pathname($page);
 
         if ( !-f $view_path ) {
@@ -44,7 +45,7 @@ sub code {
     };
 }
 
-sub regexp {'/:page'}
+sub regexp {'/**'}
 
 sub methods {qw(head get)}
 
