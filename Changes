@@ -4,6 +4,7 @@
     * GH#352: Define content_type as a property for serializers. (Franck Cuny)
 
     [ DOCUMENTATION ]
+    * GH#353: Documentation of Role::Serializer (Alberto Simões, Franck Cuny)
     * GH#348: Documentation of Role::Logger (Franck Cuny)
     * GH#350: Move part of README.md to GitGuide.md (Franck Cuny)
 
