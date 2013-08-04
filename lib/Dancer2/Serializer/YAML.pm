@@ -40,24 +40,22 @@ sub deserialize {
 
 __END__
 
-=pod
-
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
+
+This is a serializer engine that allows you to turn Perl data structures into
+YAML output and vice-versa.
 
 =head1 METHODS
 
-=head2 serialize
+=attr content_type
 
-Serialize a data structure to a YAML structure.
+Returns 'text/x-yaml'
 
-=head2 deserialize
+=method serialize($content)
 
-Deserialize a YAML structure to a data structure
+Serializes a data structure to a YAML structure.
 
-=head2 content_type
+=method deserialize($content)
 
-Return 'text/x-yaml'
+Deserializes a YAML structure to a data structure.
 
-=cut

@@ -168,7 +168,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Any class that conumes this role will be able to implement to write log messages.
+Any class that consumes this role will be able to implement to write log messages.
 
 In order to implement this role, the consumer B<must> implement the C<log>
 method. This method will receives as argument the C<level> and the C<message>.
