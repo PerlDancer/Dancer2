@@ -5,8 +5,6 @@ use Moo;
 use Test::More;
 with 'Dancer2::Core::Role::Logger';
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
 
 This logging engine uses L<Test::More>'s diag() to output as TAP comments.
