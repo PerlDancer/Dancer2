@@ -6,20 +6,6 @@ use JSON ();
 
 with 'Dancer2::Core::Role::Serializer';
 
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-Turn Perl data structures into JSON output and vice-versa.
-
-=cut
-
-=attr content_type
-
-return 'application/json'
-
-=cut
-
 has '+content_type' => (default => 'application/json');
 
 # helpers
@@ -35,12 +21,6 @@ sub to_json {
 
 # class definition
 sub loaded {1}
-
-=method serialize
-
-Serialize a Perl data structure into a JSON string.
-
-=cut
 
 sub serialize {
     my ( $self, $entity, $options ) = @_;
@@ -59,12 +39,6 @@ sub serialize {
     JSON::to_json( $entity, $options );
 }
 
-=method deserialize
-
-Deserialize a JSON string into a Perl data structure
-
-=cut
-
 sub deserialize {
     my ( $self, $entity, $options ) = @_;
 
@@ -73,4 +47,25 @@ sub deserialize {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+This is a serializer engine that allows you to turn Perl data structures into
+JSON output and vice-versa.
+
+=head1 METHODS
+
+=attr content_type
+
+Returns 'application/json'
+
+=method serialize($content)
+
+Serializes a Perl data structure into a JSON string.
+
+=method deserialize($content)
+
+Deserializes a JSON string into a Perl data structure.
 
