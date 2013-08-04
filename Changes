@@ -12,6 +12,9 @@
     * GH#348: Documentation of Role::Logger (Franck Cuny)
     * GH#350: Move part of README.md to GitGuide.md (Franck Cuny)
 
+    [ BUG FIXES ]
+    * GH#333: callerstack for logger was too short (Alberto Simões)
+
 0.07      2013-08-04 01:14:59 Asia/Jerusalem
 
     [ ENHANCEMENTS ]
