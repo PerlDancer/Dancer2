@@ -24,6 +24,9 @@ like $r->content, qr/---\nHey! This is Auto Page working/, '...with proper conte
 $r = dancer_response GET => '/folder/page';
 
 is $r->status, 200, 'Autopage found the page under a folder';
-like $r->content, qr/---\nPage under folder/, '...with proper content';;
+like $r->content, qr/---\nPage under folder/, '...with proper content';
+
+$r = dancer_response GET => '/non_existent_page';
+is $r->status, 404, 'Autopage doesnt try to render nonexistent pages';
 
 done_testing;
