@@ -24,14 +24,15 @@ sub code {
     sub {
         my $ctx = shift;
 
-        my $template = $ctx->app->config->{template};
+        my $template = $ctx->app->engine('template');
         if ( !defined $template ) {
             $ctx->response->has_passed(1);
             return;
         }
 
         my $page      = $ctx->request->params->{'page'};
-        my $view_path = $template->view($page);
+        my $view_path = $template->view_pathname($page);
+
         if ( !-f $view_path ) {
             $ctx->response->has_passed(1);
             return;
