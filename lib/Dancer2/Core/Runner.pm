@@ -25,10 +25,6 @@ has caller => (
     is       => 'ro',
     isa      => Str,
     required => 1,
-    trigger  => sub {
-        my ( $self, $script ) = @_;
-        $self->_build_location($script);
-    },
 );
 
 has server => (
@@ -87,7 +83,8 @@ sub default_config {
 }
 
 sub _build_location {
-    my ( $self, $script ) = @_;
+    my $self   = shift;
+    my $script = $self->caller;
 
     # default to the dir that contains the script...
     my $location = Dancer2::FileUtils::dirname($script);
@@ -116,7 +113,16 @@ sub _build_location {
 
     }
 
-    $self->location( $subdir_found ? $subdir : $location );
+    return $subdir_found ? $subdir : $location;
+}
+
+sub BUILD {
+    my $self = shift;
+
+    # this assures any failure in building the location
+    # will be encountered as soon as possible
+    # while making sure that 'caller' is already available
+    $self->location;
 }
 
 sub start {

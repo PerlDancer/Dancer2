@@ -14,9 +14,8 @@ use Carp 'croak', 'carp';
 
 has location => (
     is       => 'rw',
-    required => 1,
     lazy     => 1,
-    default  => sub { File::Spec->rel2abs('.') },
+    builder  => '_build_location',
     coerce   => sub {
         my ($value) = @_;
         return File::Spec->rel2abs($value)
@@ -96,6 +95,8 @@ has config_files => (
     isa     => ArrayRef,
     builder => '_build_config_files',
 );
+
+sub _build_location { File::Spec->rel2abs('.') }
 
 sub _build_environment {
     $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
