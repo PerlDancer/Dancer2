@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
+use Dancer2::Serializer::Dumper;
 
 {
 
@@ -24,3 +25,5 @@ response_content_is $resp => '{"bar":"baz"}';
 
 response_headers_include $resp, [ 'Content-Type' => 'application/json' ];
 
+my $serializer = Dancer2::Serializer::Dumper->new();
+is $serializer->content_type, 'text/x-data-dumper', 'content-type is set correctly';
