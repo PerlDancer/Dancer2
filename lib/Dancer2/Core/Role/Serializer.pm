@@ -15,13 +15,6 @@ sub supported_hooks {
 
 sub _build_type {'Serializer'}
 
-=head1 REQUIREMENTS
-
-Classes that consume that role must implement the following methods
-C<serialize>, C<deserialize> and C<loaded>.
-
-=cut
-
 requires 'serialize';
 requires 'deserialize';
 requires 'loaded';
@@ -70,3 +63,58 @@ sub support_content_type {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Any class that consumes this role will be able to be used as a
+serializer under Dancer2.
+
+In order to implement this role, the consumer B<must> implement the
+methods C<serialize>, <deserialize> and C<loaded>, and should define
+the C<content_type> attribute value.
+
+=head1 METHODS
+
+=method has_error
+
+A predicate to check whether the serializer is in error state.
+
+=attr error
+
+The error string in case the serializer is in error state.
+
+=attr content_type
+
+The I<content type> of the object after being serialized. For example,
+a JSON serializer would have a I<application/json> content type
+defined.
+
+=method serialize
+
+The serialize method need to be implemented by the consumer. It
+receives the serializer class object and a reference to the object to
+be serialized. Should return the object after being serialized, in the
+content type defined by the C<content_type> attribute.
+
+A third optional argument is a hash reference of options to the
+serializer.
+
+=method deserialize
+
+The inverse method of C<serialize>. Receives the serializer class
+object and a string that should be deserialized. The method should
+return a reference to the deserialized Perl data structure.
+
+A third optional argument is a hash reference of options to the
+serializer.
+
+=method loaded
+
+This method should return a boolean true value if the serializer is
+able to work. This method might verify the existence of some Perl
+module or some other detail. If everything needed for the serializer
+to work is present the method returns a true value. If not, returns a
+false value.
+
