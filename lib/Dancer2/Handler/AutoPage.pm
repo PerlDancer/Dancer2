@@ -57,13 +57,17 @@ __END__
 
 =head1 DESCRIPTION
 
-The AutoPage feature is a Handler (turned on by default) that is responsible
-for serving pages that match an existing template. If a view exists with a name
-that matches the requested path, Dancer2 processes the request using the
-Autopage handler.
+The AutoPage feature is a Handler (turned off by default) that is
+responsible for serving pages that match an existing template. If a
+view exists with a name that matches the requested path, Dancer2
+processes the request using the Autopage handler.
 
-This allows you to easily serve simple pages without having to write a route
-definition for them.
+To turn it add to your config file:
+
+      auto_page: 1
+
+This allows you to easily serve simple pages without having to write a
+route definition for them.
 
 If there's no view with the name request, the route passes, allowing
 other matching routes to be dispatched.
