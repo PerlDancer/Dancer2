@@ -2,13 +2,12 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use File::Spec;
-use Capture::Tiny 0.12 'capture_stderr';
-
 use Carp;
 
-eval { require Template; Template->import(); 1 }
-  or plan skip_all => 'Template::Toolkit probably missing';
+use Capture::Tiny 0.12 'capture_stderr';
 
+Dancer2::ModuleLoader->require('Template')
+  or plan skip_all => 'Template::Toolkit not present';
 
 my @hooks = qw(
   before_request
@@ -40,7 +39,7 @@ my $tests_flags = {};
 
     # we set the engines after the hook, and that should work
     # thanks to the postponed hooks system
-    set template   => 'template_toolkit';
+    set template   => 'tiny';
     set serializer => 'JSON';
 
     get '/send_file' => sub {
@@ -96,7 +95,7 @@ my $tests_flags = {};
         my ($response) = @_;
         is ref($response), 'Dancer2::Core::Response';
         ok !$response->is_halted;
-        is $response->content, 'Internal Server Error';
+        like $response->content, qr/Internal Server Error/;
     };
 
     # make sure we compile all the apps without starting a webserver

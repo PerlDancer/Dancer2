@@ -14,6 +14,14 @@ Turn Perl data structures into JSON output and vice-versa.
 
 =cut
 
+=attr content_type
+
+return 'application/json'
+
+=cut
+
+has '+content_type' => (default => 'application/json');
+
 # helpers
 sub from_json {
     my $s = Dancer2::Serializer::JSON->new;
@@ -33,7 +41,6 @@ sub loaded {1}
 Serialize a Perl data structure into a JSON string.
 
 =cut
-
 
 sub serialize {
     my ( $self, $entity, $options ) = @_;
@@ -64,14 +71,6 @@ sub deserialize {
     $options->{utf8} = 1 if !defined $options->{utf8};
     JSON::from_json( $entity, $options );
 }
-
-=method content_type
-
-return 'application/json'
-
-=cut
-
-sub content_type {'application/json'}
 
 1;
 

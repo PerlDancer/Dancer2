@@ -187,9 +187,7 @@ sub _build_session {
     my $session;
 
     # Find the session engine
-    my $engine = $self->app->setting('session');
-    croak "No session engine defined, cannot use session."
-      if !defined $engine;
+    my $engine = $self->app->engine('session');
 
     # find the session cookie if any
     if ( !$self->destroyed_session ) {
@@ -222,8 +220,7 @@ subsequently invalidated.
 sub has_session {
     my ($self) = @_;
 
-    my $engine = $self->app->setting('session')
-      or return;
+    my $engine = $self->app->engine('session');
 
     return $self->{session}
       || ( $self->cookie( $engine->cookie_name )
@@ -256,9 +253,7 @@ sub destroy_session {
     my ($self) = @_;
 
     # Find the session engine
-    my $engine = $self->app->setting('session');
-    croak "No session engine defined, cannot use session."
-      if !defined $engine;
+    my $engine = $self->app->engine('session');
 
     # Expire session, set the expired cookie and destroy the session
     # Setting the cookie ensures client gets an expired cookie unless
