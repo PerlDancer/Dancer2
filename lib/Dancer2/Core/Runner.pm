@@ -28,15 +28,15 @@ has caller => (
 );
 
 has server => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => ConsumerOf ['Dancer2::Core::Role::Server'],
     lazy    => 1,
     builder => '_build_server',
 );
 
 has mime_type => (
-    is      => 'rw',
-    isa     => InstanceOf ["Dancer2::Core::MIME"],
+    is      => 'ro',
+    isa     => InstanceOf ['Dancer2::Core::MIME'],
     default => sub { Dancer2::Core::MIME->new(); },
 );
 
