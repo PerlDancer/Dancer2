@@ -4,6 +4,7 @@ package Dancer2::Core::Error;
 use Moo;
 use Carp;
 use Dancer2::Core::Types;
+use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils 'path';
 
@@ -34,67 +35,12 @@ Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES
 
 =cut
 
-my %error_title = (
-    400 => "Bad Request",
-    401 => "Unauthorized",
-    402 => "Payment Required",
-    403 => "Forbidden",
-    404 => "Not Found",
-    405 => "Method Not Allowed",
-    406 => "Not Acceptable",
-    407 => "Proxy Authentication Required",
-    408 => "Request Timeout",
-    409 => "Conflict",
-    410 => "Gone",
-    411 => "Length Required",
-    412 => "Precondition Failed",
-    413 => "Request Entity Too Large",
-    414 => "Request-URI Too Long",
-    415 => "Unsupported Media Type",
-    416 => "Requested Range Not Satisfiable",
-    417 => "Expectation Failed",
-    418 => "I'm a teapot",
-    420 => "Enhance Your Calm",
-    422 => "Unprocessable Entity",
-    423 => "Locked",
-    424 => "Failed Dependency",
-    424 => "Method Failure",
-    425 => "Unordered Collection",
-    426 => "Upgrade Required",
-    428 => "Precondition Required",
-    429 => "Too Many Requests",
-    431 => "Request Header Fields Too Large",
-    444 => "No Response",
-    449 => "Retry With",
-    450 => "Blocked by Windows Parental Controls ",
-    451 => "Unavailable For Legal Reasons ",
-    451 => "Redirect",
-    494 => "Request Header Too Large ",
-    495 => "Cert Error",
-    496 => "No Cert ",
-    497 => "HTTP to HTTPS",
-    499 => "Client Closed Request",
-    500 => "Internal Server Error",
-    501 => "Not Implemented",
-    502 => "Bad Gateway",
-    503 => "Service Unavailable",
-    504 => "Gateway Timeout",
-    505 => "HTTP Version Not Supported",
-    506 => "Variant Also Negotiates ",
-    507 => "Insufficient Storage ",
-    508 => "Loop Detected ",
-    509 => "Bandwidth Limit Exceeded ",
-    510 => "Not Extended",
-    511 => "Network Authentication Required ",
-    598 => "Network read timeout error ",
-    599 => "Network connect timeout error ",
-);
-
 =method supported_hooks ();
 
 =cut
 
 =attr show_errors
+
 =cut
 
 has show_errors => (
@@ -144,8 +90,9 @@ has title => (
 sub _build_title {
     my ($self) = @_;
     my $title = 'Error ' . $self->status;
-    $title .= ' - ' . $error_title{ $self->status }
-      if $error_title{ $self->status };
+    if ( my $msg = Dancer2::Core::HTTP->status_message($self->status) ) {
+        $title .= ' - ' . $msg;
+    }
 
     return $title;
 }
