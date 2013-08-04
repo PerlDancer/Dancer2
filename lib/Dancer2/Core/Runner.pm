@@ -13,46 +13,11 @@ use File::Spec;
 
 with 'Dancer2::Core::Role::Config';
 
-=head1 DESCRIPTION
-
-Runs Dancer2 app.
-
-Inherits from L<Dancer2::Core::Role::Config>.
-
-=head2 environment
-
-The environment string. The options, in this order, are:
-
-=over 4
-
-=item * C<DANCER_ENVIRONMENT>
-
-=item * C<PLACK_ENV>
-
-=item * C<development>
-
-=back
-
-=attr postponed_hooks
-
-Postponed hooks will be applied at the end, when the hookable objects are 
-instantiated, not before.
-
-=cut
-
 has postponed_hooks => (
     is      => 'rw',
     isa     => HashRef,
     default => sub { {} },
 );
-
-=attr caller
-
-The path to the caller script that is starting the app.
-
-This is required in order to determine where the appdir is.
-
-=cut
 
 # the path to the caller script that is starting the app
 # mandatory, because we use that to determine where the appdir is.
@@ -66,19 +31,17 @@ has caller => (
     },
 );
 
-=attr server
-
-A read/write attribute to that holds the proper server.
-
-It checks for an object that consumes the L<Dancer2::Core::Role::Server> role.
-
-=cut
-
 has server => (
     is      => 'rw',
     isa     => ConsumerOf ['Dancer2::Core::Role::Server'],
     lazy    => 1,
     builder => '_build_server',
+);
+
+has mime_type => (
+    is      => 'rw',
+    isa     => InstanceOf ["Dancer2::Core::MIME"],
+    default => sub { Dancer2::Core::MIME->new(); },
 );
 
 # when the runner is created, it has to init the server instance
@@ -98,24 +61,6 @@ sub _build_server {
         runner    => $self,
     );
 }
-
-=attr mime_type
-
-A read/write attribute that holds a L<Dancer2::Core::MIME> object.
-
-=cut
-
-has mime_type => (
-    is      => 'rw',
-    isa     => InstanceOf ["Dancer2::Core::MIME"],
-    default => sub { Dancer2::Core::MIME->new(); },
-);
-
-=method default_config
-
-It then sets up the default configuration.
-
-=cut
 
 # our Config role needs a default_config hash
 sub default_config {
@@ -140,8 +85,6 @@ sub default_config {
         import_warnings => 1,
     };
 }
-
-
 
 sub _build_location {
     my ( $self, $script ) = @_;
@@ -176,13 +119,6 @@ sub _build_location {
     $self->location( $subdir_found ? $subdir : $location );
 }
 
-=method start
-
-Runs C<finish> (to set everything up) on all of the server's applications. It
-then Sets up the current server and starts it by calling its C<start> method.
-
-=cut
-
 sub start {
     my ($self) = @_;
     my $server = $self->server;
@@ -205,7 +141,6 @@ sub name {"runner"}
 
 1;
 
-
 #still exists?
 #=method BUILD
 #
@@ -216,4 +151,55 @@ sub name {"runner"}
 #
 #Returns the environment. Same as C<< $object->environment >>.
 
+__END__
+
+=head1 DESCRIPTION
+
+Runs Dancer2 app.
+
+Inherits from L<Dancer2::Core::Role::Config>.
+
+=head2 environment
+
+The environment string. The options, in this order, are:
+
+=over 4
+
+=item * C<DANCER_ENVIRONMENT>
+
+=item * C<PLACK_ENV>
+
+=item * C<development>
+
+=back
+
+=attr postponed_hooks
+
+Postponed hooks will be applied at the end, when the hookable objects are 
+instantiated, not before.
+
+=attr caller
+
+The path to the caller script that is starting the app.
+
+This is required in order to determine where the appdir is.
+
+=attr server
+
+A read/write attribute to that holds the proper server.
+
+It checks for an object that consumes the L<Dancer2::Core::Role::Server> role.
+
+=attr mime_type
+
+A read/write attribute that holds a L<Dancer2::Core::MIME> object.
+
+=method default_config
+
+It then sets up the default configuration.
+
+=method start
+
+Runs C<finish> (to set everything up) on all of the server's applications. It
+then Sets up the current server and starts it by calling its C<start> method.
 

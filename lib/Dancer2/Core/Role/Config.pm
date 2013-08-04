@@ -1,6 +1,5 @@
-package Dancer2::Core::Role::Config;
-
 # ABSTRACT: Config role for Dancer2 core objects
+package Dancer2::Core::Role::Config;
 
 use Moo::Role;
 
@@ -70,10 +69,6 @@ has environment => (
     builder => '_build_environment',
 );
 
-sub _build_environment {
-    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
-}
-
 has _engines_triggers => (
     is      => 'ro',
     isa     => HashRef,
@@ -95,28 +90,16 @@ has supported_engines => (
     default => sub {[qw/logger serializer session template/]},
 );
 
-sub settings { shift->config }
-
-sub setting {
-    my $self = shift;
-    my @args = @_;
-
-    return ( scalar @args == 1 )
-      ? $self->settings->{ $args[0] }
-      : $self->_set_config_entries(@args);
-}
-
-sub has_setting {
-    my ( $self, $name ) = @_;
-    return exists $self->config->{$name};
-}
-
 has config_files => (
     is      => 'rw',
     lazy    => 1,
     isa     => ArrayRef,
     builder => '_build_config_files',
 );
+
+sub _build_environment {
+    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
+}
 
 sub _build_config_files {
     my ($self) = @_;
@@ -142,40 +125,6 @@ sub _build_config_files {
 
     return [ sort @files ];
 }
-
-sub load_config_file {
-    my ( $self, $file ) = @_;
-    my $config;
-
-    eval {
-        my @files = ($file);
-        my $tmpconfig =
-          Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
-        ( $file, $config ) = %{$tmpconfig};
-    };
-    if ( my $err = $@ || ( !$config ) ) {
-        croak "Unable to parse the configuration file: $file: $@";
-    }
-
-    # TODO handle mergeable entries
-    return $config;
-}
-
-sub get_postponed_hooks {
-    my ($self) = @_;
-    return $self->postponed_hooks;
-    # XXX FIXME
-    # return ( ref($self) eq 'Dancer2::Core::App' )
-    #   ? (
-    #     ( defined $self->server )
-    #     ? $self->server->runner->postponed_hooks
-    #     : {}
-    #   )
-    #   : $self->can('postponed_hooks') ? $self->postponed_hooks
-    #   :                                 {};
-}
-
-# private
 
 sub _build_config {
     my ($self) = @_;
@@ -231,6 +180,56 @@ sub _compile_config {
     }
     return $config;
 }
+
+sub settings { shift->config }
+
+sub setting {
+    my $self = shift;
+    my @args = @_;
+
+    return ( scalar @args == 1 )
+      ? $self->settings->{ $args[0] }
+      : $self->_set_config_entries(@args);
+}
+
+sub has_setting {
+    my ( $self, $name ) = @_;
+    return exists $self->config->{$name};
+}
+
+sub load_config_file {
+    my ( $self, $file ) = @_;
+    my $config;
+
+    eval {
+        my @files = ($file);
+        my $tmpconfig =
+          Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
+        ( $file, $config ) = %{$tmpconfig};
+    };
+    if ( my $err = $@ || ( !$config ) ) {
+        croak "Unable to parse the configuration file: $file: $@";
+    }
+
+    # TODO handle mergeable entries
+    return $config;
+}
+
+sub get_postponed_hooks {
+    my ($self) = @_;
+    return $self->postponed_hooks;
+    # XXX FIXME
+    # return ( ref($self) eq 'Dancer2::Core::App' )
+    #   ? (
+    #     ( defined $self->server )
+    #     ? $self->server->runner->postponed_hooks
+    #     : {}
+    #   )
+    #   : $self->can('postponed_hooks') ? $self->postponed_hooks
+    #   :                                 {};
+}
+
+# private
 
 my $_normalizers = {
     charset => sub {
