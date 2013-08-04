@@ -3,6 +3,10 @@
     [ ENHANCEMENTS ]
     * GH#352: Define content_type as a property for serializers. (Franck Cuny)
 
+    [ BUG FIXES ]
+    * GH#85, GH#354: Fix autopages, especially in subdirs
+      (Stefan Hornburg, Alberto Simões)
+
     [ DOCUMENTATION ]
     * GH#353: Documentation of Role::Serializer (Alberto Simões, Franck Cuny)
     * GH#348: Documentation of Role::Logger (Franck Cuny)
