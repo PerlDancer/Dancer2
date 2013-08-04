@@ -164,13 +164,6 @@ around execute_hook => sub {
     return $self->$orig(@_);
 };
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my ( $class, %args ) = @_;
-    $args{postponed_hooks} ||= {};
-    return $class->$orig(%args);
-};
-
 sub _build_default_config {
     my ($self) = @_;
 
