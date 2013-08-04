@@ -91,7 +91,7 @@ The I<content type> of the object after being serialized. For example,
 a JSON serializer would have a I<application/json> content type
 defined.
 
-=method serialize
+=method serialize($content, [\%options])
 
 The serialize method need to be implemented by the consumer. It
 receives the serializer class object and a reference to the object to
@@ -101,7 +101,7 @@ content type defined by the C<content_type> attribute.
 A third optional argument is a hash reference of options to the
 serializer.
 
-=method deserialize
+=method deserialize($content, [\%options])
 
 The inverse method of C<serialize>. Receives the serializer class
 object and a string that should be deserialized. The method should
