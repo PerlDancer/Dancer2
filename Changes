@@ -5,15 +5,16 @@
     * Cleanup duplicate HTTP status code between Core::Error and Core::HTTP
       (Russel Jenkins)
     * GH#363: Move core methods to Dancer2::Core (Alberto Simões)
+    * GH#362: Serializers documentation and test cleanup. (Franck Cuny)
 
     [ BUG FIXES ]
     * GH#85, GH#354: Fix autopages, especially in subdirs
       (Stefan Hornburg, Alberto Simões)
 
     [ DOCUMENTATION ]
-    * GH#353: Documentation of Role::Serializer (Alberto Simões, Franck Cuny)
     * GH#348: Documentation of Role::Logger (Franck Cuny)
     * GH#350: Move part of README.md to GitGuide.md (Franck Cuny)
+    * GH#353: Documentation of Role::Serializer (Alberto Simões, Franck Cuny)
 
 0.07      2013-08-04 01:14:59 Asia/Jerusalem
 
