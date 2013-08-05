@@ -61,7 +61,7 @@ sub print_banner {
     my $pid  = $$;      #Todo:how to get background pid?
 
     # we only print the info if we need to
-    $self->runner->config->{'startup_info'} or return;
+    Dancer2->runner->config->{'startup_info'} or return;
 
     # bare minimum
     print STDERR ">> Dancer2 v$Dancer2::VERSION server $pid listening "

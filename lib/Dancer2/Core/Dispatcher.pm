@@ -174,7 +174,7 @@ sub response_not_found {
         environment     => Dancer2->runner->environment,
         location        => Dancer2->runner->location,
         runner_config   => Dancer2->runner->config,
-        postponed_hooks => Dancer2->runner->postponed_hooks,
+        postponed_hooks => Dancer2->runner->server->postponed_hooks,
         api_version     => 2,
     );
 
