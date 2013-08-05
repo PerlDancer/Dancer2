@@ -4,6 +4,7 @@
     * GH#352: Define content_type as a property for serializers. (Franck Cuny)
     * Cleanup duplicate HTTP status code between Core::Error and Core::HTTP
       (Russel Jenkins)
+    * GH#363: Move core methods to Dancer2::Core (Alberto Simões)
 
     [ BUG FIXES ]
     * GH#85, GH#354: Fix autopages, especially in subdirs

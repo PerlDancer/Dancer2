@@ -63,7 +63,7 @@ sub _compile_keyword {
     my ( $self, $keyword, $is_global ) = @_;
 
     my $compiled_code = sub {
-        Dancer2::core_debug( "["
+        Dancer2::Core::debug( "["
               . $self->app->name
               . "] -> $keyword("
               . join( ', ', map { defined() ? $_ : '<undef>' } @_ )
