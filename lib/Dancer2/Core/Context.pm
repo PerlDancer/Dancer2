@@ -55,9 +55,8 @@ has request => (
 sub _build_request {
     my ($self) = @_;
     my $req = Dancer2::Core::Request->new( env => $self->env );
-    if (defined $self->app && defined $self->app->config->{serializer}) {
-        $req->serializer($self->app->config->{serializer});
-    }
+    my $engine = eval { $self->app->engine('serializer') };
+    $req->serializer($engine) if $engine;
     return $req;
 }
 
@@ -112,8 +111,8 @@ has response => (
     default => sub {
         my $self = shift;
         my $resp = Dancer2::Core::Response->new;
-        $resp->serializer($self->app->config->{serializer})
-            if $self->app->config->{serializer};
+        my $engine = eval { $self->app->engine('serializer') };
+        $resp->serializer($engine) if $engine;
         return $resp;
     },
 );
