@@ -26,9 +26,10 @@ has error => (
 );
 
 around serialize => sub {
-    my ( $orig, $self, @data ) = @_;
-    $self->execute_hook( 'engine.serializer.before', @data );
-    my $serialized = eval {$self->$orig(@data);};
+    my ( $orig, $self, $content, $options ) = @_;
+
+    $self->execute_hook( 'engine.serializer.before', $content );
+    my $serialized = eval {$self->$orig($content, $options);};
 
     if ($@) {
         $self->error($@);
@@ -39,8 +40,8 @@ around serialize => sub {
 };
 
 around deserialize => sub {
-    my ( $orig, $self, @data ) = @_;
-    my $data = eval { $self->$orig(@data); };
+    my ( $orig, $self, $content, $options ) = @_;
+    my $data = eval { $self->$orig($content, $options); };
     $self->error($@) if $@;
     return $data;
 };

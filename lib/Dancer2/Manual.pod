@@ -474,21 +474,21 @@ produced.
 
 =head2 Serializers
 
-C<before_serializer> is called before serializing the content, and eceives as
+C<before_serializer> is called before serializing the content, and receives as
 argument the content to serialize.
 
   hook before_serializer => sub {
-    my @data = @_;
-    $response->content->{start_time} = time();
+    my $content = shift;
+    ...
   };
 
 C<after_serializer> is called after the payload was serialized, and receives
 the serialized content as an argument.
 
-  hook before_deserializer => sub {
+  hook after_serializer => sub {
     my $content = shift;
+    ...
   };
-
 
 
 =head1 CONFIGURATION AND ENVIRONMENTS
@@ -974,7 +974,7 @@ only used to change the method of your request. Use with caution.
 
 Deserializes a Data::Dumper structure.
 
-=head2 from_json ($structure, %options)
+=head2 from_json ($structure, \%options)
 
 Deserializes a JSON structure. Can receive optional arguments. Those arguments
 are valid L<JSON> arguments to change the behaviour of the default
@@ -983,12 +983,6 @@ C<JSON::from_json> function.
 =head2 from_yaml ($structure)
 
 Deserializes a YAML structure.
-
-=head2 from_xml ($structure, %options)
-
-Deserializes a XML structure. Can receive optional arguments. These arguments
-are valid L<XML::Simple> arguments to change the behaviour of the default
-C<XML::Simple::XMLin> function.
 
 =head2 get
 
@@ -1058,14 +1052,12 @@ Do the same as C<header>, but allow for multiple headers with the same name.
 Adds a hook at some position. For example :
 
   hook before_serializer => sub {
-    my $response = shift;
-    $response->content->{generated_at} = localtime();
+    my $content = shift;
+    ...
   };
 
 There can be multiple hooks assigned to a given position, and each will be
 executed in order.
-
-All the hooks are documented in L<Dancer2::Manual::Hooks>.
 
 =head2 info
 
@@ -1649,21 +1641,21 @@ L<Dancer2::Core::Role::Template> for further details.
 
 Serializes a structure with Data::Dumper.
 
-=head2 to_json ($structure, %options)
+Calling this function will B<not> trigger the serialization's hooks.
+
+=head2 to_json ($structure, \%options)
 
 Serializes a structure to JSON. Can receive optional arguments. Thoses arguments
 are valid L<JSON> arguments to change the behaviour of the default
 C<JSON::to_json> function.
 
+Calling this function will B<not> trigger the serialization's hooks.
+
 =head2 to_yaml ($structure)
 
 Serializes a structure to YAML.
 
-=head2 to_xml ($structure, %options)
-
-Serializes a structure to XML. Can receive optional arguments. Thoses arguments
-are valid L<XML::Simple> arguments to change the behaviour of the default
-C<XML::Simple::XMLout> function.
+Calling this function will B<not> trigger the serialization's hooks.
 
 =head2 true
 

@@ -56,6 +56,18 @@ L<Data::Dumper> output and vice-versa.
 
 Returns 'text/x-data-dumper'
 
+=func from_dumper($content)
+
+This is an helper available to transform a L<Data::Dumper> output to a Perl
+data structures.
+
+=func to_dumper($content)
+
+This is an helper available to transform a Perl data structures to a
+L<Data::Dumper> output.
+
+Calling this function will B<not> trigger the serialization's hooks.
+
 =method serialize($content)
 
 Serializes a Perl data structure into a Dumper string.
