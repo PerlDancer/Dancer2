@@ -1059,8 +1059,6 @@ Adds a hook at some position. For example :
 There can be multiple hooks assigned to a given position, and each will be
 executed in order.
 
-All the hooks are documented in L<Dancer2::Manual::Hooks>.
-
 =head2 info
 
 Logs a message of info level:
