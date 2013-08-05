@@ -61,6 +61,16 @@ JSON output and vice-versa.
 
 Returns 'application/json'
 
+=func from_json($content, \%options)
+
+This is an helper available to transform a JSON data structure to a Perl data structures.
+
+=func to_json($content, \%options)
+
+This is an helper available to transform a Perl data structure to JSON.
+
+Calling this function will B<not> trigger the serialization's hooks.
+
 =method serialize($content)
 
 Serializes a Perl data structure into a JSON string.
