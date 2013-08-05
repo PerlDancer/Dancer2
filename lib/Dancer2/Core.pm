@@ -1,7 +1,9 @@
-package Dancer2::Core;
-
 # ABSTRACT: Core libraries for Dancer2 2.0
 
+package Dancer2::Core;
+
+use strict;
+use warnings;
 
 =func debug
 
