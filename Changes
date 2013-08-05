@@ -10,6 +10,7 @@
     [ BUG FIXES ]
     * GH#85, GH#354: Fix autopages, especially in subdirs
       (Stefan Hornburg, Alberto Simões)
+    * GH#365: Fix serializer settings (Steven Humphrey)
 
     [ DOCUMENTATION ]
     * GH#348: Documentation of Role::Logger (Franck Cuny)
