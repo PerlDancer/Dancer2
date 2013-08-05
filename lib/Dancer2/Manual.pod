@@ -474,21 +474,21 @@ produced.
 
 =head2 Serializers
 
-C<before_serializer> is called before serializing the content, and eceives as
+C<before_serializer> is called before serializing the content, and receives as
 argument the content to serialize.
 
   hook before_serializer => sub {
-    my @data = @_;
-    $response->content->{start_time} = time();
+    my $content = shift;
+    ...
   };
 
 C<after_serializer> is called after the payload was serialized, and receives
 the serialized content as an argument.
 
-  hook before_deserializer => sub {
+  hook after_serializer => sub {
     my $content = shift;
+    ...
   };
-
 
 
 =head1 CONFIGURATION AND ENVIRONMENTS
@@ -1052,8 +1052,8 @@ Do the same as C<header>, but allow for multiple headers with the same name.
 Adds a hook at some position. For example :
 
   hook before_serializer => sub {
-    my $response = shift;
-    $response->content->{generated_at} = localtime();
+    my $content = shift;
+    ...
   };
 
 There can be multiple hooks assigned to a given position, and each will be
