@@ -51,6 +51,16 @@ YAML output and vice-versa.
 
 Returns 'text/x-yaml'
 
+=func fom_yaml($content)
+
+This is an helper available to transform a YAML data structure to a Perl data structures.
+
+=func to_yaml($content)
+
+This is an helper available to transform a Perl data structure to YAML.
+
+Calling this function will B<not> trigger the serialization's hooks.
+
 =method serialize($content)
 
 Serializes a data structure to a YAML structure.
