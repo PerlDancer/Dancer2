@@ -25,6 +25,7 @@ use Scalar::Util 'blessed';
 use Carp 'croak';
 
 use Dancer2::FileUtils 'path', 'read_file_content';
+use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
@@ -63,7 +64,7 @@ sub api_version {2}
 
 sub register_plugin {
     my ( $self, $plugin ) = @_;
-    Dancer2::core_debug("Registered $plugin");
+    Dancer2::Core::debug("Registered $plugin");
     push @{ $self->plugins }, $plugin;
 }
 

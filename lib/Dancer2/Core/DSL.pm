@@ -3,6 +3,7 @@
 package Dancer2::Core::DSL;
 
 use Moo;
+use Dancer2::Core;
 use Dancer2::Core::Hook;
 use Dancer2::Core::Error;
 use Dancer2::FileUtils;
