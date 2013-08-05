@@ -33,6 +33,7 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 * [Follow us on Twitter](https://twitter.com/perldancer)
 * [Find us on irc.per.org #dancer](irc://irc.perl.org/#dancer)
 * [The Advent Calendar](http://advent.perldancer.org/)
+* [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/devel/GitGuide.md)
 
 ## List Of Available Plugins
 
