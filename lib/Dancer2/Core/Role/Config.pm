@@ -5,6 +5,7 @@ package Dancer2::Core::Role::Config;
 use Moo::Role;
 
 use Dancer2::Core::Factory;
+use Dancer2::Core;
 use File::Spec;
 use Config::Any;
 use Dancer2::Core::Types;
@@ -336,7 +337,7 @@ sub _get_config_for_engine {
 
     # XXX we need to move the camilize function out from Core::Factory
     # - Franck, 2013/08/03
-    for my $config_key ($name, Dancer2::Core::Factory::_camelize($name)) {
+    for my $config_key ($name, Dancer2::Core::camelize($name)) {
         $engine_config = $config->{engines}{$engine}{$config_key}
             if defined $config->{engines}->{$engine}{$config_key};
     }

@@ -5,6 +5,7 @@ package Dancer2;
 use strict;
 use warnings;
 use Data::Dumper;
+use Dancer2::Core;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
 use Dancer2::FileUtils;
@@ -176,14 +177,14 @@ sub import {
         postponed_hooks => $runner->postponed_hooks,
     );
 
-    core_debug("binding import method to $caller");
+    Dancer2::Core::debug("binding import method to $caller");
     _set_import_method_to_caller($caller);
 
     # register the app within the runner instance
-    core_debug("binding app to $caller");
+    Dancer2::Core::debug("binding app to $caller");
     $runner->server->register_application($app);
 
-    core_debug("exporting DSL symbols for $caller");
+    Dancer2::Core::debug("exporting DSL symbols for $caller");
 
     # load the DSL, defaulting to Dancer2::Core::DSL
     Dancer2::ModuleLoader->require( $final_args{dsl} )
@@ -217,27 +218,6 @@ sub _set_import_method_to_caller {
         no warnings 'redefine';
         *{"${caller}::import"} = $import;
     }
-}
-
-=func core_debug
-
-Output a message to STDERR and take further arguments as some data structures using 
-L<Data::Dumper>
-
-=cut
-
-sub core_debug {
-    return unless $ENV{DANCER_DEBUG_CORE};
-
-    my $msg = shift;
-    my (@stuff) = @_;
-
-    my $vars = @stuff ? Dumper( \@stuff ) : '';
-
-    my ( $package, $filename, $line ) = caller;
-
-    chomp $msg;
-    print STDERR "core: $msg\n$vars";
 }
 
 1;
