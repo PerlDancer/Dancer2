@@ -3,8 +3,6 @@
 package Dancer2::Template::Simple;
 use strict;
 use warnings;
-use Carp;
-
 use Moo;
 use Dancer2::FileUtils 'read_file_content';
 

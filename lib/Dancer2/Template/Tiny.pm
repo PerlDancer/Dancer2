@@ -4,7 +4,7 @@ package Dancer2::Template::Tiny;
 
 use strict;
 use warnings;
-use Carp;
+use Carp qw/croak/;
 use Moo;
 use Dancer2::Core::Types;
 use Dancer2::Template::Implementation::ForkedTiny;
@@ -23,7 +23,7 @@ sub render {
     my ( $self, $template, $tokens ) = @_;
 
     ( ref $template || -f $template )
-      or die "$template is not a regular file or reference";
+      or croak "$template is not a regular file or reference";
 
     my $template_data =
       ref $template

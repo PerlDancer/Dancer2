@@ -4,7 +4,7 @@ package Dancer2::Template::TemplateToolkit;
 
 use strict;
 use warnings;
-use Carp;
+use Carp qw/croak/;
 use Moo;
 use Dancer2::Core::Types;
 use Template;
@@ -38,10 +38,8 @@ sub _build_engine {
 sub render {
     my ( $self, $template, $tokens ) = @_;
 
-    if ( !ref $template ) {
-        -f $template
-          or croak "'$template' doesn't exist or not a regular file";
-    }
+    ( ref $template || -f $template )
+      or croak "$template is not a regular file or reference";
 
     my $content = "";
     my $charset = $self->charset;
