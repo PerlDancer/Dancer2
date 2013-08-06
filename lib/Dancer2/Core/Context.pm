@@ -19,9 +19,10 @@ Reference to the L<Dancer2::Core::App> object for the current application.
 
 
 has app => (
-    is       => 'rw',
-    isa      => InstanceOf ['Dancer2::Core::App'],
-    weak_ref => 1,
+    is        => 'rw',
+    isa       => InstanceOf ['Dancer2::Core::App'],
+    weak_ref  => 1,
+    predicate => 1,
 );
 
 =attr env
