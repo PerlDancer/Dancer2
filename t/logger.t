@@ -38,8 +38,7 @@ subtest 'logger capture' => sub {
     info "Tango, Foxtrot";
     debug "I like pie.";
 
-    my $app  = dancer_app;
-    my $trap = $app->setting('logger')->trapper;
+    my $trap = dancer_app->engine('logger')->trapper;
     is_deeply $trap->read,
       [ { level => "warning", message => "Danger!  Warning!" },
         { level => "info",    message => "Tango, Foxtrot" },
