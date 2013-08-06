@@ -57,6 +57,14 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 | Dancer2::Plugin::Feed | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Feed) |
 
 
+## Templates engines
+
+| Name | Links |
+|------|-------|
+| Dancer2::Template::Xslate | [CPAN](https://metacpan.org/module/Dancer2::Template::Xslate) [GitHub](https://github.com/rsimoes/Dancer2-Template-Xslate) |
+| Dancer2::Template::MojoTemplate | [CPAN](https://metacpan.org/module/Dancer2::Template::MojoTemplate) [GitHub](https://github.com/VeroLom/Dancer2-Template-MojoTemplate) |
+| Dancer2::Template::Caribou | [CPAN](https://metacpan.org/module/Dancer2::Template::Caribou) [GitHub](https://github.com/yanick/Dancer2-Template-Caribou) |
+
 
 ## License
 
