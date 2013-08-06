@@ -1,5 +1,4 @@
 # ABSTRACT: Role for Server classes
-
 package Dancer2::Core::Role::Server;
 use Moo::Role;
 
@@ -13,15 +12,7 @@ use Dancer2::Core::Response;
 use Dancer2::Core::Request;
 use Dancer2::Core::Context;
 
-=head1 DESCRIPTION
-
-This role defines what servers need to implement and provide some helpful
-attributes and methods for server implementations.
-
-This role requires implementations that consume it to provide a C<name>
-subroutine.
-
-=cut
+requires '_build_name';
 
 has name => (
     is      => 'ro',
@@ -29,27 +20,11 @@ has name => (
     builder => 1,
 );
 
-=attr host
-
-Hostname to which the server will bind.
-
-B<Required>.
-
-=cut
-
 has host => (
     is       => 'rw',
     isa      => Str,
     required => 1,
 );
-
-=attr port
-
-Port number to which the server will bind.
-
-B<Required>.
-
-=cut
 
 has port => (
     is       => 'rw',
@@ -57,44 +32,16 @@ has port => (
     required => 1,
 );
 
-=attr is_daemon
-
-Boolean for whether the server should daemonize.
-
-=cut
-
 has is_daemon => (
     is  => 'rw',
     isa => Bool,
 );
-
-=attr apps
-
-An arrayref to hold Dancer2 applications.
-
-=cut
 
 has apps => (
     is      => 'ro',
     isa     => ArrayRef,
     default => sub { [] },
 );
-
-has runner => (
-    is       => 'ro',
-    required => 1,
-    isa      => InstanceOf ['Dancer2::Core::Runner'],
-    weak_ref => 1,
-);
-
-=attr dispatcher
-
-A read/write attribute which holds the L<Dancer2::Core::Dispatcher> object, to 
-dispatch an incoming request to the appropriate route.
-
-It has a lazy builder that creates a new dispatcher with the server's apps.
-
-=cut
 
 has dispatcher => (
     is      => 'rw',
@@ -103,7 +50,11 @@ has dispatcher => (
     builder => '_build_dispatcher',
 );
 
-requires '_build_name';
+has postponed_hooks => (
+    is      => 'rw',
+    isa     => HashRef,
+    default => sub { {} },
+);
 
 sub _build_dispatcher {
     my ($self) = @_;
@@ -111,18 +62,6 @@ sub _build_dispatcher {
     $d->apps( $self->apps );
     return $d;
 }
-
-=method psgi_app
-
-Returns a code reference of a proper PSGI reply to a dispatched request.
-
-It dispatches the request using the dispatcher (and provides the environment
-variables) and then calls C<to_psgi> and returns that reply wrapped in a code
-reference.
-
-Please review L<PSGI> for more details on the protocol and how it works.
-
-=cut
 
 # our PSGI application
 sub psgi_app {
@@ -144,21 +83,80 @@ sub psgi_app {
     };
 }
 
-=method register_application
-
-Adds another application to the C<apps> attribute (see above).
-
-=cut
-
 sub register_application {
     my ( $self, $app ) = @_;
     push @{ $self->apps }, $app;
     $app->server($self);
-    $app->server->runner->postponed_hooks(
-        {   %{ $app->server->runner->postponed_hooks },
-            %{ $app->postponed_hooks }
-        }
-    );
+
+    # add postponed hooks to our app-global copy
+    $self->add_postponed_hooks( $app->postponed_hooks );
+}
+
+sub add_postponed_hooks {
+    my $self  = shift;
+    my $hooks = shift;
+
+    $self->postponed_hooks( {
+        %{ $self->postponed_hooks },
+        %{ $hooks },
+    } );
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+This role defines what servers need to implement and provide some helpful
+attributes and methods for server implementations.
+
+This role requires implementations that consume it to provide a C<name>
+subroutine.
+
+=attr host
+
+Hostname to which the server will bind.
+
+B<Required>.
+
+=attr port
+
+Port number to which the server will bind.
+
+B<Required>.
+
+=attr is_daemon
+
+Boolean for whether the server should daemonize.
+
+=attr apps
+
+An arrayref to hold Dancer2 applications.
+
+=attr dispatcher
+
+A read/write attribute which holds the L<Dancer2::Core::Dispatcher> object, to 
+dispatch an incoming request to the appropriate route.
+
+It has a lazy builder that creates a new dispatcher with the server's apps.
+
+=attr postponed_hooks
+
+Postponed hooks will be applied at the end, when the hookable objects are
+instantiated, not before.
+
+=method psgi_app
+
+Returns a code reference of a proper PSGI reply to a dispatched request.
+
+It dispatches the request using the dispatcher (and provides the environment
+variables) and then calls C<to_psgi> and returns that reply wrapped in a code
+reference.
+
+Please review L<PSGI> for more details on the protocol and how it works.
+
+=method register_application
+
+Adds another application to the C<apps> attribute (see above).
+
