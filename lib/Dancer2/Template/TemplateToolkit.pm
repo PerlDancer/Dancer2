@@ -11,20 +11,6 @@ use Template;
 
 with 'Dancer2::Core::Role::Template';
 
-=head1 SYNOPSIS
-
-To use this engine, you may configure L<Dancer2> via C<config.yaml>:
-
-    template:   "template_toolkit"
-
-Or you may also change the rendering engine on a per-route basis by
-setting it manually with C<set>:
-
-    # code code code
-    set template => 'template_toolkit';
-
-=cut
-
 has '+engine' => ( isa => InstanceOf ['Template'], );
 
 sub _build_engine {
@@ -49,15 +35,6 @@ sub _build_engine {
     return Template->new(%tt_config);
 }
 
-=method render TEMPLATE, TOKENS
-
-Renders the template.  The first arg is a filename for the template file
-or a reference to a string that contains the template.  The second arg
-is a hashref for the tokens that you wish to pass to
-L<Template::Toolkit> for rendering.
-
-=cut
-
 sub render {
     my ( $self, $template, $tokens ) = @_;
 
@@ -75,3 +52,30 @@ sub render {
 }
 
 1;
+
+=head1 SYNOPSIS
+
+To use this engine, you may configure L<Dancer2> via C<config.yaml>:
+
+    template:   "template_toolkit"
+
+Or you may also change the rendering engine on a per-route basis by
+setting it manually with C<set>:
+
+    # code code code
+    set template => 'template_toolkit';
+
+=head1 DESCRIPTION
+
+This template engine allows you to use L<Template::Toolkit> in L<Dancer2>.
+
+=method render($template, \%tokens)
+
+Renders the template.  The first arg is a filename for the template file
+or a reference to a string that contains the template.  The second arg
+is a hashref for the tokens that you wish to pass to
+L<Template::Toolkit> for rendering.
+
+=head1 SEE ALSO
+
+L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Toolkit>.

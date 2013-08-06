@@ -10,37 +10,6 @@ use Dancer2::FileUtils 'read_file_content';
 
 with 'Dancer2::Core::Role::Template';
 
-=head1 DESCRIPTION
-
-This template engine is provided as a default one for the Dancer2 micro
-framework.
-
-This template engine should be fine for development purposes but is not a
-powerful one, it's written in pure Perl and has no C bindings to accelerate the
-template processing.
-
-If you want to power an application with Dancer2 in production environment, it's
-strongly advised to switch to Dancer2::Template::TemplateToolkit.
-
-=head1 SYNTAX
-
-A template written for Dancer2::Template::Simple should be working just fine with
-Dancer2::Template::TemplateToolkit. The opposite is not true though.
-
-=over 4
-
-=item B<variables>
-
-To interpolate a variable in the template, use the following syntax:
-
-    <% var1 %>
-
-If 'var1' exists in the tokens hash given, its value will be written there.
-
-=back
-
-=cut
-
 has start_tag => (
     is      => 'rw',
     default => sub {'<%'},
@@ -177,8 +146,51 @@ sub _interpolate_value {
 
 1;
 
+__END__
+
+=head1 SYNOPSIS
+
+To use this engine, you may configure L<Dancer2> via C<config.yaml>:
+
+    template: simple
+
+=head1 DESCRIPTION
+
+This template engine is provided as a default one for the Dancer2 micro
+framework.
+
+This template engine should be fine for development purposes but is not a
+powerful one, it's written in pure Perl and has no C bindings to accelerate the
+template processing.
+
+If you want to power an application with Dancer2 in production environment, it's
+strongly advised to switch to L<Dancer2::Template::TemplateToolkit>.
+
+=head1 SYNTAX
+
+A template written for C<Dancer2::Template::Simple> should be working just fine
+with L<Dancer2::Template::TemplateToolkit>. The opposite is not true though.
+
+=over 4
+
+=item B<variables>
+
+To interpolate a variable in the template, use the following syntax:
+
+    <% var1 %>
+
+If B<var1> exists in the tokens hash given, its value will be written there.
+
+=back
+
+=method render($template, \%tokens)
+
+Renders the template.  The first arg is a filename for the template file
+or a reference to a string that contains the template.  The second arg
+is a hashref for the tokens that you wish to pass to
+L<Template::Toolkit> for rendering.
+
 =head1 SEE ALSO
 
-L<Dancer2>, L<Dancer2::Template>
-
-=cut
+L<Dancer2>, L<Dancer2::Core::Role::Template>,
+L<Dancer2::Template::TemplateToolkit>.

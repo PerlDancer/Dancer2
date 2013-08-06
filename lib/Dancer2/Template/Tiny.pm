@@ -12,6 +12,36 @@ use Dancer2::FileUtils 'read_file_content';
 
 with 'Dancer2::Core::Role::Template';
 
+has '+engine' =>
+  ( isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny'], );
+
+sub _build_engine {
+    Dancer2::Template::Implementation::ForkedTiny->new( %{ $_[0]->config } );
+}
+
+sub render {
+    my ( $self, $template, $tokens ) = @_;
+
+    ( ref $template || -f $template )
+      or die "$template is not a regular file or reference";
+
+    my $template_data =
+      ref $template
+      ? ${$template}
+      : read_file_content($template);
+
+    my $content;
+
+    $self->engine->process( \$template_data, $tokens, \$content, )
+      or die "Could not process template file '$template'";
+
+    return $content;
+}
+
+1;
+
+__END__
+
 =head1 SYNOPSIS
 
 This template engine allows you to use L<Template::Tiny> in L<Dancer2>.
@@ -49,43 +79,16 @@ Of course, you can also set this B<while> working using C<set>:
 
 Since L<Dancer2> has internal support for a wrapper-like option with the
 C<layout> configuration option, you can have a L<Template::Toolkit>-like WRAPPER
-even though L<Template::Tiny> doesn't really support it. :)
+even though L<Template::Tiny> doesn't really support it.
 
-=cut
+=method render($template, \%tokens)
 
-has '+engine' =>
-  ( isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny'], );
+Renders the template.  The first arg is a filename for the template file
+or a reference to a string that contains the template.  The second arg
+is a hashref for the tokens that you wish to pass to
+L<Template::Toolkit> for rendering.
 
-sub _build_engine {
-    Dancer2::Template::Implementation::ForkedTiny->new( %{ $_[0]->config } );
-}
+=head1 SEE ALSO
 
-=method render
-
-Renders the template. Accepts a string to a file or a reference to a string of
-the template.
-
-=cut
-
-sub render {
-    my ( $self, $template, $tokens ) = @_;
-
-    ( ref $template || -f $template )
-      or die "$template is not a regular file or reference";
-
-    my $template_data =
-      ref $template
-      ? ${$template}
-      : read_file_content($template);
-
-    my $content;
-
-    $self->engine->process( \$template_data, $tokens, \$content, )
-      or die "Could not process template file '$template'";
-
-    return $content;
-}
-
-1;
-
-
+L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Tiny>,
+L<Dancer2::Template::Implementation::ForkedTiny>.
