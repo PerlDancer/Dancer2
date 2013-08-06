@@ -35,26 +35,27 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 * [The Advent Calendar](http://advent.perldancer.org/)
 * [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/devel/GitGuide.md)
 
-## List Of Available Plugins
+## Available Plugins
 
-| Name          | Type        | Link  |
-| ------------- |-------------| ------|
-| Dancer2::Session::Cookie | Session | [CPAN](https://metacpan.org/module/Dancer2::Session::Cookie) |
-| Dancer2::Plugin::Syntax::GetPost | Syntactic sugar | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Syntax::GetPost) |
-| Dancer2::Plugin::BrowserDetect | | [CPAN](https://metacpan.org/module/Dancer2::Plugin::BrowserDetect) |
-| Dancer2::Plugin::RoutePodCoverage | Test | [CPAN](https://metacpan.org/module/Dancer2::Plugin::RoutePodCoverage) |
-| Dancer2::Plugin::Auth::Tiny | Auth | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Auth::Tiny) |
-| Dancer2::Plugin::Queue::MongoDB | Queue | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Queue::MongoDB) |
-| Dancer2::Plugin::Paginator | Pagination | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Paginator) |
-| Dancer2::Plugin::Deferred | Flash Message | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Deferred) |
-| Dancer2::Plugin::Adapter | Class Wrapper | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Adapter) |
-| Dancer2::Plugin::DBIC | Database | [CPAN](https://metacpan.org/module/Dancer2::Plugin::DBIC) |
-| Dancer2::Plugin::REST | API | [CPAN](https://metacpan.org/module/Dancer2::Plugin::REST) |
-| Dancer2::Plugin::Emailesque | Email | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Emailesque) |
-| Dancer2::Plugin::Cache::CHI | Cache | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Cache::CHI) |
-| Dancer2::Plugin::Queue | Queue | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Queue) |
-| Dancer2::Plugin::Database | Database | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Database) |
-| Dancer2::Plugin::Feed | Feed | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Feed) |
+| Name         | Links |
+|------------- |------|
+| Dancer2::Session::Cookie | [CPAN](https://metacpan.org/module/Dancer2::Session::Cookie) [GitHub](https://github.com/dagolden/dancer2-session-cookie) |
+| Dancer2::Plugin::Syntax::GetPost | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Syntax::GetPost) [GitHub](https://github.com/dagolden/dancer2-plugin-syntax-getpost) |
+| Dancer2::Plugin::BrowserDetect | [CPAN](https://metacpan.org/module/Dancer2::Plugin::BrowserDetect) |
+| Dancer2::Plugin::RoutePodCoverage | [CPAN](https://metacpan.org/module/Dancer2::Plugin::RoutePodCoverage)[GitHub](https://github.com/drebolo/Dancer2-Plugin-RoutePodCoverage) |
+| Dancer2::Plugin::Auth::Tiny | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Auth::Tiny) [GitHub](https://metacpan.org/module/Dancer2::Plugin::Auth::Tiny) |
+| Dancer2::Plugin::Queue::MongoDB | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Queue::MongoDB) [GitHub](https://github.com/dagolden/dancer2-plugin-queue-mongodb) |
+| Dancer2::Plugin::Paginator | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Paginator) [GitHub](https://github.com/blabos/Dancer2-Plugin-Paginator) |
+| Dancer2::Plugin::Deferred | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Deferred) [GitHub](https://github.com/dagolden/dancer2-plugin-deferred) |
+| Dancer2::Plugin::Adapter | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Adapter) [GitHub](https://github.com/dagolden/dancer2-plugin-adapter) |
+| Dancer2::Plugin::DBIC | [CPAN](https://metacpan.org/module/Dancer2::Plugin::DBIC) [GitHub](https://github.com/ironcamel/Dancer2-Plugin-DBIC) |
+| Dancer2::Plugin::REST | [CPAN](https://metacpan.org/module/Dancer2::Plugin::REST) |
+| Dancer2::Plugin::Emailesque | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Emailesque) |
+| Dancer2::Plugin::Cache::CHI | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Cache::CHI) [GitHub](https://github.com/yanick/Dancer2-Plugin-Cache-CHI) |
+| Dancer2::Plugin::Queue | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Queue) [GitHub](https://github.com/dagolden/dancer2-plugin-queue) |
+| Dancer2::Plugin::Database | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Database) |
+| Dancer2::Plugin::Feed | [CPAN](https://metacpan.org/module/Dancer2::Plugin::Feed) |
+
 
 
 ## License
