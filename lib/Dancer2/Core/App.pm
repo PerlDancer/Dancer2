@@ -66,8 +66,7 @@ has context => (
         my ( $self, $ctx ) = @_;
         $self->_init_for_context($ctx),;
         for my $type (@{$self->supported_engines}) {
-            my $engine = $self->engines->{$type}
-              or next;
+            my $engine = $self->engine($type) or next;
             defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
         }
     },
@@ -264,10 +263,10 @@ sub settings {
 sub engine {
     my ( $self, $name ) = @_;
 
-    my $e = $self->engines->{$name}
-        || croak "No '$name' engine defined";
+    croak "Engine '$name' is not supported."
+        if !grep {$_ eq $name} @{$self->supported_engines};
 
-    return $e;
+    return $self->engines->{$name};
 }
 
 sub session {
@@ -300,7 +299,7 @@ sub session {
 
 sub template {
     my ($self) = shift;
-    my $template = $self->engines->{'template'};
+    my $template = $self->engine('template');
 
     my $content = $template->process(@_);
 
@@ -312,8 +311,8 @@ sub hook_candidates {
 
     my @engines;
     for my $e (@{$self->supported_engines}) {
-        my $engine = eval { $self->engine($e) };
-        push @engines, $engine if defined $engine;
+        my $engine = $self->engine($e) or next;
+        push @engines, $engine;
     }
 
     my @route_handlers;
