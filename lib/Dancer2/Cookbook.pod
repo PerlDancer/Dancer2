@@ -1051,18 +1051,19 @@ You do not need to provide different files for either server.
 =head3 Path-based middlewares
 
 If you want to setup a middleware for a specific path, you can do that using
-L<Plack::App::URLMap>:
+L<Plack::Builder> which uses L<Plack::App::URLMap>:
 
     # in your app.psgi or any other handler
     use Dancer2;
     use MyWebApp;
-    use Plack::App::URLMap;
+    use Plack::Builder;
 
     my $special_handler = sub { ... };
 
-    my $urlmap = Plack::App::URLMap->new;
-    $urlmap->map( '/'        => dance            );
-    $urlmap->map( '/special' => $special_handler );
+    builder {
+        mount '/'        => dance,
+        mount '/special' => $special_handler,
+    };
 
 =head3 Running on Perl webservers with plackup
 
@@ -1101,30 +1102,17 @@ It's a middleware to encode the response body in gzip or deflate, based on
 Accept-Encoding HTTP request header.
 
 Enable it as you would enable any Plack middleware. First you need to install
-L<Plack::Middleware::Deflater>, then in the configuration file (usually
-F<environments/development.yml>), add these lines:
+L<Plack::Middleware::Deflater>, then in the handler (usually F<app.psgi>) edit
+it to use L<Plack::Builder>, as described above:
 
-  plack_middlewares:
-    -
-      - Plack::Middleware::Deflater
-      - ...
+    use Dancer2;
+    use MyWebApp;
+    use Plack::Builder;
 
-These lines tell Dancer2 to add L<Plack::Middleware::Deflater> to the list of
-middlewares to pass to L<Plack::Builder>, when wrapping the Dancer2 app. The
-syntax is :
-
-=over
-
-=item *
-
-as key: the name of the Plack middleware to use
-
-=item *
-
-as value: the options to pass it as a list. In our case, there is no option to
-specify to L<Plack::Middleware::Deflater>, so we use an empty YAML list.
-
-=back
+    builder {
+        enable 'Deflator';
+        dance;
+    };
 
 To test if content compression works, trace the HTTP request and response
 before and after enabling this middleware. Among other things, you should
@@ -1133,48 +1121,40 @@ C<Content-Encoding> set to C<gzip> or C<deflate>
 
 =head3 Running multiple apps with Plack::Builder
 
-You can use Plack::Builder to mount multiple Dancer2 applications on
+You can use L<Plack::Builder> to mount multiple Dancer2 applications on
 a L<PSGI> webserver like L<Starman>.
 
 Start by creating a simple app.psgi file:
 
-    use Dancer2 ':syntax';
+    use Dancer2;
+    use OurWiki;  # first app
+    use OurForum; # second app
     use Plack::Builder;
 
-    setting apphandler => 'PSGI';
-
-    my $app1 = sub {
-        my $env = shift;
-        local $ENV{DANCER_APPDIR} = '/Users/franck/tmp/app1';
-        load_app "app1";
-        Dancer2::App->set_running_app('app1');
-        setting appdir => '/Users/franck/tmp/app1';
-        Dancer2::Config->load;
-        my $request = Dancer2::Request->new( env => $env );
-        Dancer2->dance($request);
-    };
-
-    my $app2 = sub {
-        my $env = shift;
-        local $ENV{DANCER_APPDIR} = '/Users/franck/tmp/app2';
-        load_app "app2";
-        Dancer2::App->set_running_app('app2');
-        setting appdir => '/Users/franck/tmp/app2';
-        Dancer2::Config->load;
-        my $request = Dancer2::Request->new( env => $env );
-        Dancer2->dance($request);
-    };
-
     builder {
-        mount "/app1" => builder {$app1};
-        mount "/app2" => builder {$app2};
+        mount '/wiki'  => OurWiki->dance,
+        mount '/forum' => OurForum->dance,
     };
 
 and now use L<Starman>
 
     plackup -a app.psgi -s Starman
 
+Currently this still demands the same appdir for both (default circumstance)
+but in a future version this will be easier to change while staying very
+simple to mount.
 
+You might to set the prefix in the Apps:
+
+    # in OurWiki.pm:
+    ...
+    prefix '/wiki;
+    ...
+
+    # in OurForum.pm:
+    ...
+    prefix '/forum';
+    ...
 
 =head3 Running from Apache with Plack
 
@@ -1209,7 +1189,6 @@ To set the environment you want to use for your application (production or devel
         SetEnv DANCER_ENVIRONMENT "production"
         ...
     </VirtualHost>
-
 
 =head2 Creating a service
 
