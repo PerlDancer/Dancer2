@@ -1051,18 +1051,19 @@ You do not need to provide different files for either server.
 =head3 Path-based middlewares
 
 If you want to setup a middleware for a specific path, you can do that using
-L<Plack::App::URLMap>:
+L<Plack::Builder> which uses L<Plack::App::URLMap>:
 
     # in your app.psgi or any other handler
     use Dancer2;
     use MyWebApp;
-    use Plack::App::URLMap;
+    use Plack::Builder;
 
     my $special_handler = sub { ... };
 
-    my $urlmap = Plack::App::URLMap->new;
-    $urlmap->map( '/'        => dance            );
-    $urlmap->map( '/special' => $special_handler );
+    builder {
+        mount '/'        => dance,
+        mount '/special' => $special_handler,
+    };
 
 =head3 Running on Perl webservers with plackup
 
