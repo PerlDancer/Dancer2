@@ -74,7 +74,7 @@ sub format_message {
     $message = Encode::encode( $self->auto_encoding_charset, $message )
       if $self->auto_encoding_charset;
 
-    my @stack = caller(2);
+    my @stack = caller(6);
 
     my $block_handler = sub {
         my ( $block, $type ) = @_;

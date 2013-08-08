@@ -10,6 +10,9 @@ my $l =
 
 for my $level (qw{core debug warning error}) {
     my $stderr = capture_stderr { $l->$level("$level") };
-    like $stderr, qr{$level in t/logger_console.t}, "$level message sent";
+
+    # Again, we are dealing directly with the logger, not through the
+    # DSL, so the caller(6) stack has a different size
+    like $stderr, qr{$level in -}, "$level message sent";
 }
 done_testing;

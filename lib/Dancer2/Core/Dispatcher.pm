@@ -67,7 +67,7 @@ sub dispatch {
             if ($context->request->has_serializer) {
                 $context->request->deserialize;
                 if ($context->request->serializer->has_error) {
-                    $app->log("core" => "Failed to deserialize the request : "
+                    $app->log( core => "Failed to deserialize the request : "
                                   .$context->request->serializer->error);
                 }
             }
