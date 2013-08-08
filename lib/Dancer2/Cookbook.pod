@@ -1121,48 +1121,40 @@ C<Content-Encoding> set to C<gzip> or C<deflate>
 
 =head3 Running multiple apps with Plack::Builder
 
-You can use Plack::Builder to mount multiple Dancer2 applications on
+You can use L<Plack::Builder> to mount multiple Dancer2 applications on
 a L<PSGI> webserver like L<Starman>.
 
 Start by creating a simple app.psgi file:
 
-    use Dancer2 ':syntax';
+    use Dancer2;
+    use OurWiki;  # first app
+    use OurForum; # second app
     use Plack::Builder;
 
-    setting apphandler => 'PSGI';
-
-    my $app1 = sub {
-        my $env = shift;
-        local $ENV{DANCER_APPDIR} = '/Users/franck/tmp/app1';
-        load_app "app1";
-        Dancer2::App->set_running_app('app1');
-        setting appdir => '/Users/franck/tmp/app1';
-        Dancer2::Config->load;
-        my $request = Dancer2::Request->new( env => $env );
-        Dancer2->dance($request);
-    };
-
-    my $app2 = sub {
-        my $env = shift;
-        local $ENV{DANCER_APPDIR} = '/Users/franck/tmp/app2';
-        load_app "app2";
-        Dancer2::App->set_running_app('app2');
-        setting appdir => '/Users/franck/tmp/app2';
-        Dancer2::Config->load;
-        my $request = Dancer2::Request->new( env => $env );
-        Dancer2->dance($request);
-    };
-
     builder {
-        mount "/app1" => builder {$app1};
-        mount "/app2" => builder {$app2};
+        mount '/wiki'  => OurWiki->dance,
+        mount '/forum' => OurForum->dance,
     };
 
 and now use L<Starman>
 
     plackup -a app.psgi -s Starman
 
+Currently this still demands the same appdir for both (default circumstance)
+but in a future version this will be easier to change while staying very
+simple to mount.
 
+You might to set the prefix in the Apps:
+
+    # in OurWiki.pm:
+    ...
+    prefix '/wiki;
+    ...
+
+    # in OurForum.pm:
+    ...
+    prefix '/forum';
+    ...
 
 =head3 Running from Apache with Plack
 
@@ -1197,7 +1189,6 @@ To set the environment you want to use for your application (production or devel
         SetEnv DANCER_ENVIRONMENT "production"
         ...
     </VirtualHost>
-
 
 =head2 Creating a service
 
