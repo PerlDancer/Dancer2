@@ -31,7 +31,7 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 * [Builds status on Travis](https://travis-ci.org/PerlDancer/Dancer2)
 * [Our Mailing List](http://list.perldancer.org/cgi-bin/listinfo/dancer-users)
 * [Follow us on Twitter](https://twitter.com/perldancer)
-* [Find us on irc.per.org #dancer](irc://irc.perl.org/#dancer)
+* [Find us on irc.perl.org #dancer](irc://irc.perl.org/#dancer)
 * [The Advent Calendar](http://advent.perldancer.org/)
 * [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/devel/GitGuide.md)
 
