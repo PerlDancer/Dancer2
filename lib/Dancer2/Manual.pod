@@ -12,9 +12,9 @@ Dancer2 is a free and open source web application framework written in Perl.
 It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more robust
 and extensible fully-OO design.
 
-It's designed to be powerful and flexible, but very easy to use - getting up and
+It's designed to be powerful and flexible, but also easy to use - getting up and
 running with your web app is trivial, and an ecosystem of adaptors for common
-template engines, session storage and logging methods and plugins to make
+template engines, session storage, logging methods and plugins to make
 common tasks easy mean you can do what you want to do, your way, easily.
 
 =head1 INSTALL
@@ -136,11 +136,11 @@ Or even, a route handler that would match any HTTP methods:
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the `params' keyword, which returns a hashref.
+through the C<params> keyword, which returns a hashref.
 This hashref is a merge of the route pattern matches and the request params.
 
 You can have more details about how params are built and how to access them in
-the L<Dancer2::Request> documentation.
+the L<Dancer2::Core::Request> documentation.
 
 =head3 Named Matching
 
@@ -156,14 +156,14 @@ be set in the params hashref.
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        "Hello there " . param('name') || "whoever you are!";
+        defined param('name') ? "Hello there ".param('name') : "whoever you are!";
     };
 
 
 =head3 Wildcards Matching
 
-A route can contain a wildcard (represented by a '*'). Each wildcard match will
-be returned in an arrayref, accessible via the `splat' keyword.
+A route can contain a wildcard (represented by a C<*>). Each wildcard match will
+be returned in an arrayref, accessible via the C<splat> keyword.
 
     get '/download/*.*' => sub {
         my ($file, $ext) = splat;
@@ -1497,7 +1497,7 @@ You may also need to clear a session:
     # destroy session
     get '/logout' => sub {
         ...
-        session->destroy;
+        context->destroy_session;
         ...
     };
 
