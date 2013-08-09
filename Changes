@@ -18,6 +18,7 @@
     [ DOCUMENTATION ]
     * GH#192: Documentation the current usage of middlewares using
               Plack::Builder (Sawyer X)
+    * GH#195, GH#197, GH#372: Multiple apps with Plack::Builder (Sawyer X)
     * GH#348: Documentation of Role::Logger (Franck Cuny)
     * GH#350: Move part of README.md to GitGuide.md (Franck Cuny)
     * GH#353: Documentation of Role::Serializer (Alberto Simões, Franck Cuny)
