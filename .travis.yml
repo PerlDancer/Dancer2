@@ -20,8 +20,11 @@ notifications:
 install:
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
     - cpanm --no-skip-satisfied Class::Method::Modifiers YAML::XS
+# for Pod::Weaver::Section::Consumes & ::Extends
+    - mv weaver.ini _weaver.ini
     - dzil authordeps --missing | cpanm  --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
     - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
+    - mv _weaver.ini weaver.ini
 
 script:
     - dzil test --author --release
