@@ -55,11 +55,19 @@ has request => (
 
 sub _build_request {
     my ($self) = @_;
-    my $req = Dancer2::Core::Request->new( env => $self->env );
-    if ($self->has_app) {
-        my $engine = $self->app->engine('serializer');
-        $req->serializer($engine) if $engine;
-    }
+
+    # If we have an app, get the serialization engine
+    my $engine = $self->app->engine('serializer')
+        if $self->has_app;
+
+    my $req = Dancer2::Core::Request->new( env => $self->env,
+        $engine ? ( serializer => $engine ) : (),        
+    );
+
+    # Log deserialization errors
+    $self->app->log( core => "Failed to deserialize the request : "
+        . $engine->error ) if ( $engine && $engine->has_error );
+
     return $req;
 }
 
