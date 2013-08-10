@@ -803,7 +803,8 @@ Or even, a route handler that would match any HTTP methods:
 
 =head2 cookies
 
-Accesses cookies values, it returns a HashRef of L<Dancer2::Cookie> objects:
+Accesses cookies values, it returns a HashRef of L<Dancer2::Core::Cookie>
+objects:
 
     get '/some_action' => sub {
         my $cookie = cookies->{name};
