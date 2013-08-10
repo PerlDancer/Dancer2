@@ -334,13 +334,14 @@ And finally, we need a way to clear our user's session with the customary
 logout procedure.
 
   get '/logout' => sub {
-     session->destroy;
+     context->destroy_session;
      set_flash('You are logged out.');
      redirect '/';
   };
 
-C<session-E<gt>destroy;> is Dancer2's way to remove a stored session.  We notify
-the user she is logged out and route her back to the root URL once again.
+C<context-E<gt>destroy_session;> is Dancer2's way to remove a stored session.
+We notify the user she is logged out and route her back to the root URL
+once again.
 
 =head1 Layout and static files
 
@@ -546,7 +547,7 @@ Here's the complete dancr.pl script from start to finish.
  };
 
  get '/logout' => sub {
-	session->destroy;
+	context->destroy_session;
 	set_flash('You are logged out.');
 	redirect '/';
  };
