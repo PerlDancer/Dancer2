@@ -124,6 +124,7 @@ sub run_test {
     is( $req->uri_base, 'http://localhost:5000/foo/',
         'keeping trailing slash if not only',
     );
+    is $req->dispatch_path, '/bar/baz';
 
     $env->{'PATH_INFO'}   = '/';
     $env->{'SCRIPT_NAME'} = '';

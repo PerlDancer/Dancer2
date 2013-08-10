@@ -126,7 +126,7 @@ sub match {
     }
 
     my %params;
-    my @values = $request->path =~ $self->regexp;
+    my @values = $request->dispatch_path =~ $self->regexp;
 
     # the regex comments are how we know if we captured
     # a splat or a megasplat
