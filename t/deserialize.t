@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 5;
 
 {
 
@@ -52,15 +52,16 @@ my $r    = dancer_response(
 my $content = Encode::decode( 'UTF-8', $r->content );
 is( $content, "utf8 : $utf8", 'utf-8 string returns the same' );
 
-my $req = Dancer2::Core::Request->new(
-    method       => 'PUT',
-    path         => '/from_params',
-    content_type => 'application/json',
-    body         => "---",
-    serializer   => Dancer2::Serializer::JSON->new(),
-);
+note 'Check serialization errors'; {
+    my $serializer = Dancer2::Serializer::JSON->new();
+    my $req = Dancer2::Core::Request->new(
+        method       => 'PUT',
+        path         => '/from_params',
+        content_type => 'application/json',
+        body         => "---",
+        serializer   => $serializer,
+    );
 
-ok !$req->serializer->has_error;
-$req->deserialize();
-ok $req->serializer->has_error;
-like $req->serializer->error, qr/malformed number/;
+    ok $req->serializer->has_error, "Invalid JSON threw error in serializer";
+    like $req->serializer->error, qr/malformed number/, ".. of a 'malformed number'";
+}
