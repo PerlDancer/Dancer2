@@ -98,7 +98,7 @@ Import gets called when you use Dancer2. You can specify import options giving
 you control over the keywords that will be imported into your webapp and other 
 things:
 
-    use Dancer2 ':syntax';
+    use Dancer2 ':script';
 
 =head3 Import Options
 
@@ -108,11 +108,6 @@ things:
 
 No importing of C<pass> function. This is to prevent conflict with
 L<Test::More> et al.
-
-=item C<:syntax>
-
-Imports syntax only instead of treating your code as a script with command line
-parameter parsing and built-in web server.
 
 =item C<:script>
 
@@ -130,14 +125,10 @@ sub import {
     utf8->import;
 
     my @final_args;
-    my $syntax_only = 0;
-    my $as_script   = 0;
+    my $as_script = 0;
     foreach (@args) {
         if ( $_ eq ':tests' ) {
             push @final_args, '!pass' => 1;
-        }
-        elsif ( $_ eq ':syntax' ) {
-            $syntax_only = 1;
         }
         elsif ( $_ eq ':script' ) {
             $as_script = 1;
@@ -195,9 +186,6 @@ sub import {
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
 
-    #
-    #    # if :syntax option exists, don't change settings
-    #    return if $syntax_only;
     #
     #    $as_script = 1 if $ENV{PLACK_ENV};
     #

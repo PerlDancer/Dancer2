@@ -8,6 +8,7 @@
     * GH#362: Serializers documentation and test cleanup. (Franck Cuny)
     * Refactoring of the engine method. (Franck Cuny)
     * Misc. code cleanup. (Russel Jenkins)
+    * GH#280: Remove the unused ':syntax' importing tag (Sawyer X)
 
     [ BUG FIXES ]
     * GH#85, GH#354: Fix autopages, especially in subdirs
