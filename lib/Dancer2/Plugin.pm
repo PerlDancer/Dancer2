@@ -33,8 +33,8 @@ when the symbol is called.
 
 The coderef receives as its first argument the Dancer2::Core::DSL object.
 
-Instead of importing C<use Dancer ':syntax'>, plugins B<must> use the DSL
-object to access application components and work with them directly.
+Plugins B<must> use the DSL object to access application components and work
+with them directly.
 
     sub {
         my $dsl = shift;

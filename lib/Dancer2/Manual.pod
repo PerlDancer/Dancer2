@@ -257,25 +257,6 @@ routes files:
 
     load 'login_routes.pl', 'session_routes.pl', 'misc_routes.pl';
 
-=head2 Importing just the syntax
-
-If you want to use more complex file hierarchies, you can import just the
-syntax of Dancer2.
-
-    package App;
-
-    use Dancer2;            # App may contain generic routes
-    use App::User::Routes; # user-related routes
-
-Then in App/User/Routes.pm:
-
-    use Dancer2 ':syntax';
-
-    get '/user/view/:id' => sub {
-        ...
-    };
-
-
 =head2 Default Error Pages
 
 When an error is rendered (the action responded with a status code different
@@ -1085,9 +1066,6 @@ directory:
     load_app 'Webapp';
     # or with options
     load_app 'Forum', prefix => '/forum', settings => {foo => 'bar'};
-
-Note that the package loaded using load_app B<must> import Dancer with the
-C<:syntax> option.
 
 To load multiple apps repeat load_app:
 

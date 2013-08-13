@@ -526,7 +526,7 @@ Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %>
 
 "dispatch.cgi" =>
 "$PERL_INTERPRETER
-use Dancer2 ':syntax';
+use Dancer2;
 use FindBin '\$RealBin';
 use Plack::Runner;
 
@@ -545,7 +545,7 @@ Plack::Runner->run(\$psgi);
 
 "dispatch.fcgi" =>
 qq{$PERL_INTERPRETER
-use Dancer2 ':syntax';
+use Dancer2;
 use FindBin '\$RealBin';
 use Plack::Handler::FCGI;
 
@@ -574,7 +574,7 @@ dance;
 "$LIB_FILE" =>
 
 "package $appname;
-use Dancer2 ':syntax';
+use Dancer2;
 
 our \$VERSION = '0.1';
 
