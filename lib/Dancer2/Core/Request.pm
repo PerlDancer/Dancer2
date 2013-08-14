@@ -319,12 +319,6 @@ has uploads => (
     isa => HashRef,
 );
 
-# Really needed? as we have is_ajax() ...
-has ajax => (
-    is  => 'rw',
-    isa => Bool,
-);
-
 has body_is_parsed => (
     is      => 'rw',
     isa     => Bool,
@@ -367,26 +361,6 @@ It uses the environment hash table given to build the request object:
 
 It also accepts the C<body_is_parsed> boolean flag, if the new request object should
 not parse request body.
-
-
-#still exists?
-=method init()
-
-Used internally to define some default values and parse parameters.
-
-#doesn't exist anymore?
-=method new_for_request($method, $path, $params, $body, $headers)
-
-An alternate constructor convienient for test scripts which creates a request
-object with the given arguments.
-
-#still exists?
-=method Vars
-
-Alias to the C<params> accessor, for backward-compatibility with C<CGI> interface.
-
-=cut
-
 
 =method address()
 
@@ -581,8 +555,6 @@ sub BUILD {
     $self->data;      # Deserialize body
     $self->_params(); # Decode query and body prams
     $self->_build_uploads();
-
-    $self->{ajax} = $self->is_ajax;
 }
 
 =method to_string()
