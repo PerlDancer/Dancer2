@@ -251,6 +251,57 @@ has id => (
     isa => Num,
 );
 
+# Private 'read-only' attributes for request params. See the params()
+# method for the public interface.
+#
+# _body_params, _query_params and _route_params have setter methods that
+# decode byte string to characters before setting; If you know you have
+# decoded (character) params, such as output from a deserializer, set
+# these directly.
+
+has _params => (
+    is        => 'lazy',
+    isa       => HashRef,
+    builder   => '_build_params',
+    predicate => '_has_params',
+);
+
+has _body_params => (
+    is      => 'ro',
+    isa     => Maybe( HashRef ),
+    default => sub {undef},
+);
+
+sub _set_body_params {
+    my ( $self, $params ) = @_;
+    $self->{_body_params} = _decode( $params );
+    $self->_build_params();
+}
+
+has _query_params => (
+    is      => 'ro',
+    isa     => Maybe( HashRef ),
+    default => sub {undef},
+);
+
+sub _set_query_params {
+    my ( $self, $params ) = @_;
+    $self->{_query_params} = _decode( $params );
+    $self->_build_params();
+}
+
+has _route_params => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub {{}},
+);
+
+sub _set_route_params {
+    my ( $self, $params ) = @_;
+    $self->{_route_params} = _decode( $params );
+    $self->_build_params();
+}
+
 =method uploads()
 
 Returns a reference to a hash containing uploads. Values can be either a
@@ -449,10 +500,13 @@ sub deserialize {
       unless grep { $self->method eq $_ } qw/ PUT POST PATCH /;
 
     # try to deserialize
+    my $body = $self->_read_to_end();
     my $data = $self->serializer->deserialize($self->body);
     return if !defined $data;
 
-    $self->_set_body_params($data);
+    # Set directly as serializers' return characters
+    $self->{_body_params} = $data;
+    $self->_build_params();
 
     return $data;
 }
@@ -517,9 +571,6 @@ sub BUILD {
 
     $self->{_chunk_size}    = 4096;
     $self->{_read_position} = 0;
-    $self->{_body_params}   = undef;
-    $self->{_query_params}  = undef;
-    $self->{_route_params}  = {};
 
     $self->_init_request_headers();
 
@@ -527,8 +578,8 @@ sub BUILD {
       HTTP::Body->new( $self->content_type, $self->content_length );
     $self->{_http_body}->cleanup(1);
 
-    $self->data; # Deserialize
-    $self->_build_params();
+    $self->data;      # Deserialize body
+    $self->_params(); # Decode query and body prams
     $self->_build_uploads();
 
     $self->{ajax} = $self->is_ajax;
@@ -563,13 +614,13 @@ sub make_forward_to {
         $new_request->method( $options->{method} );
     }
 
-    $new_request->{params} = $new_params;
-    $new_request->_set_body_params( $self->{_body_params} );
-    $new_request->_set_query_params( $self->{_query_params} );
-    $new_request->_set_route_params( $self->{_route_params} );
-    $new_request->{_params_are_decoded} = 1;
-    $new_request->{body}                = $self->body;
-    $new_request->{headers}             = $self->headers;
+    # Copy params (these are already decoded)
+    $new_request->{_params}       = $new_params;
+    $new_request->{_body_params}  = $self->{_body_params};
+    $new_request->{_query_params} = $self->{_query_params};
+    $new_request->{_route_params} = $self->{_route_params};
+    $new_request->{body}          = $self->body;
+    $new_request->{headers}       = $self->headers;
 
     return $new_request;
 }
@@ -767,30 +818,21 @@ If another value is given for C<$source>, then an exception is triggered.
 
 sub params {
     my ( $self, $source ) = @_;
-    my @caller = caller;
 
-    if ( not $self->{_params_are_decoded} ) {
-        $self->{params}              = _decode( $self->{params} );
-        $self->{_body_params}        = _decode( $self->{_body_params} );
-        $self->{_query_params}       = _decode( $self->{_query_params} );
-        $self->{_route_params}       = _decode( $self->{_route_params} );
-        $self->{_params_are_decoded} = 1;
-    }
-
-    return %{ $self->{params} } if wantarray && @_ == 1;
-    return $self->{params} if @_ == 1;
+    return %{ $self->_params } if wantarray && @_ == 1;
+    return $self->_params if @_ == 1;
 
     if ( $source eq 'query' ) {
-        return %{ $self->{_query_params} } if wantarray;
-        return $self->{_query_params};
+        return %{ $self->_query_params || {} } if wantarray;
+        return $self->_query_params;
     }
     elsif ( $source eq 'body' ) {
-        return %{ $self->{_body_params} } if wantarray;
-        return $self->{_body_params};
+        return %{ $self->_body_params || {} } if wantarray;
+        return $self->_body_params;
     }
     if ( $source eq 'route' ) {
-        return %{ $self->{_route_params} } if wantarray;
-        return $self->{_route_params};
+        return %{ $self->_route_params } if wantarray;
+        return $self->_route_params;
     }
     else {
         croak "Unknown source params \"$source\".";
@@ -871,31 +913,12 @@ sub upload {
     return ( ref($res) eq 'ARRAY' ) ? @$res : $res;
 }
 
-# TODO : move these into attributes
-sub _set_route_params {
-    my ( $self, $params ) = @_;
-    $self->{_route_params} = $params;
-    $self->_build_params();
-}
-
-sub _set_body_params {
-    my ( $self, $params ) = @_;
-    $self->{_body_params} = $params;
-    $self->_build_params();
-}
-
-sub _set_query_params {
-    my ( $self, $params ) = @_;
-    $self->{_query_params} = $params;
-    $self->_build_params();
-}
-
 sub _build_params {
     my ($self) = @_;
 
     # params may have been populated by before filters
     # _before_ we get there, so we have to save it first
-    my $previous = $self->{params} || {};
+    my $previous = $self->_has_params ? $self->_params : {};
 
     # now parse environement params...
     $self->_parse_get_params();
@@ -907,9 +930,9 @@ sub _build_params {
     }
 
     # and merge everything
-    $self->{params} = {
-        %$previous,                  %{ $self->{_query_params} },
-        %{ $self->{_route_params} }, %{ $self->{_body_params} },
+    $self->{_params} = {
+        %$previous,                %{ $self->_query_params || {} },
+        %{ $self->_route_params }, %{ $self->_body_params  || {} },
     };
 
 }
@@ -925,24 +948,26 @@ sub _url_decode {
 
 sub _parse_post_params {
     my ($self) = @_;
-    return $self->{_body_params} if defined $self->{_body_params};
+    return $self->_body_params if defined $self->_body_params;
 
     my $body = $self->_read_to_end();
-    $self->{_body_params} = $self->{_http_body}->param;
+    $self->_set_body_params( $self->{_http_body}->param );
 }
 
 sub _parse_get_params {
     my ($self) = @_;
-    return $self->{_query_params} if defined $self->{_query_params};
+    return $self->_query_params if defined $self->{_query_params};
 
-    $self->{_query_params} = {};
+    my $query_params = {};
 
     my $source = $self->env->{QUERY_STRING};
     return if !defined $source || $source eq '';
 
     if ($XS_PARSE_QUERY_STRING) {
-        return $self->{_query_params} =
-          CGI::Deurl::XS::parse_query_string($source) || {};
+        $self->_set_query_params(
+            CGI::Deurl::XS::parse_query_string($source) || {}
+        );
+        return $self->_query_params;
     }
 
     foreach my $token ( split /[&;]/, $source ) {
@@ -953,22 +978,23 @@ sub _parse_get_params {
         $val = $self->_url_decode($val);
 
         # looking for multi-value params
-        if ( exists $self->{_query_params}{$key} ) {
-            my $prev_val = $self->{_query_params}{$key};
+        if ( exists $query_params->{$key} ) {
+            my $prev_val = $query_params->{$key};
             if ( ref($prev_val) && ref($prev_val) eq 'ARRAY' ) {
-                push @{ $self->{_query_params}{$key} }, $val;
+                push @{ $query_params->{$key} }, $val;
             }
             else {
-                $self->{_query_params}{$key} = [ $prev_val, $val ];
+                $query_params->{$key} = [ $prev_val, $val ];
             }
         }
 
         # simple value param (first time we see it)
         else {
-            $self->{_query_params}{$key} = $val;
+            $query_params->{$key} = $val;
         }
     }
-    return $self->{_query_params};
+    $self->_set_query_params( $query_params );
+    return $self->_query_params;
 }
 
 sub _read_to_end {

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 
 {
 
@@ -19,6 +19,11 @@ use Test::More tests => 5;
     put '/from_data' => sub {
         my $p = request->data;
         return join " : ", map { $_ => $p->{$_} } sort keys %$p;
+    };
+
+    post '/from/:town' => sub {
+        my $p = params;
+        return $p;
     };
 }
 
@@ -51,6 +56,23 @@ my $r    = dancer_response(
 
 my $content = Encode::decode( 'UTF-8', $r->content );
 is( $content, "utf8 : $utf8", 'utf-8 string returns the same' );
+
+note "Decoding of mixed route and deserialized body params"; {
+    # Check integers from request body remain integers
+    # but route params get decoded.
+    my $r = dancer_response( Dancer2::Core::Request->new(
+        method       => 'POST',
+        path         => "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
+        content_type => 'application/json',
+        body         => JSON::to_json({ population => 592393 }),
+        serializer   => Dancer2::Serializer::JSON->new(),
+    ));
+
+    my $content = Encode::decode( 'UTF-8', $r->content );
+    # Watch out for hash order randomization..
+    like( $content, qr/[{,]"population":592393/, "Integer from JSON body remains integer" );
+    like( $content, qr/[{,]"town":"Düsseldorf"/, "Route params are decoded" );
+}
 
 note 'Check serialization errors'; {
     my $serializer = Dancer2::Serializer::JSON->new();
