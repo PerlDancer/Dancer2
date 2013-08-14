@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 
 {
 
@@ -31,6 +31,7 @@ use utf8;
 use JSON;
 use Encode;
 use Dancer2::Test apps => ['MyApp'];
+use Dancer2::ModuleLoader;
 
 is dancer_response(
     Dancer2::Core::Request->new(
@@ -43,19 +44,30 @@ is dancer_response(
   )->content => 'bar : 2 : foo : 1', "using $_"
   for qw/ params data /;
 
-my $utf8 = '∮ E⋅da = Q,  n → ∞, ∑ f(i) = ∏ g(i)';
-my $r    = dancer_response(
-    Dancer2::Core::Request->new(
-        method       => 'PUT',
-        path         => '/from_params',
-        content_type => 'application/json',
-        body         => JSON::to_json( { utf8 => $utf8 }, { utf8 => 1 } ),
-        serializer   => Dancer2::Serializer::JSON->new(),
-    )
-);
+note "Verify Serializers decode into characters"; {
+    my $utf8 = '∮ E⋅da = Q,  n → ∞, ∑ f(i) = ∏ g(i)';
 
-my $content = Encode::decode( 'UTF-8', $r->content );
-is( $content, "utf8 : $utf8", 'utf-8 string returns the same' );
+    for my $type ( qw/Dumper JSON YAML/ ) {
+        my $class = "Dancer2::Serializer::$type";
+        Dancer2::ModuleLoader->load( $class );
+
+        my $serializer = $class->new();
+        my $body = $serializer->serialize({utf8 => $utf8});
+
+        my $r    = dancer_response(
+            Dancer2::Core::Request->new(
+                method       => 'PUT',
+                path         => '/from_params',
+                content_type => $serializer->content_type,
+                body         => $body,
+                serializer   => $serializer,
+            )
+        );
+
+        my $content = Encode::decode( 'UTF-8', $r->content );
+        is( $content, "utf8 : $utf8", "utf-8 string returns the same using the $type serializer" );        
+    }
+}
 
 note "Decoding of mixed route and deserialized body params"; {
     # Check integers from request body remain integers
