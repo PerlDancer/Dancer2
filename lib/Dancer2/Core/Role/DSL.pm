@@ -11,7 +11,7 @@ has app => ( is => 'ro', required => 1 );
 
 has keywords => (
     is      => 'rw',
-    isa     => ArrayRef,
+    isa     => HashRef,
     lazy    => 1,
     builder => '_build_dsl_keywords',
 );
@@ -22,23 +22,20 @@ sub _build_dsl_keywords {
     my ($self) = @_;
     $self->can('dsl_keywords')
       ? $self->dsl_keywords
-      : [];
+      : {};
 }
 
 sub register {
     my ( $self, $keyword, $is_global ) = @_;
+    my $keywords = $self->keywords;
 
-    grep {$_->[0] =~ /^$keyword$/} @{ $self->keywords }
-      and croak "Keyword '$keyword' is not available.";
+    exists $keywords->{$keyword}
+      and croak "Keyword '$keyword' already exists.";
 
-    push @{ $self->keywords }, [ $keyword, $is_global ];
+    $keywords->{$keyword} = $is_global;
 }
 
 sub dsl { $_[0] }
-
-sub dsl_keywords_as_list {
-    map { $_->[0] } @{ shift->dsl_keywords() };
-}
 
 # exports new symbol to caller
 sub export_symbols_to {
@@ -85,14 +82,13 @@ sub _compile_keyword {
 
 sub _construct_export_map {
     my ( $self, $args ) = @_;
+    my $keywords = $self->keywords;
     my %map;
-    foreach my $keyword ( @{ $self->keywords } ) {
-        my ( $keyword, $is_global ) = @{$keyword};
-
+    foreach my $keyword ( keys %$keywords ) {
         # check if the keyword were excluded from importation
         $args->{ '!' . $keyword }
           and next;
-        $map{$keyword} = $self->_compile_keyword( $keyword, $is_global );
+        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword} );
     }
     return \%map;
 }
