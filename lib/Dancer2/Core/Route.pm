@@ -202,8 +202,8 @@ sub BUILDARGS {
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
-            ref($regexp) eq 'Regexp' ? qr{\Q${prefix}\E${regexp}} :
-            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$}      :
+            ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
+            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$} :
             $prefix . $regexp;
     }
 
