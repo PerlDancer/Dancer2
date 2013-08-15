@@ -97,9 +97,6 @@ has _should_capture => (
 has _match_data => (
     is      => 'rw',
     isa     => HashRef,
-    trigger => sub {
-        my ( $self, $value ) = @_;
-    },
 );
 
 has _params => (
