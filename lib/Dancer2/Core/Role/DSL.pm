@@ -28,7 +28,7 @@ sub _build_dsl_keywords {
 sub register {
     my ( $self, $keyword, $is_global ) = @_;
 
-    grep {/^$keyword$/} @{ $self->keywords }
+    grep {$_->[0] =~ /^$keyword$/} @{ $self->keywords }
       and croak "Keyword '$keyword' is not available.";
 
     push @{ $self->keywords }, [ $keyword, $is_global ];
