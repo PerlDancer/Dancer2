@@ -12,12 +12,12 @@ around dsl_keywords => sub {
     my $orig     = shift;
     my $keywords = $orig->(@_);
 
-    push @$keywords, [ gateau => 0 ],    # cookie
-      [ moteur => 1 ],                   # engine
-      [ stop   => 0 ],                   # halt
-      [ prend  => 1 ],                   # post
-      [ envoie => 1 ],                   # post
-      [ entete => 0 ];                   #header
+    $keywords->{gateau} = 0; # cookie
+    $keywords->{moteur} = 1; # engine
+    $keywords->{stop}   = 0; # halt
+    $keywords->{prend}  = 1; # post
+    $keywords->{envoie} = 1; # post
+    $keywords->{entete} = 0; #header
 
     return $keywords;
 };
