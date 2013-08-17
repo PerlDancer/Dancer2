@@ -28,11 +28,16 @@ sub _build_dsl_keywords {
 sub register {
     my ( $self, $keyword, $is_global ) = @_;
     my $keywords = $self->keywords;
+    my $pkg = ref($self);
 
-    exists $keywords->{$keyword}
-      and croak "Keyword '$keyword' already exists.";
+    if ( exists $keywords->{$keyword} ) {
+        my $reg_pkg = $keywords->{$keyword}{'pkg'};
+        $reg_pkg eq $pkg and return;
 
-    $keywords->{$keyword} = $is_global;
+        croak "[$pkg] Keyword $keyword already registered by $reg_pkg";
+    }
+
+    $keywords->{$keyword} = { is_global => $is_global, pkg => $pkg };
 }
 
 sub dsl { $_[0] }
@@ -86,9 +91,8 @@ sub _construct_export_map {
     my %map;
     foreach my $keyword ( keys %$keywords ) {
         # check if the keyword were excluded from importation
-        $args->{ '!' . $keyword }
-          and next;
-        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword} );
+        $args->{ '!' . $keyword } and next;
+        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword}{is_global} );
     }
     return \%map;
 }
