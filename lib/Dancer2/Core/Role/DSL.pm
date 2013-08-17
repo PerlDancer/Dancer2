@@ -30,7 +30,10 @@ sub register {
     my $keywords = $self->keywords;
     my $pkg = ref($self);
 
-    if ( exists $keywords->{$keyword} ) {
+    # for now this check is disabled because the bug fix is breaking
+    # the plugin_syntax test and we think this exposes a greater issue
+    # that can not be resolved by just fixing the test
+    if ( 0 && exists $keywords->{$keyword} ) {
         my $reg_pkg = $keywords->{$keyword}{'pkg'};
         $reg_pkg eq $pkg and return;
 
