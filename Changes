@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.08      2013-08-18 15:22:45 Asia/Jerusalem
+
     [ ENHANCEMENTS ]
     * GH#352: Define content_type as a property for serializers. (Franck Cuny)
     * Cleanup duplicate HTTP status code between Core::Error and Core::HTTP
