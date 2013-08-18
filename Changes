@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    GH#386: honor log level defined in config file (Alberto Simões)
+
 0.08      2013-08-18 15:22:45 Asia/Jerusalem
 
     [ ENHANCEMENTS ]
