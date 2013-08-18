@@ -920,21 +920,19 @@ reached. If it was a B<GET>, it will remain a B<GET> (but if you do need to
 change the method, you can do so; read on below for details.)
 
 
-B<WARNING> : Issuing a forward immediately exits the current route,
-and perform the forward. Thus, any code after a forward is ignored, until the
-end of the route. e.g.
+B<WARNING> : Issuing a forward will B<NOT> exits the current
+route. Unlike with Dancer 1, in Dancer 2 you need to explicitly return
+from the route. This keeps up with the behavior of C<redirect>.
 
     get '/foo/:article_id' => sub {
         if ($condition) {
             forward "/articles/" . params->{article_id};
-            # The following code is never executed
+            # The following code WILL BE executed
             do_stuff();
         }
 
         more_stuff();
     };
-
-So it's not necessary anymore to use C<return> with forward.
 
 Note that forward doesn't parse GET arguments. So, you can't use
 something like:
