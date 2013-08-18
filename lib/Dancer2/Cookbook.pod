@@ -273,7 +273,7 @@ components to different packages. Let's say we have a simple web app with an
 admin section, and want to maintain this in a different package:
 
     package myapp;
-    use Dancer2 ':syntax';
+    use Dancer2;
     use myapp::admin;
 
     prefix undef;
@@ -283,7 +283,7 @@ admin section, and want to maintain this in a different package:
     1;
 
     package myapp::admin;
-    use Dancer2 ':syntax';
+    use Dancer2;
 
     prefix '/admin';
 
@@ -380,7 +380,7 @@ for you.
 
 When you're done with your session, you can destroy it:
 
-    session->destroy
+    context->destroy_session
 
 =head2 Sessions and logging in
 
@@ -684,7 +684,7 @@ Use Dancer2 instead. Without any ado, magic or too big jumps, you can use the
 values from config.yml and some additional default values:
 
 	# bin/script1.pl
-	use Dancer2 ':syntax';
+	use Dancer2;
 	print "template:".config->{template}."\n"; #simple
 	print "log:".config->{log}."\n"; #undef
 
@@ -699,7 +699,7 @@ deducts where the config.yml file is (typically $webapp/config.yml).
 	# bin/script2.pl
 	use FindBin;
 	use Cwd qw/realpath/;
-	use Dancer2 ':syntax';
+	use Dancer2;
 
 	#tell the Dancer2 where the app lives
 	my $appdir=realpath( "$FindBin::Bin/..");
@@ -724,7 +724,7 @@ e.g.:
 If you want to load an environment other than the default, try this:
 
 	# bin/script2.pl
-	use Dancer2 ':syntax';
+	use Dancer2;
 
 	#tell the Dancer2 where the app lives
 	Dancer2::Config::setting('appdir','/path/to/app/dir');
@@ -1021,49 +1021,49 @@ Launch your application:
 
 =head2 Plack middlewares
 
-If you deploy with Plack and use some Plack middlewares, you can enable them
-directly from Dancer2's configuration files.
+If you want to use Plack middlewares, you need to enable them using
+L<Plack::Builder> as such:
 
-=head3 Generic middlewares
+    # in app.psgi or any other handler
+    use Dancer2;
+    use MyWebApp;
+    use Plack::Builder;
 
-To enable middlewares in Dancer2, you just have to set the plack_middlewares
-setting like the following:
+    builder {
+        enable 'Deflator';
+        enable 'Session', store => 'File';
+        enable 'Debug', panels => [ qw<DBITrace Memory Timer> ];
+        dance;
+    };
 
-    set plack_middlewares => [
-        [ 'SomeMiddleware' => [ qw(some options for somemiddleware) ]],
-    ];
 
-For instance, if you want to enable L<Plack::Middleware::Debug> in your Dancer2
-application, all you have to do is to set C<plack_middlewares> like that:
+The nice thing about this setup is that it will work seamlessly through Plack
+or through the internal web server.
 
-    set plack_middlewares => [
-        [ 'Debug' => [ 'panels' => [qw(DBITrace Memory Timer)] ] ],
-    ];
+    # load dev web server (without middlewares)
+    perl -Ilib app.psgi
 
-Of course, you can also put this configuration into your config file, or
-even in your environment configuration files:
+    # load plack web server (with middlewares)
+    plackup -I lib app.psgi
 
-    # environments/development.yml
-    ...
-    plack_middlewares:
-      -
-        - Debug          # first element of the array is the name of the middleware
-        -
-            - panels         # following elements are the configuration ofthe middleware
-            -
-              - DBITrace
-              - Memory
-              - Timer
+You do not need to provide different files for either server.
 
 =head3 Path-based middlewares
 
 If you want to setup a middleware for a specific path, you can do that using
-C<plack_middlewares_map>. You'll need L<Plack::App::URLMap> to do that.
+L<Plack::Builder> which uses L<Plack::App::URLMap>:
 
-    plack_middlewares_map:
-        '/':      ['Debug']
-        '/timer': ['Timer'],
+    # in your app.psgi or any other handler
+    use Dancer2;
+    use MyWebApp;
+    use Plack::Builder;
 
+    my $special_handler = sub { ... };
+
+    builder {
+        mount '/'        => dance,
+        mount '/special' => $special_handler,
+    };
 
 =head3 Running on Perl webservers with plackup
 
@@ -1102,30 +1102,17 @@ It's a middleware to encode the response body in gzip or deflate, based on
 Accept-Encoding HTTP request header.
 
 Enable it as you would enable any Plack middleware. First you need to install
-L<Plack::Middleware::Deflater>, then in the configuration file (usually
-F<environments/development.yml>), add these lines:
+L<Plack::Middleware::Deflater>, then in the handler (usually F<app.psgi>) edit
+it to use L<Plack::Builder>, as described above:
 
-  plack_middlewares:
-    -
-      - Plack::Middleware::Deflater
-      - ...
+    use Dancer2;
+    use MyWebApp;
+    use Plack::Builder;
 
-These lines tell Dancer2 to add L<Plack::Middleware::Deflater> to the list of
-middlewares to pass to L<Plack::Builder>, when wrapping the Dancer2 app. The
-syntax is :
-
-=over
-
-=item *
-
-as key: the name of the Plack middleware to use
-
-=item *
-
-as value: the options to pass it as a list. In our case, there is no option to
-specify to L<Plack::Middleware::Deflater>, so we use an empty YAML list.
-
-=back
+    builder {
+        enable 'Deflator';
+        dance;
+    };
 
 To test if content compression works, trace the HTTP request and response
 before and after enabling this middleware. Among other things, you should
@@ -1134,48 +1121,40 @@ C<Content-Encoding> set to C<gzip> or C<deflate>
 
 =head3 Running multiple apps with Plack::Builder
 
-You can use Plack::Builder to mount multiple Dancer2 applications on
+You can use L<Plack::Builder> to mount multiple Dancer2 applications on
 a L<PSGI> webserver like L<Starman>.
 
 Start by creating a simple app.psgi file:
 
-    use Dancer2 ':syntax';
+    use Dancer2;
+    use OurWiki;  # first app
+    use OurForum; # second app
     use Plack::Builder;
 
-    setting apphandler => 'PSGI';
-
-    my $app1 = sub {
-        my $env = shift;
-        local $ENV{DANCER_APPDIR} = '/Users/franck/tmp/app1';
-        load_app "app1";
-        Dancer2::App->set_running_app('app1');
-        setting appdir => '/Users/franck/tmp/app1';
-        Dancer2::Config->load;
-        my $request = Dancer2::Request->new( env => $env );
-        Dancer2->dance($request);
-    };
-
-    my $app2 = sub {
-        my $env = shift;
-        local $ENV{DANCER_APPDIR} = '/Users/franck/tmp/app2';
-        load_app "app2";
-        Dancer2::App->set_running_app('app2');
-        setting appdir => '/Users/franck/tmp/app2';
-        Dancer2::Config->load;
-        my $request = Dancer2::Request->new( env => $env );
-        Dancer2->dance($request);
-    };
-
     builder {
-        mount "/app1" => builder {$app1};
-        mount "/app2" => builder {$app2};
+        mount '/wiki'  => OurWiki->dance,
+        mount '/forum' => OurForum->dance,
     };
 
 and now use L<Starman>
 
     plackup -a app.psgi -s Starman
 
+Currently this still demands the same appdir for both (default circumstance)
+but in a future version this will be easier to change while staying very
+simple to mount.
 
+You might to set the prefix in the Apps:
+
+    # in OurWiki.pm:
+    ...
+    prefix '/wiki;
+    ...
+
+    # in OurForum.pm:
+    ...
+    prefix '/forum';
+    ...
 
 =head3 Running from Apache with Plack
 
@@ -1210,7 +1189,6 @@ To set the environment you want to use for your application (production or devel
         SetEnv DANCER_ENVIRONMENT "production"
         ...
     </VirtualHost>
-
 
 =head2 Creating a service
 

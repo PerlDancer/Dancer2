@@ -3,6 +3,40 @@
 0.07      2013-08-04 01:14:59 Asia/Jerusalem
 
     [ ENHANCEMENTS ]
+    * GH#352: Define content_type as a property for serializers. (Franck Cuny)
+    * Cleanup duplicate HTTP status code between Core::Error and Core::HTTP
+      (Russel Jenkins)
+    * GH#363: Move core methods to Dancer2::Core (Alberto Simões)
+    * GH#362: Serializers documentation and test cleanup. (Franck Cuny)
+    * Refactoring of the engine method. (Franck Cuny)
+    * Misc. code cleanup. (Russel Jenkins)
+    * GH#280: Remove the unused ':syntax' importing tag (Sawyer X)
+    * Display startup info only if environment is "development" (Franck Cuny)
+    * Move postponed_hooks to server from runner (Sawyer X)
+    * Provide easier access to global runner (Sawyer X)
+    * Bunch of code cleanups which also includes speed boost (Sawyer X)
+    * More immutability in the runner class and config role (Sawyer X)
+
+    [ BUG FIXES ]
+    * GH#85, GH#354: Fix autopages, especially in subdirs
+      (Stefan Hornburg, Alberto Simões)
+    * GH#365: Fix serializer settings (Steven Humphrey)
+    * GH#333: callerstack for logger was too short (Alberto Simões)
+    * GH#369: Move request deserialization from Dispatcher to Content & Request
+      (Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH#192: Documentation the current usage of middlewares using
+              Plack::Builder (Sawyer X)
+    * GH#195, GH#197, GH#372: Multiple apps with Plack::Builder (Sawyer X)
+    * GH#348: Documentation of Role::Logger (Franck Cuny)
+    * GH#350: Move part of README.md to GitGuide.md (Franck Cuny)
+    * GH#353: Documentation of Role::Serializer (Alberto Simões, Franck Cuny)
+    * Misc. minor documentation tweak (Alberto Simões, Franck Cuny)
+
+0.07      2013-08-04 01:14:59 Asia/Jerusalem
+
+    [ ENHANCEMENTS ]
     * GH#344, GH#284: Now forward() calls preserve sessions (cym0n, Alberto Simões)
     * Separation of engines from triggers and configuration (Sawyer X, Franck Cuny)
     * GH#347: Remove old compatibility option 'log_path' (Franck Cuny)

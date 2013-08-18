@@ -3,10 +3,11 @@ use warnings;
 use Test::More;
 use Test::Fatal;
 
+use Dancer2::Core;
 use Dancer2::Core::Factory;
 
-is Dancer2::Core::Factory::_camelize('foo_bar_baz'), 'FooBarBaz';
-is Dancer2::Core::Factory::_camelize('FooBarBaz'),   'FooBarBaz';
+is Dancer2::Core::camelize('foo_bar_baz'), 'FooBarBaz';
+is Dancer2::Core::camelize('FooBarBaz'),   'FooBarBaz';
 
 like(
     exception { my $l = Dancer2::Core::Factory->create( unknown => 'stuff' ) },

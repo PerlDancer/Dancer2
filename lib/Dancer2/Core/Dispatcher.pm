@@ -64,14 +64,6 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-            if ($context->request->has_serializer) {
-                $context->request->deserialize;
-                if ($context->request->serializer->has_error) {
-                    $app->log("core" => "Failed to deserialize the request : "
-                                  .$context->request->serializer->error);
-                }
-            }
-
    # if the request has been altered by a before filter, we should not continue
    # with this route handler, we should continue to walk through the
    # rest
@@ -174,7 +166,7 @@ sub response_not_found {
         environment     => Dancer2->runner->environment,
         location        => Dancer2->runner->location,
         runner_config   => Dancer2->runner->config,
-        postponed_hooks => Dancer2->runner->postponed_hooks,
+        postponed_hooks => Dancer2->runner->server->postponed_hooks,
         api_version     => 2,
     );
 

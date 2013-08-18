@@ -1,23 +1,5 @@
 # ABSTRACT: encapsulation of Dancer2 packages
-
 package Dancer2::Core::App;
-
-=head1 DESCRIPTION
-
-Everything a package that uses Dancer2 does is encapsulated into a
-C<Dancer2::Core::App> instance. This class defines all that can be done in such
-objects.
-
-Mainly, it will contain all the route handlers, the configuration settings and
-the hooks that are defined in the calling package.
-
-Note that with Dancer2, everything that is done within a package is scoped to
-that package, thanks to that encapsulation.
-
-=cut
-
-use strict;
-use warnings;
 
 use Moo;
 use File::Spec;
@@ -25,6 +7,7 @@ use Scalar::Util 'blessed';
 use Carp 'croak';
 
 use Dancer2::FileUtils 'path', 'read_file_content';
+use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
@@ -33,20 +16,11 @@ use Dancer2::Core::Hook;
 with 'Dancer2::Core::Role::Hookable';
 with 'Dancer2::Core::Role::Config';
 
-sub supported_hooks {
-    qw/
-      core.app.before_request
-      core.app.after_request
-      core.app.route_exception
-      core.error.before
-      core.error.after
-      core.error.init
-      /;
-}
-
-=attr plugins
-
-=cut
+has postponed_hooks => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub { {} },
+);
 
 has plugins => (
     is      => 'rw',
@@ -54,49 +28,17 @@ has plugins => (
     default => sub { [] },
 );
 
-# FIXME not needed anymore, I suppose...
-sub api_version {2}
-
-=method register_plugin
-
-=cut
-
-sub register_plugin {
-    my ( $self, $plugin ) = @_;
-    Dancer2::core_debug("Registered $plugin");
-    push @{ $self->plugins }, $plugin;
-}
-
-around BUILDARGS => sub {
-    my $orig = shift;
-    my ( $class, %args ) = @_;
-    $args{postponed_hooks} ||= {};
-    return $class->$orig(%args);
-};
-
-=attr server
-
-=cut
-
 has server => (
     is       => 'rw',
     isa      => ConsumerOf ['Dancer2::Core::Role::Server'],
     weak_ref => 1,
 );
 
-=attr runner_config
-
-=cut
-
 has runner_config => (
     is      => 'ro',
     isa     => HashRef,
     default => sub { {} },
 );
-
-=attr default_config
-
-=cut
 
 has default_config => (
     is      => 'ro',
@@ -105,112 +47,55 @@ has default_config => (
     builder => '_build_default_config',
 );
 
-sub _build_default_config {
-    my ($self) = @_;
-
-    return {
-        %{ $self->runner_config },
-        template       => 'Tiny',
-        route_handlers => {
-            File => {
-                public_dir => $ENV{DANCER_PUBLIC}
-                  || path( $self->location, 'public' )
-            },
-            AutoPage => 1,
-        },
-    };
-}
-
-# This method overrides the default one from Role::Config
-
-sub settings {
-    my ($self) = @_;
-    +{ %{ Dancer2->runner->config }, %{ $self->config } };
-}
-
-sub engine {
-    my ( $self, $name ) = @_;
-
-    my $e = $self->engines->{$name}
-        || croak "No '$name' engine defined";
-
-    return $e;
-}
-
-sub session {
-    my ( $self, $key, $value ) = @_;
-
-    # shortcut reads if no session exists, so we don't
-    # instantiate sessions for no reason
-    if ( @_ == 2 ) {
-        return unless $self->context->has_session;
-    }
-
-    my $session = $self->context->session;
-    croak "No session available, a session engine needs to be set"
-      if !defined $session;
-
-    # return the session object if no key
-    return $session if @_ == 1;
-
-    # read if a key is provided
-    return $session->read($key) if @_ == 2;
-
-    # write to the session or delete if value is undef
-    if ( defined $value ) {
-        $session->write( $key => $value );
-    }
-    else {
-        $session->delete($key);
-    }
-}
-
-sub template {
-    my ($self) = shift;
-    my $template = $self->engines->{'template'};
-
-    my $content = $template->process(@_);
-
-    return $content;
-}
-
-sub hook_candidates {
-    my ($self) = @_;
-
-    my @engines;
-    for my $e (@{$self->supported_engines}) {
-        my $engine = eval { $self->engine($e) };
-        push @engines, $engine if defined $engine;
-    }
-
-    my @route_handlers;
-    for my $handler_name ( keys %{ $self->route_handlers } ) {
-        my $handler = $self->route_handlers->{$handler_name};
-        push @route_handlers, $handler
-          if blessed($handler) && $handler->can('supported_hooks');
-    }
-
-    # TODO : get the list of all plugins registered
-    my @plugins = @{ $self->plugins };
-
-    ( @route_handlers, @engines, @plugins );
-}
-
-sub all_hook_aliases {
-    my ($self) = @_;
-
-    my $aliases = $self->hook_aliases;
-    for my $plugin ( @{ $self->plugins } ) {
-        $aliases = { %{$aliases}, %{ $plugin->hook_aliases }, };
-    }
-
-    return $aliases;
-}
-
-has postponed_hooks => (
-    is      => 'ro',
+has route_handlers => (
+    is      => 'rw',
     isa     => HashRef,
     default => sub { {} },
+);
+
+has name => (
+    is  => 'ro',
+    isa => Str,
+);
+
+# holds a context whenever a request is processed
+has context => (
+    is      => 'rw',
+    isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
+    trigger => sub {
+        my ( $self, $ctx ) = @_;
+        $self->_init_for_context($ctx),;
+        for my $type (@{$self->supported_engines}) {
+            my $engine = $self->engine($type) or next;
+            defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
+        }
+    },
+);
+
+has prefix => (
+    is        => 'rw',
+    isa       => Maybe [Dancer2Prefix],
+    predicate => 1,
+    coerce    => sub {
+        my ($prefix) = @_;
+        return undef if defined($prefix) and $prefix eq "/";
+        return $prefix;
+    },
+);
+
+# routes registry, stored by method:
+has routes => (
+    is      => 'rw',
+    isa     => HashRef,
+    default => sub {
+        {   get     => [],
+            head    => [],
+            post    => [],
+            put     => [],
+            del     => [],
+            options => [],
+        };
+    },
 );
 
 # add_hook will add the hook to the first "hook candidate" it finds that support
@@ -278,6 +163,182 @@ around execute_hook => sub {
     return $self->$orig(@_);
 };
 
+sub _build_default_config {
+    my ($self) = @_;
+
+    return {
+        %{ $self->runner_config },
+        template       => 'Tiny',
+        route_handlers => {
+            File => {
+                public_dir => $ENV{DANCER_PUBLIC}
+                  || path( $self->location, 'public' )
+            },
+            AutoPage => 1,
+        },
+    };
+}
+
+sub _init_hooks {
+    my ($self) = @_;
+
+ # Hook to flush the session at the end of the request, this way, we're sure we
+ # flush only once per request
+    $self->add_hook(
+        Dancer2::Core::Hook->new(
+            name => 'core.app.after_request',
+            code => sub {
+                my $response = shift;
+
+                # make sure an engine is defined, if not, nothing to do
+                my $engine = $self->engine('session');
+                return if !defined $engine;
+
+                # make sure we have a context to examine
+                return if !defined $self->context;
+
+                # if a session has been instantiated or we already had a
+                # session, first flush the session so cookie-based sessions can
+                # update the session ID if needed, then set the session cookie
+                # in the response
+
+                if ( $self->context->has_session ) {
+                    my $session = $self->context->session;
+                    $engine->flush( session => $session )
+                      if $session->is_dirty;
+                    $engine->set_cookie_header(
+                        response => $response,
+                        session  => $session
+                    );
+                }
+                elsif ( $self->context->has_destroyed_session ) {
+                    my $session = $self->context->destroyed_session;
+                    $engine->set_cookie_header(
+                        response  => $response,
+                        session   => $session,
+                        destroyed => 1
+                    );
+                }
+            },
+        )
+    );
+}
+
+sub _init_for_context {
+    my ($self) = @_;
+
+    return if !defined $self->context;
+    return if !defined $self->context->request;
+
+    $self->context->request->is_behind_proxy(1)
+      if $self->setting('behind_proxy');
+}
+
+sub supported_hooks {
+    qw/
+      core.app.before_request
+      core.app.after_request
+      core.app.route_exception
+      core.error.before
+      core.error.after
+      core.error.init
+      /;
+}
+
+# FIXME not needed anymore, I suppose...
+sub api_version {2}
+
+sub register_plugin {
+    my ( $self, $plugin ) = @_;
+    Dancer2::Core::debug("Registered $plugin");
+    push @{ $self->plugins }, $plugin;
+}
+
+# This method overrides the default one from Role::Config
+sub settings {
+    my ($self) = @_;
+    +{ %{ Dancer2->runner->config }, %{ $self->config } };
+}
+
+sub engine {
+    my ( $self, $name ) = @_;
+
+    croak "Engine '$name' is not supported."
+        if !grep {$_ eq $name} @{$self->supported_engines};
+
+    return $self->engines->{$name};
+}
+
+sub session {
+    my ( $self, $key, $value ) = @_;
+
+    # shortcut reads if no session exists, so we don't
+    # instantiate sessions for no reason
+    if ( @_ == 2 ) {
+        return unless $self->context->has_session;
+    }
+
+    my $session = $self->context->session;
+    croak "No session available, a session engine needs to be set"
+      if !defined $session;
+
+    # return the session object if no key
+    return $session if @_ == 1;
+
+    # read if a key is provided
+    return $session->read($key) if @_ == 2;
+
+    # write to the session or delete if value is undef
+    if ( defined $value ) {
+        $session->write( $key => $value );
+    }
+    else {
+        $session->delete($key);
+    }
+}
+
+sub template {
+    my ($self) = shift;
+    my $template = $self->engine('template');
+
+    my $content = $template->process(@_);
+
+    return $content;
+}
+
+sub hook_candidates {
+    my ($self) = @_;
+
+    my @engines;
+    for my $e (@{$self->supported_engines}) {
+        my $engine = $self->engine($e) or next;
+        push @engines, $engine;
+    }
+
+    my @route_handlers;
+    for my $handler_name ( keys %{ $self->route_handlers } ) {
+        my $handler = $self->route_handlers->{$handler_name};
+        push @route_handlers, $handler
+          if blessed($handler) && $handler->can('supported_hooks');
+    }
+
+    # TODO : get the list of all plugins registered
+    my @plugins = @{ $self->plugins };
+
+    ( @route_handlers, @engines, @plugins );
+}
+
+sub all_hook_aliases {
+    my ($self) = @_;
+
+    my $aliases = $self->hook_aliases;
+    for my $plugin ( @{ $self->plugins } ) {
+        $aliases = { %{$aliases}, %{ $plugin->hook_aliases }, };
+    }
+
+    return $aliases;
+}
+
 sub mime_type {
     my ($self) = @_;
     my $runner = Dancer2->runner;
@@ -292,13 +353,12 @@ sub mime_type {
 }
 
 sub log {
-    my $self  = shift;
-    my $level = shift;
+    my ($self, $level, @args)  = @_;
 
     my $logger = $self->engine('logger')
       or croak "No logger defined";
 
-    $logger->$level(@_);
+    $logger->$level(@args);
 }
 
 # XXX I think this should live on the context or response - but
@@ -355,62 +415,11 @@ sub BUILD {
     $self->_init_hooks();
 }
 
-sub _init_hooks {
-    my ($self) = @_;
-
- # Hook to flush the session at the end of the request, this way, we're sure we
- # flush only once per request
-    $self->add_hook(
-        Dancer2::Core::Hook->new(
-            name => 'core.app.after_request',
-            code => sub {
-                my $response = shift;
-
-                # make sure an engine is defined, if not, nothing to do
-                my $engine = $self->engine('session');
-                return if !defined $engine;
-
-                # make sure we have a context to examine
-                return if !defined $self->context;
-
-                # if a session has been instantiated or we already had a
-                # session, first flush the session so cookie-based sessions can
-                # update the session ID if needed, then set the session cookie
-                # in the response
-
-                if ( $self->context->has_session ) {
-                    my $session = $self->context->session;
-                    $engine->flush( session => $session )
-                      if $session->is_dirty;
-                    $engine->set_cookie_header(
-                        response => $response,
-                        session  => $session
-                    );
-                }
-                elsif ( $self->context->has_destroyed_session ) {
-                    my $session = $self->context->destroyed_session;
-                    $engine->set_cookie_header(
-                        response  => $response,
-                        session   => $session,
-                        destroyed => 1
-                    );
-                }
-            },
-        )
-    );
-}
-
 sub finish {
     my ($self) = @_;
     $self->register_route_handlers;
     $self->compile_hooks;
 }
-
-has route_handlers => (
-    is      => 'rw',
-    isa     => HashRef,
-    default => sub { {} },
-);
 
 sub init_route_handlers {
     my ($self) = @_;
@@ -461,60 +470,6 @@ sub compile_hooks {
     }
 }
 
-has name => (
-    is  => 'ro',
-    isa => Str,
-);
-
-# holds a context whenever a request is processed
-has context => (
-    is      => 'rw',
-    isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
-    trigger => sub {
-        my ( $self, $ctx ) = @_;
-        $self->_init_for_context($ctx),;
-        for my $type (@{$self->supported_engines}) {
-            my $engine = $self->engines->{$type}
-              or next;
-            defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
-        }
-    },
-);
-
-sub _init_for_context {
-    my ($self) = @_;
-
-    return if !defined $self->context;
-    return if !defined $self->context->request;
-
-    $self->context->request->is_behind_proxy(1)
-      if $self->setting('behind_proxy');
-}
-
-has prefix => (
-    is        => 'rw',
-    isa       => Maybe [Dancer2Prefix],
-    predicate => 1,
-    coerce    => sub {
-        my ($prefix) = @_;
-        return undef if defined($prefix) and $prefix eq "/";
-        return $prefix;
-    },
-);
-
-=head2 lexical_prefix
-
-Allow for setting a lexical prefix
-
-    $app->lexical_prefix('/blog', sub {
-        ...
-    });
-
-All the route defined within the callback will have a prefix appended to the
-current one.
-
-=cut
-
 sub lexical_prefix {
     my ( $self, $prefix, $cb ) = @_;
     undef $prefix if $prefix eq '/';
@@ -540,34 +495,6 @@ sub lexical_prefix {
       if $e;
 }
 
-# routes registry, stored by method:
-has routes => (
-    is      => 'rw',
-    isa     => HashRef,
-    default => sub {
-        {   get     => [],
-            head    => [],
-            post    => [],
-            put     => [],
-            del     => [],
-            options => [],
-        };
-    },
-);
-
-=head2 add_route
-
-Register a new route handler.
-
-    $app->add_route(
-        method  => 'get',
-        regexp  => '/somewhere',
-        code    => sub { ... },
-        options => $conditions,
-    );
-
-=cut
-
 sub add_route {
     my ( $self, %route_attrs ) = @_;
 
@@ -578,17 +505,6 @@ sub add_route {
 
     push @{ $self->routes->{$method} }, $route;
 }
-
-=head2 route_exists
-
-Check if a route already exists.
-
-    my $route = Dancer2::Core::Route->new(...);
-    if ($app->route_exists($route)) {
-        ...
-    }
-
-=cut
 
 sub route_exists {
     my ( $self, $route ) = @_;
@@ -601,6 +517,68 @@ sub route_exists {
     return 0;
 }
 
+sub routes_regexps_for {
+    my ( $self, $method ) = @_;
+    return [ map { $_->regexp } @{ $self->routes->{$method} } ];
+}
+
+1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Everything a package that uses Dancer2 does is encapsulated into a
+C<Dancer2::Core::App> instance. This class defines all that can be done in such
+objects.
+
+Mainly, it will contain all the route handlers, the configuration settings and
+the hooks that are defined in the calling package.
+
+Note that with Dancer2, everything that is done within a package is scoped to
+that package, thanks to that encapsulation.
+
+=attr plugins
+
+=attr server
+
+=attr runner_config
+
+=attr default_config
+
+=method register_plugin
+
+=head2 lexical_prefix
+
+Allow for setting a lexical prefix
+
+    $app->lexical_prefix('/blog', sub {
+        ...
+    });
+
+All the route defined within the callback will have a prefix appended to the
+current one.
+
+=head2 add_route
+
+Register a new route handler.
+
+    $app->add_route(
+        method  => 'get',
+        regexp  => '/somewhere',
+        code    => sub { ... },
+        options => $conditions,
+    );
+
+=head2 route_exists
+
+Check if a route already exists.
+
+    my $route = Dancer2::Core::Route->new(...);
+    if ($app->route_exists($route)) {
+        ...
+    }
+
 =head2 routes_regexps_for
 
 Sugar for getting the ordered list of all registered route regexps by method.
@@ -609,11 +587,3 @@ Sugar for getting the ordered list of all registered route regexps by method.
 
 Returns an ArrayRef with the results.
 
-=cut
-
-sub routes_regexps_for {
-    my ( $self, $method ) = @_;
-    return [ map { $_->regexp } @{ $self->routes->{$method} } ];
-}
-
-1;

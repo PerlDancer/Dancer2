@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More tests => 49;
 
-use Dancer2 ':syntax';
+use Dancer2;
 use Dancer2::Test;
 use Dancer2::Core::Request;
 use File::Temp;

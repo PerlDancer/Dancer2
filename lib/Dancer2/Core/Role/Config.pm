@@ -1,10 +1,10 @@
-package Dancer2::Core::Role::Config;
-
 # ABSTRACT: Config role for Dancer2 core objects
+package Dancer2::Core::Role::Config;
 
 use Moo::Role;
 
 use Dancer2::Core::Factory;
+use Dancer2::Core;
 use File::Spec;
 use Config::Any;
 use Dancer2::Core::Types;
@@ -13,16 +13,9 @@ use Hash::Merge::Simple;
 use Carp 'croak', 'carp';
 
 has location => (
-    is       => 'rw',
-    required => 1,
-    lazy     => 1,
-    default  => sub { File::Spec->rel2abs('.') },
-    coerce   => sub {
-        my ($value) = @_;
-        return File::Spec->rel2abs($value)
-          if !File::Spec->file_name_is_absolute($value);
-        return $value;
-    },
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_location',
 );
 
 has config_location => (
@@ -69,10 +62,6 @@ has environment => (
     builder => '_build_environment',
 );
 
-sub _build_environment {
-    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
-}
-
 has _engines_triggers => (
     is      => 'ro',
     isa     => HashRef,
@@ -94,28 +83,18 @@ has supported_engines => (
     default => sub {[qw/logger serializer session template/]},
 );
 
-sub settings { shift->config }
-
-sub setting {
-    my $self = shift;
-    my @args = @_;
-
-    return ( scalar @args == 1 )
-      ? $self->settings->{ $args[0] }
-      : $self->_set_config_entries(@args);
-}
-
-sub has_setting {
-    my ( $self, $name ) = @_;
-    return exists $self->config->{$name};
-}
-
 has config_files => (
     is      => 'rw',
     lazy    => 1,
     isa     => ArrayRef,
     builder => '_build_config_files',
 );
+
+sub _build_location { File::Spec->rel2abs('.') }
+
+sub _build_environment {
+    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
+}
 
 sub _build_config_files {
     my ($self) = @_;
@@ -141,40 +120,6 @@ sub _build_config_files {
 
     return [ sort @files ];
 }
-
-sub load_config_file {
-    my ( $self, $file ) = @_;
-    my $config;
-
-    eval {
-        my @files = ($file);
-        my $tmpconfig =
-          Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
-        ( $file, $config ) = %{$tmpconfig};
-    };
-    if ( my $err = $@ || ( !$config ) ) {
-        croak "Unable to parse the configuration file: $file: $@";
-    }
-
-    # TODO handle mergeable entries
-    return $config;
-}
-
-sub get_postponed_hooks {
-    my ($self) = @_;
-    return $self->postponed_hooks;
-    # XXX FIXME
-    # return ( ref($self) eq 'Dancer2::Core::App' )
-    #   ? (
-    #     ( defined $self->server )
-    #     ? $self->server->runner->postponed_hooks
-    #     : {}
-    #   )
-    #   : $self->can('postponed_hooks') ? $self->postponed_hooks
-    #   :                                 {};
-}
-
-# private
 
 sub _build_config {
     my ($self) = @_;
@@ -230,6 +175,47 @@ sub _compile_config {
     }
     return $config;
 }
+
+sub settings { shift->config }
+
+sub setting {
+    my $self = shift;
+    my @args = @_;
+
+    return ( scalar @args == 1 )
+      ? $self->settings->{ $args[0] }
+      : $self->_set_config_entries(@args);
+}
+
+sub has_setting {
+    my ( $self, $name ) = @_;
+    return exists $self->config->{$name};
+}
+
+sub load_config_file {
+    my ( $self, $file ) = @_;
+    my $config;
+
+    eval {
+        my @files = ($file);
+        my $tmpconfig =
+          Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
+        ( $file, $config ) = %{$tmpconfig};
+    };
+    if ( my $err = $@ || ( !$config ) ) {
+        croak "Unable to parse the configuration file: $file: $@";
+    }
+
+    # TODO handle mergeable entries
+    return $config;
+}
+
+sub get_postponed_hooks {
+    my ($self) = @_;
+    return $self->postponed_hooks;
+}
+
+# private
 
 my $_normalizers = {
     charset => sub {
@@ -336,7 +322,7 @@ sub _get_config_for_engine {
 
     # XXX we need to move the camilize function out from Core::Factory
     # - Franck, 2013/08/03
-    for my $config_key ($name, Dancer2::Core::Factory::_camelize($name)) {
+    for my $config_key ($name, Dancer2::Core::camelize($name)) {
         $engine_config = $config->{engines}{$engine}{$config_key}
             if defined $config->{engines}->{$engine}{$config_key};
     }

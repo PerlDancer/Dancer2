@@ -8,21 +8,25 @@ with 'Dancer2::Core::Role::Logger';
 
 =head1 SYNOPSIS
 
+The basics:
+
     set logger => "capture";
 
-    my $trap = Dancer2::Logger::Capture->trap;
+    my $trap = dancer_app->engine('logger')->trapper;
     my $logs = $trap->read;
 
-	#a real-world example
-    use Test::More import => ['!pass'], tests => 2;
-    use Dancer2;
+A worked-out real-world example:
+
+    use Test::More tests => 2;
+    use Dancer2 ':tests';
 
     set logger => 'capture';
 
     warning "Danger!  Warning!";
     debug   "I like pie.";
 
-    my $trap = Dancer2::Logger::Capture->trap;
+    my $trap = dancer_app->engine('logger')->trapper;
+
     is_deeply $trap->read, [
         { level => "warning", message => "Danger!  Warning!" },
         { level => "debug",   message => "I like pie.", }
@@ -64,6 +68,6 @@ sub log {
 
 =head1 SEE ALSO
 
-L<Dancer2::Logger>, L<Dancer2::Logger::Capture::Trap>
+L<Dancer2::Core::Role::Logger>, L<Dancer2::Logger::Capture::Trap>
 
 =cut

@@ -181,4 +181,14 @@ my $regexp_route = {
 };
 $app->add_route(%$regexp_route);
 
+# try to get an invalid engine
+eval {$app->engine('foo')};
+ok $!, "Engine 'foo' does not exists";
+
+my $tmpl_engine = $app->engine('template');
+ok $tmpl_engine, "Template engine is defined";
+
+my $serializer_engine = $app->engine('serializer');
+ok !defined $serializer_engine, "Serializer engine is not defined";
+
 done_testing;

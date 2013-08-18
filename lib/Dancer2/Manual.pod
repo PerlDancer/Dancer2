@@ -12,9 +12,9 @@ Dancer2 is a free and open source web application framework written in Perl.
 It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more robust
 and extensible fully-OO design.
 
-It's designed to be powerful and flexible, but very easy to use - getting up and
+It's designed to be powerful and flexible, but also easy to use - getting up and
 running with your web app is trivial, and an ecosystem of adaptors for common
-template engines, session storage and logging methods and plugins to make
+template engines, session storage, logging methods and plugins to make
 common tasks easy mean you can do what you want to do, your way, easily.
 
 =head1 INSTALL
@@ -136,11 +136,11 @@ Or even, a route handler that would match any HTTP methods:
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the `params' keyword, which returns a hashref.
+through the C<params> keyword, which returns a hashref.
 This hashref is a merge of the route pattern matches and the request params.
 
 You can have more details about how params are built and how to access them in
-the L<Dancer2::Request> documentation.
+the L<Dancer2::Core::Request> documentation.
 
 =head3 Named Matching
 
@@ -156,14 +156,14 @@ be set in the params hashref.
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        "Hello there " . param('name') || "whoever you are!";
+        defined param('name') ? "Hello there ".param('name') : "whoever you are!";
     };
 
 
 =head3 Wildcards Matching
 
-A route can contain a wildcard (represented by a '*'). Each wildcard match will
-be returned in an arrayref, accessible via the `splat' keyword.
+A route can contain a wildcard (represented by a C<*>). Each wildcard match will
+be returned in an arrayref, accessible via the C<splat> keyword.
 
     get '/download/*.*' => sub {
         my ($file, $ext) = splat;
@@ -256,25 +256,6 @@ B<load> is just a wrapper for B<require>, but you can also specify a list of
 routes files:
 
     load 'login_routes.pl', 'session_routes.pl', 'misc_routes.pl';
-
-=head2 Importing just the syntax
-
-If you want to use more complex file hierarchies, you can import just the
-syntax of Dancer2.
-
-    package App;
-
-    use Dancer2;            # App may contain generic routes
-    use App::User::Routes; # user-related routes
-
-Then in App/User/Routes.pm:
-
-    use Dancer2 ':syntax';
-
-    get '/user/view/:id' => sub {
-        ...
-    };
-
 
 =head2 Default Error Pages
 
@@ -474,21 +455,21 @@ produced.
 
 =head2 Serializers
 
-C<before_serializer> is called before serializing the content, and eceives as
+C<before_serializer> is called before serializing the content, and receives as
 argument the content to serialize.
 
   hook before_serializer => sub {
-    my @data = @_;
-    $response->content->{start_time} = time();
+    my $content = shift;
+    ...
   };
 
 C<after_serializer> is called after the payload was serialized, and receives
 the serialized content as an argument.
 
-  hook before_deserializer => sub {
+  hook after_serializer => sub {
     my $content = shift;
+    ...
   };
-
 
 
 =head1 CONFIGURATION AND ENVIRONMENTS
@@ -803,7 +784,8 @@ Or even, a route handler that would match any HTTP methods:
 
 =head2 cookies
 
-Accesses cookies values, it returns a HashRef of L<Dancer2::Cookie> objects:
+Accesses cookies values, it returns a HashRef of L<Dancer2::Core::Cookie>
+objects:
 
     get '/some_action' => sub {
         my $cookie = cookies->{name};
@@ -974,7 +956,7 @@ only used to change the method of your request. Use with caution.
 
 Deserializes a Data::Dumper structure.
 
-=head2 from_json ($structure, %options)
+=head2 from_json ($structure, \%options)
 
 Deserializes a JSON structure. Can receive optional arguments. Those arguments
 are valid L<JSON> arguments to change the behaviour of the default
@@ -983,12 +965,6 @@ C<JSON::from_json> function.
 =head2 from_yaml ($structure)
 
 Deserializes a YAML structure.
-
-=head2 from_xml ($structure, %options)
-
-Deserializes a XML structure. Can receive optional arguments. These arguments
-are valid L<XML::Simple> arguments to change the behaviour of the default
-C<XML::Simple::XMLin> function.
 
 =head2 get
 
@@ -1058,14 +1034,12 @@ Do the same as C<header>, but allow for multiple headers with the same name.
 Adds a hook at some position. For example :
 
   hook before_serializer => sub {
-    my $response = shift;
-    $response->content->{generated_at} = localtime();
+    my $content = shift;
+    ...
   };
 
 There can be multiple hooks assigned to a given position, and each will be
 executed in order.
-
-All the hooks are documented in L<Dancer2::Manual::Hooks>.
 
 =head2 info
 
@@ -1092,9 +1066,6 @@ directory:
     load_app 'Webapp';
     # or with options
     load_app 'Forum', prefix => '/forum', settings => {foo => 'bar'};
-
-Note that the package loaded using load_app B<must> import Dancer with the
-C<:syntax> option.
 
 To load multiple apps repeat load_app:
 
@@ -1505,7 +1476,7 @@ You may also need to clear a session:
     # destroy session
     get '/logout' => sub {
         ...
-        session->destroy;
+        context->destroy_session;
         ...
     };
 
@@ -1649,21 +1620,21 @@ L<Dancer2::Core::Role::Template> for further details.
 
 Serializes a structure with Data::Dumper.
 
-=head2 to_json ($structure, %options)
+Calling this function will B<not> trigger the serialization's hooks.
+
+=head2 to_json ($structure, \%options)
 
 Serializes a structure to JSON. Can receive optional arguments. Thoses arguments
 are valid L<JSON> arguments to change the behaviour of the default
 C<JSON::to_json> function.
 
+Calling this function will B<not> trigger the serialization's hooks.
+
 =head2 to_yaml ($structure)
 
 Serializes a structure to YAML.
 
-=head2 to_xml ($structure, %options)
-
-Serializes a structure to XML. Can receive optional arguments. Thoses arguments
-are valid L<XML::Simple> arguments to change the behaviour of the default
-C<XML::Simple::XMLout> function.
+Calling this function will B<not> trigger the serialization's hooks.
 
 =head2 true
 
