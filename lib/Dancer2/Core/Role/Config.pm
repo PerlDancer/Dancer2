@@ -354,12 +354,16 @@ sub _build_engine_logger {
     my $engine_options =
         $self->_get_config_for_engine( logger => $value, $config );
 
-    return Dancer2::Core::Factory->create(
+    my $logger = Dancer2::Core::Factory->create(
         logger => $value,
         %{$engine_options},
         app_name        => $self->name,
         postponed_hooks => $self->get_postponed_hooks
     );
+
+    $logger->log_level($config->{log}) if exists $config->{log};
+
+    return $logger;
 }
 
 sub _build_engine_session {
