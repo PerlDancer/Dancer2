@@ -536,7 +536,7 @@ A setting is key/value pair assigned by the keyword B<set>:
 
 More usefully, settings can be defined in a configuration file.
 Environment-specific settings can also be defined in environment-specific files
-(for instance, you don't want auto_reload in production, and might want extra
+(for instance, you do not want to show error stacktraces in production, and might want extra
 logging in development).  See the cookbook for examples.
 
 =head2 Serializers
