@@ -869,8 +869,7 @@ simply start your Dancer2 app using L<plackup> and L<Plack::Loader::Shotgun>:
 Point your browser at it. Files can now be changed in your favorite editor and
 the browser needs to be refreshed to see the saved changes.
 
-Please note that this not recommended for production for performance reasons. This is the Dancer2
-replacement solution of the old Dancer experimental C<auto_reload> option.
+Please note that this is not recommended for production for performance reasons. This is the Dancer2 replacement solution of the old Dancer experimental C<auto_reload> option.
 
 =head2 CGI and Fast-CGI
 
