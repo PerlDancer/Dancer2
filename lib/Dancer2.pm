@@ -152,8 +152,9 @@ sub import {
     if ( not defined $runner ) {
 
         # TODO should support commandline options as well
-
-        $runner = Dancer2::Core::Runner->new( caller => $script, );
+        my %env;
+        $env{environment} = $ARGV[1] if (@ARGV && $ARGV[0] eq '--environment' && $ARGV[1]); 
+        $runner = Dancer2::Core::Runner->new( caller => $script, %env);
     }
 
     my $local_libdir = Dancer2::FileUtils::path( $runner->location, 'lib' );
