@@ -858,6 +858,20 @@ Point your browser at it, and away you go!
 This option can be useful for small personal web apps or internal apps, but if
 you want to make your app available to the world, it probably won't suit you.
 
+=head2 Auto Reloading with Plack and Shotgun
+
+To edit your files without the need to restart the webserver on each file change,
+simply start your Dancer2 app using L<plackup> and L<Plack::Loader::Shotgun>:
+
+    $ plackup -L Shotgun bin/app.pl
+    HTTP::Server::PSGI: Accepting connections at http://0:5000/
+
+Point your browser at it. Files can now be changed in your favorite editor and
+the browser needs to be refreshed to see the saved changes.
+
+Please note that this not recommended for production for performance reasons. This is the Dancer2
+replacement solution of the old Dancer experimental C<auto_reload> option.
+
 =head2 CGI and Fast-CGI
 
 In providing ultimate flexibility in terms of deployment, your Dancer2 app can
