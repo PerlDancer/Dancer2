@@ -839,13 +839,6 @@ serializer, the message can be a string, an arrayref or a hashref:
 
 The content of the error will be serialized using the appropriate serializer.
 
-=head2 Deploying your Dancer2 applications
-
-For examples on deploying your Dancer2 applications (including standalone, behind
-proxy/load-balancing software, and using common web servers including Apache to
-run via CGI/FastCGI etc, see L<Dancer2::Deployment>.
-
-
 
 =head1 DANCER ON THE STAGE: DEPLOYMENT
 
@@ -1126,7 +1119,6 @@ a L<PSGI> webserver like L<Starman>.
 
 Start by creating a simple app.psgi file:
 
-    use Dancer2;
     use OurWiki;  # first app
     use OurForum; # second app
     use Plack::Builder;
@@ -1143,18 +1135,6 @@ and now use L<Starman>
 Currently this still demands the same appdir for both (default circumstance)
 but in a future version this will be easier to change while staying very
 simple to mount.
-
-You might to set the prefix in the Apps:
-
-    # in OurWiki.pm:
-    ...
-    prefix '/wiki;
-    ...
-
-    # in OurForum.pm:
-    ...
-    prefix '/forum';
-    ...
 
 =head3 Running from Apache with Plack
 
