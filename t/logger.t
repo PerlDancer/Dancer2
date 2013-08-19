@@ -32,10 +32,11 @@ $logger->debug("foo");
 # so do not check for a specific filename.
 like $_logs->[0], qr{debug \@2010-06-1\d \d\d:00:00> foo in };
 
-subtest 'logger capture' => sub {
+subtest 'log level and capture' => sub {
     use Dancer2::Logger::Capture;
     use Dancer2;
 
+    # NOTE: this will read the config.yml under t/ that defines log level as info
     set logger => 'capture';
 
     warning "Danger!  Warning!";
@@ -46,7 +47,6 @@ subtest 'logger capture' => sub {
     is_deeply $trap->read,
       [ { level => "warning", message => "Danger!  Warning!" },
         { level => "info",    message => "Tango, Foxtrot" },
-        { level => "debug",   message => "I like pie.", }
       ];
 
     # each call to read cleans the trap

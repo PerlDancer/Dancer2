@@ -666,6 +666,30 @@ sub uri_base {
     return $canon;
 }
 
+=method dispatch_path()
+
+The part of the C<path> after C<base>. This is the path used
+for dispatching the request to routes.
+
+=cut
+
+sub dispatch_path {
+    my $self = shift;
+
+    my $path = $self->path;
+
+    # Want $self->base->path, without needing the URI object,
+    # and trim any trailing '/'.
+    my $base = '';
+    $base .= $self->script_name if defined $self->script_name;
+    $base =~ s|/+$||;
+
+    # Remove base from fron of path.
+    $path =~ s|^(\Q$base\E)?||;
+    $path =~ s|^/+|/|;
+    return $path;
+}
+
 =method uri_for(path, params)
 
 Constructs a URI from the base and the passed path.  If params (hashref) is

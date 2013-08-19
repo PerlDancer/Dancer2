@@ -839,13 +839,6 @@ serializer, the message can be a string, an arrayref or a hashref:
 
 The content of the error will be serialized using the appropriate serializer.
 
-=head2 Deploying your Dancer2 applications
-
-For examples on deploying your Dancer2 applications (including standalone, behind
-proxy/load-balancing software, and using common web servers including Apache to
-run via CGI/FastCGI etc, see L<Dancer2::Deployment>.
-
-
 
 =head1 DANCER ON THE STAGE: DEPLOYMENT
 
@@ -864,6 +857,19 @@ Point your browser at it, and away you go!
 
 This option can be useful for small personal web apps or internal apps, but if
 you want to make your app available to the world, it probably won't suit you.
+
+=head2 Auto Reloading with Plack and Shotgun
+
+To edit your files without the need to restart the webserver on each file change,
+simply start your Dancer2 app using L<plackup> and L<Plack::Loader::Shotgun>:
+
+    $ plackup -L Shotgun bin/app.pl
+    HTTP::Server::PSGI: Accepting connections at http://0:5000/
+
+Point your browser at it. Files can now be changed in your favorite editor and
+the browser needs to be refreshed to see the saved changes.
+
+Please note that this is not recommended for production for performance reasons. This is the Dancer2 replacement solution of the old Dancer experimental C<auto_reload> option.
 
 =head2 CGI and Fast-CGI
 
@@ -1126,7 +1132,6 @@ a L<PSGI> webserver like L<Starman>.
 
 Start by creating a simple app.psgi file:
 
-    use Dancer2;
     use OurWiki;  # first app
     use OurForum; # second app
     use Plack::Builder;
@@ -1143,18 +1148,6 @@ and now use L<Starman>
 Currently this still demands the same appdir for both (default circumstance)
 but in a future version this will be easier to change while staying very
 simple to mount.
-
-You might to set the prefix in the Apps:
-
-    # in OurWiki.pm:
-    ...
-    prefix '/wiki;
-    ...
-
-    # in OurForum.pm:
-    ...
-    prefix '/forum';
-    ...
 
 =head3 Running from Apache with Plack
 
