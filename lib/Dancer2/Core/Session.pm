@@ -32,7 +32,7 @@ guaranteed-unique string.
 =cut
 
 has id => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => Str,
     required => 1,
 );

@@ -82,8 +82,7 @@ sub register {
       . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
 
     if (grep { $_ eq $keyword }
-        map { s/^(?:\$|%|&|@|\*)//; $_ }
-        ( map { $_->[0] } @{ Dancer2::Core::DSL->dsl_keywords } )
+        keys %{ Dancer2::Core::DSL->dsl_keywords }
       )
     {
         croak "You can't use '$keyword', this is a reserved keyword";
@@ -361,11 +360,11 @@ sub import {
  # their first argument).
  # These modified versions of the DSL are then exported in the namespace of the
  # plugin.
-    for my $symbol ( $dsl->dsl_keywords_as_list ) {
+    for my $symbol ( keys %{ $dsl->keywords } ) {
 
         # get the original symbol from the real DSL
         no strict 'refs';
-        no warnings 'redefine';
+        no warnings qw( redefine once );
         my $code = *{"Dancer2::Core::DSL::$symbol"}{CODE};
 
         # compile it with $caller->dsl

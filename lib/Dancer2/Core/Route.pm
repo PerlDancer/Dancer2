@@ -97,9 +97,6 @@ has _should_capture => (
 has _match_data => (
     is      => 'rw',
     isa     => HashRef,
-    trigger => sub {
-        my ( $self, $value ) = @_;
-    },
 );
 
 has _params => (
@@ -202,8 +199,8 @@ sub BUILDARGS {
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
-            ref($regexp) eq 'Regexp' ? qr{\Q${prefix}\E${regexp}} :
-            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$}      :
+            ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
+            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$} :
             $prefix . $regexp;
     }
 
