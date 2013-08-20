@@ -96,8 +96,9 @@ sub _build_location {
         #try to find .dancer_app file to determine the root of dancer app
         my $dancerdir = Dancer2::FileUtils::path( $subdir, '.dancer' );
 
-        # if one of them is found, keep that
-        if ( ( -d $libdir && -d $bindir ) || ( -f $dancerdir ) ) {
+        # if one of them is found, keep that; but skip ./blib since both lib and bin exist
+        # under it, but views and public do not.
+        if ( ( $subdir !~ m!/blib/?$! && -d $libdir && -d $bindir ) || ( -f $dancerdir ) ) {
             $subdir_found = 1;
             last;
         }
