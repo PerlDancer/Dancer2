@@ -15,15 +15,14 @@ get '/default' => sub {
 
 hook before => sub {
     my $context = shift;
-    return if $context->request->path eq '/default';
+    return if $context->request->dispatch_path eq '/default';
 
-    $context->response( forward('/default') );
-    $context->response->halt;
+    return forward '/default';
 };
 
 response_content_like(
     [ GET => '/' ], qr{Default},
-    'Changing request->path_info worked'
+    'forward in before hook worked'
 );
 
 done_testing();
