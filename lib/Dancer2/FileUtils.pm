@@ -203,8 +203,8 @@ sub normalize_path {
     # by Mitch Frazier
     my $path = shift or return;
     my $seqregex = qr{
-        [^/]*  # anything without a slash
-        /\.\./ # that is accompanied by two dots as such
+        [^/]*       # anything without a slash
+        /\.\.(/|\z) # that is accompanied by two dots as such
     }x;
 
     $path =~ s{/\./}{/}g;
