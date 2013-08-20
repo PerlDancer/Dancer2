@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Test::Fatal;
 use File::Spec;
 BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
@@ -32,7 +32,16 @@ like(
 my $content = Dancer2::FileUtils::read_file_content();
 is $content, undef;
 
-is Dancer2::FileUtils::normalize_path(), undef;
+my $paths = [
+   [ undef          => 'undef' ],
+   [ '/foo/./bar/'  => '/foo/bar/' ],
+   [ '/foo/../bar' => '/bar' ],
+   [ '/foo/bar/..'  => '/foo/' ],
+];
+
+for my $case ( @$paths ) {
+    is Dancer2::FileUtils::normalize_path( $case->[0] ), $case->[1];
+}
 
 my $p = Dancer2::FileUtils::dirname('/somewhere');
 is $p, '/';
