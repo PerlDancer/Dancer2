@@ -593,11 +593,14 @@ sub forward {
     my ( $self, $context, $url, $params, $options ) = @_;
     my $new_request = $self->make_forward_to( $url, $params, $options );
 
-    return Dancer2->runner->server->dispatcher->dispatch(
+    my $new_response = Dancer2->runner->server->dispatcher->dispatch(
         $new_request->env,
         $new_request,
         $context,
     );
+    $new_response->halt;
+    $context->response($new_response);
+    return $new_response;
 }
 
 sub _merge_params {
