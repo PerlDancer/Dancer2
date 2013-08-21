@@ -7,6 +7,7 @@
 
     [ BUG FIXES ]
     * GH#386: honor log level defined in config file (Alberto Simões)
+    * GH#396: Miscellaneous tests bug fixes (Russell Jenkins)
 
 0.08      2013-08-18 15:22:45 Asia/Jerusalem
 
