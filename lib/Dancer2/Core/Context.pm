@@ -176,6 +176,7 @@ sub redirect {
         $destination = $self->request->uri_for( $destination, {}, 1 );
     }
 
+    $self->response->halt;
     $self->response->redirect( $destination, $status );
 }
 
