@@ -3,6 +3,8 @@ package Dancer2::Cookbook;
 
 =pod
 
+=encoding utf8
+
 =head1 DESCRIPTION
 
 A quick-start guide with examples to get you up and running with the Dancer2 web
@@ -179,19 +181,16 @@ A L<before|Dancer2/before> filter declares code which should be handled before
 a request is passed to the appropriate route.
 
     hook before => sub {
-        var note => 'Hi there';
-        request->path('/foo/oversee')
+        forward '/foo/oversee', { note => 'Hi there' };
     };
 
     get '/foo/*' => sub {
         my ($match) = splat; # 'oversee';
-        vars->{note}; # 'Hi there'
+        params->{note};      # 'Hi there'
     };
 
-The above declares a before filter which uses C<var> to set a variable which
-will later be available within the route handler, then amends the path of the
-request to C</foo/oversee>; this means that, whatever path was requested, it
-will be treated as though the path requested was C</foo/oversee>.
+The above declares a before filter which uses C<forward> to do an internal
+redirect to C</foo/oversee> with an additional paramater C<note>.
 
 See also the L<hook|Dancer2/hook> hook keyword.
 
@@ -396,17 +395,15 @@ them to log in before continuing.
 This can easily be handled with a before filter to check their session:
 
     hook before => sub {
-
-        if (! session('user') && request->path_info !~ m{^/login}) {
-            var requested_path => request->path_info;
-            request->path_info('/login');
+        if (! session('user') && request->dispatch_path !~ m{^/login}) {
+            forward '/login', { requested_path => request->dispatch_path };
         }
     };
 
     get '/login' => sub {
         # Display a login page; the original URL they requested is available as
-        # vars->{requested_path}, so could be put in a hidden field in the form
-        template 'login', { path => vars->{requested_path} };
+        # params->{'requested_path'}, so could be put in a hidden field in the form
+        template 'login', { path => params->{'requested_path'} };
     };
 
     post '/login' => sub {
@@ -689,10 +686,10 @@ webapps's config.yml, but chances are that this is not convenient.
 Use Dancer2 instead. Without any ado, magic or too big jumps, you can use the
 values from config.yml and some additional default values:
 
-	# bin/script1.pl
-	use Dancer2;
-	print "template:".config->{template}."\n"; #simple
-	print "log:".config->{log}."\n"; #undef
+    # bin/script1.pl
+    use Dancer2;
+    print "template:".config->{template}."\n"; #simple
+    print "log:".config->{log}."\n"; #undef
 
 Note that config->{log} should result undef error on a default scaffold since
 you did not load the environment and in the default scaffold log is defined in
@@ -702,20 +699,20 @@ If you want to load an environment you need to tell Dancer2 where to look for it
 One way to do so, is to tell Dancer2 where the webapp lives. From there Dancer2
 deducts where the config.yml file is (typically $webapp/config.yml).
 
-	# bin/script2.pl
-	use FindBin;
-	use Cwd qw/realpath/;
-	use Dancer2;
+    # bin/script2.pl
+    use FindBin;
+    use Cwd qw/realpath/;
+    use Dancer2;
 
-	#tell the Dancer2 where the app lives
-	my $appdir=realpath( "$FindBin::Bin/..");
+    #tell the Dancer2 where the app lives
+    my $appdir=realpath( "$FindBin::Bin/..");
 
-	Dancer2::Config::setting('appdir',$appdir);
-	Dancer2::Config::load();
+    Dancer2::Config::setting('appdir',$appdir);
+    Dancer2::Config::load();
 
-	#getter
-	print "environment:".config->{environment}."\n"; #development
-	print "log:".config->{log}."\n"; #value from development environment
+    #getter
+    print "environment:".config->{environment}."\n"; #development
+    print "log:".config->{log}."\n"; #value from development environment
 
 By default Dancer2 loads development environment (typically
 $webapp/environment/development.yml). In contrast to the example before,  you
@@ -725,23 +722,23 @@ likely to be already loaded by Dancer2 anyways, so it's not a big overhead. You
 could just as well hand over a simple path for the app if you like that better,
 e.g.:
 
-	Dancer2::Config::setting('appdir','/path/to/app/dir');
+    Dancer2::Config::setting('appdir','/path/to/app/dir');
 
 If you want to load an environment other than the default, try this:
 
-	# bin/script2.pl
-	use Dancer2;
+    # bin/script2.pl
+    use Dancer2;
 
-	#tell the Dancer2 where the app lives
-	Dancer2::Config::setting('appdir','/path/to/app/dir');
+    #tell the Dancer2 where the app lives
+    Dancer2::Config::setting('appdir','/path/to/app/dir');
 
-	#which environment to load
-	config->{environment}='production';
+    #which environment to load
+    config->{environment}='production';
 
-	Dancer2::Config::load();
+    Dancer2::Config::load();
 
-	#getter
-	print "log:".config->{log}."\n"; #has value from production environment
+    #getter
+    print "log:".config->{log}."\n"; #has value from production environment
 
 By the way, you not only get values, you can also set values straightforward
 like we do above with config->{environment}='production'. Of course, this value
@@ -821,7 +818,7 @@ will be automatically deserialized.
 
     get '/hello/:name' => sub {
         # this structure will be returned to the client as
-	# {"name":"$name"}
+        # {"name":"$name"}
         return {name => params->{name}};
     };
 
@@ -938,11 +935,11 @@ slower than all other options.
 
 You can use the same technique to deploy with FastCGI, by just changing the line:
 
-	AddHandler cgi-script .cgi
+    AddHandler cgi-script .cgi
 
 By:
 
-	AddHandler fastcgi-script .fcgi
+    AddHandler fastcgi-script .fcgi
 
 Of course remember to update your rewrite rules, if you have set any:
 
