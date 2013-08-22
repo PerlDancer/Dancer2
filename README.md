@@ -1,6 +1,6 @@
 # Dancer2
 
-[![Build Status](https://travis-ci.org/PerlDancer/Dancer2.png?branch=devel)](https://travis-ci.org/PerlDancer/Dancer2)
+[![Build Status](https://travis-ci.org/PerlDancer/Dancer2.png?branch=master)](https://travis-ci.org/PerlDancer/Dancer2)
 
 Dancer2 is the new generation lightweight web-framework for Perl.
 
@@ -33,7 +33,7 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 * [Follow us on Twitter](https://twitter.com/perldancer)
 * [Find us on irc.perl.org #dancer](irc://irc.perl.org/#dancer)
 * [The Advent Calendar](http://advent.perldancer.org/)
-* [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/devel/GitGuide.md)
+* [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md)
 
 ## Available Plugins
 
