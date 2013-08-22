@@ -1,6 +1,6 @@
 # Dancer2
 
-[![Build Status](https://travis-ci.org/PerlDancer/Dancer2.png?branch=devel)](https://travis-ci.org/PerlDancer/Dancer2)
+[![Build Status](https://travis-ci.org/PerlDancer/Dancer2.png?branch=master)](https://travis-ci.org/PerlDancer/Dancer2)
 
 Dancer2 is the new generation lightweight web-framework for Perl.
 
@@ -33,7 +33,7 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 * [Follow us on Twitter](https://twitter.com/perldancer)
 * [Find us on irc.perl.org #dancer](irc://irc.perl.org/#dancer)
 * [The Advent Calendar](http://advent.perldancer.org/)
-* [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/devel/GitGuide.md)
+* [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md)
 
 ## Available Plugins
 
@@ -49,12 +49,12 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 | Dancer2::Plugin::Deferred | [Link](https://metacpan.org/module/Dancer2::Plugin::Deferred) | [Link](https://github.com/dagolden/dancer2-plugin-deferred) |
 | Dancer2::Plugin::Adapter | [Link](https://metacpan.org/module/Dancer2::Plugin::Adapter) | [Link](https://github.com/dagolden/dancer2-plugin-adapter) |
 | Dancer2::Plugin::DBIC | [Link](https://metacpan.org/module/Dancer2::Plugin::DBIC) | [Link](https://github.com/ironcamel/Dancer2-Plugin-DBIC) |
-| Dancer2::Plugin::REST | [Link](https://metacpan.org/module/Dancer2::Plugin::REST) | |
+| Dancer2::Plugin::REST | [Link](https://metacpan.org/module/Dancer2::Plugin::REST) | [Link](https://github.com/yanick/Dancer2-Plugin-REST) |
 | Dancer2::Plugin::Emailesque | [Link](https://metacpan.org/module/Dancer2::Plugin::Emailesque) | [Link](https://github.com/ambs/Dancer2-Plugin-Emailesque) |
 | Dancer2::Plugin::Cache::CHI | [Link](https://metacpan.org/module/Dancer2::Plugin::Cache::CHI) | [Link](https://github.com/yanick/Dancer2-Plugin-Cache-CHI) |
 | Dancer2::Plugin::Queue | [Link](https://metacpan.org/module/Dancer2::Plugin::Queue) | [Link](https://github.com/dagolden/dancer2-plugin-queue) |
-| Dancer2::Plugin::Database | [Link](https://metacpan.org/module/Dancer2::Plugin::Database) | |
-| Dancer2::Plugin::Feed | [Link](https://metacpan.org/module/Dancer2::Plugin::Feed) | |
+| Dancer2::Plugin::Database | [Link](https://metacpan.org/module/Dancer2::Plugin::Database) | [Link](https://github.com/bigpresh/Dancer-Plugin-Database/tree/master/Dancer2) |
+| Dancer2::Plugin::Feed | [Link](https://metacpan.org/module/Dancer2::Plugin::Feed) | [Link](https://github.com/hobbestigrou/Dancer2-Plugin-Feed) |
 
 
 ## Templates engines
