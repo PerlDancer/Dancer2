@@ -164,12 +164,10 @@ these contributions and applying them much, much easier. This gives
 your contribution a much better chance of being integrated into
 Dancer2 quickly!
 
-To help us achieve high-quality, stable releases, git-flow workflow is
-used to handle pull-requests, that means contributors must work on
-their _devel_ branch rather than on their _master_.  (Master should
-be touched only by the core dev team when preparing a release to CPAN;
-all ongoing development happens in branches which are merged to the
-_devel_ branch.)
+**NOTE:** unlike before, we no longer use the _devel_ branch. All
+active development is performed in the _master_ branch. Therefore, all
+your contribution work should be done in a fork of the _master_
+branch.
 
 Here is the workflow for submitting a patch:
 
@@ -179,15 +177,14 @@ Here is the workflow for submitting a patch:
 
         $ git clone git://github.com/myname/Dancer2.git
 
-3. As a contributor, you should **always** work on the `devel` branch of
-   your clone (`master` is used only for building releases).
+3. As a contributor, you should **always** work on the `master` branch of
+   your clone.
 
         $ git remote add upstream https://github.com/PerlDancer/Dancer2.git
         $ git fetch upstream
-        $ git checkout -b devel upstream/devel
 
-   This will create a local branch in your clone named _devel_ and
-   that will track the official _devel_ branch. That way, if you have
+   This will create a local branch in your clone named _master_ and
+   that will track the official _master_ branch. That way, if you have
    more or less commits than the upstream repo, you'll be immediately
    notified by git.
 
@@ -198,7 +195,7 @@ Here is the workflow for submitting a patch:
 
    To do that, first create a local branch to build your pull request:
 
-        # you should be in devel here
+        # you should be in master here
         $ git checkout -b pr/$name
 
    Now you have created a local branch named _pr/$name_ where _$name_
@@ -225,24 +222,24 @@ Here is the workflow for submitting a patch:
    channel `#dancer` or via [web client](http://www.perldancer.org/irc).
 
 6. When the core team reviews your pull request, it will either accept
-   (and then merge into _devel_) or refuse your request.
+   (and then merge into _master_) or refuse your request.
 
    If it's refused, try to understand the reasons explained by the
    team for the denial. Most of the time, communicating with the core
    team is enough to understand what the mistake was. Above all,
    please don't be offended.
 
-   If your pull-request is merged into _devel_, then all you have to
+   If your pull-request is merged into _master_, then all you have to
    do is to remove your local and remote _pr/$name_ branch:
 
-        $ git checkout devel
+        $ git checkout master
         $ git branch -D pr/$name
         $ git push origin :pr/$name
 
    And then, of course, you need to sync your local devel branch with
    the upstream:
 
-        $ git pull upstream devel
-        $ git push origin devel
+        $ git pull upstream master
+        $ git push origin master
 
    You're now ready to start working on a new pull request!
