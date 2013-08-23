@@ -103,7 +103,7 @@ sub _build_location {
             last;
         }
 
-        $subdir = Dancer2::FileUtils::path( $subdir, '..' );
+        $subdir = Dancer2::FileUtils::path( $subdir, '..' ) || '.';
         last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
 
     }
