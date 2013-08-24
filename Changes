@@ -7,13 +7,13 @@
     * GH#390: minor cookbook documentation fixes (Russell Jenkins)
     * GH#392: remove support to auto_reload and suggest alternative
       in Dancer2::Cookbook (Ahmad M. Zawawi)
+    * GH#397,407: Miscellaneous documentation fixes (Andrew Solomon)
 
     [ BUG FIXES ]
     * When compiling route regex object with prefix, add the closing anchor
       (Mickey Nasriachi)
     * GH#386: honor log level defined in config file (Alberto Simões)
     * GH#396: Miscellaneous tests bug fixes (Russell Jenkins)
-    * GH#397: Miscellaneous documentation fixes (Andrew Solomon)
 
 0.08      2013-08-18 15:22:45 Asia/Jerusalem
 
