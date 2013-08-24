@@ -90,9 +90,8 @@ sub run_test {
         is $req->base, 'http://oddhostname:5000/foo';
     }
 
-    {
-        note "testing begind proxy";
-        $req = Dancer2::Core::Request->new(
+    note "testing behind proxy"; {
+        my $req = Dancer2::Core::Request->new(
             env             => $env,
             is_behind_proxy => 1
         );
@@ -101,36 +100,86 @@ sub run_test {
         is $req->scheme, 'https';
     }
 
-    note "testing uri_base";
-    $env = {
-        'psgi.url_scheme' => 'http',
-        REQUEST_METHOD    => 'GET',
-        SCRIPT_NAME       => '/',
-        PATH_INFO         => '/bar/baz',
-        REQUEST_URI       => '/foo/bar/baz',
-        QUERY_STRING      => '',
-        SERVER_NAME       => 'localhost',
-        SERVER_PORT       => 5000,
-        SERVER_PROTOCOL   => 'HTTP/1.1',
-    };
+    note "testing path, dispatch_path and uri_base"; {
+        # Base env used for path, dispatch_path and uri_base tests
+        my $base = {
+            'psgi.url_scheme' => 'http',
+            REQUEST_METHOD    => 'GET',
+            QUERY_STRING      => '',
+            SERVER_NAME       => 'localhost',
+            SERVER_PORT       => 5000,
+            SERVER_PROTOCOL   => 'HTTP/1.1',
+        };
 
-    $req = Dancer2::Core::Request->new( env => $env );
-    is( $req->uri_base, 'http://localhost:5000',
-        'remove trailing slash if only one',
-    );
+        # PATH_INFO not set
+        my $env = {
+            %$base,
+            SCRIPT_NAME => '/foo',
+            PATH_INFO   => '',
+            REQUEST_URI => '/foo',
+        };
+        my $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/foo', 'path corrent when empty PATH_INFO' );
+        is( $req->uri_base, 'http://localhost:5000/foo',
+            'uri_base correct when empty PATH_INFO'
+        );
+        is( $req->dispatch_path, '/',
+            'dispatch_path correct when empty PATH_INFO'
+        );
 
-    $env->{'SCRIPT_NAME'} = '/foo/';
-    $req = Dancer2::Core::Request->new( env => $env );
-    is( $req->uri_base, 'http://localhost:5000/foo/',
-        'keeping trailing slash if not only',
-    );
-    is $req->dispatch_path, '/bar/baz';
+        # SCRIPT_NAME not set
+        $env = {
+            %$base,
+            SCRIPT_NAME => '',
+            PATH_INFO   => '/foo',
+            REQUEST_URI => '/foo',
+        };
+        $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/foo', 'path corrent when empty SCRIPT_NAME' );
+        is( $req->uri_base, 'http://localhost:5000',
+            'uri_base handles empty SCRIPT_NAME'
+        );
+        is( $req->dispatch_path, '/foo',
+            'dispatch_path handles empty SCRIPT_NAME'
+        );
 
-    $env->{'PATH_INFO'}   = '/';
-    $env->{'SCRIPT_NAME'} = '';
-    $req = Dancer2::Core::Request->new( env => $env );
-    is( $req->uri_base, 'http://localhost:5000', );
+        # Both SCRIPT_NAME and PATH_INFO set
+        # PSGI spec does not allow SCRIPT_NAME='/', PATH_INFO='/some/path'
+        $env = {
+            %$base,
+            SCRIPT_NAME => '/foo',
+            PATH_INFO   => '/bar/baz/',
+            REQUEST_URI => '/foo/bar/baz/',
+        };
+        $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/foo/bar/baz/',
+            'path corrent when both PATH_INFO and SCRIPT_NAME set'
+        );
+        is( $req->uri_base, 'http://localhost:5000/foo',
+            'uri_base correct when both PATH_INFO and SCRIPT_NAME set',
+        );
+        is( $req->dispatch_path, '/bar/baz/',
+            'dispatch_path correct when both PATH_INFO and SCRIPT_NAME set'
+        );
 
+        # Neither SCRIPT_NAME or PATH_INFO set
+        $env = {
+            %$base,
+            SCRIPT_NAME => '',
+            PATH_INFO   => '',
+            REQUEST_URI => '/foo/',
+        };
+        $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/foo/',
+            'path corrent when calculated from REQUEST_URI'
+        );
+        is( $req->uri_base, 'http://localhost:5000',
+            'uri_base correct when calculated from REQUEST_URI',
+        );
+        is( $req->dispatch_path, '/foo/',
+            'dispatch_path correct when calculated from REQUEST_URI'
+        );
+    }
 
     note "testing forward";
     $env = {
