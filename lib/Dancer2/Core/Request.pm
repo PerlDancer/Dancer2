@@ -684,9 +684,11 @@ sub dispatch_path {
     $base .= $self->script_name if defined $self->script_name;
     $base =~ s|/+$||;
 
-    # Remove base from fron of path.
+    # Remove base from front of path.
     $path =~ s|^(\Q$base\E)?||;
     $path =~ s|^/+|/|;
+    # PSGI spec notes that '' should be considered '/'
+    $path = '/' if $path eq '';
     return $path;
 }
 
