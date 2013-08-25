@@ -2,6 +2,7 @@
 
     [ ENHANCEMENTS ]
     * Rewite DSL keyword engine (Mickey Nasriachi)
+    * Require minimum Role::Tiny 1.003000 (Alberto Simões)
 
     [ DOCUMENTATION ]
     * GH#390: minor cookbook documentation fixes (Russell Jenkins)
