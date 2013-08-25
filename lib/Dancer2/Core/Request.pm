@@ -256,8 +256,8 @@ has id => (
 #
 # _body_params, _query_params and _route_params have setter methods that
 # decode byte string to characters before setting; If you know you have
-# decoded (character) params, such as output from a deserializer, set
-# these directly.
+# decoded (character) params, such as output from a deserializer, you can
+# set these directly in the request object hash to avoid the decode op.
 
 has _params => (
     is        => 'lazy',
@@ -478,7 +478,10 @@ sub deserialize {
     my $data = $self->serializer->deserialize($self->body);
     return if !defined $data;
 
-    # Set directly as serializers' return characters
+    # Set _body_params directly rather than using the setter. Deserializiation
+    # returns characters and skipping the decode op in the setter ensures
+    # that numerical data "stays" numerical; decoding an SV that is an IV
+    # converts that to a PVIV. Some serializers are picky (JSON)..
     $self->{_body_params} = $data;
     $self->_build_params();
 
