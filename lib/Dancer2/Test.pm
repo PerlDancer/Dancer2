@@ -769,7 +769,7 @@ sub import {
     # register the apps to the test dispatcher
     $_dispatcher->apps( [ map {
         $_->dancer_app->finish();
-        $_->dancer_app 
+        $_->dancer_app;
     } @applications ] );
 
     $class->export_to_level( 1, $class, @EXPORT );
