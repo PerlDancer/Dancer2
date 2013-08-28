@@ -3,6 +3,8 @@
     [ ENHANCEMENTS ]
     * Rewite DSL keyword engine (Mickey Nasriachi)
     * Require minimum Role::Tiny 1.003000 (Alberto Simões)
+    * GH#382: Move Request attributes to params, and fix serializers
+      behavior (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH#390: minor cookbook documentation fixes (Russell Jenkins)
