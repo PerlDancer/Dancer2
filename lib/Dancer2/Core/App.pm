@@ -169,14 +169,15 @@ sub _build_default_config {
     return {
         %{ $self->runner_config },
         template       => 'Tiny',
-        route_handlers => {
-            File => {
-                public_dir => $ENV{DANCER_PUBLIC}
-                  || path( $self->location, 'public' )
-            },
-            AutoPage => 1,
-        },
-    };
+        route_handlers => [
+                           [ File => {
+                                      public_dir => $ENV{DANCER_PUBLIC}
+                                      || path( $self->location, 'public' )
+                                     }
+                           ],
+                           [  AutoPage => 1 ],
+                          ],
+           };
 }
 
 sub _init_hooks {
@@ -425,8 +426,8 @@ sub init_route_handlers {
     my ($self) = @_;
 
     my $handlers_config = $self->config->{route_handlers};
-    for my $handler_name ( keys %{$handlers_config} ) {
-        my $config = $handlers_config->{$handler_name};
+    for my $handler_data (@$handlers_config) {
+        my ($handler_name, $config) = @$handler_data;
         $config = {} if !ref($config);
         $config->{app} = $self;
         my $handler = Dancer2::Core::Factory->create(
