@@ -47,6 +47,12 @@ has default_config => (
     builder => '_build_default_config',
 );
 
+has route_handlers_order => (
+    is      => 'rw',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
+
 has route_handlers => (
     is      => 'rw',
     isa     => HashRef,
@@ -430,18 +436,20 @@ sub init_route_handlers {
         my ($handler_name, $config) = @$handler_data;
         $config = {} if !ref($config);
         $config->{app} = $self;
+
         my $handler = Dancer2::Core::Factory->create(
             Handler => $handler_name,
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
         $self->route_handlers->{$handler_name} = $handler;
+        push @{$self->route_handlers_order}, $handler_name;
     }
 }
 
 sub register_route_handlers {
     my ($self) = @_;
-    for my $handler_name ( keys %{ $self->route_handlers } ) {
+    for my $handler_name ( @{$self->{route_handlers_order}} ) {
         my $handler = $self->route_handlers->{$handler_name};
         $handler->register($self);
     }

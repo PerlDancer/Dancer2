@@ -40,7 +40,6 @@ has regexp => (
 
 sub BUILD {
     my ($self) = @_;
-
     if ( !defined $self->public_dir ) {
         my $public =
              $self->app->config->{public}
