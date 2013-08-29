@@ -35,7 +35,9 @@ it too!)
 
 So "Dancr" was born.
 
-Dancr is a simple "micro" blog which uses the L<SQLite|http://www.sqlite.org> database engine for simplicity's sake.
+Dancr is a simple "micro" blog which uses the L<SQLite|http://www.sqlite.org>
+database engine for simplicity's sake. (You'll need to install sqlite for Dancr
+if you don't have it installed already.)
 
 =head1 Required perl modules
 
@@ -48,6 +50,8 @@ These all can be installed using your CPAN client, as in:
 
 We're not going to spend a lot of time on the database, as it's not really the point of this particular
 tutorial.
+Open your favorite L<text editor|http://www.vim.org> and create a schema
+definition called 'schema.sql' as follows:
 
   create table if not exists entries (
     id integer primary key autoincrement,
@@ -58,9 +62,11 @@ tutorial.
 Here we have a single table with three columns: id, title, and text.  The 'id' field is the primary key and will
 automatically get an ID assigned by the database engine when a row is inserted.
 
-We want our application to initialize the database automatically for us when we start it, so open your favorite
-L<text editor|http://www.vim.org> and create a file called 'dancr.pl'.  We're going to put the following subroutines
-in that file:
+We want our application to initialize the database automatically for us when we
+start it, so next, create a file called 'dancr.pl'. (The entire file is
+listed below, so don't worry about copying each of these fragments into
+'dancr.pl' as you read through this document.) We're going to put the following
+subroutines in that file:
 
   sub connect_db {
     my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
@@ -99,8 +105,8 @@ Let's tackle our first route handler now, the one for the root URL '/'. This is 
     };
   };
 
-As you can see, the handler is created by specifying the HTTP verb 'get' and
-the URL to match, '/' and finally a subroutine to do something once those
+As you can see, the handler is created by specifying the HTTP verb 'get', 
+the '/' URL to match, and finally, a subroutine to do something once those
 conditions have been satisfied.  Something you might not notice right away is
 the semicolon at the end of the route handler.  Since the subroutine actually
 is a coderef, it requires a semicolon.
@@ -237,6 +243,7 @@ session handler and initialize a session manager.  To do that, we add some
 configuration directives toward the top of our dancr.pl file.  But there are
 more options than just the session engine we want to set.
 
+  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
   set 'session'      => 'Simple';
   set 'template'     => 'template_toolkit';
   set 'logger'       => 'console';
@@ -424,7 +431,7 @@ This cuts down on code-duplication and makes your app easier to maintain over
 time since you only need to update the values in this one place instead of
 everywhere you render a template.
 
-  before_template sub {
+  hook before_template => sub {
      my $tokens = shift;
 
      $tokens->{'css_url'} = request->base . 'css/style.css';
@@ -487,7 +494,7 @@ Here's the complete dancr.pl script from start to finish.
  	$db->do($schema) or die $db->errstr;
  }
 
- before_template sub {
+ hook before_template => sub {
  	my $tokens = shift;
 
  	$tokens->{'css_url'} = request->base . 'css/style.css';
@@ -599,7 +606,7 @@ or the GNU Public License version 2.
 
 The CSS stylesheet is copied verbatim from the Flaskr example application and is subject to their license:
 
-Copyright (c) 2010 by Armin Ronacher and contributors.
+Copyright (c) 2010, 2013 by Armin Ronacher and contributors.
 
 Some rights reserved.
 
