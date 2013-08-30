@@ -7,6 +7,8 @@
               behavior (Russell Jenkins)
     * GH#406: Replace Dancer2::ModuleLoader with Class::Load
               (Alberto Simões, Sawyer X)
+    * GH#329: Remove 'load_app' DSL keyword. Remove reference to
+              'load' as well. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH#390: minor cookbook documentation fixes (Russell Jenkins)
