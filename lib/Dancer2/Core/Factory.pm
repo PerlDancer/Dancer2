@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Dancer2::Core;
-use Dancer2::ModuleLoader;
+use Class::Load 'try_load_class';
 use Carp 'croak';
 
 sub create {
@@ -15,10 +15,8 @@ sub create {
     $name = Dancer2::Core::camelize($name);
     my $component_class = "Dancer2::${type}::${name}";
 
-    my ( $ok, $error ) = Dancer2::ModuleLoader->require($component_class);
-    if ( !$ok ) {
-        croak "Unable to load class for $type component $name: $error";
-    }
+    my ( $ok, $error ) = try_load_class($component_class);
+    $ok or croak "Unable to load class for $type component $name: $error";
 
     return $component_class->new(%options);
 }

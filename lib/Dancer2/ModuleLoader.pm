@@ -5,7 +5,7 @@ package Dancer2::ModuleLoader;
 use strict;
 use warnings;
 
-use Module::Runtime qw/ use_module /;
+use Class::Load 'try_load_class';
 
 =head1 DESCRIPTION
 
@@ -84,11 +84,7 @@ In list context, returns 1 if successful, C<(0, "error message")> if not.
 sub require {
     my ( $class, $module, $version ) = @_;
 
-    eval {
-        defined $version
-          ? use_module( $module, $version )
-          : use_module($module);
-    }
+    try_load_class( $module, defined $version ? ( -version => $version ) : ())
       or return wantarray ? ( 0, $@ ) : 0;
 
     return 1;

@@ -4,7 +4,7 @@ package Dancer2;
 
 use strict;
 use warnings;
-use Data::Dumper;
+use Class::Load 'load_class';
 use Dancer2::Core;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
@@ -181,8 +181,7 @@ sub import {
     Dancer2::Core::debug("exporting DSL symbols for $caller");
 
     # load the DSL, defaulting to Dancer2::Core::DSL
-    Dancer2::ModuleLoader->require( $final_args{dsl} )
-      or die "Couldn't require '" . $final_args{dsl} . "'\n";
+    load_class( $final_args{dsl} );
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
 

@@ -2,14 +2,14 @@
 package Dancer2::Core::Runner;
 
 use Moo;
+use Carp 'croak';
+use Class::Load 'try_load_class';
 use Dancer2::Core::Types;
 use Dancer2::Core::MIME;
-use Carp 'croak';
 
-use Dancer2::FileUtils;
-use Dancer2::ModuleLoader;
-use File::Basename;
 use File::Spec;
+use File::Basename;
+use Dancer2::FileUtils;
 
 with 'Dancer2::Core::Role::Config';
 
@@ -41,8 +41,8 @@ sub _build_server {
     my $server_name  = $self->config->{apphandler};
     my $server_class = "Dancer2::Core::Server::${server_name}";
 
-    my ( $res, $error ) = Dancer2::ModuleLoader->load($server_class);
-    $res or croak "Unable to load $server_class : $error";
+    my ( $ok, $error ) =try_load_class($server_class);
+    $ok or croak "Unable to load $server_class: $error\n";
 
     return $server_class->new(
         host      => $self->config->{host},
