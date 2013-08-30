@@ -11,9 +11,9 @@ use File::Basename qw/dirname basename/;
 use File::Spec;
 use Encode qw(encode_utf8);
 
-diag "If you want extract speed, install URL::Encode::XS"
+diag "If you want extra speed, install URL::Encode::XS"
   if !$Dancer2::Core::Request::XS_URL_DECODE;
-diag "If you want extract speed, install CGI::Deurl::XS"
+diag "If you want extra speed, install CGI::Deurl::XS"
   if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub test_path {

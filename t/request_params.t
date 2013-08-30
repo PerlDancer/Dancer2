@@ -3,9 +3,9 @@ use strict;
 use warnings FATAL => 'all';
 use Dancer2::Core::Request;
 
-diag "If you want extract speed, install URL::Encode::XS"
+diag "If you want extra speed, install URL::Encode::XS"
   if !$Dancer2::Core::Request::XS_URL_DECODE;
-diag "If you want extract speed, install CGI::Deurl::XS"
+diag "If you want extra speed, install CGI::Deurl::XS"
   if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub run_test {

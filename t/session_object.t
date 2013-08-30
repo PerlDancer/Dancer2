@@ -6,11 +6,12 @@ use Test::More;
 
 use Dancer2::Core::Session;
 use Dancer2::Session::Simple;
+use Class::Load 'try_load_class';
 
 my $ENGINE = Dancer2::Session::Simple->new;
 
-my $CPRNG_AVAIL = Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS")
-  && Dancer2::ModuleLoader->require("Crypt::URandom");
+my $CPRNG_AVAIL = try_load_class('Math::Random::ISAAC::XS') &&
+                  try_load_class('Crypt::URandom');
 
 diag $CPRNG_AVAIL
   ? "Crypto strength tokens"

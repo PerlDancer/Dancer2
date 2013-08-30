@@ -12,9 +12,9 @@ destroy session objects.
 use strict;
 use warnings;
 use Carp 'croak';
+use Class::Load 'try_load_class';
 use Dancer2::Core::Session;
 use Dancer2::Core::Types;
-use Dancer2::ModuleLoader;
 use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
@@ -202,8 +202,8 @@ alternative method for session ID generation is desired.
 
 {
     my $COUNTER     = 0;
-    my $CPRNG_AVAIL = Dancer2::ModuleLoader->require("Math::Random::ISAAC::XS")
-      && Dancer2::ModuleLoader->require("Crypt::URandom");
+    my $CPRNG_AVAIL = try_load_class('Math::Random::ISAAC::XS') &&
+                      try_load_class('Crypt::URandom');
 
     # don't initialize until generate_id is called so the ISAAC algorithm
     # is seeded after any pre-forking

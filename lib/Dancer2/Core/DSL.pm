@@ -3,11 +3,11 @@
 package Dancer2::Core::DSL;
 
 use Moo;
+use Carp;
+use Class::Load 'load_class';
 use Dancer2::Core::Hook;
 use Dancer2::Core::Error;
 use Dancer2::FileUtils;
-use Dancer2::ModuleLoader;
-use Carp;
 
 with 'Dancer2::Core::Role::DSL';
 
@@ -149,8 +149,7 @@ sub load_app {
     my ( $self, $app_name, %options ) = @_;
 
     # set the application
-    my ( $res, $error ) = Dancer2::ModuleLoader->load($app_name);
-    $res or croak "Unable to load application \"$app_name\" : $error";
+    load_class($app_name);
 
     croak "$app_name is not a Dancer2 application"
       if !$app_name->can('dancer_app');

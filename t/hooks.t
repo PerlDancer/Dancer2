@@ -4,10 +4,11 @@ use Test::More import => ['!pass'];
 use File::Spec;
 use Carp;
 
+use Class::Load 'try_load_class';
 use Capture::Tiny 0.12 'capture_stderr';
 
-Dancer2::ModuleLoader->require('Template')
-  or plan skip_all => 'Template::Toolkit not present';
+try_load_class('Template')
+    or plan skip_all => 'Template::Toolkit not present';
 
 my @hooks = qw(
   before_request

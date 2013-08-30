@@ -31,7 +31,7 @@ use utf8;
 use JSON;
 use Encode;
 use Dancer2::Test apps => ['MyApp'];
-use Dancer2::ModuleLoader;
+use Class::Load 'load_class';
 
 is dancer_response(
     Dancer2::Core::Request->new(
@@ -49,7 +49,7 @@ note "Verify Serializers decode into characters"; {
 
     for my $type ( qw/Dumper JSON YAML/ ) {
         my $class = "Dancer2::Serializer::$type";
-        Dancer2::ModuleLoader->load( $class );
+        load_class($class);
 
         my $serializer = $class->new();
         my $body = $serializer->serialize({utf8 => $utf8});
