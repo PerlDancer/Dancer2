@@ -13,6 +13,7 @@
     * GH#392: remove support to auto_reload and suggest alternative
       in Dancer2::Cookbook (Ahmad M. Zawawi)
     * GH#397,407: Miscellaneous documentation fixes (Andrew Solomon)
+    * Documentation cleanups (Alex Beamish)
 
     [ BUG FIXES ]
     * When compiling route regex object with prefix, add the closing anchor
