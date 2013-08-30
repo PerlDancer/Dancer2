@@ -163,11 +163,13 @@ sub app_tree($) {
     return {
         "Makefile.PL"        => FILE,
         "MANIFEST.SKIP"      => FILE,
+        "app.psgi"           => FILE,
         lib                  => {
-         $LIB_PATH => {
-            $LIB_FILE => FILE,}
+            $LIB_PATH => {
+                $LIB_FILE => FILE,
+            }
         },
-        "bin" => {
+        bin                  => {
             "+app.pl" => FILE,
         },
         "config.yml"         => FILE,
@@ -534,7 +536,7 @@ use Plack::Runner;
 set apphandler => 'PSGI';
 set environment => 'production';
 
-my \$psgi = path(\$RealBin, '..', 'bin', 'app.pl');
+my \$psgi = path(\$RealBin, '..', 'app.psgi');
 die \"Unable to read startup script: \$psgi\" unless -r \$psgi;
 
 Plack::Runner->run(\$psgi);
@@ -553,7 +555,7 @@ use Plack::Handler::FCGI;
 set apphandler => 'PSGI';
 set environment => 'production';
 
-my \$psgi = path(\$RealBin, '..', 'bin', 'app.pl');
+my \$psgi = path(\$RealBin, '..', 'app.psgi');
 my \$app = do(\$psgi);
 die "Unable to read startup script: \$@" if \$@;
 my \$server = Plack::Handler::FCGI->new(nproc => 5, detach => 1);
@@ -563,10 +565,31 @@ my \$server = Plack::Handler::FCGI->new(nproc => 5, detach => 1);
 
 "app.pl" =>
 
-"$PERL_INTERPRETER
-use Dancer2;
-use $appname;
-dance;
+qq{$PERL_INTERPRETER
+use warnings;
+use strict;
+use lib;
+use FindBin '\$Bin';
+use Dancer2::FileUtils qw/path/;
+
+# Check for lib dir
+if (
+    grep
+      { -f path( \$Bin, '..', \$_ ) }
+        qw/.dancer Makefile.PL/
+) {
+    my \$lib = path(\$Bin, '..', 'lib');
+    -d \$lib && lib->import(\$lib);
+}
+
+my \$psgi_file = path(\$Bin, '..', 'app.psgi');
+do(\$psgi_file) or die "Unable to read app.psgi: \$@";
+},
+
+"app.psgi" =>
+
+"use $appname;
+$appname->dance;
 ",
 
 "$LIB_FILE" =>
@@ -1484,6 +1507,7 @@ Here is an application created with dancer2:
 
     $ dancer2 -a MyWeb::App
     + MyWeb-App
+	+ MyWeb-App/app.psgi
 	+ MyWeb-App/bin
 	+ MyWeb-App/bin/app.pl
 	+ MyWeb-App/config.yml

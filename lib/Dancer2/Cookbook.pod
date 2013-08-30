@@ -56,6 +56,7 @@ command:
 
     $ dancer2 -a mywebapp
     + mywebapp
+    + mywebapp/app.psgi
     + mywebapp/bin
     + mywebapp/bin/app.pl
     + mywebapp/config.yml
@@ -866,7 +867,7 @@ you want to make your app available to the world, it probably won't suit you.
 To edit your files without the need to restart the webserver on each file change,
 simply start your Dancer2 app using L<plackup> and L<Plack::Loader::Shotgun>:
 
-    $ plackup -L Shotgun bin/app.pl
+    $ plackup -I lib -L Shotgun app.psgi
     HTTP::Server::PSGI: Accepting connections at http://0:5000/
 
 Point your browser at it. Files can now be changed in your favorite editor and
@@ -1008,7 +1009,7 @@ This example configuration uses TCP/IP:
 
 Launch your application:
 
-    plackup -s FCGI --port 5000 bin/app.pl
+    plackup -I lib -s FCGI --port 5000 app.psgi
 
 This example configuration uses a socket:
 
@@ -1025,7 +1026,7 @@ This example configuration uses a socket:
 
 Launch your application:
 
-    plackup -s FCGI --listen /tmp/fcgi.sock bin/app.pl
+    plackup -I lib -s FCGI --listen /tmp/fcgi.sock app.psgi
 
 
 =head2 Plack middlewares
@@ -1097,8 +1098,8 @@ C<Corona> is a C<Coro> based web server.
 To start your application, just run plackup (see L<Plack> and specific servers
 above for all available options):
 
-   $ plackup bin/app.pl
-   $ plackup -E deployment -s Starman --workers=10 -p 5001 -a bin/app.pl
+   $ plackup -I lib app.psgi
+   $ plackup -I lib -E deployment -s Starman --workers=10 -p 5001 -a app.psgi
 
 As you can see, the scaffolded Perl script for your app can be used as a PSGI
 startup file.
@@ -1114,13 +1115,12 @@ Enable it as you would enable any Plack middleware. First you need to install
 L<Plack::Middleware::Deflater>, then in the handler (usually F<app.psgi>) edit
 it to use L<Plack::Builder>, as described above:
 
-    use Dancer2;
     use MyWebApp;
     use Plack::Builder;
 
     builder {
         enable 'Deflator';
-        dance;
+        MyWebApp->dance;
     };
 
 To test if content compression works, trace the HTTP request and response
@@ -1171,7 +1171,7 @@ following:
         <Location />
             SetHandler perl-script
             PerlHandler Plack::Handler::Apache2
-            PerlSetVar psgi_app /websites/myapp.example.com/app.pl
+            PerlSetVar psgi_app /websites/myapp.example.com/app.psgi
         </Location>
 
         ErrorLog  /websites/myapp.example.com/logs/error_log
@@ -1207,7 +1207,7 @@ A basic PSGI service description (usually in /etc/ubic/service/application):
 
     __PACKAGE__->new(
         server => 'Starman',
-        app => '/path/to/your/application/app.pl',
+        app => '/path/to/your/application/app.psgi',
         port => 5000,
         user => 'www-data',
     );
@@ -1227,7 +1227,7 @@ A basic script to start an application: (in /service/application/run)
     export PERL5LIB='/path/to/your/application/lib'
 
     exec 2>&1 \
-    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.pl -p 5000
+    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.psgi -p 5000
 
 
 =head2 Running stand-alone behind a proxy / load balancer
@@ -1376,7 +1376,7 @@ with Nginx:
 You will need plackup to start a worker listening on a socket :
 
     cd YOUR_PROJECT_PATH
-    sudo -u www plackup -E production -s Starman --workers=2 -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.pl
+    sudo -u www plackup -E production -s Starman --workers=2 -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a app.psgi
 
 A good way to start this is to use C<daemontools> and place this line
 with all environments variables in the "run" file.
