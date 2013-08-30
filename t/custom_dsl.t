@@ -3,7 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 
 use FindBin qw($Bin);
-use lib "$Bin/t/lib";
+use lib "$Bin/lib";
 use Dancer2 dsl => 'MyDancerDSL';
 use Dancer2::Test;
 
