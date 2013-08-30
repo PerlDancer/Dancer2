@@ -45,7 +45,6 @@ sub dsl_keywords {
         headers              => { is_global => 0 },
         hook                 => { is_global => 1 },
         info                 => { is_global => 1 },
-        load_app             => { is_global => 1 },
         log                  => { is_global => 1 },
         mime                 => { is_global => 1 },
         options              => { is_global => 1 },
@@ -144,20 +143,6 @@ sub hook {
     $self->app->add_hook(
         Dancer2::Core::Hook->new( name => $name, code => $code ) );
 }
-
-sub load_app {
-    my ( $self, $app_name, %options ) = @_;
-
-    # set the application
-    load_class($app_name);
-
-    croak "$app_name is not a Dancer2 application"
-      if !$app_name->can('dancer_app');
-    my $app = $app_name->dancer_app;
-
-# FIXME not working yet
-}
-
 
 sub prefix {
     my $app = shift->app;
