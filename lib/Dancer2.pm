@@ -9,7 +9,6 @@ use Dancer2::Core;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
 use Dancer2::FileUtils;
-use Dancer2::ModuleLoader;
 
 our $AUTHORITY = 'SUKRIA';
 
@@ -155,9 +154,6 @@ sub import {
 
         $runner = Dancer2::Core::Runner->new( caller => $script, );
     }
-
-    my $local_libdir = Dancer2::FileUtils::path( $runner->location, 'lib' );
-    Dancer2::ModuleLoader->use_lib($local_libdir) if -d $local_libdir;
 
     my $server = $runner->server;
 
