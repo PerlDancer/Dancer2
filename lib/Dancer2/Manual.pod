@@ -237,26 +237,6 @@ This is done with the B<pass> keyword, like in the following example
 
 
 
-=head2 Load rules from external files
-
-You can use the load method to include additional routes into your application:
-
-    get '/go/:value', sub {
-        # foo
-    };
-
-    load 'more_routes.pl';
-
-    # then, in the file more_routes.pl:
-    get '/yes', sub {
-        'orly?';
-    };
-
-B<load> is just a wrapper for B<require>, but you can also specify a list of
-routes files:
-
-    load 'login_routes.pl', 'session_routes.pl', 'misc_routes.pl';
-
 =head2 Default Error Pages
 
 When an error is rendered (the action responded with a status code different
@@ -1052,21 +1032,6 @@ Loads one or more perl scripts in the current application's namespace. Syntactic
 sugar around Perl's C<require>:
 
     load 'UserActions.pl', 'AdminActions.pl';
-
-=head2 load_app
-
-Loads a Dancer package. This method sets the libdir to the current C<./lib>
-directory:
-
-    # if we have lib/Webapp.pm, we can load it like:
-    load_app 'Webapp';
-    # or with options
-    load_app 'Forum', prefix => '/forum', settings => {foo => 'bar'};
-
-To load multiple apps repeat load_app:
-
-    load_app 'one';
-    load_app 'two';
 
 =head2 mime
 
