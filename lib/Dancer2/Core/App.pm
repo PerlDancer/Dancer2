@@ -47,16 +47,10 @@ has default_config => (
     builder => '_build_default_config',
 );
 
-has route_handlers_order => (
+has route_handlers => (
     is      => 'rw',
     isa     => ArrayRef,
     default => sub { [] },
-);
-
-has route_handlers => (
-    is      => 'rw',
-    isa     => HashRef,
-    default => sub { {} },
 );
 
 has name => (
@@ -323,10 +317,10 @@ sub hook_candidates {
     }
 
     my @route_handlers;
-    for my $handler_name ( keys %{ $self->route_handlers } ) {
-        my $handler = $self->route_handlers->{$handler_name};
-        push @route_handlers, $handler
-          if blessed($handler) && $handler->can('supported_hooks');
+    for my $handler ( @{ $self->route_handlers } ) {
+        my $handler_code = $handler->{handler};
+        push @route_handlers, $handler_code
+          if blessed($handler_code) && $handler_code->can('supported_hooks');
     }
 
     # TODO : get the list of all plugins registered
@@ -402,9 +396,10 @@ sub send_file {
         public_dir => ( $options{system_path} ? File::Spec->rootdir : undef ),
     );
 
-    if ( $self->route_handlers->{File} ) {
-        for my $h ( keys %{ $self->route_handlers->{File}->hooks } ) {
-            my $hooks = $self->route_handlers->{File}->hooks->{$h};
+    # List shouldn't be too long.
+    if (my ($handler) = grep { $_->{name} eq "File" } @{$self->route_handlers}) {
+        for my $h ( keys %{ $handler->{handler}->hooks } ) {
+            my $hooks = $handler->{handler}->hooks->{$h};
             $file_handler->replace_hook( $h, $hooks );
         }
     }
@@ -442,16 +437,15 @@ sub init_route_handlers {
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
-        $self->route_handlers->{$handler_name} = $handler;
-        push @{$self->route_handlers_order}, $handler_name;
+        push @{$self->route_handlers}, { name => $handler_name, handler => $handler };
     }
 }
 
 sub register_route_handlers {
     my ($self) = @_;
-    for my $handler_name ( @{$self->{route_handlers_order}} ) {
-        my $handler = $self->route_handlers->{$handler_name};
-        $handler->register($self);
+    for my $handler ( @{$self->{route_handlers}} ) {
+        my $handler_code = $handler->{handler};
+        $handler_code->register($self);
     }
 }
 
