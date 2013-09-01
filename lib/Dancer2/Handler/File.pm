@@ -40,7 +40,6 @@ has regexp => (
 
 sub BUILD {
     my ($self) = @_;
-
     if ( !defined $self->public_dir ) {
         my $public =
              $self->app->config->{public}
@@ -89,7 +88,6 @@ sub code {
         }
 
         my $file_path = path( $self->public_dir, @tokens );
-        $self->execute_hook( 'handler.file.before_render', $file_path );
 
         if ( !-f $file_path ) {
             $ctx->response->has_passed(1);
@@ -99,6 +97,9 @@ sub code {
         if ( !-r $file_path ) {
             return $self->response_403($ctx);
         }
+
+        # Now we are sure we can render the file...
+        $self->execute_hook( 'handler.file.before_render', $file_path );
 
         # Read file content as bytes
         my $fh = open_file( "<", $file_path );

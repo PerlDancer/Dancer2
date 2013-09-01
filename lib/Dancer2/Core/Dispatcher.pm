@@ -114,6 +114,13 @@ sub dispatch {
 
             # pass the baton if the response says so...
             if ( $response->has_passed ) {
+
+                ## A previous route might have used splat, failed
+                ## this needs to be cleaned from the request.
+                if (exists $context->request->{_params}{splat}) {
+                    delete $context->request->{_params}{splat};
+                }
+
                 $response->has_passed(0);    # clear for the next round
                 next ROUTE;
             }

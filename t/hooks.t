@@ -30,7 +30,6 @@ my $tests_flags = {};
 {
     use Dancer2;
 
-
     for my $hook (@hooks) {
         hook $hook => sub {
             $tests_flags->{$hook} ||= 0;
@@ -99,8 +98,6 @@ my $tests_flags = {};
         like $response->content, qr/Internal Server Error/;
     };
 
-    # make sure we compile all the apps without starting a webserver
-    main->dancer_app->finish;
 }
 
 use Dancer2::Test;
