@@ -170,14 +170,17 @@ sub _build_default_config {
         %{ $self->runner_config },
         template       => 'Tiny',
         route_handlers => [
-                           [ File => {
-                                      public_dir => $ENV{DANCER_PUBLIC}
-                                      || path( $self->location, 'public' )
-                                     }
-                           ],
-                           [  AutoPage => 1 ],
-                          ],
-           };
+            [
+                File => {
+                    public_dir => $ENV{DANCER_PUBLIC} ||
+                                  path( $self->location, 'public' )
+                }
+            ],
+            [
+                AutoPage => 1
+            ],
+        ],
+    };
 }
 
 sub _init_hooks {
@@ -396,8 +399,8 @@ sub send_file {
         public_dir => ( $options{system_path} ? File::Spec->rootdir : undef ),
     );
 
-    # List shouldn't be too long.
-    if (my ($handler) = grep { $_->{name} eq "File" } @{$self->route_handlers}) {
+    # List shouldn't be too long, so we use 'grep' instead of 'first'
+    if (my ($handler) = grep { $_->{name} eq 'File' } @{$self->route_handlers}) {
         for my $h ( keys %{ $handler->{handler}->hooks } ) {
             my $hooks = $handler->{handler}->hooks->{$h};
             $file_handler->replace_hook( $h, $hooks );
@@ -427,8 +430,8 @@ sub init_route_handlers {
     my ($self) = @_;
 
     my $handlers_config = $self->config->{route_handlers};
-    for my $handler_data (@$handlers_config) {
-        my ($handler_name, $config) = @$handler_data;
+    for my $handler_data ( @{$handlers_config} ) {
+        my ($handler_name, $config) = @{$handler_data};
         $config = {} if !ref($config);
         $config->{app} = $self;
 
@@ -437,13 +440,17 @@ sub init_route_handlers {
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
-        push @{$self->route_handlers}, { name => $handler_name, handler => $handler };
+
+        push @{ $self->route_handlers }, {
+            name    => $handler_name,
+            handler => $handler,
+        };
     }
 }
 
 sub register_route_handlers {
     my ($self) = @_;
-    for my $handler ( @{$self->{route_handlers}} ) {
+    for my $handler ( @{ $self->{route_handlers} } ) {
         my $handler_code = $handler->{handler};
         $handler_code->register($self);
     }
