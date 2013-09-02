@@ -66,14 +66,7 @@ sub export_symbols_to {
 sub _compile_keyword {
     my ( $self, $keyword, $is_global ) = @_;
 
-    my $compiled_code = sub {
-        Dancer2::Core::debug( "["
-              . $self->app->name
-              . "] -> $keyword("
-              . join( ', ', map { defined() ? $_ : '<undef>' } @_ )
-              . ")" );
-        $self->$keyword(@_);
-    };
+    my $compiled_code = sub { $self->$keyword(@_); };
 
     if ( !$is_global ) {
         my $code = $compiled_code;
