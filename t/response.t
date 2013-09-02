@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
-use Dancer2 qw':tests';
+use Dancer2;
 use Dancer2::Core::Response;
 
 my $r = Dancer2::Core::Response->new( content => "hello" );
