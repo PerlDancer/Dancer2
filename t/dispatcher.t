@@ -3,7 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 use Carp 'croak';
 
-use Dancer2 (qw':tests');
+use Dancer2;
 use Dancer2::Test;
 use Dancer2::Core::App;
 use Dancer2::Core::Route;

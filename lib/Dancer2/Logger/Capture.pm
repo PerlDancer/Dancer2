@@ -18,7 +18,7 @@ The basics:
 A worked-out real-world example:
 
     use Test::More tests => 2;
-    use Dancer2 ':tests';
+    use Dancer2;
 
     set logger => 'capture';
 
