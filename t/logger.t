@@ -30,7 +30,7 @@ $logger->debug("foo");
 
 # Hard to make caller(6) work when we deal with the logger directly,
 # so do not check for a specific filename.
-like $_logs->[0], qr{debug \@2010-06-1\d \d\d:00:00> foo in };
+like $_logs->[0], qr{debug \@2010-06-1\d \d\d:\d\d:00> foo in };
 
 subtest 'log level and capture' => sub {
     use Dancer2::Logger::Capture;
@@ -77,5 +77,9 @@ subtest 'logger file' => sub {
     my $txt = <$log_file>;
     like $txt, qr/Danger! Warning!/;
 };
-
+# Explicitly close the logger file handle for those systems that
+# do not allow "open" files to be unlinked (Windows). GH#424.
+my $log_engine = engine('logger');
+close $log_engine->fh;
+    
 done_testing;
