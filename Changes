@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH#424,425: Fix logger tests for different timezones, and close
+                  logfile before deleting it: Windows dixit.
+                  (Gideon Souza, Russell Jenkins)
+
 0.09      2013-09-02 00:12:58 Asia/Jerusalem
 
     [ ENHANCEMENTS ]
