@@ -190,7 +190,7 @@ a request is passed to the appropriate route.
     };
 
 The above declares a before filter which uses C<forward> to do an internal
-redirect to C</foo/oversee> with an additional paramater C<note>.
+redirect to C</foo/oversee> with an additional parameter C<note>.
 
 See also the L<hook|Dancer2/hook> hook keyword.
 
@@ -644,7 +644,7 @@ That way, the appropriate environment config file will be loaded according to
 the running environment (if none is specified, it will be 'development').
 
 Note that you can change the running environment using the C<--environment>
-commandline switch.
+command line switch.
 
 Typically, you'll want to set the following values in a development config file:
 
