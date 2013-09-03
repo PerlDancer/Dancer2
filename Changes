@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH#423: Remove ':tests' from Dancer.pm import.
+
     [ BUG FIXES ]
     * GH#424,425: Fix logger tests for different timezones, and close
                   logfile before deleting it: Windows dixit.

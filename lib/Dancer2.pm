@@ -103,11 +103,6 @@ things:
 
 =over 4
 
-=item C<:tests>
-
-No importing of C<pass> function. This is to prevent conflict with
-L<Test::More> et al.
-
 =item C<:script>
 
 Do not process arguments.
@@ -126,10 +121,7 @@ sub import {
     my @final_args;
     my $as_script = 0;
     foreach (@args) {
-        if ( $_ eq ':tests' ) {
-            push @final_args, '!pass' => 1;
-        }
-        elsif ( $_ eq ':script' ) {
+        if ( $_ eq ':script' ) {
             $as_script = 1;
         }
         elsif ( substr( $_, 0, 1 ) eq '!' ) {
@@ -142,7 +134,7 @@ sub import {
 
     scalar(@final_args) % 2
       and die
-      "parameters to 'use Dancer2' should be one of : 'key => value', ':tests', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
+      "parameters to 'use Dancer2' should be one of : 'key => value', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
     my %final_args = @final_args;
 
     $final_args{dsl} ||= 'Dancer2::Core::DSL';
