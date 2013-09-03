@@ -254,7 +254,7 @@ sub api_version {2}
 
 sub register_plugin {
     my ( $self, $plugin ) = @_;
-    Dancer2::Core::debug("Registered $plugin");
+    $self->log( core => "Registered $plugin");
     push @{ $self->plugins }, $plugin;
 }
 

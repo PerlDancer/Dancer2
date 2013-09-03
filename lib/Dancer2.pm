@@ -159,14 +159,10 @@ sub import {
         postponed_hooks => $server->postponed_hooks,
     );
 
-    Dancer2::Core::debug("binding import method to $caller");
     _set_import_method_to_caller($caller);
 
     # register the app within the runner instance
-    Dancer2::Core::debug("binding app to $caller");
     $server->register_application($app);
-
-    Dancer2::Core::debug("exporting DSL symbols for $caller");
 
     # load the DSL, defaulting to Dancer2::Core::DSL
     load_class( $final_args{dsl} );
