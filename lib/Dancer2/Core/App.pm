@@ -254,7 +254,7 @@ sub api_version {2}
 
 sub register_plugin {
     my ( $self, $plugin ) = @_;
-    $self->log( debug => "Registered $plugin");
+    $self->log( core => "Registered $plugin");
     push @{ $self->plugins }, $plugin;
 }
 

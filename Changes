@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ ENHANCEMENTS ]
-    * GH#423: Remove ':tests' from Dancer.pm import.
+    * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
+    * GH#422: Get rid of core_debug method (Alberto Simões).
 
     [ BUG FIXES ]
     * GH#424,425: Fix logger tests for different timezones, and close
