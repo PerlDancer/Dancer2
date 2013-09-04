@@ -40,25 +40,24 @@ Disable the layout
 
 =item *
 
-The action built is a POST request.
+The action built matches POST / GET requests.
 
 =back
 
-=cut
+=head1 CONFIGURATION
 
-on_plugin_import {
-    my $dsl = shift;
-    $dsl->app->add_hook(
-        Dancer2::Core::Hook->new(
-            name => 'before',
-            code => sub {
-                if ( $dsl->request->is_ajax ) {
-                    $dsl->request->content_type('text/xml');
-                }
-            }
-        )
-    );
-};
+By default the plugin will use a content-type of 'text/xml' but this can be overridden
+with plugin setting 'content_type'.
+
+Here is example to use JSON:
+
+  plugins:
+    Ajax:
+      content_type: 'application/json'
+
+
+
+=cut
 
 register 'ajax' => sub {
     my ( $dsl, $pattern, @rest ) = @_;
@@ -66,12 +65,19 @@ register 'ajax' => sub {
     my $code;
     for my $e (@rest) { $code = $e if ( ref($e) eq 'CODE' ) }
 
+    my $content_type = plugin_setting->{content_type} || 'text/xml';
+
     my $ajax_route = sub {
 
         # must be an XMLHttpRequest
         if ( not $dsl->request->is_ajax ) {
             $dsl->pass and return 0;
         }
+
+        # Default response content type is either what's defined in the
+        # plugin setting or text/xml
+        $dsl->response->header('Content-Type')
+          or $dsl->response->content_type( $content_type );
 
         # disable layout
         my $layout = $dsl->setting('layout');
@@ -86,5 +92,3 @@ register 'ajax' => sub {
 
 register_plugin;
 1;
-
-
