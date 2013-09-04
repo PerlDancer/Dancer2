@@ -401,47 +401,50 @@ This can easily be handled with a before filter to check their session:
             forward '/login', { requested_path => request->dispatch_path };
         }
     };
+
     get '/' => sub { return "Home Page"; };
+
     get '/secret' => sub { return "Top Secret Stuff here"; };
     
     get '/login' => sub {
         # Display a login page; the original URL they requested is available as
-        # params->{'requested_path'}, so could be put in a hidden field in the form
-        template 'login', { path => params->{'requested_path'} };
+        # param('requested_path'), so could be put in a hidden field in the form
+        template 'login', { path => param('requested_path') };
     };
     
     post '/login' => sub {
         # Validate the username and password they supplied
-        if (params->{user} eq 'bob' && params->{pass} eq 'letmein') {
-            session user => params->{user};
-            redirect params->{path} || '/';
+        if (param('user') eq 'bob' && param('pass') eq 'letmein') {
+            session user => param('user');
+            redirect param('path') || '/';
         } else {
             redirect '/login?failed=1';
         }
     };
+
     dance();
 
 Here is what the corresponding C<login.tt> file should look like. You should place
 it in a directory called views:
 
     <html>
-    <head>
+      <head>
     	<title>Session and logging in</title>
-    </head>
-    <body>
+      </head>
+      <body>
     	<form action='/login' method='POST'> 	
     		User Name : <input type='text' name='user'/>
     		Password: <input type='password' name='pass' />
-    		<!-- Put the original path requested
-    		 into a hidden field so it's sent back in the POST
-    		 and can be used to redirect to the right page after login 
-    		 -->
+
+    		<!-- Put the original path requested into a hidden
+      	             field so it's sent back in the POST and can be
+      	             used to redirect to the right page after login -->
     		<input type='hidden' name='path' value='[% path %]'/>
+
     		<input type='submit' value='Login' />
     	</form>
-    </body>
+      </body>
     </html>
-
 
 Of course, you'll probably want to validate your users against a database table,
 or maybe via IMAP/LDAP/SSH/POP3/local system accounts via PAM etc.
