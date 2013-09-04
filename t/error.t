@@ -35,6 +35,8 @@ subtest 'basic defaults of Error object' => sub {
     is $e->status,  500,                                 'code';
     is $e->title,   'Error 500 - Internal Server Error', 'title';
     is $e->message, undef,                               'message';
+    like $e->content, qr!http://localhost:5000/foo/css!,
+        "error content contains css path relative to uri_base";
 };
 
 subtest "send_error in route" => sub {

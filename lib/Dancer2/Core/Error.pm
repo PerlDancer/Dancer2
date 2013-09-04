@@ -146,11 +146,14 @@ sub default_error_page {
 
     require Template::Tiny;
 
+    my $uri_base = $self->has_context ?
+        $self->context->request->uri_base : ''; 
     my $opts = {
-        title   => $self->title,
-        charset => $self->charset,
-        content => $self->message,
-        version => Dancer2->VERSION,
+        title    => $self->title,
+        charset  => $self->charset,
+        content  => $self->message,
+        version  => Dancer2->VERSION,
+        uri_base => $uri_base,
     };
 
     Template::Tiny->new->process( \<<"END_TEMPLATE", $opts, \my $output );
@@ -158,7 +161,7 @@ sub default_error_page {
 <html>
 <head>
 <title>[% title %]</title>
-<link rel="stylesheet" href="/css/error.css" />
+<link rel="stylesheet" href="[% uri_base %]/css/error.css" />
 <meta http-equiv="Content-type" content="text/html; charset='[% charset %]'" />
 </head>
 <body>

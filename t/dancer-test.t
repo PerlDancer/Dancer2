@@ -16,8 +16,17 @@ my @routes = (
     '/foo',
     [ GET => '/foo' ],
     Dancer2::Core::Request->new(
-        path   => '/foo',
-        method => 'GET',
+        env => {
+            'psgi.url_scheme' => 'http',
+            REQUEST_METHOD    => 'GET',
+            QUERY_STRING      => '',
+            SERVER_NAME       => 'localhost',
+            SERVER_PORT       => 5000,
+            SERVER_PROTOCOL   => 'HTTP/1.1',
+            SCRIPT_NAME       => '',
+            PATH_INFO         => '/foo',
+            REQUEST_URI       => '/foo',
+        }
     ),
     Dancer2::Core::Response->new(
         content => 'fighter',
