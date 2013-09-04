@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH#431: Miscellaneous documentation fixes (Gideon Souza)
+
     [ ENHANCEMENTS ]
     * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
     * GH#422: Get rid of core_debug method (Alberto Simões).
