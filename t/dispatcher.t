@@ -167,8 +167,12 @@ foreach my $test (@tests) {
 
 foreach my $test (
     {   env => {
-            REQUEST_METHOD => 'GET',
-            PATH_INFO      => '/error',
+            REQUEST_METHOD    => 'GET',
+            PATH_INFO         => '/error',
+            'psgi.uri_scheme' => 'http',
+            SERVER_NAME       => 'localhost',
+            SERVER_PORT       => 5000,
+            SERVER_PROTOCOL   => 'HTTP/1.1',
         },
         expected => [
             500,
