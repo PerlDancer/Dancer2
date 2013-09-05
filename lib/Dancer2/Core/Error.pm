@@ -214,8 +214,9 @@ sub full_message {
 }
 
 has serializer => (
-    is  => 'ro',
-    isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
+    is        => 'ro',
+    isa       => ConsumerOf ['Dancer2::Core::Role::Serializer'],
+    predicate => 1,
 );
 
 has session => (
@@ -231,8 +232,9 @@ has context => (
 
 sub BUILD {
     my ($self) = @_;
+
     $self->has_context &&
-        $self->context->app->execute_hook( 'core.error.init', $self );
+      $self->context->app->execute_hook( 'core.error.init', $self );
 }
 
 has exception => (
@@ -251,8 +253,13 @@ has response => (
 );
 
 has content_type => (
-    is      => 'ro',
-    default => sub {'text/html'},
+    is      => 'lazy',
+    default => sub {
+        my $self = shift;
+        $self->has_serializer
+            ? $self->serializer->content_type
+            : 'text/html'
+    },
 );
 
 has content => (
@@ -261,15 +268,28 @@ has content => (
     default => sub {
         my $self = shift;
 
-        # we check for a template, for a static file and,
+        # Apply serializer 
+        if ( $self->has_serializer ) {
+            my $content = {
+                message => $self->message,
+                title   => $self->title,
+                status  => $self->status,
+            };
+            $content->{exception} = $self->exception
+                if defined $self->{exception};
+            return $self->serializer->serialize($content);
+        }
+
+        # Otherwise we check for a template, for a static file and,
         # if all else fail, the default error page
 
         if ( $self->has_context and $self->template ) {
             return $self->context->app->template(
                 $self->template,
-                {   title   => $self->title,
-                    content => $self->message,
-                    status  => $self->status,
+                {   title     => $self->title,
+                    content   => $self->message,
+                    exception => $self->exception,
+                    status    => $self->status,
                 }
             );
         }
