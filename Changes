@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ DOCUMENTATION ]
-    * GH#431: Miscellaneous documentation fixes (Gideon Souza)
+    * GH#431: Miscellaneous documentation fixes (Gideon D'souza)
 
     [ ENHANCEMENTS ]
     * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
@@ -12,7 +12,7 @@
     [ BUG FIXES ]
     * GH#424,425: Fix logger tests for different timezones, and close
                   logfile before deleting it: Windows dixit.
-                  (Gideon Souza, Russell Jenkins)
+                  (Gideon D'souza, Russell Jenkins)
 
 0.09      2013-09-02 00:12:58 Asia/Jerusalem
 
