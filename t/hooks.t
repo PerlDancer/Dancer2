@@ -56,7 +56,11 @@ my $tests_flags = {};
 
     hook 'before_serializer' => sub {
         my $data = shift;
-        push @{$data}, ( added_in_hook => 1 );
+        if ( ref $data eq 'ARRAY' ) {
+            push( @{$data}, ( added_in_hook => 1 ) );
+        } else {
+            $data->{'added_in_hook'} = 1;
+        }
     };
 
     get '/json' => sub {
