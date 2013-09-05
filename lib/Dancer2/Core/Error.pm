@@ -304,7 +304,7 @@ sub throw {
       if $self->show_errors && defined $self->exception;
 
     $self->response->status( $self->status );
-    $self->response->header( $self->content_type );
+    $self->response->content_type( $self->content_type );
     $self->response->content($message);
 
     $self->has_context &&
