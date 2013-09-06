@@ -121,12 +121,14 @@ has response => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $resp = Dancer2::Core::Response->new;
-        if ($self->has_app) {
-            my $engine = $self->app->engine('serializer');
-            $resp->serializer($engine) if $engine;
-        }
-        return $resp;
+
+        my $engine = $self->has_app
+            ? $self->app->engine('serializer')
+            : undef;
+
+        return Dancer2::Core::Response->new(
+            $engine ? (serializer => $engine) : ()
+        );
     },
 );
 

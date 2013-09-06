@@ -40,7 +40,7 @@ parameters
 =cut
 
 has serializer => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
     required => 0,
     predicate => 1,
