@@ -37,17 +37,9 @@ Set has_passed to true.
 sub pass { shift->has_passed(1) }
 
 
-=method serializer( $serializer )
-
-Set or returns the optional serializer object used to deserialize request
-parameters
-
-=cut
-
 has serializer => (
     is        => 'ro',
     isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
-    required  => 0,
     predicate => 1,
 );
 
