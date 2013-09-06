@@ -9,9 +9,8 @@ use Moo;
 use Encode;
 use Dancer2::Core::Types;
 
-use Scalar::Util qw/looks_like_number blessed/;
+use Scalar::Util qw/looks_like_number/;
 use Dancer2 ();
-use Dancer2::Core::MIME;
 use Dancer2::Core::HTTP;
 
 use overload
