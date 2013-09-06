@@ -9,7 +9,6 @@ use Moo;
 use Encode;
 use Dancer2::Core::Types;
 
-use Scalar::Util qw/looks_like_number/;
 use Dancer2 ();
 use Dancer2::Core::HTTP;
 
@@ -91,11 +90,7 @@ has status => (
     isa     => Num,
     default => sub {200},
     lazy    => 1,
-    coerce  => sub {
-        my ($status) = @_;
-        return $status if looks_like_number($status);
-        Dancer2::Core::HTTP->status($status);
-    },
+    coerce  => sub { Dancer2::Core::HTTP->status(shift) },
 
     # This trigger makes sure we drop the content whenever
     # we set the status to [23]04.
