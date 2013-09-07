@@ -71,7 +71,6 @@ sub default_config {
         views        => ( $ENV{DANCER_VIEWS}
               || path( $self->config_location, 'views' ) ),
         appdir          => $self->location,
-        import_warnings => 1,
     };
 }
 

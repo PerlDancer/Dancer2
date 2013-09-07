@@ -116,6 +116,7 @@ sub import {
     my ( $caller, $script ) = caller;
 
     strict->import;
+    warnings->import;
     utf8->import;
 
     my @final_args;
