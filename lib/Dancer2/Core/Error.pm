@@ -81,7 +81,7 @@ This is only an attribute getter, you'll have to set it at C<new>.
 =cut
 
 has title => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     lazy    => 1,
     builder => '_build_title',
@@ -201,7 +201,7 @@ The message of the error page.
 =cut
 
 has message => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Str,
 );
 
@@ -236,7 +236,7 @@ sub BUILD {
 }
 
 has exception => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Str,
 );
 
