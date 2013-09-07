@@ -2,10 +2,11 @@ package Dancer2::Core::Request::Upload;
 
 # ABSTRACT: Class representing file upload requests
 use Moo;
-use Dancer2::Core::Types;
 
 use Carp;
 use File::Spec;
+
+use Dancer2::Core::Types;
 use Dancer2::FileUtils qw(open_file);
 
 =head1 DESCRIPTION
@@ -26,7 +27,7 @@ Returns the filename (full path) as sent by the client.
 =cut
 
 has filename => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Str,
 );
 
@@ -44,7 +45,7 @@ For example, in directory /tmp, and given a random name, with no file extension.
 
 
 has tempname => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Str,
 );
 
@@ -59,7 +60,7 @@ Returns a hashRef of the headers associated with this upload.
 =cut
 
 has headers => (
-    is  => 'rw',
+    is  => 'ro',
     isa => HashRef,
 );
 
@@ -70,7 +71,7 @@ The size of the upload, in bytes. Optional.
 =cut
 
 has size => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Num,
 );
 
@@ -94,7 +95,7 @@ sub file_handle {
 Copies the temporary file using File::Copy. Returns true for success,
 false for failure.
 
-=cut    
+=cut
 
 sub copy_to {
     my ( $self, $target ) = @_;
