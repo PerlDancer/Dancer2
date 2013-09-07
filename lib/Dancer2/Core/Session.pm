@@ -44,7 +44,7 @@ Contains the data of the session (Hash).
 =cut
 
 has data => (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     default => sub { {} },
 );
