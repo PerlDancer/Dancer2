@@ -444,6 +444,13 @@ has serializer => (
     predicate => 1,
 );
 
+
+=method serializer()
+
+Returns the optional serializer object used to deserialize request parameters.
+
+=cut
+
 =method data()
 
 If the application has a serializer and if the request has serialized
