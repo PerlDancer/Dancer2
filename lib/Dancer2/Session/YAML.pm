@@ -4,7 +4,7 @@ package Dancer2::Session::YAML;
 
 use Moo;
 use Dancer2::Core::Types;
-use YAML::Any;
+use YAML::XS;
 
 has _suffix => (
     is      => 'ro',
@@ -16,13 +16,13 @@ with 'Dancer2::Core::Role::SessionFactory::File';
 
 sub _freeze_to_handle {
     my ( $self, $fh, $data ) = @_;
-    print {$fh} YAML::Any::Dump($data);
+    print {$fh} YAML::XS::Dump($data);
     return;
 }
 
 sub _thaw_from_handle {
     my ( $self, $fh ) = @_;
-    return YAML::Any::LoadFile($fh);
+    return YAML::XS::LoadFile($fh);
 }
 
 1;
