@@ -44,9 +44,9 @@ sub to_header {
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
-    push @headers, "path=" . $self->path       if $self->path;
+    push @headers, "path="    . $self->path    || '/';
     push @headers, "expires=" . $self->expires if $self->expires;
-    push @headers, "domain=" . $self->domain   if $self->domain;
+    push @headers, "domain="  . $self->domain  if $self->domain;
     push @headers, "Secure"                    if $self->secure;
     push @headers, 'HttpOnly' unless $no_httponly;
 
