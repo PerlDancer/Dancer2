@@ -8,7 +8,8 @@
     * GH#422: Get rid of core_debug method (Alberto Simões).
     * GH#421: Support Plugin::Ajax content_type (Russell Jenkins).
     * GH#428: Make default errors CSS path relocatable (Russell Jenkins).
-    # GH#427, GH#443: Replace global warnings with lexical (Russell Jenkins).
+    * GH#427, GH#443: Replace global warnings with lexical (Russell Jenkins).
+    * GH#374: Don't create an app from app.psgi (Alberto Simões).
 
     [ BUG FIXES ]
     * GH#424,425: Fix logger tests for different timezones, and close
