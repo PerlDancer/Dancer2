@@ -261,11 +261,6 @@ C<template> keyword. Check C<Dancer2> manpage for details.
 If true, C<config> will return an object instead of a hash reference. See
 L<Dancer2::Config::Object> for more information.
 
-=head3 import_warnings (boolean, default: enabled)
-
-If true, or not present, C<use warnings> will be in effect in scripts in which
-you import C<Dancer2>.  Set to a false value to disable this.
-
 =head3 startup_info (boolean)
 
 If set to true, prints a banner at the server start with information such as
