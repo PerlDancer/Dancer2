@@ -564,9 +564,8 @@ my \$server = Plack::Handler::FCGI->new(nproc => 5, detach => 1);
 "app.pl" =>
 
 "$PERL_INTERPRETER
-use Dancer2;
 use $appname;
-dance;
+${appname}->dance;
 ",
 
 "$LIB_FILE" =>
