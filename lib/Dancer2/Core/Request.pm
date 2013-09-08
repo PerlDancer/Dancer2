@@ -3,11 +3,13 @@ package Dancer2::Core::Request;
 # ABSTRACT: Interface for accessing incoming requests
 
 use Moo;
+
 use Carp;
 use Encode;
 use HTTP::Body;
 use URI;
 use URI::Escape;
+
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
 
@@ -96,18 +98,23 @@ our $XS_PARSE_QUERY_STRING = !$@;
 
 
 # add an attribute for each HTTP_* variables
-my @http_env_keys = (
-    'user_agent',      'accept_language', 'accept_charset',
-    'accept_encoding', 'keep_alive',      'connection',
-    'accept',          'accept_type',     'referer',
-    'x_requested_with',
+# (HOST is managed manually)
+my @http_env_keys = (qw/
+    accept
+    accept_charset
+    accept_encoding
+    accept_language
+    accept_type
+    connection
+    keep_alive
+    referer
+    user_agent
+    x_requested_with
+/);
 
-    # 'host' is managed manually
-);
-
-foreach my $attr (@http_env_keys) {
+foreach my $attr ( @http_env_keys ) {
     has $attr => (
-        is      => 'rw',
+        is      => 'ro',
         isa     => Str,
         lazy    => 1,
         default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } },
@@ -135,7 +142,7 @@ Return the path requested by the client.
 =cut
 
 has path => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     lazy    => 1,
     builder => '_build_path',
@@ -208,7 +215,7 @@ Return the content type of the request.
 =cut
 
 has content_type => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     lazy    => 1,
     default => sub {
@@ -223,7 +230,7 @@ Return the content length of the request.
 =cut
 
 has content_length => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Num,
     lazy    => 1,
     default => sub {
@@ -241,13 +248,13 @@ already did it for you and kept the raw body untouched in there.
 =cut
 
 has body => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     default => sub {''},
 );
 
 has id => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Num,
 );
 
@@ -312,15 +319,15 @@ objects.
 You should probably use the C<upload($name)> accessor instead of manually accessing the
 C<uploads> hash table.
 
-=cut 
+=cut
 
 has uploads => (
-    is  => 'rw',
+    is  => 'ro',
     isa => HashRef,
 );
 
 has body_is_parsed => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Bool,
     default => sub {0},
 );
@@ -430,19 +437,19 @@ sub scheme {
       || "";
 }
 
-=method serializer( $serializer )
-
-Set or returns the optional serializer object used to deserialize request
-parameters
-
-=cut
 
 has serializer => (
-    is        => 'rw',
+    is        => 'ro',
     isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
-    required  => 0,
     predicate => 1,
 );
+
+
+=method serializer()
+
+Returns the optional serializer object used to deserialize request parameters.
+
+=cut
 
 =method data()
 
