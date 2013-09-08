@@ -269,10 +269,6 @@ sub _build_config_triggers {
 
     # TODO route_cache
     return {
-        import_warnings => sub {
-            my ( $self, $value ) = @_;
-            $^W = $value ? 1 : 0;
-        },
         traces => sub {
             my ( $self, $traces ) = @_;
             require Carp;

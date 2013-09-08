@@ -41,11 +41,11 @@ route specification, whose value is made available through C<params>
 - more on that later.
 
 Note that you don't need to use the C<strict> and C<warnings> pragma, they are
-already loaded by Dancer2.  (If you don't want the C<warnings> pragma (which can
-lead to undesired warnings about use of undef values, for example), then set the
-L<import_warnings|Dancer2::Config/import_warnings> setting to a false value.
+already loaded by Dancer2.
 
-
+If you I<really> do not want the C<warnings> pragma (for example, due to an 
+undesired warning about use of undef values), add a C<no warnings> pragma to
+the appropriate block in your module or psgi file.
 
 =head2 Starting a Dancer2 project
 
