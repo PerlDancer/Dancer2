@@ -7,6 +7,7 @@ use warnings;
 
 use File::Basename ();
 use File::Spec;
+use File::Temp qw(tempfile);
 use Carp;
 use Cwd 'realpath';
 
@@ -49,7 +50,7 @@ file reading subroutines or using additional modules.
 
     set_file_mode($fh);
 
-=head1 EXPORT
+=head1 EXPORTS
 
 Nothing by default. You can provide a list of subroutines to import.
 
@@ -58,7 +59,7 @@ Nothing by default. You can provide a list of subroutines to import.
 use Exporter 'import';
 our @EXPORT_OK = qw(
   dirname open_file path read_file_content read_glob_content
-  path_or_empty set_file_mode normalize_path
+  path_or_empty set_file_mode normalize_path atomic_write
 );
 
 
@@ -214,6 +215,19 @@ sub normalize_path {
     #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
     $path =~ s{^//}{/};
     return $path;
+}
+
+=func atomic_write ($file, $data);
+
+=cut
+
+sub atomic_write {
+    my ($file, $data) = @_;
+    my ($fh, $filename) = tempfile("tmpXXXXXXXXX");
+    set_file_mode($fh);
+    print $fh $data;
+    close $fh or die "Can't close '$file': $!\n";
+    rename($filename, $file) or die "Can't move '$filename' to '$file'";
 }
 
 1;

@@ -14,10 +14,9 @@ has _suffix => (
 
 with 'Dancer2::Core::Role::SessionFactory::File';
 
-sub _freeze_to_handle {
-    my ( $self, $fh, $data ) = @_;
-    print {$fh} YAML::Any::Dump($data);
-    return;
+sub _freeze_to_string {
+    my ( $self, $data ) = @_;
+    return YAML::Any::Dump($data);
 }
 
 sub _thaw_from_handle {

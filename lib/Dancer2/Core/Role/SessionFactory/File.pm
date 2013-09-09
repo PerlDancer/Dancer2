@@ -11,7 +11,7 @@ This role manages the files.  Classes consuming it only need to handle
 serialization and deserialization.
 
 Classes consuming this must satisfy three requirements: C<_suffix>,
-C<_freeze_to_handle> and C<_thaw_from_handle>.
+C<_freeze_to_string> and C<_thaw_from_handle>.
 
 
     package Dancer2::SessionFactory::XYX
@@ -26,12 +26,12 @@ C<_freeze_to_handle> and C<_thaw_from_handle>.
 
     with 'Dancer2::Core::Role::SessionFactory::File';
 
-    sub _freeze_to_handle {
-        my ($self, $fh, $data) = @_;
+    sub _freeze_to_string {
+        my ($self, $data) = @_;
 
-        # ... do whatever to get data into $fh
+        # ... do whatever to get convert data into a string
 
-        return;
+        return $converted_data;
     }
 
     sub _thaw_from_handle {
@@ -51,7 +51,7 @@ use strict;
 use warnings;
 use Carp 'croak';
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw(path set_file_mode);
+use Dancer2::FileUtils qw(path set_file_mode atomic_write);
 use Fcntl ':flock';
 
 use Moo::Role;
@@ -64,7 +64,7 @@ with 'Dancer2::Core::Role::SessionFactory';
 
 requires '_suffix';              # '.yml', '.json', etc.
 requires '_thaw_from_handle';    # given handle, return session 'data' field
-requires '_freeze_to_handle';    # given handle and data, serialize it
+requires '_freeze_to_string';    # given data, serialize it
 
 
 #--------------------------------------------------------------------------#
@@ -140,11 +140,7 @@ sub _flush {
     my ( $self, $id, $data ) = @_;
     my $session_file = path( $self->session_dir, $id . $self->_suffix );
 
-    open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
-    flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
-    set_file_mode($fh);
-    $self->_freeze_to_handle( $fh, $data );
-    close $fh or die "Can't close '$session_file': $!\n";
+    atomic_write( $session_file, $self->_freeze_to_string($data));
 
     return $data;
 }
