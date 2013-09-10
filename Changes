@@ -11,7 +11,7 @@
     * GH#427, GH#443: Replace global warnings with lexical (Russell Jenkins).
     * GH#374: Don't create an app from app.psgi (Alberto Simões).
     * Cleanup Core::Request, Core::Request::Upload (Mickey Nasriachi).
-    * GH#445: Test Template::Simple (Alexis Sukrieh)
+    * GH#445: Test Template::Simple (Alexis Sukrieh, Russell Jenkins).
 
     [ BUG FIXES ]
     * GH#424,425: Fix logger tests for different timezones, and close
