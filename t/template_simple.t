@@ -2,9 +2,9 @@ use Test::More tests => 9;
 
 use strict;
 use warnings;
-use Dancer::FileUtils 'path';
+use Dancer2::FileUtils 'path';
 
-use Dancer::Template::Simple;
+use Dancer2::Template::Simple;
 
 {
     package Foo;
@@ -18,7 +18,7 @@ use Dancer::Template::Simple;
 
 # variable interpolation, with file-based template
 
-my $engine = Dancer::Template::Simple->new;
+my $engine = Dancer2::Template::Simple->new;
 my $template = path('t', 'views', 'template_simple_index.tt');
 
 my $result = $engine->render(
@@ -38,7 +38,7 @@ $expected = "one=1, two=2, three=3 - 77";
 $template = "one=<% one %>, two=<% two %>, three=<% three %> - <% hash.key %>";
 
 eval { $engine->render($template, { one => 1, two => 2, three => 3}) };
-like $@, qr/is not a regular file/, "prototype failure detected";
+like $@, qr/Can't open .* using mode '<'/, "prototype failure detected";
 
 $result = $engine->render(\$template, {
     one => 1, two => 2, three => 3,
