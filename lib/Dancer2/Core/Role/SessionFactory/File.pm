@@ -121,7 +121,7 @@ sub _retrieve {
     return unless -f $session_file;
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
-    flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
+    flock $fh, LOCK_SH or die "Can't lock file '$session_file': $!\n";
     my $data = $self->_thaw_from_handle($fh);
     close $fh or die "Can't close '$session_file': $!\n";
 
@@ -142,6 +142,8 @@ sub _flush {
 
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
+    seek $fh, 0, 0 or die "Can't seek in file '$session_file': $!\n";
+    truncate $fh, 0 or die "Can't truncate file '$session_file': $!\n";
     set_file_mode($fh);
     $self->_freeze_to_handle( $fh, $data );
     close $fh or die "Can't close '$session_file': $!\n";
