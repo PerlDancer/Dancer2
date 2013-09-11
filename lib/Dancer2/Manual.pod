@@ -88,7 +88,7 @@ information.  They should not be used for requests which change data on the
 server or have other effects.
 
 When defining a route handler for the GET method, Dancer2 automatically defines
-a route handler for the HEAD method, in order to honour HEAD requests for each
+a route handler for the HEAD method (in order to honour HEAD requests for each
 of your GET route handlers).
 
 To define a GET action, use the L<get|Dancer2::Manual/get> keyword.
@@ -366,7 +366,7 @@ argument received by the hook is a reference to the complete content string.
 =head2 Error handling
 
 When an error is caught by Dancer2's core, an exception object is built (of the
-class L<Dancer2::Core::Error>. This class provides hook to let the user alter
+class L<Dancer2::Core::Error>). This class provides hook to let the user alter
 the error work-flow if needed.
 
 C<init_error> hooks are called whenever an error object is built, the object is
