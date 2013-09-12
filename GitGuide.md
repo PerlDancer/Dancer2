@@ -104,11 +104,18 @@ It should list the available perl versions, like this (incomplete) list:
     perl-5.12.4
     ...
 
+Now run the init command for perlbrew. The init command initializes and controls 
+processes. The init command is run as the last step of any startup 
+process.
+
+    $ perlbrew init
+
+
 Then go on and install a version inside Perlbrew. We recommend you
 give a name to the installation (`--as` option), as well as compiling
 without the tests (`--n` option) to speed it up.
 
-    $ perlbrew install -n perl-5.14.2 --as dancer_development -j 3
+    $ perlbrew install -n perl-5.14.4 --as dancer_development -j 3
 
 Wait a while, and it should be done. Switch to your new Perl with:
 
