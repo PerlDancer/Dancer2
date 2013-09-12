@@ -564,6 +564,10 @@ my \$server = Plack::Handler::FCGI->new(nproc => 5, detach => 1);
 "app.pl" =>
 
 "$PERL_INTERPRETER
+
+use FindBin;
+use lib \"\$FindBin::Bin/../lib\";
+
 use $appname;
 $appname->dance;
 ",
