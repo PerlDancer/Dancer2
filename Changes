@@ -2,7 +2,7 @@
 
     [ DOCUMENTATION ]
     * GH#431: Miscellaneous documentation fixes (Gideon D'souza)
-    * Small POD corrections (ash13)
+    * Small POD corrections (Ashvini V)
 
     [ ENHANCEMENTS ]
     * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
