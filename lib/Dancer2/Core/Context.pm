@@ -13,7 +13,7 @@ use Dancer2::Core::Cookie;
 
 =attr app
 
-Reference to the L<Dancer2::Core::App> object for the current application. 
+Reference to the L<Dancer2::Core::App> object for the current application.
 
 =cut
 
@@ -61,7 +61,7 @@ sub _build_request {
         if $self->has_app;
 
     my $req = Dancer2::Core::Request->new( env => $self->env,
-        $engine ? ( serializer => $engine ) : (),        
+        $engine ? ( serializer => $engine ) : (),
     );
 
     # Log deserialization errors

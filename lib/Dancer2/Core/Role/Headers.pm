@@ -61,7 +61,7 @@ sub header {
 
 =method push_header
 
-Add the header no matter if it already exists or not. 
+Add the header no matter if it already exists or not.
 
     $self->push_header( 'X-Wing' => '1' );
 

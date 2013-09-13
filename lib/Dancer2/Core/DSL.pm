@@ -385,4 +385,3 @@ L<http://advent.perldancer.org/2010/18>
 =cut
 
 1;
-

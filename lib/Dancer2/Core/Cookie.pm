@@ -58,14 +58,14 @@ sub to_header {
 
 The cookie's value.
 
-(Note that cookie objects use overloading to stringify to their value, so if 
+(Note that cookie objects use overloading to stringify to their value, so if
 you say e.g. return "Hi, $cookie", you'll get the cookie's value there.)
 
 In list context, returns a list of potentially multiple values; in scalar
 context, returns just the first value.  (So, if you expect a cookie to have
 multiple values, use list context.)
 
-=cut 
+=cut
 
 has value => (
     is       => 'rw',
@@ -112,7 +112,7 @@ The cookie's expiration date.  There are several formats.
 
 Unix epoch time like 1288817656 to mean "Wed, 03-Nov-2010 20:54:16 GMT"
 
-It also supports a human readable offset from the current time such as "2 hours". 
+It also supports a human readable offset from the current time such as "2 hours".
 See the documentation of L<Dancer2::Core::Time> for details of all supported
 formats.
 

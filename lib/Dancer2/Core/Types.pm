@@ -15,7 +15,7 @@ our @EXPORT_OK;
 
 =head1 DESCRIPTION
 
-Type definitions for Moo attributes. These are defined as subroutines. 
+Type definitions for Moo attributes. These are defined as subroutines.
 
 =cut
 
@@ -31,7 +31,7 @@ my $namespace = qr/
     $
 /x;
 
-=head1 MOO TYPES 
+=head1 MOO TYPES
 
 =head2 ReadableFilePath($value)
 
@@ -182,4 +182,3 @@ MooX::Types::MooseLike::register_types( $definitions, __PACKAGE__ );
 L<MooX::Types::MooseLike> for more available types
 
 =cut
-

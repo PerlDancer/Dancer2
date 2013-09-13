@@ -78,4 +78,3 @@ Serializes a Perl data structure into a JSON string.
 =method deserialize($content)
 
 Deserializes a JSON string into a Perl data structure.
-

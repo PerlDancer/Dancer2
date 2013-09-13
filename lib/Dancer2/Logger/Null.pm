@@ -18,4 +18,3 @@ Discards the message.
 sub log {1}
 
 1;
-

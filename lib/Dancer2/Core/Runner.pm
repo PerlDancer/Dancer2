@@ -212,4 +212,3 @@ It then sets up the default configuration.
 
 Runs C<finish> (to set everything up) on all of the server's applications. It
 then Sets up the current server and starts it by calling its C<start> method.
-

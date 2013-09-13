@@ -9,7 +9,7 @@ needs to be expressed in seconds, with a timestamp. Although it's very
 convenient for the machine and calculations, it's not very handy for a
 human-being, for instance in a configuration file.
 
-This class provides everything needed to translate any human-understandable 
+This class provides everything needed to translate any human-understandable
 expression into a number of seconds.
 
 =head1 SYNOPSIS
@@ -113,7 +113,7 @@ understands:
 Months and years are currently fixed at 30 and 365 days.  This may change.
 Anything else is used verbatim as the expression of a number of seconds.
 
-Example: 
+Example:
 
     2 hours, 3 days, 3d, 1 week, 3600, etc...
 

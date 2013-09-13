@@ -841,7 +841,7 @@ Returns the version of Dancer. If you need the major version, do something like:
 Logs a message of debug level:
 
     debug "This is a debug message";
-    
+
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log messages go.
 
 =head2 dirname
@@ -1162,7 +1162,7 @@ This makes it possible to nest prefixes:
 
    prefix '/home' => sub {
        ## some routes
-       
+
       prefix '/private' => sub {
          ## here we are under /home/private...
 
@@ -1519,7 +1519,7 @@ Returns the response of processing the given template with the given parameters
 (and optional settings), wrapping it in the default or specified layout too, if
 layouts are in use.
 
-An example of a  route handler which returns the result of using template to 
+An example of a  route handler which returns the result of using template to
 build a response with the current template engine:
 
     get '/' => sub {
@@ -1700,4 +1700,3 @@ Logs a warning message through the current logger engine:
     warning "This is a warning";
 
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log messages go.
-

@@ -19,8 +19,8 @@ $Dancer2::VERSION ||= '0.09';    # 2.0.9
 
 =head1 DESCRIPTION
 
-Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for 
-Perl. Dancer2 is a complete rewrite based on L<Moo>. 
+Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for
+Perl. Dancer2 is a complete rewrite based on L<Moo>.
 
 Dancer2 is easy and fun:
 
@@ -28,10 +28,10 @@ Dancer2 is easy and fun:
     get '/' => sub { "Hello World" };
     dance;
 
-This is the main module for the Dancer2 distribution. It contains logic for 
-creating a new Dancer2 application. 
+This is the main module for the Dancer2 distribution. It contains logic for
+creating a new Dancer2 application.
 
-You are also welcome to join our mailing list at dancer-users@perldancer.org, 
+You are also welcome to join our mailing list at dancer-users@perldancer.org,
 and we're also on IRC: #dancer on irc.perl.org.
 
 =head2 Documentation Index
@@ -87,14 +87,14 @@ sub runner {$runner}
 
 =method import;
 
-If it doesn't exist already, C<import> creates a new runner, imports strict 
-and warnings, loads additional libraries, creates a new Dancer2 app (of type 
+If it doesn't exist already, C<import> creates a new runner, imports strict
+and warnings, loads additional libraries, creates a new Dancer2 app (of type
 L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
 
 If any additional argument processing is needed, it will be done at this point.
 
-Import gets called when you use Dancer2. You can specify import options giving 
-you control over the keywords that will be imported into your webapp and other 
+Import gets called when you use Dancer2. You can specify import options giving
+you control over the keywords that will be imported into your webapp and other
 things:
 
     use Dancer2 ':script';

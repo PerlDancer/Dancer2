@@ -4,9 +4,9 @@ package Dancer2::Plugin;
 
 =head1 DESCRIPTION
 
-You can extend Dancer2 by writing your own plugin. A plugin is a module that 
-exports a bunch of symbols to the current namespace (the caller will see all 
-the symbols defined via C<register>). 
+You can extend Dancer2 by writing your own plugin. A plugin is a module that
+exports a bunch of symbols to the current namespace (the caller will see all
+the symbols defined via C<register>).
 
 Note that you have to C<use> the plugin wherever you want to use its symbols.
 For instance, if you have Webapp::App1 and Webapp::App2, both loaded from your
@@ -52,7 +52,7 @@ with them directly.
 As an optional third argument, it's possible to give a hash ref to C<register>
 in order to set some options.
 
-The option C<is_global> (boolean) is used to declare a global/non-global keyword 
+The option C<is_global> (boolean) is used to declare a global/non-global keyword
 (by default all keywords are global). A non-global keyword must be called from
 within a route handler (eg: C<session> or C<param>) whereas a global one can be
 called from everywhere (eg: C<dancer_version> or C<setting>).
@@ -136,7 +136,7 @@ the symbols defined with C<register> as exported symbols:
 
 Register_plugin returns 1 on success and undef if it fails.
 
-=head3 Deprecation note 
+=head3 Deprecation note
 
 Earlier version of Dancer2 needed the keyword <for_version> to indicate for
 which version of Dancer the plugin was written, e.g.
