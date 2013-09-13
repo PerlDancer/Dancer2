@@ -82,31 +82,31 @@ __END__
 
 =head1 SYNOPSIS
 
-	use Dancer2::Core::MIME;
+    use Dancer2::Core::MIME;
 
-	my $mime = Dancer::MIME->new();
+    my $mime = Dancer::MIME->new();
 
-	# get mime type for an alias
-	my $type = $mime->for_name('css');
+    # get mime type for an alias
+    my $type = $mime->for_name('css');
 
-	# set a new mime type
-	my $type = $mime->add_type( foo => 'text/foo' );
+    # set a new mime type
+    my $type = $mime->add_type( foo => 'text/foo' );
 
-	# set a mime type alias
-	my $alias = $mime->add_alias( f => 'foo' );
+    # set a mime type alias
+    my $alias = $mime->add_alias( f => 'foo' );
 
-	# get mime type for a file (based on extension)
-	my $file = $mime->for_file( "foo.bar" );
+    # get mime type for a file (based on extension)
+    my $file = $mime->for_file( "foo.bar" );
 
-	# set the $thing into a content $type.
-	my $type = $mime->name_or_type($thing);
+    # set the $thing into a content $type.
+    my $type = $mime->name_or_type($thing);
 
-	# get current defined default mime type
-	my $type = $mime->default;
+    # get current defined default mime type
+    my $type = $mime->default;
 
-	# set the default mime type using config.yml
-	# or using the set keyword
-	set default_mime_type => 'text/plain';
+    # set the default mime type using config.yml
+    # or using the set keyword
+    set default_mime_type => 'text/plain';
 
 =head1 DESCRIPTION
 
@@ -153,4 +153,3 @@ This method gets MIME type for a file based on extension.
 
 This method sets the customized MIME name or default MIME type into a content
 type.
-

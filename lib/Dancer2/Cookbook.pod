@@ -43,7 +43,7 @@ route specification, whose value is made available through C<params>
 Note that you don't need to use the C<strict> and C<warnings> pragma, they are
 already loaded by Dancer2.
 
-If you I<really> do not want the C<warnings> pragma (for example, due to an 
+If you I<really> do not want the C<warnings> pragma (for example, due to an
 undesired warning about use of undef values), add a C<no warnings> pragma to
 the appropriate block in your module or psgi file.
 
@@ -395,7 +395,7 @@ This can easily be handled with a before filter to check their session:
 
     use Dancer2;
     set session => "Simple";
-    
+
     hook before => sub {
         if (!session('user') && request->dispatch_path !~ m{^/login}) {
             forward '/login', { requested_path => request->dispatch_path };
@@ -405,13 +405,13 @@ This can easily be handled with a before filter to check their session:
     get '/' => sub { return "Home Page"; };
 
     get '/secret' => sub { return "Top Secret Stuff here"; };
-    
+
     get '/login' => sub {
         # Display a login page; the original URL they requested is available as
         # param('requested_path'), so could be put in a hidden field in the form
         template 'login', { path => param('requested_path') };
     };
-    
+
     post '/login' => sub {
         # Validate the username and password they supplied
         if (param('user') eq 'bob' && param('pass') eq 'letmein') {
@@ -429,20 +429,20 @@ it in a directory called views:
 
     <html>
       <head>
-    	<title>Session and logging in</title>
+        <title>Session and logging in</title>
       </head>
       <body>
-    	<form action='/login' method='POST'> 	
-    		User Name : <input type='text' name='user'/>
-    		Password: <input type='password' name='pass' />
+        <form action='/login' method='POST'>
+            User Name : <input type='text' name='user'/>
+            Password: <input type='password' name='pass' />
 
-    		<!-- Put the original path requested into a hidden
-      	             field so it's sent back in the POST and can be
-      	             used to redirect to the right page after login -->
-    		<input type='hidden' name='path' value='[% path %]'/>
+            <!-- Put the original path requested into a hidden
+                       field so it's sent back in the POST and can be
+                       used to redirect to the right page after login -->
+            <input type='hidden' name='path' value='[% path %]'/>
 
-    		<input type='submit' value='Login' />
-    	</form>
+            <input type='submit' value='Login' />
+        </form>
       </body>
     </html>
 
@@ -787,7 +787,7 @@ To enable logging to a file, add the following to your config file:
 
 Then you can choose which kind of messages you want to actually log:
 
-    log: 'core'      # will log debug, warnings, errors, 
+    log: 'core'      # will log debug, warnings, errors,
                      # and messages from Dancer2 itself
     log: 'debug'     # will log debug, info, warning and errors
     log: 'info'      # will log info, warning and errors
@@ -801,7 +801,7 @@ information (file and line).
 
 =head3 Logging your own messages
 
-Just call  L<debug|Dancer2/debug>, L<info|Dancer2/info>, 
+Just call  L<debug|Dancer2/debug>, L<info|Dancer2/info>,
 L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
 
     debug "This is a debug message from my app.";

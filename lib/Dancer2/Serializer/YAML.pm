@@ -68,4 +68,3 @@ Serializes a data structure to a YAML structure.
 =method deserialize($content)
 
 Deserializes a YAML structure to a data structure.
-

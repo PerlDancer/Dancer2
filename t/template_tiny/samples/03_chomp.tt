@@ -8,8 +8,8 @@ foo
  [%- a %]
 bar
 foo
-[% a -%] 
- 
+[% a -%]
+
  bar
 foo
 [%- a -%]

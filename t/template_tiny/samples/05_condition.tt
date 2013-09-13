@@ -11,4 +11,4 @@ bar
 BAR
 [% ELSE %]
 FOO
-[% END -%] 
+[% END -%]

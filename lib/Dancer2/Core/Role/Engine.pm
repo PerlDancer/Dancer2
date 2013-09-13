@@ -15,7 +15,7 @@ This role consumes the L<Dancer2::Core::Role::Hookable> role.
 
 with 'Dancer2::Core::Role::Hookable';
 
-=attr environment 
+=attr environment
 
 The value of the current environment
 
