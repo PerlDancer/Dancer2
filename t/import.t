@@ -3,6 +3,11 @@ use warnings;
 
 use Test::More tests => 4;
 
+BEGIN {
+    # Set env vars to show these override imports
+    $ENV{DANCER_APPHANDLER} = 'Standalone';
+}
+
 {
 
     package MyImportsApp;
@@ -22,8 +27,10 @@ use Test::More tests => 4;
         return setting 'views';
     };
 
-    get '/logger' => sub {
-        return setting 'logger';
+    get '/log' => sub {
+        # This app uses t/config.yml, which sets log to 'info'
+        # setting from config overrides imported settings.
+        return setting 'log';
     };
 }
 
@@ -33,10 +40,10 @@ my $r = dancer_response GET => '/port';
 is $r->content, 1234, 'port setting via import args';
 
 $r = dancer_response GET => '/apphandler';
-is $r->content, 'PSGI', 'apphandler setting via import args'; 
+is $r->content, 'PSGI', 'apphandler setting: imported args override ENV defaults'; 
 
 $r = dancer_response GET => '/views';
 is $r->content, '/some/path', 'views setting via import args'; 
 
-$r = dancer_response GET => '/logger';
-is $r->content, 'Null', 'logger setting via import args'; 
+$r = dancer_response GET => '/log';
+is $r->content, 'info', 'logger setting: config overrides over imported args';
