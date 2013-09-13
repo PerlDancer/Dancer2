@@ -93,4 +93,3 @@ Default: B<head>, B<get>.
 The regexp (path) we want to match.
 
 Default: B</:page>.
-

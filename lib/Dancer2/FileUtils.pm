@@ -38,7 +38,7 @@ file reading subroutines or using additional modules.
     set_file_mode($fh);
     my @content = read_glob_content($fh);
     my $content = read_glob_content($fh);
-    
+
 
     use Dancer2::FileUtils qw/open_file/;
 
@@ -64,7 +64,7 @@ our @EXPORT_OK = qw(
 
 =func my $path = path( 'folder', 'folder', 'filename');
 
-Provides comfortable path resolution, internally using L<File::Spec>. 'path' 
+Provides comfortable path resolution, internally using L<File::Spec>. 'path'
 does not verify paths, it just normalizes the path.
 
 =cut
@@ -217,4 +217,3 @@ sub normalize_path {
 }
 
 1;
-

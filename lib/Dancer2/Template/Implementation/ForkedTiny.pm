@@ -230,7 +230,7 @@ Dancer2::Template::Implementation::ForkedTiny - Template Toolkit reimplemented i
   my $template = Dancer2::Template::Implementation::ForkedTiny->new(
       TRIM => 1,
   );
-  
+
   # Print the template results to STDOUT
   $template->process( <<'END_TEMPLATE', { foo => 'World' } );
   Hello [% foo %]!
@@ -316,10 +316,10 @@ Additional parameters can be provided without error, but will be ignored.
 
   # DEPRECATED: Return template results (emits a warning)
   my $text = $template->process( \$input, $vars );
-  
+
   # Print template results to STDOUT
   $template->process( \$input, $vars );
-  
+
   # Generate template results into a variable
   my $output = '';
   $template->process( \$input, $vars, \$output );

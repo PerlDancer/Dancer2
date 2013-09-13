@@ -118,4 +118,3 @@ able to work. This method might verify the existence of some Perl
 module or some other detail. If everything needed for the serializer
 to work is present the method returns a true value. If not, returns a
 false value.
-

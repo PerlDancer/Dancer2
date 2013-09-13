@@ -1487,35 +1487,35 @@ Here is an application created with dancer2:
 
     $ dancer2 -a MyWeb::App
     + MyWeb-App
-	+ MyWeb-App/bin
-	+ MyWeb-App/bin/app.pl
-	+ MyWeb-App/config.yml
-	+ MyWeb-App/environments
-	+ MyWeb-App/environments/development.yml
-	+ MyWeb-App/environments/production.yml
-	+ MyWeb-App/views
-	+ MyWeb-App/views/index.tt
-	+ MyWeb-App/views/layouts
-	+ MyWeb-App/views/layouts/main.tt
-	+ MyWeb-App/MANIFEST.SKIP
-	+ MyWeb-App/lib
-	+ MyWeb-App/lib/MyWeb
-	+ MyWeb-App/lib/MyWeb/App.pm
-	+ MyWeb-App/public
-	+ MyWeb-App/public/css
-	+ MyWeb-App/public/css/style.css
-	+ MyWeb-App/public/css/error.css
-	+ MyWeb-App/public/images
-	+ MyWeb-App/public/500.html
-	+ MyWeb-App/public/404.html
-	+ MyWeb-App/public/dispatch.fcgi
-	+ MyWeb-App/public/dispatch.cgi
-	+ MyWeb-App/public/javascripts
-	+ MyWeb-App/public/javascripts/jquery.js
-	+ MyWeb-App/t
-	+ MyWeb-App/t/002_index_route.t
-	+ MyWeb-App/t/001_base.t
-	+ MyWeb-App/Makefile.PL
+    + MyWeb-App/bin
+    + MyWeb-App/bin/app.pl
+    + MyWeb-App/config.yml
+    + MyWeb-App/environments
+    + MyWeb-App/environments/development.yml
+    + MyWeb-App/environments/production.yml
+    + MyWeb-App/views
+    + MyWeb-App/views/index.tt
+    + MyWeb-App/views/layouts
+    + MyWeb-App/views/layouts/main.tt
+    + MyWeb-App/MANIFEST.SKIP
+    + MyWeb-App/lib
+    + MyWeb-App/lib/MyWeb
+    + MyWeb-App/lib/MyWeb/App.pm
+    + MyWeb-App/public
+    + MyWeb-App/public/css
+    + MyWeb-App/public/css/style.css
+    + MyWeb-App/public/css/error.css
+    + MyWeb-App/public/images
+    + MyWeb-App/public/500.html
+    + MyWeb-App/public/404.html
+    + MyWeb-App/public/dispatch.fcgi
+    + MyWeb-App/public/dispatch.cgi
+    + MyWeb-App/public/javascripts
+    + MyWeb-App/public/javascripts/jquery.js
+    + MyWeb-App/t
+    + MyWeb-App/t/002_index_route.t
+    + MyWeb-App/t/001_base.t
+    + MyWeb-App/Makefile.PL
 
 
 The application is ready to serve:

@@ -24,4 +24,3 @@ $f->push_header( 'X-Foo' => 888 );
 is $f->header('X-Foo'), '777, 888', "push_header appends a value";
 
 done_testing;
-

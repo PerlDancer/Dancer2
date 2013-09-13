@@ -25,4 +25,3 @@ response_content_is '/subapp1', 1;
 response_content_is '/subapp2', 2;
 
 done_testing;
-

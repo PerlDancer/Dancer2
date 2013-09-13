@@ -81,5 +81,5 @@ subtest 'logger file' => sub {
 # do not allow "open" files to be unlinked (Windows). GH#424.
 my $log_engine = engine('logger');
 close $log_engine->fh;
-    
+
 done_testing;
