@@ -8,4 +8,8 @@ use Test::Whitespaces {
         xt
     )],
 
+    ignore => [
+        qr{t/sessions/},
+    ],
+
 };
