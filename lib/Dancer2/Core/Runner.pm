@@ -124,6 +124,7 @@ around BUILDARGS => sub {
     my $args = $orig->(@_); # @_ includes $self..
 
     # If default_config was provided, merge with builder defaults.
+    # XXX - which set of defualt values should have priority ?? 
     if ( exists $args->{default_config} ) {
         my $defaults = _build_default_config;
         @$defaults{keys %{ $args->{default_config} } } =
