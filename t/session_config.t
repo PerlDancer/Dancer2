@@ -8,6 +8,11 @@ use File::Temp 0.22;
 use LWP::UserAgent;
 use HTTP::Date qw/str2time/;
 use File::Spec;
+use Net::EmptyPort qw(empty_port);
+
+# Find an empty port BEFORE importing Dancer2
+my $port;
+BEGIN { $port = empty_port }
 
 sub extract_cookie {
     my ($res) = @_;
@@ -28,94 +33,81 @@ sub extract_cookie {
 my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 for my $session_expires ( 3600, '1h', '1 hour' ) {
-    Test::TCP::test_tcp(
-        client => sub {
-            my $port = shift;
+    my $server = Test::TCP->new( port => $port, code => sub {
+        use Dancer2 port => $port, show_errors => 1,
+            startup_info => 0, environment  => 'production';
 
-            my $ua = LWP::UserAgent->new;
-            $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
+        get '/has_session' => sub {
+            return context->has_session;
+        };
 
-            my ( $res, $cookie );
+        get '/foo/set_session/*' => sub {
+            my ($name) = splat;
+            session name => $name;
+        };
 
-            # set value into session
-            $res = $ua->get("http://127.0.0.1:$port/foo/set_session/larry");
-            ok $res->is_success, "/foo/set_session/larry";
-            $cookie = extract_cookie($res);
-            my $err;
-            ok $cookie, "session cookie set"
-              or $err++;
-            ok $cookie->{expires} - time > 3540,
-              "cookie expiration is in future"
-              or $err++;
-            is $cookie->{domain}, '127.0.0.1', "cookie domain set"
-              or $err++;
-            is $cookie->{path}, '/foo', "cookie path set"
-              or $err++;
-            is $cookie->{httponly}, undef, "cookie has not set HttpOnly";
-            diag explain $cookie
-              if $err;
+        get '/foo/read_session' => sub {
+            my $name = session('name') || '';
+            "name='$name'";
+        };
 
-            # read value back
-            $res = $ua->get("http://127.0.0.1:$port/foo/read_session");
-            ok $res->is_success, "/foo/read_session";
-            like $res->content, qr/name='larry'/, "session value looks good";
+        get '/foo/destroy_session' => sub {
+            my $name = session('name') || '';
+            context->destroy_session;
+            return "destroyed='$name'";
+        };
 
-            File::Temp::cleanup();
-        },
-        server => sub {
-            my $port = shift;
-
-            use Dancer2;
-
-            get '/has_session' => sub {
-                return context->has_session;
-            };
-
-            get '/foo/set_session/*' => sub {
-                my ($name) = splat;
-                session name => $name;
-            };
-
-            get '/foo/read_session' => sub {
-                my $name = session('name') || '';
-                "name='$name'";
-            };
-
-            get '/foo/destroy_session' => sub {
-                my $name = session('name') || '';
-                context->destroy_session;
-                return "destroyed='$name'";
-            };
-
-            setting appdir => $tempdir;
-            setting(
-                engines => {
-                    session => {
-                        Simple => {
-                            cookie_name     => 'dancer.sid',
-                            cookie_domain   => '127.0.0.1',
-                            cookie_path     => '/foo',
-                            cookie_duration => $session_expires,
-##                    is_secure => 0, # can't easily test without https test server
-                            is_http_only => 0,    # will not show up in cookie
-                        },
+        setting appdir => $tempdir;
+        setting(
+            engines => {
+                session => {
+                    Simple => {
+                        cookie_name     => 'dancer.sid',
+                        cookie_domain   => '127.0.0.1',
+                        cookie_path     => '/foo',
+                        cookie_duration => $session_expires,
+##                  is_secure => 0, # can't easily test without https test server
+                        is_http_only => 0,    # will not show up in cookie
                     },
-                }
-            );
-            setting( session => 'Simple' );
+                },
+            }
+        );
+        setting( session => 'Simple' );
 
-            set(show_errors  => 1,
-                startup_info => 0,
-                environment  => 'production',
-                port         => $port
-            );
+        start;
+    });
 
-            Dancer2->runner->server->port($port);
-            start;
-        },
-    );
+    # Client tests against server
+    my $ua = LWP::UserAgent->new;
+    $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
 
+    my ( $res, $cookie );
+
+    # set value into session
+    $res = $ua->get("http://127.0.0.1:$port/foo/set_session/larry");
+    ok $res->is_success, "/foo/set_session/larry";
+    $cookie = extract_cookie($res);
+    my $err;
+    ok $cookie, "session cookie set"
+      or $err++;
+    ok $cookie->{expires} - time > 3540,
+      "cookie expiration is in future"
+      or $err++;
+    is $cookie->{domain}, '127.0.0.1', "cookie domain set"
+      or $err++;
+    is $cookie->{path}, '/foo', "cookie path set"
+      or $err++;
+    is $cookie->{httponly}, undef, "cookie has not set HttpOnly";
+    diag explain $cookie
+      if $err;
+
+    # read value back
+    $res = $ua->get("http://127.0.0.1:$port/foo/read_session");
+    ok $res->is_success, "/foo/read_session";
+    like $res->content, qr/name='larry'/, "session value looks good";
+
+    File::Temp::cleanup();
 }
-done_testing;
 
+done_testing;
 

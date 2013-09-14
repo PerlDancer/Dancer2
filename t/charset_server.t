@@ -8,10 +8,16 @@ use Test::TCP 1.13;
 use HTTP::Headers;
 use HTTP::Request::Common;
 use LWP::UserAgent;
+use Net::EmptyPort qw(empty_port);
 
 plan tests => 9;
 
+# Find an empty port BEFORE importing Dancer2
+my $port;
+BEGIN { $port = empty_port }
+
 Test::TCP::test_tcp(
+    port => $port,
     client => sub {
         my $port = shift;
         my $ua   = LWP::UserAgent->new;
@@ -42,8 +48,7 @@ Test::TCP::test_tcp(
 
     },
     server => sub {
-        my $port = shift;
-        use Dancer2;
+        use Dancer2 port => $port;
 
         get '/name/:name' => sub {
             "Your name: " . params->{name};
@@ -63,7 +68,6 @@ Test::TCP::test_tcp(
 
         set charset => 'utf-8';
 
-        Dancer2->runner->server->port($port);
         start;
     },
 );

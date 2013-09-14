@@ -7,10 +7,16 @@ use LWP::UserAgent;
 use Test::More;
 use Test::TCP 1.13;
 use YAML;
+use Net::EmptyPort qw(empty_port);
+
+# Find an empty port BEFORE importing Dancer2
+my $port;
+BEGIN { $port = empty_port }
 
 my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 Test::TCP::test_tcp(
+    port   => $port,
     client => sub {
         my $port = shift;
 
@@ -25,15 +31,8 @@ Test::TCP::test_tcp(
         File::Temp::cleanup();
     },
     server => sub {
-        my $port = shift;
-
-        BEGIN {
-            use Dancer2;
-            set session    => 'Simple';
-            set logger     => 'Null';
-            set serializer => 'JSON';
-            set template   => 'Simple';
-        }
+        use Dancer2 port => $port, session => 'Simple', logger => 'Null',
+                    serializer => 'JSON', template => 'Simple';
 
         get '/main' => sub {
             my $response = "";
@@ -45,7 +44,6 @@ Test::TCP::test_tcp(
         };
 
         setting appdir => $tempdir;
-        Dancer2->runner->server->port($port);
         start;
     },
 );
