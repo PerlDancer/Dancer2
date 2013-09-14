@@ -43,6 +43,8 @@ is $cookie->name        => 'bar';
 ok !$cookie->domain;
 is $cookie->domain("dancer.org") => "dancer.org";
 is $cookie->domain               => "dancer.org";
+is $cookie->domain("")           => "";
+ok !$cookie->domain;
 
 is $cookie->path => '/', "by default, path is /";
 ok $cookie->has_path, "has_path";
@@ -53,10 +55,14 @@ is $cookie->path => "/foo";
 ok !$cookie->secure;
 is $cookie->secure(1) => 1;
 is $cookie->secure    => 1;
+is $cookie->secure(0) => 0;
+ok !$cookie->secure;
 
 ok !$cookie->http_only;
 is $cookie->http_only(1) => 1;
 is $cookie->http_only    => 1;
+is $cookie->http_only(0) => 0;
+ok !$cookie->http_only;
 
 
 note "expiration strings";
