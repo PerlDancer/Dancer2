@@ -33,6 +33,7 @@ guaranteed-unique string.
 
 has id => (
     # for some specific plugins this should be rw.
+    # refer to https://github.com/PerlDancer/Dancer2/issues/460
     is       => 'rw',
     isa      => Str,
     required => 1,
