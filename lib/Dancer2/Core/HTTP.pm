@@ -119,7 +119,7 @@ status.
 sub status {
     my ( $class, $status ) = @_;
     return if ! defined $status;
-    return $status if $status =~ /^\d+/;
+    return $status if $status =~ /^\d+$/;
     if ( exists $HTTP_CODES->{$status} ) {
         return $HTTP_CODES->{$status};
     }

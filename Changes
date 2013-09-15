@@ -14,7 +14,7 @@
     * Cleanup Core::Request, Core::Request::Upload (Mickey Nasriachi).
     * GH#445: Test Template::Simple (Alexis Sukrieh, Russell Jenkins).
     * GH#449: Test Session hooks (Gideon D'souza)
-    * GH#440: Imutable attributes (Russell Jenkins).
+    * GH#434,440: Imutable attributes (Russell Jenkins).
     * GH#435: Allow send_error to serialize error (Russell Jenkins).
 
     [ BUG FIXES ]

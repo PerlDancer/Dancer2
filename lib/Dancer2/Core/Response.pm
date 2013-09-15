@@ -2,16 +2,12 @@
 
 package Dancer2::Core::Response;
 
-use strict;
-use warnings;
-use Carp;
 use Moo;
+
 use Encode;
 use Dancer2::Core::Types;
 
-use Scalar::Util qw/looks_like_number blessed/;
 use Dancer2 ();
-use Dancer2::Core::MIME;
 use Dancer2::Core::HTTP;
 
 use overload
@@ -32,21 +28,27 @@ has has_passed => (
     default => sub {0},
 );
 
-=method serializer( $serializer )
+=method pass
 
-Set or returns the optional serializer object used to deserialize request
-parameters
+Set has_passed to true.
+
+=cut
+
+sub pass { shift->has_passed(1) }
+
+
+=method serializer()
+
+Returns the optional serializer object used to deserialize request parameters
 
 =cut
 
 has serializer => (
-    is       => 'rw',
-    isa      => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
-    required => 0,
+    is        => 'ro',
+    isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
     predicate => 1,
 );
 
-sub pass { shift->has_passed(1) }
 
 =attr is_encoded
 
@@ -59,6 +61,7 @@ has is_encoded => (
     isa     => Bool,
     default => sub {0},
 );
+
 
 =attr is_halted
 
@@ -80,23 +83,19 @@ Shortcut to halt the current response by setting the is_halted flag.
 
 sub halt { shift->is_halted(1) }
 
+
 =attr status
 
 The HTTP status for the response.
 
 =cut
 
-
 has status => (
     is      => 'rw',
     isa     => Num,
     default => sub {200},
     lazy    => 1,
-    coerce  => sub {
-        my ($status) = @_;
-        return $status if looks_like_number($status);
-        Dancer2::Core::HTTP->status($status);
-    },
+    coerce  => sub { Dancer2::Core::HTTP->status(shift) },
 
     # This trigger makes sure we drop the content whenever
     # we set the status to [23]04.
@@ -106,6 +105,7 @@ has status => (
         $value;
     },
 );
+
 
 =attr content
 
@@ -122,19 +122,16 @@ has content => (
     isa     => Str,
     default => sub {''},
     coerce  => sub {
-        my ($value) = @_;
-        $value = "$value" if ref($value);
-        return $value;
+        my $value = shift;
+        return "$value";
     },
 
    # This trigger makes sure we have a good content-length whenever the content
    # changes
     trigger => sub {
         my ( $self, $value ) = @_;
-        $self->header( 'Content-Length' => length($value) )
-          if !$self->has_passed;
-
-        $value;
+        $self->has_passed or $self->header( 'Content-Length' => length($value) );
+        return $value;
     },
 );
 
@@ -163,7 +160,7 @@ sub encode_content {
     return if $self->content_type !~ /^text/;
 
     # we don't want to encode an empty string, it will break the output
-    return if !$self->content;
+    $self->content or return;
 
     my $ct = $self->content_type;
     $self->content_type("$ct; charset=UTF-8")
@@ -174,6 +171,7 @@ sub encode_content {
 
     return $content;
 }
+
 
 =method to_psgi
 
@@ -222,6 +220,7 @@ sub is_forwarded {
     $self->_forward;
 }
 
+
 =method redirect ($destination, $status)
 
 Sets a header in this response to give a redirect to $destination, and sets the
@@ -237,6 +236,7 @@ sub redirect {
     # we want to stringify the $destination object (URI object)
     $self->header( 'Location' => "$destination" );
 }
+
 
 =method error( @args )
 
@@ -256,17 +256,25 @@ sub error {
     );
 
     $error->throw;
-
     return $error;
 }
 
+
+=method serialize( $content )
+
+    $response->serialize( $content );
+
+Serialize and return $content with the respone's serializer.
+set content-type accordingly.
+
+=cut
+
 sub serialize {
     my ($self, $content) = @_;
-
     return unless $self->has_serializer;
 
-    $content = $self->serializer->serialize($content);
-    return if !defined $content;
+    $content = $self->serializer->serialize($content)
+        or return;
 
     $self->content_type($self->serializer->content_type);
     return $content;
