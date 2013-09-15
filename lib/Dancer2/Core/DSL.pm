@@ -327,10 +327,12 @@ sub cookie { shift->context->cookie(@_) }
 sub send_error {
     my ( $self, $message, $status ) = @_;
 
+    my $serializer = $self->app->engine('serializer');
     my $x = Dancer2::Core::Error->new(
         message => $message,
         context => $self->app->context,
         ( status => $status ) x !!$status,
+        ( serializer => $serializer ) x !!$serializer,
     )->throw;
 
     $x;
