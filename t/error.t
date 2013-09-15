@@ -45,6 +45,8 @@ subtest "send_error in route" => sub {
         package App;
         use Dancer2;
 
+        set serializer => 'JSON';
+
         get '/error' => sub {
             send_error "This is a custom error message";
         };
@@ -56,6 +58,7 @@ subtest "send_error in route" => sub {
     is $r->status, 500, 'send_error sets the status to 500';
     like $r->content, qr{This is a custom error message},
       'Error message looks good';
+    is $r->content_type, 'application/json', 'Response has appropriate content type after serialization';
 };
 
 subtest "send_error with custom stuff" => sub {
@@ -73,7 +76,7 @@ subtest "send_error with custom stuff" => sub {
     my $r = dancer_response GET => '/error/42';
 
     is $r->status,    542,           'send_error sets the status to 542';
-    like $r->content, qr{Error 542}, 'Error message looks good';
+    like $r->content, qr{Error 42},  'Error message looks good';
 };
 
 subtest 'Response->error()' => sub {
