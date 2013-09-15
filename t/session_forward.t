@@ -12,7 +12,7 @@ my $server = sub {
     my $port = shift;
 
     use Dancer2;
-    set session => 'YAML';
+    set session => 'Simple';
 
     get '/set_chained_session' => sub {
         session 'zbr' => 'ugh';
