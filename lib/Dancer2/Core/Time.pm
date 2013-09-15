@@ -9,7 +9,7 @@ needs to be expressed in seconds, with a timestamp. Although it's very
 convenient for the machine and calculations, it's not very handy for a
 human-being, for instance in a configuration file.
 
-This class provides everything needed to translate any human-understandable 
+This class provides everything needed to translate any human-understandable
 expression into a number of seconds.
 
 =head1 SYNOPSIS
@@ -19,11 +19,8 @@ expression into a number of seconds.
 
 =cut
 
-use strict;
-use warnings;
-use Carp 'croak';
-
 use Moo;
+
 
 =attr seconds
 
@@ -32,7 +29,7 @@ Number of seconds represented by the object. Defaults to 0.
 =cut
 
 has seconds => (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     builder => '_build_seconds',
 );
@@ -41,10 +38,10 @@ sub _build_seconds {
     my ($self) = @_;
     my $seconds = $self->expression;
 
-    $seconds = $self->_parse_duration($seconds)
-      if $seconds !~ /^\d+$/;
+    return $seconds
+        if $seconds =~ /^\d+$/;
 
-    return $seconds;
+    return $self->_parse_duration($seconds)
 }
 
 
@@ -55,7 +52,7 @@ The current epoch to handle. Defaults to seconds + time.
 =cut
 
 has epoch => (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     builder => '_build_epoch',
 );
@@ -73,7 +70,7 @@ Convert the current value in epoch as a GMT string.
 =cut
 
 has gmt_string => (
-    is      => 'rw',
+    is      => 'ro',
     builder => '_build_gmt_string',
     lazy    => 1,
 );
@@ -113,26 +110,26 @@ understands:
 Months and years are currently fixed at 30 and 365 days.  This may change.
 Anything else is used verbatim as the expression of a number of seconds.
 
-Example: 
+Example:
 
     2 hours, 3 days, 3d, 1 week, 3600, etc...
 
 =cut
 
 has expression => (
-    is       => 'rw',
+    is       => 'ro',
     required => 1,
 );
 
-sub BUILD {
-    my ($self) = @_;
+sub BUILDARGS {
+    my ($class, %args) = @_;
 
-    # if the expression is already a numeric value, assume it's an epoch
-    if ( $self->expression =~ /^\d+$/ ) {
-        $self->epoch( $self->expression );
-        $self->expression('0h');
-    }
+    $args{epoch} = $args{expression}
+        if $args{expression} =~ /^\d+$/;
+
+    return \%args;
 }
+
 
 # private
 

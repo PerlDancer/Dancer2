@@ -2,13 +2,11 @@
 
 package Dancer2::Core::MIME;
 
-use strict;
-use warnings;
-
 use Moo;
-use Dancer2::Core::Types;
-use Carp 'croak';
+
 use MIME::Types;
+
+use Dancer2::Core::Types;
 
 # Initialise MIME::Types at compile time, to ensure it's done before
 # the fork in a preforking webserver like mod_perl or Starman. Not
@@ -27,7 +25,7 @@ has mime_type => (
 );
 
 has custom_types => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => HashRef,
     default => sub { +{} },
 );

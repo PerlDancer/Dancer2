@@ -41,7 +41,7 @@ has charset => (
 );
 
 has default_tmpl_ext => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     default => sub { shift->config->{extension} || 'tt' },
 );
