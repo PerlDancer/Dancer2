@@ -110,10 +110,16 @@ sub dispatch {
                 $response->encode_content;
             }
 
-            return $response if $response->is_halted;
+
+            if ($response->is_halted) {
+                $app->execute_hook( 'core.app.after_request', $response )
+                  unless $response->is_forwarded;
+
+                return $response;
+            }
 
             # pass the baton if the response says so...
-            if ( $response->has_passed ) {
+            if ($response->has_passed ) {
 
                 ## A previous route might have used splat, failed
                 ## this needs to be cleaned from the request.
