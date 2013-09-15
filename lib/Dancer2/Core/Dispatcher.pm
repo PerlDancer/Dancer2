@@ -51,6 +51,28 @@ sub dispatch {
 
         $app->log( core => "looking for $http_method $path_info" );
 
+        $app->execute_hook( 'core.app.before_request', $context );
+        if ( $context->response->is_halted ) {
+            if ( ! $context->response->header('Content-type') ) {
+                if ( exists( $app->config->{content_type} ) ) {
+                    $context->response->header(
+                        'Content-Type' => $app->config->{content_type} );
+                }
+                else {
+                    $context->response->header(
+                        'Content-Type' => $self->default_content_type );
+                }
+            }
+            if ( ref $context->response->content eq 'Dancer2::Core::Response' ) {
+                $context->response = $context->response($context->response->content);
+            }
+            else {
+                $context->response->content( defined $context->response->content ? $context->response->content : '' );
+                $context->response->encode_content;
+            }
+            return $context->response;
+        }
+
       ROUTE:
         foreach my $route ( @{ $app->routes->{$http_method} } ) {
 
@@ -71,7 +93,6 @@ sub dispatch {
             # next if $context->request->path_info ne $path_info
             #         || $context->request->method ne uc($http_method);
 
-            $app->execute_hook( 'core.app.before_request', $context );
             my $response = $context->response;
 
             my $content;
