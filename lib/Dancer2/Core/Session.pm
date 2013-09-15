@@ -32,7 +32,8 @@ guaranteed-unique string.
 =cut
 
 has id => (
-    is       => 'ro',
+    # for some specific plugins this should be rw.
+    is       => 'rw',
     isa      => Str,
     required => 1,
 );
