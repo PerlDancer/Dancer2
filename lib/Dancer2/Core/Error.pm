@@ -253,7 +253,8 @@ has response => (
 );
 
 has content_type => (
-    is      => 'lazy',
+    is      => 'ro',
+    lazy    => 1,
     default => sub {
         my $self = shift;
         $self->has_serializer
