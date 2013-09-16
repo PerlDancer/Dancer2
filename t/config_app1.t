@@ -14,4 +14,3 @@ is_deeply(
 );
 
 done_testing;
-

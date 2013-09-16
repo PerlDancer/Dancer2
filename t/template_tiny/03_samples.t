@@ -25,10 +25,10 @@ plan( tests => scalar(@TEMPLATES) * 6 );
 
 # Test the test classes
 #SCOPE: {
-#	my $false = bless { }, 'False';
-#	my $string = $false . '';
-#	is( $string, 'Hello', 'False objects return ok as a string' );
-#	is( !!$false, '', 'False objects returns false during bool' );
+#    my $false = bless { }, 'False';
+#    my $string = $false . '';
+#    is( $string, 'Hello', 'False objects return ok as a string' );
+#    is( !!$false, '', 'False objects returns false during bool' );
 #}
 
 

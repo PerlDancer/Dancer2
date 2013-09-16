@@ -61,14 +61,14 @@ Returns a Dancer2::Core::Response object for the given request.
 Only $method and $path are required.
 
 $params is a hashref with 'body' as a string; 'headers' can be an arrayref or
-a HTTP::Headers object, 'files' can be arrayref of hashref, containing some 
+a HTTP::Headers object, 'files' can be arrayref of hashref, containing some
 files to upload:
 
-    dancer_response($method, $path, 
+    dancer_response($method, $path,
         {
-            params => $params, 
-            body => $body, 
-            headers => $headers, 
+            params => $params,
+            body => $body,
+            headers => $headers,
             files => [ { filename => '/path/to/file', name => 'my_file' } ],
         }
     );
@@ -284,7 +284,7 @@ Asserts that the given request matches a route handler in Dancer2's
 registry.
 
     route_exists [GET => '/'], "GET / is handled";
-=cut 
+=cut
 
 sub route_exists {
     response_status_is( $_[0], 200, $_[1] );
@@ -292,11 +292,11 @@ sub route_exists {
 
 =func route_doesnt_exist([$method, $path], $test_name)
 
-Asserts that the given request does not match any route handler 
+Asserts that the given request does not match any route handler
 in Dancer2's registry.
 
     route_doesnt_exist [GET => '/bogus_path'], "GET /bogus_path is not handled";
-    
+
 =cut
 
 sub route_doesnt_exist {
@@ -354,9 +354,9 @@ sub response_status_isnt {
 
 Asserts that the response content is equal to the C<$expected> string.
 
- response_content_is [GET => '/'], "Hello, World", 
+ response_content_is [GET => '/'], "Hello, World",
         "got expected response content for GET /";
-        
+
 =cut
 
 sub response_content_is {
@@ -368,7 +368,7 @@ sub response_content_is {
 
 Asserts that the response content is not equal to the C<$not_expected> string.
 
-    response_content_isnt [GET => '/'], "Hello, World", 
+    response_content_isnt [GET => '/'], "Hello, World",
         "got expected response content for GET /";
 
 
@@ -384,7 +384,7 @@ sub response_content_isnt {
 Asserts that the response content for the given request matches the regexp
 given.
 
-    response_content_like [GET => '/'], qr/Hello, World/, 
+    response_content_like [GET => '/'], qr/Hello, World/,
         "response content looks good for GET /";
 
 
@@ -400,7 +400,7 @@ sub response_content_like {
 Asserts that the response content for the given request does not match the regexp
 given.
 
-    response_content_unlike [GET => '/'], qr/Page not found/, 
+    response_content_unlike [GET => '/'], qr/Page not found/,
         "response content looks good for GET /";
 
 =cut
@@ -412,15 +412,15 @@ sub response_content_unlike {
 
 =func response_content_is_deeply([$method, $path], $expected_struct, $test_name)
 
-Similar to response_content_is(), except that if response content and 
-$expected_struct are references, it does a deep comparison walking each data 
-structure to see if they are equivalent.  
+Similar to response_content_is(), except that if response content and
+$expected_struct are references, it does a deep comparison walking each data
+structure to see if they are equivalent.
 
 If the two structures are different, it will display the place where they start
 differing.
 
-    response_content_is_deeply [GET => '/complex_struct'], 
-        { foo => 42, bar => 24}, 
+    response_content_is_deeply [GET => '/complex_struct'],
+        { foo => 42, bar => 24},
         "got expected response structure for GET /complex_struct";
 
 =cut
@@ -699,7 +699,7 @@ head1, head2,head3,head4, item.
         # code
     }
 
-    or 
+    or
 
     any ['get', 'post'] => '/myaction' => sub {
         # code

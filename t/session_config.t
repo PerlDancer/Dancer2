@@ -117,5 +117,3 @@ for my $session_expires ( 3600, '1h', '1 hour' ) {
 
 }
 done_testing;
-
-

@@ -238,4 +238,3 @@ a variable error and returns an object of L<Dancer2::Core::Error>.
 The C<response_not_found> consumes as input the list of applications and an
 object of type L<Dancer2::Core::Context> and returns an object
 L<Dancer2::Core::Error>.
-

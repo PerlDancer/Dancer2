@@ -11,4 +11,3 @@ get '/subapp2' => sub {
 };
 
 1;
-

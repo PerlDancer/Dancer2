@@ -35,4 +35,3 @@ my $psgi_app = $s->psgi_app;
 is ref($psgi_app), 'CODE', 'got a subroutine when asked for psgi_app';
 
 done_testing,
-

@@ -147,7 +147,7 @@ sub default_error_page {
     require Template::Tiny;
 
     my $uri_base = $self->has_context ?
-        $self->context->request->uri_base : ''; 
+        $self->context->request->uri_base : '';
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
@@ -306,7 +306,7 @@ has content => (
 =method throw($response)
 
 Populates the content of the response with the error's information.
-If I<$response> is not given, acts on the I<context> 
+If I<$response> is not given, acts on the I<context>
 attribute's response.
 
 =cut
@@ -409,7 +409,7 @@ sub backtrace {
 
 Small subroutine to help output nicer.
 
-=cut 
+=cut
 
 sub tabulate {
     my ( $number, $max ) = @_;
@@ -512,7 +512,7 @@ An private function that tries to censor out content which should be protected.
 
 C<dumper> calls this method to censor things like passwords and such.
 
-=cut 
+=cut
 
 sub _censor {
     my $hash = shift;
@@ -538,7 +538,7 @@ sub _censor {
 =func my $string=_html_encode ($string);
 
 Private function that replaces illegal entities in (X)HTML with their
-escaped representations. 
+escaped representations.
 
 html_encode() doesn't do any UTF black magic.
 
@@ -576,4 +576,3 @@ sub _render_html {
 }
 
 1;
-
