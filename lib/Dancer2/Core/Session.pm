@@ -29,6 +29,8 @@ The identifier of the session object. Required. By default,
 L<Dancer2::Core::Role::SessionFactory> sets this to a randomly-generated,
 guaranteed-unique string.
 
+This attribute can be modified if your Session implementation requires this.
+
 =cut
 
 has id => (
