@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 
 use Dancer2::Core::Session;
 use Dancer2::Session::Simple;
@@ -22,6 +23,8 @@ subtest 'session attributes' => sub {
 
     my $id = $s1->id;
     ok defined($id), 'id is defined';
+    is(exception { $s1->id("new_$id") }, undef, 'id can be set');
+    is($s1->id, "new_$id", '... new value found for id');
 
     my $s2 = $ENGINE->create;
     isnt( $s1->id, $s2->id, "IDs are not the same" );
