@@ -39,6 +39,7 @@ has id => (
     is       => 'rw',
     isa      => Str,
     required => 1,
+    trigger  => sub { $_[0]->is_dirty(1) },
 );
 
 =attr data
@@ -79,7 +80,7 @@ has expires => (
 
 =attr is_dirty
 
-Boolean value for whether data in the session has been modified.
+Boolean value for whether the id, or the data in the session, has been modified.
 
 =cut
 

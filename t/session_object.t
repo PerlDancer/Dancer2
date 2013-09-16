@@ -23,8 +23,11 @@ subtest 'session attributes' => sub {
 
     my $id = $s1->id;
     ok defined($id), 'id is defined';
+
+    ok !$s1->is_dirty, 'session is not dirty';
     is(exception { $s1->id("new_$id") }, undef, 'id can be set');
     is($s1->id, "new_$id", '... new value found for id');
+    ok $s1->is_dirty, 'session is dirty after id change';
 
     my $s2 = $ENGINE->create;
     isnt($s1->id, $s2->id, "IDs are not the same");
