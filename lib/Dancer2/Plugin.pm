@@ -360,24 +360,26 @@ sub import {
  # their first argument).
  # These modified versions of the DSL are then exported in the namespace of the
  # plugin.
-    for my $symbol ( keys %{ $dsl->keywords } ) {
+    unless (grep { $_ eq ':no_dsl' } @_) {
+        for my $symbol ( keys %{ $dsl->keywords } ) {
 
-        # get the original symbol from the real DSL
-        no strict 'refs';
-        no warnings qw( redefine once );
-        my $code = *{"Dancer2::Core::DSL::$symbol"}{CODE};
+            # get the original symbol from the real DSL
+            no strict 'refs';
+            no warnings qw( redefine once );
+            my $code = *{"Dancer2::Core::DSL::$symbol"}{CODE};
 
-        # compile it with $caller->dsl
-        my $compiled = sub {
-            carp
-              "DEPRECATED: $plugin calls '$symbol' instead of '\$dsl->$symbol'.";
-            $code->( $dsl, @_ );
-        };
+            # compile it with $caller->dsl
+            my $compiled = sub {
+                carp
+                  "DEPRECATED: $plugin calls '$symbol' instead of '\$dsl->$symbol'.";
+                $code->( $dsl, @_ );
+            };
 
-        # bind the newly compiled symbol to the caller's namespace.
-        *{"${plugin}::${symbol}"} = $compiled;
+            # bind the newly compiled symbol to the caller's namespace.
+            *{"${plugin}::${symbol}"} = $compiled;
 
-        $dsl_deprecation_wrapper = $compiled if $symbol eq 'dsl';
+            $dsl_deprecation_wrapper = $compiled if $symbol eq 'dsl';
+        }
     }
 
     # Finally, make sure our caller becomes a Moo::Role
