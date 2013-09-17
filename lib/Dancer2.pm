@@ -147,8 +147,10 @@ sub import {
         # TODO should support commandline options as well
         $runner = Dancer2::Core::Runner->new( caller => $script, );
 
-# none of these work...
+
+# none of these work...		
 #		setting(port => 1234);
+#		$runner->setting(environment => 'my_test');
 #		$runner->setting(port => 1234);
 #		$runner->config->{port} =1234;
 #rebuild config like this?
@@ -156,6 +158,7 @@ sub import {
 
 #this works! And I don't need to rebuild the config
 #$ENV{DANCER_PORT} = 1234;
+#$ENV{DANCER_ENVIRONMENT} = 'my_test';
 		
     }
 
