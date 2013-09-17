@@ -9,6 +9,7 @@ use Dancer2::Core;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
 use Dancer2::FileUtils;
+use Dancer2::GetOpt;
 
 our $AUTHORITY = 'SUKRIA';
 
@@ -144,8 +145,18 @@ sub import {
     if ( not defined $runner ) {
 
         # TODO should support commandline options as well
-
         $runner = Dancer2::Core::Runner->new( caller => $script, );
+
+# none of these work...
+#		setting(port => 1234);
+#		$runner->setting(port => 1234);
+#		$runner->config->{port} =1234;
+#rebuild config like this?
+#$runner->config($runner->_build_config);
+
+#this works! And I don't need to rebuild the config
+#$ENV{DANCER_PORT} = 1234;
+		
     }
 
     my $server = $runner->server;
@@ -170,10 +181,10 @@ sub import {
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
 
+    $as_script = 1 if $ENV{PLACK_ENV};
     #
-    #    $as_script = 1 if $ENV{PLACK_ENV};
-    #
-    #    Dancer2::GetOpt->process_args() if !$as_script;
+	#Dancer2::GetOpt->process_args() if !$as_script;
+#	_reload_config($runner);
 }
 
 sub _set_import_method_to_caller {
@@ -194,5 +205,11 @@ sub _set_import_method_to_caller {
         *{"${caller}::import"} = $import;
     }
 }
+
+#takes the runner and reloads it's config
+sub _reload_config {
+#TODO..
+}
+
 
 1;
