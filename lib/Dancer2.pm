@@ -171,10 +171,6 @@ sub import {
     load_class( $final_args{dsl} );
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
-
-
-	
-
 }
 
 sub _set_import_method_to_caller {
@@ -195,11 +191,5 @@ sub _set_import_method_to_caller {
         *{"${caller}::import"} = $import;
     }
 }
-
-#takes the runner and reloads it's config
-sub _reload_config {
-#TODO..
-}
-
 
 1;
