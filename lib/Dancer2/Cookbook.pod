@@ -1094,8 +1094,8 @@ L<Plack::Builder> which uses L<Plack::App::URLMap>:
     my $special_handler = sub { ... };
 
     builder {
-        mount '/'        => dance,
-        mount '/special' => $special_handler,
+        mount '/'        => dance;
+        mount '/special' => $special_handler;
     };
 
 =head3 Running on Perl webservers with plackup
@@ -1164,8 +1164,8 @@ Start by creating a simple app.psgi file:
     use Plack::Builder;
 
     builder {
-        mount '/wiki'  => OurWiki->dance,
-        mount '/forum' => OurForum->dance,
+        mount '/wiki'  => OurWiki->dance;
+        mount '/forum' => OurForum->dance;
     };
 
 and now use L<Starman>
