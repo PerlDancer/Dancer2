@@ -17,6 +17,7 @@
     * GH#434,440: Imutable attributes (Mickey Nasriachi).
     * GH#435: Allow send_error to serialize error (Russell Jenkins).
     * Add more tests to session id rw (Pedro Melo).
+    * Whitespace cleanup (Ivan Bessarabov).
 
     [ BUG FIXES ]
     * GH#424,425: Fix logger tests for different timezones, and close
