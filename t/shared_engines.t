@@ -4,13 +4,19 @@ use warnings;
 use File::Spec;
 use File::Temp 0.22;
 use LWP::UserAgent;
+use Net::EmptyPort qw(empty_port);
 use Test::More;
 use Test::TCP 1.13;
 use YAML;
 
+# Find an empty port BEFORE importing Dancer2
+my $port;
+BEGIN { $port = empty_port }
+
 my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 Test::TCP::test_tcp(
+    port   => $port,
     client => sub {
         my $port = shift;
 
@@ -30,11 +36,9 @@ Test::TCP::test_tcp(
         File::Temp::cleanup();
     },
     server => sub {
-        my $port = shift;
-
         BEGIN {
-            use Dancer2;
-            set session => 'Simple';
+            use Dancer2 port => $port;
+            setting session => 'Simple';
             engine('session')->{'__marker__'} = 1;
         }
 
@@ -45,7 +49,6 @@ Test::TCP::test_tcp(
         };
 
         setting appdir => $tempdir;
-        Dancer2->runner->server->port($port);
         start;
     },
 );

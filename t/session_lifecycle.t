@@ -8,6 +8,11 @@ use File::Temp 0.22;
 use LWP::UserAgent;
 use HTTP::Date qw/str2time/;
 use File::Spec;
+use Net::EmptyPort qw(empty_port);
+
+# Find an empty port BEFORE importing Dancer2
+my $port;
+BEGIN { $port = empty_port }
 
 sub extract_cookie {
     my ($res) = @_;
@@ -37,144 +42,133 @@ if ( $ENV{DANCER_TEST_COOKIE} ) {
 foreach my $engine (@engines) {
 
     diag "Testing engine $engine";
-    Test::TCP::test_tcp(
-        client => sub {
-            my $port = shift;
 
-            my $ua = LWP::UserAgent->new;
-            $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
+    my $server = Test::TCP->new( port => $port, code => sub {
+        use Dancer2 port => $port, show_errors  => 1,
+            startup_info => 0, environment => 'production';
 
-            # no session cookie set if session not referenced
-            my $res = $ua->get("http://127.0.0.1:$port/no_session_data");
-            ok $res->is_success, "/no_session_data"
-              or diag explain $res;
-            my $cookie = extract_cookie($res);
-            ok !$cookie, "no cookie set"
-              or diag explain $cookie;
+        get '/no_session_data' => sub {
+            return "session not modified";
+        };
 
-            # no empty session created if session read attempted
-            $res = $ua->get("http://127.0.0.1:$port/read_session");
-            ok $res->is_success, "/read_session";
-            $cookie = extract_cookie($res);
-            ok !$cookie, "no cookie set"
-              or diag explain $cookie;
+        get '/set_session/*' => sub {
+            my ($name) = splat;
+            session name => $name;
+        };
 
-            # set value into session
-            $res = $ua->get("http://127.0.0.1:$port/set_session/larry");
-            ok $res->is_success, "/set_session/larry";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            my $sid1 = $cookie->{"dancer.session"};
+        get '/read_session' => sub {
+            my $name = session('name') || '';
+            "name='$name'";
+        };
 
-            # read value back
-            $res = $ua->get("http://127.0.0.1:$port/read_session");
-            ok $res->is_success, "/read_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            like $res->content, qr/name='larry'/, "session value looks good";
+        get '/destroy_session' => sub {
+            my $name = session('name') || '';
+            context->destroy_session;
+            return "destroyed='$name'";
+        };
 
-            # session cookie should persist even if we don't touch sessions
-            $res = $ua->get("http://127.0.0.1:$port/no_session_data");
-            ok $res->is_success, "/no_session_data";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
+        get '/churn_session' => sub {
+            context->destroy_session;
+            session name => 'damian';
+            return "churned";
+        };
 
-            # destroy session and check that cookies expiration is set
-            $res = $ua->get("http://127.0.0.1:$port/destroy_session");
-            ok $res->is_success, "/destroy_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            is $cookie->{"dancer.session"}, $sid1, "correct cookie expired";
-            ok $cookie->{expires} < time, "session cookie is expired";
+        setting appdir => $tempdir;
+        setting(
+            engines => {
+                session => { $engine => { session_dir => 't/sessions' } }
+            }
+        );
+        setting( session => $engine );
 
-            # shouldn't be sent session cookie after session destruction
-            $res = $ua->get("http://127.0.0.1:$port/no_session_data");
-            ok $res->is_success, "/no_session_data";
-            $cookie = extract_cookie($res);
-            ok !$cookie, "no cookie set"
-              or diag explain $cookie;
+        start;
+    });
 
-            # set value into session again
-            $res = $ua->get("http://127.0.0.1:$port/set_session/curly");
-            ok $res->is_success, "/set_session/larry";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            my $sid2 = $cookie->{"dancer.session"};
-            isnt $sid2, $sid1, "New session has different ID";
+    # Client tests
+    my $ua = LWP::UserAgent->new;
+    $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
 
-            # destroy and create a session in one request
-            $res = $ua->get("http://127.0.0.1:$port/churn_session");
-            ok $res->is_success, "/churn_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            my $sid3 = $cookie->{"dancer.session"};
-            isnt $sid3, $sid2, "Changed session has different ID";
+    # no session cookie set if session not referenced
+    my $res = $ua->get("http://127.0.0.1:$port/no_session_data");
+    ok $res->is_success, "/no_session_data"
+      or diag explain $res;
+    my $cookie = extract_cookie($res);
+    ok !$cookie, "no cookie set"
+      or diag explain $cookie;
 
-            # read value back
-            $res = $ua->get("http://127.0.0.1:$port/read_session");
-            ok $res->is_success, "/read_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            like $res->content, qr/name='damian'/, "session value looks good";
+    # no empty session created if session read attempted
+    $res = $ua->get("http://127.0.0.1:$port/read_session");
+    ok $res->is_success, "/read_session";
+    $cookie = extract_cookie($res);
+    ok !$cookie, "no cookie set"
+      or diag explain $cookie;
 
-            File::Temp::cleanup();
-        },
-        server => sub {
-            my $port = shift;
+    # set value into session
+    $res = $ua->get("http://127.0.0.1:$port/set_session/larry");
+    ok $res->is_success, "/set_session/larry";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
+    my $sid1 = $cookie->{"dancer.session"};
 
-            use Dancer2;
+    # read value back
+    $res = $ua->get("http://127.0.0.1:$port/read_session");
+    ok $res->is_success, "/read_session";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
+    like $res->content, qr/name='larry'/, "session value looks good";
 
-            get '/no_session_data' => sub {
-                return "session not modified";
-            };
+    # session cookie should persist even if we don't touch sessions
+    $res = $ua->get("http://127.0.0.1:$port/no_session_data");
+    ok $res->is_success, "/no_session_data";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
 
-            get '/set_session/*' => sub {
-                my ($name) = splat;
-                session name => $name;
-            };
+    # destroy session and check that cookies expiration is set
+    $res = $ua->get("http://127.0.0.1:$port/destroy_session");
+    ok $res->is_success, "/destroy_session";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
+    is $cookie->{"dancer.session"}, $sid1, "correct cookie expired";
+    ok $cookie->{expires} < time, "session cookie is expired";
 
-            get '/read_session' => sub {
-                my $name = session('name') || '';
-                "name='$name'";
-            };
+    # shouldn't be sent session cookie after session destruction
+    $res = $ua->get("http://127.0.0.1:$port/no_session_data");
+    ok $res->is_success, "/no_session_data";
+    $cookie = extract_cookie($res);
+    ok !$cookie, "no cookie set"
+      or diag explain $cookie;
 
-            get '/destroy_session' => sub {
-                my $name = session('name') || '';
-                context->destroy_session;
-                return "destroyed='$name'";
-            };
+    # set value into session again
+    $res = $ua->get("http://127.0.0.1:$port/set_session/curly");
+    ok $res->is_success, "/set_session/larry";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
+    my $sid2 = $cookie->{"dancer.session"};
+    isnt $sid2, $sid1, "New session has different ID";
 
-            get '/churn_session' => sub {
-                context->destroy_session;
-                session name => 'damian';
-                return "churned";
-            };
+    # destroy and create a session in one request
+    $res = $ua->get("http://127.0.0.1:$port/churn_session");
+    ok $res->is_success, "/churn_session";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
+    my $sid3 = $cookie->{"dancer.session"};
+    isnt $sid3, $sid2, "Changed session has different ID";
 
-            setting appdir => $tempdir;
-            setting(
-                engines => {
-                    session => { $engine => { session_dir => 't/sessions' } }
-                }
-            );
-            setting( session => $engine );
+    # read value back
+    $res = $ua->get("http://127.0.0.1:$port/read_session");
+    ok $res->is_success, "/read_session";
+    $cookie = extract_cookie($res);
+    ok $cookie, "session cookie set"
+      or diag explain $cookie;
+    like $res->content, qr/name='damian'/, "session value looks good";
 
-            set(show_errors  => 1,
-                startup_info => 0,
-                environment  => 'production',
-                port         => $port
-            );
-
-            Dancer2->runner->server->port($port);
-            start;
-        },
-    );
+    File::Temp::cleanup();
 }
 done_testing;
 

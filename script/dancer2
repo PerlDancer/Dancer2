@@ -524,15 +524,11 @@ Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %>
 
 "dispatch.cgi" =>
 "$PERL_INTERPRETER
-use Dancer2;
-use FindBin '\$RealBin';
-use Plack::Runner;
-
 # For some reason Apache SetEnv directives dont propagate
 # correctly to the dispatchers, so forcing PSGI and env here
-# is safer.
-set apphandler => 'PSGI';
-set environment => 'production';
+use Dancer2 apphandler => 'PSGI', environment => 'production';
+use FindBin '\$RealBin';
+use Plack::Runner;
 
 my \$psgi = path(\$RealBin, '..', 'bin', 'app.pl');
 die \"Unable to read startup script: \$psgi\" unless -r \$psgi;
@@ -543,15 +539,12 @@ Plack::Runner->run(\$psgi);
 
 "dispatch.fcgi" =>
 qq{$PERL_INTERPRETER
-use Dancer2;
-use FindBin '\$RealBin';
-use Plack::Handler::FCGI;
-
 # For some reason Apache SetEnv directives dont propagate
 # correctly to the dispatchers, so forcing PSGI and env here
 # is safer.
-set apphandler => 'PSGI';
-set environment => 'production';
+use Dancer2 apphandler => 'PSGI', environment => 'production';
+use FindBin '\$RealBin';
+use Plack::Handler::FCGI;
 
 my \$psgi = path(\$RealBin, '..', 'bin', 'app.pl');
 my \$app = do(\$psgi);

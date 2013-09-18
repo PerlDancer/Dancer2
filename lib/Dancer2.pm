@@ -138,6 +138,13 @@ sub import {
       "parameters to 'use Dancer2' should be one of : 'key => value', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
     my %final_args = @final_args;
 
+    # Move all the 'key => value' pairs except 'dsl' to defaults.
+    # defaults are then passed to the Runner constructor.
+    my %defaults = ();
+    for my $key ( keys %final_args ) {
+        next if $key =~ m/^!/ or $key eq 'dsl';
+        $defaults{$key} = delete $final_args{$key};
+    }
     $final_args{dsl} ||= 'Dancer2::Core::DSL';
 
     # never instantiated the runner, should do it now
@@ -145,7 +152,10 @@ sub import {
 
         # TODO should support commandline options as well
 
-        $runner = Dancer2::Core::Runner->new( caller => $script, );
+        $runner = Dancer2::Core::Runner->new(
+            caller         => $script,
+            default_config => \%defaults,
+        );
     }
 
     my $server = $runner->server;

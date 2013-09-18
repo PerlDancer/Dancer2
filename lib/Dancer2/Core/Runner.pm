@@ -11,6 +11,11 @@ use File::Spec;
 use File::Basename;
 use Dancer2::FileUtils;
 
+# our Config role requires a default_config hash;
+has default_config => (
+    is  => 'lazy',
+    isa => HashRef,
+);
 with 'Dancer2::Core::Role::Config';
 
 # the path to the caller script that is starting the app
@@ -51,14 +56,12 @@ sub _build_server {
     );
 }
 
-# our Config role needs a default_config hash
-sub default_config {
-
+sub _build_default_config {
     $ENV{PLACK_ENV}
       and $ENV{DANCER_APPHANDLER} = 'PSGI';
 
-    my ($self) = @_;
-    {   apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
+    return {
+        apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
         content_type => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset      => ( $ENV{DANCER_CHARSET}      || '' ),
         warnings     => ( $ENV{DANCER_WARNINGS}     || 0 ),
@@ -68,9 +71,8 @@ sub default_config {
         host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
         port         => ( $ENV{DANCER_PORT}         || '3000' ),
         is_daemon    => ( $ENV{DANCER_DAEMON}       || 0 ),
-        views        => ( $ENV{DANCER_VIEWS}
-              || path( $self->config_location, 'views' ) ),
-        appdir          => $self->location,
+        views        => ( $ENV{DANCER_VIEWS}        || '' ),
+        appdir       => ( $ENV{DANCER_APPDIR}       || '' ),
     };
 }
 
@@ -117,6 +119,22 @@ sub _build_location {
     return File::Spec->rel2abs($path);
 }
 
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $args = $orig->(@_); # @_ includes $self..
+
+    # If default_config was provided, merge with builder defaults.
+    # XXX - which set of defualt values should have priority ?? 
+    if ( exists $args->{default_config} ) {
+        my $defaults = _build_default_config;
+        @$defaults{keys %{ $args->{default_config} } } =
+          values %{ $args->{default_config} };
+        $args->{default_config} = $defaults;
+    }
+
+    return $args;  
+};
+
 sub BUILD {
     my $self = shift;
 
@@ -124,6 +142,11 @@ sub BUILD {
     # will be encountered as soon as possible
     # while making sure that 'caller' is already available
     $self->location;
+
+    # Update default_config with paths based on location
+    $self->default_config->{views}
+      ||= path( $self->config_location, 'views' );
+    $self->default_config->{appdir} ||= $self->location;
 
     # set the global runner object if one doesn't exist yet
     # this can happen if you create one without going through Dancer2

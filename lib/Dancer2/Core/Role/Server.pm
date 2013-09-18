@@ -21,19 +21,19 @@ has name => (
 );
 
 has host => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => Str,
     required => 1,
 );
 
 has port => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => Num,
     required => 1,
 );
 
 has is_daemon => (
-    is  => 'rw',
+    is  => 'ro',
     isa => Bool,
 );
 
@@ -116,19 +116,19 @@ subroutine.
 
 =attr host
 
-Hostname to which the server will bind.
+Hostname to which the server will bind (required, read-only attribute).
 
 B<Required>.
 
 =attr port
 
-Port number to which the server will bind.
+Port number to which the server will bind (required, read-only attribute).
 
 B<Required>.
 
 =attr is_daemon
 
-Boolean for whether the server should daemonize.
+Boolean for whether the server should daemonize (read-only attribute).
 
 =attr apps
 

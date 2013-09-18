@@ -3,12 +3,16 @@ use warnings;
 use Test::More;
 use Test::TCP;
 use LWP::UserAgent;
-use Dancer2;
+use Net::EmptyPort qw(empty_port);
+
+# Find an empty port BEFORE importing Dancer2
+my $port;
+BEGIN { $port = empty_port }
 
 test_tcp(
+    port   => $port,
     server => sub {
-        my $port = shift;
-        set startup_info => 0;
+        use Dancer2 port => $port, startup_info => 0;
         get '/'          => sub {
             'home:' . join( ',', params );
         };
@@ -31,7 +35,6 @@ test_tcp(
         post '/'        => sub {'post-home'};
         post '/bounce/' => sub { forward('/') };
 
-        Dancer2->runner->server->port($port);
         start;
     },
     client => sub {
