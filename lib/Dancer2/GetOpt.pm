@@ -7,16 +7,20 @@ use Getopt::Long;
 use FindBin;
 use File::Spec;
 
-use Dancer2;
-
+my %options_to_ENV  = (
+	port => 'DANCER_PORT',
+	environment => 'DANCER_ENVIRONMENT',
+	daemon => 'DANCER_DAEMON',
+	confdir => 'DANCER_CONFDIR',
+);
 
 sub arg_to_setting {
 	my ($option, $value) = @_;
-	setting($option => $value);
+#	I can't really import the setting(..) func here.	
+	$ENV{$options_to_ENV{$option}} = $value; #this is only way IMO it works.
 }
 
 #note we don't support the restart (auto_reload) anymore GH#391 
-
 sub process_args {
 	my $help = 0;
     GetOptions(
@@ -50,7 +54,7 @@ OPTIONS
 
 --daemon
 
-When this flag is set, the Dancer script will detach from the terminal and will
+When this flag is set, the Dancer2 script will detach from the terminal and will
 run in background. This is perfect for production environment but is not handy
 during the development phase.
 
@@ -61,11 +65,11 @@ default, the port 3000 will be used.
 
 --confdir=PATH
 
-By default, Dancer looks in the appdir for config files (config.yml and
+By default, Dancer2 looks in the appdir for config files (config.yml and
 environments files). You can change this with specifying an alternate path to
 the configdir option.
 
-Dancer will then look in that directory for a file config.yml and the
+Dancer2 will then look in that directory for a file config.yml and the
 appropriate environement configuration file.
 
 If not specified, confdir points to appdir.
