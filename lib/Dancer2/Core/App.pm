@@ -596,4 +596,3 @@ Sugar for getting the ordered list of all registered route regexps by method.
     my $regexps = $app->routes_regexps_for( 'get' );
 
 Returns an ArrayRef with the results.
-

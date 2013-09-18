@@ -17,7 +17,7 @@ note "HTTP status"; {
 
     for my $test (@tests) {
         my $status_text = defined $test->{status}
-            ? $test->{status} : 'undef'; 
+            ? $test->{status} : 'undef';
         is( Dancer2::Core::HTTP->status( $test->{status} ),
             $test->{expected},
             "HTTP status looks good for $status_text" );
@@ -35,10 +35,9 @@ note "HTTP status_message"; {
 
     for my $test (@tests) {
         my $status_text = defined $test->{status}
-            ? $test->{status} : 'undef'; 
+            ? $test->{status} : 'undef';
         is( Dancer2::Core::HTTP->status_message( $test->{status} ),
             $test->{expected},
             "HTTP status message looks good for $status_text" );
     }
 }
-

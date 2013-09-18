@@ -65,7 +65,7 @@ note "Verify Serializers decode into characters"; {
         );
 
         my $content = Encode::decode( 'UTF-8', $r->content );
-        is( $content, "utf8 : $utf8", "utf-8 string returns the same using the $type serializer" );        
+        is( $content, "utf8 : $utf8", "utf-8 string returns the same using the $type serializer" );
     }
 }
 

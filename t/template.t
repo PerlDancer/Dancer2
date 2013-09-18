@@ -65,22 +65,23 @@ $tt->add_hook(
     )
 );
 
+my $space = " ";
 my $result = $tt->process( 'index.tt', { var => 42 } );
-is $result, 'layout top
+is $result, "layout top
 var = 42
 before_layout_render = 1
 ---
 [index]
 var = 42
 
-before_layout_render = 
+before_layout_render =$space
 before_template_render = 1
 content added in after_template_render
 content added in before_layout_render
 ---
 layout bottom
 
-content added in after_layout_render';
+content added in after_layout_render";
 
 {
 

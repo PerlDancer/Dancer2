@@ -60,7 +60,7 @@ $template = 'code = <% code %>, code <% hash.code %>';
 $expected = 'code = 42, code 42';
 $result   = $engine->render(\$template, {
                 code => sub { 42 },
-                hash => { 
+                hash => {
                     code => sub { 42 }
                 }
             });

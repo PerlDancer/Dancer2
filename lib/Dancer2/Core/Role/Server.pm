@@ -136,7 +136,7 @@ An arrayref to hold Dancer2 applications.
 
 =attr dispatcher
 
-A read/write attribute which holds the L<Dancer2::Core::Dispatcher> object, to 
+A read/write attribute which holds the L<Dancer2::Core::Dispatcher> object, to
 dispatch an incoming request to the appropriate route.
 
 It has a lazy builder that creates a new dispatcher with the server's apps.
@@ -159,4 +159,3 @@ Please review L<PSGI> for more details on the protocol and how it works.
 =method register_application
 
 Adds another application to the C<apps> attribute (see above).
-

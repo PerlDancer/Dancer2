@@ -171,5 +171,3 @@ sub type {
 L<Dancer2>
 
 =cut
-
-
