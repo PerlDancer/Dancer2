@@ -113,8 +113,7 @@ sub dispatch {
 
             if ($response->is_halted) {
                 $app->execute_hook( 'core.app.after_request', $response )
-                  unless $response->is_forwarded;
-
+                  if $response->is_redirect;
                 return $response;
             }
 
