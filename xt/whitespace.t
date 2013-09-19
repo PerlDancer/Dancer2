@@ -10,6 +10,7 @@ use Test::Whitespaces {
 
     ignore => [
         qr{t/sessions/},
+        qr{t/template_tiny/samples},
     ],
 
 };
