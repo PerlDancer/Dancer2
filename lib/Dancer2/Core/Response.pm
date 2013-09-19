@@ -75,6 +75,20 @@ has is_halted => (
     default => sub {0},
 );
 
+
+=attr is_redirect
+
+Flag to tell whether or not the response is a redirect
+
+=cut
+
+has is_redirect => (
+    is      => 'rw',
+    isa     => Bool,
+    default => sub {0},
+);
+
+
 =method halt
 
 Shortcut to halt the current response by setting the is_halted flag.
@@ -231,6 +245,7 @@ status to $status.  If $status is omitted, or false, then it defaults to a statu
 
 sub redirect {
     my ( $self, $destination, $status ) = @_;
+    $self->is_redirect(1);
     $self->status( $status || 302 );
 
     # we want to stringify the $destination object (URI object)

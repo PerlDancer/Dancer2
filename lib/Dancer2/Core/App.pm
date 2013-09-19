@@ -186,14 +186,13 @@ sub _build_default_config {
 sub _init_hooks {
     my ($self) = @_;
 
- # Hook to flush the session at the end of the request, this way, we're sure we
- # flush only once per request
+    # Hook to flush the session at the end of the request, this way, we're sure we
+    # flush only once per request
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
                 my $response = shift;
-
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $self->engine('session');
                 return if !defined $engine;
@@ -466,7 +465,9 @@ sub compile_hooks {
 
                 # don't run the filter if halt has been used
                 return
-                  if ( $self->context && $self->context->response->is_halted );
+                  if ( $self->context &&
+                       $self->context->response->is_halted &&
+                       ! $self->context->response->is_redirect);
 
                 eval { $hook->(@_) };
 
