@@ -900,7 +900,7 @@ Please note that this is not recommended for production for performance reasons.
 This is the Dancer2 replacement solution of the old Dancer experimental
 C<auto_reload> option. 
 
-On windows, Shotgun loader is known to cause huge memory leaks in a fork-emulation
+On Windows, Shotgun loader is known to cause huge memory leaks in a fork-emulation
 layer. If you are aware of this and still want to run the loader, please use the
 following command:
 
