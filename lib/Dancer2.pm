@@ -146,8 +146,8 @@ sub import {
 
         $runner = Dancer2::Core::Runner->new( caller => $script);
 
-		$as_script = 1 if $ENV{PLACK_ENV};
-		Dancer2::GetOpt->process_args() if !$as_script;
+	$as_script = 1 if $ENV{PLACK_ENV};
+	Dancer2::GetOpt->process_args() if !$as_script;
     }
 
     my $server = $runner->server;
