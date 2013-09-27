@@ -64,51 +64,7 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-   # if the request has been altered by a before filter, we should not continue
-   # with this route handler, we should continue to walk through the
-   # rest
-
-            # next if $context->request->path_info ne $path_info
-            #         || $context->request->method ne uc($http_method);
-
-            $app->execute_hook( 'core.app.before_request', $context );
-            my $response = $context->response;
-
-            my $content;
-            if ( $response->is_halted ) {
-                # if halted, it comes from the 'before' hook. Take its content
-                $content = $response->content;
-            }
-            else {
-                $content = eval { $route->execute($context) };
-                my $error = $@;
-                if ($error) {
-                    $app->log( error => "Route exception: $error" );
-                    $app->execute_hook(
-                        'core.app.route_exception', $context, $error);
-                    return $self->response_internal_error( $context, $error );
-                }
-            }
-
-            # routes should use 'content_type' as default, or 'text/html'
-            if ( !$response->header('Content-type') ) {
-                if ( exists( $app->config->{content_type} ) ) {
-                    $response->header(
-                        'Content-Type' => $app->config->{content_type} );
-                }
-                else {
-                    $response->header(
-                        'Content-Type' => $self->default_content_type );
-                }
-            }
-
-            if ( ref $content eq 'Dancer2::Core::Response' ) {
-                $response = $context->response($content);
-            }
-            else {
-                $response->content( defined $content ? $content : '' );
-                $response->encode_content;
-            }
+            my $response = $self->_dispatch_route($route, $context);
 
             return $response if $response->is_halted;
 
@@ -132,6 +88,54 @@ sub dispatch {
     }
 
     return $self->response_not_found($context);
+}
+
+# Call any before hooks then the matched route.
+sub _dispatch_route {
+    my ($self, $route, $context) = @_;
+    my $app = $context->app;
+
+    $app->execute_hook( 'core.app.before_request', $context );
+    my $response = $context->response;
+
+    my $content;
+    if ( $response->is_halted ) {
+        # if halted, it comes from the 'before' hook. Take its content
+        $content = $response->content;
+    }
+    else {
+        $content = eval { $route->execute($context) };
+        my $error = $@;
+        if ($error) {
+            $app->log( error => "Route exception: $error" );
+            $app->execute_hook(
+                'core.app.route_exception', $context, $error);
+            return $self->response_internal_error( $context, $error );
+        }
+    }
+
+    # routes should use 'content_type' as default, or 'text/html'
+    # (Content-Type header needs to be set to encode content below..)
+    if ( !$response->header('Content-type') ) {
+        if ( exists( $app->config->{content_type} ) ) {
+            $response->header(
+                'Content-Type' => $app->config->{content_type} );
+        }
+        else {
+            $response->header(
+                'Content-Type' => $self->default_content_type );
+        }
+    }
+
+    if ( ref $content eq 'Dancer2::Core::Response' ) {
+        $response = $context->response($content);
+    }
+    else {
+        $response->content( defined $content ? $content : '' );
+        $response->encode_content;
+    }
+
+    return $response;
 }
 
 # In the case of a HEAD request, we need to drop the body, but we also
