@@ -8,6 +8,8 @@ use Dancer2::Core::Types;
 use Dancer2::Core::Context;
 use Dancer2::Core::Response;
 
+use Return::MultiLevel qw(with_return);
+
 has apps => (
     is      => 'rw',
     isa     => ArrayRef,
@@ -65,9 +67,20 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-            my $response = $self->_dispatch_route($route, $context);
+            my $response = with_return {
+                my ($return) = @_;
+                # stash the multilevel return coderef in the context
+                $context->with_return($return) if ! $context->has_with_return;
+                return $self->_dispatch_route($route, $context);
+            };
+            # Ensure we clear the with_return handler
+            $context->clear_with_response;
 
-            return $response if $response->is_halted;
+            # No further processing of this response if its halted
+            if ( $response->is_halted ) {
+                $app->context(undef);
+                return $response;
+            }
 
             # pass the baton if the response says so...
             if ( $response->has_passed ) {
