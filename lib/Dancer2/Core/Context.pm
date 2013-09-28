@@ -284,4 +284,17 @@ sub destroy_session {
     return;
 }
 
+
+=attr with_return
+
+Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
+
+=cut
+
+has with_return => (
+    is        => 'rw',
+    predicate => 1,
+    clearer   => 'clear_with_response',
+);
+
 1;
