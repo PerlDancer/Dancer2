@@ -23,6 +23,7 @@ sub BUILD { }
 # their own aliases for their own hooks
 sub hook_aliases {
     {   before                 => 'core.app.before_request',
+        before_match           => 'core.app.before_route_match',
         before_request         => 'core.app.before_request',
         after                  => 'core.app.after_request',
         after_request          => 'core.app.after_request',
