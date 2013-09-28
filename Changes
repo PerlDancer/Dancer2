@@ -5,6 +5,7 @@
     * Small POD corrections (Ashvini V)
 
     [ ENHANCEMENTS ]
+    * GH#481: Include local lib dir in @INC by defaults (Alexis Sukrieh).
     * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
     * GH#422: Get rid of core_debug method (Alberto Simões).
     * GH#421: Support Plugin::Ajax content_type (Russell Jenkins).
