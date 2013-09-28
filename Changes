@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.10      2013-09-28 15:26:41 Europe/Paris
+
     [ DOCUMENTATION ]
     * GH#431: Miscellaneous documentation fixes (Gideon D'souza)
     * Small POD corrections (Ashvini V)
