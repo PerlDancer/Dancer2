@@ -6,7 +6,9 @@ use File::Temp 0.22;
 use YAML;
 
 use LWP::UserAgent;
-use LWP::Protocol::PSGI;
+
+eval "use LWP::Protocol::PSGI";
+plan skip_all => "LWP::Protocol::PSGI is needed for this test" if $@;
 
 my @engines = qw(Simple);
 
