@@ -27,10 +27,13 @@ sub dispatch {
 #    warn "dispatching ".$env->{PATH_INFO}
 #       . " with ".join(", ", map { $_->name } @{$self->apps });
 
-# initialize a context for the current request
-# Once per didspatching! We should not create one context for each app or we're
-# going to parse multiple time the request body/
-    my $context = Dancer2::Core::Context->new( env => $env );
+    # Initialize a context for the current request
+    # Once per didspatching! We should not create one context for each app or
+    # we're going to parse the request body multiple times
+    my $context = Dancer2::Core::Context->new(
+        env => $env,
+        ( request => $request ) x !! $request,
+    );
 
     if ( $curr_context && $curr_context->has_session ) {
         $context->session( $curr_context->session );
@@ -40,10 +43,8 @@ sub dispatch {
 
         # warn "walking through routes of ".$app->name;
 
-        # set the current app in the context
+        # set the current app in the context and context in the app..
         $context->app($app);
-
-        $context->request($request) if defined $request;
         $app->context($context);
 
         my $http_method = lc $context->request->method;
