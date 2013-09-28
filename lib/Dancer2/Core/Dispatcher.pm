@@ -51,7 +51,7 @@ sub dispatch {
 
         $app->log( core => "looking for $http_method $path_info" );
 
-        $app->execute_hook( 'core.app.before_request', $context );
+        $app->execute_hook( 'core.app.before_route_match', $context );
         if ( $context->response->is_halted ) {
             if ( ! $context->response->header('Content-type') ) {
                 if ( exists( $app->config->{content_type} ) ) {

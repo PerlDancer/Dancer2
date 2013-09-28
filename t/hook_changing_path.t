@@ -21,7 +21,7 @@ Test::TCP::test_tcp(
         my $port = shift;
         use Dancer2;
 
-        hook before => sub {
+        hook before_match => sub {
             my $context = shift;
             my $path = $context->request->path_info();
             if($path =~ m/^\/prefix/)
