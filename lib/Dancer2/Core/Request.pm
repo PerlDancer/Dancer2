@@ -342,8 +342,8 @@ sub host {
     my ($self) = @_;
 
     return ( $self->is_behind_proxy )
-      ? ( $self->env->{HTTP_X_FORWARDED_HOST}
-          || $self->env->{X_FORWARDED_HOST} )
+      ? (split( /\s*,\s*/, ( $self->env->{HTTP_X_FORWARDED_HOST}
+          || $self->env->{X_FORWARDED_HOST} )))[0]
       : $self->env->{HTTP_HOST};
 }
 
