@@ -5,6 +5,7 @@ package Dancer2;
 use strict;
 use warnings;
 use Class::Load 'load_class';
+use Carp 'croak';
 use Dancer2::Core;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
@@ -147,6 +148,11 @@ sub import {
 
         $runner = Dancer2::Core::Runner->new( caller => $script, );
     }
+
+    # Include the local ./lib directory by default
+    my $local_libdir = Dancer2::FileUtils::path( $runner->location, 'lib' );
+    eval "use lib '$local_libdir'" if -d $local_libdir;
+    croak "Cannot use local lib: $local_libdir: $@" if $@;
 
     my $server = $runner->server;
 
