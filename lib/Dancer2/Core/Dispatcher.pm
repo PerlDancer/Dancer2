@@ -92,7 +92,8 @@ sub dispatch {
 
             # next if $context->request->path_info ne $path_info
             #         || $context->request->method ne uc($http_method);
-
+            
+            $app->execute_hook( 'core.app.before_request', $context );
             my $response = $context->response;
 
             my $content;
