@@ -872,9 +872,12 @@ Constant that returns a false value (0).
 
 =head2 forward
 
-Runs an internal redirect of the current request to another request. This helps
-you avoid having to redirect the user using HTTP and set another request to your
-application.
+Runs an "internal redirect" of the current request to another request. More
+formally; when the C<forward> is executed, the current dispatch of the request
+is aborted, the request is modified (altering query params or request method),
+and the modified request is dispatched again. Any remaining code (route and
+hooks) from the current dispatch will never be run and the modified request's
+dispatch will execute hooks for the new request normally.
 
 It effectively lets you chain routes together in a clean manner.
 
@@ -897,36 +900,34 @@ B<POST>. That is because C<forward> chains the same type of route the user
 reached. If it was a B<GET>, it will remain a B<GET> (but if you do need to
 change the method, you can do so; read on below for details.)
 
-
-B<WARNING> : Issuing a forward will B<NOT> exits the current
-route. Unlike with Dancer 1, in Dancer 2 you need to explicitly return
-from the route. This keeps up with the behavior of C<redirect>.
+B<WARNING> : Any code after a c<forward> is ignored, until the end of the route.
+It's not necessary to use C<return> with c<forward> anymore.
 
     get '/foo/:article_id' => sub {
         if ($condition) {
             forward "/articles/" . params->{article_id};
-            # The following code WILL BE executed
+            # The following code WILL NOT BE executed
             do_stuff();
         }
 
         more_stuff();
     };
 
-Note that forward doesn't parse GET arguments. So, you can't use
+Note that c<forward> doesn't parse GET arguments. So, you can't use
 something like:
 
-     return forward '/home?authorized=1';
+    forward '/home?authorized=1';
 
 But C<forward> supports an optional HashRef with parameters to be added
 to the actual parameters:
 
-     return forward '/home', { authorized => 1 };
+    forward '/home', { authorized => 1 };
 
-Finally, you can add some more options to the forward method, in a
+Finally, you can add some more options to the c<forward> method, in a
 third argument, also as a HashRef. That option is currently
 only used to change the method of your request. Use with caution.
 
-    return forward '/home', { auth => 1 }, { method => 'POST' };
+    forward '/home', { auth => 1 }, { method => 'POST' };
 
 =head2 from_dumper ($structure)
 
@@ -1203,22 +1204,17 @@ different site or within the application:
 
     get '/twitter', sub {
         redirect 'http://twitter.com/me';
+        # Any code after the redirect will not be executed.
     };
+
+B<WARNING> : Issuing a c<redirect> immediately exits the current route.
+Thus, any code after a c<redirect> is ignored, until the end of the route.
+So it's not necessary anymore to use C<return> with c<redirect>.
 
 You can also force Dancer to return a specific 300-ish HTTP response code:
 
     get '/old/:resource', sub {
         redirect '/new/'.params->{resource}, 301;
-    };
-
-It is important to note that issuing a redirect by itself does not exit and
-redirect immediately, redirection is deferred until after the current route
-or filter has been processed. To exit and redirect immediately, use the return
-function, e.g.
-
-    get '/restricted', sub {
-        return redirect '/login' if accessDenied();
-        return 'Welcome to the restricted section';
     };
 
 =head2 request
