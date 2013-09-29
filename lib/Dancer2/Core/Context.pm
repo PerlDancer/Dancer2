@@ -178,8 +178,10 @@ sub redirect {
         $destination = $self->request->uri_for( $destination, {}, 1 );
     }
 
-    $self->response->halt;
     $self->response->redirect( $destination, $status );
+    # Short circuit any remaining before hook / route code
+    # ('pass' and after hooks are still processed)
+    $self->with_return->($self->response) if $self->has_with_return;
 }
 
 
