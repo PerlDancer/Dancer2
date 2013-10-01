@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+      Don't pollute @INC automatically when Dancer2 is imported, each runner is
+      now responsible of including the local ./lib dir if needed (the scaffolder
+      does it).
+
 0.10      2013-09-28 15:26:41 Europe/Paris
 
     [ DOCUMENTATION ]
