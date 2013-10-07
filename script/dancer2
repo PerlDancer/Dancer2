@@ -379,7 +379,6 @@ WriteMakefile(
               <li><a
               href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Manual.pod">Introduction</a></li>
               <li><a href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Cookbook.pod">Cookbook</a></li>
-              <li><a href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Deployment.pod">Deployment Guide</a></li>
               <li><a
               href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Tutorial.pod"
               title="a tutorial to build a small blog engine with Dancer">Tutorial</a></li>
