@@ -240,11 +240,16 @@ request. This attribute is read-only.
 
 =head2 dispatch
 
-The method C<dispatch> accepts the list of applications, hash reference of
-the attribute B<env> of L<Dancer2::Core::Request> and request as input
-arguments.
+The C<dispatch> method accepts the list of applications, hash reference for
+the B<env> attribute of L<Dancer2::Core::Request> and optionally the request
+object and a context object as input arguments.
 
 C<dispatch> returns a response object of L<Dancer2::Core::Response>.
+
+Any before hook and matched route code is wrapped using L<Return::MultiLevel>
+to allow DSL keywords such as forward and redirect to short-circuit remaining code
+without having to throw an exception. L<Return::MultiLevel> will use L<Scope::Upper>
+(an XS module) if it is available.
 
 =head2 response_internal_error
 
