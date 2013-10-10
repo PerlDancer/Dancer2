@@ -596,8 +596,9 @@ config file will look like this:
 
     charset: UTF-8
     engines:
-      template_toolkit:
-        ENCODING: utf8
+      template:
+        template_toolkit:
+          ENCODING: utf8
 
 
 =head2 TT's WRAPPER directive in Dancer2
@@ -630,8 +631,9 @@ Change the configuration of the template to Template Toolkit:
     # in config.yml
     # ...
     engines:
-        template_toolkit:
-            WRAPPER: layouts/main.tt
+        template:
+            template_toolkit:
+                WRAPPER: layouts/main.tt
 
 =back
 
