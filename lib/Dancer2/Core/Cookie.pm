@@ -22,9 +22,9 @@ use overload '""' => \&_get_value;
 
 =head1 DESCRIPTION
 
-Dancer2::Cookie provides a HTTP cookie object to work with cookies.
+Dancer2::Core::Cookie provides a HTTP cookie object to work with cookies.
 
-=method my $cookie=new Dancer2::Cookie (%opts);
+=method my $cookie=Dancer2::Core::Cookie->new(%opts);
 
 Create a new Dancer2::Core::Cookie object.
 
