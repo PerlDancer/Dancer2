@@ -100,7 +100,7 @@ false for failure.
 sub copy_to {
     my ( $self, $target ) = @_;
     require File::Copy;
-    File::Copy::copy( $self->{tempname}, $target );
+    File::Copy::copy( $self->tempname, $target );
 }
 
 =method $upload->link_to('/path/to/target');
@@ -112,7 +112,7 @@ false for failure.
 
 sub link_to {
     my ( $self, $target ) = @_;
-    CORE::link( $self->{tempname}, $target );
+    CORE::link( $self->tempname, $target );
 }
 
 =method my $content=$upload->content;
