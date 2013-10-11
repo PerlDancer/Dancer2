@@ -237,7 +237,7 @@ sub has_session {
 
     my $engine = $self->app->engine('session');
 
-    return $self->{session}
+    return $self->session
       || ( $self->cookie( $engine->cookie_name )
         && !$self->destroyed_session );
 }
