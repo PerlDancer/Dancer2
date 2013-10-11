@@ -450,7 +450,7 @@ sub init_route_handlers {
 
 sub register_route_handlers {
     my ($self) = @_;
-    for my $handler ( @{ $self->{route_handlers} } ) {
+    for my $handler ( @{$self->route_handlers} ) {
         my $handler_code = $handler->{handler};
         $handler_code->register($self);
     }
