@@ -3,6 +3,10 @@
     [ ENHANCEMENTS ]
     * GH#481: Don't pollute @INC automatically when Dancer2 is imported, each
       runner is now responsible of including the local ./lib dir if needed.
+    
+    [ DOCUMENTATION ]
+    * GH#489: Remove link to Dancer2::Deployment pod which does not exist
+      (Sweet-kid)
 
 0.10      2013-09-28 15:26:41 Europe/Paris
 
