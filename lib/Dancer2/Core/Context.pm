@@ -190,11 +190,12 @@ Handle for the current session object, if any
 =cut
 
 has session => (
-    is      => 'rw',
-    isa     => Session,
-    lazy    => 1,
-    builder => '_build_session',
-    clearer => 1,
+    is        => 'rw',
+    isa       => Session,
+    lazy      => 1,
+    builder   => '_build_session',
+    predicate => '_has_session',
+    clearer   => 1,
 );
 
 sub _build_session {
@@ -237,9 +238,9 @@ sub has_session {
 
     my $engine = $self->app->engine('session');
 
-    return $self->{session}
+    return $self->_has_session
       || ( $self->cookie( $engine->cookie_name )
-        && !$self->destroyed_session );
+        && !$self->has_destroyed_session );
 }
 
 =attr destroyed_session
