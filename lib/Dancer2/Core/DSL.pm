@@ -151,7 +151,7 @@ sub prefix {
       : $app->lexical_prefix(@_);
 }
 
-sub halt { shift->app->context->response->halt }
+sub halt { shift->app->context->halt }
 
 sub _route_parameters {
     my ( $regexp, $code, $options );
