@@ -71,6 +71,10 @@ my $tests_flags = {};
 
     get '/route_exception' => sub {die 'this is a route exception'};
 
+    get '/forward' => sub { forward '/' };
+
+    get '/redirect' => sub { redirect '/' };
+
     hook before => sub {
         my $c = shift;
         return unless $c->request->path eq '/intercepted';
@@ -109,9 +113,23 @@ use Dancer2::Test;
 subtest 'request hooks' => sub {
     my $r = dancer_response get => '/';
     is $tests_flags->{before_request},     1,     "before_request was called";
+    is $tests_flags->{after_request},      1,     "after_request was called";
     is $tests_flags->{before_serializer},  undef, "before_serializer undef";
     is $tests_flags->{after_serializer},   undef, "after_serializer undef";
     is $tests_flags->{before_file_render}, undef, "before_file_render undef";
+};
+
+subtest 'after hook called once per request' => sub {
+    # Get current value of the 'after_request' tests flag.
+    my $current = $tests_flags->{after_request};
+
+    my $r = dancer_response get => '/redirect';
+    is $tests_flags->{after_request}, ++$current,
+        "after_request called after redirect";
+
+    $r = dancer_response get => '/forward';
+    is $tests_flags->{after_request}, ++$current,
+        "after_request called only once after forward";
 };
 
 subtest 'serializer hooks' => sub {

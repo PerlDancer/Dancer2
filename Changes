@@ -5,7 +5,9 @@
       runner is now responsible of including the local ./lib dir if needed.
     * GH#469, 418: Dancer2::Plugin provides a ':no_dsl' flag for modern Plugins
       (Pedro Molo)
-    
+    * GH#485: Keywords 'redirect' and 'forward' exit immediatly when executed in
+      a route/hook. New dependency on Return::MultiLevel (Russell Jenkins).
+
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
       (Sweet-kid)

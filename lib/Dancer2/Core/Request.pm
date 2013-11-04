@@ -631,9 +631,12 @@ sub forward {
         $new_request,
         $context,
     );
+    # halt the response, so no further processing is done on this request.
+    # (any after hooks will have already been run)
     $new_response->halt;
     $context->response($new_response);
-    return $new_response;
+    $context->with_return->($new_response) if $context->has_with_return;
+    return $new_response; # Should never be called..
 }
 
 sub _merge_params {

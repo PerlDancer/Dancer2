@@ -8,6 +8,8 @@ use Dancer2::Core::Types;
 use Dancer2::Core::Context;
 use Dancer2::Core::Response;
 
+use Return::MultiLevel qw(with_return);
+
 has apps => (
     is      => 'rw',
     isa     => ArrayRef,
@@ -27,10 +29,13 @@ sub dispatch {
 #    warn "dispatching ".$env->{PATH_INFO}
 #       . " with ".join(", ", map { $_->name } @{$self->apps });
 
-# initialize a context for the current request
-# Once per didspatching! We should not create one context for each app or we're
-# going to parse multiple time the request body/
-    my $context = Dancer2::Core::Context->new( env => $env );
+    # Initialize a context for the current request
+    # Once per didspatching! We should not create one context for each app or
+    # we're going to parse the request body multiple times
+    my $context = Dancer2::Core::Context->new(
+        env => $env,
+        ( request => $request ) x !! $request,
+    );
 
     if ( $curr_context && $curr_context->has_session ) {
         $context->session( $curr_context->session );
@@ -40,10 +45,8 @@ sub dispatch {
 
         # warn "walking through routes of ".$app->name;
 
-        # set the current app in the context
+        # set the current app in the context and context in the app..
         $context->app($app);
-
-        $context->request($request) if defined $request;
         $app->context($context);
 
         my $http_method = lc $context->request->method;
@@ -64,53 +67,20 @@ sub dispatch {
 
             $context->request->_set_route_params($match);
 
-   # if the request has been altered by a before filter, we should not continue
-   # with this route handler, we should continue to walk through the
-   # rest
+            my $response = with_return {
+                my ($return) = @_;
+                # stash the multilevel return coderef in the context
+                $context->with_return($return) if ! $context->has_with_return;
+                return $self->_dispatch_route($route, $context);
+            };
+            # Ensure we clear the with_return handler
+            $context->clear_with_response;
 
-            # next if $context->request->path_info ne $path_info
-            #         || $context->request->method ne uc($http_method);
-
-            $app->execute_hook( 'core.app.before_request', $context );
-            my $response = $context->response;
-
-            my $content;
+            # No further processing of this response if its halted
             if ( $response->is_halted ) {
-                # if halted, it comes from the 'before' hook. Take its content
-                $content = $response->content;
+                $app->context(undef);
+                return $response;
             }
-            else {
-                $content = eval { $route->execute($context) };
-                my $error = $@;
-                if ($error) {
-                    $app->log( error => "Route exception: $error" );
-                    $app->execute_hook(
-                        'core.app.route_exception', $context, $error);
-                    return $self->response_internal_error( $context, $error );
-                }
-            }
-
-            # routes should use 'content_type' as default, or 'text/html'
-            if ( !$response->header('Content-type') ) {
-                if ( exists( $app->config->{content_type} ) ) {
-                    $response->header(
-                        'Content-Type' => $app->config->{content_type} );
-                }
-                else {
-                    $response->header(
-                        'Content-Type' => $self->default_content_type );
-                }
-            }
-
-            if ( ref $content eq 'Dancer2::Core::Response' ) {
-                $response = $context->response($content);
-            }
-            else {
-                $response->content( defined $content ? $content : '' );
-                $response->encode_content;
-            }
-
-            return $response if $response->is_halted;
 
             # pass the baton if the response says so...
             if ( $response->has_passed ) {
@@ -132,6 +102,54 @@ sub dispatch {
     }
 
     return $self->response_not_found($context);
+}
+
+# Call any before hooks then the matched route.
+sub _dispatch_route {
+    my ($self, $route, $context) = @_;
+    my $app = $context->app;
+
+    $app->execute_hook( 'core.app.before_request', $context );
+    my $response = $context->response;
+
+    my $content;
+    if ( $response->is_halted ) {
+        # if halted, it comes from the 'before' hook. Take its content
+        $content = $response->content;
+    }
+    else {
+        $content = eval { $route->execute($context) };
+        my $error = $@;
+        if ($error) {
+            $app->log( error => "Route exception: $error" );
+            $app->execute_hook(
+                'core.app.route_exception', $context, $error);
+            return $self->response_internal_error( $context, $error );
+        }
+    }
+
+    # routes should use 'content_type' as default, or 'text/html'
+    # (Content-Type header needs to be set to encode content below..)
+    if ( !$response->header('Content-type') ) {
+        if ( exists( $app->config->{content_type} ) ) {
+            $response->header(
+                'Content-Type' => $app->config->{content_type} );
+        }
+        else {
+            $response->header(
+                'Content-Type' => $self->default_content_type );
+        }
+    }
+
+    if ( ref $content eq 'Dancer2::Core::Response' ) {
+        $response = $context->response($content);
+    }
+    else {
+        $response->content( defined $content ? $content : '' );
+        $response->encode_content;
+    }
+
+    return $response;
 }
 
 # In the case of a HEAD request, we need to drop the body, but we also
@@ -222,11 +240,16 @@ request. This attribute is read-only.
 
 =head2 dispatch
 
-The method C<dispatch> accepts the list of applications, hash reference of
-the attribute B<env> of L<Dancer2::Core::Request> and request as input
-arguments.
+The C<dispatch> method accepts the list of applications, hash reference for
+the B<env> attribute of L<Dancer2::Core::Request> and optionally the request
+object and a context object as input arguments.
 
 C<dispatch> returns a response object of L<Dancer2::Core::Response>.
+
+Any before hook and matched route code is wrapped using L<Return::MultiLevel>
+to allow DSL keywords such as forward and redirect to short-circuit remaining code
+without having to throw an exception. L<Return::MultiLevel> will use L<Scope::Upper>
+(an XS module) if it is available.
 
 =head2 response_internal_error
 
