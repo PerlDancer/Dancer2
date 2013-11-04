@@ -360,7 +360,7 @@ sub import {
  # their first argument).
  # These modified versions of the DSL are then exported in the namespace of the
  # plugin.
-    unless (grep { $_ eq ':no_dsl' } @_) {
+    if (! grep { $_ eq ':no_dsl' } @_) {
         for my $symbol ( keys %{ $dsl->keywords } ) {
 
             # get the original symbol from the real DSL
