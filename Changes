@@ -3,6 +3,8 @@
     [ ENHANCEMENTS ]
     * GH#481: Don't pollute @INC automatically when Dancer2 is imported, each
       runner is now responsible of including the local ./lib dir if needed.
+    * GH#469, 418: Dancer2::Plugin provides a ':no_dsl' flag for modern Plugins
+      (Pedro Molo)
     
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist

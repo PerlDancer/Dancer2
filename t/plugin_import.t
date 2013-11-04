@@ -24,4 +24,25 @@ is_deeply(
     "the original import method of the plugin is still there"
 );
 
+subtest 'import flags' => sub {
+    eval "
+        package Some::Plugin;
+        use Dancer2::Plugin ':no_dsl';
+
+        register 'foo' => sub { request };
+    ";
+    like $@, qr{Bareword "request" not allowed while "strict subs"}, 
+      "with :no_dsl, the Dancer's dsl is not imported.";
+
+    eval "
+        package Some::Plugin;
+        use Dancer2::Plugin;
+
+        register 'foo' => sub { request };
+    ";
+    is $@, '', "without any import flag, the DSL is imported";
+
+
+};
+
 done_testing;
