@@ -55,6 +55,7 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 | Dancer2::Plugin::Queue | [Link](https://metacpan.org/module/Dancer2::Plugin::Queue) | [Link](https://github.com/dagolden/dancer2-plugin-queue) |
 | Dancer2::Plugin::Database | [Link](https://metacpan.org/module/Dancer2::Plugin::Database) | [Link](https://github.com/bigpresh/Dancer-Plugin-Database/tree/master/Dancer2) |
 | Dancer2::Plugin::Feed | [Link](https://metacpan.org/module/Dancer2::Plugin::Feed) | [Link](https://github.com/hobbestigrou/Dancer2-Plugin-Feed) |
+| Dancer2::Plugin::Sixpack | [Link](https://metacpan.org/module/Dancer2::Plugin::Sixpack) | [Link](https://github.com/b10m/p5-Dancer2-Plugin-Sixpack) |
 
 
 ## Templates engines
