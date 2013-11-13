@@ -117,7 +117,7 @@ foreach my $attr ( @http_env_keys ) {
         is      => 'ro',
         isa     => Str,
         lazy    => 1,
-        default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } },
+        default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } || '' },
     );
 }
 
