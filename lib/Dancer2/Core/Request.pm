@@ -117,7 +117,7 @@ foreach my $attr ( @http_env_keys ) {
         is      => 'ro',
         isa     => Str,
         lazy    => 1,
-        default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } },
+        default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } || '' },
     );
 }
 
@@ -342,8 +342,8 @@ sub host {
     my ($self) = @_;
 
     return ( $self->is_behind_proxy )
-      ? ( $self->env->{HTTP_X_FORWARDED_HOST}
-          || $self->env->{X_FORWARDED_HOST} )
+      ? (split( /\s*,\s*/, ( $self->env->{HTTP_X_FORWARDED_HOST}
+          || $self->env->{X_FORWARDED_HOST} )))[0]
       : $self->env->{HTTP_HOST};
 }
 
