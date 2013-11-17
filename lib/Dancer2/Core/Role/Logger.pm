@@ -210,7 +210,7 @@ Log messages as B<error>.
 
 =method format_message
 
-Provides a common message formating.
+Provides a common message formatting.
 
 =attr auto_encoding_charset
 
