@@ -261,7 +261,7 @@ has destroyed_session => (
 
 =method destroy_session
 
-Destroys the current session and ensures any subsquent session is created
+Destroys the current session and ensures any subsequent session is created
 from scratch and not from the request session cookie
 
 =cut

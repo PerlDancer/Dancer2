@@ -30,7 +30,7 @@ sub dispatch {
 #       . " with ".join(", ", map { $_->name } @{$self->apps });
 
     # Initialize a context for the current request
-    # Once per didspatching! We should not create one context for each app or
+    # Once per dispatching! We should not create one context for each app or
     # we're going to parse the request body multiple times
     my $context = Dancer2::Core::Context->new(
         env => $env,
@@ -155,7 +155,7 @@ sub _dispatch_route {
 # In the case of a HEAD request, we need to drop the body, but we also
 # need to keep the value of the Content-Length header.
 # Because there's a trigger on the content field to change the value of
-# the C-L header everytime we change the value, we need to modify a around
+# the C-L header every time we change the value, we need to modify a around
 # modifier to change the value of content and restore the length.
 around 'dispatch' => sub {
     my ( $orig, $self, $env, $request, $curr_context ) = @_;

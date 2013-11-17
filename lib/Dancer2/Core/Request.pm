@@ -874,7 +874,7 @@ table provided by C<uploads()>. It looks at the calling context and returns a
 corresponding value.
 
 If you have many file uploads under the same name, and call C<upload('name')> in
-an array context, the accesor will unroll the ARRAY ref for you:
+an array context, the accessor will unroll the ARRAY ref for you:
 
     my @uploads = request->upload('many_uploads'); # OK
 
@@ -905,7 +905,7 @@ sub _build_params {
     # _before_ we get there, so we have to save it first
     my $previous = $self->_has_params ? $self->_params : {};
 
-    # now parse environement params...
+    # now parse environment params...
     $self->_parse_get_params();
     if ( $self->body_is_parsed ) {
         $self->{_body_params} ||= {};

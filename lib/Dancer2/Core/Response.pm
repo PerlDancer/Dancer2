@@ -264,7 +264,7 @@ sub error {
 
     $response->serialize( $content );
 
-Serialize and return $content with the respone's serializer.
+Serialize and return $content with the response's serializer.
 set content-type accordingly.
 
 =cut
