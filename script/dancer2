@@ -1,51 +1,81 @@
 #!/usr/bin/perl
 # PODNAME: dancer2
-# ABSTRACT: helper script to create new Dancer2 applications
+# ABSTRACT: Dancer2 command line interface
 
 use strict;
 use warnings;
+use Dancer2::CLI;
 
 # backward compatibility
-# GetOptions and Getopt::Long::Descriptive differently treats 
-# cases like '-a=Test'. GetOptions returs 'Test' as value of 'a',
-# while Getopt::Long::Descriptive returns '=Test' as value
-foreach (@ARGV) {
-    s/^\-(a|p)=/-$1/;
+if (@ARGV && ($ARGV[0] =~ m/^-(a|p|x)/ || $ARGV[0] =~ m/^--(application|path|no-check)/)) {
+    # GetOptions and Getopt::Long::Descriptive differently treats
+    # cases like '-a=Test'. GetOptions returs 'Test' as value of 'a',
+    # while Getopt::Long::Descriptive returns '=Test' as value
+    foreach (@ARGV) {
+        s/^\-(a|p)=/-$1/;
+    }
+
+    unshift @ARGV, 'gen';
 }
 
-exit exec("$0-cli", 'gen', @ARGV);
+
+exit Dancer2::CLI->run;
 
 __END__
 =pod
 
 =head1 NAME
 
-dancer2 - helper script to create new Dancer2 applications
+dancer2 - Dancer2 command line interface
 
 =head1 SYNOPSIS
 
-dancer2 [options] -a <appname>
-
-=head1 OPTIONS
-
-    -h, --help            : print what you are currently reading
-    -a, --application     : the name of your application
-    -p, --path            : the path where to create your application
-                              (current directory if not specified)
-    -x, --no-check        : don't check for the latest version of Dancer2
-                              (checking version implies internet connection)
-    -v, --version         : print the version of dancer2 being used
+dancer2 <command> [options...]
 
 =head1 DESCRIPTION
+
+Dancer2 is the new generation lightweight web-framework for Perl.
+This tool provides nice, easily-extendable CLI interface for it.
+
+=head1 COMMANDS
+
+=over
+
+=item gen                   : create new Dancer2 application
+
+=item commands              : list the application's commands
+
+=item help                  : display a command's help screen
+
+=item version               : display version
+
+=back
+
+To get detailed description of each individual command run:
+    dancer2 help <command>
+
+The lastest list of available commands can be dispayed by:
+    dancer2 commands
+
+=head1 COMMAND 'gen'
 
 Helper script for providing a bootstrapping method to quickly and easily create
 the framework for a new Dancer2 application.
 
-=head1 EXAMPLE
+=head3 OPTIONS
+
+        -a --application     the name of your application
+        -p --path            the path where to create your application
+                             (current directory if not specified)
+        -o --overwrite       overwrite existing files
+        -x --no-check        don't check for the latest version of Dancer2
+                             (checking version implies internet connection)
+
+=head3 EXAMPLE
 
 Here is an application created with dancer2:
 
-    $ dancer2 -a MyWeb::App
+    $ dancer2 gen -a MyWeb::App
     + MyWeb-App
     + MyWeb-App/bin
     + MyWeb-App/bin/app.pl
@@ -77,7 +107,6 @@ Here is an application created with dancer2:
     + MyWeb-App/t/001_base.t
     + MyWeb-App/Makefile.PL
 
-
 The application is ready to serve:
 
     $ cd MyWeb-App
@@ -87,7 +116,9 @@ The application is ready to serve:
 
 =head1 AUTHOR
 
-This script has been written by Sebastien Deseille
+This script has been written by Ivan Kruglov
+<ivan.kruglov@yahoo.com> base on original dancer2
+script which has been written by Sebastien Deseille
 <sebastien.deseille@gmail.com> and Alexis Sukrieh
 <sukria@cpan.org>.
 

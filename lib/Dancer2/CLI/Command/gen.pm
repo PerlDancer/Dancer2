@@ -1,16 +1,17 @@
 # ABSTRACT: create new Dancer2 application
 package Dancer2::CLI::Command::gen;
-use base Dancer2::CLI::Command;
 
 use strict;
 use warnings;
 
 use File::Find;
+use LWP::UserAgent;
 use File::Path 'mkpath';
 use File::Spec::Functions;
 use File::ShareDir 'dist_dir';
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
+use App::Cmd::Setup -command;
 
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
@@ -18,15 +19,16 @@ sub description {
     return "Helper script to create new Dancer2 applications\n\nOptions:";
 }
 
-sub options {
+sub opt_spec {
     return (
         [ 'application|a=s', "the name of your application" ],
         [ 'path|p=s',        "the path where to create your application (current directory if not specified)", { default => '.' } ],
         [ 'overwrite|o',     "overwrite existing files" ],
+        [ 'no-check|x',      "don't check for the latest version of Dancer2 (checking version implies internet connection)" ],
     );
 }
 
-sub validate {
+sub validate_args {
     my ($self, $opt, $args) = @_;
 
     my $name = $opt->{application};
@@ -43,8 +45,9 @@ sub validate {
 
 sub execute {
     my ($self, $opt, $args) = @_;
+    $self->_version_check() unless $opt->{'no_check'};
 
-    my $dist_dir = dist_dir('Dancer2');
+    my $dist_dir = $ENV{DANCER2_SHARE_DIR} || dist_dir('Dancer2');
     my $skel_dir = catdir($dist_dir, 'skel');
     -d $skel_dir or die "$skel_dir doesn't exist";
 
@@ -90,6 +93,11 @@ NOYAML
     }
 
     return 0;
+}
+
+sub version {
+    require Dancer2;
+    return $Dancer2::VERSION;
 }
 
 # skel creation routines
@@ -195,6 +203,43 @@ sub _get_dashed_name {
     my $name = shift;
     $name =~ s{::}{-}g;
     return $name;
+}
+
+# version check routines
+sub _version_check {
+    my $self = shift;
+    my $version = $self->version();
+    return if $version =~  m/_/;
+
+    my $latest_version = 0;
+    my $resp = _send_http_request('http://search.cpan.org/api/module/Dancer2');
+
+    if ($resp) {
+        if ( $resp =~ /"version" (?:\s+)? \: (?:\s+)? "(\d\.\d+)"/x ) {
+            $latest_version = $1;
+        } else {
+            die "Can't understand search.cpan.org's reply.\n";
+        }
+    }
+
+    if ($latest_version > $version) {
+        print qq|
+The latest stable Dancer2 release is $latest_version, you are currently using $version.
+Please check http://search.cpan.org/dist/Dancer2/ for updates.
+
+|;
+    }
+}
+
+sub _send_http_request {
+    my $url = shift;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(5);
+    $ua->env_proxy();
+
+    my $response = $ua->get($url);
+    return $response->is_success ? $response->content : undef;
 }
 
 1;
