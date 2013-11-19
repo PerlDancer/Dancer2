@@ -56,7 +56,6 @@ sub run_test {
     ok( !$req->is_delete );
     ok( !$req->is_patch );
     ok( !$req->is_head );
-    ok( !$req->referer );
 
     is $req->id,        1;
     is $req->to_string, '[#1] GET /foo/bar/baz';
