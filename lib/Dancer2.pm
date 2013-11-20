@@ -9,6 +9,7 @@ use Dancer2::Core;
 use Dancer2::Core::Runner;
 use Dancer2::Core::App;
 use Dancer2::FileUtils;
+use Dancer2::GetOpt;
 
 our $AUTHORITY = 'SUKRIA';
 
@@ -143,9 +144,10 @@ sub import {
     # never instantiated the runner, should do it now
     if ( not defined $runner ) {
 
-        # TODO should support commandline options as well
+        $runner = Dancer2::Core::Runner->new( caller => $script);
 
-        $runner = Dancer2::Core::Runner->new( caller => $script, );
+	$as_script = 1 if $ENV{PLACK_ENV};
+	Dancer2::GetOpt->process_args() if !$as_script;
     }
 
     my $server = $runner->server;
@@ -169,11 +171,6 @@ sub import {
     load_class( $final_args{dsl} );
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
-
-    #
-    #    $as_script = 1 if $ENV{PLACK_ENV};
-    #
-    #    Dancer2::GetOpt->process_args() if !$as_script;
 }
 
 sub _set_import_method_to_caller {
