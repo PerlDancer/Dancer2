@@ -11,6 +11,7 @@
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
       (Sweet-kid)
+    * GH#511: s/Deflator/Deflater/; (Cesare Gargano)
 
 0.10      2013-09-28 15:26:41 Europe/Paris
 
