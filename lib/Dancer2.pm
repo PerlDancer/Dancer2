@@ -61,7 +61,7 @@ language.
 
 There are some situations that are common to a lot of users. For
 example, application deployment. On L<Dancer2::Cookbook> you will find
-reciped for common tasks, from defining routes, storing data as
+recipes for common tasks, from defining routes, storing data as
 sessions or cookies, using templates, configuring and logging, writing
 REST services and deploying your dancer application using different
 technologies.

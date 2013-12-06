@@ -264,7 +264,7 @@ L<Dancer2::Config::Object> for more information.
 =head3 startup_info (boolean)
 
 If set to true, prints a banner at the server start with information such as
-versions and the environment (or "dancerfloor").
+versions and the environment (or "dancefloor").
 
 Conforms to the environment variable C<DANCER_STARTUP_INFO>.
 

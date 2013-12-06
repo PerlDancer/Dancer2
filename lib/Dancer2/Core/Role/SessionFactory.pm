@@ -290,7 +290,7 @@ destroyed session if succeeded, triggers an exception otherwise.
     MySessionFactory->destroy(id => $id);
 
 The C<_destroy> method must be implemented. It must take C<$id> as a single
-argumenet and destroy the underlying data.
+argument and destroy the underlying data.
 
 =cut
 

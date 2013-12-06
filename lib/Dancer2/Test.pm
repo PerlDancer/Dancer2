@@ -682,7 +682,7 @@ Asserts that your apps have pods for all routes
 
     is_pod_covered 'is pod covered'
 
-to avoid test failures, you shoud document all your routes with one of the following:
+to avoid test failures, you should document all your routes with one of the following:
 head1, head2,head3,head4, item.
 
     ex:
