@@ -18,6 +18,7 @@
       namespace fixup in Dancer2::Core::cookie.
       (Russell Jenkins)
     * GH#470: Fix Plack::Builder mount usage (Pedro Melo).
+    * GH#507: Fix plenty of typos (David Steinbrunner).
 
 0.10      2013-09-28 15:26:41 Europe/Paris
 
