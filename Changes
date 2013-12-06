@@ -7,6 +7,8 @@
       (Pedro Molo)
     * GH#485: Keywords 'redirect' and 'forward' exit immediatly when executed in
       a route/hook. New dependency on Return::MultiLevel (Russell Jenkins).
+    * GH#495: Use accessor and predicates instead of direct access.
+      Addresses GH#493 too. (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
