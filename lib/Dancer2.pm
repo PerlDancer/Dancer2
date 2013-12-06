@@ -22,6 +22,10 @@ $Dancer2::VERSION ||= '0.09';    # 2.0.9
 Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for
 Perl. Dancer2 is a complete rewrite based on L<Moo>.
 
+Dancer2 can optionally use XS modules for speed, but at its core remains
+fatpackable (packable by L<App::FatPacker>) so you could easily deploy Dancer2
+applications on hosts that do not support custom CPAN modules.
+
 Dancer2 is easy and fun:
 
     use Dancer2;
