@@ -14,6 +14,9 @@
     * GH#511: s/Deflator/Deflater/; (Cesare Gargano)
     * GH#491: Updated config paths for template_toolkit in cookbook.
       (Mark A. Stratman)
+    * GH#494: Update session config details (Dancer2::Config),
+      namespace fixup in Dancer2::Core::cookie.
+      (Russell Jenkins)
 
 0.10      2013-09-28 15:26:41 Europe/Paris
 
