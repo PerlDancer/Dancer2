@@ -238,8 +238,9 @@ sub BUILD {
 }
 
 has exception => (
-    is  => 'ro',
-    isa => Str,
+    is        => 'ro',
+    isa       => Str,
+    predicate => 1,
 );
 
 has response => (
@@ -277,7 +278,7 @@ has content => (
                 status  => $self->status,
             };
             $content->{exception} = $self->exception
-                if defined $self->{exception};
+              if $self->has_exception;
             return $self->serializer->serialize($content);
         }
 
