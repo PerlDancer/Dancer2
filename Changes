@@ -17,6 +17,7 @@
     * GH#494: Update session config details (Dancer2::Config),
       namespace fixup in Dancer2::Core::cookie.
       (Russell Jenkins)
+    * GH#470: Fix Plack::Builder mount usage (Pedro Melo).
 
 0.10      2013-09-28 15:26:41 Europe/Paris
 
