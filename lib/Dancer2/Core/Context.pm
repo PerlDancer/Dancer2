@@ -184,6 +184,21 @@ sub redirect {
     $self->with_return->($self->response) if $self->has_with_return;
 }
 
+=method halt
+
+Flag the response object as 'halted'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher and after hooks will not be run.
+
+=cut
+
+sub halt {
+   my ($self) = @_;
+   $self->response->halt;
+   # Short citcuit any remaining hook/route code
+   $self->with_return->($self->response) if $self->has_with_return;
+}
 
 =attr session
 

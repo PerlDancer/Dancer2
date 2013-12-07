@@ -9,6 +9,8 @@
       a route/hook. New dependency on Return::MultiLevel (Russell Jenkins).
     * GH#495: Use accessor and predicates instead of direct access.
       Addresses GH#493 too. (Russell Jenkins)
+    * GH#502,GH#472: Rework halt to use with_return from Return::MultiLevel.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
