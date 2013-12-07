@@ -32,6 +32,7 @@
     * GH#477: Document problem with Plack Shotgun on Windows (Ahmad M. Zawawi).
     * GH#504: Add link to Dancer2::Plugin::Sixpack (Menno Blom).
     * GH#490: Document Dancer2 should be FatPackable (Sawyer X).
+    * GH#452: Make a complete authors section, clean it up (Pau Amma).
 
 0.10      2013-09-28 15:26:41 Europe/Paris
 
