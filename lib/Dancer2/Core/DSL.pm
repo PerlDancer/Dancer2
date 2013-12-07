@@ -294,7 +294,7 @@ sub uri_for { shift->request->uri_for(@_) }
 
 sub splat { shift->request->splat }
 
-sub params { shift->request->params }
+sub params { shift->request->params(@_) }
 
 sub param { shift->request->param(@_) }
 
