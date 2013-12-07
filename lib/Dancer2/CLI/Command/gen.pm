@@ -172,8 +172,13 @@ sub _create_manifest {
     open(my $manifest, '>', $manifest_name) or die $!;
     print $manifest "MANIFEST\n";
 
-    foreach (@{$files}) {
-        print $manifest substr($_->[1], length($dir) + 1) . "\n";
+    foreach my $file (@{$files}) {
+        my $filename = substr $file->[1], length($dir) + 1;
+        my $basename = basename $filename;
+        my $clean_basename = $basename;
+        $clean_basename =~ s/^\+//;
+        $filename =~ s/\Q$basename\E/$clean_basename/;
+        print {$manifest} "$filename\n";
     }
 
     close($manifest);
