@@ -15,6 +15,8 @@
       (Slava Goltser, unickuity, Russell Jenkins)
     * GH#505: Fix empty HTTP_REFERER in Dancer::Core::Request (Menno Blom).
     * GH#503: Multiple reverse proxy support (Menno Blom).
+    * GH#371,GH#506: CLI tool rewrite (using App::Cmd, supports plugins, etc.).
+      (Ivan Kruglov, Sawyer X)
 
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
