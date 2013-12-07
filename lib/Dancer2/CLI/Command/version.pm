@@ -2,9 +2,7 @@
 package Dancer2::CLI::Command::version;
 use App::Cmd::Setup -command;
 
-sub description {
-    return 'Display version of Dancer2';
-}
+sub description { 'Display version of Dancer2' }
 
 sub command_names {
     qw/version --version -v/;

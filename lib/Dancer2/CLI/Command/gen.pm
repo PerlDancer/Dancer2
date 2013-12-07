@@ -15,32 +15,35 @@ use App::Cmd::Setup -command;
 
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
-sub description {
-    return "Helper script to create new Dancer2 applications\n\nOptions:";
-}
+sub description { 'Helper script to create new Dancer2 applications' }
 
 sub opt_spec {
     return (
-        [ 'application|a=s', "the name of your application" ],
-        [ 'path|p=s',        "the path where to create your application (current directory if not specified)", { default => '.' } ],
-        [ 'overwrite|o',     "overwrite existing files" ],
-        [ 'no-check|x',      "don't check for the latest version of Dancer2 (checking version implies internet connection)" ],
+        [ 'application|a=s', 'application name' ],
+        [ 'path|p=s',        'application path (default: current directory)',
+            { default => '.' } ],
+        [ 'overwrite|o',     'overwrite existing files' ],
+        [ 'no-check|x',      'don\'t check latest Dancer2 version (requires internet)' ],
     );
 }
 
 sub validate_args {
     my ($self, $opt, $args) = @_;
 
-    my $name = $opt->{application};
-    $name or $self->usage_error("Application name must be defined.\n");
+    my $name = $opt->{application}
+        or $self->usage_error('Application name must be defined');
 
-    if ($name =~ /[^\w:]/ || $name =~ /^\d/ || $name =~ /\b:\b|:{3,}/) {
-        $self->usage_error("Invalid application name.\nApplication names must not contain single colons, dots, hyphens or start with a number.\n");
+    if ( $name =~ /[^\w:]/ || $name =~ /^\d/ || $name =~ /\b:\b|:{3,}/ ) {
+        $self->usage_error(
+            "Invalid application name.\n" .
+            "Application names must not contain single colons, dots, " .
+            "hyphens or start with a number.\n"
+        );
     }
 
     my $path = $opt->{path};
     -d $path or $self->usage_error("directory '$path' does not exist");
-    -w $path or $self->usage_error("directory '$path' is not writable");
+    -w $path or $self->usage_error("directory '$path' is not writeable");
 }
 
 sub execute {
@@ -75,7 +78,7 @@ sub execute {
     _copy_templates($files_to_copy, $vars, $opt->{overwrite});
     _create_manifest($files_to_copy, $app_path);
 
-    unless (eval "require YAML") {
+    unless (eval 'require YAML') {
         print <<NOYAML;
 *****
 WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly
