@@ -46,6 +46,7 @@ sub run_test {
     is $req->user,                  'sukria';
     is $req->script_name,           '/foo';
     is $req->scheme,                'http';
+    is $req->referer,               undef;
     ok( !$req->secure );
     is $req->method,         'GET';
     is $req->request_method, 'GET';

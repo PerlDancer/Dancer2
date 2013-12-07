@@ -115,7 +115,7 @@ my @http_env_keys = (qw/
 foreach my $attr ( @http_env_keys ) {
     has $attr => (
         is      => 'ro',
-        isa     => Str,
+        isa     => Maybe[Str],
         lazy    => 1,
         default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } },
     );
