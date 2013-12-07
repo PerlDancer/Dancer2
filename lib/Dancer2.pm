@@ -200,3 +200,72 @@ sub _set_import_method_to_caller {
 }
 
 1;
+
+=head1 AUTHORS
+
+=head2 CORE DEVELOPERS
+
+    Alberto Simões
+    Alexis Sukrieh
+    Damien Krotkine
+    David Golden
+    David Precious
+    Franck Cuny
+    Russell Jenkins
+    Sawyer X
+    Stefan Hornburg (Racke)
+    Yanick Champoux
+
+=head2 CONTRIBUTORS
+
+    Ahmad M. Zawawi
+    Alex Beamish
+    Alexander Karelas
+    Alexandr Ciornii
+    ambs
+    Andrew Grangaard
+    Andrew Inishev
+    andrewsolomon
+    Ashvini V
+    B10m
+    Blabos de Blebe
+    Breno G. de Oliveira
+    Celogeek
+    Cesare Gargano
+    Christian Walde
+    Colin Kuskie
+    cym0n
+    Dale Gallagher
+    David Steinbrunner
+    Dinis Rebolo
+    geistteufel
+    Gideon D'souza
+    Graham Knop
+    Hobbestigrou
+    Ivan Bessarabov
+    James Aitken
+    Jason A. Crome
+    Jonathan Scott Duff
+    Julio Fraire
+    Keith Broughton
+    Mark A. Stratman
+    Mateu X Hunter
+    Matt Phillips
+    Matt S Trout
+    Maurice
+    Mickey Nasriachi
+    mokko
+    Olivier Mengué
+    Pau Amma
+    Pedro Melo
+    Rick Yakubowski
+    Sam Kington
+    Samit Badle
+    Shlomi Fish
+    Slava Goltser
+    smashz
+    Steven Humphrey
+    Tom Hukins
+    Upasana Shukla
+    Vincent Bachelier
+
