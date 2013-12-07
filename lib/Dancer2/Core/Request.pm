@@ -341,10 +341,15 @@ has is_behind_proxy => (
 sub host {
     my ($self) = @_;
 
-    return ( $self->is_behind_proxy )
-      ? ( $self->env->{HTTP_X_FORWARDED_HOST}
-          || $self->env->{X_FORWARDED_HOST} )
-      : $self->env->{HTTP_HOST};
+    if ( $self->is_behind_proxy ) {
+        my @hosts = split /\s*,\s*/, (
+          $self->env->{HTTP_X_FORWARDED_HOST} || $self->env->{X_FORWARDED_HOST}
+        );
+
+        return $hosts[0];
+    } else {
+        return $self->env->{'HTTP_HOST'};
+    }
 }
 
 

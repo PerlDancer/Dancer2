@@ -14,6 +14,7 @@
     * GH#479,GH#480,GH#508: Pass parameters to params() in the DSL.
       (Slava Goltser, unickuity, Russell Jenkins)
     * GH#505: Fix empty HTTP_REFERER in Dancer::Core::Request (Menno Blom).
+    * GH#503: Multiple reverse proxy support (Menno Blom).
 
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
