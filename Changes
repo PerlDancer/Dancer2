@@ -11,6 +11,8 @@
       Addresses GH#493 too. (Russell Jenkins)
     * GH#502,GH#472: Rework halt to use with_return from Return::MultiLevel.
       (Russell Jenkins)
+    * GH#479,GH#480,GH#508: Pass parameters to params() in the DSL.
+      (Slava Goltser, unickuity, Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH#489: Remove link to Dancer2::Deployment pod which does not exist
