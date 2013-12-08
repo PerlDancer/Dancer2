@@ -35,47 +35,47 @@ Dancer2 is easy and fun:
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
 
-You are also welcome to join our mailing list at dancer-users@perldancer.org,
+You are welcome to joining our mailing list at dancer-users@perldancer.org,
 and we're also on IRC: #dancer on irc.perl.org.
 
 =head2 Documentation Index
 
-Documentation on Dancer2 is split up in different manpages. This is a
-comprehensive outline on where you will find your help.
+Documentation on Dancer2 is split into several manpages. Below is a
+complete outline on where to go for help.
 
 =over 4
 
 =item * Dancer2 Tutorial
 
-If you are new to Dancer philosophy we suggest you to start following
+If you are new to the Dancer approach, you should start by reading
 our L<Dancer2::Tutorial>.
 
 =item * Dancer2 Manual
 
 L<Dancer2::Manual> is the reference for Dancer2. Here you will find
-information about the concepts on Dancer2 application development as
-well as a comprehensive reference to the Dancer2 domain specific
+information on the concepts of Dancer2 application development and
+a comprehensive reference to the Dancer2 domain specific
 language.
 
 =item * Dancer2 Cookbook
 
 There are some situations that are common to a lot of users. For
-example, application deployment. On L<Dancer2::Cookbook> you will find
-recipes for common tasks, from defining routes, storing data as
+example, application deployment. in L<Dancer2::Cookbook> you will find
+recipes for common tasks, like defining routes, storing data as
 sessions or cookies, using templates, configuring and logging, writing
-REST services and deploying your dancer application using different
+REST services, and deploying your Dancer2 application using different
 technologies.
 
 =item * Dancer2 Config
 
 For configuration file details refer to L<Dancer2::Config>. It is a
-comprehensive list of all possible configuration options.
+complete list of all configuration options.
 
 =item * Dancer2 Plugins
 
-Refer L<Dancer2::Plugins> includes a list of (some) available Dancer2
+Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
 plugins. Note that although we try to keep this list up to date we
-rely on plugin authors to warn us about new modules.
+expect plugin authors to tell us about new modules.
 
 =back
 
@@ -101,7 +101,8 @@ Import gets called when you use Dancer2. You can specify import options giving
 you control over the keywords that will be imported into your webapp and other
 things:
 
-    use Dancer2 ':script';
+    use Dancer2 ( foo => 'bar' ); # sets option foo to bar
+    use Dancer2 '!quux'; # Don't import DSL keyword quux
 
 =head3 Import Options
 
@@ -109,7 +110,7 @@ things:
 
 =item C<:script>
 
-Do not process arguments.
+Not implemented yet, do not use.
 
 =back
 
@@ -178,6 +179,9 @@ sub import {
     #    $as_script = 1 if $ENV{PLACK_ENV};
     #
     #    Dancer2::GetOpt->process_args() if !$as_script;
+    #
+    # If uncommenting or removing this, be sure to update the description of
+    # :script above as well.
 }
 
 sub _set_import_method_to_caller {
