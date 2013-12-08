@@ -77,6 +77,7 @@ sub execute {
 
     _copy_templates($files_to_copy, $vars, $opt->{overwrite});
     _create_manifest($files_to_copy, $app_path);
+    _add_to_manifest_skip($app_path);
 
     unless (eval 'require YAML') {
         print <<NOYAML;
@@ -182,6 +183,15 @@ sub _create_manifest {
     }
 
     close($manifest);
+}
+
+sub _add_to_manifest_skip {
+    my $dir = shift;
+
+    my $filename = catfile($dir, 'MANIFEST.SKIP');
+    open my $fh, '>>', $filename or die $!;
+    print {$fh} "^$dir-\n";
+    close $fh;
 }
 
 sub _process_template {
