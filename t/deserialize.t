@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 use Plack::Test;
 use HTTP::Request::Common;
 
@@ -23,8 +23,14 @@ use HTTP::Request::Common;
         return join " : ", map { $_ => $p->{$_} } sort keys %$p;
     };
 
+    # This route is used for both toure and body params.
     post '/from/:town' => sub {
         my $p = params;
+        return $p;
+    };
+
+    any [qw/del patch/] => '/from/:town' => sub {
+        my $p = params('body');
         return $p;
     };
 }
@@ -88,23 +94,24 @@ note "Verify Serializers decode into characters"; {
     };
 }
 
+# default back to JSON for the rest
+# we're overiding a RO attribute only for this test!
+Dancer2->runner->apps->[0]->{'serializer_engine'} =
+    Dancer2::Serializer::JSON->new;
+
 note "Decoding of mixed route and deserialized body params"; {
     # Check integers from request body remain integers
     # but route params get decoded.
     test_psgi $app, sub {
         my $cb = shift;
 
-        # change the app serializer
-        # we're overiding a RO attribute only for this test!
-        Dancer2->runner->apps->[0]->{'serializer_engine'} =
-            Dancer2::Serializer::JSON->new;
-
-        my $r = $cb->(
-            POST "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
-                'Content-Type' => 'application/json',
-                Content        => JSON::to_json({ population => 592393 }),
+        my @req_params = (
+            "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
+            'Content-Type' => 'application/json',
+            Content        => JSON::to_json({ population => 592393 }),
         );
 
+        my $r       = $cb->( POST @req_params );
         my $content = Encode::decode( 'UTF-8', $r->content );
 
         # Watch out for hash order randomization..
@@ -122,24 +129,56 @@ note "Decoding of mixed route and deserialized body params"; {
     };
 }
 
-note 'Check serialization errors'; {
-    my $serializer = Dancer2::Serializer::JSON->new();
-    my $req        = Dancer2::Core::Request->new(
-        method       => 'PUT',
-        path         => '/from_params',
-        content_type => 'application/json',
-        body         => "---",
-        serializer   => $serializer,
-    );
+# Check body is deserialized on PATCH and DELETE.
+# The RFC states the behaviour for DELETE is undefined; We take the lenient
+# and deserialize it.
+# http://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-24#section-4.3.5
+note "Deserialze any body content that is allowed or undefined"; {
+    test_psgi $app, sub {
+        my $cb = shift;
 
-    ok(
-        $req->serializer->has_error,
-        "Invalid JSON threw error in serializer",
-    );
+        for my $method ( qw/delete patch/ ) {
+            my $request  = HTTP::Request->new(
+                $method,
+                "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
+                [ 'Content-Type' => 'application/json' ],
+                JSON::to_json({ population => 592393 }),
+            );
+            my $response = $cb->($request);
+            my $content  = Encode::decode( 'UTF-8', $response->content );
 
-    like(
-        $req->serializer->error,
-        qr/malformed number/,
-        ".. of a 'malformed number'",
-    );
+            # Only body params returned
+            is(
+                $content,
+                '{"population":592393}',
+                "JSON body deserialized for " . uc($method) . " requests",
+            );
+        }
+    }
 }
+
+note 'Check serialization errors'; {
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        $cb->(
+            PUT '/from_params',
+                'Content-Type' => 'application/json',
+                Content        => '---',
+        );
+
+        ok(
+            Dancer2->runner->apps->[0]->{'serializer_engine'}->has_error,
+            "Invalid JSON threw error in serializer",
+        );
+
+        like(
+            Dancer2->runner->apps->[0]->{'serializer_engine'}->error,
+            qr/malformed number/,
+            ".. of a 'malformed number'",
+        );
+    }
+}
+
+done_testing();
+
