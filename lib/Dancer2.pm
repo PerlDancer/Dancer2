@@ -1,5 +1,4 @@
 package Dancer2;
-
 # ABSTRACT: Lightweight yet powerful web application framework
 
 use strict;
@@ -17,104 +16,9 @@ our $AUTHORITY = 'SUKRIA';
 # the tests
 $Dancer2::VERSION ||= '0.09';    # 2.0.9
 
-=head1 DESCRIPTION
-
-Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for
-Perl. Dancer2 is a complete rewrite based on L<Moo>.
-
-Dancer2 can optionally use XS modules for speed, but at its core remains
-fatpackable (packable by L<App::FatPacker>) so you could easily deploy Dancer2
-applications on hosts that do not support custom CPAN modules.
-
-Dancer2 is easy and fun:
-
-    use Dancer2;
-    get '/' => sub { "Hello World" };
-    dance;
-
-This is the main module for the Dancer2 distribution. It contains logic for
-creating a new Dancer2 application.
-
-You are welcome to joining our mailing list at dancer-users@perldancer.org,
-and we're also on IRC: #dancer on irc.perl.org.
-
-=head2 Documentation Index
-
-Documentation on Dancer2 is split into several manpages. Below is a
-complete outline on where to go for help.
-
-=over 4
-
-=item * Dancer2 Tutorial
-
-If you are new to the Dancer approach, you should start by reading
-our L<Dancer2::Tutorial>.
-
-=item * Dancer2 Manual
-
-L<Dancer2::Manual> is the reference for Dancer2. Here you will find
-information on the concepts of Dancer2 application development and
-a comprehensive reference to the Dancer2 domain specific
-language.
-
-=item * Dancer2 Cookbook
-
-There are some situations that are common to a lot of users. For
-example, application deployment. in L<Dancer2::Cookbook> you will find
-recipes for common tasks, like defining routes, storing data as
-sessions or cookies, using templates, configuring and logging, writing
-REST services, and deploying your Dancer2 application using different
-technologies.
-
-=item * Dancer2 Config
-
-For configuration file details refer to L<Dancer2::Config>. It is a
-complete list of all configuration options.
-
-=item * Dancer2 Plugins
-
-Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
-plugins. Note that although we try to keep this list up to date we
-expect plugin authors to tell us about new modules.
-
-=back
-
-=func my $runner=runner();
-
-Returns the current runner. It is of type L<Dancer2::Core::Runner>.
-
-=cut
-
 our $runner;
 
 sub runner {$runner}
-
-=method import;
-
-If it doesn't exist already, C<import> creates a new runner, imports strict
-and warnings, loads additional libraries, creates a new Dancer2 app (of type
-L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
-
-If any additional argument processing is needed, it will be done at this point.
-
-Import gets called when you use Dancer2. You can specify import options giving
-you control over the keywords that will be imported into your webapp and other
-things:
-
-    use Dancer2 ( foo => 'bar' ); # sets option foo to bar
-    use Dancer2 '!quux'; # Don't import DSL keyword quux
-
-=head3 Import Options
-
-=over 4
-
-=item C<:script>
-
-Not implemented yet, do not use.
-
-=back
-
-=cut
 
 sub import {
     my ( $class,  @args )   = @_;
@@ -204,6 +108,200 @@ sub _set_import_method_to_caller {
 }
 
 1;
+
+__END__
+
+=encoding UTF-8
+
+=head1 DESCRIPTION
+
+Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for
+Perl. Dancer2 is a complete rewrite based on L<Moo>.
+
+Dancer2 can optionally use XS modules for speed, but at its core remains
+fatpackable (packable by L<App::FatPacker>) so you could easily deploy Dancer2
+applications on hosts that do not support custom CPAN modules.
+
+Dancer2 is easy and fun:
+
+    use Dancer2;
+    get '/' => sub { "Hello World" };
+    dance;
+
+This is the main module for the Dancer2 distribution. It contains logic for
+creating a new Dancer2 application.
+
+You are welcome to joining our mailing list at dancer-users@perldancer.org,
+and we're also on IRC: #dancer on irc.perl.org.
+
+=head2 Documentation Index
+
+Documentation on Dancer2 is split into several manpages. Below is a
+complete outline on where to go for help.
+
+=over 4
+
+=item * Dancer2 Tutorial
+
+If you are new to the Dancer approach, you should start by reading
+our L<Dancer2::Tutorial>.
+
+=item * Dancer2 Manual
+
+L<Dancer2::Manual> is the reference for Dancer2. Here you will find
+information on the concepts of Dancer2 application development and
+a comprehensive reference to the Dancer2 domain specific
+language.
+
+=item * Dancer2 Cookbook
+
+There are some situations that are common to a lot of users. For
+example, application deployment. in L<Dancer2::Cookbook> you will find
+recipes for common tasks, like defining routes, storing data as
+sessions or cookies, using templates, configuring and logging, writing
+REST services, and deploying your Dancer2 application using different
+technologies.
+
+=item * Dancer2 Config
+
+For configuration file details refer to L<Dancer2::Config>. It is a
+complete list of all configuration options.
+
+=item * Dancer2 Plugins
+
+Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
+plugins. Note that although we try to keep this list up to date we
+expect plugin authors to tell us about new modules.
+
+=back
+
+=func my $runner=runner();
+
+Returns the current runner. It is of type L<Dancer2::Core::Runner>.
+
+=cut
+
+=method import;
+
+If it doesn't exist already, C<import> creates a new runner, imports strict
+and warnings, loads additional libraries, creates a new Dancer2 app (of type
+L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
+
+If any additional argument processing is needed, it will be done at this point.
+
+Import gets called when you use Dancer2. You can specify import options giving
+you control over the keywords that will be imported into your webapp and other
+things:
+
+    use Dancer2 ( foo => 'bar' ); # sets option foo to bar
+    use Dancer2 '!quux'; # Don't import DSL keyword quux
+
+=head3 Import Options
+
+=over 4
+
+=item C<:script>
+
+Not implemented yet, do not use.
+
+=back
+
+=cut
+
+=head1 DESCRIPTION
+
+Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for
+Perl. Dancer2 is a complete rewrite based on L<Moo>.
+
+Dancer2 can optionally use XS modules for speed, but at its core remains
+fatpackable (packable by L<App::FatPacker>) so you could easily deploy Dancer2
+applications on hosts that do not support custom CPAN modules.
+
+Dancer2 is easy and fun:
+
+    use Dancer2;
+    get '/' => sub { "Hello World" };
+    dance;
+
+This is the main module for the Dancer2 distribution. It contains logic for
+creating a new Dancer2 application.
+
+You are welcome to joining our mailing list at dancer-users@perldancer.org,
+and we're also on IRC: #dancer on irc.perl.org.
+
+=head2 Documentation Index
+
+Documentation on Dancer2 is split into several manpages. Below is a
+complete outline on where to go for help.
+
+=over 4
+
+=item * Dancer2 Tutorial
+
+If you are new to the Dancer approach, you should start by reading
+our L<Dancer2::Tutorial>.
+
+=item * Dancer2 Manual
+
+L<Dancer2::Manual> is the reference for Dancer2. Here you will find
+information on the concepts of Dancer2 application development and
+a comprehensive reference to the Dancer2 domain specific
+language.
+
+=item * Dancer2 Cookbook
+
+There are some situations that are common to a lot of users. For
+example, application deployment. in L<Dancer2::Cookbook> you will find
+recipes for common tasks, like defining routes, storing data as
+sessions or cookies, using templates, configuring and logging, writing
+REST services, and deploying your Dancer2 application using different
+technologies.
+
+=item * Dancer2 Config
+
+For configuration file details refer to L<Dancer2::Config>. It is a
+complete list of all configuration options.
+
+=item * Dancer2 Plugins
+
+Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
+plugins. Note that although we try to keep this list up to date we
+expect plugin authors to tell us about new modules.
+
+=back
+
+=func my $runner=runner();
+
+Returns the current runner. It is of type L<Dancer2::Core::Runner>.
+
+=cut
+
+=method import;
+
+If it doesn't exist already, C<import> creates a new runner, imports strict
+and warnings, loads additional libraries, creates a new Dancer2 app (of type
+L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
+
+If any additional argument processing is needed, it will be done at this point.
+
+Import gets called when you use Dancer2. You can specify import options giving
+you control over the keywords that will be imported into your webapp and other
+things:
+
+    use Dancer2 ( foo => 'bar' ); # sets option foo to bar
+    use Dancer2 '!quux'; # Don't import DSL keyword quux
+
+=head3 Import Options
+
+=over 4
+
+=item C<:script>
+
+Not implemented yet, do not use.
+
+=back
+
+=cut
 
 =head1 AUTHORS
 
