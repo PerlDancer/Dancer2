@@ -16,7 +16,7 @@
     * GH#505: Fix empty HTTP_REFERER in Dancer::Core::Request (Menno Blom).
     * GH#503: Multiple reverse proxy support (Menno Blom).
     * GH#371,GH#506: CLI tool rewrite (using App::Cmd, supports plugins, etc.).
-      (Ivan Kruglov, Sawyer X)
+      (Ivan Kruglov, Samit Badle, Sawyer X)
     * GH#498: Add some missing items in MANIFEST.SKIP (Gabor Szabo, Sawyer X).
 
     [ DOCUMENTATION ]
