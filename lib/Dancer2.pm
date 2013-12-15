@@ -270,6 +270,6 @@ sub _set_import_method_to_caller {
     smashz
     Steven Humphrey
     Tom Hukins
-    Upasana Shukla
+    Upasana
     Vincent Bachelier
 
