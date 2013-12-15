@@ -1,6 +1,6 @@
 {{$NEXT}}
 
-0.11      2013-12-15 14:21:54 Europe/Amsterdam
+0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
     [ ENHANCEMENTS ]
     * GH#481: Don't pollute @INC automatically when Dancer2 is imported, each
