@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.11      2013-12-15 14:21:54 Europe/Amsterdam
+
     [ ENHANCEMENTS ]
     * GH#481: Don't pollute @INC automatically when Dancer2 is imported, each
       runner is now responsible of including the local ./lib dir if needed.
