@@ -1302,7 +1302,7 @@ content read, and then decide what to do with each chunk:
         );
     }
 
-You can use C<around> to all get all the content (whether a filehandle if it's
+You can use C<around> to get all the content (whether a filehandle if it's
 a regular file or a full string if it's a scalar ref) and decide what to do with
 it:
 
