@@ -114,7 +114,7 @@ For example, here is a way to install a hook in the importing app:
             Dancer2::Core::Hook->new(
                 name => 'before',
                 code => sub { ... },
-            );
+            )
         );
     };
 
