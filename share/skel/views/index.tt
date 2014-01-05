@@ -103,7 +103,7 @@
         $('#about-content').slideToggle('fast', function() {
             // ok
         });
-        return( false );
+        return false;
     });
     </script>
 
