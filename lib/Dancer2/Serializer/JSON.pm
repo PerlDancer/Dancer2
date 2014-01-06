@@ -31,8 +31,10 @@ sub serialize {
     if ( $config->{allow_blessed} && !defined $options->{allow_blessed} ) {
         $options->{allow_blessed} = $config->{allow_blessed};
     }
-    if ( $config->{convert_blessed} ) {
-        $options->{convert_blessed} = $config->{convert_blessed};
+    foreach my $name (qw(allow_nonref allow_unknown ascii canonical convert_blessed indent latin1 pretty shrink space_after space_before)) {
+        if ( defined $config->{$name} ) {
+            $options->{$name} = $config->{$name};
+        }
     }
     $options->{utf8} = 1 if !defined $options->{utf8};
 
