@@ -131,8 +131,10 @@ Dancer2 is easy and fun:
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
 
-You are welcome to joining our mailing list at dancer-users@perldancer.org,
-and we're also on IRC: #dancer on irc.perl.org.
+You are welcome to join our mailing list (see
+L<http://lists.preshweb.co.uk/mailman/listinfo/dancer-users> for its mail
+address, subscription information, and archives), and we're also on IRC:
+#dancer on irc.perl.org.
 
 =head2 Documentation Index
 
