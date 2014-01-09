@@ -2,6 +2,7 @@
 
     [ DOCUMENTATION ]
     * RT#91428: POD encoding set to UTF-8 in main .pm (Gregor Herrmann).
+    * GH#517: Miscellaneous documentation fixes (Cesare Gargano).
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
