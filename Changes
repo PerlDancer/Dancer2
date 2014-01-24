@@ -5,6 +5,7 @@
     * GH#517: Miscellaneous documentation fixes (Cesare Gargano).
     * GH#522: s/PerlHandler/PerlResponseHandler/ in Apache2 sample configuration
       (Grzegorz Rożniecki)
+    * GH#521: Remove duplicated POD and clean up list details (Shlomi Fish)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
