@@ -6,6 +6,8 @@
     * GH#522: s/PerlHandler/PerlResponseHandler/ in Apache2 sample configuration
       (Grzegorz Rożniecki)
     * GH#521: Remove duplicated POD and clean up list details (Shlomi Fish)
+    * GH#526: Cleanup POD formating and code snippets in manual.
+      (Grzegorz Rożniecki)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
