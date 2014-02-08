@@ -104,7 +104,7 @@ To define a PUT action, use the L<put|Dancer2::Manual/put> keyword.
 a PUT request should replace the existing resource with that specified - for
 instance - if you wanted to just update an email address for a user, you'd have
 to specify all attributes of the user again; to make a partial update, a
-C<PATCH> request is used.
+PATCH request is used.
 
 =item B<PATCH> The PATCH method updates some attributes of an existing resource.
 
@@ -208,7 +208,7 @@ From here, any route handler is defined to /home/*
 You can unset the prefix value
 
     prefix '/'; # or: prefix undef;
-    get '/page1' => sub {}; will match /page1
+    get '/page1' => sub {}; # will match /page1
 
 Alternatively, to prevent you from ever forgetting to undef the prefix,
 you can use lexical prefix like this:
@@ -217,7 +217,7 @@ you can use lexical prefix like this:
       get '/page1' => sub {}; # will match '/home/page1'
     }; ## prefix reset to previous value on exit
 
-    get '/page1' => sub {}; will match /page1
+    get '/page1' => sub {}; # will match /page1
 
 =head2 Action Skipping
 
@@ -276,7 +276,7 @@ request and receives as argument the context (a L<Dancer2::Core::Context>
 object).
 
 It's possible to define variables which will be accessible in the action blocks
-with the keyword 'var'.
+with the keyword C<var>.
 
     hook before => sub {
         var note => 'Hi there';
@@ -900,8 +900,8 @@ B<POST>. That is because C<forward> chains the same type of route the user
 reached. If it was a B<GET>, it will remain a B<GET> (but if you do need to
 change the method, you can do so; read on below for details.)
 
-B<WARNING> : Any code after a c<forward> is ignored, until the end of the route.
-It's not necessary to use C<return> with c<forward> anymore.
+B<WARNING> : Any code after a C<forward> is ignored, until the end of the route.
+It's not necessary to use C<return> with C<forward> anymore.
 
     get '/foo/:article_id' => sub {
         if ($condition) {
@@ -913,7 +913,7 @@ It's not necessary to use C<return> with c<forward> anymore.
         more_stuff();
     };
 
-Note that c<forward> doesn't parse GET arguments. So, you can't use
+Note that C<forward> doesn't parse GET arguments. So, you can't use
 something like:
 
     forward '/home?authorized=1';
@@ -923,7 +923,7 @@ to the actual parameters:
 
     forward '/home', { authorized => 1 };
 
-Finally, you can add some more options to the c<forward> method, in a
+Finally, you can add some more options to the C<forward> method, in a
 third argument, also as a HashRef. That option is currently
 only used to change the method of your request. Use with caution.
 
@@ -1147,7 +1147,7 @@ From here, any route handler is defined to /home/*:
 You can unset the prefix value:
 
     prefix undef;
-    get '/page1' => sub {}; will match /page1
+    get '/page1' => sub {}; # will match /page1
 
 For a safer alternative you can use lexical prefix like this:
 
@@ -1207,9 +1207,9 @@ different site or within the application:
         # Any code after the redirect will not be executed.
     };
 
-B<WARNING> : Issuing a c<redirect> immediately exits the current route.
-Thus, any code after a c<redirect> is ignored, until the end of the route.
-So it's not necessary anymore to use C<return> with c<redirect>.
+B<WARNING> : Issuing a C<redirect> immediately exits the current route.
+Thus, any code after a C<redirect> is ignored, until the end of the route.
+So it's not necessary anymore to use C<return> with C<redirect>.
 
 You can also force Dancer to return a specific 300-ish HTTP response code:
 
