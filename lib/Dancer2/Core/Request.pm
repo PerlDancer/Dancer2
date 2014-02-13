@@ -1098,11 +1098,8 @@ has cookies => (
 sub _build_cookies {
     my ($self) = @_;
 
-    my $env_str = $self->env->{COOKIE} || $self->env->{HTTP_COOKIE};
-    return {} unless defined $env_str;
-
     my $cookies = {};
-    foreach my $cookie ( split( /[,;]\s/, $env_str ) ) {
+    foreach my $cookie ( $self->header('COOKIE') ) {
 
         # here, we don't want more than the 2 first elements
         # a cookie string can contains something like:
