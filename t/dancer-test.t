@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 
 use Dancer2;
 use Dancer2::Test;
@@ -108,3 +108,20 @@ $param_response =
     { params => { test => [ 'test/', $russian_test ] } } );
 is $param_response->content, 'test/' . encode( 'UTF-8', $russian_test ),
   'multi utf8 value properly merge';
+
+get '/headers' => sub {
+    join " : ", request->header('X-Sent-By'), request->cookies->{foo};
+};
+note "extra headers in request"; {
+    my $sent_by = 'Dancer2::Test';
+    my $headers_test = dancer_response( GET => '/headers',
+        {
+            headers => [
+                [ 'X-Sent-By' => $sent_by ],
+                [ 'Cookie' => "foo=bar" ],
+            ],
+        }
+    );
+    is $headers_test->content, "$sent_by : bar",
+        "extra headers included in request";
+}
