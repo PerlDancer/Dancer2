@@ -9,6 +9,10 @@
     * GH#526: Cleanup POD formating and code snippets in manual.
       (Grzegorz Rożniecki)
 
+    [ BUG FIXES ]
+    * GH#528,529: Force PSGI server in dispatch scripts for CGI or fcgi
+      deployments (Erik Smit, Alberto Simões)
+
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
     [ ENHANCEMENTS ]
