@@ -246,6 +246,7 @@ Not implemented yet, do not use.
     Dale Gallagher
     David Steinbrunner
     Dinis Rebolo
+    Erik Smit
     geistteufel
     Gideon D'souza
     Graham Knop
