@@ -54,10 +54,11 @@ sub _build_server {
 # our Config role needs a default_config hash
 sub default_config {
 
-    $ENV{PLACK_ENV}
-      and $ENV{DANCER_APPHANDLER} = 'PSGI';
-
     my ($self) = @_;
+    if ($self->caller =~ /dispatch.cgi$/) {
+      $ENV{DANCER_APPHANDLER} = 'PSGI';
+    }
+
     {   apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
         content_type => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset      => ( $ENV{DANCER_CHARSET}      || '' ),
