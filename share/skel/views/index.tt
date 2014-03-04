@@ -28,10 +28,10 @@
 
             <ul class="links">
               <li><a
-              href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Manual.pod">Introduction</a></li>
-              <li><a href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Cookbook.pod">Cookbook</a></li>
+              href="https://metacpan.org/pod/Dancer2::Manual">Introduction</a></li>
+              <li><a href="https://metacpan.org/pod/Dancer2::Cookbook">Cookbook</a></li>
               <li><a
-              href="http://search.cpan.org/~sukria/Dancer2/lib/Dancer2/Tutorial.pod"
+              href="https://metacpan.org/pod/Dancer2::Tutorial"
               title="a tutorial to build a small blog engine with Dancer">Tutorial</a></li>
             </ul>
           </li>
@@ -103,7 +103,7 @@
         $('#about-content').slideToggle('fast', function() {
             // ok
         });
-        return( false );
+        return false;
     });
     </script>
 
