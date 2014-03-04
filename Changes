@@ -1,8 +1,12 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH#518: Bump jQuery to 1.10.2 (Grzegorz Rożniecki).
+
     [ DOCUMENTATION ]
     * RT#91428: POD encoding set to UTF-8 in main .pm (Gregor Herrmann).
     * GH#517: Miscellaneous documentation fixes (Cesare Gargano).
+    * GH#518: "Getting started" demo page fixes (Grzegorz Rożniecki).
     * GH#522: s/PerlHandler/PerlResponseHandler/ in Apache2 sample configuration
       (Grzegorz Rożniecki)
     * GH#521: Remove duplicated POD and clean up list details (Shlomi Fish)
