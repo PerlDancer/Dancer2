@@ -278,6 +278,22 @@ sub response_status_is {
     $tb->is_eq( $response->status, $status, $test_name );
 }
 
+sub _find_route_match {
+    my ( $request, $env ) =
+      ref $_[0] eq 'Dancer2::Core::Request'
+      ? _build_env_from_request(@_)
+      : _build_request_from_env(@_);
+
+    for my $app (@{$_dispatcher->apps}) {
+        for my $route (@{$app->routes->{lc($request->method)}}) {
+            if ( $route->match($request) ) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 =func route_exists([$method, $path], $test_name)
 
 Asserts that the given request matches a route handler in Dancer2's
@@ -287,7 +303,9 @@ registry.
 =cut
 
 sub route_exists {
-    response_status_is( $_[0], 200, $_[1] );
+    my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $tb->ok( _find_route_match($_[0]), $_[1]);
 }
 
 =func route_doesnt_exist([$method, $path], $test_name)

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 48;
 
 use Dancer2;
 use Dancer2::Test;
@@ -28,18 +28,21 @@ my @routes = (
             REQUEST_URI       => '/foo',
         }
     ),
-    Dancer2::Core::Response->new(
-        content => 'fighter',
-        status  => 404,
-    )
+);
+my $fighter = Dancer2::Core::Response->new(
+    content => 'fighter',
+    status  => 404,
 );
 
-route_doesnt_exist $_ for @routes;
+route_doesnt_exist $_ for (@routes, $fighter);
+
 
 get '/foo' => sub {'fighter'};
-$routes[-1]->status(200);
 
 route_exists $_, "route $_ exists" for @routes;
+
+$fighter->status(200);
+push @routes, $fighter;
 
 for (@routes) {
     my $response = dancer_response $_;
