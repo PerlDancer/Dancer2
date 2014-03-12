@@ -15,6 +15,8 @@ log: "core"
 warnings: 1
 
 # should Dancer2 show a stacktrace when an error is caught?
+# if set to yes, public/500.html will be ignored and either
+# views/500.tt or a default error template will be used.
 show_errors: 1
 
 # print the banner
