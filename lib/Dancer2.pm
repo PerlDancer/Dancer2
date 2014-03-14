@@ -47,8 +47,6 @@ sub import {
       "parameters to 'use Dancer2' should be one of : 'key => value', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
     my %final_args = @final_args;
 
-    $final_args{dsl} ||= 'Dancer2::Core::DSL';
-
     # never instantiated the runner, should do it now
     if ( not defined $runner ) {
 
@@ -73,6 +71,10 @@ sub import {
 
     # register the app within the runner instance
     $server->register_application($app);
+
+    # use config dsl class, must extend Dancer2::Core::DSL
+    my $config_dsl = $app->setting('dsl_class') || 'Dancer2::Core::DSL';
+    $final_args{dsl} ||= $config_dsl;
 
     # load the DSL, defaulting to Dancer2::Core::DSL
     load_class( $final_args{dsl} );
