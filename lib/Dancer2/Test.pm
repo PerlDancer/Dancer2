@@ -297,7 +297,14 @@ sub _find_route_match {
 =func route_exists([$method, $path], $test_name)
 
 Asserts that the given request matches a route handler in Dancer2's
-registry.
+registry. If the route would have returned a 404, the route still exists
+and this test will pass.
+
+Note that because Dancer2 uses the default route handler
+L<Dancer2::Handler::File> to match files in the public folder when
+no other route matches, this test will always pass.
+You can disable the default route handlers in the configs but you probably
+want L<Dancer2::Test/response_status_is> or L<Dancer2::Test/dancer_response>
 
     route_exists [GET => '/'], "GET / is handled";
 =cut
