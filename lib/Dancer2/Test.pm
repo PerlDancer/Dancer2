@@ -340,6 +340,10 @@ sub route_exists {
 Asserts that the given request does not match any route handler
 in Dancer2's registry.
 
+Note that this test is likely to always fail as any route not matched will
+be handled by the default route handler in L<Dancer2::Handler::File>.
+This can be disabled in the configs.
+
     route_doesnt_exist [GET => '/bogus_path'], "GET /bogus_path is not handled";
 
 =cut
@@ -348,7 +352,9 @@ sub route_doesnt_exist {
     carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
         unless $NO_WARN;
 
-    response_status_is( $_[0], 404, $_[1] );
+    my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $tb->ok( !_find_route_match($_[0]), $_[1]);
 }
 
 =func response_status_isnt([$method, $path], $status, $test_name)

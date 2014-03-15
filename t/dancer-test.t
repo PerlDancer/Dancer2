@@ -2,6 +2,14 @@
 
 use strict;
 use warnings;
+use File::Spec;
+use File::Basename qw/dirname/;
+
+BEGIN {
+    # Disable route handlers so we can actually test route_exists
+    # and route_doesnt_exist. Use config that disables default route handlers.
+    $ENV{DANCER_CONFDIR} = File::Spec->catdir(dirname(__FILE__), 'dancer-test');
+}
 
 use Test::More tests => 49;
 
