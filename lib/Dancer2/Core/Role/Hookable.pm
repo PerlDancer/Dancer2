@@ -138,7 +138,9 @@ sub execute_hook {
         $self->engine('logger')->core("Entering hook $name");
 
     my $res;
-    $res = $_->(@args) for @{ $self->hooks->{$name} };
+    for my $h ( @{ $self->hooks->{$name} } ) {
+        $res = $h->(@args);
+    }
     return $res;
 }
 

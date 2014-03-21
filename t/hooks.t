@@ -83,6 +83,12 @@ my $tests_flags = {};
         $c->response->halt;
     };
 
+    hook after => sub {
+        # GH#540 - ensure setting default scalar does not
+        # interfere with hook execution (aliasing)
+        $_ = 42;
+    };
+
     hook on_route_exception => sub {
         my ($context, $error) = @_;
         is ref($context), 'Dancer2::Core::Context';
