@@ -22,6 +22,9 @@ use Test::More import => ['!pass'];
         "{more: 'json'}";
     };
 
+	ajax ['put', 'del', 'get'] => "/more/test" => sub {
+		"{some: 'json'}";
+	};
 }
 
 use Dancer2::Test apps => ['AjaxApp'];
@@ -33,14 +36,25 @@ my $r = dancer_response(
 is $r->content, "{some: 'json'}", "ajax works with POST";
 is $r->content_type, 'application/json', "Response content type from plugin config";
 
+#--- GET ---
 $r = dancer_response(
     GET => '/test',
     { headers => [ [ 'X-Requested-With' => 'XMLHttpRequest' ], ], }
 );
 is $r->content, "{some: 'json'}", "ajax works with GET";
 
+#--- POST ---
 $r = dancer_response( POST => '/another/test' );
 is $r->status, 404, 'ajax does not match if no XMLHttpRequest';
+
+#--- MULTIPLE ---
+foreach my $method (qw( put delete get )) {
+	$r = dancer_response(
+	$method => '/more/test',
+	{ headers => [ [ 'X-Requested-With' => 'XMLHttpRequest' ], ], }
+	);
+	is $r->content, "{some: 'json'}", "ajax works with $method";
+}
 
 # GitHub #143 - responst content type not munged if ajax route passes
 $r = dancer_response(GET => '/test');
