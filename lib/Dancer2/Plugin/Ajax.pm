@@ -62,15 +62,15 @@ Here is example to use JSON:
 register 'ajax' => sub {
     my ( $dsl, $pattern, @rest ) = @_;
 
-	my $default_methods = [ 'get', 'post' ];
+    my $default_methods = [ 'get', 'post' ];
 
-	# BugFix for #543
-	# If the given pattern is an ArrayRef, we override the defaults
-	# and pass these onto to SDL->any()
-	if( ref($pattern) eq "ARRAY" ) {
-		$default_methods = $pattern;
-		$pattern = shift(@rest);
-	}
+    # BugFix for #543
+    # If the given pattern is an ArrayRef, we override the defaults
+    # and pass these onto to SDL->any()
+    if( ref($pattern) eq "ARRAY" ) {
+        $default_methods = $pattern;
+        $pattern = shift(@rest);
+    }
 
     my $code;
     for my $e (@rest) { $code = $e if ( ref($e) eq 'CODE' ) }
