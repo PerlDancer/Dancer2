@@ -482,8 +482,11 @@ sub deserialize {
 
     return unless $self->serializer->support_content_type($content_type);
 
+    # The latest draft of the RFC does not forbid DELETE to have content,
+    # rather the behaviour is undefined. Take the most lenient route and
+    # deserialize any content on delete as well.
     return
-      unless grep { $self->method eq $_ } qw/ PUT POST PATCH /;
+      unless grep { $self->method eq $_ } qw/ PUT POST PATCH DELETE /;
 
     # try to deserialize
     my $body = $self->_read_to_end();
