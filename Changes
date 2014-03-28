@@ -16,6 +16,8 @@
     [ BUG FIXES ]
     * GH#528,529: Force PSGI server in dispatch scripts for CGI or fcgi
       deployments (Erik Smit, Alberto Simões)
+    * GH#550,GH#551: Update all headers in Handler::File
+      (Sawyer X, Stefan @racke Hornburg)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
