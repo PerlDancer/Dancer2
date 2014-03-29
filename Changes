@@ -2,6 +2,8 @@
 
     [ ENHANCEMENTS ]
     * GH#518: Bump jQuery to 1.10.2 (Grzegorz Rożniecki).
+    * GH#535: Support OPTIONS and PATCH requests in Server::Standalone.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * RT#91428: POD encoding set to UTF-8 in main .pm (Gregor Herrmann).
@@ -18,6 +20,8 @@
       deployments (Erik Smit, Alberto Simões)
     * GH#550,GH#551: Update all headers in Handler::File
       (Sawyer X, Stefan @racke Hornburg)
+    * GH#540: Fix hook execution when default scalar was used in hook code.
+      (baynes, Russell Jenkins)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
