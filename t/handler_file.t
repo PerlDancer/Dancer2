@@ -49,7 +49,10 @@ test_psgi $app, sub {
         my $r = $cb->( GET '/some/image' );
 
         is( $r->code, 200, 'send_file sets the status to 200' );
-        unlike( $r->content, qr/send_file returns/, "send_file returns immediately with content");
+        unlike( $r->content, qr/send_file returns/,
+            "send_file returns immediately with content");
+        is( $r->header( 'Content-Type' ), 'image/png',
+            'correct content_type in response' );
     };
 };
 
