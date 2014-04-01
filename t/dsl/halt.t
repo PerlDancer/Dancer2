@@ -2,6 +2,8 @@ use strict;
 use warnings;
 
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 subtest 'halt within routes' => sub {
     {
@@ -20,16 +22,36 @@ subtest 'halt within routes' => sub {
             redirect '/'; # won't get executed as halt returns immediately.
         };
     }
-    use Dancer2::Test apps => ['App'];
 
-    response_status_is  [ GET => '/shortcircuit' ] => 200;
-    response_content_is [ GET => '/shortcircuit' ] => "halted";
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    my $expected_headers = [
-        'X-Foo'        => 'foo',
-        'Server'       => "Perl Dancer2 $Dancer2::VERSION",
-    ];
-    response_headers_include [ GET => '/halt' ] => $expected_headers;
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        {
+            my $res = $cb->( GET '/shortcircuit' );
+            is( $res->code, 200, '[/shortcircuit] Correct status' );
+            is( $res->content, 'halted', '[/shortcircuit] Correct content' );
+
+        }
+
+        {
+            my $res = $cb->( GET '/halt' );
+
+            is(
+                $res->server,
+                "Perl Dancer2 $Dancer2::VERSION",
+                '[/halt] Correct Server header',
+            );
+
+            is(
+                $res->headers->header('X-Foo'),
+                'foo',
+                '[/halt] Correct X-Foo header',
+            );
+        }
+    };
 
 };
 
@@ -46,9 +68,20 @@ subtest 'halt in before halt' => sub {
 
     }
 
-    response_status_is  [ GET => '/shortcircuit' ] => 200;
-    response_content_is [ GET => '/shortcircuit' ] => "I was halted";
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET '/shortcircuit' );
+
+        is( $res->code, 200, '[/shortcircuit] Correct code with before hook' );
+        is(
+            $res->content,
+            'I was halted',
+            '[/shortcircuit] Correct content with before hook',
+        );
+    };
 };
 
 done_testing;

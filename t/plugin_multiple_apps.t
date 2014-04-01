@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
 
@@ -18,10 +20,14 @@ use Test::More;
     use t::lib::SubApp2 with => { session => engine('session') };
 }
 
-use Dancer2::Test apps => [ 'App', 't::lib::SubApp1', 't::lib::SubApp2' ];
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-# make sure both apps works as epxected
-response_content_is '/subapp1', 1;
-response_content_is '/subapp2', 2;
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is( $cb->( GET '/subapp1' )->content, 1, '/subapp1' );
+    is( $cb->( GET '/subapp2' )->content, 2, '/subapp2' );
+};
 
 done_testing;

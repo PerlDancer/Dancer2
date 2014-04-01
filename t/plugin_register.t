@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 use Test::More import => ['!pass'];
-use Dancer2::Test;
 use Test::Fatal;
 
 subtest 'reserved keywords' => sub {

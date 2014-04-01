@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 use Dancer2 dsl => 'MyDancerDSL';
-use Dancer2::Test;
-
 
 envoie '/' => sub {
     request->method;
@@ -16,14 +16,14 @@ prend '/' => sub {
     request->method;
 };
 
-{
-    my $r = dancer_response GET => '/';
-    is $r->content, 'GET';
-}
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-{
-    my $r = dancer_response POST => '/';
-    is $r->content, 'POST';
-}
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is( $cb->( GET '/' )->content, 'GET', '[GET /] Correct content' );
+    is( $cb->( POST '/' )->content, 'POST', '[POST /] Correct content' );
+};
 
 done_testing;

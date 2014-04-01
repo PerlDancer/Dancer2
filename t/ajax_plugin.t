@@ -1,9 +1,10 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
-
     package AjaxApp;
     use Dancer2;
     use Dancer2::Plugin::Ajax;
@@ -21,30 +22,58 @@ use Test::More import => ['!pass'];
     ajax '/another/test' => sub {
         "{more: 'json'}";
     };
-
 }
 
-use Dancer2::Test apps => ['AjaxApp'];
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-my $r = dancer_response(
-    POST => '/test',
-    { headers => [ [ 'X-Requested-With' => 'XMLHttpRequest' ], ], }
-);
-is $r->content, "{some: 'json'}", "ajax works with POST";
-is $r->content_type, 'application/json', "Response content type from plugin config";
+test_psgi $app, sub {
+    my $cb = shift;
 
-$r = dancer_response(
-    GET => '/test',
-    { headers => [ [ 'X-Requested-With' => 'XMLHttpRequest' ], ], }
-);
-is $r->content, "{some: 'json'}", "ajax works with GET";
+    {
+        my $res = $cb->(
+            POST '/test', 'X-Requested-With' => 'XMLHttpRequest'
+        );
 
-$r = dancer_response( POST => '/another/test' );
-is $r->status, 404, 'ajax does not match if no XMLHttpRequest';
+        is( $res->content, q({some: 'json'}), 'ajax works with POST' );
+        is( $res->content_type, 'application/json', 'ajax content type' );
+    }
 
-# GitHub #143 - responst content type not munged if ajax route passes
-$r = dancer_response(GET => '/test');
-is $r->status, 200, "ajax route passed for an non-XMLHttpRequest";
-like $r->content_type, qr{^text/html}, "content type on non-XMLHttpRequest not munged";
+    {
+        my $res = $cb->( GET '/test', 'X-Requested-With' => 'XMLHttpRequest' );
+        is( $res->content, q({some: 'json'}), 'ajax works with GET' );
+    }
+
+    {
+        is(
+            $cb->( POST '/another/test' )->code,
+            404,
+            'ajax route passed for non-XMLHttpRequest',
+        );
+    }
+
+    {
+        # GitHub #143 - response content type not munged if ajax route passes
+        my $res = $cb->( GET '/test' );
+
+        is(
+            $res->code,
+            200,
+            'ajax route passed for non-XMLHttpRequest',
+        );
+
+        is(
+            $res->content,
+            'some text',
+            'ajax route has proper content for GET without XHR',
+        );
+
+        is(
+            $res->content_type,
+            'text/html',
+            'content type on non-XMLHttpRequest not munged',
+        );
+    }
+};
 
 done_testing;

@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 use Dancer2::Core::Hook;
+use Plack::Test;
+use HTTP::Request::Common;
 
 use File::Spec;
 use File::Basename 'dirname';
@@ -95,13 +97,26 @@ content added in after_layout_render";
     get '/get_views_via_settings' => sub { set 'views' };
 }
 
-use Dancer2::Test apps => ['Foo'];
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-my $r = dancer_response GET => '/default_views';
-is $r->content, '/this/is/our/path';
+test_psgi $app, sub {
+    my $cb = shift;
 
-dancer_response GET => '/set_views_via_settings';
-$r = dancer_response GET => '/get_views_via_settings';
-is $r->content, '/other/path';
+    is(
+        $cb->( GET '/default_views' )->content,
+        '/this/is/our/path',
+        '[GET /default_views] Correct content',
+    );
+
+    # trigger a test via a route
+    $cb->( GET '/set_views_via_settings' );
+
+    is(
+        $cb->( GET '/get_views_via_settings' )->content,
+        '/other/path',
+        '[GET /get_views_via_settings] Correct content',
+    );
+};
 
 done_testing;
