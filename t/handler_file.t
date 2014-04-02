@@ -2,9 +2,10 @@ use strict;
 use warnings;
 
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
-
     package StaticContent;
 
     use Dancer2;
@@ -21,21 +22,31 @@ use Test::More;
     };
 }
 
-use Dancer2::Test apps => ['StaticContent'];
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-subtest "Text content" => sub {
-    my $r = dancer_response GET => '/';
+test_psgi $app, sub {
+    my $cb = shift;
 
-    is $r->status, 200, 'send_file sets the status to 200';
-    my $charset = $r->headers->content_type_charset;
-    is $charset, 'UTF-8', "Text content type has UTF-8 charset";
-    like $r->content, qr{áéíóú}, "Text content contains UTF-8 characters";
-};
+    subtest "Text content" => sub {
+        my $r = $cb->( GET '/' );
 
-subtest "Binary content" => sub {
-    my $r = dancer_response GET => "/image";
+        is( $r->code, 200, 'send_file sets the status to 200' );
 
-    is $r->status, 200, 'send_file sets the status to 200';
+        my $charset = $r->headers->content_type_charset;
+        is( $charset, 'UTF-8', 'Text content type has UTF-8 charset' );
+        like(
+            $r->content,
+            qr{áéíóú},
+            'Text content contains UTF-8 characters',
+        );
+    };
+
+    subtest "Binary content" => sub {
+        my $r = $cb->( GET '/image' );
+
+        is( $r->code, 200, 'send_file sets the status to 200' );
+    };
 };
 
 done_testing;

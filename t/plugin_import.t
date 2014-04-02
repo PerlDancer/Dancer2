@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
     use Dancer2;
@@ -13,10 +15,18 @@ use Test::More;
     };
 }
 
-use Dancer2::Test;
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-response_content_is '/test', 'dancer_plugin_with_import_keyword',
-  "the plugin exported its keyword";
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is(
+        $cb->( GET '/test' )->content,
+        'dancer_plugin_with_import_keyword',
+        'the plugin exported its keyword',
+    );
+};
 
 is_deeply(
     t::lib::PluginWithImport->stuff,

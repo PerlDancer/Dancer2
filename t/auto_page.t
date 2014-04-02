@@ -2,6 +2,8 @@ use strict;
 use warnings;
 
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
     package AutoPageTest;
@@ -12,27 +14,58 @@ use Test::More;
     Dancer2::Handler::AutoPage->register(app);
     engine('template')->views('t/views');
     engine('template')->layout('main');
-
 }
 
-use Dancer2::Test apps => ['AutoPageTest'];
+$_->finish for @{ Dancer2->runner->server->apps };
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-my $r = dancer_response GET => '/auto_page';
+test_psgi $app, sub {
+    my $cb = shift;
 
-is $r->status, 200, 'Autopage found the page';
-like $r->content, qr/---\nHey! This is Auto Page working/, '...with proper content';
+    {
+        my $r = $cb->( GET '/auto_page' );
 
-$r = dancer_response GET => '/folder/page';
+        is( $r->code, 200, 'Autopage found the page' );
+        like(
+            $r->content,
+            qr/---\nHey! This is Auto Page working/,
+            '...with proper content',
+        );
+    }
 
-is $r->status, 200, 'Autopage found the page under a folder';
-like $r->content, qr/---\nPage under folder/, '...with proper content';
+    {
+        my $r = $cb->( GET '/folder/page' );
 
-$r = dancer_response GET => '/non_existent_page';
-is $r->status, 404, 'Autopage doesnt try to render nonexistent pages';
+        is( $r->code, 200, 'Autopage found the page under a folder' );
+        like(
+            $r->content,
+            qr/---\nPage under folder/,
+            '...with proper content',
+        );
+    }
 
-$r = dancer_response GET => '/file.txt';
-is $r->status, 200, 'Found file on public with Autopage';
+    {
+        my $r = $cb->( GET '/non_existent_page' );
+        is( $r->code, 404, 'Autopage doesnt try to render nonexistent pages' );
+    }
 
-like $r->headers->{'content-type'}, qr!text/plain!, "Public served file as correct mime";
+    {
+        my $r = $cb->( GET '/file.txt' );
+        is( $r->code, 200, 'found file on public with autopage' );
+        is(
+            $r->content,
+            "this is a public file\n",
+            '[GET /file.txt] Correct content',
+        );
+
+        like(
+            $r->headers->content_type,
+            qr{text/plain},
+            'public served file as correct mime',
+        );
+    }
+
+};
 
 done_testing;
