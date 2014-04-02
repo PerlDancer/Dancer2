@@ -4,6 +4,8 @@
     * GH#518: Bump jQuery to 1.10.2 (Grzegorz Rożniecki).
     * GH#535: Support OPTIONS and PATCH requests in Server::Standalone.
       (Russell Jenkins)
+    * GH#553: Dancer2 CLI: specify directory to write app skeleton
+      (Jean Stebens)
 
     [ DOCUMENTATION ]
     * RT#91428: POD encoding set to UTF-8 in main .pm (Gregor Herrmann).
@@ -22,6 +24,8 @@
       (Sawyer X, Stefan @racke Hornburg)
     * GH#540: Fix hook execution when default scalar was used in hook code.
       (baynes, Russell Jenkins)
+    * GH#552: Rework test suite to use Plack::Test
+      (Sawyer X, Stefan @racke Hornburg)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
