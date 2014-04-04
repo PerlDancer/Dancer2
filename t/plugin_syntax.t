@@ -109,17 +109,22 @@ subtest 'hooks in plugins' => sub {
         };
 
         hook 'start_hookee' => sub {
-            'hook for plugin';
+            'this is the start hook';
         };
 
         get '/hook_with_var' => sub {
-            some_other();
+            some_other(); # executes 'third_hook'
             is var('hook') => 'third hook', "Vars preserved from hooks";
         };
 
         get '/hooks_plugin' => sub {
             $counter++;
-            some_keyword();
+            some_keyword(); # executes 'start_hookee'
+            'hook for plugin';
+        };
+
+        get '/hook_returns_stuff' => sub {
+            some_keyword(); # executes 'start_hookee'
         };
 
     }
@@ -140,8 +145,15 @@ subtest 'hooks in plugins' => sub {
 
         is( $counter, 1, '... and the hook has been executed exactly once' );
 
+        is(
+            $cb->( GET '/hook_returns_stuff' )->content,
+            '',
+            '... hook does not influence rendered content',
+        );
+
         # call the route that has an additional test
         $cb->( GET '/hook_with_var' );
+
     };
 };
 
