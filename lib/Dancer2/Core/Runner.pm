@@ -6,6 +6,7 @@ use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
 use HTTP::Server::PSGI;
+use Plack::Builder qw();
 
 with 'Dancer2::Core::Role::ConfigReader';
 
@@ -222,7 +223,7 @@ sub psgi_app {
     }
 
     # eval entire request to catch any internal errors
-    return sub {
+    my $psgi = sub {
         my $env = shift;
         my $response;
 
@@ -239,6 +240,10 @@ sub psgi_app {
 
         return $response;
     };
+
+    my $builder = Plack::Builder->new;
+    $builder->add_middleware('Head');
+    return $builder->wrap($psgi);
 }
 
 sub print_banner {

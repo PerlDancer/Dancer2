@@ -152,21 +152,6 @@ sub _dispatch_route {
     return $response;
 }
 
-# In the case of a HEAD request, we need to drop the body, but we also
-# need to keep the value of the Content-Length header.
-# Because there's a trigger on the content field to change the value of
-# the C-L header every time we change the value, we need to modify a around
-# modifier to change the value of content and restore the length.
-around 'dispatch' => sub {
-    my ( $orig, $self, $env, $request, $curr_context ) = @_;
-    my $response = $orig->( $self, $env, $request, $curr_context );
-    return $response unless defined $request && $request->is_head;
-    my $cl = $response->header('Content-Length');
-    $response->content('');
-    $response->header( 'Content-Length' => $cl );
-    return $response;
-};
-
 sub response_internal_error {
     my ( $self, $context, $error ) = @_;
 
