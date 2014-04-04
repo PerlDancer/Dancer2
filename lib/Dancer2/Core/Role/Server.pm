@@ -12,6 +12,8 @@ use Dancer2::Core::Response;
 use Dancer2::Core::Request;
 use Dancer2::Core::Context;
 
+use Plack::Builder qw();
+
 requires '_build_name';
 
 has name => (
@@ -66,7 +68,8 @@ sub _build_dispatcher {
 # our PSGI application
 sub psgi_app {
     my ($self) = @_;
-    sub {
+    # PSGI app coderef
+    my $psgi = sub {
         my ($env) = @_;
         my $app;
 
@@ -81,6 +84,10 @@ sub psgi_app {
         }
         return $app;
     };
+
+    my $builder = Plack::Builder->new;
+    $builder->add_middleware('Head');
+    return $builder->wrap($psgi);
 }
 
 sub register_application {
