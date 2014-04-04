@@ -148,12 +148,11 @@ subtest 'hooks in plugins' => sub {
         is(
             $cb->( GET '/hook_returns_stuff' )->content,
             '',
-            '... hook does not influence rendered content',
+            '... hook does not influence rendered content by return value',
         );
 
         # call the route that has an additional test
         $cb->( GET '/hook_with_var' );
-
     };
 };
 
