@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More tests => 9;
 use Plack::Test;
-use HTTP::Request::Common;
+use HTTP::Request;
 
 use Dancer2;
 
@@ -33,8 +33,8 @@ test_psgi $app, sub {
 
     eval "get '/head' => sub {'HEAD'}";
 
-    my $res = $cb->( HEAD '/head' );
-    is( $res->content, 'HEAD', 'HEAD /' );
+    my $res = $cb->( HTTP::Request->new( HEAD => '/head' ) );
+    is( $res->content, '', 'HEAD /' ); # HEAD requests have no content
     is( $res->headers->content_length, 4, 'Content-Length for HEAD' );
 };
 
