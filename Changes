@@ -26,6 +26,8 @@
       (baynes, Russell Jenkins)
     * GH#552: Rework test suite to use Plack::Test
       (Sawyer X, Stefan @racke Hornburg)
+    * GH#560: Return value of hooks do not alter response content.
+      (Jean Stebens)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 

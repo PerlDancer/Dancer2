@@ -137,11 +137,9 @@ sub execute_hook {
     ref($self) eq 'Dancer2::Core::App' &&
         $self->engine('logger')->core("Entering hook $name");
 
-    my $res;
-    for my $h ( @{ $self->hooks->{$name} } ) {
-        $res = $h->(@args);
+    for my $hook ( @{ $self->hooks->{$name} } ) {
+        $hook->(@args);
     }
-    return $res;
 }
 
 1;
