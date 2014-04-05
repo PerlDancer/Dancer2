@@ -73,7 +73,7 @@ Any class that consumes this role will be able to be used as a
 serializer under Dancer2.
 
 In order to implement this role, the consumer B<must> implement the
-methods C<serialize>, <deserialize> and C<loaded>, and should define
+methods C<serialize>, C<deserialize> and C<loaded>, and should define
 the C<content_type> attribute value.
 
 =head1 METHODS
