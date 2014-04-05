@@ -23,17 +23,17 @@ sub to_yaml {
 
 # class definition
 
-sub BUILD { eval "use YAML::Any ()"; croak "Fail to load YAML: $@" if $@ }
+sub BUILD { eval "use YAML ()"; croak "Fail to load YAML: $@" if $@ }
 sub loaded {1}
 
 sub serialize {
     my ( $self, $entity ) = @_;
-    YAML::Any::Dump($entity);
+    YAML::Dump($entity);
 }
 
 sub deserialize {
     my ( $self, $content ) = @_;
-    YAML::Any::Load($content);
+    YAML::Load($content);
 }
 
 1;
