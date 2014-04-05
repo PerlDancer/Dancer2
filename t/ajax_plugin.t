@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
-use HTTP::Request::Common;
+use HTTP::Request::Common qw(GET HEAD PUT POST DELETE);
 
 {
     package AjaxApp;
@@ -21,6 +21,10 @@ use HTTP::Request::Common;
 
     ajax '/another/test' => sub {
         "{more: 'json'}";
+    };
+
+    ajax ['put', 'del', 'get'] => "/more/test" => sub {
+        "{some: 'json'}";
     };
 }
 
@@ -42,6 +46,26 @@ test_psgi $app, sub {
     {
         my $res = $cb->( GET '/test', 'X-Requested-With' => 'XMLHttpRequest' );
         is( $res->content, q({some: 'json'}), 'ajax works with GET' );
+    }
+
+    {
+        my $res = $cb->( GET '/more/test', 'X-Requested-With' => 'XMLHttpRequest' );
+        is( $res->content, q({some: 'json'}), 'ajax works with GET on multi-method route' );
+    }
+
+    {
+        my $res = $cb->( PUT '/more/test', 'X-Requested-With' => 'XMLHttpRequest' );
+        is( $res->content, q({some: 'json'}), 'ajax works with PUT on multi-method route' );
+    }
+
+    {
+        my $res = $cb->( DELETE '/more/test', 'X-Requested-With' => 'XMLHttpRequest' );
+        is( $res->content, q({some: 'json'}), 'ajax works with DELETE on multi-method route' );
+    }
+
+    {
+        my $res = $cb->( POST '/more/test', 'X-Requested-With' => 'XMLHttpRequest' );
+        is( $res->code, 404, 'ajax multi-method route only valid for the defined routes' );
     }
 
     {
