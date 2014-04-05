@@ -21,7 +21,7 @@ use Dancer2::Plugin;
     };
 
     # For all valid HTTP methods
-    ajax ['get', 'post', ... ] => '/check_for_more' =>sub {
+    ajax ['get', 'post', ... ] => '/check_for_more' => sub {
         # ... some Ajax code
     };
 
@@ -38,7 +38,7 @@ The route handler code will be compiled to behave like the following:
 
 =item *
 
-Pass if the request header X-Requested-With doesnt equal XMLHttpRequest
+Pass if the request header X-Requested-With doesn't equal XMLHttpRequest
 
 =item *
 
@@ -61,8 +61,6 @@ Here is example to use JSON:
     Ajax:
       content_type: 'application/json'
 
-
-
 =cut
 
 register 'ajax' => sub {
@@ -70,9 +68,8 @@ register 'ajax' => sub {
 
     my $default_methods = [ 'get', 'post' ];
 
-    # BugFix for #543
     # If the given pattern is an ArrayRef, we override the defaults
-    # and pass these onto to SDL->any()
+    # and pass these onto to DSL->any()
     if( ref($pattern) eq "ARRAY" ) {
         $default_methods = $pattern;
         $pattern = shift(@rest);
