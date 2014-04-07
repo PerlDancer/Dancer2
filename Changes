@@ -6,6 +6,7 @@
       (Russell Jenkins)
     * GH#553: Dancer2 CLI: specify directory to write app skeleton
       (Jean Stebens)
+    * GH#543: Additional HTTP Methods for Ajax plugin (Jean Stebens).
 
     [ DOCUMENTATION ]
     * RT#91428: POD encoding set to UTF-8 in main .pm (Gregor Herrmann).

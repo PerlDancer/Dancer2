@@ -219,9 +219,11 @@ Not implemented yet, do not use.
     David Golden
     David Precious
     Franck Cuny
+    Mickey Nasriachi
     Russell Jenkins
     Sawyer X
     Stefan Hornburg (Racke)
+    Steven Humphrey
     Yanick Champoux
 
 =head2 CONTRIBUTORS
@@ -251,6 +253,7 @@ Not implemented yet, do not use.
     geistteufel
     Gideon D'souza
     Graham Knop
+    Gregor Herrmann
     Grzegorz Rożniecki
     Hobbestigrou
     Ivan Bessarabov
@@ -265,7 +268,6 @@ Not implemented yet, do not use.
     Matt Phillips
     Matt S Trout
     Maurice
-    Mickey Nasriachi
     mokko
     Olivier Mengué
     Pau Amma
@@ -276,7 +278,6 @@ Not implemented yet, do not use.
     Shlomi Fish
     Slava Goltser
     smashz
-    Steven Humphrey
     Tom Hukins
     Upasana
     Vincent Bachelier
