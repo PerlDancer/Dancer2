@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.12      2014-04-07 22:42:12 Europe/Amsterdam
+
     [ ENHANCEMENTS ]
     * GH#518: Bump jQuery to 1.10.2 (Grzegorz Rożniecki).
     * GH#535: Support OPTIONS and PATCH requests in Server::Standalone.
