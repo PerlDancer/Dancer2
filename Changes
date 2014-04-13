@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
+
+    [ BUG FIXES ]
+    GH #524: Double encoding for YAML sessions.
+    GH #557: Switch to using YAML::Old.
+    GH #548: Deserializer test failure.
+
 0.12      2014-04-07 22:42:12 Europe/Amsterdam
 
     [ ENHANCEMENTS ]
