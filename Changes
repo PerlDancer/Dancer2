@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
+
     [ ENHANCEMENTS ]
     GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
 
