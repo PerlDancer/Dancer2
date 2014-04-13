@@ -102,6 +102,9 @@ content type defined by the C<content_type> attribute.
 A third optional argument is a hash reference of options to the
 serializer.
 
+The serialize method must return bytes and therefore has to handle any
+encoding.
+
 =method deserialize($content, [\%options])
 
 The inverse method of C<serialize>. Receives the serializer class
@@ -110,6 +113,9 @@ return a reference to the deserialized Perl data structure.
 
 A third optional argument is a hash reference of options to the
 serializer.
+
+The deserialize method receives encoded bytes and must therefore
+handle any decoding required.
 
 =method loaded
 
