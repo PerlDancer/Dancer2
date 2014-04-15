@@ -433,7 +433,6 @@ sub scheme {
           || $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
           || $self->env->{'HTTP_X_FORWARDED_PROTO'}
           || $self->env->{'HTTP_FORWARDED_PROTO'}
-          || $self->env->{'X_FORWARDED_PROTO'}
           || "";
     }
     return
