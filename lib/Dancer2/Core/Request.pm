@@ -342,10 +342,7 @@ sub host {
     my ($self) = @_;
 
     if ( $self->is_behind_proxy ) {
-        my @hosts = split /\s*,\s*/, (
-          $self->env->{HTTP_X_FORWARDED_HOST} || $self->env->{X_FORWARDED_HOST}
-        );
-
+        my @hosts = split /\s*,\s*/, $self->env->{HTTP_X_FORWARDED_HOST}, 2;
         return $hosts[0];
     } else {
         return $self->env->{'HTTP_HOST'};
@@ -408,7 +405,7 @@ Return script_name from the environment.
 # aliases, kept for backward compat
 sub agent                 { $_[0]->user_agent }
 sub remote_address        { $_[0]->address }
-sub forwarded_for_address { $_[0]->env->{'X_FORWARDED_FOR'} }
+sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
 sub address               { $_[0]->env->{REMOTE_ADDR} }
 sub remote_host           { $_[0]->env->{REMOTE_HOST} }
 sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
@@ -429,8 +426,7 @@ sub scheme {
     my $scheme;
     if ( $self->is_behind_proxy ) {
         $scheme =
-             $self->env->{'X_FORWARDED_PROTOCOL'}
-          || $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
+             $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
           || $self->env->{'HTTP_X_FORWARDED_PROTO'}
           || $self->env->{'HTTP_FORWARDED_PROTO'}
           || "";
