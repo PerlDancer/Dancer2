@@ -29,9 +29,9 @@ Now point your browser to [http://localhost:3000](http://localhost:3000) and voi
 * [Dancer's Website](http://perldancer.org)
 * [Most recent release on CPAN](https://metacpan.org/release/Dancer2)
 * [Builds status on Travis](https://travis-ci.org/PerlDancer/Dancer2)
-* [Our Mailing List](http://list.perldancer.org/cgi-bin/listinfo/dancer-users)
+* [Our Mailing List](http://lists.preshweb.co.uk/mailman/listinfo/dancer-users)
 * [Follow us on Twitter](https://twitter.com/perldancer)
-* [Find us on irc.perl.org #dancer](irc://irc.perl.org/#dancer)
+* [Find us on irc.perl.org #dancer](http://perldancer.org/irc)
 * [The Advent Calendar](http://advent.perldancer.org/)
 * [Contribution/Git Guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md)
 
