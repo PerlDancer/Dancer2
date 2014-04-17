@@ -1037,7 +1037,7 @@ sub _init_request_headers {
                 ( my $field = $_ ) =~ s/^HTTPS?_//;
                 ( $field => $env->{$_} );
               }
-              grep {/^(?:HTTP|CONTENT|COOKIE)/i} keys %$env
+              grep {/^(?:HTTP|CONTENT)/i} keys %$env
         )
     );
 }
@@ -1094,7 +1094,7 @@ has cookies => (
 sub _build_cookies {
     my ($self) = @_;
 
-    my $env_str = $self->env->{COOKIE} || $self->env->{HTTP_COOKIE};
+    my $env_str = $self->env->{HTTP_COOKIE};
     return {} unless defined $env_str;
 
     my $cookies = {};
