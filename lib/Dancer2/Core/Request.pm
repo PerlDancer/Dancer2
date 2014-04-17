@@ -1037,7 +1037,7 @@ sub _init_request_headers {
                 ( my $field = $_ ) =~ s/^HTTPS?_//;
                 ( $field => $env->{$_} );
               }
-              grep {/^(?:HTTP|CONTENT|COOKIE)/i} keys %$env
+              grep {/^(?:HTTP|CONTENT)/i} keys %$env
         )
     );
 }
@@ -1092,9 +1092,9 @@ has cookies => (
 );
 
 sub _build_cookies {
-    my ($self) = @_;
-
+    my $self    = shift;
     my $cookies = {};
+
     foreach my $cookie ( $self->header('COOKIE') ) {
 
         # here, we don't want more than the 2 first elements
