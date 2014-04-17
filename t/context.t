@@ -17,7 +17,7 @@ my $env = {
     REMOTE_ADDR       => '127.0.0.1',
     HTTP_COOKIE =>
       'dancer.session=1234; fbs_102="access_token=xxxxxxxxxx%7Cffffff"',
-    X_FORWARDED_FOR => '127.0.0.2',
+    HTTP_X_FORWARDED_FOR => '127.0.0.2',
     REMOTE_HOST     => 'localhost',
     HTTP_USER_AGENT => 'Mozilla',
     REMOTE_USER     => 'sukria',
