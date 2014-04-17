@@ -35,11 +35,10 @@ method, like in the following example:
 A route handler should not read the environment by itself, but should instead
 use the current request object.
 
-=head1 HTTP environment variables
+=head1 Common HTTP request headers
 
-All HTTP environment variables that are in %ENV will be provided in the
-L<Dancer2::Core::Request> object through specific accessors, here are those
-supported:
+Commonly used client-supplied HTTP request headers are available through
+specific accessors, here are those supported:
 
 =over 4
 
@@ -79,23 +78,14 @@ supported:
 
 =back
 
+With the exception of C<host>, these accessors are lookups into the PSGI env
+hash reference.
+
+Note that the L<PSGI> specification prefixes client-supplied request headers with
+C<HTTP_>. For example, a C<X-Requested-With> header has the key
+C<HTTP_X_REQUESTED_WITH> in the PSGI env hashref.
+
 =cut
-
-=head1 EXTRA SPEED
-
-Install URL::Encode::XS and CGI::Deurl::XS for extra speed.
-
-Dancer2::Core::Request will use it if they detect their presence.
-
-=cut
-
-# check presence of XS module to speedup request
-eval { require URL::Encode::XS; };
-our $XS_URL_DECODE = !$@;
-
-eval { require CGI::Deurl::XS; };
-our $XS_PARSE_QUERY_STRING = !$@;
-
 
 # add an attribute for each HTTP_* variables
 # (HOST is managed manually)
@@ -121,9 +111,25 @@ foreach my $attr ( @http_env_keys ) {
     );
 }
 
+=head1 EXTRA SPEED
+
+Install URL::Encode::XS and CGI::Deurl::XS for extra speed.
+
+Dancer2::Core::Request will use it if they detect their presence.
+
+=cut
+
+# check presence of XS module to speedup request
+eval { require URL::Encode::XS; };
+our $XS_URL_DECODE = !$@;
+
+eval { require CGI::Deurl::XS; };
+our $XS_PARSE_QUERY_STRING = !$@;
+
+
 =method env()
 
-Return the current environment (C<%ENV>), as a hashref.
+Return the current PSGI environment hash reference.
 
 =cut
 
@@ -366,7 +372,7 @@ objects.
 
 It uses the environment hash table given to build the request object:
 
-    Dancer2::Core::Request->new(env => \%ENV);
+    Dancer2::Core::Request->new(env => \%env);
 
 It also accepts the C<body_is_parsed> boolean flag, if the new request object should
 not parse request body.
@@ -425,6 +431,7 @@ sub scheme {
     my ($self) = @_;
     my $scheme;
     if ( $self->is_behind_proxy ) {
+        # Note the 'HTTP_' prefix the PSGI spec adds to headers.
         $scheme =
              $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
           || $self->env->{'HTTP_X_FORWARDED_PROTO'}
