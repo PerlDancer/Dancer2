@@ -723,9 +723,75 @@ Or even if you want your index page to be a plain old index.html file, just do:
     };
 
 
+=head1 EXPORTS
+
+By default, C<use Dancer2> exports all the DSL keywords and sets up the
+webapp under the name of the current package. The following tags control exports
+and webapp namespace.
+
+=over 4
+
+=item B<!keyword>
+
+If you want to prevent Dancer2 from exporting specific keywords; perhaps you
+plan to implement them yourself in a different way, or they clash with another
+module you're loading, you can simply exclude them:
+
+    use Test::More;
+    use Dancer2 qw(!pass);
+
+The above would import all keywords as normal, with the exception of C<pass>.
+
+=item B<appname>
+
+A larger application may split its source between several packages to aid
+maintainability. Dancer2 will create a separate application for each package,
+each having separate hooks, config and/or engines. You can force Dancer2 to
+collect the route and hooks into a single application with the C<appname>
+tag; e.g.
+
+    package MyApp;
+    use Dancer2;
+    get '/foo' => sub {...};
+
+    package MyApp::Private;
+    use Dancer2 appname => MyApp;
+    get '/bar' => sub {...};
+
+The above would add the C<bar> route to the MyApp application. Dancer2 will not
+create an application with the name C<MyApp::Private>.
+
+=back
+
+When you C<use Dancer2>, you get an C<import> method added into the current
+package. This B<will> override previously declared import methods from other
+sources, such as L<Exporter>. Dancer2 applications support the following tags
+on import:
+
+=over 4
+
+=item B<with>
+
+The C<with> tag allows an app to pass one or more config entries to another app,
+when it C<use>s it.
+
+    package MyApp;
+    use Dancer2;
+
+    set session => 'YAML';
+    use Blog with => { session => engine('session') };
+
+In this example, the session engine is passed to the C<Blog> app. That way,
+anything done in the session will be shared between both apps.
+
+Anything that is defined in the config entry can be passed that way. If we want
+to pass the whole config object, it can be done like so:
+
+    use SomeApp with => { %{config()} };
+
+=back
 
 =head1 DSL KEYWORDS
-
 
 Dancer2 provides you with a DSL (Domain-Specific Language) which makes
 implementing your web application trivial.
