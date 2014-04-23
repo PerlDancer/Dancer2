@@ -193,8 +193,9 @@ Import gets called when you use Dancer2. You can specify import options giving
 you control over the keywords that will be imported into your webapp and other
 things:
 
-    use Dancer2 ( foo => 'bar' ); # sets option foo to bar
     use Dancer2 '!quux'; # Don't import DSL keyword quux
+    use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
+    use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
 
 =head1 AUTHORS
 
