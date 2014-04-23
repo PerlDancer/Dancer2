@@ -1,8 +1,8 @@
 use strict;
 use warnings;
-use File::Spec;
-use File::Basename 'dirname';
-use Test::More;
+use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
 
@@ -29,11 +29,15 @@ use Test::More;
     }
 }
 
-use Dancer2::Test apps => ['Foo'];
+my $app = Dancer2->runner->server->psgi_app;
 
-for my $path ( qw/foo bar/ ) {
-    my $response = dancer_response(POST => "/$path" );
-    is $response->content, "foo${path}baz";
-}
+test_psgi $app, sub {
+    my $cb  = shift;
+    for my $path ( qw/foo bar/ ) {
+        my $res = $cb->( POST "/$path" );
+        is $res->content, "foo${path}baz",
+            "Got app content path $path";
+    }
+};
 
 done_testing;
