@@ -125,11 +125,6 @@ The port Dancer2 will listen to.
 Default value is 3000. This setting can be changed on the command-line with the
 B<--port> switch.
 
-=head3 daemon (boolean)
-
-If set to true, runs the standalone webserver in the background.
-This setting can be changed on the command-line with the B<--daemon> flag.
-
 =head3 behind_proxy (boolean)
 
 If set to true, Dancer2 will look to C<X-Forwarded-Protocol> and

@@ -148,7 +148,6 @@ sub _build_default_config {
         logger       => ( $ENV{DANCER_LOGGER}       || 'console' ),
         host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
         port         => ( $ENV{DANCER_PORT}         || '3000' ),
-        is_daemon    => ( $ENV{DANCER_DAEMON}       || 0 ),
         views        => ( $ENV{DANCER_VIEWS}
               || path( $self->config_location, 'views' ) ),
         appdir        => $self->location,
@@ -248,7 +247,7 @@ sub psgi_app {
 
 sub print_banner {
     my $self = shift;
-    my $pid  = $$; # TODO: how to get background pid?
+    my $pid  = $$;
 
     # we only print the info if we need to
     # FIXME: go to the configuration
