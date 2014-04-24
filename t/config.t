@@ -5,7 +5,6 @@ use Test::Fatal;
 use Carp 'croak';
 
 use Dancer2::Core::Runner;
-use Dancer2::Core::Role::Config;
 use Dancer2::FileUtils qw/dirname path/;
 use File::Spec;
 use File::Temp;
@@ -17,7 +16,7 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     package Prod;
     use Moo;
-    with 'Dancer2::Core::Role::Config';
+    with 'Dancer2::Core::Role::ConfigReader';
 
     sub name {'Prod'}
 
@@ -27,7 +26,7 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     package Dev;
     use Moo;
-    with 'Dancer2::Core::Role::Config';
+    with 'Dancer2::Core::Role::ConfigReader';
 
     sub _build_environment {'development'}
     sub location           {$location}
@@ -35,7 +34,7 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     package Failure;
     use Moo;
-    with 'Dancer2::Core::Role::Config';
+    with 'Dancer2::Core::Role::ConfigReader';
 
     sub _build_environment {'failure'}
     sub location           {$location}
@@ -43,7 +42,7 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     package Staging;
     use Moo;
-    with 'Dancer2::Core::Role::Config';
+    with 'Dancer2::Core::Role::ConfigReader';
 
     sub _build_environment {'staging'}
     sub location           {$location}
@@ -51,7 +50,7 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     package Merging;
     use Moo;
-    with 'Dancer2::Core::Role::Config';
+    with 'Dancer2::Core::Role::ConfigReader';
 
     sub name {'Merging'}
 
@@ -67,8 +66,8 @@ is_deeply $d->config_files,
   "config_files() only sees existing files";
 
 my $f = Prod->new;
-is $f->does('Dancer2::Core::Role::Config'), 1,
-  "role Dancer2::Core::Role::Config is consumed";
+is $f->does('Dancer2::Core::Role::ConfigReader'), 1,
+  "role Dancer2::Core::Role::ConfigReader is consumed";
 
 is_deeply $f->config_files,
   [ path( $location, 'config.yml' ),

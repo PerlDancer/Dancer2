@@ -11,7 +11,7 @@ use File::Spec;
 use File::Basename;
 use Dancer2::FileUtils;
 
-with 'Dancer2::Core::Role::Config';
+with 'Dancer2::Core::Role::ConfigReader';
 
 # the path to the caller script that is starting the app
 # mandatory, because we use that to determine where the appdir is.
@@ -172,7 +172,7 @@ __END__
 
 Runs Dancer2 app.
 
-Inherits from L<Dancer2::Core::Role::Config>.
+Consumes L<Dancer2::Core::Role::ConfigReader>.
 
 =head2 environment
 
