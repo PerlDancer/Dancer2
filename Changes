@@ -9,6 +9,8 @@
       (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
     * Replace HTTP::Server::Simple::PSGI with HTTP::Server::PSGI.
       (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
+    * Build request cookie objects from reuqest headers, not env.
+      (Russell Jenkins)
 
 0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
 
