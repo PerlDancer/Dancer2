@@ -443,7 +443,7 @@ sub register_plugin {
     push @{ $self->plugins }, $plugin;
 }
 
-# This method overrides the default one from Role::Config
+# This method overrides the default one from Role::ConfigReader
 sub settings {
     my ($self) = @_;
     +{ %{ Dancer2->runner->config }, %{ $self->config } };

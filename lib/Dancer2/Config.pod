@@ -3,11 +3,11 @@ package Dancer2::Config;
 
 =head1 DESCRIPTION
 
-The Dancer2 configuration (as implemented by L<Dancer2::Core::Role::Config>)
-handles reading and changing the configuration of your Dancer2 apps.  This
-document describes how to manipulate Dancer2's configuration settings (through
-code or by file), and to document the various settings that are available in
-Dancer2.
+The Dancer2 configuration (as implemented by
+L<Dancer2::Core::Role::ConfigReader>) handles reading and changing the
+configuration of your Dancer2 apps.  This document describes how to
+manipulate Dancer2's configuration settings (through code or by file),
+and to document the various settings that are available in Dancer2.
 
 =head1 MANIPULATING SETTINGS VIA CODE
 

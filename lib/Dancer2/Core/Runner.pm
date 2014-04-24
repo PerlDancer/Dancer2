@@ -172,7 +172,7 @@ __END__
 
 Runs Dancer2 app.
 
-Inherits from L<Dancer2::Core::Role::Config>.
+Consumes L<Dancer2::Core::Role::ConfigReader>.
 
 =head2 environment
 
