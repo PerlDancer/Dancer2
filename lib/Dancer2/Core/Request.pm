@@ -73,6 +73,8 @@ supported:
 
 =item C<remote_address>
 
+=item C<request_base>
+
 =item C<user_agent>
 
 =item C<x_requested_with>
@@ -415,6 +417,7 @@ sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
 sub port                  { $_[0]->env->{SERVER_PORT} }
 sub request_uri           { $_[0]->env->{REQUEST_URI} }
 sub user                  { $_[0]->env->{REMOTE_USER} }
+sub request_base          { $_[0]->env->{REQUEST_BASE} || $_[0]->env->{HTTP_REQUEST_BASE} }
 sub script_name           { $_[0]->env->{SCRIPT_NAME} }
 
 =method scheme()
