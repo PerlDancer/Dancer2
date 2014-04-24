@@ -16,7 +16,6 @@ use HTTP::Request::Common;
     engine('template')->layout('main');
 }
 
-$_->finish for @{ Dancer2->runner->apps };
 my $app = Dancer2->runner->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
