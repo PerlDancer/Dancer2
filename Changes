@@ -1,13 +1,19 @@
 {{$NEXT}}
 
-0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
-
     [ ENHANCEMENTS ]
-    * GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
     * Replace Config role with better ConfigReader role.
       (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
     * Move App-related attributes (engines) to App instead of config role.
       (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
+    * Untangle Runner-Server (removing Server entirely).
+      (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
+    * Replace HTTP::Server::Simple::PSGI with HTTP::Server::PSGI.
+      (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
+
+0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
+
+    [ ENHANCEMENTS ]
+    * GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
 
     [ BUG FIXES ]
     * GH #524: Double encoding for YAML sessions.
