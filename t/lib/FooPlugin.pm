@@ -31,7 +31,7 @@ sub _retrieve_get_urls {
     my $dsl = shift;
     my ( $route, @urls );
 
-    for my $app ( @{ $dsl->runner->server->apps } ) {
+    for my $app ( @{ $dsl->runner->apps } ) {
         my $routes = $app->routes;
 
         # push the static get routes into an array.

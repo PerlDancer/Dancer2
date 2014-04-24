@@ -45,7 +45,8 @@ Test::TCP::test_tcp(
         };
 
         setting appdir => $tempdir;
-        Dancer2->runner->server->port($port);
+        # we're overiding a RO attribute only for this test!
+        Dancer2->runner->{'port'} = $port;
         start;
     },
 );

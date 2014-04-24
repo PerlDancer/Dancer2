@@ -23,7 +23,7 @@ subtest 'global and route keywords' => sub {
         foo_route;
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -63,7 +63,7 @@ subtest 'plugin old syntax' => sub {
         around_get;
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -83,7 +83,7 @@ subtest caller_dsl => sub {
         use t::lib::DancerPlugin;
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -129,7 +129,7 @@ subtest 'hooks in plugins' => sub {
 
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {

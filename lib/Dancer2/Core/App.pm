@@ -212,23 +212,10 @@ has plugins => (
     default => sub { [] },
 );
 
-has server => (
-    is       => 'rw',
-    isa      => ConsumerOf ['Dancer2::Core::Role::Server'],
-    weak_ref => 1,
-);
-
 has runner_config => (
     is      => 'ro',
     isa     => HashRef,
     default => sub { {} },
-);
-
-has default_config => (
-    is      => 'ro',
-    isa     => HashRef,
-    lazy    => 1,
-    builder => '_build_default_config',
 );
 
 has route_handlers => (
@@ -736,8 +723,6 @@ Note that with Dancer2, everything that is done within a package is scoped to
 that package, thanks to that encapsulation.
 
 =attr plugins
-
-=attr server
 
 =attr runner_config
 

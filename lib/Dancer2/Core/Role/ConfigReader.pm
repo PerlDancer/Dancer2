@@ -19,6 +19,13 @@ has location => (
     builder => '_build_location',
 );
 
+has default_config => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_default_config',
+);
+
 has config_location => (
     is      => 'ro',
     isa     => ReadableFilePath,
@@ -80,6 +87,8 @@ has global_triggers => (
     } },
 );
 
+sub _build_default_config { +{} }
+
 sub _build_location { File::Spec->rel2abs('.') }
 
 sub _build_environment {
@@ -121,7 +130,7 @@ sub _build_config {
 
     my $config = Hash::Merge::Simple->merge(
         $default,
-        map { $self->load_config_file($_) } @{ $self->config_files }
+        map +( $self->load_config_file($_) ), @{ $self->config_files }
     );
 
     $config = $self->_normalize_config($config);

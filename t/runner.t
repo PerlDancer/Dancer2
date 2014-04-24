@@ -26,21 +26,8 @@ is $runner->environment, 'development';
     is $runner->environment, 'foo';
 }
 
-is $runner->server->name, 'Standalone', "server is created and is standalone";
-
 note "testing default config of the server";
-is $runner->server->port,      3000;
-is $runner->server->host,      '0.0.0.0';
-is $runner->server->is_daemon, 0;
-
-note "testing server failure";
-{
-    $runner->config->{apphandler} = 'NotExist';
-    like(
-        exception { Dancer2::Core::Runner::_build_server($runner) },
-        qr{Unable to load Dancer2::Core::Server::NotExist},
-        'Cannot run BUILD for server that does not exist',
-    );
-}
+is $runner->port,      3000;
+is $runner->host,      '0.0.0.0';
 
 done_testing;

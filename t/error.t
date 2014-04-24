@@ -54,7 +54,7 @@ subtest "send_error in route" => sub {
         };
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -88,7 +88,7 @@ subtest "send_error with custom stuff" => sub {
         };
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
