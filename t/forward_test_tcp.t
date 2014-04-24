@@ -31,7 +31,12 @@ test_tcp(
         post '/'        => sub {'post-home'};
         post '/bounce/' => sub { forward('/') };
 
-        Dancer2->runner->server->port($port);
+        print STDERR "Running on port $port\n";
+
+        # we're overiding a RO attribute only for this test!
+        Dancer2->runner->{'port'} = $port;
+
+        print STDERR "Starting\n";
         start;
     },
     client => sub {
@@ -60,7 +65,8 @@ test_tcp(
         $res = $ua->get("http://127.0.0.1:$port/bounce/");
         is $res->header('Content-Length') => 5;
         is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
-        is $res->header('Server')         => "Perl Dancer2 $Dancer2::VERSION";
+        is $res->header('Server')         =>
+            "Perl Dancer2 $Dancer2::VERSION, Perl Dancer2 $Dancer2::VERSION";
 
         $res = $ua->post("http://127.0.0.1:$port/");
         is $res->code    => 200;
@@ -71,7 +77,8 @@ test_tcp(
         is $res->content                  => 'post-home';
         is $res->header('Content-Length') => 9;
         is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
-        is $res->header('Server')         => "Perl Dancer2 $Dancer2::VERSION";
+        is $res->header('Server')         =>
+            "Perl Dancer2 $Dancer2::VERSION, Perl Dancer2 $Dancer2::VERSION";
     }
 );
 

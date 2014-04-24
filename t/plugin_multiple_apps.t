@@ -20,7 +20,7 @@ use HTTP::Request::Common;
     use t::lib::SubApp2 with => { session => engine('session') };
 }
 
-my $app = Dancer2->runner->server->psgi_app;
+my $app = Dancer2->runner->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {

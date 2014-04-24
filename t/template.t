@@ -97,7 +97,7 @@ content added in after_layout_render";
     get '/get_views_via_settings' => sub { set 'views' };
 }
 
-my $app = Dancer2->runner->server->psgi_app;
+my $app = Dancer2->runner->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {

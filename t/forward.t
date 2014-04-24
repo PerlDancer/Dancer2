@@ -33,7 +33,7 @@ get '/go_to_post/' => sub {
 # get '/b' => sub { vars->{test} = 1;  forward '/a'; };
 # get '/a' => sub { return "test is " . var('test'); };
 
-my $app = Dancer2->runner->server->psgi_app;
+my $app = Dancer2->runner->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {

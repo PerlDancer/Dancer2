@@ -29,7 +29,7 @@ use HTTP::Request::Common;
     };
 }
 
-my $app = Dancer2->runner->server->psgi_app;
+my $app = Dancer2->runner->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
@@ -69,7 +69,7 @@ note "Verify Serializers decode into characters"; {
 
             # change the app serializer
             # we're overiding a RO attribute only for this test!
-            Dancer2->runner->server->apps->[0]->{'serializer_engine'} =
+            Dancer2->runner->apps->[0]->{'serializer_engine'} =
                 $serializer;
 
             my $r = $cb->(
@@ -96,7 +96,7 @@ note "Decoding of mixed route and deserialized body params"; {
 
         # change the app serializer
         # we're overiding a RO attribute only for this test!
-        Dancer2->runner->server->apps->[0]->{'serializer_engine'} =
+        Dancer2->runner->apps->[0]->{'serializer_engine'} =
             Dancer2::Serializer::JSON->new;
 
         my $r = $cb->(

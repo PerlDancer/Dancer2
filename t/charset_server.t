@@ -63,7 +63,8 @@ Test::TCP::test_tcp(
 
         set charset => 'utf-8';
 
-        Dancer2->runner->server->port($port);
+        # we're overiding a RO attribute only for this test!
+        Dancer2->runner->{'port'} = $port;
         start;
     },
 );

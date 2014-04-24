@@ -16,7 +16,7 @@ subtest 'basic redirects' => sub {
         get '/redirect_querystring' => sub { redirect '/login?failed=1' };
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -86,7 +86,7 @@ subtest 'absolute and relative redirects' => sub {
         get '/relative' => sub { redirect "somewhere/else"; };
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -133,7 +133,7 @@ subtest 'redirect behind a proxy' => sub {
         get '/bounce' => sub { redirect '/test2' };
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -186,7 +186,7 @@ subtest 'redirect behind multiple proxies' => sub {
         get '/bounce' => sub { redirect '/test2' };
     }
 
-    my $app = Dancer2->runner->server->psgi_app;
+    my $app = Dancer2->runner->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
