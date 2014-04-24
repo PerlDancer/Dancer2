@@ -1,10 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
+use Plack::Test;
+use HTTP::Request::Common;
 
 use Dancer2;
-use Dancer2::Test;
 
 my %method = (
     get     => 'GET',
@@ -15,12 +16,25 @@ my %method = (
     options => 'OPTIONS',
 );
 
-while ( my ( $method, $http ) = each %method ) {
-    eval "$method '/' => sub { '$method' }";
-    response_content_is [ $http => '/' ], $method, $method;
-}
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-eval "get '/head' => sub {'HEAD'}";
-my $resp = dancer_response( 'HEAD', '/head' );
-is $resp->content, '', 'HEAD';
-is $resp->header('Content-Length'), 4, 'Content-Length for HEAD';
+test_psgi $app, sub {
+    my $cb = shift;
+
+    while ( my ( $method, $http ) = each %method ) {
+        eval "$method '/' => sub { '$method' }";
+        is(
+            $cb->( HTTP::Request->new( $http => '/' ) )->content,
+            $method,
+            "$http /",
+        );
+    }
+
+    eval "get '/head' => sub {'HEAD'}";
+
+    my $res = $cb->( HEAD '/head' );
+    is( $res->content, 'HEAD', 'HEAD /' );
+    is( $res->headers->content_length, 4, 'Content-Length for HEAD' );
+};
+

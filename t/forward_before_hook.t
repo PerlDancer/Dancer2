@@ -1,9 +1,9 @@
-use Test::More import => ['!pass'], tests => 3;
-use Dancer2;
-use Dancer2::Test;
 use strict;
 use warnings;
-
+use Test::More import => ['!pass'], tests => 4;
+use Dancer2;
+use Plack::Test;
+use HTTP::Request::Common;
 
 get '/' => sub {
     return 'Forbidden';
@@ -32,15 +32,27 @@ hook before => sub {
     forward '/default';
 };
 
-response_content_like(
-    [ GET => '/' ], qr{Default},
-    'forward in before hook'
-);
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-# redirect in before hook
-my $r = dancer_response GET => '/redirect';
-is $r->status, 302, "redirect in before hook";
-is $r->content, "SillyStringIsSilly",
-    ".. and the response content is correct";
+test_psgi $app, sub {
+    my $cb = shift;
+
+    like(
+        $cb->( GET '/' )->content,
+        qr{Default},
+        'forward in before hook',
+    );
+
+    my $r = $cb->( GET '/redirect' );
+
+    # redirect in before hook
+    is( $r->code, 302, 'redirect in before hook' );
+    is(
+        $r->content,
+        'SillyStringIsSilly',
+        '.. and the response content is correct',
+    );
+};
 
 done_testing();

@@ -139,6 +139,7 @@ before content => sub {
     my $self = shift;
     if (ref($_[0]) and $self->has_serializer) {
         $_[0] = $self->serialize($_[0]);
+        $self->is_encoded(1); # All serializers return byte strings
     }
 };
 

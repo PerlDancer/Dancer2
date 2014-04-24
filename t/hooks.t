@@ -3,6 +3,8 @@ use warnings;
 use Test::More import => ['!pass'];
 use File::Spec;
 use Carp;
+use Plack::Test;
+use HTTP::Request::Common;
 
 use Class::Load 'try_load_class';
 use Capture::Tiny 0.12 'capture_stderr';
@@ -83,6 +85,12 @@ my $tests_flags = {};
         $c->response->halt;
     };
 
+    hook after => sub {
+        # GH#540 - ensure setting default scalar does not
+        # interfere with hook execution (aliasing)
+        $_ = 42;
+    };
+
     hook on_route_exception => sub {
         my ($context, $error) = @_;
         is ref($context), 'Dancer2::Core::Context';
@@ -108,65 +116,72 @@ my $tests_flags = {};
 
 }
 
-use Dancer2::Test;
+$_->finish for @{ Dancer2->runner->server->apps };
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-subtest 'request hooks' => sub {
-    my $r = dancer_response get => '/';
-    is $tests_flags->{before_request},     1,     "before_request was called";
-    is $tests_flags->{after_request},      1,     "after_request was called";
-    is $tests_flags->{before_serializer},  undef, "before_serializer undef";
-    is $tests_flags->{after_serializer},   undef, "after_serializer undef";
-    is $tests_flags->{before_file_render}, undef, "before_file_render undef";
-};
+test_psgi $app, sub {
+    my $cb = shift;
 
-subtest 'after hook called once per request' => sub {
-    # Get current value of the 'after_request' tests flag.
-    my $current = $tests_flags->{after_request};
+    subtest 'request hooks' => sub {
+        $cb->( GET '/' );
+        is $tests_flags->{before_request},     1,     "before_request was called";
+        is $tests_flags->{after_request},      1,     "after_request was called";
+        is $tests_flags->{before_serializer},  undef, "before_serializer undef";
+        is $tests_flags->{after_serializer},   undef, "after_serializer undef";
+        is $tests_flags->{before_file_render}, undef, "before_file_render undef";
+    };
 
-    my $r = dancer_response get => '/redirect';
-    is $tests_flags->{after_request}, ++$current,
-        "after_request called after redirect";
+    subtest 'after hook called once per request' => sub {
+        # Get current value of the 'after_request' tests flag.
+        my $current = $tests_flags->{after_request};
 
-    $r = dancer_response get => '/forward';
-    is $tests_flags->{after_request}, ++$current,
-        "after_request called only once after forward";
-};
+        $cb->( GET '/redirect' );
+        is $tests_flags->{after_request}, ++$current,
+            "after_request called after redirect";
 
-subtest 'serializer hooks' => sub {
-    require 'JSON.pm';
-    my $r = dancer_response get => '/json';
-    my $json = JSON::to_json( [ foo => 42, added_in_hook => 1 ] );
-    is $r->content, $json, 'response is serialized';
-    is $tests_flags->{before_serializer}, 1, 'before_serializer was called';
-    is $tests_flags->{after_serializer},  1, 'after_serializer was called';
-    is $tests_flags->{before_file_render}, undef, "before_file_render undef";
-};
+        $cb->( GET '/forward' );
+        is $tests_flags->{after_request}, ++$current,
+            "after_request called only once after forward";
+    };
 
-subtest 'file render hooks' => sub {
-    my $resp = dancer_response get => '/send_file';
-    is $tests_flags->{before_file_render}, 1, "before_file_render was called";
-    is $tests_flags->{after_file_render},  1, "after_file_render was called";
+    subtest 'serializer hooks' => sub {
+        require 'JSON.pm';
+        my $r = $cb->( GET '/json' );
+        my $json = JSON::to_json( [ foo => 42, added_in_hook => 1 ] );
+        is $r->content, $json, 'response is serialized';
+        is $tests_flags->{before_serializer}, 1, 'before_serializer was called';
+        is $tests_flags->{after_serializer},  1, 'after_serializer was called';
+        is $tests_flags->{before_file_render}, undef, "before_file_render undef";
+    };
 
-    $resp = dancer_response get => '/file.txt';
-    is $tests_flags->{before_file_render}, 2, "before_file_render was called";
-    is $tests_flags->{after_file_render},  2, "after_file_render was called";
-};
+    subtest 'file render hooks' => sub {
+        $cb->( GET '/send_file' );
+        is $tests_flags->{before_file_render}, 1, "before_file_render was called";
+        is $tests_flags->{after_file_render},  1, "after_file_render was called";
 
-subtest 'template render hook' => sub {
-    my $resp = dancer_response get => '/template';
-    is $tests_flags->{before_template_render}, 1,
-      "before_template_render was called";
-    is $tests_flags->{after_template_render}, 1,
-      "after_template_render was called";
-};
+        $cb->( GET '/file.txt' );
 
-subtest 'before can halt' => sub {
-    my $resp = dancer_response get => '/intercepted';
-    is join( "\n", @{ $resp->[2] } ) => 'halted by before';
-};
+        is $tests_flags->{before_file_render}, 2, "before_file_render was called";
+        is $tests_flags->{after_file_render},  2, "after_file_render was called";
+    };
 
-subtest 'route_exception' => sub {
-    capture_stderr { dancer_response get => '/route_exception' };
+    subtest 'template render hook' => sub {
+        $cb->( GET '/template' );
+        is $tests_flags->{before_template_render}, 1,
+          "before_template_render was called";
+        is $tests_flags->{after_template_render}, 1,
+          "after_template_render was called";
+    };
+
+    subtest 'before can halt' => sub {
+        my $resp = $cb->( GET '/intercepted' );
+        is( $resp->content, 'halted by before' );
+    };
+
+    subtest 'route_exception' => sub {
+        capture_stderr { $cb->( GET '/route_exception' ) };
+    };
 };
 
 done_testing;

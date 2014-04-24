@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
-use Dancer2::Test;
+use Plack::Test;
+use HTTP::Request::Common;
 use JSON;
 
 subtest 'global and route keywords' => sub {
@@ -22,20 +23,36 @@ subtest 'global and route keywords' => sub {
         foo_route;
     }
 
-    my $r = dancer_response( GET => '/' );
-    is( $r->content, '/', 'route defined by a plugin' );
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    $r = dancer_response( GET => '/foo' );
-    is( $r->content, 'foo', 'DSL keyword wrapped by a plugin' );
+    test_psgi $app, sub {
+        my $cb = shift;
 
-    $r = dancer_response( GET => '/plugin_setting' );
-    is( $r->content,
-        encode_json( { plugin => "42" } ),
-        'plugin_setting returned the expected config'
-    );
+        is(
+            $cb->( GET '/' )->content,
+            '/',
+            'route defined by a plugin',
+        );
 
-    $r = dancer_response( GET => '/app' );
-    is( $r->content, 'main', 'app name is correct' );
+        is(
+            $cb->( GET '/foo' )->content,
+            'foo',
+            'DSL keyword wrapped by a plugin',
+        );
+
+        is(
+            $cb->( GET '/plugin_setting' )->content,
+            encode_json( { plugin => "42" } ),
+            'plugin_setting returned the expected config'
+        );
+
+        is(
+            $cb->( GET '/app' )->content,
+            'main',
+            'app name is correct',
+        );
+    };
 };
 
 subtest 'plugin old syntax' => sub {
@@ -46,8 +63,18 @@ subtest 'plugin old syntax' => sub {
         around_get;
     }
 
-    my $r = dancer_response GET => '/foo/plugin';
-    is $r->content, 'foo plugin';
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is(
+            $cb->( GET '/foo/plugin' )->content,
+            'foo plugin',
+            'foo plugin',
+        );
+    };
 };
 
 subtest caller_dsl => sub {
@@ -56,9 +83,18 @@ subtest caller_dsl => sub {
         use t::lib::DancerPlugin;
     }
 
-    my $r = dancer_response GET => '/sitemap';
-    is $r->content,
-      '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/plugin_setting$, ^\/sitemap$';
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is(
+            $cb->( GET '/sitemap' )->content,
+            '^\/$, ^\/app$, ^\/foo$, ^\/foo\/plugin$, ^\/plugin_setting$, ^\/sitemap$',
+            'Correct content',
+        );
+    };
 };
 
 subtest 'hooks in plugins' => sub {
@@ -73,27 +109,51 @@ subtest 'hooks in plugins' => sub {
         };
 
         hook 'start_hookee' => sub {
-            'hook for plugin';
+            'this is the start hook';
         };
 
         get '/hook_with_var' => sub {
-            some_other();
+            some_other(); # executes 'third_hook'
             is var('hook') => 'third hook', "Vars preserved from hooks";
         };
 
         get '/hooks_plugin' => sub {
             $counter++;
-            some_keyword();
+            some_keyword(); # executes 'start_hookee'
+            'hook for plugin';
+        };
+
+        get '/hook_returns_stuff' => sub {
+            some_keyword(); # executes 'start_hookee'
         };
 
     }
 
-    is $counter, 0, "the hook has not been executed";
-    my $r = dancer_response( GET => '/hooks_plugin' );
-    is( $r->content, 'hook for plugin', '... route is rendered' );
-    is $counter, 1, "... and the hook has been executed exactly once";
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    dancer_response( GET => '/hook_with_var' );
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is( $counter, 0, 'the hook has not been executed' );
+
+        is(
+            $cb->( GET '/hooks_plugin' )->content,
+            'hook for plugin',
+            '... route is rendered',
+        );
+
+        is( $counter, 1, '... and the hook has been executed exactly once' );
+
+        is(
+            $cb->( GET '/hook_returns_stuff' )->content,
+            '',
+            '... hook does not influence rendered content by return value',
+        );
+
+        # call the route that has an additional test
+        $cb->( GET '/hook_with_var' );
+    };
 };
 
 

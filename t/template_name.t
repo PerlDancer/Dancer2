@@ -3,6 +3,8 @@ use warnings;
 use File::Spec;
 use File::Basename 'dirname';
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
 
@@ -15,8 +17,12 @@ use Test::More;
     };
 }
 
-use Dancer2::Test apps => ['Foo'];
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-response_content_is "/template_name", 'Tiny', "template name";
+test_psgi $app, sub {
+    my $cb = shift;
+    is( $cb->( GET '/template_name' )->content, 'Tiny', 'template name' );
+};
 
 done_testing;

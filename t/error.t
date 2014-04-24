@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
 use Dancer2::Core::App;
 use Dancer2::Core::Context;
@@ -52,13 +54,26 @@ subtest "send_error in route" => sub {
         };
     }
 
-    use Dancer2::Test apps => ['App'];
-    my $r = dancer_response GET => '/error';
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    is $r->status, 500, 'send_error sets the status to 500';
-    like $r->content, qr{This is a custom error message},
-      'Error message looks good';
-    is $r->content_type, 'application/json', 'Response has appropriate content type after serialization';
+    test_psgi $app, sub {
+        my $cb = shift;
+        my $r  = $cb->( GET '/error' );
+
+        is( $r->code, 500, 'send_error sets the status to 500' );
+        like(
+            $r->content,
+            qr{This is a custom error message},
+            'Error message looks good',
+        );
+
+        is(
+            $r->content_type,
+            'application/json',
+            'Response has appropriate content type after serialization',
+        );
+    };
 };
 
 subtest "send_error with custom stuff" => sub {
@@ -73,10 +88,16 @@ subtest "send_error with custom stuff" => sub {
         };
     }
 
-    my $r = dancer_response GET => '/error/42';
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    is $r->status,    542,           'send_error sets the status to 542';
-    like $r->content, qr{Error 42},  'Error message looks good';
+    test_psgi $app, sub {
+        my $cb = shift;
+        my $r  = $cb->( GET '/error/42' );
+
+        is( $r->code, 542, 'send_error sets the status to 542' );
+        like( $r->content, qr{Error 42},  'Error message looks good' );
+    };
 };
 
 subtest 'Response->error()' => sub {

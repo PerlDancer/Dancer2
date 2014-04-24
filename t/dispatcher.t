@@ -4,7 +4,6 @@ use Test::More import => ['!pass'];
 use Carp 'croak';
 
 use Dancer2;
-use Dancer2::Test;
 use Dancer2::Core::App;
 use Dancer2::Core::Route;
 use Dancer2::Core::Dispatcher;
@@ -62,7 +61,8 @@ my @tests = (
         expected => [
             200,
             [   'Content-Length' => 4,
-                'Content-Type'   => 'text/html; charset=UTF-8'
+                'Content-Type'   => 'text/html; charset=UTF-8',
+                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
             ],
             ["home"]
         ]
@@ -74,7 +74,8 @@ my @tests = (
         expected => [
             200,
             [   'Content-Length' => 12,
-                'Content-Type'   => 'text/html; charset=UTF-8'
+                'Content-Type'   => 'text/html; charset=UTF-8',
+                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
             ],
             ["Hello Johnny"]
         ]
@@ -88,6 +89,7 @@ my @tests = (
             [   'Location'       => 'http://perldancer.org',
                 'Content-Length' => '0',
                 'Content-Type'   => 'text/html',
+                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
             ],
             ['']
         ]
@@ -150,11 +152,11 @@ foreach my $test (@tests) {
 
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
-    is $resp->[0] => $expected->[0], "Return code ok.";
+    is( $resp->[0], $expected->[0], 'Return code ok' );
 
-    ok( Dancer2::Test::_include_in_headers( $resp->[1], $expected->[1] ),
-        "expected headers are there"
-    );
+    my %got_headers = @{ $resp->[1] };
+    my %exp_headers = @{ $expected->[1] };
+    is_deeply( \%got_headers, \%exp_headers, 'Correct headers' );
 
     if ( ref( $expected->[2] ) eq "Regexp" ) {
         like $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";

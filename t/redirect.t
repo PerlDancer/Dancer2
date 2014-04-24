@@ -2,10 +2,11 @@ use strict;
 use warnings;
 
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 subtest 'basic redirects' => sub {
     {
-
         package App;
         use Dancer2;
 
@@ -14,26 +15,62 @@ subtest 'basic redirects' => sub {
         get '/redirect' => sub { header 'X-Foo' => 'foo'; redirect '/'; };
         get '/redirect_querystring' => sub { redirect '/login?failed=1' };
     }
-    use Dancer2::Test apps => ['App'];
 
-    response_status_is  [ GET => '/' ] => 200;
-    response_content_is [ GET => '/' ] => "home";
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    response_status_is [ GET => '/bounce' ] => 302;
+    test_psgi $app, sub {
+        my $cb = shift;
 
-    my $expected_headers = [
-        'Location'     => 'http://localhost/',
-        'Content-Type' => 'text/html',
-        'X-Foo'        => 'foo',
-    ];
-    response_headers_include [ GET => '/redirect' ] => $expected_headers;
+        {
+            my $res = $cb->( GET '/' );
 
-    $expected_headers = [
-        'Location'     => 'http://localhost/login?failed=1',
-        'Content-Type' => 'text/html',
-    ];
-    response_headers_include [ GET => '/redirect_querystring' ] =>
-      $expected_headers;
+            is( $res->code, 200, '[GET /] Correct code' );
+            is( $res->content, 'home', '[GET /] Correct content' );
+
+            is(
+                $res->headers->content_type,
+                'text/html',
+                '[GET /] Correct content-type',
+            );
+
+            is(
+                $cb->( GET '/bounce' )->code,
+                302,
+                '[GET /bounce] Correct code',
+            );
+        }
+
+        {
+            my $res = $cb->( GET '/redirect' );
+
+            is( $res->code, 302, '[GET /redirect] Correct code' );
+
+            is(
+                $res->headers->header('Location'),
+                'http://localhost/',
+                'Correct Location header',
+            );
+
+            is(
+                $res->headers->header('X-Foo'),
+                'foo',
+                'Correct X-Foo header',
+            );
+        }
+
+        {
+            my $res = $cb->( GET '/redirect_querystring' );
+
+            is( $res->code, 302, '[GET /redirect_querystring] Correct code' );
+
+            is(
+                $res->headers->header('Location'),
+                'http://localhost/login?failed=1',
+                'Correct Location header',
+            );
+        }
+    };
 };
 
 # redirect absolute
@@ -48,47 +85,95 @@ subtest 'absolute and relative redirects' => sub {
         get '/absolute' => sub { redirect "/absolute"; };
         get '/relative' => sub { redirect "somewhere/else"; };
     }
-    use Dancer2::Test apps => ['App'];
 
-    response_headers_include
-      [ GET      => '/absolute_with_host' ],
-      [ Location => 'http://foo.com/somewhere' ];
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    response_headers_include
-      [ GET      => '/absolute' ],
-      [ Location => 'http://localhost/absolute' ];
+    test_psgi $app, sub {
+        my $cb = shift;
 
-    response_headers_include
-      [ GET      => '/relative' ],
-      [ Location => 'http://localhost/somewhere/else' ];
+        {
+            my $res = $cb->( GET '/absolute_with_host' );
+
+            is(
+                $res->headers->header('Location'),
+                'http://foo.com/somewhere',
+                'Correct Location header',
+            );
+        }
+
+        {
+            my $res = $cb->( GET '/absolute' );
+
+            is(
+                $res->headers->header('Location'),
+                'http://localhost/absolute',
+                'Correct Location header',
+            );
+        }
+
+        {
+            my $res = $cb->( GET '/relative' );
+
+            is(
+                $res->headers->header('Location'),
+                'http://localhost/somewhere/else',
+                'Correct Location header',
+            );
+        }
+    };
 };
 
 subtest 'redirect behind a proxy' => sub {
     {
-
         package App;
         use Dancer2;
         prefix '/test2';
         set behind_proxy => 1;
         get '/bounce' => sub { redirect '/test2' };
     }
-    use Dancer2::Test apps => ['App'];
 
-    $ENV{X_FORWARDED_HOST} = "nice.host.name";
-    response_headers_include
-      [ GET      => '/test2/bounce' ],
-      [ Location => 'http://nice.host.name/test2' ],
-      "behind a proxy, host() is read from X_FORWARDED_HOST";
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    $ENV{HTTP_FORWARDED_PROTO} = "https";
-    response_headers_include [ GET => '/test2/bounce' ] =>
-      [ Location => 'https://nice.host.name/test2' ],
-      "... and the scheme is read from HTTP_FORWARDED_PROTO";
+    test_psgi $app, sub {
+        my $cb = shift;
 
-    $ENV{X_FORWARDED_PROTOCOL} = "ftp";    # stupid, but why not?
-    response_headers_include [ GET => '/test2/bounce' ] =>
-      [ Location => 'ftp://nice.host.name/test2' ],
-      "... or from X_FORWARDED_PROTOCOL";
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST' => 'nice.host.name',
+                )->headers->header('Location'),
+                'http://nice.host.name/test2',
+                'behind a proxy, host() is read from X_FORWARDED_HOST',
+            );
+        }
+
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST' => 'nice.host.name',
+                    'FORWARDED-PROTO'  => 'https',
+                )->headers->header('Location'),
+                'https://nice.host.name/test2',
+                '... and the scheme is read from HTTP_FORWARDED_PROTO',
+            );
+        }
+
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST'     => 'nice.host.name',
+                    'X-FORWARDED-PROTOCOL' => 'ftp', # stupid, but why not?
+                )->headers->header('Location'),
+                'ftp://nice.host.name/test2',
+                '... or from X_FORWARDED_PROTOCOL',
+            );
+        }
+    };
 };
 
 subtest 'redirect behind multiple proxies' => sub {
@@ -100,25 +185,48 @@ subtest 'redirect behind multiple proxies' => sub {
         set behind_proxy => 1;
         get '/bounce' => sub { redirect '/test2' };
     }
-    use Dancer2::Test apps => ['App'];
 
-    delete $ENV{X_FORWARDED_PROTOCOL};
-    delete $ENV{HTTP_FORWARDED_PROTO};
-    $ENV{X_FORWARDED_HOST} = "proxy1.example, proxy2.example";
-    response_headers_include
-      [ GET      => '/test2/bounce' ],
-      [ Location => 'http://proxy1.example/test2' ],
-      "behind multiple proxies, host() is read from X_FORWARDED_HOST";
+    my $app = Dancer2->runner->server->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
 
-    $ENV{HTTP_FORWARDED_PROTO} = "https";
-    response_headers_include [ GET => '/test2/bounce' ] =>
-      [ Location => 'https://proxy1.example/test2' ],
-      "... and the scheme is read from HTTP_FORWARDED_PROTO";
+    test_psgi $app, sub {
+        my $cb = shift;
 
-    $ENV{X_FORWARDED_PROTOCOL} = "ftp";    # stupid, but why not?
-    response_headers_include [ GET => '/test2/bounce' ] =>
-      [ Location => 'ftp://proxy1.example/test2' ],
-      "... or from X_FORWARDED_PROTOCOL";
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST' => "proxy1.example, proxy2.example",
+                )->headers->header('Location'),
+                'http://proxy1.example/test2',
+                "behind multiple proxies, host() is read from X_FORWARDED_HOST",
+            );
+        }
+
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST' => "proxy1.example, proxy2.example",
+                    'FORWARDED-PROTO'  => 'https',
+                )->headers->header('Location'),
+                'https://proxy1.example/test2',
+                '... and the scheme is read from HTTP_FORWARDED_PROTO',
+            );
+        }
+
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST'     => "proxy1.example, proxy2.example",
+                    'X-FORWARDED-PROTOCOL' => 'ftp', # stupid, but why not?
+                )->headers->header('Location'),
+                'ftp://proxy1.example/test2',
+                '... or from X_FORWARDED_PROTOCOL',
+            );
+        }
+    };
 };
 
 done_testing;

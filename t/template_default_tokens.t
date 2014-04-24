@@ -3,6 +3,8 @@ use warnings;
 use File::Spec;
 use File::Basename 'dirname';
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
 
 eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
@@ -28,8 +30,6 @@ my $views =
     };
 }
 
-use Dancer2::Test apps => ['Foo'];
-
 my $expected = "perl_version: $]
 dancer_version: ${Dancer2::VERSION}
 settings.foo: in settings
@@ -37,8 +37,17 @@ params.foo: 42
 session.foo in session
 vars.foo: in var";
 
-response_content_like "/view/42",
-  qr{$expected},
-  "Response contains all expected tokens";
+my $app = Dancer2->runner->server->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
+
+test_psgi $app, sub {
+    my $cb = shift;
+
+    like(
+        $cb->( GET '/view/42' )->content,
+        qr{$expected},
+        'Response contains all expected tokens',
+    );
+};
 
 done_testing;

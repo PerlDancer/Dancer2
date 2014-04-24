@@ -80,4 +80,18 @@ sub print_banner {
     }
 
 }
+
+=method valid_http_method
+
+Overrides method inherited from L<HTTP::Server::Simple>, allowing C<GET>, C<POST>,
+C<HEAD>, C<PUT>, C<DELETE>, C<OPTIONS> and C<PATCH> requests.
+
+=cut
+
+sub valid_http_method {
+    my $self   = shift;
+    my $method = shift or return 0;
+    return $method =~ /^(?:GET|POST|HEAD|PUT|DELETE|OPTIONS|PATCH)$/;
+}
+
 1;

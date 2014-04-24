@@ -1,7 +1,24 @@
 {{$NEXT}}
 
+0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
+
+    [ ENHANCEMENTS ]
+    GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
+
+    [ BUG FIXES ]
+    GH #524: Double encoding for YAML sessions.
+    GH #557: Switch to using YAML::Old.
+    GH #548: Deserializer test failure.
+
+0.12      2014-04-07 22:42:12 Europe/Amsterdam
+
     [ ENHANCEMENTS ]
     * GH#518: Bump jQuery to 1.10.2 (Grzegorz Rożniecki).
+    * GH#535: Support OPTIONS and PATCH requests in Server::Standalone.
+      (Russell Jenkins)
+    * GH#553: Dancer2 CLI: specify directory to write app skeleton
+      (Jean Stebens)
+    * GH#543: Additional HTTP Methods for Ajax plugin (Jean Stebens).
 
     [ DOCUMENTATION ]
     * RT#91428: POD encoding set to UTF-8 in main .pm (Gregor Herrmann).
@@ -16,6 +33,14 @@
     [ BUG FIXES ]
     * GH#528,529: Force PSGI server in dispatch scripts for CGI or fcgi
       deployments (Erik Smit, Alberto Simões)
+    * GH#550,GH#551: Update all headers in Handler::File
+      (Sawyer X, Stefan @racke Hornburg)
+    * GH#540: Fix hook execution when default scalar was used in hook code.
+      (baynes, Russell Jenkins)
+    * GH#552: Rework test suite to use Plack::Test
+      (Sawyer X, Stefan @racke Hornburg)
+    * GH#560: Return value of hooks do not alter response content.
+      (Jean Stebens)
 
 0.11      2013-12-15 14:19:22 Europe/Amsterdam
 
