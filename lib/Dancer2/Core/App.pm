@@ -224,13 +224,6 @@ has runner_config => (
     default => sub { {} },
 );
 
-has default_config => (
-    is      => 'ro',
-    isa     => HashRef,
-    lazy    => 1,
-    builder => '_build_default_config',
-);
-
 has route_handlers => (
     is      => 'rw',
     isa     => ArrayRef,
