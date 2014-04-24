@@ -173,6 +173,18 @@ subtest 'redirect behind a proxy' => sub {
                 '... or from X_FORWARDED_PROTOCOL',
             );
         }
+
+        {
+            is(
+                $cb->(
+                    GET '/test2/bounce',
+                    'X-FORWARDED-HOST'  => 'nice.host.name',
+                    'X-FORWARDED-PROTO' => 'https',
+                )->headers->header('Location'),
+                'https://nice.host.name/test2',
+                '... or from X_FORWARDED_PROTO',
+            );
+        }
     };
 };
 

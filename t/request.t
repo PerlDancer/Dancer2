@@ -21,9 +21,9 @@ sub run_test {
         SERVER_PORT          => 5000,
         SERVER_PROTOCOL      => 'HTTP/1.1',
         REMOTE_ADDR          => '127.0.0.1',
-        X_FORWARDED_FOR      => '127.0.0.2',
-        X_FORWARDED_HOST     => 'secure.frontend',
-        X_FORWARDED_PROTOCOL => 'https',
+        HTTP_X_FORWARDED_FOR      => '127.0.0.2',
+        HTTP_X_FORWARDED_HOST     => 'secure.frontend',
+        HTTP_X_FORWARDED_PROTOCOL => 'https',
         REMOTE_HOST          => 'localhost',
         HTTP_USER_AGENT      => 'Mozilla',
         REMOTE_USER          => 'sukria',
@@ -97,7 +97,7 @@ sub run_test {
             is_behind_proxy => 1
         );
         is $req->secure, 1;
-        is $req->host,   $env->{X_FORWARDED_HOST};
+        is $req->host,   $env->{HTTP_X_FORWARDED_HOST};
         is $req->scheme, 'https';
     }
 
