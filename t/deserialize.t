@@ -68,7 +68,8 @@ note "Verify Serializers decode into characters"; {
             my $body = $serializer->serialize({utf8 => $utf8});
 
             # change the app serializer
-            Dancer2->runner->server->apps->[0]->engines->{'serializer'} =
+            # we're overiding a RO attribute only for this test!
+            Dancer2->runner->server->apps->[0]->{'serializer_engine'} =
                 $serializer;
 
             my $r = $cb->(
@@ -94,7 +95,8 @@ note "Decoding of mixed route and deserialized body params"; {
         my $cb = shift;
 
         # change the app serializer
-        Dancer2->runner->server->apps->[0]->engines->{'serializer'} =
+        # we're overiding a RO attribute only for this test!
+        Dancer2->runner->server->apps->[0]->{'serializer_engine'} =
             Dancer2::Serializer::JSON->new;
 
         my $r = $cb->(

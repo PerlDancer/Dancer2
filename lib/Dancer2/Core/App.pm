@@ -14,7 +14,191 @@ use Dancer2::Core::Hook;
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
-with 'Dancer2::Core::Role::Config';
+with 'Dancer2::Core::Role::ConfigReader';
+
+sub supported_engines { [ qw<logger serializer session template> ] }
+
+has logger_engine => (
+    is      => 'ro',
+    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
+    lazy    => 1,
+    builder => '_build_logger_engine',
+    writer  => 'set_logger_engine',
+);
+
+has session_engine => (
+    is      => 'ro',
+    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::SessionFactory']],
+    lazy    => 1,
+    builder => '_build_session_engine',
+    writer  => 'set_session_engine',
+);
+
+has template_engine => (
+    is      => 'ro',
+    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Template']],
+    lazy    => 1,
+    builder => '_build_template_engine',
+    writer  => 'set_template_engine',
+);
+
+has serializer_engine => (
+    is      => 'ro',
+    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Serializer']],
+    lazy    => 1,
+    builder => '_build_serializer_engine',
+    writer  => 'set_serializer_engine',
+);
+
+has '+local_triggers' => (
+    default => sub {
+        my $self     = shift;
+        my $triggers = {
+            # general triggers we want to allow, besides engines
+            views => sub {
+                my ( $self, $value, $config ) = @_;
+                $self->template_engine->views($value);
+            },
+
+            layout => sub {
+                my ( $self, $value, $config ) = @_;
+                $self->template_engine->layout($value);
+            },
+        };
+
+        foreach my $engine ( @{ $self->supported_engines } ) {
+            $triggers->{$engine} = sub {
+                my ( $self, $value, $config ) = @_;
+
+                return $value if ref $value;
+
+                my $build_method    = "_build_${engine}_engine";
+                my $setter_method   = "set_${engine}_engine";
+                my $engine_instance = $self->$build_method( $value, $config );
+
+                # set the engine with the new value from the builder
+                $self->$setter_method($engine_instance);
+
+                return $engine_instance;
+            };
+        }
+
+        return $triggers;
+    },
+);
+
+sub _build_logger_engine {
+    my ($self, $value, $config) = @_;
+
+    $config = $self->config     if !defined $config;
+    $value  = $config->{logger} if !defined $value;
+
+    return $value if ref($value);
+
+    # XXX This is needed for the tests that create an app without
+    # a runner.
+    $value = 'console' if !defined $value;
+
+    my $engine_options =
+        $self->_get_config_for_engine( logger => $value, $config );
+
+    my $logger = Dancer2::Core::Factory->create(
+        logger => $value,
+        %{$engine_options},
+        app_name        => $self->name,
+        postponed_hooks => $self->get_postponed_hooks
+    );
+
+    $logger->log_level($config->{log}) if exists $config->{log};
+
+    return $logger;
+}
+
+sub _build_session_engine {
+    my ($self, $value, $config)  = @_;
+
+    $config = $self->config        if !defined $config;
+    $value  = $config->{'session'} if !defined $value;
+
+    $value = 'simple' if !defined $value;
+    return $value     if ref($value);
+
+    my $engine_options =
+          $self->_get_config_for_engine( session => $value, $config );
+
+    return Dancer2::Core::Factory->create(
+        session => $value,
+        %{$engine_options},
+        postponed_hooks => $self->get_postponed_hooks,
+    );
+}
+
+sub _build_template_engine {
+    my ($self, $value, $config)  = @_;
+
+    $config = $self->config         if !defined $config;
+    $value  = $config->{'template'} if !defined $value;
+
+    return undef  if !defined $value;
+    return $value if ref($value);
+
+    my $engine_options =
+          $self->_get_config_for_engine( template => $value, $config );
+
+    my $engine_attrs = { config => $engine_options };
+    $engine_attrs->{layout} ||= $config->{layout};
+    $engine_attrs->{views}  ||= $config->{views}
+        || path( $self->location, 'views' );
+
+    return Dancer2::Core::Factory->create(
+        template => $value,
+        %{$engine_attrs},
+        postponed_hooks => $self->get_postponed_hooks,
+    );
+}
+
+sub _build_serializer_engine {
+    my ($self, $value, $config) = @_;
+
+    $config = $self->config         if !defined $config;
+    $value  = $config->{serializer} if !defined $value;
+
+    return undef  if !defined $value;
+    return $value if ref($value);
+
+    my $engine_options =
+        $self->_get_config_for_engine( serializer => $value, $config );
+
+    return Dancer2::Core::Factory->create(
+        serializer      => $value,
+        config          => $engine_options,
+        postponed_hooks => $self->get_postponed_hooks,
+    );
+}
+
+sub _get_config_for_engine {
+    my ( $self, $engine, $name, $config ) = @_;
+
+    my $default_config = {
+        environment => $self->environment,
+        location    => $self->config_location,
+    };
+
+    defined $config->{'engines'} && defined $config->{'engines'}{$engine}
+        or return $default_config;
+
+    my $engine_config = {};
+
+    # XXX we need to move the camilize function out from Core::Factory
+    # - Franck, 2013/08/03
+    for my $config_key ($name, Dancer2::Core::camelize($name)) {
+        $engine_config = $config->{engines}{$engine}{$config_key}
+            if defined $config->{engines}->{$engine}{$config_key};
+    }
+    return { %{$default_config}, %{$engine_config}, } || $default_config;
+}
+
+
 
 has postponed_hooks => (
     is      => 'ro',
@@ -65,8 +249,9 @@ has context => (
     trigger => sub {
         my ( $self, $ctx ) = @_;
         $self->_init_for_context($ctx),;
-        for my $type (@{$self->supported_engines}) {
-            my $engine = $self->engine($type) or next;
+        for my $type ( @{ $self->supported_engines } ) {
+            my $attr   = "${type}_engine";
+            my $engine = $self->$attr or next;
             defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
         }
     },
@@ -195,7 +380,7 @@ sub _init_hooks {
                 my $response = shift;
 
                 # make sure an engine is defined, if not, nothing to do
-                my $engine = $self->engine('session');
+                my $engine = $self->session_engine;
                 return if !defined $engine;
 
                 # make sure we have a context to examine
@@ -268,9 +453,10 @@ sub engine {
     my ( $self, $name ) = @_;
 
     croak "Engine '$name' is not supported."
-        if !grep {$_ eq $name} @{$self->supported_engines};
+        if !grep {$_ eq $name} @{ $self->supported_engines };
 
-    return $self->engines->{$name};
+    my $attr_name = "${name}_engine";
+    return $self->$attr_name;
 }
 
 sub session {
@@ -303,7 +489,7 @@ sub session {
 
 sub template {
     my ($self) = shift;
-    my $template = $self->engine('template');
+    my $template = $self->template_engine;
 
     my $content = $template->process(@_);
 
@@ -314,8 +500,9 @@ sub hook_candidates {
     my ($self) = @_;
 
     my @engines;
-    for my $e (@{$self->supported_engines}) {
-        my $engine = $self->engine($e) or next;
+    for my $e ( @{ $self->supported_engines } ) {
+        my $attr   = "${e}_engine";
+        my $engine = $self->$attr or next;
         push @engines, $engine;
     }
 
@@ -359,7 +546,7 @@ sub mime_type {
 sub log {
     my ($self, $level, @args)  = @_;
 
-    my $logger = $self->engine('logger')
+    my $logger = $self->logger_engine
       or croak "No logger defined";
 
     $logger->$level(@args);
