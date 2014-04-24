@@ -11,6 +11,8 @@
       (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
     * Build request cookie objects from reuqest headers, not env.
       (Russell Jenkins)
+    * Transform cookie using the HTTP_COOKIE header, per PSGI spec.
+      (Russell Jenkins)
 
 0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
 
