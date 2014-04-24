@@ -3,12 +3,16 @@
 0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
 
     [ ENHANCEMENTS ]
-    GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
+    * GH #562: Change YAML::Any to YAML (Steven Humphrey, Russell Jenkins).
+    * Replace Config role with better ConfigReader role.
+      (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
+    * Move App-related attributes (engines) to App instead of config role.
+      (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
 
     [ BUG FIXES ]
-    GH #524: Double encoding for YAML sessions.
-    GH #557: Switch to using YAML::Old.
-    GH #548: Deserializer test failure.
+    * GH #524: Double encoding for YAML sessions.
+    * GH #557: Switch to using YAML::Old.
+    * GH #548: Deserializer test failure.
 
 0.12      2014-04-07 22:42:12 Europe/Amsterdam
 
