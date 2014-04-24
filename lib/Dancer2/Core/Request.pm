@@ -679,7 +679,13 @@ sub _common_uri {
     my $uri = URI->new;
     $uri->scheme($scheme);
     $uri->authority( $host || "$server:$port" );
-    $uri->path( $path      || '/' );
+    if (setting('behind_proxy')) {
+        my $request_base = $self->env->{REQUEST_BASE} || $self->env->{HTTP_REQUEST_BASE} || '';
+        $uri->path($request_base . $path || '/');
+    }
+    else {
+        $uri->path($path || '/');
+    }
 
     return $uri;
 }
