@@ -130,4 +130,32 @@ subtest 'Error with show_errors: 1' => sub {
     like $err->content => qr/our exception/;
 };
 
+subtest 'App dies with serialized error' => sub {
+    {
+        package AppDies;
+        use Dancer2;
+        set serializer => 'JSON';
+
+        get '/die' => sub {
+            die "oh no\n"; # I should serialize
+        };
+    }
+
+    my $app = Dancer2->runner->server->psgi_app;
+    isa_ok( $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        my $r  = $cb->( GET '/die' );
+
+        is( $r->code, 500, '/die returns 500' );
+
+        require JSON;
+        my $out = eval { JSON->new->utf8(0)->decode($r->decoded_content) };
+        ok(!$@, 'JSON decoding serializer error produces no errors');
+        isa_ok($out, 'HASH', 'Error deserializes to a hash');
+        like($out->{exception}, qr/^oh no/, 'Get expected error message');
+    };
+};
+
 done_testing;
