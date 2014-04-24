@@ -1,4 +1,5 @@
 package Dancer2::Core::Runner;
+# ABSTRACT: Top-layer class to start a dancer app
 
 use Moo;
 use Dancer2::Core::MIME;
