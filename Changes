@@ -13,6 +13,8 @@
       (Russell Jenkins)
     * Transform cookie using the HTTP_COOKIE header, per PSGI spec.
       (Russell Jenkins)
+    * Use Plack middleware for HEAD request content removal.
+      (Russell Jenkins)
 
 0.13      2014-04-13 19:19:44CEST+0200 Europe/Amsterdam
 
