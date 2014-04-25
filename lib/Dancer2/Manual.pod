@@ -1489,6 +1489,14 @@ choices).
 This keyword should be called at the very end of the script, once all routes
 are defined.  At this point, Dancer takes over control.
 
+=head2 psgi_app
+
+Returns the PSGI coderef for the current (and only the current) application
+
+This keyword will typically be used as a method to get the psgi coderef for
+testing, or building a larger application via L<Plack::Builder> from
+independent parts.
+
 =head2 status
 
 Changes the status code provided by an action.  By default, an action will
