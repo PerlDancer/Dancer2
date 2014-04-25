@@ -11,6 +11,20 @@ use Dancer2::Core::Request;
 use Dancer2::Core::Response;
 use Dancer2::Core::Cookie;
 
+=attr dispatcher
+
+Refernce to the current L<Dancer2::Core::Dispatcher> object handling the
+current request
+
+=cut
+
+has dispatcher => (
+    is        => 'rw',
+    isa       => InstanceOf ['Dancer2::Core::Dispatcher'],
+    weak_ref  => 1,
+    predicate => 1,
+);
+
 =attr app
 
 Reference to the L<Dancer2::Core::App> object for the current application.
