@@ -39,13 +39,6 @@ has apps => (
     default => sub { [] },
 );
 
-has dispatcher => (
-    is      => 'rw',
-    isa     => InstanceOf ['Dancer2::Core::Dispatcher'],
-    lazy    => 1,
-    builder => '_build_dispatcher',
-);
-
 has postponed_hooks => (
     is      => 'ro',
     isa     => HashRef,
@@ -70,12 +63,6 @@ has timeout => (
     lazy    => 1,
     default => sub { $_[0]->config->{'timeout'} },
 );
-
-sub _build_dispatcher {
-    my $self = shift;
-    # FIXME: ::Dispatcher::apps attr is readwrite, why?
-    return Dancer2::Core::Dispatcher->new( apps => $self->apps );
-}
 
 sub _build_server {
     my $self = shift;
@@ -215,12 +202,15 @@ sub start_server {
 }
 
 sub psgi_app {
-    my $self   = shift;
-    my $server = $self->server;
+    my ($self, $apps) = @_;
 
-    foreach my $app ( @{ $self->apps } ) {
+    # dispatch over all apps by default
+    defined $apps or $apps = $self->apps;
+    foreach my $app ( @$apps ) {
         $app->finish;
     }
+
+    my $dispatcher = Dancer2::Core::Dispatcher->new( apps => $apps );
 
     # eval entire request to catch any internal errors
     my $psgi = sub {
@@ -228,7 +218,7 @@ sub psgi_app {
         my $response;
 
         eval {
-            $response = $self->dispatcher->dispatch($env)->to_psgi;
+            $response = $dispatcher->dispatch($env)->to_psgi;
             1;
         } or do {
             return [
