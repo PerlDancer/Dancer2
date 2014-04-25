@@ -142,7 +142,7 @@ $app->add_route(
 );
 $app->compile_hooks;
 
-plan tests => 13;
+plan tests => 15;
 
 my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 my $counter = 0;
@@ -196,3 +196,18 @@ foreach my $test (
 
 
 is $was_in_second_filter, 0, "didnt enter the second filter, because of halt";
+
+note "Verify we always cleanup app context"; {
+    my $env = {
+            REQUEST_METHOD    => 'GET',
+            PATH_INFO         => '/no_matching_route',
+            'psgi.uri_scheme' => 'http',
+            SERVER_NAME       => 'localhost',
+            SERVER_PORT       => 5000,
+            SERVER_PROTOCOL   => 'HTTP/1.1',
+    };
+
+    my $resp = $dispatcher->dispatch($env);
+    is $resp->status => 404, "Return code 404.";
+    is $app->context, undef, "App has no context after dispatch";
+}

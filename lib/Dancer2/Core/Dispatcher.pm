@@ -99,6 +99,7 @@ sub dispatch {
             $app->context(undef);
             return $response;
         }
+        $app->context(undef); # no response returned from app, remove context
     }
 
     return $self->response_not_found($context);
