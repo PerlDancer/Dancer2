@@ -1,6 +1,6 @@
+package Dancer2::Core::Role::Hookable;
 # ABSTRACT: Role for hookable objects
 
-package Dancer2::Core::Role::Hookable;
 use Moo::Role;
 use Dancer2::Core;
 use Dancer2::Core::Types;

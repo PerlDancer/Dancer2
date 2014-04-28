@@ -1,6 +1,6 @@
+package Dancer2::Logger::File;
 # ABSTRACT: file-based logging engine for Dancer2
 
-package Dancer2::Logger::File;
 use Carp 'carp';
 use Moo;
 use Dancer2::Core::Types;

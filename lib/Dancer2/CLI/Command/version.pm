@@ -1,5 +1,6 @@
-# ABSTRACT: display version
 package Dancer2::CLI::Command::version;
+# ABSTRACT: display version
+
 use App::Cmd::Setup -command;
 
 sub description { 'Display version of Dancer2' }

@@ -1,6 +1,6 @@
+package Dancer2::Handler::File;
 # ABSTRACT: class for handling file content rendering
 
-package Dancer2::Handler::File;
 use Carp 'croak';
 use Moo;
 use HTTP::Date;

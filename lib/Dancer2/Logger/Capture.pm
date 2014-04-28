@@ -1,6 +1,6 @@
+package Dancer2::Logger::Capture;
 # ABSTRACT: Capture dancer logs
 
-package Dancer2::Logger::Capture;
 use Moo;
 use Dancer2::Logger::Capture::Trap;
 

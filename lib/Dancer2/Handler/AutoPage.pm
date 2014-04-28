@@ -1,6 +1,6 @@
+package Dancer2::Handler::AutoPage;
 # ABSTRACT: Class for handling the AutoPage feature
 
-package Dancer2::Handler::AutoPage;
 use Moo;
 use Carp 'croak';
 use Dancer2::Core::Types;

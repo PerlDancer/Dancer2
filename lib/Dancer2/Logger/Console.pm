@@ -1,7 +1,8 @@
+package Dancer2::Logger::Console;
 # ABSTRACT: Console logger
 
-package Dancer2::Logger::Console;
 use Moo;
+
 with 'Dancer2::Core::Role::Logger';
 
 sub log {

@@ -1,9 +1,9 @@
+package Dancer2::Core::Role::Serializer;
 # ABSTRACT: Role for Serializer engines
 
-package Dancer2::Core::Role::Serializer;
 use Dancer2::Core::Types;
-
 use Moo::Role;
+
 with 'Dancer2::Core::Role::Engine';
 
 sub supported_hooks {

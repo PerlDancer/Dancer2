@@ -1,8 +1,9 @@
+package Dancer2::Logger::Diag;
 # ABSTRACT: Test::More diag() logging engine for Dancer2
 
-package Dancer2::Logger::Diag;
 use Moo;
 use Test::More;
+
 with 'Dancer2::Core::Role::Logger';
 
 =head1 DESCRIPTION

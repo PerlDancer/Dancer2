@@ -1,6 +1,6 @@
+package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
 
-package Dancer2::Serializer::JSON;
 use Moo;
 use JSON ();
 

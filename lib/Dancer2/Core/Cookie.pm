@@ -1,6 +1,6 @@
+package Dancer2::Core::Cookie;
 # ABSTRACT: A cookie representing class
 
-package Dancer2::Core::Cookie;
 use Moo;
 use URI::Escape;
 use Dancer2::Core::Types;

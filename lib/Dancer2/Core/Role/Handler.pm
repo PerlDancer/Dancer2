@@ -1,6 +1,6 @@
+package Dancer2::Core::Role::Handler;
 # ABSTRACT: Role for Handlers
 
-package Dancer2::Core::Role::Handler;
 use Moo::Role;
 use Dancer2::Core::Types;
 

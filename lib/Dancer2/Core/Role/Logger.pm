@@ -1,11 +1,12 @@
+package Dancer2::Core::Role::Logger;
 # ABSTRACT: Role for logger engines
 
-package Dancer2::Core::Role::Logger;
 use Dancer2::Core::Types;
 
-use POSIX qw/strftime/;
-use Data::Dumper;
 use Moo::Role;
+use POSIX 'strftime';
+use Data::Dumper;
+
 with 'Dancer2::Core::Role::Engine';
 
 sub supported_hooks {

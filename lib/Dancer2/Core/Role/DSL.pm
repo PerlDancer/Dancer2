@@ -1,6 +1,6 @@
+package Dancer2::Core::Role::DSL;
 # ABSTRACT: Role for DSL
 
-package Dancer2::Core::Role::DSL;
 use Moo::Role;
 use Dancer2::Core::Types;
 use Carp 'croak';

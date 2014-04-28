@@ -1,6 +1,6 @@
+package Dancer2::Serializer::YAML;
 # ABSTRACT: Serializer for handling YAML data
 
-package Dancer2::Serializer::YAML;
 use Moo;
 use Carp 'croak';
 use Encode;

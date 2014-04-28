@@ -1,6 +1,6 @@
+package Dancer2::Core::Factory;
 # ABSTRACT: Instantiate components by type and name
 
-package Dancer2::Core::Factory;
 use strict;
 use warnings;
 
