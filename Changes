@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.140000  2014-04-28 23:14:31CEST+0200 Europe/Amsterdam
+
     [ ENHANCEMENTS ]
     * Replace Config role with better ConfigReader role.
       (Mickey Nasriachi, Stefan Hornburg, Sawyer X)
