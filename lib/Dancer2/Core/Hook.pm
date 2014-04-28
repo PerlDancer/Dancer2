@@ -1,5 +1,6 @@
-# ABSTRACT: Manipulate hooks with Dancer2
 package Dancer2::Core::Hook;
+# ABSTRACT: Manipulate hooks with Dancer2
+
 use Moo;
 use Dancer2::Core::Types;
 use Carp;

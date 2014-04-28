@@ -1,6 +1,6 @@
+package Dancer2::Core::Role::StandardResponses;
 # ABSTRACT: Role to provide commonly used responses
 
-package Dancer2::Core::Role::StandardResponses;
 use Moo::Role;
 
 =method response

@@ -1,6 +1,6 @@
+package Dancer2::Test;
 # ABSTRACT: Useful routines for testing Dancer2 apps
 
-package Dancer2::Test;
 use strict;
 use warnings;
 

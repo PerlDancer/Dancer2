@@ -1,6 +1,6 @@
+package Dancer2::Core::Error;
 # ABSTRACT: Class representing fatal errors
 
-package Dancer2::Core::Error;
 use Moo;
 use Carp;
 use Dancer2::Core::Types;

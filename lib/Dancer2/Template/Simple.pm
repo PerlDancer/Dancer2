@@ -1,6 +1,6 @@
-#ABSTRACT: Pure Perl 5 template engine for Dancer2
-
 package Dancer2::Template::Simple;
+# ABSTRACT: Pure Perl 5 template engine for Dancer2
+
 use strict;
 use warnings;
 use Moo;

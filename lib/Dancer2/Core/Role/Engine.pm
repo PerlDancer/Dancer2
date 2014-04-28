@@ -1,6 +1,6 @@
+package Dancer2::Core::Role::Engine;
 # ABSTRACT: Role for engines
 
-package Dancer2::Core::Role::Engine;
 use Moo::Role;
 use Dancer2::Core::Types;
 
