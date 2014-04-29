@@ -335,7 +335,11 @@ sub send_error {
         ( serializer => $serializer ) x !!$serializer,
     )->throw;
 
-    $x;
+    # return if there is a with_return coderef
+    $self->app->context->with_return->($x)
+      if $self->app->context->has_with_return;
+
+    return $x;
 }
 
 #

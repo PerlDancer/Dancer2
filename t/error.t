@@ -51,6 +51,7 @@ subtest "send_error in route" => sub {
 
         get '/error' => sub {
             send_error "This is a custom error message";
+            return "send_error returns so this content is not processed";
         };
     }
 
