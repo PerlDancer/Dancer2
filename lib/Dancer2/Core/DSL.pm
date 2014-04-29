@@ -274,7 +274,7 @@ sub push_header  { shift->response->push_header(@_) }
 sub header       { shift->response->header(@_) }
 sub headers      { shift->response->header(@_) }
 sub content_type { shift->response->content_type(@_) }
-sub pass         { shift->response->pass }
+sub pass         { shift->app->context->pass }
 
 #
 # Route handler helpers

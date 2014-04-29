@@ -200,6 +200,22 @@ sub halt {
    $self->with_return->($self->response) if $self->has_with_return;
 }
 
+=method pass
+
+Flag the response object as 'passed'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher.
+
+=cut
+
+sub pass {
+   my ($self) = @_;
+   $self->response->pass;
+   # Short citcuit any remaining hook/route code
+   $self->with_return->($self->response) if $self->has_with_return;
+}
+
 =attr session
 
 Handle for the current session object, if any
