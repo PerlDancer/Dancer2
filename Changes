@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Require minimum version of Plack to make sure we can add the Head
+      middleware. Not exactly a bug, but not a feature. (Sawyer X)
+
+
 0.140000  2014-04-28 23:14:31CEST+0200 Europe/Amsterdam
 
     [ ENHANCEMENTS ]
