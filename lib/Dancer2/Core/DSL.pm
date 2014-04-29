@@ -132,7 +132,7 @@ sub template { shift->app->template(@_) }
 
 sub session { shift->app->session(@_) }
 
-sub send_file { shift->app->send_file(@_) }
+sub send_file { shift->app->context->send_file(@_) }
 
 #
 # route handlers & friends

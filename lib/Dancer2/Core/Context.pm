@@ -373,7 +373,8 @@ sub send_file {
     }
 
     $self->request->path_info($path);
-    return $file_handler->code->( $self, $self->app->prefix );
+    $file_handler->code( $self->app->prefix )->( $self ); # slurp file
+    $self->with_return->( $self->response ) if $self->has_with_return;
 
     # TODO Streaming support
 }
