@@ -14,7 +14,7 @@ our $AUTHORITY = 'SUKRIA';
 # set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '0.09';    # 2.0.9
+$Dancer2::VERSION ||= '0.140000'; # 2.14.0
 
 our $runner;
 
@@ -43,8 +43,8 @@ sub import {
     }
 
     scalar(@final_args) % 2
-      and die
-      "parameters to 'use Dancer2' should be one of : 'key => value', ':script', or !<keyword>, where <keyword> is a DSL keyword you don't want to import";
+      and die q{parameters must be key/value pairs, ':script' or '!keyword'};
+
     my %final_args = @final_args;
 
     $final_args{dsl} ||= 'Dancer2::Core::DSL';

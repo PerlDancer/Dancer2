@@ -1667,7 +1667,7 @@ versions:
 Provides an accessor for variables shared between filters and route handlers.
 Given a key/value pair, it sets a variable:
 
-    hook before sub {
+    hook before => sub {
         var foo => 42;
     };
 
