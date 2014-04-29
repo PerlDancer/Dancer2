@@ -1,19 +1,17 @@
 package Dancer2::Template::Tiny;
-
 # ABSTRACT: Template::Tiny engine for Dancer2
 
-use strict;
-use warnings;
-use Carp qw/croak/;
 use Moo;
+use Carp qw/croak/;
 use Dancer2::Core::Types;
 use Dancer2::Template::Implementation::ForkedTiny;
 use Dancer2::FileUtils 'read_file_content';
 
 with 'Dancer2::Core::Role::Template';
 
-has '+engine' =>
-  ( isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny'], );
+has '+engine' => (
+    isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny']
+);
 
 sub _build_engine {
     Dancer2::Template::Implementation::ForkedTiny->new( %{ $_[0]->config } );
