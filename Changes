@@ -16,6 +16,7 @@
       (Cymon, Russell Jenkins)
     * Require minimum version of Plack to make sure we can add the Head
       middleware. Not exactly a bug, but not a feature. (Sawyer X)
+    * Remove the default engine configurations. (Sawyer X)
 
     [ DOCUMENTATION ]
     * Correct reference to HTTP::Server::Simple::PSGI. (Russell Jenkins)
