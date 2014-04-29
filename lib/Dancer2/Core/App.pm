@@ -537,55 +537,6 @@ sub log {
     $logger->$level(@args);
 }
 
-# XXX I think this should live on the context or response - but
-# we don't currently have backwards links - weak_ref should make
-# those completely doable.
-#   -- mst
-
-sub send_file {
-    my ( $self, $path, %options ) = @_;
-    my $env = $self->context->env;
-
-    ( $options{'streaming'} && !$env->{'psgi.streaming'} )
-      and croak "Streaming is not supported on this server.";
-
-    ( exists $options{'content_type'} )
-      and $self->context->response->header(
-        'Content-Type' => $options{content_type} );
-
-    ( exists $options{filename} )
-      and $self->context->response->header( 'Content-Disposition' =>
-          "attachment; filename=\"$options{filename}\"" );
-
-    # if we're given a SCALAR reference, we're going to send the data
-    # pretending it's a file (on-the-fly file sending)
-    ( ref($path) eq 'SCALAR' )
-      and return $$path;
-
-    my $conf = {};
-    $conf->{app} = $self;
-    my $file_handler = Dancer2::Core::Factory->create(
-        Handler => 'File',
-        %$conf,
-        postponed_hooks => $self->postponed_hooks,
-        public_dir => ( $options{system_path} ? File::Spec->rootdir : undef ),
-    );
-
-    # List shouldn't be too long, so we use 'grep' instead of 'first'
-    if (my ($handler) = grep { $_->{name} eq 'File' } @{$self->route_handlers}) {
-        for my $h ( keys %{ $handler->{handler}->hooks } ) {
-            my $hooks = $handler->{handler}->hooks->{$h};
-            $file_handler->replace_hook( $h, $hooks );
-        }
-    }
-
-    $self->context->request->path_info($path);
-    return $file_handler->code->( $self->context, $self->prefix );
-
-    # TODO Streaming support
-}
-
-
 sub BUILD {
     my ($self) = @_;
     $self->init_route_handlers();
