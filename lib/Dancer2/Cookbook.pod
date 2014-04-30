@@ -874,7 +874,7 @@ The content of the error will be serialized using the appropriate serializer.
 =head2 Running stand-alone
 
 At the simplest, your Dancer2 app can run standalone, operating as its own
-webserver using L<HTTP::Server::Simple::PSGI>.
+webserver using L<HTTP::Server::PSGI>.
 
 Simply fire up your app:
 
