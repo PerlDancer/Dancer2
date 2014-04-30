@@ -12,6 +12,18 @@ use Fcntl qw(:flock SEEK_END);
 use Dancer2::FileUtils qw(open_file);
 use IO::File;
 
+# FIXME: this is not a good way to do this
+has environment => (
+    is      => 'ro',
+    default => sub { $_[0]->context->app->environment },
+);
+
+# FIXME: this is not a good way to do this
+has location => (
+    is      => 'ro',
+    default => sub { $_[0]->context->app->config_location },
+);
+
 has log_dir => (
     is      => 'rw',
     isa     => Str,
