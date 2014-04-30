@@ -15,16 +15,6 @@ This role consumes the L<Dancer2::Core::Role::Hookable> role.
 
 with 'Dancer2::Core::Role::Hookable';
 
-=attr environment
-
-The value of the current environment
-
-=cut
-
-has environment => ( is => 'ro' );
-
-has location => ( is => 'ro' );
-
 =attr context
 
 A L<Dancer2::Core::Context> object
