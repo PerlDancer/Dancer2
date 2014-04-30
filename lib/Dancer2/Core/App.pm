@@ -194,13 +194,15 @@ sub _get_config_for_engine {
         or return {};
 
     # try both camelized name and regular name
-    # override $_ to make sure that's what first() returns
-    my $engine_config = first {
-        defined $config->{'engines'}{$engine}{$_}
-            and $_ = $config->{'engines'}{$engine}{$_}
-    } Dancer2::Core::camelize($name), $name;
+    my $engine_config = {};
+    foreach my $engine_name ( $name, Dancer2::Core::camelize($name) ) {
+        if ( defined $config->{'engines'}{$engine}{$engine_name} ) {
+            $engine_config = $config->{'engines'}{$engine}{$engine_name}
+            last;
+        }
+    }
 
-    return $engine_config || {};
+    return $engine_config;
 }
 
 
