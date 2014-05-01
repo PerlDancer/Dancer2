@@ -27,6 +27,7 @@ sub run_test {
         REMOTE_HOST          => 'localhost',
         HTTP_USER_AGENT      => 'Mozilla',
         REMOTE_USER          => 'sukria',
+        HTTP_COOKIE          => 'cookie.a=foo=bar; cookie.b=1234abcd',
     };
 
     my $req = Dancer2::Core::Request->new( env => $env );
@@ -62,6 +63,9 @@ sub run_test {
 
     note "tests params";
     is_deeply { $req->params }, { foo => 42, bar => [ 12, 13, 14 ] };
+
+    note "tests cookies";
+    is( keys %{ $req->cookies }, 2, "multiple cookies extracted" );
 
     my $forward = $req->make_forward_to('/somewhere');
     is $forward->path_info, '/somewhere';

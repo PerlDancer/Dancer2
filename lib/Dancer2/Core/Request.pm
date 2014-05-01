@@ -12,6 +12,7 @@ use URI::Escape;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
+use Dancer2::Core::Cookie;
 
 with 'Dancer2::Core::Role::Headers';
 
@@ -1105,7 +1106,10 @@ sub _build_cookies {
     my $self    = shift;
     my $cookies = {};
 
-    foreach my $cookie ( $self->header('COOKIE') ) {
+    my $http_cookie = $self->header('Cookie');
+    return $cookies unless defined $http_cookie; # nothing to do
+
+    foreach my $cookie ( split( /[,;]\s/, $http_cookie ) ) {
 
         # here, we don't want more than the 2 first elements
         # a cookie string can contains something like:
