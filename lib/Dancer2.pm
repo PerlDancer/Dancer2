@@ -14,7 +14,7 @@ our $AUTHORITY = 'SUKRIA';
 # set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '0.140000'; # 2.14.0
+$Dancer2::VERSION ||= '0.140001'; # 2.14.1
 
 our $runner;
 
