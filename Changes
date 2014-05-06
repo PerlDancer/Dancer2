@@ -8,6 +8,7 @@
 
     [ DOCUMENTATION ]
     * Correct reference to HTTP::Server::Simple::PSGI. (Russell Jenkins)
+    * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
 
 0.140000  2014-04-28 23:14:31CEST+0200 Europe/Amsterdam
 
