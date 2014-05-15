@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
+
+0.140001  2014-05-01 10:49:25CEST+0200 Europe/Amsterdam
+
     [ BUG FIXES ]
     * Bugfix for extracting multiple cookies within a request.
       (Cymon, Russell Jenkins)
@@ -8,7 +13,6 @@
 
     [ DOCUMENTATION ]
     * Correct reference to HTTP::Server::Simple::PSGI. (Russell Jenkins)
-    * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
 
 0.140000  2014-04-28 23:14:31CEST+0200 Europe/Amsterdam
 
