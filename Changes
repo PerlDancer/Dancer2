@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #447: Setting the apphandler now triggers the Dancer Runner
+      configuration change, which works. (Sawyer X)
+
+
     [ DOCUMENTATION ]
     * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
 
