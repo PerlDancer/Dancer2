@@ -84,6 +84,11 @@ has global_triggers => (
             require Carp;
             $Carp::Verbose = $traces ? 1 : 0;
         },
+
+        apphandler => sub {
+            my ( $self, $handler ) = @_;
+            Dancer2->runner->config->{'apphandler'} = $handler;
+        },
     } },
 );
 
