@@ -15,12 +15,14 @@ use IO::File;
 # FIXME: this is not a good way to do this
 has environment => (
     is      => 'ro',
+    lazy    => 1,
     default => sub { $_[0]->context->app->environment },
 );
 
 # FIXME: this is not a good way to do this
 has location => (
     is      => 'ro',
+    lazy    => 1,
     default => sub { $_[0]->context->app->config_location },
 );
 
