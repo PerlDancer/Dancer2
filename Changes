@@ -3,7 +3,8 @@
     [ BUG FIXES ]
     * GH #447: Setting the apphandler now triggers the Dancer Runner
       configuration change, which works. (Sawyer X)
-
+    * GH #567: Check for proper module names in loading engines. Might help
+      with taint mode. (Sawyer X)
 
     [ DOCUMENTATION ]
     * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
