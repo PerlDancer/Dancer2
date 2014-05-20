@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * GH #447: Setting the apphandler now triggers the Dancer Runner
       configuration change, which works. (Sawyer X)
+    * GH #578: Remove the default engine configurations. (Sawyer X)
     * GH #567: Check for proper module names in loading engines. Might help
       with taint mode. (Sawyer X)
 
@@ -16,7 +17,6 @@
       (Cymon, Russell Jenkins)
     * Require minimum version of Plack to make sure we can add the Head
       middleware. Not exactly a bug, but not a feature. (Sawyer X)
-    * Remove the default engine configurations. (Sawyer X)
 
     [ DOCUMENTATION ]
     * Correct reference to HTTP::Server::Simple::PSGI. (Russell Jenkins)
