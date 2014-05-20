@@ -197,7 +197,7 @@ sub _get_config_for_engine {
     my $engine_config = {};
     foreach my $engine_name ( $name, Dancer2::Core::camelize($name) ) {
         if ( defined $config->{'engines'}{$engine}{$engine_name} ) {
-            $engine_config = $config->{'engines'}{$engine}{$engine_name}
+            $engine_config = $config->{'engines'}{$engine}{$engine_name};
             last;
         }
     }
