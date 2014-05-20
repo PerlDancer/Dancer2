@@ -5,6 +5,7 @@ use Moo;
 use File::Spec;
 use Scalar::Util 'blessed';
 use Carp 'croak';
+use Module::Runtime 'is_module_name';
 
 use Dancer2::FileUtils 'path', 'read_file_content';
 use Dancer2::Core;
@@ -99,6 +100,9 @@ sub _build_logger_engine {
     # a runner.
     $value = 'console' if !defined $value;
 
+    is_module_name($value)
+        or croak "Cannot load logger engine '$value': illegal module name";
+
     my $engine_options =
         $self->_get_config_for_engine( logger => $value, $config );
 
@@ -123,6 +127,9 @@ sub _build_session_engine {
     $value = 'simple' if !defined $value;
     return $value     if ref($value);
 
+    is_module_name($value)
+        or croak "Cannot load session engine '$value': illegal module name";
+
     my $engine_options =
           $self->_get_config_for_engine( session => $value, $config );
 
@@ -141,6 +148,9 @@ sub _build_template_engine {
 
     return undef  if !defined $value;
     return $value if ref($value);
+
+    is_module_name($value)
+        or croak "Cannot load template engine '$value': illegal module name";
 
     my $engine_options =
           $self->_get_config_for_engine( template => $value, $config );
