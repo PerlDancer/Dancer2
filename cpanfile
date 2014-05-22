@@ -30,6 +30,8 @@ requires 'Path::Tiny';
 requires 'Plack', '1.0040';
 requires 'Plack::Middleware::FixMissingBodyInRedirect';
 requires 'Plack::Middleware::RemoveRedundantBody';
+requires 'Plack::Middleware::ReverseProxy';
+requires 'Plack::Middleware::ReverseProxyPath';
 requires 'POSIX';
 requires 'Ref::Util';
 requires 'Safe::Isa';
