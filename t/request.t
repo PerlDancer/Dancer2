@@ -95,16 +95,6 @@ sub run_test {
         is $req->base, 'http://oddhostname:5000/foo';
     }
 
-    note "testing behind proxy"; {
-        my $req = Dancer2::Core::Request->new(
-            env             => $env,
-            is_behind_proxy => 1
-        );
-        is $req->secure, 1;
-        is $req->host,   $env->{HTTP_X_FORWARDED_HOST};
-        is $req->scheme, 'https';
-    }
-
     note "testing path, dispatch_path and uri_base"; {
         # Base env used for path, dispatch_path and uri_base tests
         my $base = {
