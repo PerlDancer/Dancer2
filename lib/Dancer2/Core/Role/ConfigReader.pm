@@ -89,6 +89,11 @@ has global_triggers => (
             my ( $self, $handler ) = @_;
             Dancer2->runner->config->{'apphandler'} = $handler;
         },
+
+        behind_proxy => sub {
+            my ( $self, $flag ) = @_;
+            Dancer2->runner->config->{'behind_proxy'} = $flag;
+        },
     } },
 );
 
