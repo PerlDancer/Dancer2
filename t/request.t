@@ -97,31 +97,6 @@ sub run_test {
         is $req->base, 'http://oddhostname:5000/foo';
     }
 
-    note "testing behind proxy"; {
-        my $req = Dancer2::Core::Request->new(
-            env             => $env,
-            is_behind_proxy => 1
-        );
-        is $req->secure, 1;
-        is $req->host,   $env->{HTTP_X_FORWARDED_HOST};
-        is $req->scheme, 'https';
-    }
-
-    note "testing behind proxy when optional headers are not set"; {
-		# local modifications to env:
-        local $env->{HTTP_HOST} = 'oddhostname:5000';
-        delete local $env->{'HTTP_X_FORWARDED_FOR'};
-        delete local $env->{'HTTP_X_FORWARDED_HOST'};
-        delete local $env->{'HTTP_X_FORWARDED_PROTOCOL'};
-        my $req = Dancer2::Core::Request->new(
-            env             => $env,
-            is_behind_proxy => 1
-        );
-        is ! $req->secure, 1;
-        is $req->host,   'oddhostname:5000';
-        is $req->scheme, 'http';
-    }
-
     note "testing path and uri_base"; {
         # Base env used for path and uri_base tests
         my $base = {

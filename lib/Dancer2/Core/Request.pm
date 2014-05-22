@@ -130,40 +130,17 @@ sub _set_route_params {
 # XXX: incompatible with Plack::Request
 sub uploads { $_[0]->{'uploads'} }
 
-sub is_behind_proxy { $_[0]->{'is_behind_proxy'} || 0 }
-
 sub host {
-    my ($self) = @_;
-
-    if ( $self->is_behind_proxy and exists $self->env->{'HTTP_X_FORWARDED_HOST'} ) {
-        my @hosts = split /\s*,\s*/, $self->env->{'HTTP_X_FORWARDED_HOST'}, 2;
-        return $hosts[0];
-    } else {
-        return $self->env->{'HTTP_HOST'};
-    }
+    return shift->env->{'HTTP_HOST'};
 }
 
 # aliases, kept for backward compat
 sub agent                 { shift->user_agent }
 sub remote_address        { shift->address }
+
 sub forwarded_for_address { shift->env->{'HTTP_X_FORWARDED_FOR'} }
 sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
-
-# there are two options
-sub forwarded_protocol    {
-    $_[0]->env->{'HTTP_X_FORWARDED_PROTO'}    ||
-    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
-    $_[0]->env->{'HTTP_FORWARDED_PROTO'}
-}
-
-sub scheme {
-    my ($self) = @_;
-    my $scheme = $self->is_behind_proxy
-               ? $self->forwarded_protocol
-               : '';
-
-    return $scheme || $self->env->{'psgi.url_scheme'};
-}
+sub forwarded_protocol    { shift->env->{'HTTP_X_FORWARDED_PROTO'} }
 
 sub serializer { $_[0]->{'serializer'} }
 
