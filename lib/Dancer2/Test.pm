@@ -45,7 +45,17 @@ use Dancer2::Core::Request;
 
 =head1 DESCRIPTION
 
-provides useful routines to test Dancer2 apps.
+DEPRECATED - Please use L<Plack::Test> instead.
+
+This module will warn for a while until we actually remove it. This is to
+provide enough time to fully remove it from your system.
+
+If you need to remove the warnings, for now, you can set:
+
+    $Dancer::Test::NO_WARN = 1;
+
+This module provides useful routines to test Dancer2 apps. They are, however,
+buggy and unnecessary. L<Plack:Test> is advised instead.
 
 $test_name is always optional.
 
