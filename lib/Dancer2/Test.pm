@@ -4,7 +4,7 @@ package Dancer2::Test;
 use strict;
 use warnings;
 
-use Carp 'croak';
+use Carp qw<carp croak>;
 use Test::More;
 use Test::Builder;
 use URI::Escape;
@@ -53,6 +53,9 @@ $test_name is always optional.
 
 # singleton to store all the apps
 my $_dispatcher = Dancer2::Core::Dispatcher->new;
+
+# prevent deprecation warnings
+our $NO_WARN = 0;
 
 =func dancer_response ($method, $path, $params, $arg_env);
 
@@ -114,6 +117,8 @@ You can also supply a hashref of headers:
 # or can be fed a response (which is passed through without
 # any modification)
 sub dancer_response {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
 
     _find_dancer_apps_for_dispatcher();
 
@@ -268,6 +273,8 @@ one given.
 
 sub response_status_is {
     my ( $req, $status, $test_name ) = @_;
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
 
     $test_name ||= "response status is $status for " . _req_label($req);
 
@@ -287,6 +294,9 @@ registry.
 =cut
 
 sub route_exists {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
+
     response_status_is( $_[0], 200, $_[1] );
 }
 
@@ -300,6 +310,9 @@ in Dancer2's registry.
 =cut
 
 sub route_doesnt_exist {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
+
     response_status_is( $_[0], 404, $_[1] );
 }
 
@@ -313,6 +326,10 @@ one given.
 
 sub response_status_isnt {
     my ( $req, $status, $test_name ) = @_;
+
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
+
     $test_name ||= "response status is not $status for " . _req_label($req);
 
     my $response = dancer_response($req);
@@ -360,6 +377,8 @@ Asserts that the response content is equal to the C<$expected> string.
 =cut
 
 sub response_content_is {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'is_eq' );
 }
@@ -375,6 +394,8 @@ Asserts that the response content is not equal to the C<$not_expected> string.
 =cut
 
 sub response_content_isnt {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'isnt_eq' );
 }
@@ -391,6 +412,8 @@ given.
 =cut
 
 sub response_content_like {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'like' );
 }
@@ -406,6 +429,8 @@ given.
 =cut
 
 sub response_content_unlike {
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'unlike' );
 }
@@ -427,6 +452,8 @@ differing.
 
 sub response_content_is_deeply {
     my ( $req, $matcher, $test_name ) = @_;
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     $test_name ||= "response content looks good for " . _req_label($req);
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -440,6 +467,8 @@ sub response_content_is_deeply {
 
 sub response_is_file {
     my ( $req, $test_name ) = @_;
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     $test_name ||= "a file is returned for " . _req_label($req);
 
     my $response = _get_file_response($req);
@@ -458,6 +487,8 @@ Asserts that the response headers data structure equals the one given.
 
 sub response_headers_are_deeply {
     my ( $req, $expected, $test_name ) = @_;
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     $test_name ||= "headers are as expected for " . _req_label($req);
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -479,6 +510,8 @@ Asserts that the response headers data structure includes some of the defined on
 
 sub response_headers_include {
     my ( $req, $expected, $test_name ) = @_;
+    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+        unless $NO_WARN;
     $test_name ||= "headers include expected data for " . _req_label($req);
     my $tb = Test::Builder->new;
 

@@ -12,6 +12,8 @@ use File::Temp;
 use Encode;
 use URI::Escape;
 
+$Dancer2::Test::NO_WARN = 1;
+
 my @routes = (
     '/foo',
     [ GET => '/foo' ],
