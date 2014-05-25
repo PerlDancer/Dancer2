@@ -188,12 +188,6 @@ things:
 
 =over 4
 
-=item C<:script>
-
-Not implemented yet, do not use.
-
-=back
-
 =head1 AUTHORS
 
 =head2 CORE DEVELOPERS
