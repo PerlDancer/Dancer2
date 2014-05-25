@@ -295,10 +295,33 @@ sub response_status_is {
     $tb->is_eq( $response->status, $status, $test_name );
 }
 
+sub _find_route_match {
+    my ( $request, $env ) =
+      ref $_[0] eq 'Dancer2::Core::Request'
+      ? _build_env_from_request(@_)
+      : _build_request_from_env(@_);
+
+    for my $app (@{$_dispatcher->apps}) {
+        for my $route (@{$app->routes->{lc($request->method)}}) {
+            if ( $route->match($request) ) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 =func route_exists([$method, $path], $test_name)
 
 Asserts that the given request matches a route handler in Dancer2's
-registry.
+registry. If the route would have returned a 404, the route still exists
+and this test will pass.
+
+Note that because Dancer2 uses the default route handler
+L<Dancer2::Handler::File> to match files in the public folder when
+no other route matches, this test will always pass.
+You can disable the default route handlers in the configs but you probably
+want L<Dancer2::Test/response_status_is> or L<Dancer2::Test/dancer_response>
 
     route_exists [GET => '/'], "GET / is handled";
 =cut
@@ -307,13 +330,19 @@ sub route_exists {
     carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
         unless $NO_WARN;
 
-    response_status_is( $_[0], 200, $_[1] );
+    my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $tb->ok( _find_route_match($_[0]), $_[1]);
 }
 
 =func route_doesnt_exist([$method, $path], $test_name)
 
 Asserts that the given request does not match any route handler
 in Dancer2's registry.
+
+Note that this test is likely to always fail as any route not matched will
+be handled by the default route handler in L<Dancer2::Handler::File>.
+This can be disabled in the configs.
 
     route_doesnt_exist [GET => '/bogus_path'], "GET /bogus_path is not handled";
 
@@ -323,7 +352,9 @@ sub route_doesnt_exist {
     carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
         unless $NO_WARN;
 
-    response_status_is( $_[0], 404, $_[1] );
+    my $tb = Test::Builder->new;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    $tb->ok( !_find_route_match($_[0]), $_[1]);
 }
 
 =func response_status_isnt([$method, $path], $status, $test_name)
