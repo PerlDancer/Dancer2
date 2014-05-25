@@ -16,6 +16,11 @@ use overload
 
 with 'Dancer2::Core::Role::Headers';
 
+sub BUILD {
+    my ($self) = @_;
+    $self->header( 'Server' => "Perl Dancer2 $Dancer2::VERSION" );
+}
+
 # boolean to tell if the route passes or not
 has has_passed => (
     is      => 'rw',
