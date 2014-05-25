@@ -21,7 +21,7 @@ our $runner;
 sub runner {$runner}
 
 sub import {
-    my ( $class,  @args )   = @_;
+    my ( $class,  @args   ) = @_;
     my ( $caller, $script ) = caller;
 
     strict->import;
@@ -29,20 +29,18 @@ sub import {
     utf8->import;
 
     my @final_args;
-    my $as_script = 0;
-    foreach (@args) {
-        if ( $_ eq ':script' ) {
-            $as_script = 1;
-        }
-        elsif ( substr( $_, 0, 1 ) eq '!' ) {
-            push @final_args, $_, 1;
-        }
-        else {
-            push @final_args, $_;
+    foreach my $arg (@args) {
+        grep +( $arg eq $_ ), qw<:script :syntax>
+            and next;
+
+        if ( substr( $arg, 0, 1 ) eq '!' ) {
+            push @final_args, $arg, 1;
+        } else {
+            push @final_args, $arg;
         }
     }
 
-    scalar(@final_args) % 2
+    scalar @final_args % 2
       and die q{parameters must be key/value pairs, ':script' or '!keyword'};
 
     my %final_args = @final_args;
@@ -51,8 +49,6 @@ sub import {
 
     # never instantiated the runner, should do it now
     if ( not defined $runner ) {
-
-        # TODO should support commandline options as well
         $runner = Dancer2::Core::Runner->new( caller => $script );
     }
 
@@ -75,14 +71,6 @@ sub import {
     load_class( $final_args{dsl} );
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
-
-    #
-    #    $as_script = 1 if $ENV{PLACK_ENV};
-    #
-    #    Dancer2::GetOpt->process_args() if !$as_script;
-    #
-    # If uncommenting or removing this, be sure to update the description of
-    # :script above as well.
 }
 
 sub _set_import_method_to_caller {
@@ -199,12 +187,6 @@ things:
 =head3 Import Options
 
 =over 4
-
-=item C<:script>
-
-Not implemented yet, do not use.
-
-=back
 
 =head1 AUTHORS
 
