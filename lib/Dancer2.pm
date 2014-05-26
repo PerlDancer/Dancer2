@@ -184,10 +184,6 @@ things:
     use Dancer2 ( foo => 'bar' ); # sets option foo to bar
     use Dancer2 '!quux'; # Don't import DSL keyword quux
 
-=head3 Import Options
-
-=over 4
-
 =head1 AUTHORS
 
 =head2 CORE DEVELOPERS
