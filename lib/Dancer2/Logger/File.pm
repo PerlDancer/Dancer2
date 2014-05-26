@@ -41,8 +41,6 @@ has log_dir => (
     },
 );
 
-sub _build_log_dir {File::Spec->catdir( $_[0]->location, 'logs' )}
-
 has file_name => (
     is      => 'ro',
     isa     => Str,
@@ -50,23 +48,41 @@ has file_name => (
     lazy    => 1
 );
 
+has log_file => (
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    builder => '_build_log_file',
+);
+
+has fh => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_fh',
+);
+
+sub _build_log_dir {File::Spec->catdir( $_[0]->location, 'logs' )}
+
 sub _build_file_name {$_[0]->environment . ".log"}
 
-has log_file => ( is => 'rw', isa => Str );
-has fh       => ( is => 'rw' );
-
-sub BUILD {
+sub _build_log_file {
     my $self = shift;
-    my $logfile = File::Spec->catfile( $self->log_dir, $self->file_name );
+    return File::Spec->catfile( $self->log_file, $self->file_name );
+}
+
+sub _build_fh {
+    my $self    = shift;
+    my $logfile = $self->log_file;
 
     my $fh;
     unless ( $fh = open_file( '>>', $logfile ) ) {
         carp "unable to create or append to $logfile";
         return;
     }
+
     $fh->autoflush;
-    $self->log_file($logfile);
-    $self->fh($fh);
+
+    return $fh;
 }
 
 sub log {
