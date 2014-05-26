@@ -191,4 +191,20 @@ ok $tmpl_engine, "Template engine is defined";
 my $serializer_engine = $app->engine('serializer');
 ok !defined $serializer_engine, "Serializer engine is not defined";
 
+is_deeply(
+    $app->_get_config_for_engine('NonExistent'),
+    {},
+    'Empty configuration for nonexistent engine',
+);
+
+# TODO: not such an intelligent check, this one...
+# set configuration for an engine
+$app->config->{'engines'}{'template'}{'Tiny'}{'hello'} = 'world';
+
+is_deeply(
+    $app->_get_config_for_engine( template => 'Tiny', $app->config ),
+    { hello => 'world' },
+    '_get_config_for_engine can find the right configuration',
+);
+
 done_testing;

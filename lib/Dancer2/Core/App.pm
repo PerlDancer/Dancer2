@@ -2,10 +2,11 @@
 package Dancer2::Core::App;
 
 use Moo;
-use File::Spec;
-use Scalar::Util 'blessed';
-use Carp 'croak';
+use Carp            'croak';
+use List::Util      'first';
+use Scalar::Util    'blessed';
 use Module::Runtime 'is_module_name';
+use File::Spec;
 
 use Dancer2::FileUtils 'path', 'read_file_content';
 use Dancer2::Core;
@@ -189,21 +190,19 @@ sub _build_serializer_engine {
 sub _get_config_for_engine {
     my ( $self, $engine, $name, $config ) = @_;
 
-    my $default_config = {
-        environment => $self->environment,
-        location    => $self->config_location,
-    };
-
     defined $config->{'engines'} && defined $config->{'engines'}{$engine}
-        or return $default_config;
+        or return {};
 
+    # try both camelized name and regular name
     my $engine_config = {};
-
-    for my $config_key ($name, Dancer2::Core::camelize($name)) {
-        $engine_config = $config->{engines}{$engine}{$config_key}
-            if defined $config->{engines}->{$engine}{$config_key};
+    foreach my $engine_name ( $name, Dancer2::Core::camelize($name) ) {
+        if ( defined $config->{'engines'}{$engine}{$engine_name} ) {
+            $engine_config = $config->{'engines'}{$engine}{$engine_name};
+            last;
+        }
     }
-    return { %{$default_config}, %{$engine_config}, } || $default_config;
+
+    return $engine_config;
 }
 
 

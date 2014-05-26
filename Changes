@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * GH #447: Setting the apphandler now triggers the Dancer Runner
       configuration change, which works. (Sawyer X)
+    * GH #578: Remove the default engine configurations. (Sawyer X)
     * GH #567: Check for proper module names in loading engines. Might help
       with taint mode. (Sawyer X)
 
