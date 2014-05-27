@@ -67,7 +67,7 @@ sub _build_file_name {$_[0]->environment . ".log"}
 
 sub _build_log_file {
     my $self = shift;
-    return File::Spec->catfile( $self->log_file, $self->file_name );
+    return File::Spec->catfile( $self->log_dir, $self->file_name );
 }
 
 sub _build_fh {
