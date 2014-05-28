@@ -27,10 +27,7 @@ sub dispatch {
     # Initialize a context for the current request
     # Once per dispatching! We should not create one context for each app or
     # we're going to parse the request body multiple times
-    my $context = Dancer2::Core::Context->new(
-        env => $env,
-        ( request => $request ) x !! $request,
-    );
+    my $context = Dancer2::Core::Context->new( env => $env );
 
     if ( $curr_context && $curr_context->has_session ) {
         $context->session( $curr_context->session );
@@ -44,10 +41,10 @@ sub dispatch {
         $app->context($context);
 
         # create request if we didn't get any
-        my $clean_request = $request || $self->build_request( $env, $app );
+        $request ||= $self->build_request( $env, $app );
 
-        my $http_method = lc $clean_request->method;
-        my $path_info   =    $clean_request->path_info;
+        my $http_method = lc $request->method;
+        my $path_info   =    $request->path_info;
 
         $app->log( core => "looking for $http_method $path_info" );
 
@@ -59,14 +56,14 @@ sub dispatch {
             # TODO store in route cache
 
             # go to the next route if no match
-            my $match = $route->match($clean_request)
+            my $match = $route->match($request)
               or next ROUTE;
 
-            $clean_request->_set_route_params($match);
+            $request->_set_route_params($match);
 
             # FIXME: SHIM, to remove when Context.pm is removed
             $app->setup_context($context);
-            $context->request($clean_request);
+            $context->request($request);
 
             my $response = with_return {
                 my ($return) = @_;
@@ -89,8 +86,8 @@ sub dispatch {
 
                 ## A previous route might have used splat, failed
                 ## this needs to be cleaned from the request.
-                if (exists $clean_request->{_params}{splat}) {
-                    delete $clean_request->{_params}{splat};
+                if (exists $request->{_params}{splat}) {
+                    delete $request->{_params}{splat};
                 }
 
                 $response->has_passed(0);    # clear for the next round
