@@ -329,9 +329,9 @@ sub send_error {
 
     my $serializer = $self->app->engine('serializer');
     my $x = Dancer2::Core::Error->new(
-        message => $message,
-        context => $self->context,
-        ( status => $status ) x !!$status,
+          message    => $message,
+          app        => $self->app,
+        ( status     => $status     ) x !!$status,
         ( serializer => $serializer ) x !!$serializer,
     )->throw;
 

@@ -29,7 +29,7 @@ $app->add_route(
 $app->add_route(
     method => 'get',
     regexp => '/error',
-    code   => sub { Fail->fail; },
+    code   => sub { Fail->fail },
 );
 
 # A chain of two route for /user/$foo

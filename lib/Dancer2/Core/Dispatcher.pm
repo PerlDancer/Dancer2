@@ -21,8 +21,8 @@ has apps => (
 sub dispatch {
     my ( $self, $env, $request, $curr_context ) = @_;
 
-#    warn "dispatching ".$env->{PATH_INFO}
-#       . " with ".join(", ", map { $_->name } @{$self->apps });
+    # warn "dispatching ".$env->{PATH_INFO}
+    #    . " with ".join(", ", map { $_->name } @{$self->apps });
 
     # Initialize a context for the current request
     # Once per dispatching! We should not create one context for each app or
@@ -50,7 +50,6 @@ sub dispatch {
 
       ROUTE:
         foreach my $route ( @{ $app->routes->{$http_method} } ) {
-
             # warn "testing route ".$route->regexp;
 
             # TODO store in route cache
@@ -150,7 +149,7 @@ sub _dispatch_route {
             $app->log( error => "Route exception: $error" );
             $app->execute_hook(
                 'core.app.route_exception', $context, $error);
-            return $self->response_internal_error( $context, $error );
+            return $self->response_internal_error( $app, $error );
         }
     }
 
@@ -173,14 +172,14 @@ sub _dispatch_route {
 }
 
 sub response_internal_error {
-    my ( $self, $context, $error ) = @_;
+    my ( $self, $app, $error ) = @_;
 
     # warn "got error: $error";
 
     return Dancer2::Core::Error->new(
-        context      => $context,
-        status       => 500,
-        exception    => $error,
+        app       => $app,
+        status    => 500,
+        exception => $error,
     )->throw;
 }
 

@@ -61,9 +61,8 @@ subtest 'halt in before hook' => sub {
         use Dancer2;
 
         hook before => sub {
-            my $context = shift;
-            $context->response->content('I was halted');
-            halt if $context->request->dispatch_path eq '/shortcircuit';
+            response->content('I was halted');
+            halt if request->dispatch_path eq '/shortcircuit';
         };
 
     }

@@ -93,9 +93,9 @@ sub render_layout {
 }
 
 sub apply_renderer {
-    my ( $self, $view, $tokens ) = @_;
+    my ( $self, $request, $view, $tokens ) = @_;
     $view = $self->view_pathname($view) if !ref $view;
-    $tokens = $self->_prepare_tokens_options($tokens);
+    $tokens = $self->_prepare_tokens_options($request,$tokens);
 
     $self->execute_hook( 'engine.template.before_render', $tokens );
 
@@ -108,9 +108,9 @@ sub apply_renderer {
 }
 
 sub apply_layout {
-    my ( $self, $content, $tokens, $options ) = @_;
+    my ( $self, $request, $content, $tokens, $options ) = @_;
 
-    $tokens = $self->_prepare_tokens_options($tokens);
+    $tokens = $self->_prepare_tokens_options( $request, $tokens );
 
    # If 'layout' was given in the options hashref, use it if it's a true value,
    # or don't use a layout if it was false (0, or undef); if layout wasn't
@@ -142,7 +142,7 @@ sub apply_layout {
 }
 
 sub _prepare_tokens_options {
-    my ( $self, $tokens ) = @_;
+    my ( $self, $request, $tokens ) = @_;
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
@@ -151,8 +151,8 @@ sub _prepare_tokens_options {
 
     if ( defined $self->context ) {
         $tokens->{settings} = $self->context->app->config;
-        $tokens->{request}  = $self->context->request;
-        $tokens->{params}   = $self->context->request->params;
+        $tokens->{request}  = $request;
+        $tokens->{params}   = $request->params;
         $tokens->{vars}     = $self->context->buffer;
 
         $tokens->{session} = $self->context->session->data
@@ -163,7 +163,7 @@ sub _prepare_tokens_options {
 }
 
 sub process {
-    my ( $self, $view, $tokens, $options ) = @_;
+    my ( $self, $request, $view, $tokens, $options ) = @_;
     my ( $content, $full_content );
 
     # it's important that $tokens is not undef, so that things added to it via
@@ -175,11 +175,11 @@ sub process {
 
     $content =
         $view
-      ? $self->apply_renderer( $view, $tokens )
+      ? $self->apply_renderer( $request, $view, $tokens )
       : delete $options->{content};
 
     defined $content
-      and $full_content = $self->apply_layout( $content, $tokens, $options );
+      and $full_content = $self->apply_layout( $request, $content, $tokens, $options );
 
     defined $full_content
       and return $full_content;

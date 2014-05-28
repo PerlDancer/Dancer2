@@ -39,7 +39,7 @@ sub code {
             return;
         }
 
-        my $ct = $template->process($page);
+        my $ct = $template->process( $ctx->app->request, $page );
         $ctx->response->header( 'Content-Length', length($ct) );
         return ( $ctx->request->method eq 'GET' ) ? $ct : '';
     };
