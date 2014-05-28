@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More;
 use LWP::UserAgent;
 
 eval "use LWP::Protocol::PSGI";
 plan skip_all => "LWP::Protocol::PSGI is needed for this test" if $@;
+
+plan tests => 5;
 
 my $psgi_app = do {
     use Dancer2;
