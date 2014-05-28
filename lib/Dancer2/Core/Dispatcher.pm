@@ -59,7 +59,7 @@ sub dispatch {
             # TODO store in route cache
 
             # go to the next route if no match
-            my $match = $route->match( $context->request )
+            my $match = $route->match($clean_request)
               or next ROUTE;
 
             $context->request->_set_route_params($match);
@@ -99,7 +99,7 @@ sub dispatch {
         }
     }
 
-    return $self->response_not_found($context);
+    return $self->response_not_found( $env, $context );
 }
 
 # the dispatcher can build requests now :)
@@ -187,10 +187,12 @@ sub response_internal_error {
 my $not_found_app;
 
 sub response_not_found {
-    my ( $self, $context ) = @_;
+    my ( $self, $env, $context ) = @_;
 
     $not_found_app ||= Dancer2::Core::App->new(
         name            => 'file_not_found',
+        # FIXME: are these two still global with the merging of
+        #        feature/fix-remove-default-engine-config?
         environment     => Dancer2->runner->environment,
         location        => Dancer2->runner->location,
         runner_config   => Dancer2->runner->config,
@@ -198,13 +200,15 @@ sub response_not_found {
         api_version     => 2,
     );
 
+    my $request = $self->build_request( $env, $not_found_app );
+
     $context->app($not_found_app);
     $not_found_app->context($context);
 
     return Dancer2::Core::Error->new(
         status  => 404,
-        context => $context,
-        message => $context->request->path,
+        context => $context, # FIXME: go over Dancer2::Core::Error
+        message => $request->path,
     )->throw;
 }
 
