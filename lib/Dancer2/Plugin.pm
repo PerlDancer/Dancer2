@@ -40,9 +40,8 @@ with them directly.
         my $dsl = shift;
         my @args = @_;
 
-        my $app = $dsl->app;
-        my $context = $app->context;
-        my $request = $context->request;
+        my $app     = $dsl->app;
+        my $request = $app->request;
 
         if ( $app->session( "logged_in" ) ) {
             ...

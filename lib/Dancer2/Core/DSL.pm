@@ -282,7 +282,7 @@ sub pass         { shift->context->pass }
 
 sub context { shift->app->context }
 
-sub request { shift->context->request }
+sub request { shift->app->request }
 
 sub response { shift->context->response }
 

@@ -236,6 +236,13 @@ has name => (
     isa => Str,
 );
 
+has request => (
+    is      => 'ro',
+    isa     => InstanceOf['Dancer2::Core::Request'],
+    writer  => 'set_request',
+    clearer => 'clear_request',
+);
+
 # holds a context whenever a request is processed
 has context => (
     is      => 'rw',
