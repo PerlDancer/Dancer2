@@ -6,6 +6,7 @@ use Encode;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Context;
+use Dancer2::Core::Request;
 use Dancer2::Core::Response;
 
 use Return::MultiLevel qw(with_return);
@@ -36,15 +37,17 @@ sub dispatch {
     }
 
     foreach my $app ( @{ $self->apps } ) {
-
         # warn "walking through routes of ".$app->name;
 
         # set the current app in the context and context in the app..
         $context->app($app);
         $app->context($context);
 
-        my $http_method = lc $context->request->method;
-        my $path_info   = $context->request->path_info;
+        # create request if we didn't get any
+        my $clean_request = $request || $self->build_request( $env, $app );
+
+        my $http_method = lc $clean_request->method;
+        my $path_info   =    $clean_request->path_info;
 
         $app->log( core => "looking for $http_method $path_info" );
 
@@ -67,6 +70,7 @@ sub dispatch {
                 $context->with_return($return) if ! $context->has_with_return;
                 return $self->_dispatch_route($route, $context);
             };
+
             # Ensure we clear the with_return handler
             $context->clear_with_response;
 
@@ -96,6 +100,32 @@ sub dispatch {
     }
 
     return $self->response_not_found($context);
+}
+
+# the dispatcher can build requests now :)
+sub build_request {
+    my ( $self, $env, $app ) = @_;
+
+    # FIXME: SHIM, to remove when Context.pm is removed
+    # this is needed to reset the env input fh to get data
+    defined $env->{'psgi.input'} and $env->{'psgi.input'}->seek( 0, 0 );
+
+    # If we have an app, send the serialization engine
+    my $engine  = $app->engine('serializer');
+    my $request = Dancer2::Core::Request->new(
+          env        => $env,
+        ( serializer => $engine ) x!! $engine,
+    );
+
+    # Log deserialization errors
+    if ($engine) {
+        $engine->has_error and $app->log(
+            core => "Failed to deserialize the request : " .
+                    $engine->error
+        );
+    }
+
+    return $request;
 }
 
 # Call any before hooks then the matched route.
