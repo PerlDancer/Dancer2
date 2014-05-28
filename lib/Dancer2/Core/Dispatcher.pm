@@ -203,6 +203,7 @@ sub response_not_found {
 
     my $request = $self->build_request( $env, $not_found_app );
 
+    $context->request($request);
     $context->app($not_found_app);
     $not_found_app->context($context);
 

@@ -48,28 +48,9 @@ A L<Dancer2::Core::Request> object, built from the PSGI environment variable for
 # the incoming request
 has request => (
     is      => 'rw',
-    lazy    => 1,
-    builder => '_build_request',
     isa     => InstanceOf ['Dancer2::Core::Request'],
+    lazy    => 1,
 );
-
-sub _build_request {
-    my ($self) = @_;
-
-    # If we have an app, get the serialization engine
-    my $engine = $self->app->engine('serializer')
-        if $self->has_app;
-
-    my $req = Dancer2::Core::Request->new( env => $self->env,
-        $engine ? ( serializer => $engine ) : (),
-    );
-
-    # Log deserialization errors
-    $self->app->log( core => "Failed to deserialize the request : "
-        . $engine->error ) if ( $engine && $engine->has_error );
-
-    return $req;
-}
 
 # a buffer for per-request variables
 has buffer => (

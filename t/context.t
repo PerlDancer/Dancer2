@@ -23,7 +23,18 @@ my $env = {
     REMOTE_USER     => 'sukria',
 };
 
-my $c = Dancer2::Core::Context->new( env => $env );
+{
+    package MyApp;
+    use Dancer2;
+}
+
+my $request = Dancer2::Core::Dispatcher->build_request(
+    $env, Dancer2->runner->apps->[0]
+);
+
+my $c = Dancer2::Core::Context->new(
+    env => $env, request => $request
+);
 
 isa_ok $c->request, 'Dancer2::Core::Request';
 is $c->request->method, 'GET';

@@ -32,7 +32,8 @@ my $env = {
 };
 
 my $a = Dancer2::Core::App->new( name => 'main' );
-my $c = Dancer2::Core::Context->new( env => $env, app => $a );
+my $request = Dancer2::Core::Dispatcher->build_request( $env, $a );
+my $c = Dancer2::Core::Context->new( env => $env, app => $a, request => $request );
 
 subtest 'basic defaults of Error object' => sub {
     my $e = Dancer2::Core::Error->new( context => $c, );
