@@ -240,16 +240,20 @@ has name => (
 has context => (
     is      => 'rw',
     isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
-    trigger => sub {
-        my ( $self, $ctx ) = @_;
-        $self->_init_for_context($ctx),;
-        for my $type ( @{ $self->supported_engines } ) {
-            my $attr   = "${type}_engine";
-            my $engine = $self->$attr or next;
-            defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
-        }
-    },
+    trigger => \&setup_context,
 );
+
+sub setup_context {
+    my ( $self, $ctx ) = @_;
+
+    $self->_init_for_context($ctx);
+
+    for my $type ( @{ $self->supported_engines } ) {
+        my $attr   = "${type}_engine";
+        my $engine = $self->$attr or next;
+        defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
+    }
+};
 
 has prefix => (
     is        => 'rw',

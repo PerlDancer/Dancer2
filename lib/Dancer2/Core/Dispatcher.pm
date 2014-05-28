@@ -62,7 +62,11 @@ sub dispatch {
             my $match = $route->match($clean_request)
               or next ROUTE;
 
-            $context->request->_set_route_params($match);
+            $clean_request->_set_route_params($match);
+
+            # FIXME: SHIM, to remove when Context.pm is removed
+            $app->setup_context($context);
+            $context->request($clean_request);
 
             my $response = with_return {
                 my ($return) = @_;
