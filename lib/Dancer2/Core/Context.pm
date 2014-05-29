@@ -100,13 +100,6 @@ has response => (
     },
 );
 
-=method cookies
-
-Shortcut that dispatches to L<Dancer2::Core::Request>'s cookies method.
-
-=cut
-
-sub cookies { shift->request->cookies(@_) }
 
 =method cookie
 

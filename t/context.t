@@ -28,20 +28,19 @@ my $env = {
     use Dancer2;
 }
 
-my $request = Dancer2::Core::Dispatcher->build_request(
-    $env, Dancer2->runner->apps->[0]
-);
+my $app = Dancer2->runner->apps->[0];
 
-my $c = Dancer2::Core::Context->new(
-    env => $env, request => $request
-);
+my $request = Dancer2::Core::Dispatcher->build_request($env, $app);
+
+my $c = Dancer2::Core::Context->new(request=>$request);
 
 isa_ok $c->request, 'Dancer2::Core::Request';
 is $c->request->method, 'GET';
 
-isa_ok $c->cookies->{'dancer.session'}, 'Dancer2::Core::Cookie';
-is $c->cookies->{'dancer.session'}->value,  1234;
-is $c->cookies->{'dancer.session'}->name,   'dancer.session';
-is $c->cookies->{'dancer.session'}->secure, 0;
+
+isa_ok $request->cookies->{'dancer.session'}, 'Dancer2::Core::Cookie';
+is $request->cookies->{'dancer.session'}->value,  1234;
+is $request->cookies->{'dancer.session'}->name,   'dancer.session';
+is $request->cookies->{'dancer.session'}->secure, 0;
 
 done_testing;

@@ -308,7 +308,7 @@ sub forward {
 sub vars { shift->context->vars }
 sub var  { shift->context->var(@_) }
 
-sub cookies { shift->context->cookies }
+sub cookies { shift->request->cookies }
 
 sub mime {
     my $self = shift;
