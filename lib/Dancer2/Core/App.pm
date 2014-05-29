@@ -564,7 +564,7 @@ sub log {
 
 sub send_file {
     my ( $self, $path, %options ) = @_;
-    my $env = $self->context->env;
+    my $env = $self->request->env;
 
     ( $options{'streaming'} && !$env->{'psgi.streaming'} )
       and croak "Streaming is not supported on this server.";

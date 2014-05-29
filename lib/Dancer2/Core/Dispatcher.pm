@@ -27,7 +27,7 @@ sub dispatch {
     # Initialize a context for the current request
     # Once per dispatching! We should not create one context for each app or
     # we're going to parse the request body multiple times
-    my $context = Dancer2::Core::Context->new( env => $env );
+    my $context = Dancer2::Core::Context->new();
 
     $curr_context and $curr_context->has_session
         and $context->session( $curr_context->session );

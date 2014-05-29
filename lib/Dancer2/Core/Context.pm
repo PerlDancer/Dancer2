@@ -25,19 +25,6 @@ has app => (
     predicate => 1,
 );
 
-=attr env
-
-Read-only accessor to a PSGI environment hash.
-
-=cut
-
-# the PSGI-env to use for building the request to process
-# this is the only mandatory argument to a context
-has env => (
-    is       => 'ro',
-    required => 1,
-    isa      => HashRef,
-);
 
 =attr request
 
