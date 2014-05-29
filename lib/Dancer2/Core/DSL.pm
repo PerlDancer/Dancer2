@@ -305,8 +305,8 @@ sub forward {
     $self->request->forward($self->context, @_);
 }
 
-sub vars { shift->context->vars }
-sub var  { shift->context->var(@_) }
+sub vars { shift->request->vars }
+sub var  { shift->request->var(@_) }
 
 sub cookies { shift->request->cookies }
 

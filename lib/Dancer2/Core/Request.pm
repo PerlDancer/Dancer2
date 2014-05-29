@@ -142,6 +142,35 @@ has env => (
 );
 
 
+# a buffer for per-request variables
+has vars => (
+    is      => 'rw',
+    isa     => HashRef,
+    default => sub { {} },
+);
+
+=method var
+
+By-name interface to variables stored in this request object.
+
+  my $stored = $request->var('some_variable');
+
+returns the value of 'some_variable', while
+
+  $request->var('some_variable' => 'value');
+
+will set it.
+
+=cut
+
+sub var {
+    my $self = shift;
+    @_ == 2
+      ? $self->vars->{ $_[0] } = $_[1]
+      : $self->vars->{ $_[0] };
+}
+
+
 =method path()
 
 Return the path requested by the client.

@@ -153,7 +153,7 @@ sub _prepare_tokens_options {
         $tokens->{settings} = $self->context->app->config;
         $tokens->{request}  = $request;
         $tokens->{params}   = $request->params;
-        $tokens->{vars}     = $self->context->buffer;
+        $tokens->{vars}     = $request->vars;
 
         $tokens->{session} = $self->context->session->data
           if $self->context->has_session;

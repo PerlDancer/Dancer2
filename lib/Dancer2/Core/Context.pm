@@ -39,41 +39,6 @@ has request => (
     lazy    => 1,
 );
 
-# a buffer for per-request variables
-has buffer => (
-    is      => 'rw',
-    isa     => HashRef,
-    default => sub { {} },
-);
-
-=method vars
-
-Returns a hashref of all per-request variables stored in this object.
-
-=cut
-
-sub vars { shift->buffer }
-
-=method var
-
-By-name interface to variables stored in this context object.
-
-  my $stored = $context->var('some_variable');
-
-returns the value of 'some_variable', while
-
-  $context->var('some_variable' => 'value');
-
-will set it.
-
-=cut
-
-sub var {
-    my $self = shift;
-    @_ == 2
-      ? $self->buffer->{ $_[0] } = $_[1]
-      : $self->buffer->{ $_[0] };
-}
 
 =attr response
 
