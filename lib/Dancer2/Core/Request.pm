@@ -369,8 +369,9 @@ has body_is_parsed => (
 );
 
 has is_behind_proxy => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Bool,
+    lazy    => 1,
     default => sub {0},
 );
 

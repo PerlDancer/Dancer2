@@ -116,8 +116,9 @@ sub build_request {
     # If we have an app, send the serialization engine
     my $engine  = $app->engine('serializer');
     my $request = Dancer2::Core::Request->new(
-          env        => $env,
-        ( serializer => $engine ) x!! $engine,
+          env             => $env,
+          is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
+        ( serializer      => $engine ) x!! $engine,
     );
 
     # Log deserialization errors

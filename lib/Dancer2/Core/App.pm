@@ -254,8 +254,6 @@ has context => (
 sub setup_context {
     my ( $self, $ctx ) = @_;
 
-    $self->_init_for_context($ctx);
-
     for my $type ( @{ $self->supported_engines } ) {
         my $attr   = "${type}_engine";
         my $engine = $self->$attr or next;
@@ -417,15 +415,6 @@ sub _init_hooks {
             },
         )
     );
-}
-
-sub _init_for_context {
-    my ($self) = @_;
-
-    $self->has_request or return;
-
-    $self->request->is_behind_proxy(1)
-      if $self->setting('behind_proxy');
 }
 
 sub supported_hooks {
