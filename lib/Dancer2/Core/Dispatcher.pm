@@ -29,9 +29,8 @@ sub dispatch {
     # we're going to parse the request body multiple times
     my $context = Dancer2::Core::Context->new( env => $env );
 
-    if ( $curr_context && $curr_context->has_session ) {
-        $context->session( $curr_context->session );
-    }
+    $curr_context and $curr_context->has_session
+        and $context->session( $curr_context->session );
 
     foreach my $app ( @{ $self->apps } ) {
         # warn "walking through routes of ".$app->name;
@@ -56,7 +55,7 @@ sub dispatch {
 
             # go to the next route if no match
             my $match = $route->match($request)
-              or next ROUTE;
+                or next ROUTE;
 
             $request->_set_route_params($match);
             $app->set_request($request);
@@ -67,8 +66,11 @@ sub dispatch {
 
             my $response = with_return {
                 my ($return) = @_;
+
                 # stash the multilevel return coderef in the context
-                $context->with_return($return) if ! $context->has_with_return;
+                $context->has_with_return
+                    or $context->with_return($return);
+
                 return $self->_dispatch_route($route, $context);
             };
 
@@ -86,11 +88,10 @@ sub dispatch {
 
                 ## A previous route might have used splat, failed
                 ## this needs to be cleaned from the request.
-                if (exists $request->{_params}{splat}) {
-                    delete $request->{_params}{splat};
-                }
+                exists $request->{_params}{splat}
+                    and delete $request->{_params}{splat};
 
-                $response->has_passed(0);    # clear for the next round
+                $response->has_passed(0); # clear for the next round
                 next ROUTE;
             }
 
@@ -109,7 +110,8 @@ sub build_request {
 
     # FIXME: SHIM, to remove when Context.pm is removed
     # this is needed to reset the env input fh to get data
-    defined $env->{'psgi.input'} and $env->{'psgi.input'}->seek( 0, 0 );
+    defined $env->{'psgi.input'}
+        and $env->{'psgi.input'}->seek( 0, 0 );
 
     # If we have an app, send the serialization engine
     my $engine  = $app->engine('serializer');
