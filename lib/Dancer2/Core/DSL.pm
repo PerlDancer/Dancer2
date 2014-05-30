@@ -130,7 +130,33 @@ sub set { shift->setting(@_) }
 
 sub template { shift->app->template(@_) }
 
-sub session { shift->app->session(@_) }
+sub session {
+    my ( $self, $key, $value ) = @_;
+
+    # shortcut reads if no session exists, so we don't
+    # instantiate sessions for no reason
+    if ( @_ == 2 ) {
+        return unless $self->context->has_session;
+    }
+
+    my $session = $self->context->session;
+    croak "No session available, a session engine needs to be set"
+      if !defined $session;
+
+    # return the session object if no key
+    return $session if @_ == 1;
+
+    # read if a key is provided
+    return $session->read($key) if @_ == 2;
+
+    # write to the session or delete if value is undef
+    if ( defined $value ) {
+        $session->write( $key => $value );
+    }
+    else {
+        $session->delete($key);
+    }
+}
 
 sub send_file { shift->app->send_file(@_) }
 
