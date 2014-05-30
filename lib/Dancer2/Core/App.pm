@@ -731,6 +731,19 @@ sub routes_regexps_for {
     return [ map { $_->regexp } @{ $self->routes->{$method} } ];
 }
 
+sub cookie {
+    my $self = shift;
+
+    @_ == 1 and return $self->request->cookies->{ $_[0] };
+
+    # writer
+    my ( $name, $value, %options ) = @_;
+    my $c =
+      Dancer2::Core::Cookie->new( name => $name, value => $value, %options );
+    $self->response->push_header( 'Set-Cookie' => $c->to_header );
+}
+
+
 1;
 
 __END__

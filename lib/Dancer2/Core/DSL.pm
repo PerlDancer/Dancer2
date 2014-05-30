@@ -284,7 +284,7 @@ sub context { shift->app->context }
 
 sub request { shift->app->request }
 
-sub response { shift->context->response }
+sub response { shift->app->response }
 
 sub upload { shift->request->upload(@_) }
 
@@ -309,6 +309,7 @@ sub vars { shift->request->vars }
 sub var  { shift->request->var(@_) }
 
 sub cookies { shift->request->cookies }
+sub cookie { shift->app->cookie(@_) }
 
 sub mime {
     my $self = shift;
@@ -321,8 +322,6 @@ sub mime {
         return $runner->mime_type;
     }
 }
-
-sub cookie { shift->context->cookie(@_) }
 
 sub send_error {
     my ( $self, $message, $status ) = @_;

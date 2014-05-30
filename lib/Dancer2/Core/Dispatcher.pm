@@ -76,12 +76,11 @@ sub dispatch {
 
             # Ensure we clear the with_return handler
             $context->clear_with_response;
-            $app->clear_response;
-            $app->clear_request;
 
             # No further processing of this response if its halted
             if ( $response->is_halted ) {
                 $app->context(undef);
+                app_cleanup($app);
                 return $response;
             }
 
@@ -93,17 +92,26 @@ sub dispatch {
                     and delete $request->{_params}{splat};
 
                 $response->has_passed(0); # clear for the next round
+                app_cleanup($app);
                 next ROUTE;
             }
 
             $app->execute_hook( 'core.app.after_request', $response );
             $app->context(undef);
+            app_cleanup($app);
 
             return $response;
         }
     }
 
     return $self->response_not_found( $env, $context );
+}
+
+sub app_cleanup {
+    my $app = shift;
+
+    $app->clear_response;
+    $app->clear_request;
 }
 
 # the dispatcher can build requests now :)

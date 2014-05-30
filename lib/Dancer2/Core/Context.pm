@@ -52,24 +52,6 @@ sub response {
     return $self->app->response;
 }
 
-=method cookie
-
-Get a cookie from the L<request> object, or set one in the L<response> object.
-
-=cut
-
-sub cookie {
-    my $self = shift;
-
-    return $self->request->cookies->{ $_[0] } if @_ == 1;
-
-    # writer
-    my ( $name, $value, %options ) = @_;
-    my $c =
-      Dancer2::Core::Cookie->new( name => $name, value => $value, %options );
-    $self->response->push_header( 'Set-Cookie' => $c->to_header );
-}
-
 =method redirect($destination, $status)
 
 Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
@@ -153,7 +135,7 @@ sub _build_session {
     # find the session cookie if any
     if ( !$self->destroyed_session ) {
         my $session_id;
-        my $session_cookie = $self->cookie( $engine->cookie_name );
+        my $session_cookie = $self->app->cookie( $engine->cookie_name );
         if ( defined $session_cookie ) {
             $session_id = $session_cookie->value;
         }
@@ -184,7 +166,7 @@ sub has_session {
     my $engine = $self->app->engine('session');
 
     return $self->_has_session
-      || ( $self->cookie( $engine->cookie_name )
+      || ( $self->app->cookie( $engine->cookie_name )
         && !$self->has_destroyed_session );
 }
 
