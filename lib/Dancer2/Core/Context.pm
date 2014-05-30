@@ -200,6 +200,22 @@ sub halt {
    $self->with_return->($self->response) if $self->has_with_return;
 }
 
+=method pass
+
+Flag the response object as 'passed'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher.
+
+=cut
+
+sub pass {
+   my ($self) = @_;
+   $self->response->pass;
+   # Short citcuit any remaining hook/route code
+   $self->with_return->($self->response) if $self->has_with_return;
+}
+
 =attr session
 
 Handle for the current session object, if any
@@ -314,5 +330,53 @@ has with_return => (
     predicate => 1,
     clearer   => 'clear_with_response',
 );
+
+=method send_file
+
+=cut
+
+sub send_file {
+    my ( $self, $path, %options ) = @_;
+    my $env = $self->env;
+
+    ( $options{'streaming'} && !$env->{'psgi.streaming'} )
+      and croak "Streaming is not supported on this server.";
+
+    ( exists $options{'content_type'} )
+      and $self->response->header(
+        'Content-Type' => $options{content_type} );
+
+    ( exists $options{filename} )
+      and $self->response->header( 'Content-Disposition' =>
+          "attachment; filename=\"$options{filename}\"" );
+
+    # if we're given a SCALAR reference, we're going to send the data
+    # pretending it's a file (on-the-fly file sending)
+    ( ref($path) eq 'SCALAR' )
+      and return $$path;
+
+    my $conf = {};
+    $conf->{app} = $self->app;
+    my $file_handler = Dancer2::Core::Factory->create(
+        Handler => 'File',
+        %$conf,
+        postponed_hooks => $self->app->postponed_hooks,
+        public_dir => ( $options{system_path} ? File::Spec->rootdir : undef ),
+    );
+
+    # List shouldn't be too long, so we use 'grep' instead of 'first'
+    if (my ($handler) = grep { $_->{name} eq 'File' } @{$self->app->route_handlers}) {
+        for my $h ( keys %{ $handler->{handler}->hooks } ) {
+            my $hooks = $handler->{handler}->hooks->{$h};
+            $file_handler->replace_hook( $h, $hooks );
+        }
+    }
+
+    $self->request->path_info($path);
+    $file_handler->code( $self->app->prefix )->( $self ); # slurp file
+    $self->with_return->( $self->response ) if $self->has_with_return;
+
+    # TODO Streaming support
+}
 
 1;

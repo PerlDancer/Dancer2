@@ -17,8 +17,11 @@ use HTTP::Request::Common;
         send_file 'index.html';
     };
 
-    get '/image' => sub {
-        send_file '1x1.png';
+    prefix '/some' => sub {
+        get '/image' => sub {
+            send_file '1x1.png';
+            return "send_file returns; this content is ignored";
+        };
     };
 }
 
@@ -43,9 +46,10 @@ test_psgi $app, sub {
     };
 
     subtest "Binary content" => sub {
-        my $r = $cb->( GET '/image' );
+        my $r = $cb->( GET '/some/image' );
 
         is( $r->code, 200, 'send_file sets the status to 200' );
+        unlike( $r->content, qr/send_file returns/, "send_file returns immediately with content");
     };
 };
 
