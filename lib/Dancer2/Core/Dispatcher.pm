@@ -16,12 +16,6 @@ has apps => (
     default => sub { [] },
 );
 
-has default_content_type => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub {'text/html'},
-);
-
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
     my ( $self, $env, $request, $curr_context ) = @_;
@@ -128,24 +122,18 @@ sub _dispatch_route {
         }
     }
 
-    # routes should use 'content_type' as default, or 'text/html'
-    # (Content-Type header needs to be set to encode content below..)
-    if ( !$response->header('Content-type') ) {
-        if ( exists( $app->config->{content_type} ) ) {
-            $response->header(
-                'Content-Type' => $app->config->{content_type} );
-        }
-        else {
-            $response->header(
-                'Content-Type' => $self->default_content_type );
-        }
-    }
-
     if ( ref $content eq 'Dancer2::Core::Response' ) {
         $response = $context->response($content);
     }
-    else {
-        $response->content( defined $content ? $content : '' );
+    elsif ( defined $content ) {
+        # The response object has no back references to the content or app
+        # Update the default_content_type of the response if any value set in
+        # config so it can be applied when the response is encoded/returned.
+        if ( exists $app->config->{content_type}
+          && $app->config->{content_type} ) {
+            $response->default_content_type($app->config->{content_type});
+        }
+        $response->content($content);
         $response->encode_content;
     }
 

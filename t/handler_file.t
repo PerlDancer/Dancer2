@@ -46,6 +46,8 @@ test_psgi $app, sub {
         my $r = $cb->( GET '/image' );
 
         is( $r->code, 200, 'send_file sets the status to 200' );
+        is( $r->header( 'Content-Type' ), 'image/png',
+            'correct content_type in response' );
     };
 };
 
