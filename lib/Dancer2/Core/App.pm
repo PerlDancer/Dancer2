@@ -783,9 +783,11 @@ sub redirect {
     }
 
     $self->response->redirect( $destination, $status );
+
     # Short circuit any remaining before hook / route code
     # ('pass' and after hooks are still processed)
-    $self->has_with_return and $self->with_return->($self->response);
+    $self->has_with_return
+        and $self->with_return->($self->response);
 }
 
 =method halt
@@ -820,19 +822,23 @@ instance, C<method> pointing to a new request method).
 =cut
 
 sub forward {
-    my ( $self, $context, $url, $params, $options ) = @_;
+    my ( $self, $url, $params, $options ) = @_;
     my $new_request = $self->make_forward_to( $url, $params, $options );
 
     my $new_response = Dancer2->runner->dispatcher->dispatch(
         $new_request->env,
         $new_request,
-        $context,
+        $self->context,
     );
+
     # halt the response, so no further processing is done on this request.
     # (any after hooks will have already been run)
     $new_response->halt;
-    $context->response($new_response);
-    $context->app->with_return->($new_response) if $context->app->has_with_return;
+    $self->set_response($new_response);
+
+    $self->has_with_return
+        and $self->with_return->($new_response);
+
     return $new_response; # Should never be called..
 }
 
