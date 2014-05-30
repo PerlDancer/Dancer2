@@ -76,6 +76,8 @@ sub dispatch {
 
             # Ensure we clear the with_return handler
             $context->clear_with_response;
+            $app->clear_response;
+            $app->clear_request;
 
             # No further processing of this response if its halted
             if ( $response->is_halted ) {
@@ -85,7 +87,6 @@ sub dispatch {
 
             # pass the baton if the response says so...
             if ( $response->has_passed ) {
-
                 ## A previous route might have used splat, failed
                 ## this needs to be cleaned from the request.
                 exists $request->{_params}{splat}
@@ -97,6 +98,7 @@ sub dispatch {
 
             $app->execute_hook( 'core.app.after_request', $response );
             $app->context(undef);
+
             return $response;
         }
     }
@@ -118,7 +120,7 @@ sub build_request {
     my $request = Dancer2::Core::Request->new(
           env             => $env,
           is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
-        ( serializer      => $engine ) x!! $engine,
+        ( serializer      => $engine )x!! $engine,
     );
 
     # Log deserialization errors

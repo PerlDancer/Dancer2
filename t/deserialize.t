@@ -75,8 +75,9 @@ note "Verify Serializers decode into characters"; {
 
             # change the app serializer
             # we're overiding a RO attribute only for this test!
-            Dancer2->runner->apps->[0]->{'serializer_engine'} =
-                $serializer;
+            Dancer2->runner->apps->[0]->set_serializer_engine(
+                $serializer
+            );
 
             my $r = $cb->(
                 PUT '/from_params',
@@ -96,8 +97,9 @@ note "Verify Serializers decode into characters"; {
 
 # default back to JSON for the rest
 # we're overiding a RO attribute only for this test!
-Dancer2->runner->apps->[0]->{'serializer_engine'} =
-    Dancer2::Serializer::JSON->new;
+Dancer2->runner->apps->[0]->set_serializer_engine(
+    Dancer2::Serializer::JSON->new
+);
 
 note "Decoding of mixed route and deserialized body params"; {
     # Check integers from request body remain integers
@@ -168,12 +170,12 @@ note 'Check serialization errors'; {
         );
 
         ok(
-            Dancer2->runner->apps->[0]->{'serializer_engine'}->has_error,
+            Dancer2->runner->apps->[0]->serializer_engine->has_error,
             "Invalid JSON threw error in serializer",
         );
 
         like(
-            Dancer2->runner->apps->[0]->{'serializer_engine'}->error,
+            Dancer2->runner->apps->[0]->serializer_engine->error,
             qr/malformed number/,
             ".. of a 'malformed number'",
         );

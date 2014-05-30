@@ -46,25 +46,11 @@ A L<Dancer2::Core::Response> object, used to set content, headers and HTTP statu
 
 =cut
 
-# a set of changes to apply to the response
-# that HashRef will should be passed as attributes to a response object
-has response => (
-    is      => 'rw',
-    isa     => InstanceOf ['Dancer2::Core::Response'],
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-
-        my $engine = $self->has_app
-            ? $self->app->engine('serializer')
-            : undef;
-
-        return Dancer2::Core::Response->new(
-            $engine ? (serializer => $engine) : ()
-        );
-    },
-);
-
+sub response {
+    my $self = shift;
+    if (@_) { $self->app->set_response(@_) }
+    return $self->app->response;
+}
 
 =method cookie
 

@@ -205,8 +205,6 @@ sub _get_config_for_engine {
     return $engine_config;
 }
 
-
-
 has postponed_hooks => (
     is      => 'ro',
     isa     => HashRef,
@@ -244,12 +242,31 @@ has request => (
     predicate => 'has_request',
 );
 
+has response => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::Response'],
+    lazy      => 1,
+    writer    => 'set_response',
+    clearer   => 'clear_response',
+    builder   => '_build_response',
+    predicate => 'has_response',
+);
+
 # holds a context whenever a request is processed
 has context => (
     is      => 'rw',
     isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
     trigger => \&setup_context,
 );
+
+sub _build_response {
+    my $self   = shift;
+    my $engine = $self->engine('serializer');
+
+    return Dancer2::Core::Response->new(
+        ( serializer => $engine )x!! $engine
+    );
+}
 
 sub setup_context {
     my ( $self, $ctx ) = @_;
@@ -559,11 +576,11 @@ sub send_file {
       and croak "Streaming is not supported on this server.";
 
     ( exists $options{'content_type'} )
-      and $self->context->response->header(
+      and $self->response->header(
         'Content-Type' => $options{content_type} );
 
     ( exists $options{filename} )
-      and $self->context->response->header( 'Content-Disposition' =>
+      and $self->response->header( 'Content-Disposition' =>
           "attachment; filename=\"$options{filename}\"" );
 
     # if we're given a SCALAR reference, we're going to send the data
@@ -647,8 +664,8 @@ sub compile_hooks {
             my $compiled = sub {
 
                 # don't run the filter if halt has been used
-                return
-                  if ( $self->context && $self->context->response->is_halted );
+                $self->has_response && $self->response->is_halted
+                    and return;
 
                 eval { $hook->(@_) };
 

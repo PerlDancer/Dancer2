@@ -149,20 +149,21 @@ my $counter = 0;
 foreach my $test (@tests) {
     my $env      = $test->{env};
     my $expected = $test->{expected};
+    my $path     = $env->{'PATH_INFO'};
 
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
-    is( $resp->[0], $expected->[0], 'Return code ok' );
+    is( $resp->[0], $expected->[0], "[$path] Return code ok" );
 
     my %got_headers = @{ $resp->[1] };
     my %exp_headers = @{ $expected->[1] };
-    is_deeply( \%got_headers, \%exp_headers, 'Correct headers' );
+    is_deeply( \%got_headers, \%exp_headers, "[$path] Correct headers" );
 
     if ( ref( $expected->[2] ) eq "Regexp" ) {
-        like $resp->[2][0] => $expected->[2], "Contents ok. (test $counter)";
+        like $resp->[2][0] => $expected->[2], "[$path] Contents ok. (test $counter)";
     }
     else {
-        is_deeply $resp->[2] => $expected->[2], "Contents ok. (test $counter)";
+        is_deeply $resp->[2] => $expected->[2], "[$path] Contents ok. (test $counter)";
     }
     $counter++;
 }

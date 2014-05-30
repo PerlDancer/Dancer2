@@ -331,8 +331,8 @@ sub send_error {
     my $x = Dancer2::Core::Error->new(
           message    => $message,
           app        => $self->app,
-        ( status     => $status     ) x !!$status,
-        ( serializer => $serializer ) x !!$serializer,
+        ( status     => $status     )x!! $status,
+        ( serializer => $serializer )x!! $serializer,
     )->throw;
 
     # return if there is a with_return coderef
