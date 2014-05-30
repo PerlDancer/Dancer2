@@ -804,7 +804,76 @@ sub halt {
    $self->has_with_return and $self->with_return->($self->response);
 }
 
+=method forward
 
+Create a new request which is a clone of the current one, apart
+from the path location, which points instead to the new location.
+This is used internally to chain requests using the forward keyword.
+
+Note that the new location should be a hash reference. Only one key is
+required, the C<to_url>, that should point to the URL that forward
+will use. Optional values are the key C<params> to a hash of
+parameters to be added to the current request parameters, and the key
+C<options> that points to a hash of options about the redirect (for
+instance, C<method> pointing to a new request method).
+
+=cut
+
+sub forward {
+    my ( $self, $context, $url, $params, $options ) = @_;
+    my $new_request = $self->make_forward_to( $url, $params, $options );
+
+    my $new_response = Dancer2->runner->dispatcher->dispatch(
+        $new_request->env,
+        $new_request,
+        $context,
+    );
+    # halt the response, so no further processing is done on this request.
+    # (any after hooks will have already been run)
+    $new_response->halt;
+    $context->response($new_response);
+    $context->app->with_return->($new_response) if $context->app->has_with_return;
+    return $new_response; # Should never be called..
+}
+
+# Create a new request which is a clone of the current one, apart
+# from the path location, which points instead to the new location
+# TODO this could be written in a more clean manner with a clone mechanism
+sub make_forward_to {
+    my ( $self, $url, $params, $options ) = @_;
+    my $request = $self->request;
+
+    # we clone the env to make sure we don't alter the existing one in $self
+    my $env = { %{ $request->env } };
+
+    $env->{PATH_INFO} = $url;
+
+    my $new_request = Dancer2::Core::Request->new( env => $env, body_is_parsed => 1 );
+    my $new_params = _merge_params( scalar( $request->params ), $params || {} );
+
+    if ( exists( $options->{method} ) ) {
+        $new_request->method( $options->{method} );
+    }
+
+    # Copy params (these are already decoded)
+    $new_request->{_params}       = $new_params;
+    $new_request->{_body_params}  = $request->{_body_params};
+    $new_request->{_query_params} = $request->{_query_params};
+    $new_request->{_route_params} = $request->{_route_params};
+    $new_request->{body}          = $request->body;
+    $new_request->{headers}       = $request->headers;
+
+    return $new_request;
+}
+
+sub _merge_params {
+    my ( $params, $to_add ) = @_;
+
+    for my $key ( keys %$to_add ) {
+        $params->{$key} = $to_add->{$key};
+    }
+    return $params;
+}
 
 1;
 

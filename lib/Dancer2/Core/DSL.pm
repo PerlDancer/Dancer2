@@ -302,7 +302,7 @@ sub redirect { shift->app->redirect(@_) }
 
 sub forward {
     my $self = shift;
-    $self->request->forward($self->context, @_);
+    $self->app->forward($self->context, @_);
 }
 
 sub vars { shift->request->vars }
