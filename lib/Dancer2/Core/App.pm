@@ -473,6 +473,12 @@ sub settings {
     +{ %{ Dancer2->runner->config }, %{ $self->config } };
 }
 
+sub cleanup {
+    my $self = shift;
+    $self->clear_request;
+    $self->clear_response;
+}
+
 sub engine {
     my ( $self, $name ) = @_;
 

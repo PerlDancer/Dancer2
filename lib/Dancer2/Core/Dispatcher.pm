@@ -80,7 +80,7 @@ sub dispatch {
             # No further processing of this response if its halted
             if ( $response->is_halted ) {
                 $app->context(undef);
-                $self->app_cleanup($app);
+                $app->cleanup;
                 return $response;
             }
 
@@ -92,27 +92,19 @@ sub dispatch {
                     and delete $request->{_params}{splat};
 
                 $response->has_passed(0); # clear for the next round
-                app_cleanup($app);
+                $app->cleanup;
                 next ROUTE;
             }
 
             $app->execute_hook( 'core.app.after_request', $response );
             $app->context(undef);
-            app_cleanup($app);
+            $app->cleanup;
 
             return $response;
         }
     }
 
     return $self->response_not_found( $env, $context );
-}
-
-sub app_cleanup {
-    my $self = shift;
-    my $app  = shift;
-
-    $app->clear_response;
-    $app->clear_request;
 }
 
 # the dispatcher can build requests now :)
