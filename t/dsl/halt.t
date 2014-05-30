@@ -17,7 +17,7 @@ subtest 'halt within routes' => sub {
             halt;
         };
         get '/shortcircuit' => sub {
-            context->response->content('halted');
+            app->response->content('halted');
             halt;
             redirect '/'; # won't get executed as halt returns immediately.
         };

@@ -8,14 +8,14 @@ use Moo::Role;
 Generic method that produces a response in the context given with a code and a
 message:
 
-    $self->response( $ctx, 404, "not found" );
+    $self->response( $app, 404, "not found" );
 
 =cut
 
 sub response {
-    my ( $self, $ctx, $code, $message ) = @_;
-    $ctx->response->status($code);
-    $ctx->response->header( 'Content-Type', 'text/plain' );
+    my ( $self, $app, $code, $message ) = @_;
+    $app->response->status($code);
+    $app->response->header( 'Content-Type', 'text/plain' );
     return $message;
 }
 
@@ -26,8 +26,8 @@ Produces a 400 response in the context given.
 =cut
 
 sub response_400 {
-    my ( $self, $ctx ) = @_;
-    $self->response( $ctx, 400, 'Bad Request' );
+    my ( $self, $app ) = @_;
+    $self->response( $app, 400, 'Bad Request' );
 }
 
 =method response_404
@@ -37,8 +37,8 @@ Produces a 404 response in the context given.
 =cut
 
 sub response_404 {
-    my ( $self, $ctx ) = @_;
-    $self->response( $ctx, 404, 'Not Found' );
+    my ( $self, $app ) = @_;
+    $self->response( $app, 404, 'Not Found' );
 }
 
 =method response_403
@@ -48,8 +48,8 @@ Produces a 403 response in the context given.
 =cut
 
 sub response_403 {
-    my ( $self, $ctx ) = @_;
-    $self->response( $ctx, 403, 'Unauthorized' );
+    my ( $self, $app ) = @_;
+    $self->response( $app, 403, 'Unauthorized' );
 }
 
 1;

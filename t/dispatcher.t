@@ -37,9 +37,9 @@ $app->add_route(
     method => 'get',
     regexp => '/user/:name',
     code   => sub {
-        my $ctx = shift;
-        $buffer->{user} = $ctx->request->params->{'name'};
-        $ctx->response->has_passed(1);
+        my $app = shift;
+        $buffer->{user} = $app->request->params->{'name'};
+        $app->response->has_passed(1);
     },
 );
 
@@ -47,8 +47,8 @@ $app->add_route(
     method => 'get',
     regexp => '/user/*?',
     code   => sub {
-        my $ctx = shift;
-        "Hello " . $ctx->request->params->{'name'};
+        my $app = shift;
+        "Hello " . $app->request->params->{'name'};
     },
 );
 
@@ -111,11 +111,11 @@ $app->add_hook(
     Dancer2::Core::Hook->new(
         name => 'before',
         code => sub {
-            my $ctx = shift;
-            if ( $ctx->request->path_info eq '/haltme' ) {
-                $ctx->response->header( Location => 'http://perldancer.org' );
-                $ctx->response->status(302);
-                $ctx->response->is_halted(1);
+            my $app = shift;
+            if ( $app->request->path_info eq '/haltme' ) {
+                $app->response->header( Location => 'http://perldancer.org' );
+                $app->response->status(302);
+                $app->response->is_halted(1);
             }
         },
     )
@@ -126,8 +126,8 @@ $app->add_hook(
     Dancer2::Core::Hook->new(
         name => 'before',
         code => sub {
-            my $ctx = shift;
-            if ( $ctx->request->path_info eq '/haltme' ) {
+            my $app = shift;
+            if ( $app->request->path_info eq '/haltme' ) {
                 $was_in_second_filter =
                   1;   # should not happen because first filter halted the flow
             }
