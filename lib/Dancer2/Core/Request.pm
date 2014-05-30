@@ -1126,7 +1126,6 @@ sub _build_cookies {
     return $cookies;
 }
 
-
 1;
 
 =head1 SEE ALSO

@@ -12,6 +12,10 @@ use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 
+our %supported_http_methods = map +( $_ => 1 ), qw<
+    GET HEAD POST PUT DELETE OPTIONS PATCH
+>;
+
 
 =head1 DESCRIPTION
 
@@ -116,7 +120,7 @@ my $definitions = [
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
-            grep {/^$_[0]$/} qw(get head post put delete options patch);
+            grep {/^$_[0]$/} map +( lc ), keys %supported_http_methods
         },
         message =>
           sub { return exception_message( $_[0], 'a Dancer2Method' ) },
@@ -126,7 +130,7 @@ my $definitions = [
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
-            grep {/^$_[0]$/} qw(GET HEAD POST PUT DELETE OPTIONS PATCH);
+            grep {/^$_[0]$/} keys %supported_http_methods
         },
         message =>
           sub { return exception_message( $_[0], 'a Dancer2HTTPMethod' ) },
