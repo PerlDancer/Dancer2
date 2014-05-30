@@ -18,7 +18,8 @@ with 'Dancer2::Core::Role::Headers';
 
 sub BUILD {
     my ($self) = @_;
-    $self->header( 'Server' => "Perl Dancer2 $Dancer2::VERSION" );
+    $self->header( 'Server' => "Perl Dancer2 $Dancer2::VERSION" )
+        if Dancer2->runner->config->{'server_tokens'};
 }
 
 # boolean to tell if the route passes or not
