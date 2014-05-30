@@ -762,6 +762,32 @@ sub cookie {
     $self->response->push_header( 'Set-Cookie' => $c->to_header );
 }
 
+=method redirect($destination, $status)
+
+Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
+be made into an absolute URI, relative to the URI in the request.
+
+=cut
+
+sub redirect {
+    my ( $self, $destination, $status ) = @_;
+
+    # RFC 2616 requires an absolute URI with a scheme,
+    # turn the URI into that if it needs it
+
+    # Scheme grammar as defined in RFC 2396
+    #  scheme = alpha *( alpha | digit | "+" | "-" | "." )
+    my $scheme_re = qr{ [a-z][a-z0-9\+\-\.]* }ix;
+    if ( $destination !~ m{^ $scheme_re : }x ) {
+        $destination = $self->request->uri_for( $destination, {}, 1 );
+    }
+
+    $self->response->redirect( $destination, $status );
+    # Short circuit any remaining before hook / route code
+    # ('pass' and after hooks are still processed)
+    $self->has_with_return and $self->with_return->($self->response);
+}
+
 
 1;
 

@@ -298,7 +298,7 @@ sub params { shift->request->params(@_) }
 
 sub param { shift->request->param(@_) }
 
-sub redirect { shift->context->redirect(@_) }
+sub redirect { shift->app->redirect(@_) }
 
 sub forward {
     my $self = shift;
