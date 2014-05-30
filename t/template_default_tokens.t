@@ -24,7 +24,7 @@ my $views =
     set foo      => "in settings";
 
     get '/view/:foo' => sub {
-        var foo     => "in var";
+        var     foo => "in var";
         session foo => "in session";
         template "tokens";
     };

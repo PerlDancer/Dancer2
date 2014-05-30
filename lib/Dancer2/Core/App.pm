@@ -269,7 +269,14 @@ has with_return => (
 has context => (
     is      => 'rw',
     isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
-    trigger => \&setup_context,
+);
+
+has session => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::Session'],
+    lazy      => 1,
+    writer    => 'set_session',
+    predicate => 'has_session',
 );
 
 sub _build_response {
@@ -281,15 +288,18 @@ sub _build_response {
     );
 }
 
-sub setup_context {
-    my ( $self, $ctx ) = @_;
+sub setup_session {
+    my $self = shift;
 
     for my $type ( @{ $self->supported_engines } ) {
         my $attr   = "${type}_engine";
         my $engine = $self->$attr or next;
-        defined($ctx) ? $engine->context($ctx) : $engine->clear_context;
+
+        $self->has_session                         ?
+            $engine->set_session( $self->session ) :
+            $engine->clear_session;
     }
-};
+}
 
 has prefix => (
     is        => 'rw',
@@ -489,11 +499,11 @@ sub engine {
     return $self->$attr_name;
 }
 
-
 sub template {
     my ($self) = shift;
 
     my $template = $self->template_engine;
+    $template->set_settings( $self->config );
     my $content  = $template->process( $self->request, @_ );
 
     return $content;

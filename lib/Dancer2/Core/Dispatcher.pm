@@ -61,7 +61,6 @@ sub dispatch {
             $app->set_request($request);
 
             # FIXME: SHIM, to remove when Context.pm is removed
-            $app->setup_context($context);
             $context->request($request);
 
             my $response = with_return {

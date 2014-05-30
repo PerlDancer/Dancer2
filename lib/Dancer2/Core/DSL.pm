@@ -143,6 +143,9 @@ sub session {
     croak "No session available, a session engine needs to be set"
       if !defined $session;
 
+    $self->app->set_session($session);
+    $self->app->setup_session;
+
     # return the session object if no key
     return $session if @_ == 1;
 

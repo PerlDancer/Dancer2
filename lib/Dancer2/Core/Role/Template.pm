@@ -63,6 +63,14 @@ has engine => (
     builder => 1,
 );
 
+has settings => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    default => sub { +{} },
+    writer  => 'set_settings',
+);
+
 sub _template_name {
     my ( $self, $view ) = @_;
     my $def_tmpl_ext = $self->default_tmpl_ext();
@@ -119,7 +127,7 @@ sub apply_layout {
     my $layout =
       exists $options->{layout}
       ? ( $options->{layout} ? $options->{layout} : undef )
-      : ( $self->layout || $self->context->app->config->{layout} );
+      : ( $self->layout || $self->config->{layout} );
 
     # that should only be $self->config, but the layout ain't there ???
 
@@ -149,15 +157,13 @@ sub _prepare_tokens_options {
     $tokens->{perl_version}   = $];
     $tokens->{dancer_version} = Dancer2->VERSION;
 
-    if ( defined $self->context ) {
-        $tokens->{settings} = $self->context->app->config;
-        $tokens->{request}  = $request;
-        $tokens->{params}   = $request->params;
-        $tokens->{vars}     = $request->vars;
+    $tokens->{settings} = $self->settings;
+    $tokens->{request}  = $request;
+    $tokens->{params}   = $request->params;
+    $tokens->{vars}     = $request->vars;
 
-        $tokens->{session} = $self->context->session->data
-          if $self->context->has_session;
-    }
+    $tokens->{session} = $self->session->data
+      if $self->has_session;
 
     return $tokens;
 }
