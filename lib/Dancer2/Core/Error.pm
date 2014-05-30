@@ -339,9 +339,10 @@ attribute's response.
 
 sub throw {
     my $self = shift;
-    $self->response(shift) if @_;
+    $self->set_response(shift) if @_;
 
-    croak "error has no response to throw at" unless $self->response;
+    $self->response
+        or croak "error has no response to throw at";
 
     $self->has_app &&
         $self->app->execute_hook( 'core.error.before', $self );

@@ -71,7 +71,7 @@ sub dispatch {
                 $app->has_with_return
                     or $app->with_return($return);
 
-                return $self->_dispatch_route($route, $context, $app);
+                return $self->_dispatch_route($route, $app);
             };
 
             # Ensure we clear the with_return handler
@@ -137,10 +137,10 @@ sub build_request {
 
 # Call any before hooks then the matched route.
 sub _dispatch_route {
-    my ($self, $route, $context, $app) = @_;
+    my ($self, $route, $app) = @_;
 
     $app->execute_hook( 'core.app.before_request', $app );
-    my $response = $context->response;
+    my $response = $app->response;
 
     my $content;
     if ( $response->is_halted ) {
@@ -158,7 +158,7 @@ sub _dispatch_route {
     }
 
     if ( ref $content eq 'Dancer2::Core::Response' ) {
-        $response = $context->response($content);
+        $response = $app->set_response($content);
     }
     elsif ( defined $content ) {
         # The response object has no back references to the content or app

@@ -8,7 +8,6 @@ use Carp 'croak';
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request;
-use Dancer2::Core::Response;
 
 =attr app
 
@@ -39,6 +38,7 @@ has request => (
 );
 
 
+<<<<<<< HEAD
 =attr response
 
 A L<Dancer2::Core::Response> object, used to set content, headers and HTTP status codes.
@@ -87,6 +87,8 @@ sub pass {
 
 =======
 >>>>>>> Moved halt method from Core::Context to Core::App
+=======
+>>>>>>> Removed response attribute from Core::Context
 =attr session
 
 Handle for the current session object, if any
