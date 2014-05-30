@@ -68,14 +68,14 @@ sub dispatch {
                 my ($return) = @_;
 
                 # stash the multilevel return coderef in the context
-                $context->has_with_return
-                    or $context->with_return($return);
+                $app->has_with_return
+                    or $app->with_return($return);
 
                 return $self->_dispatch_route($route, $context);
             };
 
             # Ensure we clear the with_return handler
-            $context->clear_with_response;
+            $app->clear_with_response;
 
             # No further processing of this response if its halted
             if ( $response->is_halted ) {

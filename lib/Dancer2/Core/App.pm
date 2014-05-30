@@ -252,6 +252,19 @@ has response => (
     predicate => 'has_response',
 );
 
+=attr with_return
+
+Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
+
+=cut
+
+has with_return => (
+    is        => 'rw',
+    predicate => 1,
+    clearer   => 'clear_with_response',
+);
+
+
 # holds a context whenever a request is processed
 has context => (
     is      => 'rw',

@@ -677,7 +677,7 @@ sub forward {
     # (any after hooks will have already been run)
     $new_response->halt;
     $context->response($new_response);
-    $context->with_return->($new_response) if $context->has_with_return;
+    $context->app->with_return->($new_response) if $context->app->has_with_return;
     return $new_response; # Should never be called..
 }
 
