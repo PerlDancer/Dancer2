@@ -245,6 +245,7 @@ things:
     Maurice
     mokko
     Olivier Mengué
+    Omar M. Othman
     Pau Amma
     Pedro Melo
     Rick Yakubowski

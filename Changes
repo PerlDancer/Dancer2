@@ -6,6 +6,8 @@
     * GH #578: Remove the default engine configurations. (Sawyer X)
     * GH #567: Check for proper module names in loading engines. Might help
       with taint mode. (Sawyer X)
+    * GH #585, #595: Return 405 Method Not Allowed instead of 500.
+      (Omar M. Othman)
 
     [ DOCUMENTATION ]
     * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
