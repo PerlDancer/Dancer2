@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 12;
 use Plack::Test;
 use HTTP::Request;
 
@@ -36,5 +36,14 @@ test_psgi $app, sub {
     my $res = $cb->( HTTP::Request->new( HEAD => '/head' ) );
     is( $res->content, '', 'HEAD /' ); # HEAD requests have no content
     is( $res->headers->content_length, 4, 'Content-Length for HEAD' );
+
+    # Testing invalid HTTP methods.
+    {
+        my $req = HTTP::Request->new( "ILLEGAL" => '/' );
+        my $res = $cb->( $req );
+        ok( !$res->is_success, "Response->is_success is false when using illegal HTTP method" );
+        is( $res->code, 405, "Illegal method should return 405 code" );
+        like( $res->content, qr<Method Not Allowed>, q<Illegal method should have "Method Not Allowed" in the content> );
+    }
 };
 

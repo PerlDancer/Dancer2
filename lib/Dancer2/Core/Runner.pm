@@ -226,6 +226,15 @@ sub psgi_app {
         my $env = shift;
         my $response;
 
+        # pre-request sanity check
+        my $method = uc $env->{'REQUEST_METHOD'};
+        $Dancer2::Core::Types::supported_http_methods{$method}
+            or return [
+                405,
+                [ 'Content-Type' => 'text/plain' ],
+                [ "Method Not Allowed\n\n$method is not supported." ]
+            ];
+
         eval {
             $response = $self->dispatcher->dispatch($env)->to_psgi;
             1;
