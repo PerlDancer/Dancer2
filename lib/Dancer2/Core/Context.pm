@@ -52,6 +52,7 @@ sub response {
 }
 
 
+<<<<<<< HEAD
 =method halt
 
 Flag the response object as 'halted'.
@@ -84,6 +85,8 @@ sub pass {
    $self->with_return->($self->response) if $self->has_with_return;
 }
 
+=======
+>>>>>>> Moved halt method from Core::Context to Core::App
 =attr session
 
 Handle for the current session object, if any
