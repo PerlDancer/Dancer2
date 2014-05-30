@@ -148,9 +148,8 @@ sub _build_default_config {
         logger       => ( $ENV{DANCER_LOGGER}       || 'console' ),
         host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
         port         => ( $ENV{DANCER_PORT}         || '3000' ),
-        views        => ( $ENV{DANCER_VIEWS}
-              || path( $self->config_location, 'views' ) ),
-        appdir        => $self->location,
+        views        => ( $ENV{DANCER_VIEWS}        || path( $self->config_location, 'views' ) ),
+        appdir       => $self->location,
     };
 }
 
