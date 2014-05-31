@@ -19,7 +19,7 @@ has apps => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ( $self, $env, $request, $curr_context ) = @_;
+    my ( $self, $env, $request, $curr_session ) = @_;
 
     # warn "dispatching ".$env->{PATH_INFO}
     #    . " with ".join(", ", map { $_->name } @{$self->apps });
@@ -28,9 +28,6 @@ sub dispatch {
     # Once per dispatching! We should not create one context for each app or
     # we're going to parse the request body multiple times
     my $context = Dancer2::Core::Context->new();
-
-    $curr_context and $curr_context->has_session
-        and $context->session( $curr_context->session );
 
     foreach my $app ( @{ $self->apps } ) {
         # warn "walking through routes of ".$app->name;
@@ -57,13 +54,15 @@ sub dispatch {
             my $match = $route->match($request)
                 or next ROUTE;
 
+            $curr_session and $app->set_session($curr_session);
+
             $request->_set_route_params($match);
             $app->set_request($request);
 
             my $response = with_return {
                 my ($return) = @_;
 
-                # stash the multilevel return coderef in the context
+                # stash the multilevel return coderef in the app
                 $app->has_with_return
                     or $app->with_return($return);
 

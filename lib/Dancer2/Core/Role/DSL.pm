@@ -72,7 +72,7 @@ sub _compile_keyword {
         my $code = $compiled_code;
         $compiled_code = sub {
             croak "Function '$keyword' must be called from a route handler"
-              unless defined $self->app->context;
+              unless defined $self->app;
             $code->(@_);
         };
     }

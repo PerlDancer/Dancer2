@@ -43,7 +43,7 @@ with them directly.
         my $app     = $dsl->app;
         my $request = $app->request;
 
-        if ( $app->context->session->write( "logged_in" ) ) {
+        if ( $app->session->write( "logged_in" ) ) {
             ...
         }
     };
@@ -412,13 +412,13 @@ the config file as C<after_logout>.
   use Dancer2::Plugin;
 
   register logout => sub {
-    my $dsl     = shift;
-    my $context = $dsl->app->context;
-    my $conf    = plugin_setting();
+    my $dsl  = shift;
+    my $app  = $dsl->app;
+    my $conf = plugin_setting();
 
-    $context->destroy_session;
+    $app->destroy_session;
 
-    return $context->redirect( $conf->{after_logout} );
+    return $app->redirect( $conf->{after_logout} );
   };
 
   register_plugin for_versions => [ 2 ] ;

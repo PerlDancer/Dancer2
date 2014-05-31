@@ -341,12 +341,12 @@ And finally, we need a way to clear our user's session with the customary
 logout procedure.
 
   get '/logout' => sub {
-     context->destroy_session;
+     app->destroy_session;
      set_flash('You are logged out.');
      redirect '/';
   };
 
-C<context-E<gt>destroy_session;> is Dancer2's way to remove a stored session.
+C<app-E<gt>destroy_session;> is Dancer2's way to remove a stored session.
 We notify the user she is logged out and route her back to the root URL
 once again.
 
@@ -554,7 +554,7 @@ Here's the complete dancr.pl script from start to finish.
  };
 
  get '/logout' => sub {
-    context->destroy_session;
+    app->destroy_session;
     set_flash('You are logged out.');
     redirect '/';
  };

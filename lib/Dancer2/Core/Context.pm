@@ -23,7 +23,6 @@ has app => (
 );
 
 
-<<<<<<< HEAD
 =attr request
 
 A L<Dancer2::Core::Request> object, built from the PSGI environment variable for this request.
@@ -38,21 +37,6 @@ has request => (
 );
 
 
-<<<<<<< HEAD
-=attr response
-
-A L<Dancer2::Core::Response> object, used to set content, headers and HTTP status codes.
-
-=cut
-
-sub response {
-    my $self = shift;
-    if (@_) { $self->app->set_response(@_) }
-    return $self->app->response;
-}
-
-
-<<<<<<< HEAD
 =method halt
 
 Flag the response object as 'halted'.

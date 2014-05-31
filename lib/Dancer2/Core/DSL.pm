@@ -136,21 +136,20 @@ sub session {
     # shortcut reads if no session exists, so we don't
     # instantiate sessions for no reason
     if ( @_ == 2 ) {
-        return unless $self->context->has_session;
+        return unless $self->app->has_session;
     }
 
-    my $session = $self->context->session;
-    croak "No session available, a session engine needs to be set"
-      if !defined $session;
+    my $session = $self->app->session
+        || croak "No session available, a session engine needs to be set";
 
-    $self->app->set_session($session);
     $self->app->setup_session;
 
     # return the session object if no key
-    return $session if @_ == 1;
+    @_ == 1 and return $session;
 
     # read if a key is provided
-    return $session->read($key) if @_ == 2;
+    @_ == 2 and return $session->read($key);
+
 
     # write to the session or delete if value is undef
     if ( defined $value ) {

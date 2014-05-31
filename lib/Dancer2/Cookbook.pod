@@ -384,7 +384,7 @@ for you.
 
 When you're done with your session, you can destroy it:
 
-    context->destroy_session
+    app->destroy_session
 
 =head2 Sessions and logging in
 

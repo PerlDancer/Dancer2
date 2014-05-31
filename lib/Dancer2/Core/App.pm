@@ -275,8 +275,10 @@ has session => (
     is        => 'ro',
     isa       => InstanceOf['Dancer2::Core::Session'],
     lazy      => 1,
+    builder   => '_build_session',
     writer    => 'set_session',
-    predicate => 'has_session',
+    clearer   => 'clear_session',
+    predicate => '_has_session',
 );
 
 sub _build_response {
@@ -286,6 +288,94 @@ sub _build_response {
     return Dancer2::Core::Response->new(
         ( serializer => $engine )x!! $engine
     );
+}
+
+sub _build_session {
+    my ($self) = @_;
+    my $session;
+
+    # Find the session engine
+    my $engine = $self->engine('session');
+
+    # find the session cookie if any
+    if ( !$self->destroyed_session ) {
+        my $session_id;
+        my $session_cookie = $self->cookie( $engine->cookie_name );
+        if ( defined $session_cookie ) {
+            $session_id = $session_cookie->value;
+        }
+
+        # if we have a session cookie, try to retrieve the session
+        if ( defined $session_id ) {
+            eval { $session = $engine->retrieve( id => $session_id ) };
+            croak "Fail to retrieve session: $@"
+              if $@ && $@ !~ /Unable to retrieve session/;
+        }
+    }
+
+    # create the session if none retrieved
+    return $session ||= $engine->create();
+}
+
+=method has_session
+
+Returns true if session engine has been defined and if either a session object
+has been instantiated in the context or if a session cookie was found and not
+subsequently invalidated.
+
+=cut
+
+sub has_session {
+    my ($self) = @_;
+
+    my $engine = $self->engine('session');
+
+    return $self->_has_session
+        || ( $self->cookie( $engine->cookie_name )
+             && !$self->has_destroyed_session );
+}
+
+=attr destroyed_session
+
+We cache a destroyed session here; once this is set we must not attempt to
+retrieve the session from the cookie in the request.  If no new session is
+created, this is set (with expiration) as a cookie to force the browser to
+expire the cookie.
+
+=cut
+
+has destroyed_session => (
+    is        => 'rw',
+    isa       => InstanceOf ['Dancer2::Core::Session'],
+    predicate => 1,
+    clearer   => 'clear_destroyed_session',
+);
+
+=method destroy_session
+
+Destroys the current session and ensures any subsequent session is created
+from scratch and not from the request session cookie
+
+=cut
+
+sub destroy_session {
+    my ($self) = @_;
+
+    # Find the session engine
+    my $engine = $self->engine('session');
+
+    # Expire session, set the expired cookie and destroy the session
+    # Setting the cookie ensures client gets an expired cookie unless
+    # a new session is created and supercedes it
+    my $session = $self->session;
+    $session->expires(-86400);    # yesterday
+    $engine->destroy( id => $session->id );
+
+    # Clear session and invalidate session cookie in request
+    $self->destroyed_session($session);
+    $self->clear_session;
+
+    return;
 }
 
 sub setup_session {
@@ -421,7 +511,7 @@ sub _init_hooks {
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
-                my $response = shift;
+                my $response = $self->response;
 
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $self->session_engine;
@@ -435,8 +525,8 @@ sub _init_hooks {
                 # update the session ID if needed, then set the session cookie
                 # in the response
 
-                if ( $self->context->has_session ) {
-                    my $session = $self->context->session;
+                if ( $self->has_session ) {
+                    my $session = $self->session;
                     $engine->flush( session => $session )
                       if $session->is_dirty;
                     $engine->set_cookie_header(
@@ -444,8 +534,8 @@ sub _init_hooks {
                         session  => $session
                     );
                 }
-                elsif ( $self->context->has_destroyed_session ) {
-                    my $session = $self->context->destroyed_session;
+                elsif ( $self->has_destroyed_session ) {
+                    my $session = $self->destroyed_session;
                     $engine->set_cookie_header(
                         response  => $response,
                         session   => $session,
@@ -487,6 +577,7 @@ sub cleanup {
     my $self = shift;
     $self->clear_request;
     $self->clear_response;
+    $self->clear_destroyed_session;
 }
 
 sub engine {
@@ -811,7 +902,7 @@ sub forward {
     my $new_response = Dancer2->runner->dispatcher->dispatch(
         $new_request->env,
         $new_request,
-        $self->context,
+        ($self->session)x!! $self->has_session,
     );
 
     # halt the response, so no further processing is done on this request.
