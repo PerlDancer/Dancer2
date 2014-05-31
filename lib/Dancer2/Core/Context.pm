@@ -7,7 +7,6 @@ use URI::Escape;
 use Carp 'croak';
 
 use Dancer2::Core::Types;
-use Dancer2::Core::Request;
 
 =attr app
 
@@ -24,6 +23,7 @@ has app => (
 );
 
 
+<<<<<<< HEAD
 =attr request
 
 A L<Dancer2::Core::Request> object, built from the PSGI environment variable for this request.
@@ -85,10 +85,6 @@ sub pass {
    $self->with_return->($self->response) if $self->has_with_return;
 }
 
-=======
->>>>>>> Moved halt method from Core::Context to Core::App
-=======
->>>>>>> Removed response attribute from Core::Context
 =attr session
 
 Handle for the current session object, if any
