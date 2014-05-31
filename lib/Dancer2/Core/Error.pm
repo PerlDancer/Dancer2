@@ -332,7 +332,7 @@ has content => (
 =method throw($response)
 
 Populates the content of the response with the error's information.
-If I<$response> is not given, acts on the I<context>
+If I<$response> is not given, acts on the I<app>
 attribute's response.
 
 =cut

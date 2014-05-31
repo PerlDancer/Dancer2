@@ -5,7 +5,6 @@ use Moo;
 use Encode;
 
 use Dancer2::Core::Types;
-use Dancer2::Core::Context;
 use Dancer2::Core::Request;
 use Dancer2::Core::Response;
 
@@ -24,17 +23,8 @@ sub dispatch {
     # warn "dispatching ".$env->{PATH_INFO}
     #    . " with ".join(", ", map { $_->name } @{$self->apps });
 
-    # Initialize a context for the current request
-    # Once per dispatching! We should not create one context for each app or
-    # we're going to parse the request body multiple times
-    my $context = Dancer2::Core::Context->new();
-
     foreach my $app ( @{ $self->apps } ) {
         # warn "walking through routes of ".$app->name;
-
-        # set the current app in the context and context in the app..
-        $context->app($app);
-        $app->context($context);
 
         # create request if we didn't get any
         $request ||= $self->build_request( $env, $app );
@@ -74,7 +64,6 @@ sub dispatch {
 
             # No further processing of this response if its halted
             if ( $response->is_halted ) {
-                $app->context(undef);
                 $app->cleanup;
                 return $response;
             }
@@ -92,24 +81,18 @@ sub dispatch {
             }
 
             $app->execute_hook( 'core.app.after_request', $response );
-            $app->context(undef);
             $app->cleanup;
 
             return $response;
         }
     }
 
-    return $self->response_not_found( $env, $context );
+    return $self->response_not_found( $env );
 }
 
 # the dispatcher can build requests now :)
 sub build_request {
     my ( $self, $env, $app ) = @_;
-
-    # FIXME: SHIM, to remove when Context.pm is removed
-    # this is needed to reset the env input fh to get data
-    defined $env->{'psgi.input'}
-        and $env->{'psgi.input'}->seek( 0, 0 );
 
     # If we have an app, send the serialization engine
     my $engine  = $app->engine('serializer');
@@ -187,7 +170,7 @@ sub response_internal_error {
 my $not_found_app;
 
 sub response_not_found {
-    my ( $self, $env, $context ) = @_;
+    my ( $self, $env ) = @_;
 
     $not_found_app ||= Dancer2::Core::App->new(
         name            => 'file_not_found',
@@ -203,12 +186,8 @@ sub response_not_found {
     my $request = $self->build_request( $env, $not_found_app );
     $not_found_app->set_request($request);
 
-    $context->app($not_found_app);
-    $not_found_app->context($context);
-
     return Dancer2::Core::Error->new(
         status  => 404,
-        context => $context, # FIXME: go over Dancer2::Core::Error
         message => $request->path,
     )->throw;
 }
@@ -228,7 +207,7 @@ __END__
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
     # Capture internal error of a response (if any) after a dispatch
-    $dispatcher->response_internal_error($context, $error);
+    $dispatcher->response_internal_error($app, $error);
 
     # Capture response not found for an application the after dispatch
     $dispatcher->response_not_found($context);
@@ -267,5 +246,5 @@ a variable error and returns an object of L<Dancer2::Core::Error>.
 =head2 response_not_found
 
 The C<response_not_found> consumes as input the list of applications and an
-object of type L<Dancer2::Core::Context> and returns an object
+object of type L<Dancer2::Core::App> and returns an object
 L<Dancer2::Core::Error>.

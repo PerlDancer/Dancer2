@@ -265,12 +265,6 @@ has with_return => (
 );
 
 
-# holds a context whenever a request is processed
-has context => (
-    is      => 'rw',
-    isa     => Maybe [ InstanceOf ['Dancer2::Core::Context'] ],
-);
-
 has session => (
     is        => 'ro',
     isa       => InstanceOf['Dancer2::Core::Session'],
@@ -516,9 +510,6 @@ sub _init_hooks {
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $self->session_engine;
                 return if !defined $engine;
-
-                # make sure we have a context to examine
-                return if !defined $self->context;
 
                 # if a session has been instantiated or we already had a
                 # session, first flush the session so cookie-based sessions can
