@@ -343,37 +343,37 @@ sub send_error {
 #
 
 sub from_json {
-    my $app = shift->app;
+    my $r = shift;
     require 'Dancer2/Serializer/JSON.pm';
     Dancer2::Serializer::JSON::from_json(@_);
 }
 
 sub to_json {
-    my $app = shift->app;
+    my $r = shift;
     require 'Dancer2/Serializer/JSON.pm';
     Dancer2::Serializer::JSON::to_json(@_);
 }
 
 sub from_yaml {
-    my $app = shift->app;
+    my $r = shift;
     require 'Dancer2/Serializer/YAML.pm';
     Dancer2::Serializer::YAML::from_yaml(@_);
 }
 
 sub to_yaml {
-    my $app = shift->app;
+    my $r = shift;
     require 'Dancer2/Serializer/YAML.pm';
     Dancer2::Serializer::YAML::to_yaml(@_);
 }
 
 sub from_dumper {
-    my $app = shift->app;
+    my $r = shift;
     require 'Dancer2/Serializer/Dumper.pm';
     Dancer2::Serializer::Dumper::from_dumper(@_);
 }
 
 sub to_dumper {
-    my $app = shift->app;
+    my $r = shift;
     require 'Dancer2/Serializer/Dumper.pm';
     Dancer2::Serializer::Dumper::to_dumper(@_);
 }

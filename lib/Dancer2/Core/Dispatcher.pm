@@ -131,7 +131,11 @@ sub _dispatch_route {
     # routes should use 'content_type' as default, or 'text/html'
     # (Content-Type header needs to be set to encode content below..)
     if ( !$response->header('Content-type') ) {
-        if ( exists( $app->config->{content_type} ) ) {
+        if ($context->request->content_type) {
+            $response->header(
+                'Content-Type' => $context->request->content_type );
+        }
+        elsif ( exists( $app->config->{content_type} ) ) {
             $response->header(
                 'Content-Type' => $app->config->{content_type} );
         }
@@ -140,7 +144,6 @@ sub _dispatch_route {
                 'Content-Type' => $self->default_content_type );
         }
     }
-
     if ( ref $content eq 'Dancer2::Core::Response' ) {
         $response = $context->response($content);
     }
