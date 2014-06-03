@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 61;
+use Test::More tests => 56;
 use Dancer2::Serializer::Mutable;
 use Plack::Test;
 use HTTP::Request::Common;
@@ -78,11 +78,6 @@ test_psgi $app, sub {
 
                 is( $req->code, 200, "[/$format] Correct status" );
                 is( $req->content, 'baz', "[/$format] Correct content" );
-                is(
-                    $req->headers->content_type,
-                    $content_type,
-                    "[/$format] Correct content-type headers",
-                );
             } #/ for my $content_type
         } #/ for my $format
     }
