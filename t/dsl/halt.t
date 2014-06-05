@@ -55,7 +55,7 @@ subtest 'halt within routes' => sub {
 
 };
 
-subtest 'halt in before halt' => sub {
+subtest 'halt in before hook' => sub {
     {
         package App;
         use Dancer2;
