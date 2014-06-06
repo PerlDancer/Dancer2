@@ -11,6 +11,9 @@
     * GH #570, #579: Ensure keywords pass, send_error and send_file 
       exit immediatly when executed. (Russell Jenkins)
 
+    [ ENHANCEMENTS ]
+    * GH #587: Serializer::Mutable alive! (Pedro Bruno)
+
     [ DOCUMENTATION ]
     * Fix doc for params(). Ported from Dancer#1025 (Stefan Hornburg)
 
