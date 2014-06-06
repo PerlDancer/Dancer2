@@ -51,6 +51,7 @@ has content_type => (
     is       => 'ro',
     isa      => Str,
     required => 1,
+    writer   => 'set_content_type'
 );
 
 # most serializer don't have to overload this one

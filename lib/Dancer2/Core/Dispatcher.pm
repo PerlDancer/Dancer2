@@ -140,7 +140,6 @@ sub _dispatch_route {
                 'Content-Type' => $self->default_content_type );
         }
     }
-
     if ( ref $content eq 'Dancer2::Core::Response' ) {
         $response = $context->response($content);
     }
