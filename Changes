@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.140900_01 2014-06-07 23:32:56IDT+0300 Asia/Jerusalem
+
     [ BUG FIXES ]
     * GH #447: Setting the apphandler now triggers the Dancer Runner
       configuration change, which works. (Sawyer X)
@@ -8,7 +10,7 @@
       with taint mode. (Sawyer X)
     * GH #585, #595: Return 405 Method Not Allowed instead of 500.
       (Omar M. Othman)
-    * GH #570, #579: Ensure keywords pass, send_error and send_file 
+    * GH #570, #579: Ensure keywords pass, send_error and send_file
       exit immediatly when executed. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
