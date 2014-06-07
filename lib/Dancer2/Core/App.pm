@@ -568,6 +568,7 @@ sub cleanup {
     my $self = shift;
     $self->clear_request;
     $self->clear_response;
+    $self->clear_session;
     $self->clear_destroyed_session;
 }
 
