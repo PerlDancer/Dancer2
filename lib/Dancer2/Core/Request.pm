@@ -1057,7 +1057,7 @@ cookies and values are L<Dancer2::Core::Cookie> objects.
 =cut
 
 has cookies => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => HashRef,
     lazy    => 1,
     builder => '_build_cookies',
