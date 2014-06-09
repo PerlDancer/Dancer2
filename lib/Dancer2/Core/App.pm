@@ -692,7 +692,7 @@ sub send_file {
         }
     }
 
-    $self->request->path_info($path);
+    $self->request->set_path_info($path);
     $file_handler->code( $self->prefix )->( $self ); # slurp file
     $self->has_with_return and $self->with_return->( $self->response );
 

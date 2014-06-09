@@ -207,9 +207,10 @@ sub _build_path {
 }
 
 has path_info => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     lazy    => 1,
+    writer  => 'set_path_info',
     builder => '_build_path_info',
 );
 
