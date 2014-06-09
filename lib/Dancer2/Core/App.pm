@@ -259,8 +259,9 @@ Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
 =cut
 
 has with_return => (
-    is        => 'rw',
+    is        => 'ro',
     predicate => 1,
+    writer    => 'set_with_return',
     clearer   => 'clear_with_response',
 );
 
@@ -868,8 +869,10 @@ to the dispatcher and after hooks will not be run.
 sub halt {
    my ($self) = @_;
    $self->response->halt;
+
    # Short citcuit any remaining hook/route code
-   $self->has_with_return and $self->with_return->($self->response);
+   $self->has_with_return
+       and $self->with_return->($self->response);
 }
 
 =method forward

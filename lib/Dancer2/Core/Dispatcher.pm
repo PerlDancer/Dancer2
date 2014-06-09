@@ -54,7 +54,7 @@ sub dispatch {
 
                 # stash the multilevel return coderef in the app
                 $app->has_with_return
-                    or $app->with_return($return);
+                    or $app->set_with_return($return);
 
                 return $self->_dispatch_route($route, $app);
             };
