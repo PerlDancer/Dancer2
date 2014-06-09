@@ -40,7 +40,7 @@ has apps => (
 );
 
 has dispatcher => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => InstanceOf ['Dancer2::Core::Dispatcher'],
     lazy    => 1,
     builder => '_build_dispatcher',
@@ -58,7 +58,7 @@ has host => (
     lazy    => 1,
     default => sub { $_[0]->config->{'host'} },
 );
-    
+
 has port => (
     is      => 'ro',
     lazy    => 1,
@@ -73,7 +73,6 @@ has timeout => (
 
 sub _build_dispatcher {
     my $self = shift;
-    # FIXME: ::Dispatcher::apps attr is readwrite, why?
     return Dancer2::Core::Dispatcher->new( apps => $self->apps );
 }
 
