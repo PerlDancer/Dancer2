@@ -293,7 +293,7 @@ sub _build_session {
     my $engine = $self->engine('session');
 
     # find the session cookie if any
-    if ( !$self->destroyed_session ) {
+    if ( !$self->has_destroyed_session ) {
         my $session_id;
         my $session_cookie = $self->cookie( $engine->cookie_name );
         if ( defined $session_cookie ) {
@@ -340,9 +340,10 @@ expire the cookie.
 =cut
 
 has destroyed_session => (
-    is        => 'rw',
+    is        => 'ro',
     isa       => InstanceOf ['Dancer2::Core::Session'],
     predicate => 1,
+    writer    => 'set_destroyed_session',
     clearer   => 'clear_destroyed_session',
 );
 
@@ -367,7 +368,7 @@ sub destroy_session {
     $engine->destroy( id => $session->id );
 
     # Clear session and invalidate session cookie in request
-    $self->destroyed_session($session);
+    $self->set_destroyed_session($session);
     $self->clear_session;
 
     return;
