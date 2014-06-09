@@ -144,7 +144,7 @@ has env => (
 
 # a buffer for per-request variables
 has vars => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => HashRef,
     default => sub { {} },
 );
