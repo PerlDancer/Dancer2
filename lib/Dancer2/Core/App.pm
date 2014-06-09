@@ -3,12 +3,11 @@ package Dancer2::Core::App;
 
 use Moo;
 use Carp            'croak';
-use List::Util      'first';
 use Scalar::Util    'blessed';
 use Module::Runtime 'is_module_name';
 use File::Spec;
 
-use Dancer2::FileUtils 'path', 'read_file_content';
+use Dancer2::FileUtils 'path';
 use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
