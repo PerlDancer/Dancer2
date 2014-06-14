@@ -232,6 +232,7 @@ things:
     Grzegorz Rożniecki
     Hobbestigrou
     Ivan Bessarabov
+    Jakob Voss
     James Aitken
     Jason A. Crome
     Jean Stebens

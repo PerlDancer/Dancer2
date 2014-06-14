@@ -25,15 +25,12 @@ sub loaded {1}
 sub serialize {
     my ( $self, $entity, $options ) = @_;
 
-    # Why doesn't $self->config have this?
     my $config = $self->config;
 
-    if ( $config->{allow_blessed} && !defined $options->{allow_blessed} ) {
-        $options->{allow_blessed} = $config->{allow_blessed};
+    foreach (keys %$config) {
+        $options->{$_} = $config->{$_} unless exists $options->{$_};
     }
-    if ( $config->{convert_blessed} ) {
-        $options->{convert_blessed} = $config->{convert_blessed};
-    }
+
     $options->{utf8} = 1 if !defined $options->{utf8};
 
     JSON::to_json( $entity, $options );
