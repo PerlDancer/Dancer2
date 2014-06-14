@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH #512, #520, #602: Pass all settings into JSON serializer engine.
+      (Jakob Voss, Russell Jenkins)
+
 0.141000  2014-06-08 22:27:03CEST+0200 Europe/Amsterdam
 
     * No functional changes.
