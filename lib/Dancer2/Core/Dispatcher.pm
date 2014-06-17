@@ -210,7 +210,7 @@ __END__
     $dispatcher->response_internal_error($app, $error);
 
     # Capture response not found for an application the after dispatch
-    $dispatcher->response_not_found($context);
+    $dispatcher->response_not_found($env);
 
 =head1 ATTRIBUTES
 
@@ -229,7 +229,7 @@ request. This attribute is read-only.
 
 The C<dispatch> method accepts the list of applications, hash reference for
 the B<env> attribute of L<Dancer2::Core::Request> and optionally the request
-object and a context object as input arguments.
+object and an env as input arguments.
 
 C<dispatch> returns a response object of L<Dancer2::Core::Response>.
 

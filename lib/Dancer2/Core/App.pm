@@ -326,8 +326,8 @@ sub _build_session {
 
 =method has_session
 
-Returns true if session engine has been defined and if either a session object
-has been instantiated in the context or if a session cookie was found and not
+Returns true if session engine has been defined and if either a session
+object has been instantiated or if a session cookie was found and not
 subsequently invalidated.
 
 =cut

@@ -5,8 +5,7 @@ use Moo::Role;
 
 =method response
 
-Generic method that produces a response in the context given with a code and a
-message:
+Generic method that produces a response given with a code and a message:
 
     $self->response( $app, 404, "not found" );
 
@@ -21,7 +20,7 @@ sub response {
 
 =method response_400
 
-Produces a 400 response in the context given.
+Produces a 400 response
 
 =cut
 
@@ -32,7 +31,7 @@ sub response_400 {
 
 =method response_404
 
-Produces a 404 response in the context given.
+Produces a 404 response
 
 =cut
 
@@ -43,7 +42,7 @@ sub response_404 {
 
 =method response_403
 
-Produces a 403 response in the context given.
+Produces a 403 response
 
 =cut
 
