@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use File::Temp;
 
 {
     package StaticContent;
@@ -22,6 +23,14 @@ use HTTP::Request::Common;
             send_file '1x1.png';
             return "send_file returns; this content is ignored";
         };
+    };
+
+    get '/check_content_type' => sub {
+        my $temp = File::Temp->new();
+        print $temp "hello";
+        close $temp;
+        send_file($temp->filename, content_type => 'image/png',
+                                   system_path  => 1);
     };
 }
 
@@ -49,7 +58,21 @@ test_psgi $app, sub {
         my $r = $cb->( GET '/some/image' );
 
         is( $r->code, 200, 'send_file sets the status to 200' );
-        unlike( $r->content, qr/send_file returns/, "send_file returns immediately with content");
+        unlike( $r->content, qr/send_file returns/,
+            "send_file returns immediately with content");
+        is( $r->header( 'Content-Type' ), 'image/png',
+            'correct content_type in response' );
+    };
+};
+
+test_psgi $app, sub {
+    my $cb = shift;
+
+    subtest 'send_file returns correct content type' => sub {
+        my $r = $cb->( GET '/check_content_type' );
+
+        ok($r->is_success, 'send_file returns success');
+        is($r->content_type, 'image/png', 'send_file returns correct content_type');
     };
 };
 
