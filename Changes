@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #550, #555: Allow the content type to be set when using send_file
+      as per the documentation. (Russell Jenkins, Steven Humphrey)
+
     [ ENHANCEMENTS ]
     * GH #512, #520, #602: Pass all settings into JSON serializer engine.
       (Jakob Voss, Russell Jenkins)
