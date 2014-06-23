@@ -131,4 +131,33 @@ subtest 'Error with show_errors: 1' => sub {
     like $err->content => qr/our exception/;
 };
 
+subtest 'Error with exception object' => sub {
+    eval { MyTestException->throw('a test exception object') };
+    my $err = Dancer2::Core::Error->new(
+        context     => $c,
+        exception   => $@,
+        show_errors => 1,
+    )->throw;
+
+    like $err->content, qr/a test exception object/, 'Error content contains exception message';
+};
+
 done_testing;
+
+package MyTestException;
+
+use overload '""' => \&as_str;
+
+sub new {
+    return bless {};
+}
+
+sub throw {
+    my ( $class, $error ) = @_;
+    my $self = ref($class) ? $class : $class->new;
+    $self->{error} = $error;
+
+    die $self;
+}
+
+sub as_str { return $_[0]->{error} }

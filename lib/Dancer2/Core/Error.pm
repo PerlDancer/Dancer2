@@ -201,8 +201,8 @@ The message of the error page.
 =cut
 
 has message => (
-    is  => 'ro',
-    isa => Str,
+    is      => 'ro',
+    isa     => Str,
 );
 
 sub full_message {
@@ -241,6 +241,14 @@ has exception => (
     is        => 'ro',
     isa       => Str,
     predicate => 1,
+    coerce    => sub {
+        # Until we properly support exception objects, we shouldn't barf on
+        # them because that hides the actual error, if object overloads "",
+        # which most exception objects do, this will result in a nicer string.
+        # other references will produce a meaningless error, but that is
+        # better than a meaningless stacktrace
+        return "$_[0]"
+    }
 );
 
 has response => (
