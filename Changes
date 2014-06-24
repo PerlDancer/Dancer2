@@ -7,6 +7,8 @@
     [ ENHANCEMENTS ]
     * GH #512, #520, #602: Pass all settings into JSON serializer engine.
       (Jakob Voss, Russell Jenkins)
+    * GH #532: Serialize runtime errors such as those produced by die if a
+      serializer exists. (Steven Humphrey) 
 
 0.141000  2014-06-08 22:27:03CEST+0200 Europe/Amsterdam
 
