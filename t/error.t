@@ -38,7 +38,7 @@ subtest 'basic defaults of Error object' => sub {
     my $e = Dancer2::Core::Error->new( context => $c, );
     is $e->status,  500,                                 'code';
     is $e->title,   'Error 500 - Internal Server Error', 'title';
-    is $e->message, undef,                               'message';
+    is $e->message, '',                               'message';
     like $e->content, qr!http://localhost:5000/foo/css!,
         "error content contains css path relative to uri_base";
 };
