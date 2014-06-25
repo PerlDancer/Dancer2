@@ -375,7 +375,7 @@ sub backtrace {
 
     my $message = $self->exception ? $self->exception : $self->message;
     $message =
-      qq|<pre class="error">| . (_html_encode( $message ) || '') . "</pre>";
+      qq|<pre class="error">| . _html_encode( $message ) . "</pre>";
 
     if ( $self->exception && !ref($self->exception) ) {
         $message .= qq|<pre class="error">|
@@ -425,7 +425,7 @@ sub backtrace {
               .= qq|<span class="nu">|
               . tabulate( $l + 1, $stop + 1 )
               . "</span> "
-              . (_html_encode( $lines[$l] )||'') . "\n";
+              . _html_encode( $lines[$l] ) . "\n";
         }
     }
     $backtrace .= "</pre>";
@@ -578,7 +578,7 @@ html_encode() doesn't do any UTF black magic.
 sub _html_encode {
     my $value = shift;
 
-    return if !$value;
+    return if !defined $value;
 
     $value =~ s/&/&amp;/g;
     $value =~ s/</&lt;/g;
