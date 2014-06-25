@@ -6,7 +6,7 @@ use Carp;
 use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
-use Dancer2::FileUtils 'path';
+use Dancer2::FileUtils qw/path open_file/;
 
 =head1 SYNOPSIS
 
@@ -148,10 +148,15 @@ sub default_error_page {
 
     my $uri_base = $self->has_context ?
         $self->context->request->uri_base : '';
+
+    my $message = $self->message;
+    if ( $self->show_errors && $self->exception) {
+        $message .= "\n" . $self->exception;
+    }
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
-        content  => $self->message,
+        content  => $message,
         version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
@@ -201,8 +206,10 @@ The message of the error page.
 =cut
 
 has message => (
-    is  => 'ro',
-    isa => Str,
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    default => sub { '' },
 );
 
 sub full_message {
@@ -313,7 +320,8 @@ has content => (
             );
         }
 
-        if ( my $content = $self->static_page ) {
+        # It doesn't make sense to return a static page if show_errors is on
+        if ( !$self->show_errors && (my $content = $self->static_page) ) {
             return $content;
         }
 
@@ -339,8 +347,6 @@ sub throw {
         $self->context->app->execute_hook( 'core.error.before', $self );
 
     my $message = $self->content;
-    $message .= "\n\n" . $self->exception
-      if $self->show_errors && defined $self->exception;
 
     $self->response->status( $self->status );
     $self->response->content_type( $self->content_type );
@@ -367,8 +373,13 @@ output) and then returns an error-highlighted C<message>.
 sub backtrace {
     my ($self) = @_;
 
-    my $message =
-      qq|<pre class="error">| . _html_encode( $self->message ) . "</pre>";
+    my $message = $self->exception ? $self->exception : $self->message;
+    $message =
+      qq|<pre class="error">| . (_html_encode( $message ) || '') . "</pre>";
+
+    if ( $self->exception && !ref($self->exception) ) {
+        $message .= qq|<pre class="error">| . _html_encode($self->exception) . "</pre>";
+    }
 
     # the default perl warning/error pattern
     my ( $file, $line ) = ( $message =~ /at (\S+) line (\d+)/ );
@@ -413,7 +424,7 @@ sub backtrace {
               .= qq|<span class="nu">|
               . tabulate( $l + 1, $stop + 1 )
               . "</span> "
-              . _html_encode( $lines[$l] ) . "\n";
+              . (_html_encode( $lines[$l] )||'') . "\n";
         }
     }
     $backtrace .= "</pre>";
@@ -483,7 +494,7 @@ sub environment {
       . "</pre>";
     my $settings =
         qq|<div class="title">Settings</div><pre class="content">|
-      . dumper( $self->app->settings )
+      . dumper( $self->context->app->settings )
       . "</pre>";
     my $source =
         qq|<div class="title">Stack</div><pre class="content">|
@@ -565,6 +576,8 @@ html_encode() doesn't do any UTF black magic.
 # Replaces the entities that are illegal in (X)HTML.
 sub _html_encode {
     my $value = shift;
+
+    return if !defined $value;
 
     $value =~ s/&/&amp;/g;
     $value =~ s/</&lt;/g;
