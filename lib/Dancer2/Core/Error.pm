@@ -149,7 +149,7 @@ sub default_error_page {
     my $uri_base = $self->has_context ?
         $self->context->request->uri_base : '';
 
-    my $message = $self->message // '';
+    my $message = $self->message;
     if ( $self->show_errors && $self->exception) {
         $message .= "\n" . $self->exception;
     }
@@ -206,8 +206,10 @@ The message of the error page.
 =cut
 
 has message => (
-    is  => 'ro',
-    isa => Str,
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    default => sub { '' },
 );
 
 sub full_message {
