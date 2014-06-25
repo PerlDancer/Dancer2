@@ -560,7 +560,7 @@ html_encode() doesn't do any UTF black magic.
 sub _html_encode {
     my $value = shift;
 
-    return if !$value;
+    return if !defined $value;
 
     $value =~ s/&/&amp;/g;
     $value =~ s/</&lt;/g;
