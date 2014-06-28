@@ -1,12 +1,16 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * GH #550, #555: Allow the content type to be set when using send_file
-      as per the documentation. (Russell Jenkins, Steven Humphrey)
     * GH #538, #539: Coerce propogated exceptions to strings within Error object.
       (Steven Humphrey)
     * GH #531: Generate valid HTML when show_errors is true from Error objects.
       (Steven Humphrey)
+
+0.142000  2014-06-24 15:16:42CEST+0200 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #550, #555: Allow the content type to be set when using send_file
+      as per the documentation. (Russell Jenkins, Steven Humphrey)
 
     [ ENHANCEMENTS ]
     * GH #512, #520, #602: Pass all settings into JSON serializer engine.
