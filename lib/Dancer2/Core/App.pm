@@ -577,7 +577,7 @@ sub send_file {
         Handler => 'File',
         %$conf,
         postponed_hooks => $self->postponed_hooks,
-        public_dir => ( $options{system_path} ? File::Spec->rootdir : undef ),
+        ( public_dir => File::Spec->rootdir )x!! $options{system_path},
     );
 
     # List shouldn't be too long, so we use 'grep' instead of 'first'
