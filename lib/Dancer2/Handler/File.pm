@@ -31,23 +31,22 @@ has encoding => (
     default => sub {'utf-8'},
 );
 
-has public_dir => ( is => 'rw', );
+has public_dir => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_public_dir',
+);
 
 has regexp => (
     is      => 'ro',
     default => sub {'/**'},
 );
 
-sub BUILD {
-    my ($self) = @_;
-    if ( !defined $self->public_dir ) {
-        my $public =
-             $self->app->config->{public}
-          || $ENV{DANCER_PUBLIC}
-          || path( $self->app->location, 'public' );
-
-        $self->public_dir($public);
-    }
+sub _build_public_dir {
+    my $self = shift;
+    return $self->app->config->{public}
+        || $ENV{DANCER_PUBLIC}
+        || path( $self->app->location, 'public' );
 }
 
 sub register {
