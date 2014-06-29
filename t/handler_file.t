@@ -11,8 +11,8 @@ use File::Temp;
 
     use Dancer2;
 
-    engine('template')->views('t/corpus/static');
-    $ENV{DANCER_PUBLIC} = 't/corpus/static';
+    set views  => 't/corpus/static';
+    set public => 't/corpus/static';
 
     get '/' => sub {
         send_file 'index.html';
