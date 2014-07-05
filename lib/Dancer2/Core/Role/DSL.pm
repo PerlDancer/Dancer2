@@ -71,8 +71,8 @@ sub _compile_keyword {
     if ( !$is_global ) {
         my $code = $compiled_code;
         $compiled_code = sub {
-            croak "Function '$keyword' must be called from a route handler"
-              unless defined $self->app;
+            $self->app->has_request or
+                croak "Function '$keyword' must be called from a route handler";
             $code->(@_);
         };
     }
