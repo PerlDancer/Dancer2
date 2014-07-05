@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.143000  2014-07-05 21:39:28CEST+0200 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #538, #539: Coerce propogated exceptions to strings within Error object.
       (Steven Humphrey)
