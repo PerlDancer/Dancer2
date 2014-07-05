@@ -43,7 +43,7 @@ with them directly.
         my $app     = $dsl->app;
         my $request = $app->request;
 
-        if ( $app->session->write( "logged_in" ) ) {
+        if ( $app->session->read('logged_in') ) {
             ...
         }
     };
