@@ -5,6 +5,11 @@
       (Steven Humphrey)
     * GH #531: Generate valid HTML when show_errors is true from Error objects.
       (Steven Humphrey)
+    * GH #603: Update skeleton test to use Plack::Test. (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * Provide psgi_app in top-level Dancer.pm to make it easier to change it.
+      (Sawyer X)
 
 0.142000  2014-06-24 15:16:42CEST+0200 Europe/Amsterdam
 
