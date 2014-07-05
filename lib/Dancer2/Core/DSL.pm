@@ -308,7 +308,10 @@ sub pass         { shift->context->pass }
 # Route handler helpers
 #
 
-sub context { shift->app }
+sub context {
+    carp "DEPRECATED: please use the 'app' keyword instead of 'context'";
+    shift->app;
+}
 
 sub request { shift->app->request }
 
