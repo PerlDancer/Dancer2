@@ -18,7 +18,8 @@ $Dancer2::VERSION ||= '0.140001'; # 2.14.1
 
 our $runner;
 
-sub runner {$runner}
+sub runner   {$runner}
+sub psgi_app { __PACKAGE__->runner->psgi_app }
 
 sub import {
     my ( $class,  @args   ) = @_;
