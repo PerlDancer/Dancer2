@@ -339,21 +339,8 @@ has body_is_parsed => (
     default => sub {0},
 );
 
-has is_behind_proxy => (
-    is      => 'rw',
-    isa     => Bool,
-    default => sub {0},
-);
-
 sub host {
-    my ($self) = @_;
-
-    if ( $self->is_behind_proxy ) {
-        my @hosts = split /\s*,\s*/, $self->env->{HTTP_X_FORWARDED_HOST}, 2;
-        return $hosts[0];
-    } else {
-        return $self->env->{'HTTP_HOST'};
-    }
+    return shift->env->{'HTTP_HOST'};
 }
 
 
@@ -427,25 +414,9 @@ Return the scheme of the request
 
 =cut
 
-
 sub scheme {
-    my ($self) = @_;
-    my $scheme;
-    if ( $self->is_behind_proxy ) {
-        # Note the 'HTTP_' prefix the PSGI spec adds to headers.
-        $scheme =
-             $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
-          || $self->env->{'HTTP_X_FORWARDED_PROTO'}
-          || $self->env->{'HTTP_FORWARDED_PROTO'}
-          || "";
-    }
-    return
-         $scheme
-      || $self->env->{'psgi.url_scheme'}
-      || $self->env->{'PSGI.URL_SCHEME'}
-      || "";
+    return $_[0]->env->{'psgi.url_scheme'} || "";
 }
-
 
 has serializer => (
     is        => 'ro',

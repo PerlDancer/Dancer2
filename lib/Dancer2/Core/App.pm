@@ -412,9 +412,6 @@ sub _init_for_context {
 
     return if !defined $self->context;
     return if !defined $self->context->request;
-
-    $self->context->request->is_behind_proxy(1)
-      if $self->setting('behind_proxy');
 }
 
 sub supported_hooks {

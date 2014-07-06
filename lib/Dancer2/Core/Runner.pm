@@ -6,7 +6,10 @@ use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
 use HTTP::Server::PSGI;
-use Plack::Builder qw();
+
+use Plack::Middleware::Head;
+use Plack::Middleware::Conditional;
+use Dancer2::Middleware::BehindProxy;
 
 with 'Dancer2::Core::Role::ConfigReader';
 
@@ -249,9 +252,13 @@ sub psgi_app {
         return $response;
     };
 
-    my $builder = Plack::Builder->new;
-    $builder->add_middleware('Head');
-    return $builder->wrap($psgi);
+    $psgi = Plack::Middleware::Conditional->wrap(
+        $psgi,
+        builder   => sub { Dancer2::Middleware::BehindProxy->wrap($_[0]) },
+        condition => sub { $self->config->{'behind_proxy'} },
+    );
+    $psgi = Plack::Middleware::Head->wrap($psgi);
+    return $psgi;
 }
 
 sub print_banner {

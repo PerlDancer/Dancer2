@@ -144,8 +144,9 @@ subtest 'redirect behind a proxy' => sub {
                 $cb->(
                     GET '/test2/bounce',
                     'X-FORWARDED-HOST' => 'nice.host.name',
+                    'X-Forwarded-Script-Name' => '/myapp',
                 )->headers->header('Location'),
-                'http://nice.host.name/test2',
+                'http://nice.host.name/myapp/test2',
                 'behind a proxy, host() is read from X_FORWARDED_HOST',
             );
         }
@@ -156,21 +157,10 @@ subtest 'redirect behind a proxy' => sub {
                     GET '/test2/bounce',
                     'X-FORWARDED-HOST' => 'nice.host.name',
                     'FORWARDED-PROTO'  => 'https',
+                    'Request-Base' => '/myapp',
                 )->headers->header('Location'),
-                'https://nice.host.name/test2',
+                'https://nice.host.name/myapp/test2',
                 '... and the scheme is read from HTTP_FORWARDED_PROTO',
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST'     => 'nice.host.name',
-                    'X-FORWARDED-PROTOCOL' => 'ftp', # stupid, but why not?
-                )->headers->header('Location'),
-                'ftp://nice.host.name/test2',
-                '... or from X_FORWARDED_PROTOCOL',
             );
         }
 
@@ -180,8 +170,9 @@ subtest 'redirect behind a proxy' => sub {
                     GET '/test2/bounce',
                     'X-FORWARDED-HOST'  => 'nice.host.name',
                     'X-FORWARDED-PROTO' => 'https',
+                    'X-Forwarded-Script-Name' => '/myapp',
                 )->headers->header('Location'),
-                'https://nice.host.name/test2',
+                'https://nice.host.name/myapp/test2',
                 '... or from X_FORWARDED_PROTO',
             );
         }
@@ -224,18 +215,6 @@ subtest 'redirect behind multiple proxies' => sub {
                 )->headers->header('Location'),
                 'https://proxy1.example/test2',
                 '... and the scheme is read from HTTP_FORWARDED_PROTO',
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST'     => "proxy1.example, proxy2.example",
-                    'X-FORWARDED-PROTOCOL' => 'ftp', # stupid, but why not?
-                )->headers->header('Location'),
-                'ftp://proxy1.example/test2',
-                '... or from X_FORWARDED_PROTOCOL',
             );
         }
     };
