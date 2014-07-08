@@ -13,11 +13,7 @@ use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw/path/;
 
-has location => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_location',
-);
+with 'Dancer2::Core::Role::Location';
 
 has default_config => (
     is      => 'ro',
@@ -93,8 +89,6 @@ has global_triggers => (
 );
 
 sub _build_default_config { +{} }
-
-sub _build_location { File::Spec->rel2abs('.') }
 
 sub _build_environment {
     $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
