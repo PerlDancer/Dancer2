@@ -8,14 +8,14 @@ use Dancer2::Core::Dispatcher;
 use HTTP::Server::PSGI;
 use Plack::Builder qw();
 
-with 'Dancer2::Core::Role::ConfigReader';
-
-# the path to the caller script that is starting the app
-# mandatory, because we use that to determine where the appdir is.
-has caller => (
-    is       => 'ro',
-    isa      => Str,
-    required => 1,
+# Hashref of configurable items for the runner.
+# Defaults come from ENV vars. Updated via global triggers
+# from app configs.
+has config => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_config',
 );
 
 # FIXME: i hate this
@@ -75,50 +75,6 @@ sub _build_server {
     );
 }
 
-# FIXME: i hate you most of all
-sub _build_location {
-    my $self   = shift;
-    my $script = $self->caller;
-
-    # default to the dir that contains the script...
-    my $location = Dancer2::FileUtils::dirname($script);
-
-    #we try to find bin and lib
-    my $subdir       = $location;
-    my $subdir_found = 0;
-
-    #maximum of 10 iterations, to prevent infinite loop
-    for ( 1 .. 10 ) {
-
-        #try to find libdir and bindir to determine the root of dancer app
-        my $libdir = Dancer2::FileUtils::path( $subdir, 'lib' );
-        my $bindir = Dancer2::FileUtils::path( $subdir, 'bin' );
-
-        #try to find .dancer_app file to determine the root of dancer app
-        my $dancerdir = Dancer2::FileUtils::path( $subdir, '.dancer' );
-
-        # if one of them is found, keep that; but skip ./blib since both lib and bin exist
-        # under it, but views and public do not.
-        if ( ( $subdir !~ m!/blib/?$! && -d $libdir && -d $bindir ) || ( -f $dancerdir ) ) {
-            $subdir_found = 1;
-            last;
-        }
-
-        $subdir = Dancer2::FileUtils::path( $subdir, '..' ) || '.';
-        last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
-
-    }
-
-    my $path = $subdir_found ? $subdir : $location;
-
-    # return if absolute
-    File::Spec->file_name_is_absolute($path)
-        and return $path;
-
-    # convert relative to absolute
-    return File::Spec->rel2abs($path);
-}
-
 sub _build_default_config {
     my $self = shift;
 
@@ -143,11 +99,6 @@ sub _build_default_config {
 
 sub BUILD {
     my $self = shift;
-
-    # this assures any failure in building the location
-    # will be encountered as soon as possible
-    # while making sure that 'caller' is already available
-    $self->location;
 
     # set the global runner object if one doesn't exist yet
     # this can happen if you create one without going through Dancer2
@@ -270,4 +221,3 @@ sub print_banner {
 }
 
 1;
-
