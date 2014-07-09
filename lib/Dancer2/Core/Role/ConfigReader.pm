@@ -95,9 +95,7 @@ has global_triggers => (
 
 sub _build_default_config { +{} }
 
-sub _build_environment {
-    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
-}
+sub _build_environment { 'development' }
 
 sub _build_config_files {
     my ($self) = @_;
