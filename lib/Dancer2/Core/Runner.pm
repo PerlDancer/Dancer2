@@ -45,7 +45,15 @@ has postponed_hooks => (
     default => sub { +{} },
 );
 
-# FIXME: this should be in the configuration
+has environment => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
+    default  => sub {
+        $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development'
+    },
+);
+
 has host => (
     is      => 'ro',
     lazy    => 1,
@@ -75,7 +83,7 @@ sub _build_server {
     );
 }
 
-sub _build_default_config {
+sub _build_config {
     my $self = shift;
 
     $ENV{PLACK_ENV}
@@ -83,17 +91,16 @@ sub _build_default_config {
 
     return {
         apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
-        content_type => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
-        charset      => ( $ENV{DANCER_CHARSET}      || '' ),
         warnings     => ( $ENV{DANCER_WARNINGS}     || 0 ),
-        startup_info => ( $ENV{DANCER_STARTUP_INFO} || 1 ),
         traces       => ( $ENV{DANCER_TRACES}       || 0 ),
-        logger       => ( $ENV{DANCER_LOGGER}       || 'console' ),
         host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
         port         => ( $ENV{DANCER_PORT}         || '3000' ),
-        views        => ( $ENV{DANCER_VIEWS}
-              || path( $self->config_location, 'views' ) ),
-        appdir        => $self->location,
+        server_tokens => ( defined $ENV{DANCER_SERVER_TOKENS} ?
+                           $ENV{DANCER_SERVER_TOKENS}         :
+                           1 ),
+        startup_info  => ( defined $ENV{DANCER_STARTUP_INFO} ?
+                           $ENV{DANCER_STARTUP_INFO}         :
+                           1 ),
     };
 }
 
