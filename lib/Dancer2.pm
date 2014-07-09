@@ -50,16 +50,15 @@ sub import {
 
     # never instantiated the runner, should do it now
     if ( not defined $runner ) {
-        $runner = Dancer2::Core::Runner->new( caller => $script );
+        $runner = Dancer2::Core::Runner->new();
     }
 
     # the app object
     # populating with the server's postponed hooks in advance
     my $app = Dancer2::Core::App->new(
         name            => $caller,
+        caller          => $script,
         environment     => $runner->environment,
-        location        => $runner->location,
-        runner_config   => $runner->config,
         postponed_hooks => $runner->postponed_hooks,
     );
 
