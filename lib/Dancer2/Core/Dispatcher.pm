@@ -197,13 +197,15 @@ my $not_found_app;
 sub response_not_found {
     my ( $self, $env ) = @_;
 
+    # There may be more than one app;
+    # Use the first one for caller and location
     $not_found_app ||= Dancer2::Core::App->new(
         name            => 'file_not_found',
         # FIXME: are these two still global with the merging of
         #        feature/fix-remove-default-engine-config?
         environment     => Dancer2->runner->environment,
-        location        => Dancer2->runner->location,
-        runner_config   => Dancer2->runner->config,
+        caller          => $self->apps->[0]->caller,
+        location        => $self->apps->[0]->location,
         postponed_hooks => Dancer2->runner->postponed_hooks,
         api_version     => 2,
     );
