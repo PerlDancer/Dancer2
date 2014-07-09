@@ -217,8 +217,7 @@ sub print_banner {
     my $pid  = $$;
 
     # we only print the info if we need to
-    # FIXME: go to the configuration
-    #Dancer2->runner->config->{'startup_info'} or return;
+    $self->config->{'startup_info'} or return;
 
     # bare minimum
     print STDERR ">> Dancer2 v$Dancer2::VERSION server $pid listening "
