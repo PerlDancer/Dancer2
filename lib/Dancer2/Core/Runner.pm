@@ -120,6 +120,12 @@ sub _build_config {
 sub BUILD {
     my $self = shift;
 
+    # Enable traces if set by ENV var.
+    if (my $traces = $self->config->{traces} ) {
+        require Carp;
+        $Carp::Verbose = $traces ? 1 : 0;
+    };
+
     # set the global runner object if one doesn't exist yet
     # this can happen if you create one without going through Dancer2
     # which doesn't trigger the import that creates it
