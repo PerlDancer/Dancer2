@@ -239,9 +239,9 @@ has serializer => (
 sub _build_serializer {
     my ($self) = @_;
 
-    if ( $self->has_context && $self->context->has_app ) {
-        return $self->context->app->engine('serializer');
-    }
+    $self->has_app
+        and return $self->app->engine('serializer');
+
     return;
 }
 
@@ -496,7 +496,7 @@ sub environment {
       . "</pre>";
     my $settings =
         qq|<div class="title">Settings</div><pre class="content">|
-      . dumper( $self->context->app->settings )
+      . dumper( $self->app->settings )
       . "</pre>";
     my $source =
         qq|<div class="title">Stack</div><pre class="content">|

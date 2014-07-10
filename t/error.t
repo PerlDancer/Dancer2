@@ -163,7 +163,6 @@ subtest 'Error with exception object' => sub {
     local $@;
     eval { MyTestException->throw('a test exception object') };
     my $err = Dancer2::Core::Error->new(
-        context     => $c,
         exception   => $@,
         show_errors => 1,
     )->throw;

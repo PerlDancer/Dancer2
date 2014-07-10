@@ -894,6 +894,24 @@ sub halt {
        and $self->with_return->($self->response);
 }
 
+=method pass
+
+Flag the response object as 'passed'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher.
+
+=cut
+
+sub pass {
+   my $self = shift;
+   $self->response->pass;
+
+   # Short citcuit any remaining hook/route code
+   $self->has_with_return
+       and $self->with_return->($self->response);
+}
+
 =method forward
 
 Create a new request which is a clone of the current one, apart
