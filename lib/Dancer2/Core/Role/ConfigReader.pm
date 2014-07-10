@@ -74,18 +74,29 @@ has local_triggers => (
 has global_triggers => (
     is      => 'ro',
     isa     => HashRef,
-    default => sub { +{
-        traces => sub {
-            my ( $self, $traces ) = @_;
-            require Carp;
-            $Carp::Verbose = $traces ? 1 : 0;
-        },
+    default => sub {
+        my $triggers = {
+            traces => sub {
+                my ( $self, $traces ) = @_;
+                # Carp is already a dependency
+                $Carp::Verbose = $traces ? 1 : 0;
+            },
+        };
 
-        apphandler => sub {
-            my ( $self, $handler ) = @_;
-            Dancer2->runner->config->{'apphandler'} = $handler;
-        },
-    } },
+        my $runner_config = defined $Dancer2::runner
+                            ? Dancer2->runner->config
+                            : {};
+
+        for my $global ( keys %$runner_config ) {
+            next if exists $triggers->{$global};
+            $triggers->{$global} = sub {
+                my ($self, $value) = @_;
+                Dancer2->runner->config->{$global} = $value;
+            }
+        }
+
+        return $triggers;
+    },
 );
 
 sub _build_default_config { +{} }
