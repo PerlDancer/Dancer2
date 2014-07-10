@@ -124,11 +124,9 @@ sub _build_config_files {
 
 sub _build_config {
     my ($self) = @_;
-    my $location = $self->config_location;
 
-    my $default = {};
-    $default = $self->default_config
-      if $self->can('default_config');
+    my $location = $self->config_location;
+    my $default  = $self->default_config;
 
     my $config = Hash::Merge::Simple->merge(
         $default,
