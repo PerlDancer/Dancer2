@@ -90,11 +90,12 @@ sub _build_config {
       and $ENV{DANCER_APPHANDLER} = 'PSGI';
 
     return {
-        apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
-        warnings     => ( $ENV{DANCER_WARNINGS}     || 0 ),
-        traces       => ( $ENV{DANCER_TRACES}       || 0 ),
-        host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
-        port         => ( $ENV{DANCER_PORT}         || '3000' ),
+        behind_proxy  => 0,
+        apphandler    => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
+        warnings      => ( $ENV{DANCER_WARNINGS}     || 0 ),
+        traces        => ( $ENV{DANCER_TRACES}       || 0 ),
+        host          => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
+        port          => ( $ENV{DANCER_PORT}         || '3000' ),
         server_tokens => ( defined $ENV{DANCER_SERVER_TOKENS} ?
                            $ENV{DANCER_SERVER_TOKENS}         :
                            1 ),
