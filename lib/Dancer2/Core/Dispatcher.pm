@@ -3,12 +3,12 @@ package Dancer2::Core::Dispatcher;
 
 use Moo;
 use Encode;
+use Safe::Isa;
+use Return::MultiLevel qw(with_return);
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request;
 use Dancer2::Core::Response;
-
-use Return::MultiLevel qw(with_return);
 
 has apps => (
     is      => 'rw',
@@ -103,6 +103,15 @@ sub build_request {
         ( serializer      => $engine )x!! $engine,
     );
 
+    # if it's a mutable serializer, we add more headers
+    # so it can be set properly
+    # I don't like doing this... -- Sawyer
+    if ( $engine->$_isa('Dancer2::Serializer::Mutable') ) {
+        $engine->{'extra_headers'} = {
+            map +( $_ => $request->$_ ), qw<content_type accept accept_type>
+        }
+    }
+
     # Log deserialization errors
     if ($engine) {
         $engine->has_error and $app->log(
@@ -147,6 +156,7 @@ sub _dispatch_route {
           && $app->config->{content_type} ) {
             $response->default_content_type($app->config->{content_type});
         }
+
         $response->content($content);
         $response->encode_content;
     }
