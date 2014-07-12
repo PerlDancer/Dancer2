@@ -76,7 +76,6 @@ sub dispatch {
                     and delete $request->{_params}{splat};
 
                 $response->has_passed(0); # clear for the next round
-                $app->cleanup;
                 next ROUTE;
             }
 
@@ -85,6 +84,8 @@ sub dispatch {
 
             return $response;
         }
+
+        $app->cleanup;
     }
 
     return $self->response_not_found( $env );
