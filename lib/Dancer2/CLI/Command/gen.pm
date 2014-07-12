@@ -49,7 +49,7 @@ sub validate_args {
 
 sub execute {
     my ($self, $opt, $args) = @_;
-    $self->_version_check() unless $opt->{'no_check'};
+    _version_check() unless $opt->{'no_check'};
 
     my $dist_dir = $ENV{DANCER2_SHARE_DIR} || dist_dir('Dancer2');
     my $skel_dir = catdir($dist_dir, 'skel');
@@ -77,7 +77,7 @@ sub execute {
         appdir           => File::Spec->rel2abs($app_path),
         perl_interpreter => _get_perl_interpreter(),
         cleanfiles       => _get_dashed_name($app_name),
-        dancer_version   => $self->version(),
+        dancer_version   => version(),
     };
 
     _copy_templates($files_to_copy, $vars, $opt->{overwrite});
@@ -230,8 +230,7 @@ sub _get_dashed_name {
 
 # version check routines
 sub _version_check {
-    my $self = shift;
-    my $version = $self->version();
+    my $version = version();
     return if $version =~  m/_/;
 
     my $latest_version = 0;
