@@ -35,7 +35,6 @@ sub dispatch {
     my $context = Dancer2::Core::Context->new(
         env => $env,
         ( request => $request ) x !! $request,
-        dispatcher => $self,
     );
 
     if ( $curr_context && $curr_context->has_session ) {
