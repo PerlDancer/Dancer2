@@ -637,7 +637,7 @@ sub forward {
     my ( $self, $context, $url, $params, $options ) = @_;
     my $new_request = $self->make_forward_to( $url, $params, $options );
 
-    my $new_response = Dancer2->runner->dispatcher->dispatch(
+    my $new_response = $new_request->env->{'dancer2.core.dispatcher'}->dispatch(
         $new_request->env,
         $new_request,
         $context,

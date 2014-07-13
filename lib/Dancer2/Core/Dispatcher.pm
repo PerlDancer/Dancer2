@@ -9,6 +9,7 @@ use Dancer2::Core::Context;
 use Dancer2::Core::Response;
 
 use Return::MultiLevel qw(with_return);
+use Scalar::Util qw();
 
 has apps => (
     is      => 'rw',
@@ -25,6 +26,11 @@ has default_content_type => (
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
     my ( $self, $env, $request, $curr_context ) = @_;
+
+    # Stash a (weakened) copy of the dispatcher in the psgi env
+    # So C<forward> can use it for redispatch
+    ! exists $env->{'dancer2.core.dispatcher'} &&
+        Scalar::Util::weaken( $env->{'dancer2.core.dispatcher'} = $self );
 
 #    warn "dispatching ".$env->{PATH_INFO}
 #       . " with ".join(", ", map { $_->name } @{$self->apps });
