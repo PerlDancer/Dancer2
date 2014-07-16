@@ -87,7 +87,7 @@ sub get_app_for_engine {
     hook 'engine.session.after_retrieve' => sub {
        my ($response) = @_;
        is ref($response), 'Dancer2::Core::Session',
-                            'Correct response type returned in before_retrieve';
+                            'Correct response type returned in after_retrieve';
     };
     #this returns dancer app. We'll register it with LWP::Protocol::PSGI
     dance;
@@ -118,6 +118,16 @@ foreach my $engine (@engines) {
         is $test_flags->{'engine.session.after_retrieve'}, undef, "session.after_retrieve not called";
         is $test_flags->{'engine.session.before_destroy'}, undef, "session.before_destroy not called";
         is $test_flags->{'engine.session.after_destroy'}, undef, "session.after_destroy not called";
+    };
+
+    subtest 'verify Handler::File (static content) does not retrieve session' => sub {
+        my $r = $ua->get("http://localhost:3000/file.txt");
+
+        # These should not change from previous subtest
+        is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
+        is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
+        is $test_flags->{'engine.session.before_retrieve'}, undef, "session.before_retrieve not called";
+        is $test_flags->{'engine.session.after_retrieve'}, undef, "session.after_retrieve not called";
     };
 
     $r = $ua->get("http://localhost:3000/get_session");
