@@ -208,7 +208,6 @@ things:
     Alex Beamish
     Alexander Karelas
     Alexandr Ciornii
-    ambs
     Andrew Grangaard
     Andrew Inishev
     andrewsolomon
@@ -245,6 +244,7 @@ things:
     Matt Phillips
     Matt S Trout
     Maurice
+    Michał Wojciechowski
     mokko
     Olivier Mengué
     Omar M. Othman
