@@ -219,12 +219,6 @@ has plugins => (
     default => sub { [] },
 );
 
-has runner_config => (
-    is      => 'ro',
-    isa     => HashRef,
-    default => sub { {} },
-);
-
 has route_handlers => (
     is      => 'rw',
     isa     => ArrayRef,
@@ -346,7 +340,12 @@ sub _build_default_config {
     my ($self) = @_;
 
     return {
-        %{ $self->runner_config },
+        content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
+        charset        => ( $ENV{DANCER_CHARSET}      || '' ),
+        logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
+        views          => ( $ENV{DANCER_VIEWS}
+                            || path( $self->config_location, 'views' ) ),
+        appdir         => $self->location,
         template       => 'Tiny',
         route_handlers => [
             [
