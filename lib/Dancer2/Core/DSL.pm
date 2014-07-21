@@ -153,102 +153,37 @@ sub prefix {
 
 sub halt { shift->context->halt }
 
-sub _route_parameters {
-    my ( $regexp, $code, $options );
-    ( scalar @_ == 3 )
-      ? ( ( $regexp, $code, $options ) = ( $_[0], $_[2], $_[1] ) )
-      : ( ( $regexp, $code, $options ) = ( $_[0], $_[1], {} ) );
-    return ( $regexp, $code, $options );
-}
-
-sub get {
-    my $app = shift->app;
-
-    my ( $regexp, $code, $options ) = _route_parameters(@_);
-    for my $method (qw/get head/) {
-        $app->add_route(
-            method  => $method,
-            regexp  => $regexp,
-            code    => $code,
-            options => $options
-        );
-    }
-}
-
-sub post {
-    my $app = shift->app;
-
-    my ( $regexp, $code, $options ) = _route_parameters(@_);
-    $app->add_route(
-        method  => 'post',
-        regexp  => $regexp,
-        code    => $code,
-        options => $options
-    );
-}
+sub del     { shift->_route( [qw/delete  /], @_ ) }
+sub get     { shift->_route( [qw/get head/], @_ ) }
+sub options { shift->_route( [qw/options /], @_ ) }
+sub patch   { shift->_route( [qw/patch   /], @_ ) }
+sub post    { shift->_route( [qw/post    /], @_ ) }
+sub put     { shift->_route( [qw/put     /], @_ ) }
 
 sub any {
-    my ( $self, $methods, @params ) = @_;
-    my $app = $self->app;
+    my $self = shift;
 
-    if ($methods) {
-        if ( ref($methods) ne 'ARRAY' ) {
-            unshift @params, $methods;
-            $methods = [qw(get post put del options patch)];
-        }
+    # If they've supplied their own list of methods,
+    # expand del, otherwise give them the default list.
+    if ( ref $_[0] eq 'ARRAY' ) {
+        s/^del$/delete/ for @{ $_[0] };
+    }
+    else {
+        unshift @_, [qw/delete get head options patch post put/];
     }
 
-    for my $method ( @{$methods} ) {
-        $self->$method(@params);
-    }
+    $self->_route(@_);
 }
 
-sub put {
-    my $app = shift->app;
+sub _route {
+    my $app     = shift->app;
+    my $methods = shift;
+    my %args;
 
-    my ( $regexp, $code, $options ) = _route_parameters(@_);
-    $app->add_route(
-        method  => 'put',
-        regexp  => $regexp,
-        code    => $code,
-        options => $options,
-    );
-}
+    # Options are optional, deduce their presence from arg length.
+    @args{qw/regexp options code/} = @_ == 3 ? @_ : ( $_[0], {}, $_[1] );
 
-sub del {
-    my $app = shift->app;
-
-    my ( $regexp, $code, $options ) = _route_parameters(@_);
-    $app->add_route(
-        method  => 'delete',
-        regexp  => $regexp,
-        code    => $code,
-        options => $options,
-    );
-}
-
-sub options {
-    my $app = shift->app;
-
-    my ( $regexp, $code, $options ) = _route_parameters(@_);
-    $app->add_route(
-        method  => 'options',
-        regexp  => $regexp,
-        code    => $code,
-        options => $options,
-    );
-}
-
-sub patch {
-    my $app = shift->app;
-
-    my ( $regexp, $code, $options ) = _route_parameters(@_);
-    $app->add_route(
-        method  => 'patch',
-        regexp  => $regexp,
-        code    => $code,
-        options => $options,
-    );
+    $app->add_route( %args, method => $_ ) for @$methods;
 }
 
 #
