@@ -9,6 +9,7 @@
     [ ENHANCEMENTS ]
     * GH #589: Removing Dancer2::Core::Context global context variable.
       Finally in.
+      (Sawyer X, Mickey Nasriachi, Russell @veryrusty Jenkins)
 
     [ BUG FIXES ]
     * GH #606, #605: Fix for setting public directory.
