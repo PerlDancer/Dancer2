@@ -18,15 +18,14 @@ get '/redirect' => sub {
 };
 
 hook before => sub {
-    my $context = shift;
-    return if $context->request->dispatch_path eq '/default';
+    return if request->dispatch_path eq '/default';
 
     # Add some content to the response
-    $context->response->content("SillyStringIsSilly");
+    response->content("SillyStringIsSilly");
 
     # redirect - response should include the above content
     return redirect '/default'
-        if $context->request->dispatch_path eq '/redirect';
+        if request->dispatch_path eq '/redirect';
 
     # The response object will get replaced by the result of the forward.
     forward '/default';

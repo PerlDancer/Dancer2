@@ -272,7 +272,7 @@ define their own.
 =head2 Request workflow
 
 C<before> hooks are evaluated before each request within the context of the
-request and receives as argument the context (a L<Dancer2::Core::Context>
+request and receives as argument the app (a L<Dancer2::Core::App>
 object).
 
 It's possible to define variables which will be accessible in the action blocks
@@ -403,10 +403,10 @@ this hook.>
 
 C<on_route_exception> is called when an exception has been caught, at the
 route level, just before rethrowing it higher. This hook receives a
-L<Dancer2::Core::Context> and the error as arguments.
+L<Dancer2::Core::App> and the error as arguments.
 
   hook on_route_exception => sub {
-    my ($context, $error) = @_;
+    my ($app, $error) = @_;
   };
 
 =head2 File rendering
@@ -1434,7 +1434,7 @@ You may also need to clear a session:
     # destroy session
     get '/logout' => sub {
         ...
-        context->destroy_session;
+        app->destroy_session;
         ...
     };
 

@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 
+use Dancer2::Core::App;
 use Dancer2::Core::Request;
 
 diag "If you want extra speed, install URL::Encode::XS"
@@ -67,7 +68,8 @@ sub run_test {
     note "tests cookies";
     is( keys %{ $req->cookies }, 2, "multiple cookies extracted" );
 
-    my $forward = $req->make_forward_to('/somewhere');
+    my $forward = Dancer2::Core::App->new( request => $req )
+                                    ->make_forward_to('/somewhere');
     is $forward->path_info, '/somewhere';
     is $forward->method,    'GET';
     note "tests for uri_for";
@@ -200,13 +202,19 @@ sub run_test {
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are parsed';
 
-    $req = $req->make_forward_to("/new/path");
+    $req = Dancer2::Core::App->new( request => $req )
+                             ->make_forward_to('/new/path');
     is $req->path,   '/new/path', 'path is changed';
     is $req->method, 'GET',       'method is unchanged';
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
 
-    $req = $req->make_forward_to( "/new/path", undef, { method => 'POST' } );
+    $req = Dancer2::Core::App->new( request => $req )
+                             ->make_forward_to(
+                                '/new/path',
+                                undef,
+                                { method => 'POST' },
+                             );
 
     is $req->path,   '/new/path', 'path is changed';
     is $req->method, 'POST',      'method is changed';

@@ -92,8 +92,8 @@ my $tests_flags = {};
     };
 
     hook on_route_exception => sub {
-        my ($context, $error) = @_;
-        is ref($context), 'Dancer2::Core::Context';
+        my ($app, $error) = @_;
+        is ref($app), 'Dancer2::Core::App';
         like $error, qr/this is a route exception/;
     };
 

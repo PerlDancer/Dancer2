@@ -67,9 +67,19 @@ $tt->add_hook(
     )
 );
 
-my $space = " ";
-my $result = $tt->process( 'index.tt', { var => 42 } );
-is $result, "layout top
+{
+    package Bar;
+    use Dancer2;
+
+    # set template engine for first app
+    Dancer2->runner->apps->[0]->set_template_engine($tt);
+
+    get '/' => sub { template index => { var => 42 } };
+}
+
+my $app    = Dancer2->runner->psgi_app;
+my $space  = " ";
+my $result = "layout top
 var = 42
 before_layout_render = 1
 ---
@@ -85,6 +95,17 @@ layout bottom
 
 content added in after_layout_render";
 
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is(
+        $cb->( GET '/' )->content,
+        $result,
+        '[GET /] Correct content with template hooks',
+    );
+};
+
+
 {
 
     package Foo;
@@ -97,7 +118,7 @@ content added in after_layout_render";
     get '/get_views_via_settings' => sub { set 'views' };
 }
 
-my $app = Dancer2->runner->psgi_app;
+$app = Dancer2->runner->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
@@ -120,3 +141,4 @@ test_psgi $app, sub {
 };
 
 done_testing;
+

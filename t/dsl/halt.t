@@ -17,7 +17,7 @@ subtest 'halt within routes' => sub {
             halt;
         };
         get '/shortcircuit' => sub {
-            context->response->content('halted');
+            app->response->content('halted');
             halt;
             redirect '/'; # won't get executed as halt returns immediately.
         };
@@ -61,9 +61,8 @@ subtest 'halt in before hook' => sub {
         use Dancer2;
 
         hook before => sub {
-            my $context = shift;
-            $context->response->content('I was halted');
-            halt if $context->request->dispatch_path eq '/shortcircuit';
+            response->content('I was halted');
+            halt if request->dispatch_path eq '/shortcircuit';
         };
 
     }

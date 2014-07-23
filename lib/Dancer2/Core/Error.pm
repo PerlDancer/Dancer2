@@ -43,11 +43,20 @@ Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES
 
 =cut
 
+has app => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::App'],
+    predicate => 'has_app',
+);
+
 has show_errors => (
     is      => 'ro',
     isa     => Bool,
     default => sub {
-        $_[0]->context->app->setting('show_errors') if $_[0]->has_context;
+        my $self = shift;
+
+        $self->has_app
+            and return $self->app->setting('show_errors');
     },
 );
 
@@ -111,7 +120,7 @@ sub _build_error_template {
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
     return $self->status
-      if -f $self->context->app->engine('template')
+      if -f $self->app->engine('template')
           ->view_pathname( $self->status );
 
     return undef;
@@ -128,8 +137,8 @@ sub _build_static_page {
 
     # TODO there must be a better way to get it
     my $public_dir = $ENV{DANCER_PUBLIC}
-      || ( $self->has_context
-        && path( $self->context->app->config_location, 'public' ) );
+      || ( $self->has_app
+        && path( $self->app->config_location, 'public' ) );
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 
@@ -146,13 +155,14 @@ sub default_error_page {
 
     require Template::Tiny;
 
-    my $uri_base = $self->has_context ?
-        $self->context->request->uri_base : '';
+    my $uri_base = $self->has_app ?
+        $self->app->request->uri_base : '';
 
     my $message = $self->message;
     if ( $self->show_errors && $self->exception) {
         $message .= "\n" . $self->exception;
     }
+
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
@@ -229,9 +239,9 @@ has serializer => (
 sub _build_serializer {
     my ($self) = @_;
 
-    if ( $self->has_context && $self->context->has_app ) {
-        return $self->context->app->engine('serializer');
-    }
+    $self->has_app
+        and return $self->app->engine('serializer');
+
     return;
 }
 
@@ -240,17 +250,11 @@ has session => (
     isa => ConsumerOf ['Dancer2::Core::Role::Session'],
 );
 
-has context => (
-    is        => 'ro',
-    isa       => InstanceOf ['Dancer2::Core::Context'],
-    predicate => 1,
-);
-
 sub BUILD {
     my ($self) = @_;
 
-    $self->has_context &&
-      $self->context->app->execute_hook( 'core.error.init', $self );
+    $self->has_app &&
+      $self->app->execute_hook( 'core.error.init', $self );
 }
 
 has exception => (
@@ -270,11 +274,7 @@ has exception => (
 has response => (
     is      => 'rw',
     lazy    => 1,
-    default => sub {
-        $_[0]->has_context
-          ? $_[0]->context->response
-          : Dancer2::Core::Response->new;
-    },
+    default => sub { Dancer2::Core::Response->new }
 );
 
 has content_type => (
@@ -309,8 +309,8 @@ has content => (
         # Otherwise we check for a template, for a static file and,
         # if all else fail, the default error page
 
-        if ( $self->has_context and $self->template ) {
-            return $self->context->app->template(
+        if ( $self->has_app and $self->template ) {
+            return $self->app->template(
                 $self->template,
                 {   title     => $self->title,
                     content   => $self->message,
@@ -332,19 +332,20 @@ has content => (
 =method throw($response)
 
 Populates the content of the response with the error's information.
-If I<$response> is not given, acts on the I<context>
+If I<$response> is not given, acts on the I<app>
 attribute's response.
 
 =cut
 
 sub throw {
     my $self = shift;
-    $self->response(shift) if @_;
+    $self->set_response(shift) if @_;
 
-    croak "error has no response to throw at" unless $self->response;
+    $self->response
+        or croak "error has no response to throw at";
 
-    $self->has_context &&
-        $self->context->app->execute_hook( 'core.error.before', $self );
+    $self->has_app &&
+        $self->app->execute_hook( 'core.error.before', $self );
 
     my $message = $self->content;
 
@@ -352,8 +353,8 @@ sub throw {
     $self->response->content_type( $self->content_type );
     $self->response->content($message);
 
-    $self->has_context &&
-        $self->context->app->execute_hook('core.error.after', $self->response);
+    $self->has_app &&
+        $self->app->execute_hook('core.error.after', $self->response);
 
     $self->response->halt(1);
     return $self->response;
@@ -485,7 +486,7 @@ C<get_caller>), the settings and environment (using C<dumper>) and more.
 sub environment {
     my ($self) = @_;
 
-    my $request = $self->has_context ? $self->context->request : 'TODO';
+    my $request = $self->has_app ? $self->app->request : 'TODO';
     my $r_env = {};
     $r_env = $request->env if defined $request;
 
@@ -495,7 +496,7 @@ sub environment {
       . "</pre>";
     my $settings =
         qq|<div class="title">Settings</div><pre class="content">|
-      . dumper( $self->context->app->settings )
+      . dumper( $self->app->settings )
       . "</pre>";
     my $source =
         qq|<div class="title">Stack</div><pre class="content">|

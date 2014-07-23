@@ -15,17 +15,12 @@ This role consumes the L<Dancer2::Core::Role::Hookable> role.
 
 with 'Dancer2::Core::Role::Hookable';
 
-=attr context
-
-A L<Dancer2::Core::Context> object
-
-=cut
-
-has context => (
-    is        => 'rw',
-    isa       => InstanceOf ['Dancer2::Core::Context'],
-    clearer   => 'clear_context',
-    predicate => 1,
+has session => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::Session'],
+    writer    => 'set_session',
+    clearer   => 'clear_session',
+    predicate => 'has_session',
 );
 
 =attr config

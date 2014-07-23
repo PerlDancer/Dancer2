@@ -6,12 +6,12 @@ use Moo::Role;
 use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
-use Carp qw/croak carp/;
+use Carp 'croak';
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw/path/;
+use Dancer2::FileUtils 'path';
 
 has location => (
     is      => 'ro',
@@ -49,7 +49,7 @@ has environments_location => (
 );
 
 has config => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => HashRef,
     lazy    => 1,
     builder => '_build_config',
@@ -63,7 +63,7 @@ has environment => (
 );
 
 has config_files => (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     isa     => ArrayRef,
     builder => '_build_config_files',
@@ -88,6 +88,11 @@ has global_triggers => (
         apphandler => sub {
             my ( $self, $handler ) = @_;
             Dancer2->runner->config->{'apphandler'} = $handler;
+        },
+
+        behind_proxy => sub {
+            my ( $self, $flag ) = @_;
+            Dancer2->runner->config->{'behind_proxy'} = $flag;
         },
     } },
 );

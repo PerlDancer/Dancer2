@@ -13,7 +13,7 @@ a factory that consumes L<Dancer2::Core::Role::SessionFactory> to know about tha
 Generally, session objects should not be created directly.  The correct way to
 get a new session object is to call the C<create()> method on a session engine
 that implements the SessionFactory role.  This is done automatically by the
-context object if a session engine is defined.
+app object if a session engine is defined.
 
 =cut
 

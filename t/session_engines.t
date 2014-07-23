@@ -82,7 +82,7 @@ foreach my $engine (@engines) {
             };
 
             get '/cleanup' => sub {
-                context->destroy_session;
+                app->destroy_session;
                 return scalar(@to_destroy);
             };
 

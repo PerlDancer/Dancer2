@@ -3,12 +3,12 @@ package Dancer2::Core::Dispatcher;
 
 use Moo;
 use Encode;
+use Safe::Isa;
+use Return::MultiLevel qw(with_return);
 
 use Dancer2::Core::Types;
-use Dancer2::Core::Context;
+use Dancer2::Core::Request;
 use Dancer2::Core::Response;
-
-use Return::MultiLevel qw(with_return);
 
 has apps => (
     is      => 'rw',
@@ -18,93 +18,117 @@ has apps => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ( $self, $env, $request, $curr_context ) = @_;
+    my ( $self, $env, $request, $curr_session ) = @_;
 
-#    warn "dispatching ".$env->{PATH_INFO}
-#       . " with ".join(", ", map { $_->name } @{$self->apps });
-
-    # Initialize a context for the current request
-    # Once per dispatching! We should not create one context for each app or
-    # we're going to parse the request body multiple times
-    my $context = Dancer2::Core::Context->new(
-        env => $env,
-        ( request => $request ) x !! $request,
-    );
-
-    if ( $curr_context && $curr_context->has_session ) {
-        $context->session( $curr_context->session );
-    }
+    # warn "dispatching ".$env->{PATH_INFO}
+    #    . " with ".join(", ", map { $_->name } @{$self->apps });
 
     foreach my $app ( @{ $self->apps } ) {
-
         # warn "walking through routes of ".$app->name;
 
-        # set the current app in the context and context in the app..
-        $context->app($app);
-        $app->context($context);
+        # create request if we didn't get any
+        $request ||= $self->build_request( $env, $app );
 
-        my $http_method = lc $context->request->method;
-        my $path_info   = $context->request->path_info;
+        my $http_method = lc $request->method;
+        my $path_info   =    $request->path_info;
 
         $app->log( core => "looking for $http_method $path_info" );
 
       ROUTE:
         foreach my $route ( @{ $app->routes->{$http_method} } ) {
-
             # warn "testing route ".$route->regexp;
 
             # TODO store in route cache
 
             # go to the next route if no match
-            my $match = $route->match( $context->request )
-              or next ROUTE;
+            my $match = $route->match($request)
+                or next ROUTE;
 
-            $context->request->_set_route_params($match);
+            $curr_session and $app->set_session($curr_session);
+
+            $request->_set_route_params($match);
+            $app->set_request($request);
 
             my $response = with_return {
                 my ($return) = @_;
-                # stash the multilevel return coderef in the context
-                $context->with_return($return) if ! $context->has_with_return;
-                return $self->_dispatch_route($route, $context);
+
+                # stash the multilevel return coderef in the app
+                $app->has_with_return
+                    or $app->set_with_return($return);
+
+                return $self->_dispatch_route($route, $app);
             };
+
             # Ensure we clear the with_return handler
-            $context->clear_with_response;
+            $app->clear_with_response;
 
             # No further processing of this response if its halted
             if ( $response->is_halted ) {
-                $app->context(undef);
+                $app->cleanup;
                 return $response;
             }
 
             # pass the baton if the response says so...
             if ( $response->has_passed ) {
-
                 ## A previous route might have used splat, failed
                 ## this needs to be cleaned from the request.
-                if (exists $context->request->{_params}{splat}) {
-                    delete $context->request->{_params}{splat};
-                }
+                exists $request->{_params}{splat}
+                    and delete $request->{_params}{splat};
 
-                $response->has_passed(0);    # clear for the next round
+                $response->has_passed(0); # clear for the next round
                 next ROUTE;
             }
 
             $app->execute_hook( 'core.app.after_request', $response );
-            $app->context(undef);
+            $app->cleanup;
+
             return $response;
+        }
+
+        $app->cleanup;
+    }
+
+    return $self->response_not_found( $env );
+}
+
+# the dispatcher can build requests now :)
+sub build_request {
+    my ( $self, $env, $app ) = @_;
+
+    # If we have an app, send the serialization engine
+    my $engine  = $app->engine('serializer');
+    my $request = Dancer2::Core::Request->new(
+          env             => $env,
+          is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
+        ( serializer      => $engine )x!! $engine,
+    );
+
+    # if it's a mutable serializer, we add more headers
+    # so it can be set properly
+    # I don't like doing this... -- Sawyer
+    if ( $engine->$_isa('Dancer2::Serializer::Mutable') ) {
+        $engine->{'extra_headers'} = {
+            map +( $_ => $request->$_ ), qw<content_type accept accept_type>
         }
     }
 
-    return $self->response_not_found($context);
+    # Log deserialization errors
+    if ($engine) {
+        $engine->has_error and $app->log(
+            core => "Failed to deserialize the request : " .
+                    $engine->error
+        );
+    }
+
+    return $request;
 }
 
 # Call any before hooks then the matched route.
 sub _dispatch_route {
-    my ($self, $route, $context) = @_;
-    my $app = $context->app;
+    my ($self, $route, $app) = @_;
 
-    $app->execute_hook( 'core.app.before_request', $context );
-    my $response = $context->response;
+    $app->execute_hook( 'core.app.before_request', $app );
+    my $response = $app->response;
 
     my $content;
     if ( $response->is_halted ) {
@@ -112,18 +136,17 @@ sub _dispatch_route {
         $content = $response->content;
     }
     else {
-        $content = eval { $route->execute($context) };
+        $content = eval { $route->execute($app) };
         my $error = $@;
         if ($error) {
             $app->log( error => "Route exception: $error" );
-            $app->execute_hook(
-                'core.app.route_exception', $context, $error);
-            return $self->response_internal_error( $context, $error );
+            $app->execute_hook( 'core.app.route_exception', $app, $error );
+            return $self->response_internal_error( $app, $error );
         }
     }
 
     if ( ref $content eq 'Dancer2::Core::Response' ) {
-        $response = $context->response($content);
+        $response = $app->set_response($content);
     }
     elsif ( defined $content ) {
         # The response object has no back references to the content or app
@@ -133,6 +156,7 @@ sub _dispatch_route {
           && $app->config->{content_type} ) {
             $response->default_content_type($app->config->{content_type});
         }
+
         $response->content($content);
         $response->encode_content;
     }
@@ -141,14 +165,14 @@ sub _dispatch_route {
 }
 
 sub response_internal_error {
-    my ( $self, $context, $error ) = @_;
+    my ( $self, $app, $error ) = @_;
 
     # warn "got error: $error";
 
     return Dancer2::Core::Error->new(
-        context      => $context,
-        status       => 500,
-        exception    => $error,
+        app       => $app,
+        status    => 500,
+        exception => $error,
     )->throw;
 }
 
@@ -157,10 +181,12 @@ sub response_internal_error {
 my $not_found_app;
 
 sub response_not_found {
-    my ( $self, $context ) = @_;
+    my ( $self, $env ) = @_;
 
     $not_found_app ||= Dancer2::Core::App->new(
         name            => 'file_not_found',
+        # FIXME: are these two still global with the merging of
+        #        feature/fix-remove-default-engine-config?
         environment     => Dancer2->runner->environment,
         location        => Dancer2->runner->location,
         runner_config   => Dancer2->runner->config,
@@ -168,13 +194,12 @@ sub response_not_found {
         api_version     => 2,
     );
 
-    $context->app($not_found_app);
-    $not_found_app->context($context);
+    my $request = $self->build_request( $env, $not_found_app );
+    $not_found_app->set_request($request);
 
     return Dancer2::Core::Error->new(
         status  => 404,
-        context => $context,
-        message => $context->request->path,
+        message => $request->path,
     )->throw;
 }
 
@@ -193,10 +218,10 @@ __END__
     my $resp = $dispatcher->dispatch($env)->to_psgi;
 
     # Capture internal error of a response (if any) after a dispatch
-    $dispatcher->response_internal_error($context, $error);
+    $dispatcher->response_internal_error($app, $error);
 
     # Capture response not found for an application the after dispatch
-    $dispatcher->response_not_found($context);
+    $dispatcher->response_not_found($env);
 
 =head1 ATTRIBUTES
 
@@ -215,7 +240,7 @@ request. This attribute is read-only.
 
 The C<dispatch> method accepts the list of applications, hash reference for
 the B<env> attribute of L<Dancer2::Core::Request> and optionally the request
-object and a context object as input arguments.
+object and an env as input arguments.
 
 C<dispatch> returns a response object of L<Dancer2::Core::Response>.
 
@@ -232,5 +257,5 @@ a variable error and returns an object of L<Dancer2::Core::Error>.
 =head2 response_not_found
 
 The C<response_not_found> consumes as input the list of applications and an
-object of type L<Dancer2::Core::Context> and returns an object
+object of type L<Dancer2::Core::App> and returns an object
 L<Dancer2::Core::Error>.

@@ -68,7 +68,7 @@ sub get_app_for_engine {
       return "ok";
     };
     get '/destroy_session' => sub {
-      context->destroy_session;
+      app->destroy_session;
       return "ok";
     };
 

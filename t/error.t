@@ -5,7 +5,6 @@ use Plack::Test;
 use HTTP::Request::Common;
 
 use Dancer2::Core::App;
-use Dancer2::Core::Context;
 use Dancer2::Core::Response;
 use Dancer2::Core::Request;
 use Dancer2::Core::Error;
@@ -32,10 +31,12 @@ my $env = {
 };
 
 my $a = Dancer2::Core::App->new( name => 'main' );
-my $c = Dancer2::Core::Context->new( env => $env, app => $a );
+my $request = Dancer2::Core::Dispatcher->build_request( $env, $a );
+
+$a->set_request($request);
 
 subtest 'basic defaults of Error object' => sub {
-    my $e = Dancer2::Core::Error->new( context => $c, );
+    my $e = Dancer2::Core::Error->new( app => $a );
     is $e->status,  500,                                 'code';
     is $e->title,   'Error 500 - Internal Server Error', 'title';
     is $e->message, '',                               'message';
@@ -117,7 +118,6 @@ subtest 'Response->error()' => sub {
 
 subtest 'Error with show_errors: 0' => sub {
     my $err = Dancer2::Core::Error->new(
-        context     => $c,
         exception   => 'our exception',
         show_errors => 0
     )->throw;
@@ -126,7 +126,6 @@ subtest 'Error with show_errors: 0' => sub {
 
 subtest 'Error with show_errors: 1' => sub {
     my $err = Dancer2::Core::Error->new(
-        context     => $c,
         exception   => 'our exception',
         show_errors => 1
     )->throw;
@@ -164,7 +163,6 @@ subtest 'Error with exception object' => sub {
     local $@;
     eval { MyTestException->throw('a test exception object') };
     my $err = Dancer2::Core::Error->new(
-        context     => $c,
         exception   => $@,
         show_errors => 1,
     )->throw;
