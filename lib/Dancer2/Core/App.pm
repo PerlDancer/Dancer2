@@ -943,21 +943,10 @@ sub forward {
 
     my $new_request = $self->make_forward_to( $url, $params, $options );
 
-    my $new_response = Dancer2->runner->dispatcher->dispatch(
-        $new_request->env,
-        $new_request,
-        ($self->session)x!! $self->has_session,
-    );
-
-    # halt the response, so no further processing is done on this request.
-    # (any after hooks will have already been run)
-    $new_response->halt;
-    $self->set_response($new_response);
-
     $self->has_with_return
-        and $self->with_return->($new_response);
+        and $self->with_return->($new_request);
 
-    return $new_response; # Should never be called..
+    # nothing else will run after this
 }
 
 # Create a new request which is a clone of the current one, apart
