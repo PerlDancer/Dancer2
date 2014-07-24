@@ -8,23 +8,41 @@ use HTTP::Request::Common;
 {
     package MyTestWiki;
     use Dancer2;
-    get '/' => sub { __PACKAGE__ };
+    get '/'     => sub { __PACKAGE__ };
+    get '/wiki' => sub {'WIKI'};
 
     package MyTestForum;
     use Dancer2;
-    get '/' => sub { __PACKAGE__ };
+    get '/'      => sub { __PACKAGE__ };
+    get '/forum' => sub {'FORUM'};
 }
 
-my $app = builder {
-    mount '/wiki'  => MyTestWiki->psgi_app;
-    mount '/forum' => MyTestForum->psgi_app;
-};
+{
+    my $app = builder {
+        mount '/wiki'  => MyTestWiki->psgi_app;
+        mount '/forum' => MyTestForum->psgi_app;
+    };
 
-test_psgi $app, sub {
-    my $cb = shift;
+    isa_ok( $app, 'CODE', 'Got app' );
 
-    is( $cb->( GET '/wiki' )->content, 'MyTestWiki', "Got forum root" );
-    is( $cb->( GET '/forum' )->content, 'MyTestForum', "Got wiki root" );
-};
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is( $cb->( GET '/wiki' )->content, 'MyTestWiki', "Got wiki root" );
+        is( $cb->( GET '/forum' )->content, 'MyTestForum', "Got forum root" );
+    };
+}
+
+{
+    my $app = Dancer2->psgi_app;
+    isa_ok( $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is( $cb->( GET '/wiki' )->content, 'WIKI', 'Got /wiki path' );
+        is( $cb->( GET '/forum' )->content, 'FORUM', 'Got /forum path' );
+    };
+}
 
 done_testing;
