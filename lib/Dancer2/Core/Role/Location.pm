@@ -11,18 +11,14 @@ has caller => (
     is       => 'ro',
     isa      => Str,
     required => 1,
-    default  => \&_build_caller,
 );
-
-sub _build_caller { my ($c, $s) = caller; return $s }
 
 has location => (
-    is       => 'ro',
-    required => 1,
-    builder  => '_build_location',
+    is      => 'ro',
+    builder => '_build_location',
 );
 
-# FIXME: i hate you most of all - xsaywerx
+# FIXME: i hate you most of all -- Sawyer X
 sub _build_location {
     my $self   = shift;
     my $script = $self->caller;
