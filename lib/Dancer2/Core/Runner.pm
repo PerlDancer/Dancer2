@@ -8,14 +8,14 @@ use Dancer2::Core::Dispatcher;
 use HTTP::Server::PSGI;
 use Plack::Builder qw();
 
-with 'Dancer2::Core::Role::ConfigReader';
-
-# the path to the caller script that is starting the app
-# mandatory, because we use that to determine where the appdir is.
-has caller => (
-    is       => 'ro',
-    isa      => Str,
-    required => 1,
+# Hashref of configurable items for the runner.
+# Defaults come from ENV vars. Updated via global triggers
+# from app configs.
+has config => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_config',
 );
 
 # FIXME: i hate this
@@ -45,7 +45,15 @@ has postponed_hooks => (
     default => sub { +{} },
 );
 
-# FIXME: this should be in the configuration
+has environment => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
+    default  => sub {
+        $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development'
+    },
+);
+
 has host => (
     is      => 'ro',
     lazy    => 1,
@@ -75,79 +83,36 @@ sub _build_server {
     );
 }
 
-# FIXME: i hate you most of all
-sub _build_location {
-    my $self   = shift;
-    my $script = $self->caller;
-
-    # default to the dir that contains the script...
-    my $location = Dancer2::FileUtils::dirname($script);
-
-    #we try to find bin and lib
-    my $subdir       = $location;
-    my $subdir_found = 0;
-
-    #maximum of 10 iterations, to prevent infinite loop
-    for ( 1 .. 10 ) {
-
-        #try to find libdir and bindir to determine the root of dancer app
-        my $libdir = Dancer2::FileUtils::path( $subdir, 'lib' );
-        my $bindir = Dancer2::FileUtils::path( $subdir, 'bin' );
-
-        #try to find .dancer_app file to determine the root of dancer app
-        my $dancerdir = Dancer2::FileUtils::path( $subdir, '.dancer' );
-
-        # if one of them is found, keep that; but skip ./blib since both lib and bin exist
-        # under it, but views and public do not.
-        if ( ( $subdir !~ m!/blib/?$! && -d $libdir && -d $bindir ) || ( -f $dancerdir ) ) {
-            $subdir_found = 1;
-            last;
-        }
-
-        $subdir = Dancer2::FileUtils::path( $subdir, '..' ) || '.';
-        last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
-
-    }
-
-    my $path = $subdir_found ? $subdir : $location;
-
-    # return if absolute
-    File::Spec->file_name_is_absolute($path)
-        and return $path;
-
-    # convert relative to absolute
-    return File::Spec->rel2abs($path);
-}
-
-sub _build_default_config {
+sub _build_config {
     my $self = shift;
 
     $ENV{PLACK_ENV}
       and $ENV{DANCER_APPHANDLER} = 'PSGI';
 
     return {
-        apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
-        content_type => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
-        charset      => ( $ENV{DANCER_CHARSET}      || '' ),
-        warnings     => ( $ENV{DANCER_WARNINGS}     || 0 ),
-        startup_info => ( $ENV{DANCER_STARTUP_INFO} || 1 ),
-        traces       => ( $ENV{DANCER_TRACES}       || 0 ),
-        logger       => ( $ENV{DANCER_LOGGER}       || 'console' ),
-        host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
-        port         => ( $ENV{DANCER_PORT}         || '3000' ),
-        views        => ( $ENV{DANCER_VIEWS}
-              || path( $self->config_location, 'views' ) ),
-        appdir        => $self->location,
+        behind_proxy  => 0,
+        apphandler    => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
+        warnings      => ( $ENV{DANCER_WARNINGS}     || 0 ),
+        traces        => ( $ENV{DANCER_TRACES}       || 0 ),
+        host          => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
+        port          => ( $ENV{DANCER_PORT}         || '3000' ),
+        server_tokens => ( defined $ENV{DANCER_SERVER_TOKENS} ?
+                           $ENV{DANCER_SERVER_TOKENS}         :
+                           1 ),
+        startup_info  => ( defined $ENV{DANCER_STARTUP_INFO} ?
+                           $ENV{DANCER_STARTUP_INFO}         :
+                           1 ),
     };
 }
 
 sub BUILD {
     my $self = shift;
 
-    # this assures any failure in building the location
-    # will be encountered as soon as possible
-    # while making sure that 'caller' is already available
-    $self->location;
+    # Enable traces if set by ENV var.
+    if (my $traces = $self->config->{traces} ) {
+        require Carp;
+        $Carp::Verbose = $traces ? 1 : 0;
+    };
 
     # set the global runner object if one doesn't exist yet
     # this can happen if you create one without going through Dancer2
@@ -249,8 +214,7 @@ sub print_banner {
     my $pid  = $$;
 
     # we only print the info if we need to
-    # FIXME: go to the configuration
-    #Dancer2->runner->config->{'startup_info'} or return;
+    $self->config->{'startup_info'} or return;
 
     # bare minimum
     print STDERR ">> Dancer2 v$Dancer2::VERSION server $pid listening "
@@ -270,4 +234,3 @@ sub print_banner {
 }
 
 1;
-

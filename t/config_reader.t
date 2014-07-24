@@ -9,7 +9,7 @@ use Dancer2::FileUtils qw/dirname path/;
 use File::Spec;
 use File::Temp;
 
-my $runner = Dancer2::Core::Runner->new( caller => 'main' );
+my $runner = Dancer2::Core::Runner->new();
 my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
 {
@@ -20,33 +20,33 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     sub name {'Prod'}
 
-    sub _build_environment {'production'}
-    sub location           {$location}
-    sub default_config     { $runner->default_config }
+    sub _build_environment    {'production'}
+    sub _build_location       {$location}
+    sub _build_default_config {$runner->config}
 
     package Dev;
     use Moo;
     with 'Dancer2::Core::Role::ConfigReader';
 
-    sub _build_environment {'development'}
-    sub location           {$location}
-    sub default_config     { $runner->default_config }
+    sub _build_environment    {'development'}
+    sub _build_location       {$location};
+    sub _build_default_config {$runner->config}
 
     package Failure;
     use Moo;
     with 'Dancer2::Core::Role::ConfigReader';
 
-    sub _build_environment {'failure'}
-    sub location           {$location}
-    sub default_config     { $runner->default_config }
+    sub _build_environment    {'failure'}
+    sub _build_location       {$location}
+    sub _build_default_config {$runner->config}
 
     package Staging;
     use Moo;
     with 'Dancer2::Core::Role::ConfigReader';
 
-    sub _build_environment {'staging'}
-    sub location           {$location}
-    sub default_config     { $runner->default_config }
+    sub _build_environment    {'staging'}
+    sub _build_location       {$location}
+    sub _build_default_config {$runner->config}
 
     package Merging;
     use Moo;
@@ -54,13 +54,13 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     sub name {'Merging'}
 
-    sub _build_environment {'merging'}
-    sub location           {$location}
-    sub default_config     { $runner->default_config }
+    sub _build_environment    {'merging'}
+    sub _build_location       {$location}
+    sub _build_default_config {$runner->config}
 
 }
 
-my $d = Dev->new;
+my $d = Dev->new();
 is_deeply $d->config_files,
   [ path( $location, 'config.yml' ), ],
   "config_files() only sees existing files";
@@ -119,7 +119,6 @@ ok( !$f->has_setting('foobarbaz') );
 
 note "default values";
 is $f->setting('apphandler'),   'Standalone';
-is $f->setting('content_type'), 'text/html';
 
 like(
     exception { $f->_normalize_config( { charset => 'BOGUS' } ) },

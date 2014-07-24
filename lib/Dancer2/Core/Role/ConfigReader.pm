@@ -13,11 +13,7 @@ use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils 'path';
 
-has location => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_location',
-);
+with 'Dancer2::Core::Role::HasLocation';
 
 has default_config => (
     is      => 'ro',
@@ -78,32 +74,34 @@ has local_triggers => (
 has global_triggers => (
     is      => 'ro',
     isa     => HashRef,
-    default => sub { +{
-        traces => sub {
-            my ( $self, $traces ) = @_;
-            require Carp;
-            $Carp::Verbose = $traces ? 1 : 0;
-        },
+    default => sub {
+        my $triggers = {
+            traces => sub {
+                my ( $self, $traces ) = @_;
+                # Carp is already a dependency
+                $Carp::Verbose = $traces ? 1 : 0;
+            },
+        };
 
-        apphandler => sub {
-            my ( $self, $handler ) = @_;
-            Dancer2->runner->config->{'apphandler'} = $handler;
-        },
+        my $runner_config = defined $Dancer2::runner
+                            ? Dancer2->runner->config
+                            : {};
 
-        behind_proxy => sub {
-            my ( $self, $flag ) = @_;
-            Dancer2->runner->config->{'behind_proxy'} = $flag;
-        },
-    } },
+        for my $global ( keys %$runner_config ) {
+            next if exists $triggers->{$global};
+            $triggers->{$global} = sub {
+                my ($self, $value) = @_;
+                Dancer2->runner->config->{$global} = $value;
+            }
+        }
+
+        return $triggers;
+    },
 );
 
 sub _build_default_config { +{} }
 
-sub _build_location { File::Spec->rel2abs('.') }
-
-sub _build_environment {
-    $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development';
-}
+sub _build_environment { 'development' }
 
 sub _build_config_files {
     my ($self) = @_;
@@ -132,11 +130,9 @@ sub _build_config_files {
 
 sub _build_config {
     my ($self) = @_;
-    my $location = $self->config_location;
 
-    my $default = {};
-    $default = $self->default_config
-      if $self->can('default_config');
+    my $location = $self->config_location;
+    my $default  = $self->default_config;
 
     my $config = Hash::Merge::Simple->merge(
         $default,
