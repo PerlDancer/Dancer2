@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #336: Set log level correctly.
+      (Andrew Solomon, Pedro Bruno)
+
+0.149000_01 2014-07-23 21:31:21CEST+0200 Europe/Amsterdam
+
     *************************** NOTICE ***************************
     * This very is a major upgrade                               *
     * We untangled the context, DSL implementation a bit         *
