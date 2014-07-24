@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * forward() now returns a new request which is then just runs
+      the dispatching loop again. (Sawyer X, Mickey Nasriachi)
+
     [ BUG FIXES ]
     * GH #336: Set log level correctly.
       (Andrew Solomon, Pedro Bruno)
