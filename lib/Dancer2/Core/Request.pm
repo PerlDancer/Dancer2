@@ -441,8 +441,6 @@ Return script_name from the environment.
 =cut
 
 # aliases, kept for backward compat
-sub agent                 { $_[0]->user_agent }
-sub remote_address        { $_[0]->address }
 sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
 sub address               { $_[0]->env->{REMOTE_ADDR} }
 sub remote_host           { $_[0]->env->{REMOTE_HOST} }
@@ -451,6 +449,9 @@ sub port                  { $_[0]->env->{SERVER_PORT} }
 sub request_uri           { $_[0]->env->{REQUEST_URI} }
 sub user                  { $_[0]->env->{REMOTE_USER} }
 sub script_name           { $_[0]->env->{SCRIPT_NAME} }
+
+*agent          = \&user_agent;
+*remote_address = \&address;
 
 =method scheme()
 

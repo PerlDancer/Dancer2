@@ -12,10 +12,10 @@ use Dancer2::FileUtils;
 with 'Dancer2::Core::Role::DSL';
 
 sub dsl_keywords {
-
-    # the flag means : 1 = is global, 0 = is not global. global means can be
-    # called from anywhere. not global means must be called from within a route
-    # handler
+    # is_global
+    #  0 - false, can only be called from within a route.
+    #  1 - true, can be called from anywhere.
+    #  2 - as above but additionally doesn't recieve $self as $_[0].
     {   any                  => { is_global => 1 },
         app                  => { is_global => 1 },
         captures             => { is_global => 0 },
@@ -26,15 +26,15 @@ sub dsl_keywords {
         cookies              => { is_global => 0 },
         dance                => { is_global => 1 },
         dancer_app           => { is_global => 1 },
-        dancer_version       => { is_global => 1 },
-        dancer_major_version => { is_global => 1 },
+        dancer_version       => { is_global => 2 },
+        dancer_major_version => { is_global => 2 },
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
-        dirname              => { is_global => 1 },
+        dirname              => { is_global => 2 },
         dsl                  => { is_global => 1 },
         engine               => { is_global => 1 },
         error                => { is_global => 1 },
-        false                => { is_global => 1 },
+        false                => { is_global => 2 },
         forward              => { is_global => 0 },
         from_dumper          => { is_global => 1 },
         from_json            => { is_global => 1 },
@@ -52,7 +52,7 @@ sub dsl_keywords {
         params               => { is_global => 0 },
         pass                 => { is_global => 0 },
         patch                => { is_global => 1 },
-        path                 => { is_global => 1 },
+        path                 => { is_global => 2 },
         post                 => { is_global => 1 },
         prefix               => { is_global => 1 },
         psgi_app             => { is_global => 1 },
@@ -74,7 +74,7 @@ sub dsl_keywords {
         to_dumper            => { is_global => 1 },
         to_json              => { is_global => 1 },
         to_yaml              => { is_global => 1 },
-        true                 => { is_global => 1 },
+        true                 => { is_global => 2 },
         upload               => { is_global => 0 },
         uri_for              => { is_global => 0 },
         var                  => { is_global => 0 },
@@ -83,23 +83,21 @@ sub dsl_keywords {
     };
 }
 
-sub dancer_app     { shift->app }
-sub dancer_version { Dancer2->VERSION }
+*dancer_app = \&app;
 
-sub dancer_major_version {
-    return ( split /\./, dancer_version )[0];
-}
+sub dancer_version       {     Dancer2->VERSION }
+sub dancer_major_version { int Dancer2->VERSION }
 
 sub debug   { shift->log( debug   => @_ ) }
 sub info    { shift->log( info    => @_ ) }
 sub warning { shift->log( warning => @_ ) }
 sub error   { shift->log( error   => @_ ) }
 
-sub true  {1}
-sub false {0}
+sub true  () {1}
+sub false () {0}
 
-sub dirname { shift and Dancer2::FileUtils::dirname(@_) }
-sub path    { shift and Dancer2::FileUtils::path(@_) }
+*dirname = \&Dancer2::FileUtils::dirname;
+*path    = \&Dancer2::FileUtils::path;
 
 sub config { shift->app->settings }
 
@@ -126,7 +124,7 @@ alias for L<setting>:
 
 =cut
 
-sub set { shift->setting(@_) }
+*set = \&setting;
 
 sub template { shift->app->template(@_) }
 
@@ -291,7 +289,7 @@ sub runner { Dancer2->runner }
 # start the server
 sub start { shift->runner->start }
 
-sub dance { shift->start(@_) }
+*dance = \&start;
 
 sub psgi_app {
     my $self = shift;
@@ -306,9 +304,10 @@ sub psgi_app {
 sub status       { shift->response->status(@_) }
 sub push_header  { shift->response->push_header(@_) }
 sub header       { shift->response->header(@_) }
-sub headers      { shift->response->header(@_) }
 sub content_type { shift->response->content_type(@_) }
 sub pass         { shift->app->pass }
+
+*headers = \&header;
 
 #
 # Route handler helpers
