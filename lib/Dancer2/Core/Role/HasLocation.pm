@@ -1,4 +1,4 @@
-package Dancer2::Core::Role::Location;
+package Dancer2::Core::Role::HasLocation;
 # ABSTRACT: Role for application location "guessing"
 
 use Moo::Role;

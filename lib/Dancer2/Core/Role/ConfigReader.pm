@@ -13,7 +13,7 @@ use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils 'path';
 
-with 'Dancer2::Core::Role::Location';
+with 'Dancer2::Core::Role::HasLocation';
 
 has default_config => (
     is      => 'ro',
