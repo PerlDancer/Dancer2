@@ -1,5 +1,7 @@
 #!perl
 
+use strict;
+use warnings;
 use Test::More tests => 6;
 use Capture::Tiny 0.12 'capture_stderr';
 use Plack::Test;

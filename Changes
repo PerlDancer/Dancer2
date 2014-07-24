@@ -1,6 +1,9 @@
 {{$NEXT}}
 
     [ ENHANCEMENT ]
+    * Multiple Dancer App support. You can now create a App-specific
+      PSGI application using MyApp->psgi_app.
+      (Russell @veryrusty Jenkins, Sawyer X, Mickey Nasriachi)
     * forward() now returns a new request which is then just runs
       the dispatching loop again. (Sawyer X, Mickey Nasriachi)
 

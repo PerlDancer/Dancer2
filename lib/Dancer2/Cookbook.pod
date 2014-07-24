@@ -1175,8 +1175,8 @@ Start by creating a simple app.psgi file:
     use Plack::Builder;
 
     builder {
-        mount '/wiki'  => OurWiki->dance;
-        mount '/forum' => OurForum->dance;
+        mount '/wiki'  => OurWiki->psgi_app;
+        mount '/forum' => OurForum->psgi_app;
     };
 
 and now use L<Starman>

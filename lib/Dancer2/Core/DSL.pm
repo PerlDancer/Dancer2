@@ -55,6 +55,7 @@ sub dsl_keywords {
         path                 => { is_global => 1 },
         post                 => { is_global => 1 },
         prefix               => { is_global => 1 },
+        psgi_app             => { is_global => 1 },
         push_header          => { is_global => 0 },
         put                  => { is_global => 1 },
         redirect             => { is_global => 0 },
@@ -99,7 +100,6 @@ sub false {0}
 
 sub dirname { shift and Dancer2::FileUtils::dirname(@_) }
 sub path    { shift and Dancer2::FileUtils::path(@_) }
-
 
 sub config { shift->app->settings }
 
@@ -292,6 +292,12 @@ sub runner { Dancer2->runner }
 sub start { shift->runner->start }
 
 sub dance { shift->start(@_) }
+
+sub psgi_app {
+    my $self = shift;
+
+    $self->runner->psgi_app( [ $self->app ] );
+}
 
 #
 # Response alterations
