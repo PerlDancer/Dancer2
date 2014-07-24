@@ -23,6 +23,8 @@ sub dispatch {
     # warn "dispatching ".$env->{PATH_INFO}
     #    . " with ".join(", ", map { $_->name } @{$self->apps });
 
+DISPATCH:
+    while (1) {
     foreach my $app ( @{ $self->apps } ) {
         # warn "walking through routes of ".$app->name;
 
@@ -62,6 +64,15 @@ sub dispatch {
             # Ensure we clear the with_return handler
             $app->clear_with_response;
 
+            # handle forward requests
+            if ( ref $response eq 'Dancer2::Core::Request' ) {
+                # this is actually a request, not response
+                $request = $response;
+                next DISPATCH;
+            }
+
+            # from here we assume the response is a Dancer2::Core::Response
+
             # No further processing of this response if its halted
             if ( $response->is_halted ) {
                 $app->cleanup;
@@ -87,6 +98,9 @@ sub dispatch {
 
         $app->cleanup;
     }
+
+        last;
+    } # while
 
     return $self->response_not_found( $env );
 }
