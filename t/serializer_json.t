@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 
+use Dancer2;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;

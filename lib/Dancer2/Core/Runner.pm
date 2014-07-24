@@ -126,18 +126,23 @@ sub _build_default_config {
       and $ENV{DANCER_APPHANDLER} = 'PSGI';
 
     return {
+        server_tokens => ( defined $ENV{DANCER_SERVER_TOKENS} ?
+                           $ENV{DANCER_SERVER_TOKENS}         :
+                           1 ),
+        startup_info  => ( defined $ENV{DANCER_STARTUP_INFO} ?
+                           $ENV{DANCER_STARTUP_INFO}         :
+                           1 ),
+
         apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
         content_type => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset      => ( $ENV{DANCER_CHARSET}      || '' ),
         warnings     => ( $ENV{DANCER_WARNINGS}     || 0 ),
-        startup_info => ( $ENV{DANCER_STARTUP_INFO} || 1 ),
         traces       => ( $ENV{DANCER_TRACES}       || 0 ),
         logger       => ( $ENV{DANCER_LOGGER}       || 'console' ),
         host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
         port         => ( $ENV{DANCER_PORT}         || '3000' ),
-        views        => ( $ENV{DANCER_VIEWS}
-              || path( $self->config_location, 'views' ) ),
-        appdir        => $self->location,
+        views        => ( $ENV{DANCER_VIEWS}        || path( $self->config_location, 'views' ) ),
+        appdir       => $self->location,
     };
 }
 
