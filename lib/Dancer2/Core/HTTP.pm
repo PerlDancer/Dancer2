@@ -123,7 +123,7 @@ sub status {
     if ( exists $HTTP_CODES->{$status} ) {
         return $HTTP_CODES->{$status};
     }
-    return undef;
+    return;
 }
 
 =func status_message(status_code)

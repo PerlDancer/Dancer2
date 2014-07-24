@@ -190,7 +190,7 @@ sub _expression {
     foreach (@path) {
 
         # Support for private keys
-        return undef if substr( $_, 0, 1 ) eq '_';
+        return if substr( $_, 0, 1 ) eq '_';
 
         # Split by data type
         my $type = ref $cursor;

@@ -163,7 +163,7 @@ sub _build_template_engine {
     defined $config or $config = $self->config;
     defined $value  or $value  = $config->{'template'};
 
-    defined $value or return undef;
+    defined $value or return;
     ref $value    and return $value;
 
     is_module_name($value)
@@ -192,7 +192,7 @@ sub _build_serializer_engine {
     defined $config or $config = $self->config;
     defined $value  or $value  = $config->{serializer};
 
-    defined $value or return undef;
+    defined $value or return;
     ref $value    and return $value;
 
     my $engine_options =
@@ -413,7 +413,7 @@ has prefix => (
     predicate => 1,
     coerce    => sub {
         my $prefix = shift;
-        defined($prefix) and $prefix eq "/" and return undef;
+        defined($prefix) and $prefix eq "/" and return;
         return $prefix;
     },
 );
