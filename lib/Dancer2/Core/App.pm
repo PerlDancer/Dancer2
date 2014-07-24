@@ -67,6 +67,14 @@ has '+local_triggers' => (
                 my $value = shift;
                 $self->template_engine->layout($value);
             },
+
+            log => sub {
+                my ( $self, $value, $config ) = @_;
+
+                # This will allow to set the log level
+                # using: set log => warning
+                $self->logger_engine->log_level($value);
+            },
         };
 
         foreach my $engine ( @{ $self->supported_engines } ) {
