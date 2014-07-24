@@ -5,12 +5,16 @@ use Moo::Role;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils;
 use File::Spec;
+use Sub::Quote 'quote_sub';
 
 # the path to the caller script/app
 has caller => (
-    is       => 'ro',
-    isa      => Str,
-    required => 1,
+    is      => 'ro',
+    isa     => Str,
+    default => quote_sub( q{
+        my ( $caller, $script ) = caller;
+        $script;
+    } ),
 );
 
 has location => (

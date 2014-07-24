@@ -175,7 +175,7 @@ is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
 );
 
 # test duplicate routes when the path is a regex
-$app = Dancer2::Core::App->new( name => 'main', );
+$app = Dancer2::Core::App->new( name => 'main' );
 my $regexp_route = {
     method => 'get', 'regexp' => qr!/(\d+)!, code => sub {1}
 };
@@ -183,7 +183,11 @@ $app->add_route(%$regexp_route);
 
 # try to get an invalid engine
 eval {$app->engine('foo')};
-ok $!, "Engine 'foo' does not exists";
+like(
+    $@,
+    qr/^Engine 'foo' is not supported/,
+    "Engine 'foo' does not exist",
+);
 
 my $tmpl_engine = $app->engine('template');
 ok $tmpl_engine, "Template engine is defined";
@@ -205,6 +209,12 @@ is_deeply(
     $app->_get_config_for_engine( template => 'Tiny', $app->config ),
     { hello => 'world' },
     '_get_config_for_engine can find the right configuration',
+);
+
+is(
+    $app->caller,
+    't/app.t',
+    'Correct caller for app',
 );
 
 done_testing;
