@@ -236,6 +236,7 @@ things:
     Jakob Voss
     James Aitken
     Jason A. Crome
+    Javier Rojas
     Jean Stebens
     Jonathan Scott Duff
     Julio Fraire

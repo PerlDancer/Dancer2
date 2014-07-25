@@ -15,6 +15,8 @@
     [ BUG FIXES ]
     * GH #336: Set log level correctly.
       (Andrew Solomon, Pedro Bruno)
+    * GH #627, #607: Remove potential context issues with returning
+      undef explicitly. (Javier Rojas)
 
 0.149000_01 2014-07-23 21:31:21CEST+0200 Europe/Amsterdam
 
