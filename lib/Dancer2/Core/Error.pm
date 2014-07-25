@@ -123,7 +123,7 @@ sub _build_error_template {
       if -f $self->app->engine('template')
           ->view_pathname( $self->status );
 
-    return undef;
+    return;
 }
 
 has static_page => (
@@ -142,7 +142,7 @@ sub _build_static_page {
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 
-    open my $fh, $filename or return undef;
+    open my $fh, $filename or return;
 
     local $/ = undef;    # slurp time
 
