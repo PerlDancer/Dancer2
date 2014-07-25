@@ -3,6 +3,7 @@ package Dancer2;
 
 use strict;
 use warnings;
+use List::Util  'first';
 use Class::Load 'load_class';
 use Dancer2::Core;
 use Dancer2::Core::App;
@@ -46,24 +47,33 @@ sub import {
 
     my %final_args = @final_args;
 
+    my $appname = delete $final_args{appname};
+    $appname ||= $caller;
+
     # never instantiated the runner, should do it now
     if ( not defined $runner ) {
         $runner = Dancer2::Core::Runner->new();
     }
 
-    # the app object
-    # populating with the server's postponed hooks in advance
-    my $app = Dancer2::Core::App->new(
-        name            => $caller,
-        caller          => $script,
-        environment     => $runner->environment,
-        postponed_hooks => $runner->postponed_hooks,
-    );
+    # Search through registered apps, creating a new app object
+    # if we do not find one with the same name.
+    my $app;
+    ($app) = first { $_->name eq $appname } @{ $runner->apps };
+
+    if ( ! $app ) {
+        # populating with the server's postponed hooks in advance
+        $app = Dancer2::Core::App->new(
+            name            => $appname,
+            caller          => $script,
+            environment     => $runner->environment,
+            postponed_hooks => $runner->postponed_hooks,
+        );
+
+        # register the app within the runner instance
+        $runner->register_application($app);
+    }
 
     _set_import_method_to_caller($caller);
-
-    # register the app within the runner instance
-    $runner->register_application($app);
 
     # use config dsl class, must extend Dancer2::Core::DSL
     my $config_dsl = $app->setting('dsl_class') || 'Dancer2::Core::DSL';
@@ -183,8 +193,9 @@ Import gets called when you use Dancer2. You can specify import options giving
 you control over the keywords that will be imported into your webapp and other
 things:
 
-    use Dancer2 ( foo => 'bar' ); # sets option foo to bar
     use Dancer2 '!quux'; # Don't import DSL keyword quux
+    use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
+    use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
 
 =head1 AUTHORS
 
