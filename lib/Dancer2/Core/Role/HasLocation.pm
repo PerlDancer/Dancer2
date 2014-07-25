@@ -8,11 +8,15 @@ use File::Spec;
 use Sub::Quote 'quote_sub';
 
 # the path to the caller script/app
+# Note: to remove any ambiguity between the accessor for the
+# 'caller' attribute and the core function caller(), explictly
+# specify we want the function 'CORE::caller' as the default for
+# the attribute.
 has caller => (
     is      => 'ro',
     isa     => Str,
     default => quote_sub( q{
-        my ( $caller, $script ) = caller;
+        my ( $caller, $script ) = CORE::caller;
         $script;
     } ),
 );
