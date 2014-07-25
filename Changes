@@ -7,6 +7,9 @@
     * Multiple Dancer App support. You can now create a App-specific
       PSGI application using MyApp->psgi_app.
       (Russell @veryrusty Jenkins, Sawyer X, Mickey Nasriachi)
+    * Add routes and hooks to an existing app on import.
+      (Russell @veryrusty Jenkins, Stevan Humphrey, Stefan racke
+      Hornburg, Jean Stebens, Chunzi, Sawyer X, Mickey Nasriachi)
     * Allow DSL class to be specified in configuration file.
       (Stevan Humphrey)
     * forward() now returns a new request which is then just runs
