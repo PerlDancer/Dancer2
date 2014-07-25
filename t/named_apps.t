@@ -7,7 +7,6 @@ use HTTP::Request::Common;
 {
 
     package Foo;
-
     use Dancer2;
 
     hook before => sub { vars->{foo} = 'foo' };
@@ -19,7 +18,6 @@ use HTTP::Request::Common;
 
 {
     package Bar;
-
     use Dancer2 appname => 'Foo'; # Add routes and hooks to Foo.
 
     hook before => sub { vars->{baz} = 'baz' };
@@ -29,7 +27,7 @@ use HTTP::Request::Common;
     }
 }
 
-my $app = Dancer2->runner->server->psgi_app;
+my $app = Dancer2->psgi_app;
 
 test_psgi $app, sub {
     my $cb  = shift;
