@@ -91,8 +91,8 @@ sub _get_content_type {
         }
     }
 
-    # If none if found, return undef.
-    return;
+    # If none if found, return the default, 'JSON'.
+    return 'JSON';
 }
 
 1;
