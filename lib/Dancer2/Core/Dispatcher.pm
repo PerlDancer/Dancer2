@@ -68,6 +68,7 @@ DISPATCH:
             if ( ref $response eq 'Dancer2::Core::Request' ) {
                 # this is actually a request, not response
                 $request = $response;
+                $app->cleanup;
                 next DISPATCH;
             }
 
