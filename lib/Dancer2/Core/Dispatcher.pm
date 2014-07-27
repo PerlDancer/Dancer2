@@ -68,7 +68,12 @@ DISPATCH:
             if ( ref $response eq 'Dancer2::Core::Request' ) {
                 # this is actually a request, not response
                 $request = $response;
-                $app->cleanup;
+
+                # clear the request and response
+                # not a full cleanup because that will remove the session
+                $app->clear_request;
+                $app->clear_response;
+
                 next DISPATCH;
             }
 
