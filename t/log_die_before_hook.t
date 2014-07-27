@@ -1,16 +1,14 @@
 use Test::More;
 use strict;
 use warnings;
-use LWP::UserAgent;
-
+use Plack::Test;
+use HTTP::Request::Common;
 use File::Temp;
-use Test::TCP 1.13;
 
 my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
-my $server = sub {
-    my $port = shift;
-
+{
+    package App;
     use Dancer2;
 
     set engines => {
@@ -33,17 +31,15 @@ my $server = sub {
         die "[test die inside a route handler]";
         print STDERR "error message not caught in the route handler\n";
     };
+}
 
-    # we're overiding a RO attribute only for this test!
-    Dancer2->runner->{'port'} = $port;
-    start;
-};
+my $app = Dancer2->runner->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-my $client = sub {
-    my $port = shift;
-    my $ua = LWP::UserAgent->new;
+test_psgi $app, sub{
+    my $cb = shift;
 
-    my $res = $ua->get("http://127.0.0.1:$port/");
+    my $res = $cb->( GET "/" );
 
     open my $log_file, '<', File::Spec->catfile($tempdir, 'test_file');
     my $log_message = <$log_file>;
@@ -51,7 +47,5 @@ my $client = sub {
 
     like $log_message, qr/test die inside a before hook/;
 };
-
-Test::TCP::test_tcp( client => $client, server => $server);
 
 done_testing;
