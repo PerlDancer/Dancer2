@@ -773,7 +773,10 @@ sub compile_hooks {
                     and return;
 
                 eval  { $hook->(@_); 1; }
-                or do { croak "Exception caught in '$position' filter: $@" };
+                or do {
+                    $self->log('error', "Exception caught in '$position' filter: $@");
+                    croak "Exception caught in '$position' filter: $@";
+                };
             };
 
             push @{$compiled_hooks}, $compiled;
