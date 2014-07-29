@@ -9,6 +9,7 @@ use File::Spec;
 
 use Dancer2::FileUtils 'path';
 use Dancer2::Core;
+use Dancer2::Core::Cookie;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
@@ -978,6 +979,15 @@ sub make_forward_to {
     $new_request->{body}          = $request->body;
     $new_request->{headers}       = $request->headers;
 
+    # If a session object was created during processing of the original request
+    # i.e. a session object exists but no cookie existed
+    # add a cookie so the dispatcher can assign the session to the appropriate app
+    my $engine = $self->engine('session');
+    $engine && $self->_has_session or return $new_request;
+    my $name = $engine->cookie_name;
+    exists $new_request->cookies->{$name} and return $new_request;
+    $new_request->cookies->{$name} =
+        Dancer2::Core::Cookie->new( name => $name, value => $self->session->id );
     return $new_request;
 }
 
