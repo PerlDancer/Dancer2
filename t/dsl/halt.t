@@ -23,7 +23,7 @@ subtest 'halt within routes' => sub {
         };
     }
 
-    my $app = Dancer2->runner->psgi_app;
+    my $app = Dancer2->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -67,7 +67,7 @@ subtest 'halt in before hook' => sub {
 
     }
 
-    my $app = Dancer2->runner->psgi_app;
+    my $app = Dancer2->psgi_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {

@@ -77,7 +77,7 @@ $tt->add_hook(
     get '/' => sub { template index => { var => 42 } };
 }
 
-my $app    = Dancer2->runner->psgi_app;
+my $app    = Dancer2->psgi_app;
 my $space  = " ";
 my $result = "layout top
 var = 42
@@ -118,7 +118,7 @@ test_psgi $app, sub {
     get '/get_views_via_settings' => sub { set 'views' };
 }
 
-$app = Dancer2->runner->psgi_app;
+$app = Dancer2->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
