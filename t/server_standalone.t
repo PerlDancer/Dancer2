@@ -29,6 +29,10 @@ test_psgi $app, sub{
     for my $method ( qw/HEAD GET PUT POST DELETE OPTIONS PATCH/ ) {
         my $req = HTTP::Request->new($method => "/foo");
         my $res = $cb->($req);
+
+        is $res->content, "foo" if $method ne 'HEAD';
+        is $res->content, ""    if $method eq 'HEAD';
+
         ok( $res->is_success, "$method return a 200 response");
     }
 };
