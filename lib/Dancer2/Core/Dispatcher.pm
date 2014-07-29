@@ -46,10 +46,12 @@ DISPATCH:
             my $match = $route->match($request)
                 or next ROUTE;
 
-            $curr_session and $app->set_session($curr_session);
-
             $request->_set_route_params($match);
             $app->set_request($request);
+            # Add session to app *if* we have a session and the request
+            # has the appropriate cookie header for _this_ app.
+            $curr_session and $app->has_session
+                and $app->set_session($curr_session);
 
             my $response = with_return {
                 my ($return) = @_;
@@ -69,10 +71,11 @@ DISPATCH:
                 # this is actually a request, not response
                 $request = $response;
 
-                # clear the request and response
-                # not a full cleanup because that will remove the session
-                $app->clear_request;
-                $app->clear_response;
+                # Get the session object from the app before we clean up
+                # the request context, so we can propogate this to the
+                # next dispatch cycle (if required).
+                $app->_has_session and $curr_session = $app->session;
+                $app->cleanup;
 
                 next DISPATCH;
             }
@@ -102,6 +105,8 @@ DISPATCH:
             return $response;
         }
 
+        # Get current session object to allow propogation to next app.
+        $app->_has_session and $curr_session = $app->session;
         $app->cleanup;
     }
 
