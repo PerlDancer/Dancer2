@@ -7,6 +7,9 @@ package Dancer2::Core::Role::SessionFactory;
 Any class that consumes this role will be able to store, create, retrieve and
 destroy session objects.
 
+The default values for attributes can be overridden in your Dancer2
+configuration. See L<Dancer2::Config/Session-engine>.
+
 =cut
 
 use strict;
