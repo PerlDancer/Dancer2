@@ -183,4 +183,3 @@ note 'Check serialization errors'; {
 }
 
 done_testing();
-

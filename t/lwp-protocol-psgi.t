@@ -24,7 +24,7 @@ my $psgi_app = do {
 };
 
 # Register the $psgi_app to handle all LWP requests
-LWP::Protocol::PSGI->register($psgi_app); 
+LWP::Protocol::PSGI->register($psgi_app);
 my $ua  = LWP::UserAgent->new;
 isa_ok( $ua, 'LWP::UserAgent' );
 
@@ -33,4 +33,3 @@ isa_ok( $res, 'HTTP::Response' );
 
 ok( $res->is_success, 'Request is successful' );
 is( $res->content, 'bar', 'Correct response content' );
-

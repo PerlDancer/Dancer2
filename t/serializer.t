@@ -69,4 +69,3 @@ is(
     'text/x-data-dumper',
     'content-type is set correctly',
 );
-
