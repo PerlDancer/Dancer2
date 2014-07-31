@@ -41,7 +41,7 @@ subtest 'import flags' => sub {
 
         register 'foo' => sub { request };
     ";
-    like $@, qr{Bareword "request" not allowed while "strict subs"}, 
+    like $@, qr{Bareword "request" not allowed while "strict subs"},
       "with :no_dsl, the Dancer's dsl is not imported.";
 
     eval "
