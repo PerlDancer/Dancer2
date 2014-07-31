@@ -23,4 +23,3 @@ test_psgi $app, sub {
     is( $res->code, 200, '[GET /] Successful' );
     is( $res->content, 't/caller.t', 'Correct App name from caller' );
 };
-

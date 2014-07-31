@@ -22,6 +22,7 @@
       (Andrew Solomon, Pedro Bruno)
     * GH #627, #607: Remove potential context issues with returning
       undef explicitly. (Javier Rojas)
+    * GH #646: Fix whitespacing for tests. (DavsX)
 
 0.149000_01 2014-07-23 21:31:21CEST+0200 Europe/Amsterdam
 

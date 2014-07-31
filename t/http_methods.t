@@ -46,4 +46,3 @@ test_psgi $app, sub {
         like( $res->content, qr<Method Not Allowed>, q<Illegal method should have "Method Not Allowed" in the content> );
     }
 };
-
