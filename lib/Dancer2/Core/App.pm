@@ -991,6 +991,8 @@ sub _merge_params {
     return $params;
 }
 
+sub app { shift }
+
 1;
 
 __END__
@@ -1053,3 +1055,30 @@ Sugar for getting the ordered list of all registered route regexps by method.
     my $regexps = $app->routes_regexps_for( 'get' );
 
 Returns an ArrayRef with the results.
+
+=head2 app
+
+Returns itself. This is simply available as a shim to help transition from
+a previous version in which hooks were sent a context object (originally
+C<Dancer2::Core::Context>) which has since been removed.
+
+    # before
+    hook before => sub {
+        my $ctx = shift;
+        my $app = $ctx->app;
+    };
+
+    # after
+    hook before => sub {
+        my $app = shift;
+    };
+
+This meant that C<< $app->app >> would fail, so this method has been provided
+to make it work.
+
+    # now
+    hook before => sub {
+        my $WannaBeCtx = shift;
+        my $app        = $WannaBeContext->app; # works
+    };
+

@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ ENHANCEMENT ]
+    * GH #641: Adding a shim layer to prevent available hooks (and
+      thus plugins) from breaking.
     * Each App can now define its own configuration. The Runner's
       application-specific configure has been untangled.
       (Russell @veryrusty Jenkins, Sawyer X, Mickey Nasriachi)
