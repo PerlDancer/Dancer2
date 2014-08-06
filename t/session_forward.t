@@ -46,6 +46,11 @@ my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
         session foo => 'SameCookieName/main';
         forward '/outer';
     };
+
+    get '/bad_chain' => sub {
+        session foo => 'SameCookieName/bad_chain';
+        forward '/other/main';
+    };
 }
 
 {
@@ -143,6 +148,34 @@ note "Forwards between multiple apps using different cookie names"; {
         $res->content,
         q{:Single/outer:Single/inner},
         'session value only from forwarded app',
+    );
+
+    # cleanup.
+    -e $cookies_store and unlink $cookies_store;
+}
+
+# we need to make sure B doesn't override A when forwarding to C
+# A -> B -> C
+# This means that A (cookie_name "Homer")
+#   forwarding to B (cookie_name "Marge")
+#   forwarding to C (cookie_name again "Homer")
+#   will cause a problem because we will lose "Homer" session data,
+#   because it will be overwritten by "Marge" session data.
+# Suddenly A and C cannot communicate because it was flogged.
+#
+# if A -> Single, B -> OtherCookieName, C -> SameCookieName
+# call A, create session, then forward to B, create session,
+# then forward to C, check has values as in A and C
+note "Forwards between multiple apps using multiple different cookie names"; {
+    my $ua = LWP::UserAgent->new;
+    my $cookies_store = "$tempdir/.cookies.txt";
+    $ua->cookie_jar( { file => $cookies_store } );
+
+    my $res = $ua->get("$base/same/bad_chain");
+    is(
+        $res->content,
+        q{SameCookieName/main:Single/outer:Single/inner},
+        'session value only from apps with same session cookie name',
     );
 
     # cleanup.
