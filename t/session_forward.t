@@ -9,30 +9,30 @@ use File::Temp;
 my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 {
-    package Test::Forward::SingleApp;
+    package Test::Forward::Single;
     use Dancer2;
 
     set session => 'Simple';
 
-    get '/set_chained_session' => sub {
-        session 'zbr' => 'ugh';
-        forward '/set_session';
+    get '/main' => sub {
+        session foo => 'Single/main';
+        forward '/outer';
     };
 
-    get '/set_session' => sub {
-        session 'foo' => 'bar';
-        forward '/get_session';
+    get '/outer' => sub {
+        session bar => 'Single/outer';
+        forward '/inner';
     };
 
-    get '/get_session' => sub {
-        session 'more' => 'one';
-        sprintf("%s:%s:%s", session("more"), session('foo') , session('zbr')||"")
+    get '/inner' => sub {
+        session baz => 'Single/inner';
+        return join ':', map +( session($_) || '' ), qw<foo bar baz>;
     };
 
     get '/clear' => sub {
-        session "foo" => undef;
-        session "zbr" => undef;
-        session "more" => undef;
+        session foo => undef;
+        session bar => undef;
+        session baz => undef;
     };
 }
 
@@ -42,14 +42,14 @@ my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
     set session => 'Simple';
     prefix '/same';
 
-    get '/set_chained_session' => sub {
-        session 'zbr' => 'buzz';
-        forward '/set_session';
+    get '/main' => sub {
+        session foo => 'SameCookieName/main';
+        forward '/outer';
     };
 }
 
 {
-    package Test::Forward::Multi::OtherCookietName;
+    package Test::Forward::Multi::OtherCookieName;
     use Dancer2;
     set engines => {
         session => { Simple => { cookie_name => 'session.dancer' } }
@@ -58,16 +58,16 @@ my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
     set session => 'Simple';
     prefix '/other';
 
-    get '/set_chained_session' => sub {
-        session 'zbr' => 'xyzzy';
+    get '/main' => sub {
+        session foo => 'OtherCookieName/main';
 		# Forwards to another app with different cookie name
-        forward '/set_session';
+        forward '/outer';
     };
 
     get '/clear' => sub {
-        session "foo" => undef;
-        session "zbr" => undef;
-        session "more" => undef;
+        session foo => undef;
+        session bar => undef;
+        session baz => undef;
     };
 }
 
@@ -76,24 +76,33 @@ my $base = "http://localhost:3000/";
 
 note "Forwards within a single app"; {
     # Register single app as the handler for all LWP requests.
-    LWP::Protocol::PSGI->register( Test::Forward::SingleApp->psgi_app );
+    LWP::Protocol::PSGI->register( Test::Forward::Single->psgi_app );
     my $ua = LWP::UserAgent->new;
     my $cookies_store = "$tempdir/.cookies.txt";
     $ua->cookie_jar( { file => $cookies_store } );
 
-    my $res = $ua->get("$base/set_chained_session");
-    is $res->content, q{one:bar:ugh},
-        'session value preserved after chained forwards';
+    my $res = $ua->get("$base/main");
+    is(
+        $res->content,
+        q{Single/main:Single/outer:Single/inner},
+        'session value preserved after chained forwards',
+    );
 
-    $res = $ua->get("$base/get_session");
-    is $res->content, q{one:bar:ugh},
-        'session values preserved between calls';
+    $res = $ua->get("$base/inner");
+    is(
+        $res->content,
+        q{Single/main:Single/outer:Single/inner},
+        'session values preserved between calls',
+    );
 
     $res = $ua->get("$base/clear");
 
-    $res = $ua->get("$base/set_session");
-    is $res->content, q{one:bar:},
-        'session value preserved after forward from route';
+    $res = $ua->get("$base/outer");
+    is(
+        $res->content,
+        q{:Single/outer:Single/inner},
+        'session value preserved after forward from route',
+    );
 
     # cleanup.
     -e $cookies_store and unlink $cookies_store;
@@ -106,13 +115,19 @@ note "Forwards between multiple apps using the same cookie name"; {
     my $cookies_store = "$tempdir/.cookies.txt";
     $ua->cookie_jar( { file => $cookies_store } );
 
-    my $res = $ua->get("$base/same/set_chained_session");
-    is $res->content, q{one:bar:buzz},
-        'session value preserved after chained forwards between apps';
+    my $res = $ua->get("$base/same/main");
+    is(
+        $res->content,
+        q{SameCookieName/main:Single/outer:Single/inner},
+        'session value preserved after chained forwards between apps',
+    );
 
-    $res = $ua->get("$base/set_session");
-    is $res->content, q{one:bar:buzz},
-        'session value preserved after forward from route';
+    $res = $ua->get("$base/outer");
+    is(
+        $res->content,
+        q{SameCookieName/main:Single/outer:Single/inner},
+        'session value preserved after forward from route',
+    );
 
     # cleanup.
     -e $cookies_store and unlink $cookies_store;
@@ -123,8 +138,12 @@ note "Forwards between multiple apps using different cookie names"; {
     my $cookies_store = "$tempdir/.cookies.txt";
     $ua->cookie_jar( { file => $cookies_store } );
 
-    my $res = $ua->get("$base/other/set_chained_session");
-    is $res->content, q{one:bar:}, 'session value only from forwarded app';
+    my $res = $ua->get("$base/other/main");
+    is(
+        $res->content,
+        q{:Single/outer:Single/inner},
+        'session value only from forwarded app',
+    );
 
     # cleanup.
     -e $cookies_store and unlink $cookies_store;
