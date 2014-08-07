@@ -62,7 +62,7 @@ DISPATCH:
             };
 
             # Ensure we clear the with_return handler
-            $app->clear_with_response;
+            $app->clear_with_return;
 
             # handle forward requests
             if ( ref $response eq 'Dancer2::Core::Request' ) {
