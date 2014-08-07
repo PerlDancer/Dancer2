@@ -77,7 +77,7 @@ my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 }
 
 # base uri for all requests.
-my $base = "http://localhost:3000/";
+my $base = "http://localhost:3000";
 
 note "Forwards within a single app"; {
     # Register single app as the handler for all LWP requests.
@@ -174,7 +174,7 @@ note "Forwards between multiple apps using multiple different cookie names"; {
     my $res = $ua->get("$base/same/bad_chain");
     is(
         $res->content,
-        q{SameCookieName/main:Single/outer:Single/inner},
+        q{SameCookieName/bad_chain:Single/outer:Single/inner},
         'session value only from apps with same session cookie name',
     );
 
