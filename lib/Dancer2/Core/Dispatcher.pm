@@ -18,7 +18,9 @@ has apps => (
 
 # take the list of applications and an $env hash, return a Response object.
 sub dispatch {
-    my ( $self, $env, $request, $curr_session ) = @_;
+    my ( $self, $env, $request ) = @_;
+
+    my %preexisting_sessions;
 
     # warn "dispatching ".$env->{PATH_INFO}
     #    . " with ".join(", ", map { $_->name } @{$self->apps });
@@ -31,6 +33,7 @@ DISPATCH:
         # create request if we didn't get any
         $request ||= $self->build_request( $env, $app );
 
+        my $cname       = $app->engine('session')->cookie_name;
         my $http_method = lc $request->method;
         my $path_info   =    $request->path_info;
 
@@ -50,8 +53,9 @@ DISPATCH:
             $app->set_request($request);
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
-            $curr_session and $app->has_session
-                and $app->set_session($curr_session);
+
+            $preexisting_sessions{$cname}
+                and $app->set_session( $preexisting_sessions{$cname} );
 
             my $response = with_return {
                 my ($return) = @_;
@@ -74,7 +78,9 @@ DISPATCH:
                 # Get the session object from the app before we clean up
                 # the request context, so we can propogate this to the
                 # next dispatch cycle (if required).
-                $app->_has_session and $curr_session = $app->session;
+                $app->_has_session
+                    and $preexisting_sessions{$cname} = $app->session;
+
                 $app->cleanup;
 
                 next DISPATCH;
@@ -106,7 +112,8 @@ DISPATCH:
         }
 
         # Get current session object to allow propogation to next app.
-        $app->_has_session and $curr_session = $app->session;
+        $app->_has_session
+            and $preexisting_sessions{$cname} = $app->session;
         $app->cleanup;
     }
 
