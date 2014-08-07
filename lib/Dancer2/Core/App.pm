@@ -278,7 +278,7 @@ has with_return => (
     is        => 'ro',
     predicate => 1,
     writer    => 'set_with_return',
-    clearer   => 'clear_with_response',
+    clearer   => 'clear_with_return',
 );
 
 
