@@ -55,7 +55,7 @@ If you need to remove the warnings, for now, you can set:
     $Dancer::Test::NO_WARN = 1;
 
 This module provides useful routines to test Dancer2 apps. They are, however,
-buggy and unnecessary. L<Plack:Test> is advised instead.
+buggy and unnecessary. L<Plack::Test> is advised instead.
 
 $test_name is always optional.
 
