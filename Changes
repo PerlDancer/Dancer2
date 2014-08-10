@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.149000_02 2014-08-10 13:50:39CEST+0200 Europe/Amsterdam
+
     [ ENHANCEMENT ]
     * GH #641: Adding a shim layer to prevent available hooks (and
       thus plugins) from breaking.
