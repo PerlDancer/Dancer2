@@ -227,6 +227,7 @@ things:
     B10m
     baynes
     Blabos de Blebe
+    Bas Bloemsaat
     Breno G. de Oliveira
     Celogeek
     Cesare Gargano

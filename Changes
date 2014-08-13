@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH #657: Update multi-app example in cookbook to include route
+      merging. (Bas Bloemsaat)
+
 0.149000_02 2014-08-10 13:50:39CEST+0200 Europe/Amsterdam
 
     [ ENHANCEMENT ]
