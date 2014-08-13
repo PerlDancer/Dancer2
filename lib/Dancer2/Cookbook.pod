@@ -303,7 +303,7 @@ The following routes will be generated for us:
     - head /
     - head /admin/
 
-The 'appname="Foo"' assigns both to the same app. Without this directive, Dancer2 
+The 'appname=>"Foo"' assigns both to the same app. Without this directive, Dancer2 
 splits the app into two different applications, each with their own namespace and 
 variables. With different applications, please make sure that your path definitions 
 do not overlap. Eg, when adding the default route as suggested above to package 
