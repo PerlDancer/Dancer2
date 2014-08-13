@@ -278,7 +278,7 @@ components to different packages. Let's say we have a simple web app with an
 admin section, and want to maintain this in a different package:
 
     package myapp;
-    use Dancer2 appname => "Foo";
+    use Dancer2;
     use myapp::admin;
 
     prefix undef;
@@ -288,7 +288,7 @@ admin section, and want to maintain this in a different package:
     1;
 
     package myapp::admin;
-    use Dancer2 appname => "Foo";
+    use Dancer2 appname => "myapp";
 
     prefix '/admin';
 
@@ -303,7 +303,8 @@ The following routes will be generated for us:
     - head /
     - head /admin/
 
-The 'appname=>"Foo"' assigns both to the same app. Without this directive, Dancer2 
+The 'appname=>"myapp"' assigns myapp::admin to the same app, called "myapp" after the 
+orginating file. Without this directive, Dancer2 
 splits the app into two different applications, each with their own namespace and 
 variables. With different applications, please make sure that your path definitions 
 do not overlap. Eg, when adding the default route as suggested above to package 
