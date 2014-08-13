@@ -288,7 +288,7 @@ admin section, and want to maintain this in a different package:
     1;
 
     package myapp::admin;
-    use Dancer2;
+    use Dancer2 appname => 'myapp';
 
     prefix '/admin';
 
@@ -303,7 +303,15 @@ The following routes will be generated for us:
     - head /
     - head /admin/
 
+By default, a separate application is created for every package that uses
+Dancer2. The C<appname> tag is used to collect routes and hooks into a
+single Dancer2 application. In the above example, C<appname =E<gt> 'myapp'> adds
+the routes from C<myapp::admin> to the routes of the app C<myapp>.
 
+When using multiple applications please ensure that your path definitions
+do not overlap. Eg, if using a default route as described above, once a
+request is matched to the default route then no further routes
+(or applications) would be reached.
 
 =head1 MUSCLE MEMORY: STORING DATA
 
