@@ -128,15 +128,16 @@ sub register_application {
     push @{ $self->apps }, $app;
 
     # add postponed hooks to our psgi app
-    $self->add_postponed_hooks( $app->postponed_hooks );
+    $self->add_postponed_hooks( $app->name, $app->postponed_hooks );
 }
 
 sub add_postponed_hooks {
     my $self  = shift;
+    my $name  = shift;
     my $hooks = shift;
 
     # merge postponed hooks
-    @{ $self->{'postponed_hooks'} }{ keys %{$hooks} } = values %{$hooks};
+    @{ $self->{'postponed_hooks'}{$name} }{ keys %{$hooks} } = values %{$hooks};
 }
 
 # decide what to start

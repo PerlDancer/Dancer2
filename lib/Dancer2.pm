@@ -66,7 +66,7 @@ sub import {
             name            => $appname,
             caller          => $script,
             environment     => $runner->environment,
-            postponed_hooks => $runner->postponed_hooks,
+            postponed_hooks => $runner->postponed_hooks->{$appname} || {},
         );
 
         # register the app within the runner instance
