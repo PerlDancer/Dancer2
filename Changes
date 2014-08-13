@@ -24,6 +24,8 @@
       the dispatching loop again. (Sawyer X, Mickey Nasriachi)
 
     [ BUG FIXES ]
+    * Postponed hooks are no longer sent to all Apps.
+      (Sawyer X, Mickey Nasriachi)
     * GH #336: Set log level correctly.
       (Andrew Solomon, Pedro Bruno)
     * GH #627, #607: Remove potential context issues with returning
