@@ -120,7 +120,8 @@ DISPATCH:
         last;
     } # while
 
-    return $self->response_not_found( $env );
+    # Assume there was at least one app to the request object was instantiated..
+    return $self->response_not_found( $request );
 }
 
 # the dispatcher can build requests now :)
@@ -208,33 +209,21 @@ sub response_internal_error {
     )->throw;
 }
 
-# if we support 5.10.0 and up, we can change that
-# for a 'state'
-my $not_found_app;
-
 sub response_not_found {
-    my ( $self, $env ) = @_;
+    my ( $self, $request ) = @_;
 
-    # There may be more than one app;
-    # Use the first one for caller and location
-    $not_found_app ||= Dancer2::Core::App->new(
-        name            => 'file_not_found',
-        # FIXME: are these two still global with the merging of
-        #        feature/fix-remove-default-engine-config?
-        environment     => Dancer2->runner->environment,
-        caller          => $self->apps->[0]->caller,
-        location        => $self->apps->[0]->location,
-        postponed_hooks => Dancer2->runner->postponed_hooks,
-        api_version     => 2,
-    );
+    # Use first defined app (for now)
+    my $app = $self->apps->[0];
+    $app->set_request($request);
 
-    my $request = $self->build_request( $env, $not_found_app );
-    $not_found_app->set_request($request);
-
-    return Dancer2::Core::Error->new(
+    my $response = Dancer2::Core::Error->new(
+        app    => $app,
         status  => 404,
         message => $request->path,
     )->throw;
+
+    $app->cleanup;
+    return $response;
 }
 
 1;
