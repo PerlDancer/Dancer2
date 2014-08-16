@@ -13,6 +13,7 @@
       postponed hooks merging in multiple apps. (Russell Jenkins)
     * GH #610, #662: Removed two circular references memory leaks!
       (Russell Jenkins)
+    * GH #633: Log an error when a hook dies. (DavsX)
 
     [ ENHANCEMENT ]
     * Allow settings apps in the psgi_app() call by name or regex.
