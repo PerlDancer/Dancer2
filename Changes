@@ -3,6 +3,8 @@
     [ DOCUMENTATION ]
     * GH #657: Update multi-app example in cookbook to include route
       merging. (Bas Bloemsaat)
+    * GH #643: Improve session factory docs by mentioning Dancer2::Config.
+      (Andy Jack)
 
     [ BUG FIXES ]
     * Postponed hooks are no longer sent to all Apps.
