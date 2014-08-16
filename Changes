@@ -4,6 +4,12 @@
     * GH #657: Update multi-app example in cookbook to include route
       merging. (Bas Bloemsaat)
 
+    [ BUG FIXES ]
+    * Postponed hooks are no longer sent to all Apps.
+      (Sawyer X, Mickey Nasriachi)
+    * 404 File Not Found Application reworked to stay up to date with
+      postponed hooks merging in multiple apps. (Russell Jenkins)
+
     [ ENHANCEMENT ]
     * Allow settings apps in the psgi_app() call by name or regex.
       (Sawyer X)
@@ -28,8 +34,6 @@
       the dispatching loop again. (Sawyer X, Mickey Nasriachi)
 
     [ BUG FIXES ]
-    * Postponed hooks are no longer sent to all Apps.
-      (Sawyer X, Mickey Nasriachi)
     * GH #336: Set log level correctly.
       (Andrew Solomon, Pedro Bruno)
     * GH #627, #607: Remove potential context issues with returning
