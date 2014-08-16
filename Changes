@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.150000  2014-08-17 01:35:16CEST+0200 Europe/Amsterdam
+
     [ DOCUMENTATION ]
     * GH #657: Update multi-app example in cookbook to include route
       merging. (Bas Bloemsaat)
