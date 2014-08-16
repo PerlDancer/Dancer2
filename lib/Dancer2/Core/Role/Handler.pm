@@ -21,6 +21,7 @@ Contain an object of class L<Dancer2::Core::App>.
 has app => (
     is  => 'ro',
     isa => InstanceOf ['Dancer2::Core::App'],
+    weak_ref => 1,
 );
 
 1;

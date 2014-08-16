@@ -525,14 +525,18 @@ sub _init_hooks {
 
  # Hook to flush the session at the end of the request, this way, we're sure we
  # flush only once per request
+ #
+ # Note: we create a weakened copy $self before closing over the weakened copy
+ # to avoid circular memory refs.
+    Scalar::Util::weaken(my $app = $self);
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
-                my $response = $self->response;
+                my $response = $app->response;
 
                 # make sure an engine is defined, if not, nothing to do
-                my $engine = $self->session_engine;
+                my $engine = $app->session_engine;
                 defined $engine or return;
 
                 # if a session has been instantiated or we already had a
@@ -540,16 +544,16 @@ sub _init_hooks {
                 # update the session ID if needed, then set the session cookie
                 # in the response
 
-                if ( $self->has_session ) {
-                    my $session = $self->session;
+                if ( $app->has_session ) {
+                    my $session = $app->session;
                     $session->is_dirty and $engine->flush( session => $session );
                     $engine->set_cookie_header(
                         response => $response,
                         session  => $session
                     );
                 }
-                elsif ( $self->has_destroyed_session ) {
-                    my $session = $self->destroyed_session;
+                elsif ( $app->has_destroyed_session ) {
+                    my $session = $app->destroyed_session;
                     $engine->set_cookie_header(
                         response  => $response,
                         session   => $session,
@@ -696,10 +700,9 @@ sub send_file {
     # pretending it's a file (on-the-fly file sending)
     ref $path eq 'SCALAR' and return $$path;
 
-    my $conf = { app => $self };
     my $file_handler = Dancer2::Core::Factory->create(
         Handler => 'File',
-        %$conf,
+        app     => $self,
         postponed_hooks => $self->postponed_hooks,
         ( public_dir => File::Spec->rootdir )x!! $options{system_path},
     );
@@ -738,11 +741,11 @@ sub init_route_handlers {
     my $handlers_config = $self->config->{route_handlers};
     for my $handler_data ( @{$handlers_config} ) {
         my ($handler_name, $config) = @{$handler_data};
-        ref $config or $config = {};
-        $config->{app} = $self;
+        $config = {} if !ref($config);
 
         my $handler = Dancer2::Core::Factory->create(
             Handler => $handler_name,
+            app     => $self,
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
