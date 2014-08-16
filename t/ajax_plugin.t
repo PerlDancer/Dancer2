@@ -28,7 +28,7 @@ use HTTP::Request::Common qw(GET HEAD PUT POST DELETE);
     };
 }
 
-my $app = Dancer2->runner->psgi_app;
+my $app = Dancer2->psgi_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
