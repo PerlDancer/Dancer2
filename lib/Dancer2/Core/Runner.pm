@@ -2,6 +2,7 @@ package Dancer2::Core::Runner;
 # ABSTRACT: Top-layer class to start a dancer app
 
 use Moo;
+use Carp 'croak';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
@@ -169,9 +170,33 @@ sub start_server {
 sub psgi_app {
     my ($self, $apps) = @_;
 
-    # dispatch over all apps by default
-    defined $apps or $apps = $self->apps;
-    foreach my $app ( @$apps ) {
+    if ( $apps && @{$apps} ) {
+        my @found_apps = ();
+
+        foreach my $app_req ( @{$apps} ) {
+            if ( ref $app_req eq 'Regexp' ) {
+                # find it in the apps registry
+                push @found_apps,
+                    grep +( $_->name =~ $app_req ), @{ $self->apps };
+            } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
+                # use it directly
+                push @found_apps, $app_req;
+            } elsif ( ! ref $app_req ) {
+                # find it in the apps registry
+                push @found_apps,
+                    grep +( $_->name eq $app_req ), @{ $self->apps };
+            } else {
+                croak "Invalid input to psgi_app: $app_req";
+            }
+        }
+
+        $apps = \@found_apps;
+    } else {
+        # dispatch over all apps by default
+        $apps = $self->apps;
+    }
+
+    foreach my $app ( @{$apps} ) {
         $app->finish;
     }
 

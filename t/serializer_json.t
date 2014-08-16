@@ -40,7 +40,7 @@ my @tests = (
     }
 );
 
-my $app = Dancer2->runner->psgi_app;
+my $app = Dancer2->psgi_app;
 
 for my $test (@tests) {
     my $expected = JSON::to_json( $test->{entity}, $test->{options} );
