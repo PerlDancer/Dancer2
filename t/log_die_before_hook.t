@@ -28,7 +28,10 @@ test_psgi $app, sub {
     my $cb      = shift;
     my $message = capture_stderr { $cb->( GET '/' ) };
 
-    like $message, qr/^test die inside a before hook/;
+    like
+        $message,
+        qr/test die inside a before hook/,
+        'Got error message when a before hook dies';
 };
 
 done_testing;
