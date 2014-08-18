@@ -429,4 +429,28 @@ sub sessions {
     return $sessions;
 }
 
+=head1 CONFIGURATION
+
+If there are configuration values specific to your session factory in your config.yml or 
+environment, those will be passed to the constructor of the session factory automatically.
+In order to accept and store them, you need to define accessors for them.
+
+    engines:
+      session:
+        Example:
+          database_connection: "some_data"
+
+In your session factory:
+
+    package Dancer2::Session::Example;
+    use Moo;
+    with "Dancer2::Core::Role::SessionFactory";
+
+    has database_connection => ( is => "ro" );
+
+You need to do this for every configuration key. The ones that do not have accessors
+defined will just go to the void.
+
+=cut
+
 1;
