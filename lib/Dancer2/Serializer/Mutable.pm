@@ -38,15 +38,8 @@ sub loaded {1}
 sub support_content_type {
     my ( $self, $ct ) = @_;
 
-    # FIXME: are we getting full content type?
-
-    if ( $ct && grep +( $_ eq $ct ), keys %{$formats} ) {
-        $self->set_content_type($ct);
-
-        return 1;
-    }
-
-    return 0;
+    #We support everything. If we don't support it explicitly, we default to json
+    return 1;
 }
 
 sub serialize {
@@ -69,7 +62,6 @@ sub deserialize {
 
     # The right content type should already be set
     my $format = $formats->{$self->content_type};
-
     $format and return $serializer->{$format}{'from'}->( $self, $content );
 
     return $content;
@@ -92,6 +84,7 @@ sub _get_content_type {
     }
 
     # If none if found, return the default, 'JSON'.
+	$self->set_content_type('application/json');
     return 'JSON';
 }
 

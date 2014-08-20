@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 56;
+use Test::More tests => 81;
 use Dancer2::Serializer::Mutable;
 use Plack::Test;
 use HTTP::Request::Common;
@@ -32,6 +32,30 @@ is( ref $app, 'CODE', 'Got app' );
 test_psgi $app, sub {
     my $cb = shift;
 
+    #Check if the application state does not influence the returned header
+    {
+        my $res = $cb->( GET '/serialize' );
+        is(
+            $res->headers->content_type,
+            'application/json',
+            "Correct content-type headers",
+        );
+
+        $res = $cb->( GET '/serialize', 'Content-Type' => 'text/x-data-dumper' );
+        is(
+            $res->headers->content_type,
+            'text/x-data-dumper',
+            "Correct content-type headers",
+        );
+        $res = $cb->( GET '/serialize' );
+        is(
+            $res->headers->content_type,
+            'application/json',
+            "Correct content-type headers",
+        );
+
+    }
+
     # Configure all test cases
     my $d = {
         yaml    => {
@@ -45,6 +69,11 @@ test_psgi $app, sub {
         json    => {
                 types       => [ qw(text/x-json application/json) ],
                 value       => JSON::to_json({ bar => 'baz' }),
+            },
+        default => {
+                types               => [ '*/*', '' ],
+                value               => JSON::to_json( { bar => 'baz' } ),
+                return_content_type => 'application/json',
             },
     };
 
@@ -65,7 +94,7 @@ test_psgi $app, sub {
                     is( $res->content, $s->{value}, "[/$format] Correct content" );
                     is(
                         $res->headers->content_type,
-                        $content_type,
+                        $s->{return_content_type} || $content_type,
                         "[/$format] Correct content-type headers",
                     );
                 }
@@ -73,8 +102,8 @@ test_psgi $app, sub {
                 # Test sending the value serialized in the correct format
                 # needs to be de-serialized and returned
                 my $req = $cb->( POST '/deserialize',
-                                 'Content-Type' => $content_type,
-                                 content        => $s->{value} );
+                                'Content-Type' => $content_type,
+                                content        => $s->{value} );
 
                 is( $req->code, 200, "[/$format] Correct status" );
                 is( $req->content, 'baz', "[/$format] Correct content" );
