@@ -343,7 +343,7 @@ Or, to enable session support from within your code,
 (Controlling settings is best done from your config file, though).  'YAML' in
 the example is the session backend to use; this is shorthand for
 L<Dancer2::Session::YAML>.  There are other session backends you may wish to use,
-for instance L<Dancer2::Session::Memcache>, but the YAML backend is a simple and
+for instance L<Dancer2::Session::Memcached>, but the YAML backend is a simple and
 easy to use example which stores session data in a YAML file in sessions).
 
 You can then use the L<session|Dancer2/session> keyword to manipulate the
