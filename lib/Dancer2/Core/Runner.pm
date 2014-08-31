@@ -73,6 +73,11 @@ has timeout => (
     default => sub { $_[0]->config->{'timeout'} },
 );
 
+has siteroot => (
+    is      => 'rw',
+    lazy    => 1,
+);
+
 sub _build_server {
     my $self = shift;
 

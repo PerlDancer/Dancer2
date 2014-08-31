@@ -727,6 +727,9 @@ sub BUILD {
     my $self = shift;
     $self->init_route_handlers();
     $self->_init_hooks();
+
+    #Siteroot is saved as fallback when no config file is found using App's path
+    Dancer2->runner->siteroot($self->location) if($self->name eq 'main');
 }
 
 sub finish {

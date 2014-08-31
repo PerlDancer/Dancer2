@@ -124,6 +124,37 @@ sub _build_config_files {
             push @files, $path;
         }
     }
+    if(@files)
+    {
+        return [ sort @files ];
+    }
+    else
+    {
+        return $self->_build_config_files_from_siteroot();
+    }
+}
+
+sub _build_config_files_from_siteroot {
+    my ($self) = @_;
+
+    my $location = Dancer2->runner->siteroot;
+    # an undef location means no config files for the caller
+    return [] unless defined $location;
+
+    my $running_env = $self->environment;
+    my @exts = Config::Any->extensions;
+    my @files;
+
+    foreach my $ext (@exts) {
+        foreach my $file ( [ $location, "config.$ext" ],
+            [ $self->environments_location, "$running_env.$ext" ] )
+        {
+            my $path = path( @{$file} );
+            next if !-r $path;
+
+            push @files, $path;
+        }
+    }
 
     return [ sort @files ];
 }
