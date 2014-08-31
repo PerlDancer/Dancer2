@@ -5,7 +5,6 @@ use Plack::Test;
 use HTTP::Request::Common;
 
 {
-
     package Foo;
     use Dancer2;
 
@@ -27,15 +26,19 @@ use HTTP::Request::Common;
     }
 }
 
-my $app = Dancer2->psgi_app;
+foreach my $class ( qw<Foo Bar> ) {
+    my $app = $class->to_app;
 
-test_psgi $app, sub {
-    my $cb  = shift;
-    for my $path ( qw/foo bar/ ) {
-        my $res = $cb->( POST "/$path" );
-        is $res->content, "foo${path}baz",
-            "Got app content path $path";
-    }
-};
+    test_psgi $app, sub {
+        my $cb   = shift;
+        my $path = lc $class;
+        my $res  = $cb->( POST "/$path" );
+        is(
+            $res->content,
+            "foo${path}baz",
+            "Got app content path $path",
+        );
+    };
+}
 
 done_testing;

@@ -38,7 +38,7 @@ my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
 {
     package Test::Forward::Multi::SameCookieName;
-    use Dancer2;
+    use Dancer2 appname => 'Test::Forward::Single';
     set session => 'Simple';
     prefix '/same';
 
@@ -81,7 +81,7 @@ my $base = "http://localhost:3000";
 
 note "Forwards within a single app"; {
     # Register single app as the handler for all LWP requests.
-    LWP::Protocol::PSGI->register( Test::Forward::Single->psgi_app );
+    LWP::Protocol::PSGI->register( Test::Forward::Single->to_app );
     my $ua = LWP::UserAgent->new;
     my $cookies_store = "$tempdir/.cookies.txt";
     $ua->cookie_jar( { file => $cookies_store } );
@@ -145,37 +145,9 @@ note "Forwards between multiple apps using different cookie names"; {
 
     my $res = $ua->get("$base/other/main");
     is(
-        $res->content,
-        q{:Single/outer:Single/inner},
-        'session value only from forwarded app',
-    );
-
-    # cleanup.
-    -e $cookies_store and unlink $cookies_store;
-}
-
-# we need to make sure B doesn't override A when forwarding to C
-# A -> B -> C
-# This means that A (cookie_name "Homer")
-#   forwarding to B (cookie_name "Marge")
-#   forwarding to C (cookie_name again "Homer")
-#   will cause a problem because we will lose "Homer" session data,
-#   because it will be overwritten by "Marge" session data.
-# Suddenly A and C cannot communicate because it was flogged.
-#
-# if A -> Single, B -> OtherCookieName, C -> SameCookieName
-# call A, create session, then forward to B, create session,
-# then forward to C, check has values as in A and C
-note "Forwards between multiple apps using multiple different cookie names"; {
-    my $ua = LWP::UserAgent->new;
-    my $cookies_store = "$tempdir/.cookies.txt";
-    $ua->cookie_jar( { file => $cookies_store } );
-
-    my $res = $ua->get("$base/same/bad_chain");
-    is(
-        $res->content,
-        q{SameCookieName/bad_chain:Single/outer:Single/inner},
-        'session value only from apps with same session cookie name',
+        $res->code,
+        404,
+        'Cannot forward to other app',
     );
 
     # cleanup.

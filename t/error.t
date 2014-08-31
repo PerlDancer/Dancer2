@@ -30,17 +30,17 @@ my $env = {
     REMOTE_USER     => 'sukria',
 };
 
-my $a = Dancer2::Core::App->new( name => 'main' );
-my $request = Dancer2::Core::Dispatcher->build_request( $env, $a );
+my $app     = Dancer2::Core::App->new( name => 'main' );
+my $request = $app->build_request($env);
 
-$a->set_request($request);
+$app->set_request($request);
 
 subtest 'basic defaults of Error object' => sub {
-    my $e = Dancer2::Core::Error->new( app => $a );
-    is $e->status,  500,                                 'code';
-    is $e->title,   'Error 500 - Internal Server Error', 'title';
-    is $e->message, '',                               'message';
-    like $e->content, qr!http://localhost:5000/foo/css!,
+    my $err = Dancer2::Core::Error->new( app => $app );
+    is $err->status,  500,                                 'code';
+    is $err->title,   'Error 500 - Internal Server Error', 'title';
+    is $err->message, '',                               'message';
+    like $err->content, qr!http://localhost:5000/foo/css!,
         "error content contains css path relative to uri_base";
 };
 
@@ -58,7 +58,7 @@ subtest "send_error in route" => sub {
         };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -92,7 +92,7 @@ subtest "send_error with custom stuff" => sub {
         };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -143,7 +143,7 @@ subtest 'App dies with serialized error' => sub {
         };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = AppDies->to_app;
     isa_ok( $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {

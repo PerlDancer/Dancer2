@@ -2,10 +2,13 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp            'croak';
-use Scalar::Util    'blessed';
-use Module::Runtime 'is_module_name';
+use Carp               'croak';
+use Scalar::Util       'blessed';
+use Module::Runtime    'is_module_name';
+use Return::MultiLevel ();
+use Safe::Isa;
 use File::Spec;
+use Plack::Builder;
 
 use Dancer2::FileUtils 'path';
 use Dancer2::Core;
@@ -13,6 +16,8 @@ use Dancer2::Core::Cookie;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
+use Dancer2::Core::Request;
+
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
@@ -1008,6 +1013,247 @@ sub _merge_params {
 }
 
 sub app { shift }
+
+# DISPATCHER
+sub to_app {
+    my $self = shift;
+
+    $self->finish;
+
+    my $psgi = sub {
+        my $env = shift;
+
+        # pre-request sanity check
+        my $method = uc $env->{'REQUEST_METHOD'};
+        $Dancer2::Core::Types::supported_http_methods{$method}
+            or return [
+                405,
+                [ 'Content-Type' => 'text/plain' ],
+                [ "Method Not Allowed\n\n$method is not supported." ]
+            ];
+
+        my $response;
+        eval {
+            $response = $self->dispatch($env)->to_psgi;
+            1;
+        } or do {
+            return [
+                500,
+                [ 'Content-Type' => 'text/plain' ],
+                [ "Internal Server Error\n\n$@"  ],
+            ];
+        };
+
+        return $response;
+    };
+
+    my $builder = Plack::Builder->new;
+    $builder->add_middleware('Head');
+    return $builder->wrap($psgi);
+}
+
+sub dispatch {
+    my $self = shift;
+    my $env  = shift;
+
+    # set up the request
+    # outside the loop, so we could reset it and call
+    # the DISPATCH part again
+    my $request = $self->build_request($env);
+    my $cname   = $self->session_engine->cookie_name;
+
+DISPATCH:
+    while (1) {
+        my $http_method = lc $request->method;
+        my $path_info   =    $request->path_info;
+
+        $self->log( core => "looking for $http_method $path_info" );
+
+        ROUTE:
+        foreach my $route ( @{ $self->routes->{$http_method} } ) {
+            #warn "testing route " . $route->regexp . "\n";
+            # TODO store in route cache
+
+            # go to the next route if no match
+            my $match = $route->match($request)
+                or next ROUTE;
+
+            $request->_set_route_params($match);
+
+            $self->set_request($request);
+
+            # calling the actual route
+            my $response = Return::MultiLevel::with_return {
+                my ($return) = @_;
+
+                # stash the multilevel return coderef in the app
+                $self->has_with_return
+                    or $self->set_with_return($return);
+
+                return $self->_dispatch_route($route);
+            };
+
+            # ensure we clear the with_return handler
+            $self->clear_with_return;
+
+            # handle forward requests
+            if ( ref $response eq 'Dancer2::Core::Request' ) {
+                # this is actually a request, not response
+                # however, we need to clean up the request & response
+                $self->clear_request;
+                $self->clear_response;
+
+                $request = $response;
+                next DISPATCH;
+            }
+
+            # from here we assume the response is a Dancer2::Core::Response
+
+            # halted response, don't process further
+            if ( $response->is_halted ) {
+                $self->cleanup;
+                return $response;
+            }
+
+            # pass the baton if the response says so...
+            if ( $response->has_passed ) {
+                ## A previous route might have used splat, failed
+                ## this needs to be cleaned from the request.
+                exists $request->{_params}{splat}
+                    and delete $request->{_params}{splat};
+
+                $response->has_passed(0); # clear for the next round
+                next ROUTE;
+            }
+
+            # it's just a regular response
+            $self->execute_hook( 'core.app.after_request', $response );
+            $self->cleanup;
+
+            return $response;
+        }
+
+        # we don't actually want to continue the loop
+        last;
+    }
+
+    $self->cleanup;
+
+    # make sure Core::Dispatcher recognizes this failure
+    # so it can try the next Core::App
+    Dancer2->runner->{'internal_404'} = 1;
+    return $self->response_not_found($request);
+}
+
+sub build_request {
+    my ( $self, $env ) = @_;
+
+    # If we have an app, send the serialization engine
+    my $engine  = $self->serializer_engine;
+    my $request = Dancer2::Core::Request->new(
+          env             => $env,
+          is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
+        ( serializer      => $engine )x!! $engine,
+    );
+
+    # if it's a mutable serializer, we add more headers
+    # so it can be set properly
+    # I don't like doing this... -- Sawyer
+    if ( $engine->$_isa('Dancer2::Serializer::Mutable') ) {
+        $engine->{'extra_headers'} = {
+            map +( $_ => $request->$_ ), qw<content_type accept accept_type>
+        }
+    }
+
+    # Log deserialization errors
+    if ($engine) {
+        $engine->has_error and $self->log(
+            core => "Failed to deserialize the request : " .
+                    $engine->error
+        );
+    }
+
+    return $request;
+}
+
+# Call any before hooks then the matched route.
+sub _dispatch_route {
+    my ( $self, $route ) = @_;
+
+    # FIXME: check for memory leak here
+    # perhaps we need to weaken $self, perhaps not
+    # would it matter if we do? could it be a problem?
+    $self->execute_hook( 'core.app.before_request', $self );
+    my $response = $self->response;
+
+    my $content;
+    if ( $response->is_halted ) {
+        # if halted, it comes from the 'before' hook. Take its content
+        $content = $response->content;
+    }
+    else {
+        # FIXME: check for memory leak here
+        # perhaps we need to weaken $self, perhaps not
+        # would it matter if we do? could it be a problem?
+        $content = eval { $route->execute($self) };
+
+        my $error = $@;
+        if ($error) {
+            $self->log( error => "Route exception: $error" );
+            # FIXME: check for memory leak here
+            # perhaps we need to weaken $self, perhaps not
+            # would it matter if we do? could it be a problem?
+            $self->execute_hook( 'core.app.route_exception', $self, $error );
+            return $self->response_internal_error($error);
+        }
+    }
+
+    if ( ref $content eq 'Dancer2::Core::Response' ) {
+        $response = $self->set_response($content);
+    }
+    elsif ( defined $content ) {
+        # The response object has no back references to the content or app
+        # Update the default_content_type of the response if any value set in
+        # config so it can be applied when the response is encoded/returned.
+        if ( exists $self->config->{content_type}
+          && $self->config->{content_type} ) {
+            $response->default_content_type($self->config->{content_type});
+        }
+
+        $response->content($content);
+        $response->encode_content;
+    }
+
+    return $response;
+}
+
+sub response_internal_error {
+    my ( $self, $error ) = @_;
+
+    # warn "got error: $error";
+
+    return Dancer2::Core::Error->new(
+        app       => $self,
+        status    => 500,
+        exception => $error,
+    )->throw;
+}
+
+sub response_not_found {
+    my ( $self, $request ) = @_;
+
+    $self->set_request($request);
+
+    my $response = Dancer2::Core::Error->new(
+        app    => $self,
+        status  => 404,
+        message => $request->path,
+    )->throw;
+
+    $self->cleanup;
+
+    return $response;
+}
 
 1;
 
