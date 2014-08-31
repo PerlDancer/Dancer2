@@ -33,7 +33,7 @@ get '/go_to_post/' => sub {
 # get '/b' => sub { vars->{test} = 1;  forward '/a'; };
 # get '/a' => sub { return "test is " . var('test'); };
 
-my $app = Dancer2->psgi_app;
+my $app = __PACKAGE__->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
@@ -133,7 +133,7 @@ test_psgi $app, sub {
     is(
         $cb->( POST '/bounce/' )->content,
         'post-home',
-        '[POSt /bounce/] Correct content',
+        '[POST /bounce/] Correct content',
     );
 
     {

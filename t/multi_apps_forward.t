@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Plack::Test;
 use HTTP::Request::Common;
 
@@ -33,7 +33,7 @@ use HTTP::Request::Common;
 
 {
     # test each single app
-    my $app1 = App1->psgi_app;
+    my $app1 = App1->to_app;
     test_psgi $app1, sub {
         my $cb = shift;
         is( $cb->( GET '/' )->code, 200, '[GET /] OK' );
@@ -53,7 +53,7 @@ use HTTP::Request::Common;
         );
     };
 
-    my $app2 = App2->psgi_app;
+    my $app2 = App2->to_app;
     test_psgi $app2, sub {
         my $cb = shift;
         is( $cb->( GET '/' )->code, 200, '[GET /] OK' );
@@ -61,21 +61,28 @@ use HTTP::Request::Common;
     };
 }
 
-{
+note 'Old format using psgi_app to loop over multiple apps'; {
     # test global
     my $app = Dancer2->psgi_app;
     test_psgi $app, sub {
         my $cb = shift;
-        is(
-            $cb->( GET '/forward_to_new' )->code,
-            200,
-            '[GET /forward_to_new] OK',
-        );
 
-        is(
-            $cb->( GET '/forward_to_new' )->content,
-            'New',
-            '[GET /forward_to_new] OK content',
-        );
+        {
+            my $res = $cb->( GET '/forward_to_new' );
+
+            is(
+                $res->code,
+                404,
+                '[GET /forward_to_new] Forwarding between apps fails',
+            );
+        }
+
+        {
+            my $res = $cb->( GET '/forward' );
+
+            is( $res->code,    200,    '[GET /forward] Forward in app ok' );
+            is( $res->content, 'App1', '[GET /forward] Forward in app ok' );
+        }
     };
 }
+

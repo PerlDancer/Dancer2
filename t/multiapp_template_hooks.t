@@ -98,7 +98,7 @@ note 'Check App1 only calls first hook, not both'; {
     # clear
     %called_hooks = ();
 
-    my $app = App1->psgi_app;
+    my $app = App1->to_app;
     isa_ok( $app, 'CODE', 'Got app for test' );
 
     test_psgi $app, sub {
@@ -125,7 +125,7 @@ note 'Check App2 only calls second hook, not both'; {
     # clear
     %called_hooks = ();
 
-    my $app = App2->psgi_app;
+    my $app = App2->to_app;
     isa_ok( $app, 'CODE', 'Got app for test' );
 
     test_psgi $app, sub {

@@ -10,7 +10,7 @@ any [ 'get', 'post' ], '/' => sub {
     request->method;
 };
 
-my $app = Dancer2->psgi_app;
+my $app = __PACKAGE__->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
