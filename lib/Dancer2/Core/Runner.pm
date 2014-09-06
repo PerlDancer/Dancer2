@@ -73,11 +73,6 @@ has timeout => (
     default => sub { $_[0]->config->{'timeout'} },
 );
 
-has siteroot => (
-    is      => 'rw',
-    lazy    => 1,
-);
-
 sub _build_server {
     my $self = shift;
 
@@ -109,6 +104,12 @@ sub _build_config {
                            $ENV{DANCER_STARTUP_INFO}         :
                            1 ),
     };
+}
+
+sub set_siteroot {
+    my $self = shift;
+    my $siteroot = shift;
+    $self->config->{'siteroot'} = $siteroot;
 }
 
 sub BUILD {
