@@ -7,7 +7,6 @@ use Plack::Test;
 use HTTP::Request::Common;
 
 {
-
     package App;
 
     BEGIN {

@@ -8,6 +8,7 @@ use Dancer2::Core::App;
 use Dancer2::Core::Route;
 use Dancer2::Core::Dispatcher;
 use Dancer2::Core::Hook;
+use Dancer2::Core::Response;
 
 set logger => 'Null';
 
@@ -151,7 +152,7 @@ foreach my $test (@tests) {
     my $expected = $test->{expected};
     my $path     = $env->{'PATH_INFO'};
 
-    my $resp = $dispatcher->dispatch($env)->to_psgi;
+    my $resp = $dispatcher->dispatch($env);
 
     is( $resp->[0], $expected->[0], "[$path] Return code ok" );
 
@@ -188,7 +189,12 @@ foreach my $test (
     my $env      = $test->{env};
     my $expected = $test->{expected};
 
-    my $resp = $dispatcher->dispatch($env);
+    my $psgi_response = $dispatcher->dispatch($env);
+    my $resp          = Dancer2::Core::Response->new(
+        status  => $psgi_response->[0],
+        headers => $psgi_response->[1],
+        content => $psgi_response->[2][0],
+    );
 
     is $resp->status => $expected->[0], "Return code ok.";
     ok( $resp->header('Content-Length') >= 140, "Length ok." );

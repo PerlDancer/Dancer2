@@ -5,7 +5,6 @@ use Plack::Test;
 use HTTP::Request::Common;
 
 {
-
     package Foo;
     use Dancer2;
 

@@ -16,7 +16,7 @@ use HTTP::Request::Common;
     engine('template')->layout('main');
 }
 
-my $app = Dancer2->psgi_app;
+my $app = AutoPageTest->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
