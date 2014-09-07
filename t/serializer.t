@@ -18,7 +18,7 @@ use HTTP::Request::Common;
     get '/to_json' => sub { to_json({bar => 'baz'}, {pretty => 1}) };
 }
 
-my $app = Dancer2->psgi_app;
+my $app = MyApp->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {

@@ -41,7 +41,7 @@ my $before;
     get '/' => sub {'OK'};
 }
 
-my $app = Dancer2->psgi_app;
+my $app = OurApp->to_app;
 isa_ok( $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {

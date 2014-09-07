@@ -7,6 +7,7 @@ use JSON;
 
 subtest 'global and route keywords' => sub {
     {
+        package App1;
         use Dancer2;
         use t::lib::FooPlugin;
 
@@ -23,7 +24,7 @@ subtest 'global and route keywords' => sub {
         foo_route;
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App1->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -49,7 +50,7 @@ subtest 'global and route keywords' => sub {
 
         is(
             $cb->( GET '/app' )->content,
-            'main',
+            'App1',
             'app name is correct',
         );
     };
@@ -57,13 +58,14 @@ subtest 'global and route keywords' => sub {
 
 subtest 'plugin old syntax' => sub {
     {
+        package App2;
         use Dancer2;
         use t::lib::DancerPlugin;
 
         around_get;
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App2->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -78,12 +80,7 @@ subtest 'plugin old syntax' => sub {
 };
 
 subtest caller_dsl => sub {
-    {
-        use Dancer2;
-        use t::lib::DancerPlugin;
-    }
-
-    my $app = Dancer2->psgi_app;
+    my $app = App1->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -101,6 +98,7 @@ subtest 'hooks in plugins' => sub {
     my $counter = 0;
 
     {
+        package App3;
         use Dancer2;
         use t::lib::Hookee;
 
@@ -114,7 +112,7 @@ subtest 'hooks in plugins' => sub {
 
         get '/hook_with_var' => sub {
             some_other(); # executes 'third_hook'
-            is var('hook') => 'third hook', "Vars preserved from hooks";
+            ::is var('hook') => 'third hook', "Vars preserved from hooks";
         };
 
         get '/hooks_plugin' => sub {
@@ -129,7 +127,7 @@ subtest 'hooks in plugins' => sub {
 
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App3->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {

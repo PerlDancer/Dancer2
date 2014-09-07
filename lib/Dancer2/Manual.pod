@@ -1556,13 +1556,22 @@ choices).
 This keyword should be called at the very end of the script, once all routes
 are defined.  At this point, Dancer takes over control.
 
+=head2 to_app
+
+Returns the PSGI coderef for the current (and only the current) application.
+
+You can call it as a method on the class or as a DSL:
+
+    my $app = MyApp->to_app;
+
+    # or
+
+    my $app = to_app;
+
 =head2 psgi_app
 
-Returns the PSGI coderef for the current (and only the current) application
-
-This keyword will typically be used as a method to get the psgi coderef for
-testing, or building a larger application via L<Plack::Builder> from
-independent parts.
+Provides the same functionality as C<to_app> but uses the deprecated
+Dispatcher engine. You should use C<to_app>.
 
 =head2 status
 

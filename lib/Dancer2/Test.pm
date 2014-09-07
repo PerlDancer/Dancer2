@@ -140,8 +140,26 @@ sub dancer_response {
       ? _build_env_from_request(@_)
       : _build_request_from_env(@_);
 
-    return $_dispatcher->dispatch( $env, $request );
+    # override the set_request so it actually sets our request instead
+    {
+        no warnings qw<redefine once>;
+        *Dancer2::Core::App::set_request = sub {
+            my $self = shift;
+            $self->{'request'} = $request;
+        };
+    }
+
+    # since the response is a PSGI response
+    # we create a Response object which was originally expected
+    my $psgi_response = $_dispatcher->dispatch($env);
+    return Dancer2::Core::Response->new(
+        status  => $psgi_response->[0],
+        headers => $psgi_response->[1],
+        content => $psgi_response->[2][0],
+    );
 }
+
+
 
 sub _build_request_from_env {
 
@@ -292,7 +310,7 @@ sub response_status_is {
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    $tb->is_eq( $response->status, $status, $test_name );
+    $tb->is_eq( $response->[0], $status, $test_name );
 }
 
 sub _find_route_match {
@@ -377,7 +395,7 @@ sub response_status_isnt {
 
     my $tb = Test::Builder->new;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    $tb->isnt_eq( $response->status, $status, $test_name );
+    $tb->isnt_eq( $response->[0], $status, $test_name );
 }
 
 {
@@ -404,7 +422,7 @@ sub response_status_isnt {
 
         my $tb = Test::Builder->new;
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $tb->$cmp( $response->content, $want, $test_name );
+        $tb->$cmp( $response->[2][0], $want, $test_name );
     }
 }
 
@@ -536,7 +554,7 @@ sub response_headers_are_deeply {
     my $response = dancer_response( _expand_req($req) );
 
     is_deeply(
-        _sort_headers( $response->headers_to_array ),
+        _sort_headers( $response->[1] ),
         _sort_headers($expected), $test_name
     );
 }
@@ -560,11 +578,11 @@ sub response_headers_include {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     print STDERR "Headers are: "
-      . Dumper( $response->headers_to_array )
+      . Dumper( $response->[1] )
       . "\n Expected to find header: "
       . Dumper($expected)
       if !$tb->ok(
-        _include_in_headers( $response->headers_to_array, $expected ),
+        _include_in_headers( $response->[1], $expected ),
         $test_name
       );
 }
