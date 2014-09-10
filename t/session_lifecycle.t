@@ -85,6 +85,7 @@ foreach my $engine (@engines) {
             # destroy session and check that cookies expiration is set
             $res = $ua->get("http://127.0.0.1:$port/destroy_session");
             ok $res->is_success, "/destroy_session";
+            is $res->content, "Old name: larry; New name: ";
             $cookie = extract_cookie($res);
             ok $cookie, "session cookie set"
               or diag explain $cookie;
@@ -148,7 +149,8 @@ foreach my $engine (@engines) {
             get '/destroy_session' => sub {
                 my $name = session('name') || '';
                 app->destroy_session;
-                return "destroyed='$name'";
+                my $new_name = session('name') || '';
+                return "Old name: $name; New name: $new_name";
             };
 
             get '/churn_session' => sub {
