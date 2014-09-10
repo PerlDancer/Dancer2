@@ -385,6 +385,7 @@ sub destroy_session {
     # Clear session and invalidate session cookie in request
     $self->set_destroyed_session($session);
     $self->clear_session;
+    $self->template_engine->clear_session;
 
     return;
 }
