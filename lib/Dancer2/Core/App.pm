@@ -731,12 +731,14 @@ sub BUILD {
 
 sub finish {
     my $self = shift;
-    $self->register_route_handlers;
     $self->compile_hooks;
 }
 
 sub init_route_handlers {
     my $self = shift;
+
+    # Weakened copy of self to avoid closures
+    Scalar::Util::weaken(my $app = $self);
 
     my $handlers_config = $self->config->{route_handlers};
     for my $handler_data ( @{$handlers_config} ) {
@@ -754,14 +756,9 @@ sub init_route_handlers {
             name    => $handler_name,
             handler => $handler,
         };
-    }
-}
 
-sub register_route_handlers {
-    my $self = shift;
-    for my $handler ( @{$self->route_handlers} ) {
-        my $handler_code = $handler->{handler};
-        $handler_code->register($self);
+        # Register route handler
+        $handler->register($app);
     }
 }
 
