@@ -4,11 +4,6 @@ use warnings;
 use File::Temp qw/tempdir/;
 use File::Spec;
 
-BEGIN {
-    # Freeze time at Tue, 15-Jun-2010 00:00:00 GMT
-    *CORE::GLOBAL::time = sub { return 1276560000 }
-}
-
 my $log_dir = tempdir( CLEANUP => 1);
 
 {
