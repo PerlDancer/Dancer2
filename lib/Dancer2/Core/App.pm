@@ -124,6 +124,8 @@ sub _build_logger_engine {
     my $logger = Dancer2::Core::Factory->create(
         logger => $value,
         %{$engine_options},
+        location        => $self->config_location,
+        environment     => $self->environment,
         app_name        => $self->name,
         postponed_hooks => $self->get_postponed_hooks
     );
