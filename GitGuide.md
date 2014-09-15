@@ -236,8 +236,8 @@ Here is the workflow for submitting a patch:
    team is enough to understand what the mistake was. Above all,
    please don't be offended.
 
-   If your pull-request is merged into _master_, then all you have to
-   do is to remove your local and remote _pr/$name_ branch:
+   If your pull request is merged into _master_, then all you have to
+   do is remove your local and remote _pr/$name_ branch:
 
         $ git checkout master
         $ git branch -D pr/$name
