@@ -157,7 +157,8 @@ running, you should install the dependencies required by Dancer2:
 
      $ dzil listdeps | cpanm -n
 
-When that is done, you're good to go! You can use dzil to build and test Dancer2:
+When that is done, you're good to go! You can use `dzil` to build and test
+Dancer2:
 
      $ dzil build
      $ dzil test
