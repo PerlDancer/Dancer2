@@ -66,7 +66,7 @@ If you find a failing test report, feel free to report it as a
 We prefer to have all our bug reports on GitHub, in the
 [issues section](http://github.com/PerlDancer/Dancer2/issues).
 
-Please make sure the bug you're reporting does not yet exist. In doubt
+Please make sure the bug you're reporting does not yet exist. If in doubt
 please ask on IRC.
 
 ## Environment and Patch Submission
@@ -222,7 +222,7 @@ Here is the workflow for submitting a patch:
    that it incorporates the appropriate commits only.
 
    It's also a good idea to summarize your work in a report sent to
-   the users mailing list (see below), in order to make sure the team
+   the users' mailing list (see below), in order to make sure the team
    is aware of it.
 
    You could also notify the core team on IRC, on `irc.perl.org`,
@@ -244,7 +244,7 @@ Here is the workflow for submitting a patch:
         $ git push origin :pr/$name
 
    And then, of course, you need to sync your local devel branch with
-   the upstream:
+   upstream:
 
         $ git pull upstream master
         $ git push origin master
