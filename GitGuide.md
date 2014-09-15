@@ -146,7 +146,7 @@ Clone your fork to have a local copy using the following command:
      $ git clone git://github.com/perldancer/Dancer2.git
 
 The Dancer2 sources come with a `dist.ini`. That's the configuration
-files for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
+file for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
 use dist.ini to install additional `Dist::Zilla` plugins which are
 not yet installed on your system (or Perl installation):
 
