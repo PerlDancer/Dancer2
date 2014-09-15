@@ -111,7 +111,7 @@ process.
     $ perlbrew init
 
 
-Then go on and install a version inside Perlbrew. We recommend you
+Then install a version inside perlbrew. We recommend you
 give a name to the installation (`--as` option), as well as compiling
 without the tests (`--n` option) to speed it up.
 
