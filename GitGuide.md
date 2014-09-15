@@ -78,9 +78,9 @@ likely also [_Dist::Zilla_](https://metacpan.org/module/Dist::Zilla).
 We also recommend perlbrew (see below) or,
 alternatively, [_App::Plenv_](https://github.com/tokuhirom/plenv))
 to test and develop Dancer2 on a recent
-version of perl. We also suggest
+version of Perl. We also suggest
 [_App::cpanminus_](https://metacpan.org/module/App::cpanminus)
-to quickly and comfortably install perl modules.
+to quickly and comfortably install Perl modules.
 
 In the following sections we provide tips for the installation of some
 of these tools together with Dancer. Please also see the documentation
@@ -92,11 +92,11 @@ Install perlbrew for example with
     
     $ cpanm App::perlbrew
 
-Check which perls are available
+Check which Perls are available
 
     $ perlbrew available
 
-It should list the available perl versions, like this (incomplete) list:
+It should list the available Perl versions, like this (incomplete) list:
 
     perl-5.17.1
     perl-5.16.0
@@ -125,7 +125,7 @@ Now you are using the fresh Perl, you can check it with:
 
     $ which perl
 
-Install cpanm on your brewed version of perl.
+Install cpanm on your brewed version of Perl.
 
     $ perlbrew install-cpanm
 
@@ -148,7 +148,7 @@ Clone your fork to have a local copy using the following command:
 The Dancer2 sources come with a `dist.ini`. That's the configuration
 files for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
 use dist.ini to install additional `Dist::Zilla` plugins which are
-not yet installed on your system (or perl installation):
+not yet installed on your system (or Perl installation):
 
      $ dzil authordeps | cpanm -n
 
