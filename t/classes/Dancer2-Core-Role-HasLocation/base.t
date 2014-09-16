@@ -63,6 +63,8 @@ note 'With .dancer file:'; {
     my $location = $app->location;
     $location =~ s/$basedir//;
 
+    # FIXME: there is no trailing slash here
+    #        but there is one for the next test
     is(
         $location,
         '/FakeDancerFile',
