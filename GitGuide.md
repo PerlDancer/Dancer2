@@ -172,10 +172,9 @@ these contributions and applying them much, much easier. This gives
 your contribution a much better chance of being integrated into
 Dancer2 quickly!
 
-**NOTE:** unlike before, we no longer use the _devel_ branch. All
-active development is performed in the _master_ branch. Therefore, all
-your contribution work should be done in a fork of the _master_
-branch.
+**NOTE:** All active development is performed in the _master_ branch.
+Therefore, all your contribution work should be done in a fork of the
+_master_ branch.
 
 Here is the workflow for submitting a patch:
 
