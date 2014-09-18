@@ -396,6 +396,13 @@ When you're done with your session, you can destroy it:
 
 =head2 Sessions and logging in
 
+B<Note!> The following example will in this form prevent the application
+from returning static content (files inside the public/ directory, like css,
+javascript files etc.) when the user is not logged in, because the before hook
+is executed on the static files as well. A simple way to prevent this is using
+L<Plack::Middleware::Static> for serving static files. An example can be found 
+L<here|Dancer2::Cookbook/"Serving_static_files_using_Plack::Middleware::Static">.
+
 A common requirement is to check the user is logged in, and, if not, require
 them to log in before continuing.
 
@@ -1228,6 +1235,37 @@ To set the environment you want to use for your application (production or devel
         SetEnv DANCER_ENVIRONMENT "production"
         ...
     </VirtualHost>
+
+=head3 Serving static files using L<Plack::Middleware::Static>
+
+You can use L<Plack::Middleware::Static> to serve your static files instead of
+L<Dancer2::Handler::File>. That way before hooks will not be executed for them.
+This is required to make the example in 
+L<Sessions and logging-in|Dancer2::Cookbook/"Sessions_and_logging_in"> work.
+
+First, we have to disable L<Dancer2::Handler::File> in the config:
+
+    route_handlers: []
+
+Next, our bin/app.pl should look similar to this:
+
+    #!/usr/bin/env perl
+    use Plack::Builder;
+    use Dancer2;
+    use MyApp;
+
+    builder {
+        enable "Plack::Middleware::Static",
+                path => sub { -f path('public', shift) },
+                root => 'public';
+        dance;
+    };
+
+The 'path' option returns true if the requested file exists inside the 'public'
+directory. For example the file '/css/default.css' is searched for at
+'public/css/default.css'. When the file is found, L<Plack::Middleware::Static>
+returns the requested file from the 'root' directory, which is in this example
+the 'public' folder.
 
 =head2 Creating a service
 
