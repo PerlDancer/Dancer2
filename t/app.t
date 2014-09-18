@@ -10,7 +10,7 @@ use Dancer2::FileUtils;
 use File::Spec;
 
 # our app/dispatcher object
-my $app = Dancer2::Core::App->new( name => 'main', );
+my $app = Dancer2::Core::App->new( name => 'main' );
 my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 
 # first basic tests
@@ -39,7 +39,7 @@ for my $p ( '/', '/mywebsite' ) {
 is $app->environment, 'development';
 
 my $routes_regexps = $app->routes_regexps_for('get');
-is( scalar(@$routes_regexps), 4, "route regexps are OK" );
+is( scalar(@$routes_regexps), 5, "route regexps are OK" );
 
 for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
     my $env = {
