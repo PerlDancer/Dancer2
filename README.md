@@ -12,8 +12,8 @@ An application can be as simple as this simple hello world script:
 
 ```perl
 use Dancer2;
-get '/' => sub { 
-    "Hello World" 
+get '/' => sub {
+    "Hello World"
 };
 dance;
 ```
