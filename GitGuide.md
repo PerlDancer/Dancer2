@@ -88,8 +88,8 @@ that comes with these tools for more info.
 
 #### Perlbrew tips (Optional)
 
-Install perlbrew for example with 
-    
+Install perlbrew for example with
+
     $ cpanm App::perlbrew
 
 Check which Perls are available
@@ -104,8 +104,8 @@ It should list the available Perl versions, like this (incomplete) list:
     perl-5.12.4
     ...
 
-Now run the init command for perlbrew. The init command initializes and controls 
-processes. The init command is run as the last step of any startup 
+Now run the init command for perlbrew. The init command initializes and controls
+processes. The init command is run as the last step of any startup
 process.
 
     $ perlbrew init
