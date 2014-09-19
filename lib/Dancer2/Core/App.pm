@@ -2,7 +2,7 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp            'croak';
+use Carp            qw[ croak carp ];
 use Scalar::Util    'blessed';
 use Module::Runtime 'is_module_name';
 use File::Spec;
@@ -734,6 +734,27 @@ sub init_route_handlers {
     my $self = shift;
 
     my $handlers_config = $self->config->{route_handlers};
+
+    # DEPRECATED
+    if (ref $handlers_config eq 'ARRAY') {
+        carp 'The use of route_handlers config as an arrayref is deprecated!'
+             .' Please check the updated manual in Dancer2::Config.';
+
+        my %hash_config = map { @$_ } @$handlers_config;
+
+        $handlers_config = {};
+
+        $handlers_config->{AutoPage} = $hash_config{AutoPage};
+        $handlers_config->{File}     = $hash_config{File};
+        $self->setting('public', $hash_config{File}->{public_dir});
+        $self->setting('handlers_config', $handlers_config);
+    }
+
+    # DEPRECATED
+    if (exists $self->config->{auto_page}) {
+        carp 'The auto_page config option is deprecated!';
+        $handlers_config->{AutoPage} = $self->config->{auto_page};
+    }
 
     for my $handler_name (keys %$handlers_config) {
         #Add the handler if the config value is true
