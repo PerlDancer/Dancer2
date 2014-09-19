@@ -102,7 +102,7 @@ L<File::Basename> for details.
 
 =cut
 
-sub dirname { File::Basename::dirname(@_) }
+*dirname = \&File::Basename::dirname;
 
 =func set_file_mode($fh);
 

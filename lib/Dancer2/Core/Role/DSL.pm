@@ -47,49 +47,27 @@ sub dsl { $_[0] }
 # exports new symbol to caller
 sub export_symbols_to {
     my ( $self, $caller, $args ) = @_;
-    my $exports = $self->_construct_export_map($args);
 
-    foreach my $export ( keys %{$exports} ) {
+    while ( my ( $keyword, $opts ) = each %{ $self->keywords } ) {
+        # Skip if the keyword was excluded from importation.
+        next if $args->{"!$keyword"};
+
+        my $name = "${caller}::$keyword";
+
         no strict 'refs';
-        my $existing = *{"${caller}::${export}"}{CODE};
 
-        next if defined $existing;
+        # Skip if they already have this symbol.
+        next if defined *{$name}{CODE};
 
-        *{"${caller}::${export}"} = $exports->{$export};
-    }
+        *$name = $opts->{is_global} == 2 ? $self->can($keyword)
+               : $opts->{is_global}      ? sub { $self->$keyword(@_) }
+               : sub {
+            croak "Function '$keyword' must be called from a route handler"
+                unless defined $self->app->has_request;
 
-    return keys %{$exports};
-}
-
-# private
-
-sub _compile_keyword {
-    my ( $self, $keyword, $is_global ) = @_;
-
-    my $compiled_code = sub { $self->$keyword(@_); };
-
-    if ( !$is_global ) {
-        my $code = $compiled_code;
-        $compiled_code = sub {
-            $self->app->has_request or
-                croak "Function '$keyword' must be called from a route handler";
-            $code->(@_);
+            $self->$keyword(@_);
         };
     }
-
-    return $compiled_code;
-}
-
-sub _construct_export_map {
-    my ( $self, $args ) = @_;
-    my $keywords = $self->keywords;
-    my %map;
-    foreach my $keyword ( keys %$keywords ) {
-        # check if the keyword were excluded from importation
-        $args->{ '!' . $keyword } and next;
-        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword}{is_global} );
-    }
-    return \%map;
 }
 
 1;
