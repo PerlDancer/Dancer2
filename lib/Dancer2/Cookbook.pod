@@ -1251,7 +1251,7 @@ Next, our bin/app.pl should look similar to this:
 
     #!/usr/bin/env perl
     use Plack::Builder;
-    use Dancer2;
+    use Dancer2::FileUtils qw[ path ];
     use MyApp;
 
     builder {
