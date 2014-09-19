@@ -42,12 +42,7 @@ has regexp => (
     default => sub {'/**'},
 );
 
-sub _build_public_dir {
-    my $self = shift;
-    return $self->app->config->{public}
-        || $ENV{DANCER_PUBLIC}
-        || path( $self->app->location, 'public' );
-}
+sub _build_public_dir { shift->app->config->{public} }
 
 sub register {
     my ( $self, $app ) = @_;

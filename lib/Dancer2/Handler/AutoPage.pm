@@ -11,8 +11,6 @@ with 'Dancer2::Core::Role::StandardResponses';
 sub register {
     my ( $self, $app ) = @_;
 
-    return unless $app->config->{auto_page};
-
     $app->add_route(
         method => $_,
         regexp => $self->regexp,

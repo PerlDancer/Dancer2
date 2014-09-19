@@ -137,8 +137,7 @@ sub _build_static_page {
 
     # TODO there must be a better way to get it
     my $public_dir = $ENV{DANCER_PUBLIC}
-      || ( $self->has_app
-        && path( $self->app->config_location, 'public' ) );
+      || ( $self->has_app && $self->app->config->{'public'} );
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 

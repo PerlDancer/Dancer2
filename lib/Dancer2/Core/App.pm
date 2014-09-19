@@ -2,7 +2,7 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp            'croak';
+use Carp            qw[ croak carp ];
 use Scalar::Util    'blessed';
 use Module::Runtime 'is_module_name';
 use File::Spec;
@@ -506,17 +506,12 @@ sub _build_default_config {
                             || path( $self->config_location, 'views' ) ),
         appdir         => $self->location,
         template       => 'Tiny',
-        route_handlers => [
-            [
-                File => {
-                    public_dir => $ENV{DANCER_PUBLIC} ||
-                                  path( $self->location, 'public' )
-                }
-            ],
-            [
-                AutoPage => 1
-            ],
-        ],
+        public         => ( $ENV{DANCER_PUBLIC}
+                            || path( $self->location, 'public' ) ),
+        route_handlers => {
+            File     => 1,
+            AutoPage => 0,
+        },
     };
 }
 
@@ -739,21 +734,42 @@ sub init_route_handlers {
     my $self = shift;
 
     my $handlers_config = $self->config->{route_handlers};
-    for my $handler_data ( @{$handlers_config} ) {
-        my ($handler_name, $config) = @{$handler_data};
-        $config = {} if !ref($config);
 
-        my $handler = Dancer2::Core::Factory->create(
-            Handler => $handler_name,
-            app     => $self,
-            %$config,
-            postponed_hooks => $self->postponed_hooks,
-        );
+    # DEPRECATED
+    if (ref $handlers_config eq 'ARRAY') {
+        carp 'The use of route_handlers config as an arrayref is deprecated!'
+             .' Please check the updated manual in Dancer2::Config.';
 
-        push @{ $self->route_handlers }, {
-            name    => $handler_name,
-            handler => $handler,
-        };
+        my %hash_config = map { @$_ } @$handlers_config;
+
+        $handlers_config = {};
+
+        $handlers_config->{AutoPage} = $hash_config{AutoPage};
+        $handlers_config->{File}     = $hash_config{File};
+        $self->setting('public', $hash_config{File}->{public_dir});
+        $self->setting('handlers_config', $handlers_config);
+    }
+
+    # DEPRECATED
+    if (exists $self->config->{auto_page}) {
+        carp 'The auto_page config option is deprecated!';
+        $handlers_config->{AutoPage} = $self->config->{auto_page};
+    }
+
+    for my $handler_name (qw[ File AutoPage ]) {
+        #Add the handler if the config value is true
+        if ($handlers_config->{ $handler_name }) {
+            my $handler = Dancer2::Core::Factory->create(
+                Handler         => $handler_name,
+                app             => $self,
+                postponed_hooks => $self->postponed_hooks,
+            );
+
+            push @{ $self->route_handlers }, {
+                name    => $handler_name,
+                handler => $handler,
+            };
+        }
     }
 }
 
