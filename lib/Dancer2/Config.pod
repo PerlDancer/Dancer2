@@ -61,10 +61,12 @@ If you prefer YAML, a sample YAML based config file might look like this:
 
     appname: "Hello"
     charset: "UTF-8"
-    auto_page: 1
 
     session: "YAML"
     serializer: "JSON"
+
+    route_handlers:
+        AutoPage: 1
 
     plugins:
       DBIC:
@@ -77,9 +79,11 @@ If JSON is more your thing, your file might look more like this:
     {
         "appname": "Hello",
         "charset": "UTF-8",
-        "auto_page": "1",
         "session": "YAML",
         "serializer": "JSON",
+        "route_handlers": {
+            "AutoPage": 1
+        },
         "plugins": {
             "DBIC": {
                 "default": {
@@ -94,7 +98,6 @@ If you like Apache configuration files, try something similar to:
 
         appname = Hello
         charset = UTF-8
-        auto_page = 1
         session = YAML
         serializer = JSON
         <plugins>
@@ -229,6 +232,33 @@ This is the directory where your templates and layouts live.  It's the
 "view" part of MVC (model, view, controller).
 
 This defaults to $appdir/views.
+
+=head2 Route handlers
+
+This is the config option for enabling/disabling route handlers. The default values are:
+
+    route_handlers:
+        File: 1
+        AutoPage: 0
+
+=head3 AutoPage
+
+For simple pages where you're not doing anything dynamic, but still want to use the template engine to provide headers etc, you can use the AutoPage feature to avoid the need to create a route for each page.
+
+With AutoPage enabled, if the requested path does not match any specific route, Dancer2 will check in the views directory for a matching template, and use it to satisfy the request if found. If you request /foo/bar, Dancer2 will look in the views dir for /foo/bar.tt.
+
+Dancer2 will honor your before_template_render code, and all default variables. They will be accessible and interpolated on automatic served pages.
+
+AutoPage is disabled by default. To enable it, set its value to 1.
+
+=head3 File
+
+This route handler is a built in way of serving static files with Dancer2. It automatically adds
+a GET and HEAD route '/**' into the Dancer2 application matching every request. 
+If the file is present inside the public directory, it is served. Otherwise it passes the 
+request.
+
+For setting the public directory location, see the documentation of L<public|Dancer2::Config/public_(directory)>.
 
 =head2 Templating & layouts
 
@@ -424,6 +454,8 @@ will not be able to access to its value.
 
 
 =head2 auto_page (boolean)
+
+B<DEPRECATED!> The auto_page config option is deprecated. Please see the L<route handlers|Dancer2::Config/"Route_handlers"> documentation for more information.
 
 For simple pages where you're not doing anything dynamic, but still
 want to use the template engine to provide headers etc, you can use
