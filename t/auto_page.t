@@ -8,8 +8,9 @@ use HTTP::Request::Common;
 {
     package AutoPageTest;
     use Dancer2;
+    use Dancer2::Handler::AutoPage;
 
-    set auto_page => 1;
+    set route_handlers => { AutoPage => 1 };
     ## HACK HACK HACK
     Dancer2::Handler::AutoPage->register(app);
     engine('template')->views('t/views');
