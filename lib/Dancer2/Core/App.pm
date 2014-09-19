@@ -510,7 +510,7 @@ sub _build_default_config {
                             || path( $self->location, 'public' ) ),
         route_handlers => {
             File     => 1,
-            AutoPage => 1,
+            AutoPage => 0,
         },
     };
 }
