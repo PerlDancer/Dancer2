@@ -756,7 +756,7 @@ sub init_route_handlers {
         $handlers_config->{AutoPage} = $self->config->{auto_page};
     }
 
-    for my $handler_name (keys %$handlers_config) {
+    for my $handler_name (qw[ File AutoPage ]) {
         #Add the handler if the config value is true
         if ($handlers_config->{ $handler_name }) {
             my $handler = Dancer2::Core::Factory->create(
