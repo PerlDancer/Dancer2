@@ -510,10 +510,7 @@ sub _build_default_config {
                             || path( $self->location, 'public' ) ),
         route_handlers => [
             [
-                File => {
-                    public_dir => $ENV{DANCER_PUBLIC} ||
-                                  path( $self->location, 'public' )
-                }
+                File => 1
             ],
             [
                 AutoPage => 1
