@@ -506,6 +506,8 @@ sub _build_default_config {
                             || path( $self->config_location, 'views' ) ),
         appdir         => $self->location,
         template       => 'Tiny',
+        public         => ( $ENV{DANCER_PUBLIC}
+                            || path( $self->location, 'public' ) ),
         route_handlers => [
             [
                 File => {
