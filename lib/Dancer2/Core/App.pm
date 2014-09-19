@@ -508,14 +508,10 @@ sub _build_default_config {
         template       => 'Tiny',
         public         => ( $ENV{DANCER_PUBLIC}
                             || path( $self->location, 'public' ) ),
-        route_handlers => [
-            [
-                File => 1
-            ],
-            [
-                AutoPage => 1
-            ],
-        ],
+        route_handlers => {
+            File     => 1,
+            AutoPage => 1,
+        },
     };
 }
 
@@ -738,21 +734,21 @@ sub init_route_handlers {
     my $self = shift;
 
     my $handlers_config = $self->config->{route_handlers};
-    for my $handler_data ( @{$handlers_config} ) {
-        my ($handler_name, $config) = @{$handler_data};
-        $config = {} if !ref($config);
 
-        my $handler = Dancer2::Core::Factory->create(
-            Handler => $handler_name,
-            app     => $self,
-            %$config,
-            postponed_hooks => $self->postponed_hooks,
-        );
+    for my $handler_name (keys %$handlers_config) {
+        #Add the handler if the config value is true
+        if ($handlers_config->{ $handler_name }) {
+            my $handler = Dancer2::Core::Factory->create(
+                Handler         => $handler_name,
+                app             => $self,
+                postponed_hooks => $self->postponed_hooks,
+            );
 
-        push @{ $self->route_handlers }, {
-            name    => $handler_name,
-            handler => $handler,
-        };
+            push @{ $self->route_handlers }, {
+                name    => $handler_name,
+                handler => $handler,
+            };
+        }
     }
 }
 

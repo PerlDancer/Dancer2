@@ -1,1 +1,3 @@
-route_handlers: []
+route_handlers: 
+    File: 0
+    AutoPage: 0
