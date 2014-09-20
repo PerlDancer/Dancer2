@@ -1,85 +1,81 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::TCP;
-use LWP::UserAgent;
-use Dancer2;
+use Plack::Test;
+use HTTP::Request::Common;
 
-test_tcp(
-    server => sub {
-        my $port = shift;
-        set startup_info => 0;
-        get '/'          => sub {
-            'home:' . join( ',', params );
-        };
-        get '/bounce/' => sub {
-            return forward '/';
-        };
-        get '/bounce/:withparams/' => sub {
-            return forward '/';
-        };
-        get '/bounce2/adding_params/' => sub {
-            return forward '/', { withparams => 'foo' };
-        };
-        post '/simple_post_route/' => sub {
-            'post:' . join( ',', params );
-        };
-        get '/go_to_post/' => sub {
-            return forward '/simple_post_route/', { foo => 'bar' },
-              { method => 'post' };
-        };
-        post '/'        => sub {'post-home'};
-        post '/bounce/' => sub { forward('/') };
+{
+    package App;
+    use Dancer2;
 
-        print STDERR "Running on port $port\n";
+    get '/' => sub {
+        'home:' . join( ',', params );
+    };
 
-        # we're overiding a RO attribute only for this test!
-        Dancer2->runner->{'port'} = $port;
+    get '/bounce/' => sub { forward '/' };
 
-        print STDERR "Starting\n";
-        start;
-    },
-    client => sub {
-        my ( $port, $server_pid ) = @_;
-        my $ua  = LWP::UserAgent->new;
-        my $res = $ua->get("http://127.0.0.1:$port/");
-        is $res->code      => 200;
-        like $res->content => qr/home:/;
+    get '/bounce/:withparams/' => sub { forward '/' };
 
-        $res = $ua->get("http://127.0.0.1:$port/bounce/");
-        is $res->code      => 200;
-        like $res->content => qr/home:/;
+    get '/bounce2/adding_params/' => sub {
+        forward '/', { withparams => 'foo' };
+    };
 
-        $res = $ua->get("http://127.0.0.1:$port/bounce/thesethings/");
-        is $res->code    => 200;
-        is $res->content => 'home:withparams,thesethings';
+    get '/go_to_post/' => sub {
+        forward '/simple_post_route/',
+            { foo => 'bar' },
+            { method => 'post' };
+    };
 
-        $res = $ua->get("http://127.0.0.1:$port/bounce2/adding_params/");
-        is $res->code    => 200;
-        is $res->content => 'home:withparams,foo';
+    post '/simple_post_route/' => sub {
+        'post:' . join( ',', params );
+    };
 
-        $res = $ua->get("http://127.0.0.1:$port/go_to_post/");
-        is $res->code    => 200;
-        is $res->content => 'post:foo,bar';
+    post '/' => sub {'post-home'};
 
-        $res = $ua->get("http://127.0.0.1:$port/bounce/");
-        is $res->header('Content-Length') => 5;
-        is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
-        is $res->header('Server')         =>
-            "Perl Dancer2 $Dancer2::VERSION, Perl Dancer2 $Dancer2::VERSION";
+    post '/bounce/' => sub { forward '/'  };
+}
 
-        $res = $ua->post("http://127.0.0.1:$port/");
-        is $res->code    => 200;
-        is $res->content => 'post-home';
+my $app = Dancer2->psgi_app;
+is( ref $app, 'CODE', 'Got app' );
 
-        $res = $ua->post("http://127.0.0.1:$port/bounce/");
-        is $res->code                     => 200;
-        is $res->content                  => 'post-home';
-        is $res->header('Content-Length') => 9;
-        is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
-        is $res->header('Server')         =>
-            "Perl Dancer2 $Dancer2::VERSION, Perl Dancer2 $Dancer2::VERSION";
-    }
-);
+test_psgi $app, sub {
+    my $cb = shift;
 
-done_testing;
+    my $res = $cb->(GET "/");
+    is $res->code      => 200;
+    like $res->content => qr/home:/;
+
+    $res = $cb->(GET "/bounce/");
+    is $res->code      => 200;
+    like $res->content => qr/home:/;
+
+    $res = $cb->(GET "/bounce/thesethings/");
+    is $res->code    => 200;
+    is $res->content => 'home:withparams,thesethings';
+
+    $res = $cb->(GET "/bounce2/adding_params/");
+    is $res->code    => 200;
+    is $res->content => 'home:withparams,foo';
+
+    $res = $cb->(GET "/go_to_post/");
+    is $res->code    => 200;
+    is $res->content => 'post:foo,bar';
+
+    $res = $cb->(GET "/bounce/");
+    is $res->header('Content-Length') => 5;
+    is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
+    is $res->header('Server')         => "Perl Dancer2 $Dancer2::VERSION";
+
+    $res = $cb->(POST "/");
+    is $res->code    => 200;
+    is $res->content => 'post-home';
+
+    $res = $cb->(POST "/bounce/");
+    is $res->code                     => 200;
+    is $res->content                  => 'post-home';
+    is $res->header('Content-Length') => 9;
+    is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
+    is $res->header('Server')         => "Perl Dancer2 $Dancer2::VERSION";
+};
+
+done_testing();
