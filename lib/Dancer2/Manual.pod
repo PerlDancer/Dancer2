@@ -9,13 +9,14 @@ package Dancer2::Manual;
 
 Dancer2 is a free and open source web application framework written in Perl.
 
-It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more robust
-and extensible fully-OO design.
+It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more
+robust and extensible fully-OO design.
 
-It's designed to be powerful and flexible, but also easy to use - getting up and
-running with your web app is trivial, and an ecosystem of adaptors for common
-template engines, session storage, logging methods and plugins to make
-common tasks easy mean you can do what you want to do, your way, easily.
+It's designed to be powerful and flexible, but also easy to use - getting up
+and running with your web app is trivial, and an ecosystem of adaptors for
+common template engines, session storage, logging methods and plugins to
+make common tasks easy mean you can do what you want to do, your way,
+easily.
 
 =head1 INSTALL
 
@@ -23,9 +24,9 @@ Installation of Dancer2 is simple:
 
     perl -MCPAN -e 'install Dancer2'
 
-Thanks to the magic of cpanminus, if you do not have CPAN.pm configured, or just
-want a quickfire way to get running, the following should work, at least on
-Unix-like systems:
+Thanks to the magic of cpanminus, if you do not have CPAN.pm configured, or
+just want a quickfire way to get running, the following should work, at
+least on Unix-like systems:
 
     wget -O - http://cpanmin.us | sudo perl - Dancer2
 
@@ -46,33 +47,32 @@ View the web application at:
 
     http://localhost:3000
 
-Note that as Dancer2 supports the L<PSGI> specification, you can also use the C<plackup> tool
-(provided by L<Plack>) for launching the application:
+Note that as Dancer2 supports the L<PSGI> specification, you can also use
+the C<plackup> tool (provided by L<Plack>) for launching the application:
 
     plackup ./bin/app.pl -p 5000
 
 =head1 USAGE
 
-When Dancer2 is imported to a script, that script becomes a webapp, and at this
-point, all the script has to do is declare a list of B<routes>.  A route
-handler is composed by an HTTP method, a path pattern and a code block.
-C<strict> and C<warnings> pragmas are also imported with Dancer2.
+When Dancer2 is imported to a script, that script becomes a webapp, and at
+this point, all the script has to do is declare a list of B<routes>.  A
+route handler is composed by an HTTP method, a path pattern and a code
+block.  C<strict> and C<warnings> pragmas are also imported with Dancer2.
 
-The code block given to the route handler has to return a string which will be
-used as the content to render to the client.
+The code block given to the route handler has to return a string which will
+be used as the content to render to the client.
 
-Routes are defined for a given HTTP method. For each method
-supported, a keyword is exported by the module.
+Routes are defined for a given HTTP method. For each method supported, a
+keyword is exported by the module.
 
-The following is an example of a route definition. The route is defined for the
-method 'get', so only GET requests will be honoured by that route:
+The following is an example of a route definition. The route is defined for
+the method 'get', so only GET requests will be honoured by that route:
 
     get '/hello/:name' => sub {
         # do something
 
         return "Hello ".param('name');
     };
-
 
 =head2 HTTP Methods
 
@@ -87,9 +87,9 @@ GET requests should be used for typical "fetch" requests - retrieving
 information.  They should not be used for requests which change data on the
 server or have other effects.
 
-When defining a route handler for the GET method, Dancer2 automatically defines
-a route handler for the HEAD method (in order to honour HEAD requests for each
-of your GET route handlers).
+When defining a route handler for the GET method, Dancer2 automatically
+defines a route handler for the HEAD method (in order to honour HEAD
+requests for each of your GET route handlers).
 
 To define a GET action, use the L<get|Dancer2::Manual/get> keyword.
 
@@ -102,14 +102,13 @@ To define a POST action, use the L<post|Dancer2::Manual/post> keyword.
 To define a PUT action, use the L<put|Dancer2::Manual/put> keyword.
 
 a PUT request should replace the existing resource with that specified - for
-instance - if you wanted to just update an email address for a user, you'd have
-to specify all attributes of the user again; to make a partial update, a
-PATCH request is used.
+instance - if you wanted to just update an email address for a user, you'd
+have to specify all attributes of the user again; to make a partial update,
+a PATCH request is used.
 
 =item B<PATCH> The PATCH method updates some attributes of an existing resource.
 
-To define a PATCH action, use the L<patch|Dancer2::Manual/patch>
-keyword.
+To define a PATCH action, use the L<patch|Dancer2::Manual/patch> keyword.
 
 =item B<DELETE> The DELETE method requests that the origin server delete the
 resource identified by the Request-URI.
@@ -119,8 +118,8 @@ To define a DELETE action, use the L<del|Dancer2::Manual/del> keyword.
 =back
 
 To define a route for multiple methods you can also use the special keyword
-B<any>. This example illustrates how to define a route for both GET and
-POST methods:
+B<any>. This example illustrates how to define a route for both GET and POST
+methods:
 
     any ['get', 'post'] => '/myaction' => sub {
         # code
@@ -132,22 +131,20 @@ Or even, a route handler that would match any HTTP methods:
         # code
     };
 
-
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the C<params> keyword, which returns a hashref.
-This hashref is a merge of the route pattern matches and the request params.
+through the C<params> keyword, which returns a hashref.  This hashref is a
+merge of the route pattern matches and the request params.
 
-You can have more details about how params are built and how to access them in
-the L<Dancer2::Core::Request> documentation.
+You can have more details about how params are built and how to access them
+in the L<Dancer2::Core::Request> documentation.
 
 =head3 Named Matching
 
-A route pattern can contain one or more tokens (a word prefixed with ':'). Each
-token found in a route pattern is used as a named-pattern match. Any match will
-be set in the params hashref.
-
+A route pattern can contain one or more tokens (a word prefixed with ':').
+Each token found in a route pattern is used as a named-pattern match. Any
+match will be set in the params hashref.
 
     get '/hello/:name' => sub {
         "Hey ".param('name').", welcome here!";
@@ -159,11 +156,10 @@ Tokens can be optional, for example:
         defined param('name') ? "Hello there ".param('name') : "whoever you are!";
     };
 
-
 =head3 Wildcards Matching
 
-A route can contain a wildcard (represented by a C<*>). Each wildcard match will
-be returned in an arrayref, accessible via the C<splat> keyword.
+A route can contain a wildcard (represented by a C<*>). Each wildcard match
+will be returned in an arrayref, accessible via the C<splat> keyword.
 
     get '/download/*.*' => sub {
         my ($file, $ext) = splat;
@@ -174,8 +170,8 @@ be returned in an arrayref, accessible via the C<splat> keyword.
 
 A route can be defined with a Perl regular expression.
 
-In order to tell Dancer2 to consider the route as a real regexp, the route must
-be defined explicitly with C<qr{}>, like the following:
+In order to tell Dancer2 to consider the route as a real regexp, the route
+must be defined explicitly with C<qr{}>, like the following:
 
     get qr{/hello/([\w]+)} => sub {
         my ($name) = splat;
@@ -184,8 +180,8 @@ be defined explicitly with C<qr{}>, like the following:
 
 =head3 Conditional Matching
 
-Routes may include some matching conditions (on the useragent and the hostname
-at the moment):
+Routes may include some matching conditions (on the useragent and the
+hostname at the moment):
 
     get '/foo', {agent => 'Songbird (\d\.\d)[\d\/]*?'} => sub {
       'foo method for songbird'
@@ -210,8 +206,8 @@ You can unset the prefix value
     prefix '/'; # or: prefix undef;
     get '/page1' => sub {}; # will match /page1
 
-Alternatively, to prevent you from ever forgetting to undef the prefix,
-you can use lexical prefix like this:
+Alternatively, to prevent you from ever forgetting to undef the prefix, you
+can use lexical prefix like this:
 
     prefix '/home' => sub {
       get '/page1' => sub {}; # will match '/home/page1'
@@ -221,8 +217,8 @@ you can use lexical prefix like this:
 
 =head2 Action Skipping
 
-An action can choose not to serve the current request and ask Dancer2 to process
-the request with the next matching route.
+An action can choose not to serve the current request and ask Dancer2 to
+process the request with the next matching route.
 
 This is done with the B<pass> keyword, like in the following example
 
@@ -235,30 +231,28 @@ This is done with the B<pass> keyword, like in the following example
         "I say a number: ".params->{number};
     };
 
-
-
 =head2 Default Error Pages
 
 When an error is rendered (the action responded with a status code different
-than 200), Dancer2 first looks in the public directory for an HTML file matching
-the error code (eg: 500.html or 404.html).
+than 200), Dancer2 first looks in the public directory for an HTML file
+matching the error code (eg: 500.html or 404.html).
 
 If such a file exists, it's used to render the error, otherwise, a default
 error page will be rendered on the fly.
 
 =head2 Execution Errors
 
-When an error occurs during the route execution, Dancer2 will render an error
-page with the HTTP status code 500.
+When an error occurs during the route execution, Dancer2 will render an
+error page with the HTTP status code 500.
 
-It's possible either to display the content of the error message or to hide it
-with a generic error page.
+It's possible either to display the content of the error message or to hide
+it with a generic error page.
 
-This is a choice left to the end-user and can be set with the
-B<show_errors> setting.
+This is a choice left to the end-user and can be set with the B<show_errors>
+setting.
 
-Note that you can also choose to consider all warnings in your route handlers
-as errors when the setting B<warnings> is set to 1.
+Note that you can also choose to consider all warnings in your route
+handlers as errors when the setting B<warnings> is set to 1.
 
 =head1 HOOKS
 
@@ -268,15 +262,13 @@ specific moments during the resolution of a request.
 Many of them are supported by the core but plugins and engines can also
 define their own.
 
-
 =head2 Request workflow
 
 C<before> hooks are evaluated before each request within the context of the
-request and receives as argument the app (a L<Dancer2::Core::App>
-object).
+request and receives as argument the app (a L<Dancer2::Core::App> object).
 
-It's possible to define variables which will be accessible in the action blocks
-with the keyword C<var>.
+It's possible to define variables which will be accessible in the action
+blocks with the keyword C<var>.
 
     hook before => sub {
         var note => 'Hi there';
@@ -304,11 +296,11 @@ C<after> hooks are evaluated after the response has been built by a route
 handler, and can alter the response itself, just before it's sent to the
 client.
 
-This hook runs after a request has been processed, but before the response is
-sent.
+This hook runs after a request has been processed, but before the response
+is sent.
 
-It receives a L<Dancer2::Core::Response> object, which it can modify
-if it needs to make changes to the response which is about to be sent.
+It receives a L<Dancer2::Core::Response> object, which it can modify if it
+needs to make changes to the response which is about to be sent.
 
 The filter is given the response object as its first argument:
 
@@ -319,23 +311,23 @@ The filter is given the response object as its first argument:
 
 =head2 Templates
 
-C<before_template_render> hooks are called whenever a template is going to be
-processed, they are passed the tokens hash which they can alter.
+C<before_template_render> hooks are called whenever a template is going to
+be processed, they are passed the tokens hash which they can alter.
 
     hook before_template_render => sub {
         my $tokens = shift;
         $tokens->{foo} = 'bar';
     }
 
-The tokens hash will then be passed to the template with all the modifications
-performed by the filter. This is a good way to setup some global vars you like
-to have in all your templates, like the name of the user logged in or a
-section name.
+The tokens hash will then be passed to the template with all the
+modifications performed by the filter. This is a good way to setup some
+global vars you like to have in all your templates, like the name of the
+user logged in or a section name.
 
-C<after_template_render> hooks are called after the view has been rendered. They
-receive as their first argument the reference to the content that has been
-produced. This can be used to post-process the content rendered by the template
-engine.
+C<after_template_render> hooks are called after the view has been rendered.
+They receive as their first argument the reference to the content that has
+been produced. This can be used to post-process the content rendered by the
+template engine.
 
     hook after_template_render => sub {
         my $ref_content = shift;
@@ -354,9 +346,10 @@ current tokens hashref and a reference to the current content.
         $ref_conent = \"new content";
     };
 
-C<after_layout_render> hooks are called once the complete content of the view
-has been produced, after the layout has been applied to the content. The
-argument received by the hook is a reference to the complete content string.
+C<after_layout_render> hooks are called once the complete content of the
+view has been produced, after the layout has been applied to the content.
+The argument received by the hook is a reference to the complete content
+string.
 
     hook after_layout_render => sub {
         my $ref_content = shift;
@@ -365,12 +358,12 @@ argument received by the hook is a reference to the complete content string.
 
 =head2 Error handling
 
-When an error is caught by Dancer2's core, an exception object is built (of the
-class L<Dancer2::Core::Error>). This class provides hook to let the user alter
-the error work-flow if needed.
+When an error is caught by Dancer2's core, an exception object is built (of
+the class L<Dancer2::Core::Error>). This class provides hook to let the user
+alter the error work-flow if needed.
 
-C<init_error> hooks are called whenever an error object is built, the object is
-passed to the hook.
+C<init_error> hooks are called whenever an error object is built, the object
+is passed to the hook.
 
     hook init_error => sub {
         my $error = shift;
@@ -388,8 +381,8 @@ receives the error object as its first and unique argument.
         # do something with $error
     };
 
-I<This hook was named B<before_error_render> in Dancer, and is now aliased to
-this hook.>
+I<This hook was named B<before_error_render> in Dancer, and is now aliased
+to this hook.>
 
 C<after_error> hooks are called whenever an error object has been thrown, it
 receives a L<Dancer2::Core::Response> object as the first argument.
@@ -412,20 +405,20 @@ L<Dancer2::Core::App> and the error as arguments.
 =head2 File rendering
 
 Whenever a content is produced out of the parsing of a static file, the
-L<Dancer2::Handler::File> component is used. This component provides two hooks,
-C<before_file_render> and C<after_file_render>.
+L<Dancer2::Handler::File> component is used. This component provides two
+hooks, C<before_file_render> and C<after_file_render>.
 
-C<before_file_render> hooks are called just before starting to parse the file,
-the hook receives as its first argument the file path that is going to be
-processed.
+C<before_file_render> hooks are called just before starting to parse the
+file, the hook receives as its first argument the file path that is going to
+be processed.
 
     hook before_file_render => sub {
         my $path = shift;
     };
 
-C<after_file_render> are called after the file has been parsed and the response
-content produced. It receives the response object (L<Dancer2::Core::Response>)
-produced.
+C<after_file_render> are called after the file has been parsed and the
+response content produced. It receives the response object
+(L<Dancer2::Core::Response>) produced.
 
     hook after_file_render => sub {
        my $response = shift;
@@ -433,8 +426,8 @@ produced.
 
 =head2 Serializers
 
-C<before_serializer> is called before serializing the content, and receives as
-argument the content to serialize.
+C<before_serializer> is called before serializing the content, and receives
+as argument the content to serialize.
 
   hook before_serializer => sub {
     my $content = shift;
@@ -452,25 +445,25 @@ the serialized content as an argument.
 
 =head1 CONFIGURATION AND ENVIRONMENTS
 
-Configuring a Dancer2 application can be done in many ways. The easiest one (and
-maybe the dirtiest) is to put all your settings statements at the top of
-your script, before calling the dance() method.
+Configuring a Dancer2 application can be done in many ways. The easiest one
+(and maybe the dirtiest) is to put all your settings statements at the top
+of your script, before calling the dance() method.
 
 Other ways are possible.  You could write all your setting calls in the file
 `appdir/config.yml'. You would, of course, have write the conffile in YAML.
 
-While better than the first option, it's still not perfect.  You can't easily
-switch from an environment to another (for example, from development to
-production) without rewriting the config.yml file.  The best way is to have
-one config.yml file with default global settings, like the following:
+While better than the first option, it's still not perfect.  You can't
+easily switch from an environment to another (for example, from development
+to production) without rewriting the config.yml file.  The best way is to
+have one config.yml file with default global settings, like the following:
 
     # appdir/config.yml
     logger: 'file'
     layout: 'main'
 
 And then write as many environment files as you like in appdir/environments.
-That way, the appropriate environment config file will be loaded according to
-the running environment (if none is specified, 'development' is assumed).
+That way, the appropriate environment config file will be loaded according
+to the running environment (if none is specified, 'development' is assumed).
 
 Note that you can change the running environment using the --environment
 commandline switch.
@@ -491,13 +484,13 @@ And in a production one:
     show_errors:  0
 
 Please note that you are not limited to writing configuration files in YAML.
-Dancer2 supports any file format that is supported by L<Config::Any>, such as
-JSON, XML, INI files, and Apache-style config files.
+Dancer2 supports any file format that is supported by L<Config::Any>, such
+as JSON, XML, INI files, and Apache-style config files.
 
 =head2 Accessing configuration data
 
-A Dancer2 application can access the information from its config file easily with
-the config keyword:
+A Dancer2 application can access the information from its config file easily
+with the config keyword:
 
     get '/appname' => sub {
         return "This is " . config->{appname};
@@ -513,14 +506,16 @@ A setting is key/value pair assigned by the keyword B<set>:
     set setting_name => 'setting_value';
 
 More usefully, settings can be defined in a configuration file.
-Environment-specific settings can also be defined in environment-specific files
-(for instance, you do not want to show error stacktraces in production, and might want extra
-logging in development).  See the cookbook for examples.
+Environment-specific settings can also be defined in environment-specific
+files (for instance, you do not want to show error stacktraces in
+production, and might want extra logging in development).  See the cookbook
+for examples.
 
 =head2 Serializers
 
-When writing a webservice, data serialization/deserialization is a common issue
-to deal with. Dancer2 can automatically handle that for you, via a serializer.
+When writing a webservice, data serialization/deserialization is a common
+issue to deal with. Dancer2 can automatically handle that for you, via a
+serializer.
 
 When setting up a serializer, a new behaviour is authorized for any route
 handler you define: any non-scalar response will be rendered as a serialized
@@ -538,12 +533,12 @@ Here is an example of a route handler that will return a HashRef
         }
     };
 
-As soon as the content is not a scalar - and a serializer is set, which is not
-the case by default - Dancer2 renders the response via the current
+As soon as the content is not a scalar - and a serializer is set, which is
+not the case by default - Dancer2 renders the response via the current
 serializer.
 
-Hence, with the JSON serializer set, the route handler above would result in a
-content like the following:
+Hence, with the JSON serializer set, the route handler above would result in
+a content like the following:
 
     {"number":100234,"foo":42,"list":["one","two","three"]}
 
@@ -571,16 +566,14 @@ B<Accept-type> header of the request.
 
 =back
 
-
-
 =head2 Logging
 
-It's possible to log messages sent by the application. In the current version,
-only one method is possible for logging messages but future releases may add
-additional logging methods, for instance logging to syslog.
+It's possible to log messages sent by the application. In the current
+version, only one method is possible for logging messages but future
+releases may add additional logging methods, for instance logging to syslog.
 
-In order to enable the logging system for your application, you first have to
-start the logger engine in your config file:
+In order to enable the logging system for your application, you first have
+to start the logger engine in your config file:
 
     logger: 'file'
 
@@ -593,8 +586,8 @@ Then you can choose which kind of messages you want to actually log:
     log: 'error'     # will log only errors
 
 A directory appdir/logs will be created and will host one logfile per
-environment. The log message contains the time it was written, the PID of the
-current process, the message and the caller information (file and line).
+environment. The log message contains the time it was written, the PID of
+the current process, the message and the caller information (file and line).
 
 To log messages, use the C<debug>, C<info>, C<warning> and C<error> methods,
 for instance:
@@ -605,26 +598,28 @@ for instance:
 
 =head3 Views
 
-It's possible to render the action's content with a template; this is called a
-view. The `appdir/views' directory is the place where views are located.
+It's possible to render the action's content with a template; this is called
+a view. The `appdir/views' directory is the place where views are located.
 
-You can change this location by changing the setting 'views', for instance if
-your templates are located in the 'templates' directory, do the following:
+You can change this location by changing the setting 'views', for instance
+if your templates are located in the 'templates' directory, do the
+following:
 
     set views => path(dirname(__FILE__), 'templates');
 
-By default, the internal template engine is used (L<Dancer2::Template::Simple>)
-but you may want to upgrade to Template::Toolkit. If you do so, you have to
-enable this engine in your settings as explained in
-L<Dancer2::Template::TemplateToolkit>. If you do so, you'll also have to import
-the L<Template> module in your application code.
+By default, the internal template engine is used
+(L<Dancer2::Template::Simple>) but you may want to upgrade to
+Template::Toolkit. If you do so, you have to enable this engine in your
+settings as explained in L<Dancer2::Template::TemplateToolkit>. If you do
+so, you'll also have to import the L<Template> module in your application
+code.
 
 All views must have a '.tt' extension. This may change in the future.
 
-In order to render a view, just call the 'template' keyword at the end of the
-action by giving the view name and the HASHREF of tokens to interpolate in the
-view (note that the request, session and route params are automatically
-accessible in the view, named request, session and params):
+In order to render a view, just call the 'template' keyword at the end of
+the action by giving the view name and the HASHREF of tokens to interpolate
+in the view (note that the request, session and route params are
+automatically accessible in the view, named request, session and params):
 
     use Dancer2;
     use Template;
@@ -650,13 +645,13 @@ And the appdir/views/hello.tt view can contain the following code:
 =head3 Layouts
 
 A layout is a special view, located in the 'layouts' directory (inside the
-views directory) which must have a token named `content'. That token marks the
-place where to render the action view. This lets you define a global layout
-for your actions. Any tokens that you defined when you called the 'template'
-keyword are available in the layouts, as well as the standard session,
-request, and params tokens. This allows you to insert per-page content into
-the HTML boilerplate, such as page titles, current-page tags for navigation,
-etc.
+views directory) which must have a token named `content'. That token marks
+the place where to render the action view. This lets you define a global
+layout for your actions. Any tokens that you defined when you called the
+'template' keyword are available in the layouts, as well as the standard
+session, request, and params tokens. This allows you to insert per-page
+content into the HTML boilerplate, such as page titles, current-page tags
+for navigation, etc.
 
 Here is an example of a layout: views/layouts/main.tt:
 
@@ -683,8 +678,8 @@ This layout can be used like the following:
         template 'index' => { page_title => "Your website Homepage" };
     };
 
-Of course, if a layout is set, it can also be disabled for a specific action,
-like the following:
+Of course, if a layout is set, it can also be disabled for a specific
+action, like the following:
 
     use Dancer2;
     set layout => 'main';
@@ -718,26 +713,26 @@ It's possible for a route handler to send a static file, as follows:
         send_file $file;
     };
 
-Or even if you want your index page to be a plain old index.html file, just do:
+Or even if you want your index page to be a plain old index.html file, just
+do:
 
     get '/' => sub {
         send_file '/index.html'
     };
 
-
 =head1 EXPORTS
 
 By default, C<use Dancer2> exports all the DSL keywords and sets up the
-webapp under the name of the current package. The following tags control exports
-and webapp namespace.
+webapp under the name of the current package. The following tags control
+exports and webapp namespace.
 
 =over 4
 
 =item B<!keyword>
 
 If you want to prevent Dancer2 from exporting specific keywords; perhaps you
-plan to implement them yourself in a different way, or they clash with another
-module you're loading, you can simply exclude them:
+plan to implement them yourself in a different way, or they clash with
+another module you're loading, you can simply exclude them:
 
     use Test::More;
     use Dancer2 qw(!pass);
@@ -747,10 +742,10 @@ The above would import all keywords as normal, with the exception of C<pass>.
 =item B<appname>
 
 A larger application may split its source between several packages to aid
-maintainability. Dancer2 will create a separate application for each package,
-each having separate hooks, config and/or engines. You can force Dancer2 to
-collect the route and hooks into a single application with the C<appname>
-tag; e.g.
+maintainability. Dancer2 will create a separate application for each
+package, each having separate hooks, config and/or engines. You can force
+Dancer2 to collect the route and hooks into a single application with the
+C<appname> tag; e.g.
 
     package MyApp;
     use Dancer2;
@@ -760,22 +755,22 @@ tag; e.g.
     use Dancer2 appname => MyApp;
     get '/bar' => sub {...};
 
-The above would add the C<bar> route to the MyApp application. Dancer2 will not
-create an application with the name C<MyApp::Private>.
+The above would add the C<bar> route to the MyApp application. Dancer2 will
+not create an application with the name C<MyApp::Private>.
 
 =back
 
 When you C<use Dancer2>, you get an C<import> method added into the current
 package. This B<will> override previously declared import methods from other
-sources, such as L<Exporter>. Dancer2 applications support the following tags
-on import:
+sources, such as L<Exporter>. Dancer2 applications support the following
+tags on import:
 
 =over 4
 
 =item B<with>
 
-The C<with> tag allows an app to pass one or more config entries to another app,
-when it C<use>s it.
+The C<with> tag allows an app to pass one or more config entries to another
+app, when it C<use>s it.
 
     package MyApp;
     use Dancer2;
@@ -786,8 +781,8 @@ when it C<use>s it.
 In this example, the session engine is passed to the C<Blog> app. That way,
 anything done in the session will be shared between both apps.
 
-Anything that is defined in the config entry can be passed that way. If we want
-to pass the whole config object, it can be done like so:
+Anything that is defined in the config entry can be passed that way. If we
+want to pass the whole config object, it can be done like so:
 
     use SomeApp with => { %{config()} };
 
@@ -846,11 +841,10 @@ In the case you have stored something else than a Scalar in your cookie:
         return ($values{token}, $values{token_secret});
     };
 
-
 =head2 cookie
 
-Accesses a cookie value (or sets it). Note that this method will
-eventually be preferred over C<set_cookie>.
+Accesses a cookie value (or sets it). Note that this method will eventually
+be preferred over C<set_cookie>.
 
     cookie lang => "fr-FR";              # set a cookie and return its value
     cookie lang => "fr-FR", expires => "2 hours";   # extra cookie info
@@ -860,8 +854,8 @@ If your cookie value is a key/value URI string, like
 
     token=ABC&user=foo
 
-C<cookie> will only return the first part (C<token=ABC>) if called in scalar context.
-Use list context to fetch them all:
+C<cookie> will only return the first part (C<token=ABC>) if called in scalar
+context.  Use list context to fetch them all:
 
     my @values = cookie "name";
 
@@ -891,8 +885,8 @@ You can use abbreviations for content types. For instance:
         # here we can dump the image with id param('id')
     };
 
-Note that if you want to change the default content-type for every route, you
-have to change the C<content_type> setting instead.
+Note that if you want to change the default content-type for every route,
+you have to change the C<content_type> setting instead.
 
 =head2 dance
 
@@ -900,7 +894,8 @@ Alias for the C<start> keyword.
 
 =head2 dancer_version
 
-Returns the version of Dancer. If you need the major version, do something like:
+Returns the version of Dancer. If you need the major version, do something
+like:
 
   int(dancer_version);
 
@@ -910,7 +905,8 @@ Logs a message of debug level:
 
     debug "This is a debug message";
 
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log messages go.
+See L<Dancer2::Core::Role::Logger> for details on how to configure where log
+messages go.
 
 =head2 dirname
 
@@ -932,7 +928,8 @@ Logs a message of error level:
 
     error "This is an error message";
 
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log messages go.
+See L<Dancer2::Core::Role::Logger> for details on how to configure where log
+messages go.
 
 =head2 false
 
@@ -941,11 +938,11 @@ Constant that returns a false value (0).
 =head2 forward
 
 Runs an "internal redirect" of the current request to another request. More
-formally; when the C<forward> is executed, the current dispatch of the request
-is aborted, the request is modified (altering query params or request method),
-and the modified request is dispatched again. Any remaining code (route and
-hooks) from the current dispatch will never be run and the modified request's
-dispatch will execute hooks for the new request normally.
+formally; when the C<forward> is executed, the current dispatch of the
+request is aborted, the request is modified (altering query params or
+request method), and the modified request is dispatched again. Any remaining
+code (route and hooks) from the current dispatch will never be run and the
+modified request's dispatch will execute hooks for the new request normally.
 
 It effectively lets you chain routes together in a clean manner.
 
@@ -957,19 +954,20 @@ It effectively lets you chain routes together in a clean manner.
         forward "/articles/" . params->{article_id};
     };
 
-In the above example, the users that reach I</demo/articles/30> will actually
-reach I</articles/30> but we've changed the database to demo before.
+In the above example, the users that reach I</demo/articles/30> will
+actually reach I</articles/30> but we've changed the database to demo
+before.
 
 This is pretty cool because it lets us retain our paths and offer a demo
 database by merely going to I</demo/...>.
 
-You'll notice that in the example we didn't indicate whether it was B<GET> or
-B<POST>. That is because C<forward> chains the same type of route the user
-reached. If it was a B<GET>, it will remain a B<GET> (but if you do need to
-change the method, you can do so; read on below for details.)
+You'll notice that in the example we didn't indicate whether it was B<GET>
+or B<POST>. That is because C<forward> chains the same type of route the
+user reached. If it was a B<GET>, it will remain a B<GET> (but if you do
+need to change the method, you can do so; read on below for details.)
 
-B<WARNING> : Any code after a C<forward> is ignored, until the end of the route.
-It's not necessary to use C<return> with C<forward> anymore.
+B<WARNING> : Any code after a C<forward> is ignored, until the end of the
+route.  It's not necessary to use C<return> with C<forward> anymore.
 
     get '/foo/:article_id' => sub {
         if ($condition) {
@@ -986,14 +984,14 @@ something like:
 
     forward '/home?authorized=1';
 
-But C<forward> supports an optional HashRef with parameters to be added
-to the actual parameters:
+But C<forward> supports an optional HashRef with parameters to be added to
+the actual parameters:
 
     forward '/home', { authorized => 1 };
 
-Finally, you can add some more options to the C<forward> method, in a
-third argument, also as a HashRef. That option is currently
-only used to change the method of your request. Use with caution.
+Finally, you can add some more options to the C<forward> method, in a third
+argument, also as a HashRef. That option is currently only used to change
+the method of your request. Use with caution.
 
     forward '/home', { auth => 1 }, { method => 'POST' };
 
@@ -1003,8 +1001,8 @@ Deserializes a Data::Dumper structure.
 
 =head2 from_json ($structure, \%options)
 
-Deserializes a JSON structure. Can receive optional arguments. Those arguments
-are valid L<JSON> arguments to change the behaviour of the default
+Deserializes a JSON structure. Can receive optional arguments. Those
+arguments are valid L<JSON> arguments to change the behaviour of the default
 C<JSON::from_json> function.
 
 =head2 from_yaml ($structure)
@@ -1021,13 +1019,12 @@ Defines a route for HTTP B<GET> requests to the given path:
 
 Note that a route to match B<HEAD> requests is automatically created as well.
 
-
 =head2 halt
 
 Sets a response object with the content given.
 
-When used as a return value from a filter, this breaks the execution flow and
-renders the response immediately:
+When used as a return value from a filter, this breaks the execution flow
+and renders the response immediately:
 
     hook before => sub {
         if ($some_condition) {
@@ -1042,8 +1039,8 @@ renders the response immediately:
     };
 
 B<WARNING> : Issuing a halt immediately exits the current route, and perform
-the halt. Thus, any code after a halt is ignored, until the end of the route.
-So it's not necessary anymore to use C<return> with halt.
+the halt. Thus, any code after a halt is ignored, until the end of the
+route.  So it's not necessary anymore to use C<return> with halt.
 
 =head2 headers
 
@@ -1061,8 +1058,8 @@ adds a custom header to response:
         header 'x-my-header' => 'shazam!';
     }
 
-Note that it will overwrite the old value of the header, if any. To avoid that,
-see L</push_header>.
+Note that it will overwrite the old value of the header, if any. To avoid
+that, see L</push_header>.
 
 =head2 push_header
 
@@ -1097,8 +1094,8 @@ messages go.
 
 =head2 load
 
-Loads one or more perl scripts in the current application's namespace. Syntactic
-sugar around Perl's C<require>:
+Loads one or more perl scripts in the current application's namespace.
+Syntactic sugar around Perl's C<require>:
 
     load 'UserActions.pl', 'AdminActions.pl';
 
@@ -1130,11 +1127,11 @@ commonly-used methods are summarized below:
 =head2 params
 
 I<This method should be called from a route handler>.
-It's an alias for the
-L<Dancer2::Core::Request params accessor|Dancer2::Core::Request/"params-source">.
-It returns a hash (in list context) or a hash reference (in scalar context)
-to all defined parameters. Check C<param> below to
-access quickly to a single parameter value.
+It's an alias for the L<Dancer2::Core::Request params
+accessor|Dancer2::Core::Request/"params-source">.  It returns a hash (in
+list context) or a hash reference (in scalar context) to all defined
+parameters. Check C<param> below to access quickly to a single parameter
+value.
 
 =head2 param
 
@@ -1150,12 +1147,12 @@ This method is an accessor to the parameters hash table.
 =head2 pass
 
 I<This method should be called from a route handler>.
-Tells Dancer to pass the processing of the request to the next
-matching route.
+Tells Dancer to pass the processing of the request to the next matching
+route.
 
 B<WARNING> : Issuing a pass immediately exits the current route, and perform
-the pass. Thus, any code after a pass is ignored, until the end of the route.
-So it's not necessary anymore to use C<return> with pass.
+the pass. Thus, any code after a pass is ignored, until the end of the
+route.  So it's not necessary anymore to use C<return> with pass.
 
     get '/some/route' => sub {
         if (...) {
@@ -1172,18 +1169,17 @@ Defines a route for HTTP B<PATCH> requests to the given URL:
 
     patch '/resource' => sub { ... };
 
-(C<PATCH> is a relatively new and not-yet-common HTTP verb, which is intended to
-work as a "partial-PUT", transferring just the changes; please see
-L<http://tools.ietf.org/html/rfc5789|RFC5789> for further details.)
+(C<PATCH> is a relatively new and not-yet-common HTTP verb, which is
+intended to work as a "partial-PUT", transferring just the changes; please
+see L<http://tools.ietf.org/html/rfc5789|RFC5789> for further details.)
 
-Please be aware that, if you run your app in standalone mode, C<PATCH> requests
-will not reach your app unless you have a new version of L<HTTP::Server::Simple>
-which accepts C<PATCH> as a valid verb.  The current version at time of writing,
-C<0.44>, does not.  A pull request has been submitted to add this support, which
-you can find at:
+Please be aware that, if you run your app in standalone mode, C<PATCH>
+requests will not reach your app unless you have a new version of
+L<HTTP::Server::Simple> which accepts C<PATCH> as a valid verb.  The current
+version at time of writing, C<0.44>, does not.  A pull request has been
+submitted to add this support, which you can find at:
 
 L<https://github.com/bestpractical/http-server-simple/pull/1>
-
 
 =head2 path
 
@@ -1290,13 +1286,12 @@ You can also force Dancer to return a specific 300-ish HTTP response code:
 
 Returns a L<Dancer2::Core::Request> object representing the current request.
 
-See the L<Dancer2::Core::Request> documentation for the methods you can call, for
-example:
+See the L<Dancer2::Core::Request> documentation for the methods you can
+call, for example:
 
     request->referer;         # value of the HTTP referer header
     request->remote_address;  # user's IP address
     request->user_agent;      # User-Agent header value
-
 
 =head2 send_error
 
@@ -1310,9 +1305,10 @@ Returns a HTTP error.  By default the HTTP code returned is 500:
         }
     }
 
-B<WARNING> : Issuing a send_error immediately exits the current route, and perform
-the send_error. Thus, any code after a send_error is ignored, until the end of the route.
-So it's not necessary anymore to use C<return> with send_error.
+B<WARNING> : Issuing a send_error immediately exits the current route, and
+perform the send_error. Thus, any code after a send_error is ignored, until
+the end of the route.  So it's not necessary anymore to use C<return> with
+send_error.
 
     get '/some/route' => sub {
         if (...) {
@@ -1325,17 +1321,18 @@ So it's not necessary anymore to use C<return> with send_error.
 
 =head2 send_file
 
-Lets the current route handler send a file to the client. Note that
-the path of the file must be relative to the B<public> directory unless you use
-the C<system_path> option (see below).
+Lets the current route handler send a file to the client. Note that the path
+of the file must be relative to the B<public> directory unless you use the
+C<system_path> option (see below).
 
     get '/download/:file' => sub {
         return send_file(params->{file});
     }
 
-B<WARNING> : Issuing a send_file immediately exits the current route, and perform
-the send_file. Thus, any code after a send_file is ignored, until the end of the route.
-So it's not necessary anymore to use C<return> with send_file.
+B<WARNING> : Issuing a send_file immediately exits the current route, and
+perform the send_file. Thus, any code after a send_file is ignored, until
+the end of the route.  So it's not necessary anymore to use C<return> with
+send_file.
 
     get '/some/route' => sub {
         if (...) {
@@ -1346,8 +1343,8 @@ So it's not necessary anymore to use C<return> with send_file.
         }
     };
 
-Send file supports streaming possibility using PSGI streaming. The server should
-support it but normal streaming is supported on most, if not all.
+Send file supports streaming possibility using PSGI streaming. The server
+should support it but normal streaming is supported on most, if not all.
 
     get '/download/:file' => sub {
         return send_file( params->{file}, streaming => 1 );
@@ -1355,8 +1352,8 @@ support it but normal streaming is supported on most, if not all.
 
 You can control what happens using callbacks.
 
-First, C<around_content> allows you to get the writer object and the chunk of
-content read, and then decide what to do with each chunk:
+First, C<around_content> allows you to get the writer object and the chunk
+of content read, and then decide what to do with each chunk:
 
     get '/download/:file' => sub {
         return send_file(
@@ -1371,9 +1368,9 @@ content read, and then decide what to do with each chunk:
         );
     }
 
-You can use C<around> to get all the content (whether a filehandle if it's
-a regular file or a full string if it's a scalar ref) and decide what to do with
-it:
+You can use C<around> to get all the content (whether a filehandle if it's a
+regular file or a full string if it's a scalar ref) and decide what to do
+with it:
 
     get '/download/:file' => sub {
         return send_file(
@@ -1393,7 +1390,8 @@ it:
         );
     }
 
-Or you could use C<override> to control the entire streaming callback request:
+Or you could use C<override> to control the entire streaming callback
+request:
 
     get '/download/:file' => sub {
         return send_file(
@@ -1410,8 +1408,8 @@ Or you could use C<override> to control the entire streaming callback request:
         );
     }
 
-You can also set the number of bytes that will be read at a time (default being
-42K bytes) using C<bytes>:
+You can also set the number of bytes that will be read at a time (default
+being 42K bytes) using C<bytes>:
 
     get '/download/:file' => sub {
         return send_file(
@@ -1421,37 +1419,35 @@ You can also set the number of bytes that will be read at a time (default being
         );
     };
 
-
 The content-type will be set depending on the current MIME types definition
 (see C<mime> if you want to define your own).
 
-If your filename does not have an extension, or you need to force a
-specific mime type, you can pass it to C<send_file> as follows:
+If your filename does not have an extension, or you need to force a specific
+mime type, you can pass it to C<send_file> as follows:
 
     return send_file(params->{file}, content_type => 'image/png');
 
-Also, you can use your aliases or file extension names on
-C<content_type>, like this:
+Also, you can use your aliases or file extension names on C<content_type>,
+like this:
 
     return send_file(params->{file}, content_type => 'png');
 
 For files outside your B<public> folder, you can use the C<system_path>
-switch. Just bear in mind that its use needs caution as it can be
-dangerous.
+switch. Just bear in mind that its use needs caution as it can be dangerous.
 
    return send_file('/etc/passwd', system_path => 1);
 
-If you have your data in a scalar variable, C<send_file> can be useful
-as well. Pass a reference to that scalar, and C<send_file> will behave
-as if there was a file with that contents:
+If you have your data in a scalar variable, C<send_file> can be useful as
+well. Pass a reference to that scalar, and C<send_file> will behave as if
+there was a file with that contents:
 
    return send_file( \$data, content_type => 'image/png' );
 
-Note that Dancer is unable to guess the content type from the data
-contents. Therefore you might need to set the C<content_type>
-properly. For this kind of usage an attribute named C<filename> can be
-useful.  It is used as the Content-Disposition header, to hint the
-browser about the filename it should use.
+Note that Dancer is unable to guess the content type from the data contents.
+Therefore you might need to set the C<content_type> properly. For this kind
+of usage an attribute named C<filename> can be useful.  It is used as the
+Content-Disposition header, to hint the browser about the filename it should
+use.
 
    return send_file( \$data, content_type => 'image/png'
                              filename     => 'onion.png' );
@@ -1521,9 +1517,9 @@ which includes wildcards:
         ...
     };
 
-There is also the extensive splat (A.K.A. "megasplat"), which allows extensive
-greedier matching, available using two asterisks. The additional path is broken
-down and returned as an ArrayRef:
+There is also the extensive splat (A.K.A. "megasplat"), which allows
+extensive greedier matching, available using two asterisks. The additional
+path is broken down and returned as an ArrayRef:
 
     get '/entry/*/tags/**' => sub {
         my ( $entry_id, $tags ) = splat;
@@ -1588,9 +1584,9 @@ L<Dancer2::Core::HTTP/"HTTP CODES">.
 
 =head2 template
 
-Returns the response of processing the given template with the given parameters
-(and optional settings), wrapping it in the default or specified layout too, if
-layouts are in use.
+Returns the response of processing the given template with the given
+parameters (and optional settings), wrapping it in the default or specified
+layout too, if layouts are in use.
 
 An example of a  route handler which returns the result of using template to
 build a response with the current template engine:
@@ -1600,12 +1596,12 @@ build a response with the current template engine:
         return template 'some_view', { token => 'value'};
     };
 
-Note that C<template> simply returns the content, so when you use it in a route
-handler, if execution of the route handler should stop at that point, make
-sure you use 'return' to ensure your route handler returns the content.
+Note that C<template> simply returns the content, so when you use it in a
+route handler, if execution of the route handler should stop at that point,
+make sure you use 'return' to ensure your route handler returns the content.
 
-Since template just returns the result of rendering the template, you can also
-use it to perform other templating tasks, e.g. generating emails:
+Since template just returns the result of rendering the template, you can
+also use it to perform other templating tasks, e.g. generating emails:
 
     post '/some/route' => sub {
         if (...) {
@@ -1622,16 +1618,16 @@ use it to perform other templating tasks, e.g. generating emails:
         }
     };
 
-Compatibility notice: C<template> was changed in version 1.3090 to immediately
-interrupt execution of a route handler and return the content, as it's typically
-used at the end of a route handler to return content.  However, this caused
-issues for some people who were using C<template> to generate emails etc, rather
-than accessing the template engine directly, so this change has been reverted
-in 1.3091.
+Compatibility notice: C<template> was changed in version 1.3090 to
+immediately interrupt execution of a route handler and return the content,
+as it's typically used at the end of a route handler to return content.
+However, this caused issues for some people who were using C<template> to
+generate emails etc, rather than accessing the template engine directly, so
+this change has been reverted in 1.3091.
 
-The first parameter should be a template available in the views directory, the
-second one (optional) is a HashRef of tokens to interpolate, and the third
-(again optional) is a HashRef of options.
+The first parameter should be a template available in the views directory,
+the second one (optional) is a HashRef of tokens to interpolate, and the
+third (again optional) is a HashRef of options.
 
 For example, to disable the layout for a specific request:
 
@@ -1646,9 +1642,9 @@ Or to request a specific layout, of course:
     };
 
 Some tokens are automatically added to your template (C<perl_version>,
-C<dancer_version>, C<settings>, C<request>, C<params>, C<vars> and, if
-you have sessions enabled, C<session>).  Check
-L<Dancer2::Core::Role::Template> for further details.
+C<dancer_version>, C<settings>, C<request>, C<params>, C<vars> and, if you
+have sessions enabled, C<session>).  Check L<Dancer2::Core::Role::Template>
+for further details.
 
 =head2 to_dumper ($structure)
 
@@ -1658,8 +1654,8 @@ Calling this function will B<not> trigger the serialization's hooks.
 
 =head2 to_json ($structure, \%options)
 
-Serializes a structure to JSON. Can receive optional arguments. Thoses arguments
-are valid L<JSON> arguments to change the behaviour of the default
+Serializes a structure to JSON. Can receive optional arguments. Thoses
+arguments are valid L<JSON> arguments to change the behaviour of the default
 C<JSON::to_json> function.
 
 Calling this function will B<not> trigger the serialization's hooks.
@@ -1677,7 +1673,8 @@ Constant that returns a true value (1).
 =head2 upload
 
 Provides access to file uploads.  Any uploaded file is accessible as a
-L<Dancer2::Core::Request::Upload> object. You can access all parsed uploads via:
+L<Dancer2::Core::Request::Upload> object. You can access all parsed uploads
+via:
 
     post '/some/route' => sub {
         my $file = upload('file_input_foo');
@@ -1692,8 +1689,8 @@ keyword will return an Array of Dancer2::Core::Request::Upload objects:
         # $file1 and $file2 are Dancer2::Core::Request::Upload objects
     };
 
-You can also access the raw HashRef of parsed uploads via the current request
-object:
+You can also access the raw HashRef of parsed uploads via the current
+request object:
 
     post '/some/route' => sub {
         my $all_uploads = request->uploads;
@@ -1701,8 +1698,8 @@ object:
         # $all_uploads->{'files_input'} is an ArrayRef of Dancer2::Core::Request::Upload objects
     };
 
-Note that you can also access the filename of the upload received via the params
-keyword:
+Note that you can also access the filename of the upload received via the
+params keyword:
 
     post '/some/route' => sub {
         # params->{'files_input'} is the filename of the file uploaded
@@ -1721,8 +1718,8 @@ Returns a fully-qualified URI for the given path:
 
 =head2 captures
 
-Returns a reference to a copy of C<%+>, if there are named captures in the route
-Regexp.
+Returns a reference to a copy of C<%+>, if there are named captures in the
+route Regexp.
 
 Named captures are a feature of Perl 5.10, and are not supported in earlier
 versions:
@@ -1741,8 +1738,8 @@ versions:
 
 =head2 var
 
-Provides an accessor for variables shared between filters and route handlers.
-Given a key/value pair, it sets a variable:
+Provides an accessor for variables shared between filters and route
+handlers.  Given a key/value pair, it sets a variable:
 
     hook before => sub {
         var foo => 42;
@@ -1772,4 +1769,5 @@ Logs a warning message through the current logger engine:
 
     warning "This is a warning";
 
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log messages go.
+See L<Dancer2::Core::Role::Logger> for details on how to configure where log
+messages go.

@@ -6,8 +6,8 @@ package Dancer2::Config;
 The Dancer2 configuration (as implemented by
 L<Dancer2::Core::Role::ConfigReader>) handles reading and changing the
 configuration of your Dancer2 apps.  This document describes how to
-manipulate Dancer2's configuration settings (through code or by file),
-and to document the various settings that are available in Dancer2.
+manipulate Dancer2's configuration settings (through code or by file), and
+to document the various settings that are available in Dancer2.
 
 =head1 MANIPULATING SETTINGS VIA CODE
 
@@ -23,25 +23,26 @@ You can change a setting with the keyword C<set>:
 =head1 MANIPULATING SETTINGS VIA CONFIGURATION FILES
 
 There's nothing wrong with using C<set> to configure your application.  In
-fact you might have some great reasons for doing so.  For greater flexibility,
-ease of deployment, etc., you should also consider extracting those settings
-into a configuration file.
+fact you might have some great reasons for doing so.  For greater
+flexibility, ease of deployment, etc., you should also consider extracting
+those settings into a configuration file.
 
 =head2 Configuration file path and file names
 
 Dancer2 will first look for the file F<config.ext> (where .ext is the type
-of configuration file you are using) in the root directory of your application.
-This is considered your global Dancer2 config file.  If you do not care to have
-separate settings for production and development environments (B<not> a
-recommended practice!), then this file is all you need.
+of configuration file you are using) in the root directory of your
+application.  This is considered your global Dancer2 config file.  If you do
+not care to have separate settings for production and development
+environments (B<not> a recommended practice!), then this file is all you
+need.
 
 Next, Dancer2 will look in the F<environments> directory for a configuration
 file specific to the platform you are deploying to (F<production.ext> and
-F<development.ext>, for example).  Any settings in these files that are named
-the same as settings in your global configuration file will take precedence
-over those settings in the global file. The rest of the settings are merged
-and Dancer2 uses the combination of settings from the two files as its
-operating configuration.
+F<development.ext>, for example).  Any settings in these files that are
+named the same as settings in your global configuration file will take
+precedence over those settings in the global file. The rest of the settings
+are merged and Dancer2 uses the combination of settings from the two files
+as its operating configuration.
 
 =head2 Supported configuration file formats
 
@@ -50,8 +51,8 @@ L<Config::Any>.  At the time of this writing, that includes YAML (.yml and
 .yaml), JSON (.jsn and .json), INI (.ini), Apache-style configurations (.cnf
 and .conf), XML (.xml), and Perl-style hashes (.pl and .perl).
 
-Make sure you pick the appropriate extension for your configuration file name,
-as Dancer2 guesses the type of format based on the file extension.
+Make sure you pick the appropriate extension for your configuration file
+name, as Dancer2 guesses the type of format based on the file extension.
 
 =head2 Sample configuration files
 
@@ -115,15 +116,15 @@ your Dancer2 applications.
 
 =head3 server (string)
 
-The IP address that the Dancer2 app should bind to.  Default is 0.0.0.0, i.e.
-bind to all available interfaces.
+The IP address that the Dancer2 app should bind to.  Default is 0.0.0.0,
+i.e.  bind to all available interfaces.
 
 =head3 port (int)
 
 The port Dancer2 will listen to.
 
-Default value is 3000. This setting can be changed on the command-line with the
-B<--port> switch.
+Default value is 3000. This setting can be changed on the command-line with
+the B<--port> switch.
 
 =head3 behind_proxy (boolean)
 
@@ -135,8 +136,7 @@ C<redirect>). This is useful if your application is behind a proxy.
 
 =head3 content_type (string)
 
-The default content type of outgoing content.
-Default value is 'text/html'.
+The default content type of outgoing content.  Default value is 'text/html'.
 
 =head3 charset (string)
 
@@ -151,40 +151,39 @@ added to Content-Type response header.
 
 =item *
 
-It makes Unicode bodies in HTTP responses of C<text/*> types to be encoded to
-this charset.
+It makes Unicode bodies in HTTP responses of C<text/*> types to be encoded
+to this charset.
 
 =item *
 
-It also indicates to Dancer2 in which charset the static files and templates are
-encoded.
+It also indicates to Dancer2 in which charset the static files and templates
+are encoded.
 
 =item *
 
-If you're using L<Dancer2::Plugin::Database>, UTF-8 support will automatically be
-enabled for your database - see
+If you're using L<Dancer2::Plugin::Database>, UTF-8 support will
+automatically be enabled for your database - see
 L<Dancer2::Plugin::Database/"AUTOMATIC UTF-8 SUPPORT">
 
 =back
 
-Default value is empty which means don't do anything. HTTP responses
-without charset will be interpreted as ISO-8859-1 by most clients.
+Default value is empty which means don't do anything. HTTP responses without
+charset will be interpreted as ISO-8859-1 by most clients.
 
-You can cancel any charset processing by specifying your own charset
-in Content-Type header or by ensuring that response body leaves your
-handler without Unicode flag set (by encoding it into some 8bit
-charset, for example).
+You can cancel any charset processing by specifying your own charset in
+Content-Type header or by ensuring that response body leaves your handler
+without Unicode flag set (by encoding it into some 8bit charset, for
+example).
 
-Also, since automatically serialized JSON responses have
-C<application/json> Content-Type, you should always encode them by
-hand.
+Also, since automatically serialized JSON responses have C<application/json>
+Content-Type, you should always encode them by hand.
 
 =head3 default_mime_type (string)
 
-Dancer2's L<Dancer2::Core::MIME> module uses C<application/data> as a default
-mime type. This setting lets the user change it. For example, if you
-have a lot of files being served in the B<public> folder that do not
-have an extension, and are text files, set the C<default_mime_type> to
+Dancer2's L<Dancer2::Core::MIME> module uses C<application/data> as a
+default mime type. This setting lets the user change it. For example, if you
+have a lot of files being served in the B<public> folder that do not have an
+extension, and are text files, set the C<default_mime_type> to
 C<text/plain>.
 
 
@@ -192,34 +191,32 @@ C<text/plain>.
 
 =head3 environment (string)
 
-This is the name of the environment that should be used. Standard
-Dancer2 applications have a C<environments> folder with specific
-configuration files for different environments (usually development
-and production environments). They specify different kind of error
-reporting, deployment details, etc. These files are read after the
-generic C<config.yml> configuration file.
+This is the name of the environment that should be used. Standard Dancer2
+applications have a C<environments> folder with specific configuration files
+for different environments (usually development and production
+environments). They specify different kind of error reporting, deployment
+details, etc. These files are read after the generic C<config.yml>
+configuration file.
 
 The running environment can be set with:
 
    set environment => "production";
 
-Note that this variable is also used as a default value if other
-values are not defined.
+Note that this variable is also used as a default value if other values are
+not defined.
 
 =head3 appdir (directory)
 
-This is the path where your application will live.  It's where Dancer2
-will look by default for your config files, templates and static
-content.
+This is the path where your application will live.  It's where Dancer2 will
+look by default for your config files, templates and static content.
 
 It is typically set by C<use Dancer2> to use the same directory as your
 script.
 
 =head3 public (directory)
 
-This is the directory, where static files are stored. Any existing
-file in that directory will be served as a static file, before
-matching any route.
+This is the directory, where static files are stored. Any existing file in
+that directory will be served as a static file, before matching any route.
 
 By default, it points to $appdir/public.
 
@@ -234,16 +231,16 @@ This defaults to $appdir/views.
 
 =head3 template
 
-Allows you to configure which template engine should be used.  For instance, to
-use Template Toolkit, add the following to C<config.yml>:
+Allows you to configure which template engine should be used.  For instance,
+to use Template Toolkit, add the following to C<config.yml>:
 
     template: template_toolkit
 
 
 =head3 layout (string)
 
-The name of the layout to use when rendering view. Dancer2 will look for
-a matching template in the directory $views/layout.
+The name of the layout to use when rendering view. Dancer2 will look for a
+matching template in the directory $views/layout.
 
 Your can override the default layout using the third argument of the
 C<template> keyword. Check C<Dancer2> manpage for details.
@@ -269,8 +266,8 @@ If set to true, tells Dancer2 to consider all warnings as blocking errors.
 
 =head3 traces (boolean)
 
-If set to true, Dancer2 will display full stack traces when a warning or a die
-occurs. (Internally sets Carp::Verbose). Default to false.
+If set to true, Dancer2 will display full stack traces when a warning or a
+die occurs. (Internally sets Carp::Verbose). Default to false.
 
 =head3 server_tokens (boolean)
 
@@ -286,8 +283,8 @@ L<Dancer2::Logger::File>:
 
     logger: File
 
-Or to direct log messages to the console from which you started your Dancer2 app
-with L<Dancer2::Logger::Console>:
+Or to direct log messages to the console from which you started your Dancer2
+app with L<Dancer2::Logger::Console>:
 
     logger: Console
 
@@ -297,23 +294,23 @@ shown below.
 =head3 session (enum)
 
 This setting lets you enable a session engine for your web application. By
-default, sessions are disabled in Dancer2, you must choose a session engine to
-use them.
+default, sessions are disabled in Dancer2, you must choose a session engine
+to use them.
 
 Sessions are configured with a corresponding L</Session engine> section, as
 shown below.
 
 =head3 show_errors (boolean)
 
-If set to true, Dancer2 will render a detailed debug screen whenever an error is
-caught. If set to false, Dancer2 will render the default error page, using
-$public/$error_code.html if it exists or the template specified by the
-C<error_template> setting.
+If set to true, Dancer2 will render a detailed debug screen whenever an
+error is caught. If set to false, Dancer2 will render the default error
+page, using $public/$error_code.html if it exists or the template specified
+by the C<error_template> setting.
 
-The error screen attempts to sanitise sensitive looking information (passwords /
-card numbers in the request, etc) but you still should not have show_errors
-enabled whilst in production, as there is still a risk of divulging details.
-
+The error screen attempts to sanitise sensitive looking information
+(passwords / card numbers in the request, etc) but you still should not have
+show_errors enabled whilst in production, as there is still a risk of
+divulging details.
 
 =head3 error_template (template path)
 
@@ -340,7 +337,6 @@ The code throwing that error.
 
 The logger must be configured in a separate C<engines> section, like so:
 
-
    logger: Console
 
    engines:
@@ -348,13 +344,13 @@ The logger must be configured in a separate C<engines> section, like so:
        Console:
          log_level: core
 
-All loggers support the configuration options below.  See documentation
-for a particular logger for other supported options.
+All loggers support the configuration options below.  See documentation for
+a particular logger for other supported options.
 
 =head3 log_level
 
-This option tells which log messages should be actually
-logged. Possible values are B<core>, B<info>, B<debug>, B<warning> or B<error>.
+This option tells which log messages should be actually logged. Possible
+values are B<core>, B<info>, B<debug>, B<warning> or B<error>.
 
 =over 4
 
@@ -370,9 +366,10 @@ logged. Possible values are B<core>, B<info>, B<debug>, B<warning> or B<error>.
 
 =back
 
-During development, you'll probably want to use C<debug> to see your own debug
-messages, and C<core> if you need to see what Dancer2 is doing.  In production,
-you'll likely want C<error> or C<warning> only, for less-chatty logs.
+During development, you'll probably want to use C<debug> to see your own
+debug messages, and C<core> if you need to see what Dancer2 is doing.  In
+production, you'll likely want C<error> or C<warning> only, for less-chatty
+logs.
 
 =head2 Session engine
 
@@ -389,7 +386,8 @@ The session engine is configured in the C<engines> section.
          is_http_only: 1
 
 See L<Dancer2::Core::Role::SessionFactory> for more detailed documentation
-for these options, or the particular session engine for other supported options.
+for these options, or the particular session engine for other supported
+options.
 
 =head3 cookie_name
 
@@ -398,7 +396,8 @@ C<dancer.session>.  This can be overridden by certain session engines.
 
 =head3 cookie_domain
 
-The domain of the cookie. By default there is no domain defined for the cookie.
+The domain of the cookie. By default there is no domain defined for the
+cookie.
 
 =head3 cookie_path
 
@@ -412,27 +411,25 @@ time.
 
 =head3 is_secure
 
-The user's session ID is stored in a cookie.  If the C<is_secure> setting
-is set to a true value, the cookie will be marked as secure, meaning it should
+The user's session ID is stored in a cookie.  If the C<is_secure> setting is
+set to a true value, the cookie will be marked as secure, meaning it should
 only be sent over HTTPS connections.
 
 =head3 is_http_only
 
-This setting defaults to 1 and instructs the session cookie to be
-created with the C<HttpOnly> option active, meaning that JavaScript
-will not be able to access to its value.
-
+This setting defaults to 1 and instructs the session cookie to be created
+with the C<HttpOnly> option active, meaning that JavaScript will not be able
+to access to its value.
 
 =head2 auto_page (boolean)
 
-For simple pages where you're not doing anything dynamic, but still
-want to use the template engine to provide headers etc, you can use
-the auto_page feature to avoid the need to create a route for each
-page.
+For simple pages where you're not doing anything dynamic, but still want to
+use the template engine to provide headers etc, you can use the auto_page
+feature to avoid the need to create a route for each page.
 
-With C<auto_page> enabled, if the requested path does not match any
-specific route, Dancer2 will check in the views directory for a
-matching template, and use it to satisfy the request if found.
+With C<auto_page> enabled, if the requested path does not match any specific
+route, Dancer2 will check in the views directory for a matching template,
+and use it to satisfy the request if found.
 
 Simply enable auto_page in your config:
 
@@ -442,8 +439,8 @@ Then, if you request C</foo/bar>, Dancer2 will look in the views dir for
 C</foo/bar.tt>.
 
 Dancer2 will honor your C<before_template_render> code, and all default
-variables. They will be accessible and interpolated on automatic
-served pages.
+variables. They will be accessible and interpolated on automatic served
+pages.
 
 =head2 dsl_class
 
@@ -461,15 +458,15 @@ in your module. dsl_class defaults to L<Dancer2::Core::DSL> if not specified
 
 =head2 DANCER_CONFDIR and DANCER_ENVDIR
 
-It's possible to set the configuration directory and environment directory using this two
-environment variables. Setting B<DANCER_CONFDIR> will have the same effect as doing
+It's possible to set the configuration directory and environment directory
+using this two environment variables. Setting B<DANCER_CONFDIR> will have
+the same effect as doing
 
     set confdir => '/path/to/confdir'
 
 and setting B<DANCER_ENVDIR> will be similar to:
 
     set envdir => '/path/to/environments'
-
 
 =head1 SEE ALSO
 
