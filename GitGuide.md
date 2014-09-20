@@ -160,7 +160,7 @@ running, you should install the dependencies required by Dancer2:
 When that is done, you're good to go! You can use dzil to build and test Dancer2:
 
      $ dzil build
-     $ dzil test
+     $ dzil test --no-author
 
 
 ### Patch Submission (Github workflow)
