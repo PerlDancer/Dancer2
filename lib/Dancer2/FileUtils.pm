@@ -1,6 +1,5 @@
-# ABSTRACT: File utility helpers
-
 package Dancer2::FileUtils;
+# ABSTRACT: File utility helpers
 
 use strict;
 use warnings;

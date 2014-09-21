@@ -1,5 +1,5 @@
-# ABSTRACT: Extending Dancer2's DSL with plugins
 package Dancer2::Plugin;
+# ABSTRACT: Extending Dancer2's DSL with plugins
 
 use Moo::Role;
 use Carp 'croak', 'carp';
