@@ -297,7 +297,7 @@ sub dance { shift->start(@_) }
 sub psgi_app {
     my $self = shift;
 
-    $self->runner->psgi_app( [ $self->app ] );
+    $self->app->to_app;
 }
 
 sub to_app { shift->app->to_app }
