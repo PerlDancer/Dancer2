@@ -8,6 +8,8 @@
     * GH #688: Improve testing documentation. (Paul Chochrane)
     * GH #692: Document serving static files using
       Plack::Middleware::Static. (Dávid Kovács @DavsX)
+    * GH #695: Correct Dancer2::Logger::Capture, add test example.
+      (Dávid Kovács @DavsX)
 
 0.150000  2014-08-17 01:35:16CEST+0200 Europe/Amsterdam
 
