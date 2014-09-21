@@ -6,6 +6,8 @@
     * GH #689: Git guide markdown fixes. (Paul Cochrane)
     * GH #690, #691: Doc cleanups. (Paul Cochrane)
     * GH #688: Improve testing documentation. (Paul Chochrane)
+    * GH #692: Document serving static files using
+      Plack::Middleware::Static. (Dávid Kovács @DavsX)
 
 0.150000  2014-08-17 01:35:16CEST+0200 Europe/Amsterdam
 
