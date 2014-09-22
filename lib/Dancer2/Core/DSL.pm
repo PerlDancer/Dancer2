@@ -105,26 +105,7 @@ sub config { shift->app->settings }
 
 sub engine { shift->app->engine(@_) }
 
-=func setting
-
-Lets you define settings and access them:
-    setting('foo' => 42);
-    setting('foo' => 42, 'bar' => 43);
-    my $foo=setting('foo');
-
-If settings were defined returns number of settings.
-
-=cut
-
 sub setting { shift->app->setting(@_) }
-
-=func set ()
-
-alias for L<setting>:
-    set('foo' => '42');
-    my $port=set('port');
-
-=cut
 
 sub set { shift->setting(@_) }
 
@@ -417,10 +398,27 @@ sub to_dumper {
 
 sub log { shift->app->log(@_) }
 
+1;
+
+__END__
+
+=func setting
+
+Lets you define settings and access them:
+    setting('foo' => 42);
+    setting('foo' => 42, 'bar' => 43);
+    my $foo=setting('foo');
+
+If settings were defined returns number of settings.
+
+=func set ()
+
+alias for L<setting>:
+    set('foo' => '42');
+    my $port=set('port');
+
 =head1 SEE ALSO
 
 L<http://advent.perldancer.org/2010/18>
 
 =cut
-
-1;
