@@ -102,6 +102,28 @@ for my $code ( keys %$HTTP_CODES ) {
 
 $HTTP_CODES->{error} = $HTTP_CODES->{internal_server_error};
 
+sub status {
+    my ( $class, $status ) = @_;
+    return if ! defined $status;
+    return $status if $status =~ /^\d+$/;
+    if ( exists $HTTP_CODES->{$status} ) {
+        return $HTTP_CODES->{$status};
+    }
+    return;
+}
+
+sub status_message {
+    my ( $class, $status ) = @_;
+    return if ! defined $status;
+    my $code = $class->status($status);
+    return if ! defined $code || ! exists $HTTP_CODES->{$code};
+    return $HTTP_CODES->{ $code };
+}
+
+1;
+
+__END__
+
 =func status(status_code)
 
     Dancer2::Core::HTTP->status(200); # returns 200
@@ -114,18 +136,6 @@ Returns a HTTP status code.  If given an integer, it will return the value it
 received, else it will try to find the appropriate alias and return the correct
 status.
 
-=cut
-
-sub status {
-    my ( $class, $status ) = @_;
-    return if ! defined $status;
-    return $status if $status =~ /^\d+$/;
-    if ( exists $HTTP_CODES->{$status} ) {
-        return $HTTP_CODES->{$status};
-    }
-    return;
-}
-
 =func status_message(status_code)
 
     Dancer2::Core::HTTP->status_message(200); # returns 'OK'
@@ -135,13 +145,3 @@ sub status {
 Returns the HTTP status message for the given status code.
 
 =cut
-
-sub status_message {
-    my ( $class, $status ) = @_;
-    return if ! defined $status;
-    my $code = $class->status($status);
-    return if ! defined $code || ! exists $HTTP_CODES->{$code};
-    return $HTTP_CODES->{ $code };
-}
-
-1;
