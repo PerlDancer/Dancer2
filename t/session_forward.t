@@ -81,7 +81,7 @@ my $base = "http://localhost:3000";
 
 note "Forwards within a single app"; {
     # Register single app as the handler for all LWP requests.
-    LWP::Protocol::PSGI->register( Test::Forward::Single->psgi_app );
+    LWP::Protocol::PSGI->register( Test::Forward::Single->to_app );
     my $ua = LWP::UserAgent->new;
     my $cookies_store = "$tempdir/.cookies.txt";
     $ua->cookie_jar( { file => $cookies_store } );

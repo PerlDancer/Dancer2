@@ -54,7 +54,7 @@ for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
         '/mywebsite/blog' => '/blog',
     };
 
-    my $resp = $dispatcher->dispatch($env)->to_psgi;
+    my $resp = $dispatcher->dispatch($env);
     is $resp->[0], 200, 'got a 200';
     is $resp->[2][0], $expected->{$path}, 'got expected route';
 }
@@ -123,7 +123,7 @@ for
         PATH_INFO      => $path,
     };
 
-    my $resp = $dispatcher->dispatch($env)->to_psgi;
+    my $resp = $dispatcher->dispatch($env);
     is $resp->[0], 200, 'got a 200';
     is $resp->[2][0], $path, 'got expected route';
 }
@@ -158,7 +158,7 @@ my $env = {
 };
 
 like(
-    exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
+    $dispatcher->dispatch($env)->[2][0],
     qr{Exception caught in 'core.app.before_request' filter: Hook error: Can't locate object method "failure"},
     'before filter nonexistent method failure',
 );
@@ -169,10 +169,6 @@ $env = {
     REQUEST_METHOD => 'GET',
     PATH_INFO      => '/',
 };
-
-is( exception { my $resp = $dispatcher->dispatch($env)->to_psgi },
-    undef, 'Successful to_psgi of response',
-);
 
 # test duplicate routes when the path is a regex
 $app = Dancer2::Core::App->new( name => 'main' );

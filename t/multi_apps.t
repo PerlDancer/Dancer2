@@ -19,8 +19,8 @@ use HTTP::Request::Common;
 
 {
     my $app = builder {
-        mount '/wiki'  => MyTestWiki->psgi_app;
-        mount '/forum' => MyTestForum->psgi_app;
+        mount '/wiki'  => MyTestWiki->to_app;
+        mount '/forum' => MyTestForum->to_app;
     };
 
     isa_ok( $app, 'CODE', 'Got app' );

@@ -7,7 +7,7 @@ use HTTP::Request::Common;
 
 subtest 'basic redirects' => sub {
     {
-        package App;
+        package App1;
         use Dancer2;
 
         get '/'         => sub {'home'};
@@ -16,7 +16,7 @@ subtest 'basic redirects' => sub {
         get '/redirect_querystring' => sub { redirect '/login?failed=1' };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App1->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -76,8 +76,7 @@ subtest 'basic redirects' => sub {
 # redirect absolute
 subtest 'absolute and relative redirects' => sub {
     {
-
-        package App;
+        package App2;
         use Dancer2;
 
         get '/absolute_with_host' =>
@@ -86,7 +85,7 @@ subtest 'absolute and relative redirects' => sub {
         get '/relative' => sub { redirect "somewhere/else"; };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App2->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -126,14 +125,14 @@ subtest 'absolute and relative redirects' => sub {
 
 subtest 'redirect behind a proxy' => sub {
     {
-        package App;
+        package App3;
         use Dancer2;
         prefix '/test2';
         set behind_proxy => 1;
         get '/bounce' => sub { redirect '/test2' };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App3->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
@@ -191,14 +190,14 @@ subtest 'redirect behind a proxy' => sub {
 subtest 'redirect behind multiple proxies' => sub {
     {
 
-        package App;
+        package App4;
         use Dancer2;
         prefix '/test2';
         set behind_proxy => 1;
         get '/bounce' => sub { redirect '/test2' };
     }
 
-    my $app = Dancer2->psgi_app;
+    my $app = App4->to_app;
     is( ref $app, 'CODE', 'Got app' );
 
     test_psgi $app, sub {
