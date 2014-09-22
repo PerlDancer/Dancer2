@@ -1,51 +1,5 @@
 package Dancer2::Core::Role::SessionFactory::File;
-
 #ABSTRACT: Role for file-based session factories
-
-=head1 DESCRIPTION
-
-This is a specialized SessionFactory role for storing session
-data in files.
-
-This role manages the files.  Classes consuming it only need to handle
-serialization and deserialization.
-
-Classes consuming this must satisfy three requirements: C<_suffix>,
-C<_freeze_to_handle> and C<_thaw_from_handle>.
-
-
-    package Dancer2::SessionFactory::XYX
-
-    use Moo;
-
-    has _suffix => (
-        is      => 'ro',
-        isa     => 'Str',
-        default => sub { '.xyz' },
-    );
-
-    with 'Dancer2::Core::Role::SessionFactory::File';
-
-    sub _freeze_to_handle {
-        my ($self, $fh, $data) = @_;
-
-        # ... do whatever to get data into $fh
-
-        return;
-    }
-
-    sub _thaw_from_handle {
-        my ($self, $fh) = @_;
-        my $data;
-
-        # ... do whatever to get data from $fh
-
-        return $data;
-    }
-
-    1;
-
-=cut
 
 use strict;
 use warnings;
@@ -70,12 +24,6 @@ requires '_freeze_to_handle';    # given handle and data, serialize it
 #--------------------------------------------------------------------------#
 # Attributes and methods
 #--------------------------------------------------------------------------#
-
-=attr session_dir
-
-Where to store the session files.  Defaults to "./sessions".
-
-=cut
 
 has session_dir => (
     is      => 'ro',
@@ -152,3 +100,54 @@ sub _flush {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+This is a specialized SessionFactory role for storing session
+data in files.
+
+This role manages the files.  Classes consuming it only need to handle
+serialization and deserialization.
+
+Classes consuming this must satisfy three requirements: C<_suffix>,
+C<_freeze_to_handle> and C<_thaw_from_handle>.
+
+
+    package Dancer2::SessionFactory::XYX
+
+    use Moo;
+
+    has _suffix => (
+        is      => 'ro',
+        isa     => 'Str',
+        default => sub { '.xyz' },
+    );
+
+    with 'Dancer2::Core::Role::SessionFactory::File';
+
+    sub _freeze_to_handle {
+        my ($self, $fh, $data) = @_;
+
+        # ... do whatever to get data into $fh
+
+        return;
+    }
+
+    sub _thaw_from_handle {
+        my ($self, $fh) = @_;
+        my $data;
+
+        # ... do whatever to get data from $fh
+
+        return $data;
+    }
+
+    1;
+
+=attr session_dir
+
+Where to store the session files.  Defaults to "./sessions".
+
+=cut
