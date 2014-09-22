@@ -1,0 +1,140 @@
+=pod
+
+=head1 Migration from Dancer1 to Dancer2
+
+This document covers some changes that users will need to be aware of while upgrading from Dancer1 to Dancer2.
+
+=head2 Import Syntax
+
+Dancer2 differs from Dancer1, as it is built on Plack, while Dancer1 is based on the design of the Sinatra framework in Ruby, which allows every module to be run as a development server. Using the 'plackup' command that comes with Plack reads the configuration options in your command line utilities. Thus, the following tags are not needed/valid any more:
+
+ use Dancer2 qw(:syntax);
+ use Dancer2 qw(:tests);
+
+=head2 Apps
+
+1. Dancer2 differs from Dancer1 with respect to handling modules. By default each module is a separate Dancer2 application with its own namespace and variables.
+
+You can set the application name in each of your Dancer2 application modules. Different modules can be tied into the same app by setting the application name to the same value.
+
+To set the appname directive explicitly:
+
+ package myapp;
+ use Dancer2;
+ use myapp::admin;
+
+ hook before => sub {
+     var db => "...";
+ };
+
+ prefix undef;
+ get '/' => sub {...};
+
+ 1;
+
+ package myapp::admin;
+ use Dancer2 appname => "myapp";
+
+ prefix '/admin';
+ get '/' => sub {...};
+
+Without the appname directive, myapp::admin would not have access to var->{db}, in fact, when accessing "/admin" the before hook would not be executed.
+
+2. The following modules can be used to speed up an app in Dancer2 :
+
+L<URL::Encode::XS|https://metacpan.org/pod/URL::Encode::XS> 
+
+L<CGI::Deurl::XS|https://metacpan.org/pod/CGI::Deurl::XS>
+
+L<HTTP::Parser::XS|https://metacpan.org/pod/HTTP::Parser::XS>
+
+Dancer 2 is committed to being a 'pure-perl' langauge and hence, can be run without the C-interpretor. For users looking to increase the speed of their web-applications, third party libraries based on the C language can be used. However, users using these libraries will be unable to fatpack their application ( using App::FatPacker).
+
+=head2 Hooks
+
+C<before> hooks will be called for files in public folder as well.
+
+=head2 Plugins
+
+=head3 plugin_setting
+
+B<plugin_setting>, which returns the configuration of the plugin, can no longer be called outside of C<register> or C<on_plugin_import>
+
+=head2 Session Engines
+
+=head3 Configuration
+
+Configuration is now passed to the constructor of the engine. For example:
+
+ session: "DBIC"
+ engines:
+   session:
+     DBIC:
+       dsn:      "DBI:mysql:database=testing;host=127.0.0.1;port=3306" # DBI Data Source Name
+       schema_class:    "Interchange6::Schema"  # DBIx::Class schema
+
+The following attributes need to be added to the engine class:
+
+ has dsn => (
+     is => 'ro',
+ );
+
+ has schema_class => (
+     is => 'ro',
+ );
+
+=head2 Tests
+
+Dancer2 recommends the use of L<Plack::Test|https://metacpan.org/pod/Plack::Test>, which is the testing module that comes with Plack itself (which is what Dancer2 is built on). Other modules that could be used are L<Test::TCP|https://metacpan.org/pod/Test::TCP> and L<Test::WWW::Mechanize::PSGI|https://metacpan.org/pod/Test::WWW::Mechanize::PSGI>.
+
+=head2 Logs
+
+C<read_logs>, which was used to return an array ref of all log messages issued by the app since the last call to C<read_logs>, can no longer be used with C<Dancer2::Test>.
+L<Dancer2::Logger::Capture|https://metacpan.org/pod/Dancer2::Logger::Capture> can be used for testing, to capture all logs to an object. For example:
+
+  use strict;
+  use warnings;
+  use Test::More import => ['!pass'];
+  use Plack::Test;
+  use HTTP::Request::Common;
+
+ {
+     package App;
+     use Dancer2;
+
+     set log       => 'debug';
+     set logger    => 'capture';
+
+     get '/' => sub {
+         debug 'this is my debug message';
+         return 1;
+     };
+ }
+
+ my $app = Dancer2->psgi_app;
+ is( ref $app, 'CODE', 'Got app' );
+
+ test_psgi $app, sub {
+     my $cb = shift;
+
+     my $res = $cb->( GET '/' );
+     is $res->code, 200;
+
+     my $trap = App->dancer_app->logger_engine->trapper;
+
+     is_deeply $trap->read, [
+         { level => 'debug', message => 'this is my debug message' }
+     ];
+ };
+
+=head2 Routes
+
+Dancer2 requires all routes defined via a string to begin with a leading slash C</>.
+
+For example, 
+
+ get '0' => sub {
+     return "not gonna fly";
+ };
+
+would return an error. The correct way to write this would be to use C<get '/0'>
