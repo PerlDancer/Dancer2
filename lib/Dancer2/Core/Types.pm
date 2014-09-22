@@ -1,5 +1,4 @@
 package Dancer2::Core::Types;
-
 # ABSTRACT: Moo types for Dancer2 core.
 
 use strict;
@@ -16,13 +15,6 @@ our %supported_http_methods = map +( $_ => 1 ), qw<
     GET HEAD POST PUT DELETE OPTIONS PATCH
 >;
 
-
-=head1 DESCRIPTION
-
-Type definitions for Moo attributes. These are defined as subroutines.
-
-=cut
-
 my $single_part = qr/
     [A-Za-z]              # must start with letter
     (?: [A-Za-z0-9_]+ )? # can continue with letters, numbers or underscore
@@ -34,43 +26,6 @@ my $namespace = qr/
     (?: (?: \:\: $single_part )+ )? # optional part starting with double colon
     $
 /x;
-
-=head1 MOO TYPES
-
-=head2 ReadableFilePath($value)
-
-A readable file path.
-
-=head2 WritableFilePath($value)
-
-A writable file path.
-
-=head2 Dancer2Prefix($value)
-
-A proper Dancer2 prefix, which is basically a prefix that starts with a I</>
-character.
-
-=head2 Dancer2AppName($value)
-
-A proper Dancer2 application name.
-
-Currently this only checks for I<\w+>.
-
-=head2 Dancer2Method($value)
-
-An acceptable method supported by Dancer2.
-
-Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
-I<options>.
-
-=head2 Dancer2HTTPMethod($value)
-
-An acceptable HTTP method supported by Dancer2.
-
-Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
-and I<OPTIONS>.
-
-=cut
 
 my $definitions = [
     {   name => 'ReadableFilePath',
@@ -180,6 +135,47 @@ MooX::Types::MooseLike::register_types( $definitions, __PACKAGE__ );
 @EXPORT = ( @MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK );
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Type definitions for Moo attributes. These are defined as subroutines.
+
+=head1 MOO TYPES
+
+=head2 ReadableFilePath($value)
+
+A readable file path.
+
+=head2 WritableFilePath($value)
+
+A writable file path.
+
+=head2 Dancer2Prefix($value)
+
+A proper Dancer2 prefix, which is basically a prefix that starts with a I</>
+character.
+
+=head2 Dancer2AppName($value)
+
+A proper Dancer2 application name.
+
+Currently this only checks for I<\w+>.
+
+=head2 Dancer2Method($value)
+
+An acceptable method supported by Dancer2.
+
+Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
+I<options>.
+
+=head2 Dancer2HTTPMethod($value)
+
+An acceptable HTTP method supported by Dancer2.
+
+Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
+and I<OPTIONS>.
 
 =head1 SEE ALSO
 
