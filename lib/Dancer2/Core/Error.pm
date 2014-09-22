@@ -8,41 +8,6 @@ use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 
-=head1 SYNOPSIS
-
-    # taken from send_file:
-    use Dancer2::Core::Error;
-
-    my $error = Dancer2::Core::Error->new(
-        status    => 404,
-        message => "No such file: `$path'"
-    );
-
-    Dancer2::Core::Response->set($error->render);
-
-=head1 DESCRIPTION
-
-With Dancer2::Core::Error you can throw reasonable-looking errors to the user
-instead of crashing the application and filling up the logs.
-
-This is usually used in debugging environments, and it's what Dancer2 uses as
-well under debugging to catch errors and show them on screen.
-
-
-=method my $error=new Dancer2::Core::Error(status    => 404, message => "No such file: `$path'");
-
-Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES.
-
-=cut
-
-=method supported_hooks ();
-
-=cut
-
-=attr show_errors
-
-=cut
-
 has app => (
     is        => 'ro',
     isa       => InstanceOf['Dancer2::Core::App'],
@@ -60,34 +25,17 @@ has show_errors => (
     },
 );
 
-=attr charset
-=cut
-
 has charset => (
     is      => 'ro',
     isa     => Str,
     default => sub {'UTF-8'},
 );
 
-=attr type
-
-The error type.
-
-=cut
-
 has type => (
     is      => 'ro',
     isa     => Str,
     default => sub {'Runtime Error'},
 );
-
-=attr title
-
-The title of the error page.
-
-This is only an attribute getter, you'll have to set it at C<new>.
-
-=cut
 
 has title => (
     is      => 'ro',
@@ -149,7 +97,6 @@ sub _build_static_page {
     return <$fh>;
 }
 
-
 sub default_error_page {
     my $self = shift;
 
@@ -194,26 +141,11 @@ END_TEMPLATE
     return $output;
 }
 
-
-=attr status
-
-The status that caused the error.
-
-This is only an attribute getter, you'll have to set it at C<new>.
-
-=cut
-
 has status => (
     is      => 'ro',
     default => sub {500},
     isa     => Num,
 );
-
-=attr message
-
-The message of the error page.
-
-=cut
 
 has message => (
     is      => 'ro',
@@ -329,14 +261,6 @@ has content => (
     },
 );
 
-=method throw($response)
-
-Populates the content of the response with the error's information.
-If I<$response> is not given, acts on the I<app>
-attribute's response.
-
-=cut
-
 sub throw {
     my $self = shift;
     $self->set_response(shift) if @_;
@@ -359,17 +283,6 @@ sub throw {
     $self->response->halt(1);
     return $self->response;
 }
-
-=method backtrace
-
-Create a backtrace of the code where the error is caused.
-
-This method tries to find out where the error appeared according to the actual
-error message (using the C<message> attribute) and tries to parse it (supporting
-the regular/default Perl warning or error pattern and the L<Devel::SimpleTrace>
-output) and then returns an error-highlighted C<message>.
-
-=cut
 
 sub backtrace {
     my ($self) = @_;
@@ -431,16 +344,8 @@ sub backtrace {
     }
     $backtrace .= "</pre>";
 
-
     return $backtrace;
 }
-
-
-=method tabulate
-
-Small subroutine to help output nicer.
-
-=cut
 
 sub tabulate {
     my ( $number, $max ) = @_;
@@ -448,13 +353,6 @@ sub tabulate {
     return $number if length($number) == $len;
     return " $number";
 }
-
-=head2 dumper
-
-This uses L<Data::Dumper> to create nice content output with a few predefined
-options.
-
-=cut
 
 sub dumper {
     my $obj = shift;
@@ -474,14 +372,6 @@ sub dumper {
     }
     return $content;
 }
-
-
-=method environment
-
-A main function to render environment information: the caller (using
-C<get_caller>), the settings and environment (using C<dumper>) and more.
-
-=cut
 
 sub environment {
     my ($self) = @_;
@@ -513,13 +403,6 @@ sub environment {
     return "$source $settings $session $env";
 }
 
-
-=method get_caller
-
-Creates a stack trace of callers.
-
-=cut
-
 sub get_caller {
     my ($self) = @_;
     my @stack;
@@ -536,14 +419,6 @@ sub get_caller {
 
 # Given a hashref, censor anything that looks sensitive.  Returns number of
 # items which were "censored".
-
-=func _censor
-
-An private function that tries to censor out content which should be protected.
-
-C<dumper> calls this method to censor things like passwords and such.
-
-=cut
 
 sub _censor {
     my $hash = shift;
@@ -565,15 +440,6 @@ sub _censor {
 
     return $censored;
 }
-
-=func my $string=_html_encode ($string);
-
-Private function that replaces illegal entities in (X)HTML with their
-escaped representations.
-
-html_encode() doesn't do any UTF black magic.
-
-=cut
 
 # Replaces the entities that are illegal in (X)HTML.
 sub _html_encode {
@@ -609,3 +475,104 @@ sub _render_html {
 }
 
 1;
+
+__END__
+
+=head1 SYNOPSIS
+
+    # taken from send_file:
+    use Dancer2::Core::Error;
+
+    my $error = Dancer2::Core::Error->new(
+        status    => 404,
+        message => "No such file: `$path'"
+    );
+
+    Dancer2::Core::Response->set($error->render);
+
+=head1 DESCRIPTION
+
+With Dancer2::Core::Error you can throw reasonable-looking errors to the user
+instead of crashing the application and filling up the logs.
+
+This is usually used in debugging environments, and it's what Dancer2 uses as
+well under debugging to catch errors and show them on screen.
+
+
+=method my $error=new Dancer2::Core::Error(status    => 404, message => "No such file: `$path'");
+
+Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES.
+
+=method supported_hooks ();
+
+=attr show_errors
+
+=attr charset
+
+=attr type
+
+The error type.
+
+=attr title
+
+The title of the error page.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=attr status
+
+The status that caused the error.
+
+This is only an attribute getter, you'll have to set it at C<new>.
+
+=attr message
+
+The message of the error page.
+
+=method throw($response)
+
+Populates the content of the response with the error's information.
+If I<$response> is not given, acts on the I<app>
+attribute's response.
+
+=method backtrace
+
+Create a backtrace of the code where the error is caused.
+
+This method tries to find out where the error appeared according to the actual
+error message (using the C<message> attribute) and tries to parse it (supporting
+the regular/default Perl warning or error pattern and the L<Devel::SimpleTrace>
+output) and then returns an error-highlighted C<message>.
+
+=method tabulate
+
+Small subroutine to help output nicer.
+
+=head2 dumper
+
+This uses L<Data::Dumper> to create nice content output with a few predefined
+options.
+
+=method environment
+
+A main function to render environment information: the caller (using
+C<get_caller>), the settings and environment (using C<dumper>) and more.
+
+=method get_caller
+
+Creates a stack trace of callers.
+
+=func _censor
+
+An private function that tries to censor out content which should be protected.
+
+C<dumper> calls this method to censor things like passwords and such.
+
+=func my $string=_html_encode ($string);
+
+Private function that replaces illegal entities in (X)HTML with their
+escaped representations.
+
+html_encode() doesn't do any UTF black magic.
+
+=cut
