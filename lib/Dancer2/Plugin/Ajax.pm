@@ -8,61 +8,6 @@ use warnings;
 use Dancer2;
 use Dancer2::Plugin;
 
-=head1 SYNOPSIS
-
-    package MyWebApp;
-
-    use Dancer2;
-    use Dancer2::Plugin::Ajax;
-
-    # For GET / POST
-    ajax '/check_for_update' => sub {
-        # ... some Ajax code
-    };
-
-    # For all valid HTTP methods
-    ajax ['get', 'post', ... ] => '/check_for_more' => sub {
-        # ... some Ajax code
-    };
-
-    dance;
-
-=head1 DESCRIPTION
-
-The C<ajax> keyword which is exported by this plugin allow you to define a route
-handler optimized for Ajax queries.
-
-The route handler code will be compiled to behave like the following:
-
-=over 4
-
-=item *
-
-Pass if the request header X-Requested-With doesn't equal XMLHttpRequest
-
-=item *
-
-Disable the layout
-
-=item *
-
-The action built matches POST / GET requests by default. This can be extended by passing it an ArrayRef of allowed HTTP methods.
-
-=back
-
-=head1 CONFIGURATION
-
-By default the plugin will use a content-type of 'text/xml' but this can be overridden
-with plugin setting 'content_type'.
-
-Here is example to use JSON:
-
-  plugins:
-    Ajax:
-      content_type: 'application/json'
-
-=cut
-
 register 'ajax' => sub {
     my ( $dsl, $pattern, @rest ) = @_;
 
@@ -105,3 +50,61 @@ register 'ajax' => sub {
 
 register_plugin;
 1;
+
+__END__
+
+=head1 SYNOPSIS
+
+    package MyWebApp;
+
+    use Dancer2;
+    use Dancer2::Plugin::Ajax;
+
+    # For GET / POST
+    ajax '/check_for_update' => sub {
+        # ... some Ajax code
+    };
+
+    # For all valid HTTP methods
+    ajax ['get', 'post', ... ] => '/check_for_more' => sub {
+        # ... some Ajax code
+    };
+
+    dance;
+
+=head1 DESCRIPTION
+
+The C<ajax> keyword which is exported by this plugin allow you to define a route
+handler optimized for Ajax queries.
+
+The route handler code will be compiled to behave like the following:
+
+=over 4
+
+=item *
+
+Pass if the request header X-Requested-With doesn't equal XMLHttpRequest
+
+=item *
+
+Disable the layout
+
+=item *
+
+The action built matches POST / GET requests by default. This can be
+extended by passing it an ArrayRef of allowed HTTP methods.
+
+=back
+
+=head1 CONFIGURATION
+
+By default the plugin will use a content-type of 'text/xml' but this can be
+overridden with plugin setting 'content_type'.
+
+Here is example to use JSON:
+
+  plugins:
+    Ajax:
+      content_type: 'application/json'
+
+=cut
