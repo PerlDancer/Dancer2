@@ -3,14 +3,6 @@ package Dancer2::Core::Role::StandardResponses;
 
 use Moo::Role;
 
-=method response
-
-Generic method that produces a response given with a code and a message:
-
-    $self->response( $app, 404, "not found" );
-
-=cut
-
 sub response {
     my ( $self, $app, $code, $message ) = @_;
     $app->response->status($code);
@@ -18,33 +10,15 @@ sub response {
     return $message;
 }
 
-=method response_400
-
-Produces a 400 response
-
-=cut
-
 sub response_400 {
     my ( $self, $app ) = @_;
     $self->response( $app, 400, 'Bad Request' );
 }
 
-=method response_404
-
-Produces a 404 response
-
-=cut
-
 sub response_404 {
     my ( $self, $app ) = @_;
     $self->response( $app, 404, 'Not Found' );
 }
-
-=method response_403
-
-Produces a 403 response
-
-=cut
 
 sub response_403 {
     my ( $self, $app ) = @_;
@@ -52,3 +26,25 @@ sub response_403 {
 }
 
 1;
+
+__END__
+
+=method response
+
+Generic method that produces a response given with a code and a message:
+
+    $self->response( $app, 404, "not found" );
+
+=method response_400
+
+Produces a 400 response
+
+=method response_404
+
+Produces a 404 response
+
+=method response_403
+
+Produces a 403 response
+
+=cut
