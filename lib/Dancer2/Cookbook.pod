@@ -15,7 +15,7 @@ web framework.
 =head2 Your first Dancer2 web app
 
 Dancer2 has been designed to be easy to work with - it's trivial to write a
-simple web app, but still has the power to work with larger projects.  To
+simple web app, but still has the power to work with larger projects. To
 start with, let's make an incredibly simple "Hello World" example:
 
     #!/usr/bin/perl
@@ -36,7 +36,7 @@ request
     Why, hello there Bob
 
 (or the name of the machine you ran it on, if it's not your local system),
-and it will say hello.  The C<:name> part is a named parameter within the
+and it will say hello. The C<:name> part is a named parameter within the
 route specification, whose value is made available through C<params>
 - more on that later.
 
@@ -98,7 +98,7 @@ later.
 =head2 Declaring routes
 
 To control what happens when a web request is received by your webapp,
-you'll need to declare C<routes>.  A route declaration indicates which HTTP
+you'll need to declare C<routes>. A route declaration indicates which HTTP
 method(s) it is valid for, the path it matches (e.g. /foo/bar), and a
 coderef to execute, which returns the response.
 
@@ -211,8 +211,8 @@ Then you can set up the template as such:
 For simple "static" pages, you can simply enable the C<auto_page> config
 setting; this means that you need not declare a route handler for those
 pages; if a request is for C</foo/bar>, Dancer2 will check for a matching
-view (e.g.  C</foo/bar.tt> and render it with the default layout etc if
-found.  For full details, see the documentation for the L<auto_page
+view (e.g. C</foo/bar.tt> and render it with the default layout etc if
+found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
 =head2 Why should I use the Ajax plugin
@@ -311,7 +311,7 @@ this:
     session: Simple
 
 The L<Dancer2::Session::Simple> backend implements very simple in-memory
-session storage.  This will be fast and useful for testing, but sessions do
+session storage. This will be fast and useful for testing, but sessions do
 not persist between restarts of your app.
 
 You can also use the L<Dancer2::Session::YAML> backend included with
@@ -325,9 +325,9 @@ Or, to enable session support from within your code,
 
     set session => 'YAML';
 
-(Controlling settings is best done from your config file, though).  'YAML'
+(Controlling settings is best done from your config file, though). 'YAML'
 in the example is the session backend to use; this is shorthand for
-L<Dancer2::Session::YAML>.  There are other session backends you may wish to
+L<Dancer2::Session::YAML>. There are other session backends you may wish to
 use, for instance L<Dancer2::Session::Memcached>, but the YAML backend is a
 simple and easy to use example which stores session data in a YAML file in
 sessions).
@@ -483,7 +483,7 @@ Get complete hash stored in session:
 
 Returning plain content is all well and good for examples or trivial apps,
 but soon you'll want to use templates to maintain separation between your
-code and your content.  Dancer2 makes this easy.
+code and your content. Dancer2 makes this easy.
 
 Your route handlers can use the L<template|Dancer2::Manual/template> keyword
 to render templates.
@@ -537,7 +537,7 @@ A layout is a special view, located in the 'layouts' directory (inside the
 views directory) which must have a token named C<content>. That token marks
 the place where to render the action view. This lets you define a global
 layout for your actions, and have each individual view contain only the
-specific content.  This is a good thing to avoid lots of needless
+specific content. This is a good thing to avoid lots of needless
 duplication of HTML :)
 
 Here is an example of a layout: C<views/layouts/main.tt> :
@@ -659,7 +659,7 @@ settings, like the following:
     layout: 'main'
 
 And then write as many environment files as you like in
-C<appdir/environments>.  That way, the appropriate environment config file
+C<appdir/environments>. That way, the appropriate environment config file
 will be loaded according to the running environment (if none is specified,
 it will be 'development').
 
@@ -716,7 +716,7 @@ scaffold since you did not load the environment and in the default scaffold
 log is defined in the environment and not in config.yml. Hence undef.
 
 If you want to load an environment you need to tell Dancer2 where to look
-for it.  One way to do so, is to tell Dancer2 where the webapp lives. From
+for it. One way to do so, is to tell Dancer2 where the webapp lives. From
 there Dancer2 deduces where the config.yml file is (typically
 C<$webapp/config.yml>).
 
@@ -846,7 +846,7 @@ this, use the B<mutable> serializer, and an appropriate serializer will be
 chosen from the B<Content-Type> header.
 
 It's also possible to return a custom error, using the
-L<send_error|Dancer2/send_error> keyword..  When you don't use a serializer,
+L<send_error|Dancer2/send_error> keyword. When you don't use a serializer,
 the C<send_error> function will take a string as first parameter (the
 message), and an optional HTTP code. When using a serializer, the message
 can be a string, an arrayref or a hashref:
@@ -894,7 +894,7 @@ Point your browser at it. Files can now be changed in your favorite editor
 and the browser needs to be refreshed to see the saved changes.
 
 Please note that this is not recommended for production for performance
-reasons.  This is the Dancer2 replacement solution of the old Dancer
+reasons. This is the Dancer2 replacement solution of the old Dancer
 experimental C<auto_reload> option.
 
 On Windows, Shotgun loader is known to cause huge memory leaks in a
@@ -908,8 +908,8 @@ loader, please use the following command:
 
 In providing ultimate flexibility in terms of deployment, your Dancer2 app
 can be run as a simple cgi-script out-of-the-box. No additional web-server
-configuration needed.  Your web server should recognize .cgi files and be
-able to serve Perl scripts.  The Perl module L<Plack::Runner> is required.
+configuration needed. Your web server should recognize .cgi files and be
+able to serve Perl scripts. The Perl module L<Plack::Runner> is required.
 
 =head3 Running on Apache (CGI and FCGI)
 
@@ -942,11 +942,11 @@ Note that when using fast-cgi your rewrite rule should be:
         RewriteRule ^(.*)$ /dispatch.fcgi$1 [QSA,L]
 
 Here, the mod_rewrite magic for Pretty-URLs is directly put in Apache's
-configuration.  But if your web server supports .htaccess files, you can
+configuration. But if your web server supports .htaccess files, you can
 drop those lines in a .htaccess file.
 
 To check if your server supports mod_rewrite type C<apache2 -l> to list
-modules.  To enable mod_rewrite (Debian), run C<a2enmod rewrite>. Place
+modules. To enable mod_rewrite (Debian), run C<a2enmod rewrite>. Place
 following code in a file called .htaccess in your application's root folder:
 
     # BEGIN dancer application htaccess
@@ -1353,7 +1353,7 @@ It can be easily installed from CPAN:
 
     perl -MCPAN -e 'install Perlbal'
 
-Once installed, you'll need to write a configuration file.  See the examples
+Once installed, you'll need to write a configuration file. See the examples
 provided with perlbal, but you'll probably want something like:
 
     CREATE POOL my_dancers
