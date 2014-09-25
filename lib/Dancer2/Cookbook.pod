@@ -697,10 +697,10 @@ your webapps's C<config.yml>, but chances are that this is not convenient.
 Use Dancer2 instead. You can simply use
 the values from C<config.yml> and some additional default values:
 
-    # bin/script1.pl
+    # bin/show_app_config.pl
     use Dancer2;
-    print "template:".config->{template}."\n"; #simple
-    print "log:".config->{log}."\n"; #undef
+    print "template:".config->{template}."\n"; # simple
+    print "log:".config->{log}."\n"; # undef
 
 Note that C<< config->{log} >> should result in an C<undef> error on a default
 scaffold since the environment isn't loaded and
@@ -711,20 +711,20 @@ for it. One way to do so is to tell Dancer2 where the webapp lives. From
 there Dancer2 deduces where the config.yml file is (typically
 C<$webapp/config.yml>).
 
-    # bin/script2.pl
+    # bin/show_app_config_and_env.pl
     use FindBin;
     use Cwd qw/realpath/;
     use Dancer2;
 
-    #tell the Dancer2 where the app lives
-    my $appdir=realpath( "$FindBin::Bin/..");
+    # tell the Dancer2 where the app lives
+    my $appdir = realpath( "$FindBin::Bin/..");
 
-    Dancer2::Config::setting('appdir',$appdir);
+    Dancer2::Config::setting('appdir', $appdir);
     Dancer2::Config::load();
 
-    #getter
-    print "environment:".config->{environment}."\n"; #development
-    print "log:".config->{log}."\n"; #value from development environment
+    # getter
+    print "environment:".config->{environment}."\n"; # development
+    print "log:".config->{log}."\n"; # value from development environment
 
 By default Dancer2 loads the development environment (typically
 C<$webapp/environment/development.yml>). In contrast to the example above,
@@ -738,19 +738,19 @@ over a simple path for the app if you like that better, e.g.:
 
 If you want to load an environment other than the default, try this:
 
-    # bin/script2.pl
+    # bin/show_app_config_and_env.pl
     use Dancer2;
 
-    #tell the Dancer2 where the app lives
-    Dancer2::Config::setting('appdir','/path/to/app/dir');
+    # tell the Dancer2 where the app lives
+    Dancer2::Config::setting('appdir', '/path/to/app/dir');
 
-    #which environment to load
-    config->{environment}='production';
+    # which environment to load
+    config->{environment} = 'production';
 
     Dancer2::Config::load();
 
-    #getter
-    print "log:".config->{log}."\n"; #has value from production environment
+    # getter
+    print "log:".config->{log}."\n"; # has value from production environment
 
 By the way, you not only get values, you can also set values straightforwardly
 like we do above with C<< config->{environment}='production' >>. Of course,
