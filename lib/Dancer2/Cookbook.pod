@@ -12,7 +12,7 @@ web framework.
 
 =head1 BEGINNER'S DANCE
 
-=head2 Your first Dancer2 web app
+=head2 A simple Dancer2 web app
 
 Dancer2 has been designed to be easy to work with - it's trivial to write a
 simple web app, but still has the power to work with larger projects. To
@@ -29,23 +29,21 @@ start with, let's make an incredibly simple "Hello World" example:
     dance;
 
 Yes - the above is a fully-functioning web app; running that script will
-launch a webserver listening on the default port (3000); now you can make a
+launch a webserver listening on the default port (3000). Now you can make a
 request
 
     $ curl http://localhost:3000/hello/Bob
     Why, hello there Bob
 
-(or the name of the machine you ran it on, if it's not your local system),
 and it will say hello. The C<:name> part is a named parameter within the
-route specification, whose value is made available through C<params>
-- more on that later.
+route specification, whose value is made available through C<params>.
 
-Note that you don't need to use the C<strict> and C<warnings> pragma, they
+Note that you don't need to use the C<strict> and C<warnings> pragmas; they
 are already loaded by Dancer2.
 
 =head2 Starting a Dancer2 project
 
-The first simple example is fine for trivial projects, but for anything more
+The above simple example is fine for trivial projects, but for anything more
 complex, you'll want a more maintainable solution - enter the C<dancer2>
 helper script, which will build the framework of your application with a
 single command:
@@ -64,7 +62,7 @@ single command:
     + mywebapp/views/layouts/main.tt
     + mywebapp/MANIFEST.SKIP
     + mywebapp/lib
-      mywebapp/lib/
+    + mywebapp/lib/
     + mywebapp/lib/mywebapp.pm
     + mywebapp/public
     + mywebapp/public/css
@@ -85,9 +83,8 @@ single command:
 As you can see, it creates a directory named after the name of the app,
 along with a configuration file, a views directory (where your templates and
 layouts will live), an environments directory (where environment-specific
-settings live), a module containing the actual guts of your application, a
-script to start it - or to run your web app via Plack/PSGI - more on that
-later.
+settings live), a module containing the actual guts of your application and
+a script to start it - or to run your web app via Plack/PSGI.
 
 =head1 DANCE ROUTINES: ROUTES
 
@@ -127,8 +124,8 @@ requests.
 =head2 Retrieving request parameters
 
 The L<params|Dancer2/params> keyword returns a hashref of request
-parameters; these will be parameters supplied on the query string, within
-the path itself (with named placeholders), and, for HTTTP POST requests, the
+parameters; these will be parameters supplied on the query string within
+the path itself (with named placeholders) and, for HTTTP POST requests, the
 content of the POST body.
 
 =head2 Named parameters in route path declarations
@@ -146,7 +143,7 @@ use something like:
 
 =head2 Wildcard path matching and splat
 
-You can also declare wildcards in a path, and retrieve the values they matched
+You can also declare wildcards in a path and retrieve the values they matched
 with the L<splat|Dancer2/splat> keyword:
 
     get '/*/*' => sub {
@@ -178,7 +175,7 @@ a request is passed to the appropriate route.
 The above declares a before filter which uses C<forward> to do an internal
 redirect to C</foo/oversee> with an additional parameter C<note>.
 
-See also the L<hook|Dancer2/hook> hook keyword.
+See also the L<hook|Dancer2/hook> keyword.
 
 =head2 Default route
 
@@ -196,24 +193,24 @@ All you need to do is set up the following route as the B<last> route:
         template 'special_404', { path => request->path };
     };
 
-Then you can set up the template as such:
+Then you can set up the template like so:
 
     You tried to reach [% path %], but it is unavailable at the moment.
 
-    Please try again or contact us at our email at <...>.
+    Please try again or contact us at <contact@example.com>.
 
 =head2 Using the C<auto_page> feature for automatic route creation
 
-For simple "static" pages, you can simply enable the C<auto_page> config
-setting; this means that you need not declare a route handler for those
+For simple "static" pages you can simply enable the C<auto_page> config
+setting; this means you don't need to declare a route handler for those
 pages; if a request is for C</foo/bar>, Dancer2 will check for a matching
-view (e.g. C</foo/bar.tt> and render it with the default layout etc if
+view (e.g. C</foo/bar.tt> and render it with the default layout etc. if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
-=head2 Why should I use the Ajax plugin
+=head2 Simplifying Ajax queries with the Ajax plugin
 
-As an Ajax query is just a HTTP query, it's similar to a GET or POST route.
+As an Ajax query is just an HTTP query, it's similar to a GET or POST route.
 You may ask yourself why you may want to use the C<ajax> keyword (from the
 L<Dancer2::Plugin::Ajax> plugin) instead of a simple C<get>.
 
@@ -247,14 +244,14 @@ and
          to_xml({...}, RootName => undef);
     }
 
-Because it's an ajax query, you know you need to return a xml content, so
+Because it's an Ajax query, you know you need to return XML content, so
 the content type of the response is set for you.
 
 =head2 Using the prefix feature to split your application
 
 For better maintainability, you may want to separate some of your application
-components to different packages. Let's say we have a simple web app with an
-admin section, and want to maintain this in a different package:
+components into different packages. Let's say we have a simple web app with an
+admin section and want to maintain this in a different package:
 
     package myapp;
     use Dancer2;
@@ -288,9 +285,9 @@ single Dancer2 application. In the above example, C<appname =E<gt> 'myapp'>
 adds the routes from C<myapp::admin> to the routes of the app C<myapp>.
 
 When using multiple applications please ensure that your path definitions do
-not overlap. Eg, if using a default route as described above, once a request
-is matched to the default route then no further routes (or applications)
-would be reached.
+not overlap. For example, if using a default route as described above, once
+a request is matched to the default route then no further routes (or
+applications) would be reached.
 
 =head1 MUSCLE MEMORY: STORING DATA
 
@@ -307,8 +304,8 @@ this:
     session: Simple
 
 The L<Dancer2::Session::Simple> backend implements very simple in-memory
-session storage. This will be fast and useful for testing, but sessions do
-not persist between restarts of your app.
+session storage. This will be fast and useful for testing, but such sessions
+will not persist between restarts of your app.
 
 You can also use the L<Dancer2::Session::YAML> backend included with
 Dancer2, which stores session data on disc in YAML files (since YAML is a
@@ -321,12 +318,12 @@ Or, to enable session support from within your code,
 
     set session => 'YAML';
 
-(Controlling settings is best done from your config file, though). 'YAML'
-in the example is the session backend to use; this is shorthand for
-L<Dancer2::Session::YAML>. There are other session backends you may wish to
-use, for instance L<Dancer2::Session::Memcached>, but the YAML backend is a
-simple and easy to use example which stores session data in a YAML file in
-sessions).
+However, controlling settings is best done from your config file.
+
+'YAML' in the example is the session backend to use; this is shorthand for
+L<Dancer2::Session::YAML>. There are other session backends - for instance
+L<Dancer2::Session::Memcached> - but the YAML backend is simple and easy to
+use.
 
 You can then use the L<session|Dancer2/session> keyword to manipulate the
 session:
@@ -349,8 +346,8 @@ Or, alternatively,
 
 =head3 Controlling where sessions are stored
 
-For disc-based session back ends like L<Dancer2::Session::YAML>,
-L<Dancer2::Session::Storable> etc, session files are written to the session
+For disc-based session backends like L<Dancer2::Session::YAML>,
+L<Dancer2::Session::Storable> etc., session files are written to the session
 dir specified by the C<session_dir> setting, which defaults to C<./sessions>
 if not specifically set.
 
@@ -378,7 +375,7 @@ B<Note!> The following example will in this form prevent the application
 from returning static content (files inside the C<public/> directory, like CSS,
 javascript files etc.) when the user is not logged in, because the before hook
 is executed on the static files as well. A simple way to prevent this is using
-L<Plack::Middleware::Static> for serving static files. An example can be found 
+L<Plack::Middleware::Static> for serving static files. An example can be found
 L<here|Dancer2::Cookbook/"Serving_static_files_using_Plack::Middleware::Static">.
 
 A common requirement is to check the user is logged in, and, if not, require
@@ -495,7 +492,7 @@ By default, the internal template engine L<Dancer2::Template::Simple> is
 used, but you may want to upgrade to L<Template
 Toolkit|http://www.template-toolkit.org/>. If you do so, you have to enable
 this engine in your settings as explained in
-L<Dancer2::Template::TemplateToolkit>  and you'll also have to import the
+L<Dancer2::Template::TemplateToolkit> and you'll also have to import the
 L<Template> module in your application code.
 
 All views must have a '.tt' extension. This may change in the future.
@@ -532,7 +529,7 @@ L<Dancer2::Core::Role::Template>).
 A layout is a special view, located in the 'layouts' directory (inside the
 views directory) which must have a token named C<content>. That token marks
 the place where to render the action view. This lets you define a global
-layout for your actions, and have each individual view contain only the
+layout for your actions, and have each individual view contain only
 specific content. This is a good thing to avoid lots of needless
 duplication of HTML :)
 
@@ -572,16 +569,16 @@ CSS, images and JavaScript:
         $tokens->{uri_base} = request->base->path;
     };
 
-Then in your layout, modify your css inclusion as follows:
+Then in your layout, modify your CSS inclusion as follows:
 
     <link rel="stylesheet" href="[% uri_base %]/css/style.css" />
 
-From now on, you can mount your application wherever you want, without any
-further modification of the css inclusion
+From now on you can mount your application wherever you want, without any
+further modification of the CSS inclusion.
 
 =head2 Templates and unicode
 
-If you use L<Plack> and have some unicode problem with your Dancer2
+If you use L<Plack> and have a unicode problem with your Dancer2
 application, don't forget to check if you have set your template engine to
 use unicode, and set the default charset to UTF-8. So, if you are using
 template toolkit, your config file will look like this:
@@ -610,14 +607,14 @@ These few steps will get you there:
 You can do this by simply commenting (or removing) the C<layout>
 configuration in the config file.
 
-=item * Use Template Toolkit template engine
+=item * Use the Template Toolkit template engine
 
 Change the configuration of the template to Template Toolkit:
 
     # in config.yml
     template: "template_toolkit"
 
-=item * Tell the Template Toolkit engine who's your wrapper
+=item * Tell the Template Toolkit engine which wrapper to use
 
     # in config.yml
     # ...
@@ -639,7 +636,7 @@ Configuring a Dancer2 application can be done in many ways. The easiest one
 (and maybe the dirtiest) is to put all your settings statements at the top
 of your script, before calling the C<dance()> method.
 
-Other ways are possible, you can define all your settings in the file
+Other ways are possible: for example, you can define all your settings in the file
 C<appdir/config.yml>. For this, you must have installed the YAML module, and
 of course, write the config file in YAML.
 
@@ -693,7 +690,7 @@ easy - you shouldn't need to worry about implementing all that yourself :)
 
 =head3 From a separate script
 
-You may well want to access your webapp's configuration from outside your
+You may want to access your webapp's configuration from outside your
 webapp. You could, of course, use the YAML module of your choice and load
 your webapps's C<config.yml>, but chances are that this is not convenient.
 
@@ -710,7 +707,7 @@ scaffold since the environment isn't loaded and
 log is defined in the environment and not in C<config.yml>. Hence C<undef>.
 
 If you want to load an environment you need to tell Dancer2 where to look
-for it. One way to do so, is to tell Dancer2 where the webapp lives. From
+for it. One way to do so is to tell Dancer2 where the webapp lives. From
 there Dancer2 deduces where the config.yml file is (typically
 C<$webapp/config.yml>).
 
@@ -729,10 +726,10 @@ C<$webapp/config.yml>).
     print "environment:".config->{environment}."\n"; #development
     print "log:".config->{log}."\n"; #value from development environment
 
-By default Dancer2 loads development environment (typically
-C<$webapp/environment/development.yml>). In contrast to the example before,
-you do have a value from the development environment
-(C<environment/development.yml>) now. Also note that in the above example
+By default Dancer2 loads the development environment (typically
+C<$webapp/environment/development.yml>). In contrast to the example above,
+now you do have a value from the development environment
+(C<environment/development.yml>). Also note that in the above example
 L<Cwd> and L<FindBin> are used. They are likely to be already loaded by
 Dancer2 anyways, so it's not a big overhead. You could just as well hand
 over a simple path for the app if you like that better, e.g.:
@@ -755,9 +752,9 @@ If you want to load an environment other than the default, try this:
     #getter
     print "log:".config->{log}."\n"; #has value from production environment
 
-By the way, you not only get values, you can also set values straightforward
+By the way, you not only get values, you can also set values straightforwardly
 like we do above with C<< config->{environment}='production' >>. Of course,
-this value does not get written in any file; it only lives in memory and
+this value does not get written in any file; it only lives in memory and thus
 your webapp doesn't have access to it, but you can use it inside your
 script.
 
@@ -821,11 +818,11 @@ the format you require, for instance in your config file:
 
    serializer: JSON
 
-Or right in your code:
+Or directly in your code:
 
    set serializer => 'JSON';
 
-From now, all hash ref or array ref returned by a route will be serialized
+From now, all hashrefs or arrayrefs returned by a route will be serialized
 to the format you chose, and all data received from B<POST> or B<PUT>
 requests will be automatically deserialized.
 
@@ -839,7 +836,7 @@ It's possible to let the client choose which serializer to use. For
 this, use the C<mutable> serializer, and an appropriate serializer will be
 chosen from the C<Content-Type> header.
 
-It's also possible to return a custom error, using the
+It's also possible to return a custom error using the
 L<send_error|Dancer2/send_error> keyword. When you don't use a serializer,
 the C<send_error> function will take a string as first parameter (the
 message), and an optional HTTP code. When using a serializer, the message
@@ -950,8 +947,8 @@ following code in a file called C<.htaccess> in your application's root folder:
     RewriteRule (.*) /dispatch.cgi$1 [L]
     # END dancer application htaccess
 
-Now you can access your dancer application URLs as if you were using the
-embedded web server.
+Now you can access your Dancer2 application URLs as if you were using the
+embedded web server:
 
     http://localhost/
 
@@ -963,7 +960,7 @@ line:
 
     AddHandler cgi-script .cgi
 
-By:
+to:
 
     AddHandler fastcgi-script .fcgi
 
@@ -1071,7 +1068,6 @@ L<Plack::Builder> as such:
         dance;
     };
 
-
 The nice thing about this setup is that it will work seamlessly through
 Plack or through the internal web server.
 
@@ -1085,7 +1081,7 @@ You do not need to provide different files for either server.
 
 =head3 Path-based middlewares
 
-If you want to setup a middleware for a specific path, you can do that using
+If you want to set up a middleware for a specific path, you can do that using
 L<Plack::Builder> which uses L<Plack::App::URLMap>:
 
     # in your app.psgi or any other handler
@@ -1100,9 +1096,9 @@ L<Plack::Builder> which uses L<Plack::App::URLMap>:
         mount '/special' => $special_handler;
     };
 
-=head3 Running on Perl webservers with plackup
+=head3 Running on Perl web servers with plackup
 
-A number of Perl web servers supporting PSGI are available on cpan:
+A number of Perl web servers supporting PSGI are available on CPAN:
 
 =over 4
 
@@ -1153,7 +1149,7 @@ F<app.psgi>) edit it to use L<Plack::Builder>, as described above:
 To test if content compression works, trace the HTTP request and response
 before and after enabling this middleware. Among other things, you should
 notice that the response is gzip or deflate encoded, and contains a header
-C<Content-Encoding> set to C<gzip> or C<deflate>
+C<Content-Encoding> set to C<gzip> or C<deflate>.
 
 =head3 Running multiple apps with Plack::Builder
 
@@ -1218,7 +1214,7 @@ development), you can set it this way:
 
 You can use L<Plack::Middleware::Static> to serve your static files instead of
 L<Dancer2::Handler::File>. That way before hooks will not be executed for them.
-This is required to make the example in 
+This is required to make the example in
 L<Sessions and logging-in|Dancer2::Cookbook/"Sessions_and_logging_in"> work.
 
 First, we have to disable L<Dancer2::Handler::File> in the config:
@@ -1247,8 +1243,8 @@ the C<public/> folder.
 
 =head2 Creating a service
 
-You can turn your app into proper service running in background using one of
-the following examples:
+You can turn your app into a proper service running in the background using one of
+the following examples.
 
 =head3 Using Ubic
 
@@ -1291,7 +1287,6 @@ A basic script to start an application: (in C</service/application/run>)
     exec 2>&1 \
     /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.pl -p 5000
 
-
 =head2 Running stand-alone behind a proxy / load balancer
 
 Another option would be to run your app stand-alone as described above, but
@@ -1319,8 +1314,8 @@ it under a specified dir:
 It is important for you to note that the Apache2 modules C<mod_proxy> and
 C<mod_proxy_http> must be enabled:
 
-    a2enmod proxy
-    a2enmod proxy_http
+    $ a2enmod proxy
+    $ a2enmod proxy_http
 
 It is also important to set permissions for proxying for security purposes,
 below is an example.
@@ -1334,7 +1329,7 @@ below is an example.
 
 C<perlbal> is a single-threaded event-based server written in Perl
 supporting HTTP load balancing, web serving, and a mix of the two, available
-from L<http://www.danga.com/perlbal/>
+from L<http://www.danga.com/perlbal/>.
 
 It processes hundreds of millions of requests a day just for LiveJournal,
 Vox and TypePad and dozens of other "Web 2.0" applications.
@@ -1385,7 +1380,7 @@ multiple Dancer2 apps on multiple other machines:
 
     balance -b 10.0.0.1 80 10.0.0.2:3000 10.0.0.3:3000 10.0.0.4:3000
 
-=head3 Using Lighttpd
+=head3 Using lighttpd
 
 You can use lighttp's C<mod_proxy>:
 
