@@ -495,7 +495,10 @@ this engine in your settings as explained in
 L<Dancer2::Template::TemplateToolkit> and you'll also have to import the
 L<Template> module in your application code.
 
-All views must have a '.tt' extension. This may change in the future.
+Views use a C<.tt> extension by convention. This can be overridden by
+setting the C<extension> attribute in the template engine configuration.
+See the L<Using Templates|Dancer2::Manual/"Using Templates"> section in the
+manual for details.
 
 In order to render a view, just call the
 L<template|Dancer2::Manual/template> keyword at the end of the action by
