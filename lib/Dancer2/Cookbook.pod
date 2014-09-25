@@ -1102,16 +1102,17 @@ A number of Perl web servers supporting PSGI are available on CPAN:
 
 =over 4
 
-=item L<Starman>
+=item L<Starman|http://search.cpan.org/dist/Starman/>
 
 C<Starman> is a high performance web server, with support for preforking,
-signals, ...
+signals, multiple interfaces, graceful restarts and dynamic worker pool
+configuration.
 
-=item L<Twiggy>
+=item L<Twiggy|http://search.cpan.org/dist/Twiggy/>
 
 C<Twiggy> is an C<AnyEvent> web server, it's light and fast.
 
-=item L<Corona>
+=item L<Corona|http://search.cpan.org/dist/Corona/>
 
 C<Corona> is a C<Coro> based web server.
 
