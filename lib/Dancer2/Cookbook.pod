@@ -589,10 +589,10 @@ template toolkit, your config file will look like this:
         template_toolkit:
           ENCODING: utf8
 
-=head2 TT's WRAPPER directive in Dancer2
+=head2 Template Toolkit's WRAPPER directive in Dancer2
 
 Dancer2 already provides a WRAPPER-like ability, which we call a "layout".
-The reason we do not use TT's WRAPPER (which also makes us incompatible with
+The reason we don't use Template Toolkit's WRAPPER (which also makes us incompatible with
 it) is because not all template systems support it. Actually, most don't.
 
 However, you might want to use it, and be able to define META variables and
