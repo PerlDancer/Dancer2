@@ -43,10 +43,6 @@ route specification, whose value is made available through C<params>
 Note that you don't need to use the C<strict> and C<warnings> pragma, they
 are already loaded by Dancer2.
 
-If you I<really> do not want the C<warnings> pragma (for example, due to an
-undesired warning about use of undef values), add a C<no warnings> pragma to
-the appropriate block in your module or psgi file.
-
 =head2 Starting a Dancer2 project
 
 The first simple example is fine for trivial projects, but for anything more
@@ -1444,5 +1440,14 @@ You will need plackup to start a worker listening on a socket :
 
 A good way to start this is to use C<daemontools> and place this line with
 all environments variables in the "run" file.
+
+=head1 NON-STANDARD STEPS
+
+=head2 Turning off warnings
+
+The C<warnings> pragma is already used when one loads Dancer2. However, if
+you I<really> do not want the C<warnings> pragma (for example, due to an
+undesired warning about use of undef values), add a C<no warnings> pragma to
+the appropriate block in your module or psgi file.
 
 =cut
