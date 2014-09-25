@@ -99,27 +99,27 @@ later.
 
 To control what happens when a web request is received by your webapp,
 you'll need to declare C<routes>. A route declaration indicates which HTTP
-method(s) it is valid for, the path it matches (e.g. /foo/bar), and a
+method(s) it is valid for, the path it matches (e.g. C</foo/bar>), and a
 coderef to execute, which returns the response.
 
     get '/hello/:name' => sub {
         return "Hi there " . params->{name};
     };
 
-The above route specifies that, for GET requests to '/hello/...', the code
+The above route specifies that, for GET requests to C</hello/...>, the code
 block provided should be executed.
 
 =head2 Handling multiple HTTP request methods
 
 Routes can use C<any> to match all, or a specified list of HTTP methods.
 
-The following will match any HTTP request to the path /myaction:
+The following will match any HTTP request to the path C</myaction>:
 
     any '/myaction' => sub {
         # code
     }
 
-The following will match GET or POST requests to /myaction:
+The following will match GET or POST requests to C</myaction>:
 
     any ['get', 'post'] => '/myaction' => sub {
         # code
@@ -206,7 +206,7 @@ Then you can set up the template as such:
 
     Please try again or contact us at our email at <...>.
 
-=head2 Using the auto_page feature for automatic route creation
+=head2 Using the C<auto_page> feature for automatic route creation
 
 For simple "static" pages, you can simply enable the C<auto_page> config
 setting; this means that you need not declare a route handler for those
@@ -221,8 +221,8 @@ As an Ajax query is just a HTTP query, it's similar to a GET or POST route.
 You may ask yourself why you may want to use the C<ajax> keyword (from the
 L<Dancer2::Plugin::Ajax> plugin) instead of a simple C<get>.
 
-Let's say you have a path like '/user/:user' in your application. You may
-want to be able to serve this page, with a layout and HTML content. But you
+Let's say you have a path like C</user/:user> in your application. You may
+want to be able to serve this page with a layout and HTML content. But you
 may also want to be able to call this same url from a javascript query using
 Ajax.
 
@@ -379,7 +379,7 @@ When you're done with your session, you can destroy it:
 =head2 Sessions and logging in
 
 B<Note!> The following example will in this form prevent the application
-from returning static content (files inside the public/ directory, like css,
+from returning static content (files inside the C<public/> directory, like CSS,
 javascript files etc.) when the user is not logged in, because the before hook
 is executed on the static files as well. A simple way to prevent this is using
 L<Plack::Middleware::Static> for serving static files. An example can be found 
@@ -422,7 +422,7 @@ This can easily be handled with a before filter to check their session:
     dance();
 
 Here is what the corresponding C<login.tt> file should look like. You should
-place it in a directory called views:
+place it in a directory called C<views/>:
 
     <html>
       <head>
@@ -491,7 +491,7 @@ to render templates.
 =head2 Views
 
 It's possible to render the action's content with a template, this is called
-a view. The `appdir/views' directory is the place where views are located.
+a view. The C<appdir/views> directory is the place where views are located.
 
 You can change this location by changing the setting 'views'.
 
@@ -567,9 +567,9 @@ hashref as the third param to the template keyword:
 
     template 'index.tt', {}, { layout => undef };
 
-If your application is not mounted under root (B</>), you can use a
-before_template instead of hardcoding the path to your application for your
-css, images and javascript:
+If your application is not mounted under root (C</>), you can use a
+C<before_template> hook instead of hardcoding the path into your application for your
+CSS, images and JavaScript:
 
     hook before_template_render => sub {
         my $tokens = shift;
@@ -641,7 +641,7 @@ variables.
 
 Configuring a Dancer2 application can be done in many ways. The easiest one
 (and maybe the dirtiest) is to put all your settings statements at the top
-of your script, before calling the dance() method.
+of your script, before calling the C<dance()> method.
 
 Other ways are possible, you can define all your settings in the file
 C<appdir/config.yml>. For this, you must have installed the YAML module, and
@@ -651,7 +651,7 @@ That's better than the first option, but it's still not perfect as you can't
 switch easily from an environment to another without rewriting the config
 file.
 
-An even solution is to have one config.yml file with default global
+A better solution is to have one C<config.yml> file with default global
 settings, like the following:
 
     # appdir/config.yml
@@ -681,13 +681,11 @@ And in a production one:
     startup_info: 0
     show_errors:  0
 
-
-
 =head2 Accessing configuration information
 
 =head3 From inside your application
 
-A Dancer2 application can use the 'config' keyword to easily access the
+A Dancer2 application can use the C<config> keyword to easily access the
 settings within its config file, for instance:
 
     get '/appname' => sub {
@@ -701,19 +699,19 @@ easy - you shouldn't need to worry about implementing all that yourself :)
 
 You may well want to access your webapp's configuration from outside your
 webapp. You could, of course, use the YAML module of your choice and load
-your webapps's config.yml, but chances are that this is not convenient.
+your webapps's C<config.yml>, but chances are that this is not convenient.
 
-Use Dancer2 instead. Without any ado, magic or too big jumps, you can use
-the values from config.yml and some additional default values:
+Use Dancer2 instead. You can simply use
+the values from C<config.yml> and some additional default values:
 
     # bin/script1.pl
     use Dancer2;
     print "template:".config->{template}."\n"; #simple
     print "log:".config->{log}."\n"; #undef
 
-Note that C<< config->{log} >> should result undef error on a default
-scaffold since you did not load the environment and in the default scaffold
-log is defined in the environment and not in config.yml. Hence undef.
+Note that C<< config->{log} >> should result in an C<undef> error on a default
+scaffold since the environment isn't loaded and
+log is defined in the environment and not in C<config.yml>. Hence C<undef>.
 
 If you want to load an environment you need to tell Dancer2 where to look
 for it. One way to do so, is to tell Dancer2 where the webapp lives. From
@@ -841,9 +839,9 @@ requests will be automatically deserialized.
         return {name => params->{name}};
     };
 
-It's possible to let the client choose which serializer he want to use. For
-this, use the B<mutable> serializer, and an appropriate serializer will be
-chosen from the B<Content-Type> header.
+It's possible to let the client choose which serializer to use. For
+this, use the C<mutable> serializer, and an appropriate serializer will be
+chosen from the C<Content-Type> header.
 
 It's also possible to return a custom error, using the
 L<send_error|Dancer2/send_error> keyword. When you don't use a serializer,
@@ -942,12 +940,12 @@ Note that when using fast-cgi your rewrite rule should be:
         RewriteRule ^(.*)$ /dispatch.fcgi$1 [QSA,L]
 
 Here, the mod_rewrite magic for Pretty-URLs is directly put in Apache's
-configuration. But if your web server supports .htaccess files, you can
-drop those lines in a .htaccess file.
+configuration. But if your web server supports C<.htaccess> files, you can
+drop those lines in a C<.htaccess> file.
 
 To check if your server supports mod_rewrite type C<apache2 -l> to list
-modules. To enable mod_rewrite (Debian), run C<a2enmod rewrite>. Place
-following code in a file called .htaccess in your application's root folder:
+modules. To enable C<mod_rewrite> on Debian or Ubuntu, run C<a2enmod rewrite>. Place
+following code in a file called C<.htaccess> in your application's root folder:
 
     # BEGIN dancer application htaccess
     RewriteEngine On
@@ -979,13 +977,14 @@ Of course remember to update your rewrite rules, if you have set any:
 
 =head4 Running under an appdir
 
-If you want to deploy multiple applications under the same VirtualHost,
-using one application per directory for example, you can do the following.
+If you want to deploy multiple applications under the same C<VirtualHost>
+(using one application per directory, for example) you can use the following
+example Apache configuration.
 
 This example uses the FastCGI dispatcher that comes with Dancer2, but you
 should be able to adapt this to use any other way of deployment described in
 this guide. The only purpose of this example is to show how to deploy
-multiple applications under the same base directory/virtualhost.
+multiple applications under the same base directory/C<VirtualHost>.
 
     <VirtualHost *:80>
         ServerName localhost
@@ -1014,15 +1013,15 @@ configuration.
 
 =head3 Running on lighttpd (CGI)
 
-To run as a CGI app on lighttpd, just create a soft link to the dispatch.cgi
-script (created when you run dancer -a MyApp) inside your system's cgi-bin
-folder. Make sure mod_cgi is enabled.
+To run as a CGI app on lighttpd, just create a soft link to the C<dispatch.cgi>
+script (created when you run C<dancer -a MyApp>) inside your system's C<cgi-bin>
+folder. Make sure C<mod_cgi> is enabled.
 
     ln -s /path/to/MyApp/public/dispatch.cgi /usr/lib/cgi-bin/mycoolapp.cgi
 
 =head3 Running on lighttpd (FastCGI)
 
-Make sure mod_fcgi is enabled. You also must have L<FCGI> installed.
+Make sure C<mod_fcgi> is enabled. You also must have L<FCGI> installed.
 
 This example configuration uses TCP/IP:
 
@@ -1139,8 +1138,8 @@ PSGI startup file.
 
 Content compression (gzip, deflate) can be easily enabled via a Plack
 middleware (see L<Plack/Plack::Middleware>): L<Plack::Middleware::Deflater>.
-It's a middleware to encode the response body in gzip or deflate, based on
-Accept-Encoding HTTP request header.
+It's a middleware to encode the response body in gzip or deflate, based on the
+C<Accept-Encoding> HTTP request header.
 
 Enable it as you would enable any Plack middleware. First you need to
 install L<Plack::Middleware::Deflater>, then in the handler (usually
@@ -1230,7 +1229,7 @@ First, we have to disable L<Dancer2::Handler::File> in the config:
 
     route_handlers: []
 
-Next, our bin/app.pl should look similar to this:
+Next, our C<bin/app.pl> should look similar to this:
 
     #!/usr/bin/env perl
     use Plack::Builder;
@@ -1244,11 +1243,11 @@ Next, our bin/app.pl should look similar to this:
         dance;
     };
 
-The 'path' option returns true if the requested file exists inside the 'public'
-directory. For example the file '/css/default.css' is searched for at
-'public/css/default.css'. When the file is found, L<Plack::Middleware::Static>
+The C<path> option returns true if the requested file exists inside the C<public/>
+directory. For example the file C</css/default.css> is searched for at
+C<public/css/default.css>. When the file is found, L<Plack::Middleware::Static>
 returns the requested file from the 'root' directory, which is in this example
-the 'public' folder.
+the C<public/> folder.
 
 =head2 Creating a service
 
@@ -1261,7 +1260,7 @@ L<Ubic> is an extensible perlish service manager. You can use it to start
 and stop any services, automatically start them on reboots or daemon
 failures, and implement custom status checks.
 
-A basic PSGI service description (usually in /etc/ubic/service/application):
+A basic PSGI service description (usually in C</etc/ubic/service/application>):
 
     use parent qw(Ubic::Service::Plack);
 
@@ -1286,7 +1285,7 @@ Run C<ubic start application> to start the service.
 daemontools is a collection of tools for managing UNIX services. You can use
 it to easily start/restart/stop services.
 
-A basic script to start an application: (in /service/application/run)
+A basic script to start an application: (in C</service/application/run>)
 
     #!/bin/sh
 
@@ -1305,9 +1304,9 @@ standard port 80, say) and feed them to your Dancer2 app.
 
 This could be achieved using various software; examples would include:
 
-=head3 Using Apache's mod_proxy
+=head3 Using Apache's C<mod_proxy>
 
-You could set up a VirtualHost for your web app, and proxy all requests
+You could set up a C<VirtualHost> for your web app, and proxy all requests
 through to it:
 
     <VirtualHost mywebapp.example.com:80>
@@ -1322,7 +1321,7 @@ it under a specified dir:
     ProxyPassReverse /mywebapp/ http://localhost:3000/
 
 It is important for you to note that the Apache2 modules C<mod_proxy> and
-C<mod_proxy_http> must be enabled.
+C<mod_proxy_http> must be enabled:
 
     a2enmod proxy
     a2enmod proxy_http
@@ -1378,7 +1377,7 @@ L<http://www.inlab.de/balance.html>.
 
 It could be used simply to hand requests to a standalone Dancer2 app. You
 could even run several instances of your Dancer2 app, on the same machine or
-on several machines, and use a machine running balance to distribute the
+on several machines, and use a machine running C<balance> to distribute the
 requests between them, for some serious heavy traffic handling!
 
 To listen on port 80, and send requests to a Dancer2 app on port 3000:
@@ -1392,7 +1391,7 @@ multiple Dancer2 apps on multiple other machines:
 
 =head3 Using Lighttpd
 
-You can use Lighttp's mod_proxy:
+You can use lighttp's C<mod_proxy>:
 
     $HTTP["url"] =~ "/application" {
         proxy.server = (
@@ -1402,8 +1401,8 @@ You can use Lighttp's mod_proxy:
         )
     }
 
-This configuration will proxy all request to the B</application> path to the
-path B</> on localhost:3000.
+This configuration will proxy all requests to the C</application> path to the
+path C</> on localhost:3000.
 
 =head3 Using Nginx
 
