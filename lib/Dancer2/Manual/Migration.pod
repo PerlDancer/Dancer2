@@ -12,13 +12,13 @@ __END__
 =head2 Migration from Dancer1 to Dancer2
 
 This document covers some changes that users will need to be aware of
-while upgrading from Dancer1 to Dancer2.
+while upgrading from L<Dancer> (version 1) to L<Dancer2>.
 
 =head3 Apps
 
-1. In Dancer2, each module is a B<separate application> with its own
+1. In L<Dancer2>, each module is a B<separate application> with its own
 namespace and variables. You can set the application name in each of your
-Dancer2 application modules. Different modules can be tied into the same
+L<Dancer2> application modules. Different modules can be tied into the same
 app by setting the application name to the same value.
 
 For example, to set the appname directive explicitly:
@@ -63,7 +63,7 @@ for details.
 
 =back
 
-They would need to be installed separately. This is because Dancer2 does
+They would need to be installed separately. This is because L<Dancer2> does
 not incorporate any C code, but it can get C-code compiled as a module.
 Thus, these modules can be used for speed improvement provided:
 
@@ -82,7 +82,7 @@ longer be called outside of C<register> or C<on_plugin_import>.
 
 =head3 Routes
 
-Dancer2 requires all routes defined via a string to begin with a leading
+L<Dancer2> requires all routes defined via a string to begin with a leading
 slash C</>.
 
 For example: 
