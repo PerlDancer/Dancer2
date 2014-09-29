@@ -24,26 +24,26 @@ app by setting the application name to the same value.
 
 For example, to set the appname directive explicitly:
 
- package myapp;
- use Dancer2;
- use myapp::admin;
+    package myapp;
+    use Dancer2;
+    use myapp::admin;
 
- hook before => sub {
-     var db => "...";
- };
+    hook before => sub {
+        var db => "...";
+    };
 
- prefix undef;
- get '/' => sub {...};
+    prefix undef;
+    get '/' => sub {...};
 
- 1;
+    1;
 
- package myapp::admin;
- use Dancer2 appname => "myapp";
+    package myapp::admin;
+    use Dancer2 appname => "myapp";
 
- prefix '/admin';
- get '/' => sub {...};
+    prefix '/admin';
+    get '/' => sub {...};
 
- 1;
+    1;
 
 Without the appname directive, C<myapp::admin> would not have access
 to C<var db{}>. In fact, when accessing C</admin>, the before hook would
@@ -80,9 +80,9 @@ slash C</>.
 
 For example: 
 
- get '0' => sub {
-     return "not gonna fly";
- };
+    get '0' => sub {
+        return "not gonna fly";
+    };
 
 would return an error. The correct way to write this would be to use
 C<get '/0'>
