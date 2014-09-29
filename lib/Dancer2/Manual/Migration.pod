@@ -82,7 +82,7 @@ Thus, these modules can be used for speed improvement provided:
 
 =head3 Plugins: plugin_setting
 
-B<plugin_setting> returns the configuration of the plugin. It can no
+C<plugin_setting> returns the configuration of the plugin. It can no
 longer be called outside of C<register> or C<on_plugin_import>.
 
 =head3 Routes
