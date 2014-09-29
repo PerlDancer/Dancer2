@@ -55,11 +55,11 @@ for details.
 
 =over 4
 
-=item * L<URL::Encode::XS|https://metacpan.org/pod/URL::Encode::XS> 
+=item * L<URL::Encode::XS>
 
-=item * L<CGI::Deurl::XS|https://metacpan.org/pod/CGI::Deurl::XS>
+=item * L<CGI::Deurl::XS>
 
-=item * L<HTTP::Parser::XS|https://metacpan.org/pod/HTTP::Parser::XS>
+=item * L<HTTP::Parser::XS>
 
 =back
 
