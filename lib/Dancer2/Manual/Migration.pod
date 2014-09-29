@@ -1,3 +1,12 @@
+package Dancer2::Manual::Migration;
+
+use strict;
+use warnings;
+
+1;
+
+__END__
+
 =pod
 
 =head2 Migration from Dancer1 to Dancer2
