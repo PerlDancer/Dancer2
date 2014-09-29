@@ -23,29 +23,34 @@ app by setting the application name to the same value.
 
 For example, to set the appname directive explicitly:
 
-    package myapp;
+C<MyApp>:
+
+    package MyApp;
     use Dancer2;
-    use myapp::admin;
+    use MyApp::Admin
 
     hook before => sub {
-        var db => "...";
+        var db => 'Users';
     };
 
-    prefix undef;
     get '/' => sub {...};
 
     1;
 
-    package myapp::admin;
-    use Dancer2 appname => "myapp";
+C<MyApp::Admin>:
 
-    prefix '/admin';
-    get '/' => sub {...};
+    package MyApp::Admin;
+    use Dancer2 appname => 'MyApp';
+
+    # use a lexical prefix so we don't override it globally
+    prefix '/admin' => sub {
+        get '/' => sub {...};
+    };
 
     1;
 
-Without the appname directive, C<myapp::admin> would not have access
-to C<var db{}>. In fact, when accessing C</admin>, the before hook would
+Without the appname directive, C<MyApp::Admin> would not have access
+to variable C<db>. In fact, when accessing C</admin>, the before hook would
 not be executed.
 
 See L<Dancer2::Cookbook|https://metacpan.org/pod/Dancer2::Cookbook#Using-the-prefix-feature-to-split-your-application>
