@@ -67,6 +67,7 @@ register 'ajax' => sub {
     my ( $dsl, $pattern, @rest ) = @_;
 
     my $default_methods = [ 'get', 'post' ];
+    my $options = { x_requested_with => 'XMLHttpRequest' };
 
     # If the given pattern is an ArrayRef, we override the defaults
     # and pass these onto to DSL->any()
@@ -100,7 +101,7 @@ register 'ajax' => sub {
         return $response;
     };
 
-    $dsl->any( $default_methods => $pattern, $ajax_route );
+    $dsl->any( $default_methods => $pattern, $options, $ajax_route );
 };
 
 register_plugin;
