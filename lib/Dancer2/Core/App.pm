@@ -424,6 +424,7 @@ has routes => (
             put     => [],
             delete  => [],
             options => [],
+            patch   => [],
         };
     },
 );
@@ -440,6 +441,7 @@ has routes_border => (
             put     => 0,
             delete  => 0,
             options => 0,
+            patch   => 0,
         };
     },
 );
