@@ -1,16 +1,5 @@
 package Dancer2::Core::Role::SessionFactory;
-
 #ABSTRACT: Role for session factories
-
-=head1 DESCRIPTION
-
-Any class that consumes this role will be able to store, create, retrieve and
-destroy session objects.
-
-The default values for attributes can be overridden in your Dancer2
-configuration. See L<Dancer2::Config/Session-engine>.
-
-=cut
 
 use strict;
 use warnings;
@@ -45,26 +34,11 @@ sub _build_type {
     'SessionFactory';
 }    # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
-=attr cookie_name
-
-The name of the cookie to create for storing the session key
-
-Defaults to C<dancer.session>
-
-=cut
-
 has cookie_name => (
     is      => 'ro',
     isa     => Str,
     default => sub {'dancer.session'},
 );
-
-=attr cookie_domain
-
-The domain of the cookie to create for storing the session key.
-Defaults to the empty string and is unused as a result.
-
-=cut
 
 has cookie_domain => (
     is        => 'ro',
@@ -72,26 +46,11 @@ has cookie_domain => (
     predicate => 1,
 );
 
-=attr cookie_path
-
-The path of the cookie to create for storing the session key.
-Defaults to "/".
-
-=cut
-
 has cookie_path => (
     is      => 'ro',
     isa     => Str,
     default => sub {"/"},
 );
-
-=attr cookie_duration
-
-Default duration before session cookie expiration.  If set, the
-L<Dancer2::Core::Session> C<expires> attribute will be set to the current time
-plus this duration (expression parsed by L<Dancer2::Core::Time>).
-
-=cut
 
 has cookie_duration => (
     is        => 'ro',
@@ -99,27 +58,11 @@ has cookie_duration => (
     predicate => 1,
 );
 
-=attr session_duration
-
-Duration in seconds before sessions should expire, regardless of cookie
-expiration.  If set, then SessionFactories should use this to enforce a limit
-on session validity.
-
-=cut
-
 has session_duration => (
     is        => 'ro',
     isa       => Num,
     predicate => 1,
 );
-
-=attr is_secure
-
-Boolean flag to tell if the session cookie is secure or not.
-
-Default is false.
-
-=cut
 
 has is_secure => (
     is      => 'rw',
@@ -127,39 +70,11 @@ has is_secure => (
     default => sub {0},
 );
 
-=attr is_http_only
-
-Boolean flag to tell if the session cookie is http only.
-
-Default is true.
-
-=cut
-
 has is_http_only => (
     is      => 'rw',
     isa     => Bool,
     default => sub {1},
 );
-
-=head1 INTERFACE
-
-Following is the interface provided by this role. When specified the required
-methods to implement are described.
-
-=cut
-
-=head2 create
-
-Create a brand new session object and store it. Returns the newly created
-session object.
-
-Triggers an exception if the session is unable to be created.
-
-    my $session = MySessionFactory->create();
-
-This method does not need to be implemented in the class.
-
-=cut
 
 sub create {
     my ($self) = @_;
@@ -181,27 +96,6 @@ sub create {
     $self->execute_hook( 'engine.session.after_create', $session );
     return $session;
 }
-
-=head2 generate_id
-
-Returns a randomly-generated, guaranteed-unique string.
-By default, it is a 32-character, URL-safe, Base64 encoded combination
-of a 32 bit timestamp and a 160 bit SHA1 digest of random seed data.
-The timestamp ensures that session IDs are generally monotonic.
-
-The default algorithm is not guaranteed cryptographically secure, but it's
-still reasonably strong for general use.
-
-If you have installed L<Math::Random::ISAAC::XS> and L<Crypt::URandom>,
-the seed data will be generated from a cryptographically-strong
-random number generator.
-
-This method is used internally by create() to set the session ID.
-
-This method does not need to be implemented in the class unless an
-alternative method for session ID generation is desired.
-
-=cut
 
 {
     my $COUNTER     = 0;
@@ -246,19 +140,6 @@ alternative method for session ID generation is desired.
     }
 }
 
-
-=head2 retrieve
-
-Return the session object corresponding to the session ID given. If none is
-found, triggers an exception.
-
-    my $session = MySessionFactory->retrieve(id => $id);
-
-The method C<_retrieve> must be implemented.  It must take C<$id> as a single
-argument and must return a hash reference of session data.
-
-=cut
-
 requires '_retrieve';
 
 sub retrieve {
@@ -285,18 +166,6 @@ sub retrieve {
     return $session;
 }
 
-=head2 destroy
-
-Purges the session object that matches the ID given. Returns the ID of the
-destroyed session if succeeded, triggers an exception otherwise.
-
-    MySessionFactory->destroy(id => $id);
-
-The C<_destroy> method must be implemented. It must take C<$id> as a single
-argument and destroy the underlying data.
-
-=cut
-
 requires '_destroy';
 
 sub destroy {
@@ -311,24 +180,6 @@ sub destroy {
     $self->execute_hook( 'engine.session.after_destroy', $id );
     return $id;
 }
-
-=head2 flush
-
-Make sure the session object is stored in the factory's backend. This method is
-called to notify the backend about the change in the session object.
-
-The Dancer application will not call flush unless the session C<is_dirty>
-attribute is true to avoid unnecessary writes to the database when no
-data has been modified.
-
-An exception is triggered if the session is unable to be updated in the backend.
-
-    MySessionFactory->flush(session => $session);
-
-The C<_flush> method must be implemented.  It must take two arguments: the C<$id>
-and a hash reference of session data.
-
-=cut
 
 requires '_flush';
 
@@ -345,27 +196,6 @@ sub flush {
     return $session->id;
 }
 
-=head2 set_cookie_header
-
-Sets the session cookie into the response object
-
-    MySessionFactory->set_cookie_header(
-        response  => $response,
-        session   => $session,
-        destroyed => undef,
-    );
-
-The C<response> parameter contains a L<Dancer2::Core::Response> object.
-The C<session> parameter contains a L<Dancer2::Core::Session> object.
-
-The C<destroyed> parameter is optional.  If true, it indicates the
-session was marked destroyed by the request context.  The default
-C<set_cookie_header> method doesn't need that information, but it is
-included in case a SessionFactory must handle destroyed sessions
-differently (such as signalling to middleware).
-
-=cut
-
 sub set_cookie_header {
     my ( $self, %params ) = @_;
     $params{response}->push_header(
@@ -373,14 +203,6 @@ sub set_cookie_header {
         $self->cookie( session => $params{session} )->to_header
     );
 }
-
-=head2 cookie
-
-Coerce a session object into a L<Dancer2::Core::Cookie> object.
-
-    MySessionFactory->cookie(session => $session);
-
-=cut
 
 sub cookie {
     my ( $self, %params ) = @_;
@@ -406,17 +228,6 @@ sub cookie {
     return Dancer2::Core::Cookie->new(%cookie);
 }
 
-
-=head2 sessions
-
-Return a list of all session IDs stored in the backend.
-Useful to create cleaning scripts, in conjunction with session's creation time.
-
-The C<_sessions> method must be implemented.  It must return an array reference
-of session IDs (or an empty array reference).
-
-=cut
-
 requires '_sessions';
 
 sub sessions {
@@ -429,9 +240,167 @@ sub sessions {
     return $sessions;
 }
 
+1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Any class that consumes this role will be able to store, create, retrieve and
+destroy session objects.
+
+The default values for attributes can be overridden in your Dancer2
+configuration. See L<Dancer2::Config/Session-engine>.
+
+=attr cookie_name
+
+The name of the cookie to create for storing the session key
+
+Defaults to C<dancer.session>
+
+=attr cookie_domain
+
+The domain of the cookie to create for storing the session key.
+Defaults to the empty string and is unused as a result.
+
+=attr cookie_path
+
+The path of the cookie to create for storing the session key.
+Defaults to "/".
+
+=attr cookie_duration
+
+Default duration before session cookie expiration.  If set, the
+L<Dancer2::Core::Session> C<expires> attribute will be set to the current time
+plus this duration (expression parsed by L<Dancer2::Core::Time>).
+
+=attr session_duration
+
+Duration in seconds before sessions should expire, regardless of cookie
+expiration.  If set, then SessionFactories should use this to enforce a limit
+on session validity.
+
+=attr is_secure
+
+Boolean flag to tell if the session cookie is secure or not.
+
+Default is false.
+
+=attr is_http_only
+
+Boolean flag to tell if the session cookie is http only.
+
+Default is true.
+
+=head1 INTERFACE
+
+Following is the interface provided by this role. When specified the required
+methods to implement are described.
+
+=cut
+
+=head2 create
+
+Create a brand new session object and store it. Returns the newly created
+session object.
+
+Triggers an exception if the session is unable to be created.
+
+    my $session = MySessionFactory->create();
+
+This method does not need to be implemented in the class.
+
+=head2 generate_id
+
+Returns a randomly-generated, guaranteed-unique string.
+By default, it is a 32-character, URL-safe, Base64 encoded combination
+of a 32 bit timestamp and a 160 bit SHA1 digest of random seed data.
+The timestamp ensures that session IDs are generally monotonic.
+
+The default algorithm is not guaranteed cryptographically secure, but it's
+still reasonably strong for general use.
+
+If you have installed L<Math::Random::ISAAC::XS> and L<Crypt::URandom>,
+the seed data will be generated from a cryptographically-strong
+random number generator.
+
+This method is used internally by create() to set the session ID.
+
+This method does not need to be implemented in the class unless an
+alternative method for session ID generation is desired.
+
+=head2 retrieve
+
+Return the session object corresponding to the session ID given. If none is
+found, triggers an exception.
+
+    my $session = MySessionFactory->retrieve(id => $id);
+
+The method C<_retrieve> must be implemented.  It must take C<$id> as a single
+argument and must return a hash reference of session data.
+
+=head2 destroy
+
+Purges the session object that matches the ID given. Returns the ID of the
+destroyed session if succeeded, triggers an exception otherwise.
+
+    MySessionFactory->destroy(id => $id);
+
+The C<_destroy> method must be implemented. It must take C<$id> as a single
+argument and destroy the underlying data.
+
+=head2 flush
+
+Make sure the session object is stored in the factory's backend. This method is
+called to notify the backend about the change in the session object.
+
+The Dancer application will not call flush unless the session C<is_dirty>
+attribute is true to avoid unnecessary writes to the database when no
+data has been modified.
+
+An exception is triggered if the session is unable to be updated in the backend.
+
+    MySessionFactory->flush(session => $session);
+
+The C<_flush> method must be implemented.  It must take two arguments: the C<$id>
+and a hash reference of session data.
+
+=head2 set_cookie_header
+
+Sets the session cookie into the response object
+
+    MySessionFactory->set_cookie_header(
+        response  => $response,
+        session   => $session,
+        destroyed => undef,
+    );
+
+The C<response> parameter contains a L<Dancer2::Core::Response> object.
+The C<session> parameter contains a L<Dancer2::Core::Session> object.
+
+The C<destroyed> parameter is optional.  If true, it indicates the
+session was marked destroyed by the request context.  The default
+C<set_cookie_header> method doesn't need that information, but it is
+included in case a SessionFactory must handle destroyed sessions
+differently (such as signalling to middleware).
+
+=head2 cookie
+
+Coerce a session object into a L<Dancer2::Core::Cookie> object.
+
+    MySessionFactory->cookie(session => $session);
+
+=head2 sessions
+
+Return a list of all session IDs stored in the backend.
+Useful to create cleaning scripts, in conjunction with session's creation time.
+
+The C<_sessions> method must be implemented.  It must return an array reference
+of session IDs (or an empty array reference).
+
 =head1 CONFIGURATION
 
-If there are configuration values specific to your session factory in your config.yml or 
+If there are configuration values specific to your session factory in your config.yml or
 environment, those will be passed to the constructor of the session factory automatically.
 In order to accept and store them, you need to define accessors for them.
 
@@ -452,5 +421,3 @@ You need to do this for every configuration key. The ones that do not have acces
 defined will just go to the void.
 
 =cut
-
-1;
