@@ -1,32 +1,7 @@
 package Dancer2::Core::Time;
-
 #ABSTRACT: class to handle common helpers for time manipulations
 
-=head1 DESCRIPTION
-
-For consistency, whenever something needs to work with time, it
-needs to be expressed in seconds, with a timestamp. Although it's very
-convenient for the machine and calculations, it's not very handy for a
-human-being, for instance in a configuration file.
-
-This class provides everything needed to translate any human-understandable
-expression into a number of seconds.
-
-=head1 SYNOPSIS
-
-    my $time = Dancer2::Core::Time->new( expression => "1h" );
-    $time->seconds; # return 3600
-
-=cut
-
 use Moo;
-
-
-=attr seconds
-
-Number of seconds represented by the object. Defaults to 0.
-
-=cut
 
 has seconds => (
     is      => 'ro',
@@ -44,13 +19,6 @@ sub _build_seconds {
     return $self->_parse_duration($seconds)
 }
 
-
-=attr epoch
-
-The current epoch to handle. Defaults to seconds + time.
-
-=cut
-
 has epoch => (
     is      => 'ro',
     lazy    => 1,
@@ -62,12 +30,6 @@ sub _build_epoch {
     return $self->seconds if $self->seconds !~ /^[\-\+]?\d+$/;
     $self->seconds + time;
 }
-
-=attr gmt_string
-
-Convert the current value in epoch as a GMT string.
-
-=cut
 
 has gmt_string => (
     is      => 'ro',
@@ -92,30 +54,6 @@ sub _build_gmt_string {
       $hour, $min, $sec;
 }
 
-=attr expression
-
-Required. A human readable expression representing the number of seconds to provide.
-
-The format supported is a number followed by an expression. It currently
-understands:
-
-    s second seconds sec secs
-    m minute minutes min mins
-    h hr hour hours
-    d day days
-    w week weeks
-    M month months
-    y year years
-
-Months and years are currently fixed at 30 and 365 days.  This may change.
-Anything else is used verbatim as the expression of a number of seconds.
-
-Example:
-
-    2 hours, 3 days, 3d, 1 week, 3600, etc...
-
-=cut
-
 has expression => (
     is       => 'ro',
     required => 1,
@@ -129,7 +67,6 @@ sub BUILDARGS {
 
     return \%args;
 }
-
 
 # private
 
@@ -184,3 +121,56 @@ sub _parse_duration {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+For consistency, whenever something needs to work with time, it
+needs to be expressed in seconds, with a timestamp. Although it's very
+convenient for the machine and calculations, it's not very handy for a
+human-being, for instance in a configuration file.
+
+This class provides everything needed to translate any human-understandable
+expression into a number of seconds.
+
+=head1 SYNOPSIS
+
+    my $time = Dancer2::Core::Time->new( expression => "1h" );
+    $time->seconds; # return 3600
+
+=attr seconds
+
+Number of seconds represented by the object. Defaults to 0.
+
+=attr epoch
+
+The current epoch to handle. Defaults to seconds + time.
+
+=attr gmt_string
+
+Convert the current value in epoch as a GMT string.
+
+=attr expression
+
+Required. A human readable expression representing the number of seconds to provide.
+
+The format supported is a number followed by an expression. It currently
+understands:
+
+    s second seconds sec secs
+    m minute minutes min mins
+    h hr hour hours
+    d day days
+    w week weeks
+    M month months
+    y year years
+
+Months and years are currently fixed at 30 and 365 days.  This may change.
+Anything else is used verbatim as the expression of a number of seconds.
+
+Example:
+
+    2 hours, 3 days, 3d, 1 week, 3600, etc...
+
+=cut

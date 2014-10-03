@@ -9,36 +9,17 @@ use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
 
-=attr method
-
-The HTTP method of the route (lowercase). Required.
-
-=cut
-
 has method => (
     is       => 'ro',
     isa      => Dancer2Method,
     required => 1,
 );
 
-=attr code
-
-The code reference to execute when the route is ran. Required.
-
-=cut
-
 has code => (
     is       => 'ro',
     required => 1,
     isa      => CodeRef,
 );
-
-=attr regexp
-
-The regular expression that defines the path of the route.
-Required. Coerce from Dancer2's route I<patterns>.
-
-=cut
 
 has regexp => (
     is       => 'ro',
@@ -47,23 +28,11 @@ has regexp => (
 
 has spec_route => ( is => 'ro' );
 
-=attr prefix
-
-The prefix to prepend to the C<regexp>. Optional.
-
-=cut
-
 has prefix => (
     is        => 'ro',
     isa       => Maybe [Dancer2Prefix],
     predicate => 1,
 );
-
-=attr options
-
-A HashRef of conditions on which the matching will depend. Optional.
-
-=cut
 
 has options => (
     is        => 'ro',
@@ -104,16 +73,6 @@ has _params => (
     isa     => ArrayRef,
     default => sub { [] },
 );
-
-=method match
-
-Try to match the route with a given pair of method/path.
-Returns the hash of matching data if success (captures and values of the route
-against the path) or undef if not.
-
-    my $match = $route->match( get => '/hello/sukria' );
-
-=cut
 
 sub match {
     my ( $self, $request ) = @_;
@@ -170,12 +129,6 @@ sub match {
 
     return $self->_match_data( {} );
 }
-
-=method execute
-
-Runs the coderef of the route.
-
-=cut
 
 sub execute {
     my ( $self, @args ) = @_;
@@ -262,3 +215,40 @@ sub validate_options {
 }
 
 1;
+
+__END__
+
+=attr method
+
+The HTTP method of the route (lowercase). Required.
+
+=attr code
+
+The code reference to execute when the route is ran. Required.
+
+=attr regexp
+
+The regular expression that defines the path of the route.
+Required. Coerce from Dancer2's route I<patterns>.
+
+=attr prefix
+
+The prefix to prepend to the C<regexp>. Optional.
+
+=attr options
+
+A HashRef of conditions on which the matching will depend. Optional.
+
+=method match
+
+Try to match the route with a given pair of method/path.
+Returns the hash of matching data if success (captures and values of the route
+against the path) or undef if not.
+
+    my $match = $route->match( get => '/hello/sukria' );
+
+=method execute
+
+Runs the coderef of the route.
+
+=cut
