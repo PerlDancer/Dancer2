@@ -268,12 +268,6 @@ has response => (
     predicate => 'has_response',
 );
 
-=attr with_return
-
-Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
-
-=cut
-
 has with_return => (
     is        => 'ro',
     predicate => 1,
@@ -327,14 +321,6 @@ sub _build_session {
     return $session ||= $engine->create();
 }
 
-=method has_session
-
-Returns true if session engine has been defined and if either a session
-object has been instantiated or if a session cookie was found and not
-subsequently invalidated.
-
-=cut
-
 sub has_session {
     my $self = shift;
 
@@ -345,15 +331,6 @@ sub has_session {
              && !$self->has_destroyed_session );
 }
 
-=attr destroyed_session
-
-We cache a destroyed session here; once this is set we must not attempt to
-retrieve the session from the cookie in the request.  If no new session is
-created, this is set (with expiration) as a cookie to force the browser to
-expire the cookie.
-
-=cut
-
 has destroyed_session => (
     is        => 'ro',
     isa       => InstanceOf ['Dancer2::Core::Session'],
@@ -361,13 +338,6 @@ has destroyed_session => (
     writer    => 'set_destroyed_session',
     clearer   => 'clear_destroyed_session',
 );
-
-=method destroy_session
-
-Destroys the current session and ensures any subsequent session is created
-from scratch and not from the request session cookie
-
-=cut
 
 sub destroy_session {
     my $self = shift;
@@ -860,13 +830,6 @@ sub cookie {
     $self->response->push_header( 'Set-Cookie' => $c->to_header );
 }
 
-=method redirect($destination, $status)
-
-Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
-be made into an absolute URI, relative to the URI in the request.
-
-=cut
-
 sub redirect {
     my $self        = shift;
     my $destination = shift;
@@ -890,15 +853,6 @@ sub redirect {
         and $self->with_return->($self->response);
 }
 
-=method halt
-
-Flag the response object as 'halted'.
-
-If called during request dispatch, immediatly returns the response
-to the dispatcher and after hooks will not be run.
-
-=cut
-
 sub halt {
    my $self = shift;
    $self->response->halt;
@@ -908,15 +862,6 @@ sub halt {
        and $self->with_return->($self->response);
 }
 
-=method pass
-
-Flag the response object as 'passed'.
-
-If called during request dispatch, immediatly returns the response
-to the dispatcher.
-
-=cut
-
 sub pass {
    my $self = shift;
    $self->response->pass;
@@ -925,21 +870,6 @@ sub pass {
    $self->has_with_return
        and $self->with_return->($self->response);
 }
-
-=method forward
-
-Create a new request which is a clone of the current one, apart
-from the path location, which points instead to the new location.
-This is used internally to chain requests using the forward keyword.
-
-Note that the new location should be a hash reference. Only one key is
-required, the C<to_url>, that should point to the URL that forward
-will use. Optional values are the key C<params> to a hash of
-parameters to be added to the current request parameters, and the key
-C<options> that points to a hash of options about the redirect (for
-instance, C<method> pointing to a new request method).
-
-=cut
 
 sub forward {
     my $self    = shift;
@@ -1031,6 +961,28 @@ that package, thanks to that encapsulation.
 
 =attr default_config
 
+=attr with_return
+
+Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
+
+=method has_session
+
+Returns true if session engine has been defined and if either a session
+object has been instantiated or if a session cookie was found and not
+subsequently invalidated.
+
+=attr destroyed_session
+
+We cache a destroyed session here; once this is set we must not attempt to
+retrieve the session from the cookie in the request.  If no new session is
+created, this is set (with expiration) as a cookie to force the browser to
+expire the cookie.
+
+=method destroy_session
+
+Destroys the current session and ensures any subsequent session is created
+from scratch and not from the request session cookie
+
 =method register_plugin
 
 =head2 lexical_prefix
@@ -1071,6 +1023,38 @@ Sugar for getting the ordered list of all registered route regexps by method.
     my $regexps = $app->routes_regexps_for( 'get' );
 
 Returns an ArrayRef with the results.
+
+=method redirect($destination, $status)
+
+Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
+be made into an absolute URI, relative to the URI in the request.
+
+=method halt
+
+Flag the response object as 'halted'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher and after hooks will not be run.
+
+=method pass
+
+Flag the response object as 'passed'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher.
+
+=method forward
+
+Create a new request which is a clone of the current one, apart
+from the path location, which points instead to the new location.
+This is used internally to chain requests using the forward keyword.
+
+Note that the new location should be a hash reference. Only one key is
+required, the C<to_url>, that should point to the URL that forward
+will use. Optional values are the key C<params> to a hash of
+parameters to be added to the current request parameters, and the key
+C<options> that points to a hash of options about the redirect (for
+instance, C<method> pointing to a new request method).
 
 =head2 app
 
