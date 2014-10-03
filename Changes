@@ -4,7 +4,7 @@
     * GH #667: Fix typo in cookbook pod. (Lindsey Beesley) 
     * GH #649, #670: Document core logger. (simbabque)
     * GH #689: Git guide markdown fixes. (Paul Cochrane)
-    * GH #690, #691, #694, #696, #698, #699, #700, #702: Doc cleanups.
+    * GH #690, #691, #694, #696, #698, #699, #700, #702, #703: Doc cleanups.
       (Paul Cochrane)
     * GH #688: Improve testing documentation. (Paul Chochrane)
     * GH #692: Document serving static files using
