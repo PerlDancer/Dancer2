@@ -26,6 +26,22 @@ use HTTP::Request::Common qw(GET HEAD PUT POST DELETE);
     ajax ['put', 'del', 'get'] => "/more/test" => sub {
         "{some: 'json'}";
     };
+
+    get '/order/A' => sub {
+        "text: A";
+    };
+
+    ajax '/order/A' => sub {
+        "{json: 'A'}";
+    };
+
+    ajax '/order/*' => sub {
+        "{json: '*'}";
+    };
+
+    ajax '/order/Z' => sub {
+        "{json: 'Z'}";
+    };
 }
 
 my $app = Dancer2->psgi_app;
@@ -98,6 +114,32 @@ test_psgi $app, sub {
             'content type on non-XMLHttpRequest not munged',
         );
     }
+
+    subtest 'Ajax declaration order' => sub {
+        my $res;
+
+        $res = $cb->( GET '/order/A' );
+        is(
+            $res->content,
+            "text: A",
+            'Matched get route',
+        );
+
+        $res = $cb->( GET '/order/A', 'X-Requested-With' => 'XMLHttpRequest' );
+        is(
+            $res->content,
+            "{json: 'A'}",
+            'Matched ajax route before get route',
+        );
+
+        $res = $cb->( GET '/order/Z', 'X-Requested-With' => 'XMLHttpRequest' );
+        is(
+            $res->content,
+            "{json: '*'}",
+            'Matched ajax route in declaration order',
+        );
+    };
+
 };
 
 done_testing;

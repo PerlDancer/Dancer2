@@ -392,8 +392,26 @@ has routes => (
             head    => [],
             post    => [],
             put     => [],
-            del     => [],
+            delete  => [],
             options => [],
+            patch   => [],
+        };
+    },
+);
+
+# Routes with options (such as ajax routes) are stored ahead of
+# options-less routes.  This tracks the border between the two.
+has routes_border => (
+    is      => 'rw',
+    isa     => HashRef,
+    default => sub {
+        {   get     => 0,
+            head    => 0,
+            post    => 0,
+            put     => 0,
+            delete  => 0,
+            options => 0,
+            patch   => 0,
         };
     },
 );
@@ -793,9 +811,19 @@ sub add_route {
     my $route =
       Dancer2::Core::Route->new( %route_attrs, prefix => $self->prefix );
 
-    my $method = $route->method;
+    my $method  = $route->method;
+    my $options = $route->options;
+    my $routes  = $self->routes->{$method};
 
-    push @{ $self->routes->{$method} }, $route;
+    # Routes are stored in declaration order.  But routes with options
+    # (such as ajax routes) get to cut in line.  This way, a user
+    # isn't forced to declare ajax routes ahead of get routes.
+    if ( $options && keys %$options ) {
+        splice @$routes, $self->routes_border->{$method}++, 0, $route;
+    }
+    else {
+        push @$routes, $route;
+    }
 }
 
 sub route_exists {
