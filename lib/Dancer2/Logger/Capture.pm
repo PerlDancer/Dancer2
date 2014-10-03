@@ -6,6 +6,25 @@ use Dancer2::Logger::Capture::Trap;
 
 with 'Dancer2::Core::Role::Logger';
 
+has trapper => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_trapper',
+);
+
+sub _build_trapper { Dancer2::Logger::Capture::Trap->new }
+
+sub log {
+    my ( $self, $level, $message ) = @_;
+
+    $self->trapper->store( $level => $message );
+    return;
+}
+
+1;
+
+__END__
+
 =head1 SYNOPSIS
 
 The basics:
@@ -82,30 +101,10 @@ It's primary purpose is for testing. Here is an example of a test:
 
     done_testing;
 
-
 =method trapper
 
 Returns the L<Dancer2::Logger::Capture::Trap> object used to capture
 and read logs.
-
-=cut
-
-has trapper => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_trapper',
-);
-
-sub _build_trapper { Dancer2::Logger::Capture::Trap->new }
-
-sub log {
-    my ( $self, $level, $message ) = @_;
-
-    $self->trapper->store( $level => $message );
-    return;
-}
-
-1;
 
 =head1 SEE ALSO
 
