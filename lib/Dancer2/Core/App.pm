@@ -8,7 +8,10 @@ use Module::Runtime    'is_module_name';
 use Return::MultiLevel ();
 use Safe::Isa;
 use File::Spec;
-use Plack::Builder;
+
+use Plack::Middleware::Conditional;
+use Plack::Middleware::Head;
+use Plack::Middleware::Static;
 
 use Dancer2::FileUtils 'path';
 use Dancer2::Core;
@@ -473,6 +476,7 @@ around execute_hook => sub {
 sub _build_default_config {
     my $self = shift;
 
+    my $public = $ENV{DANCER_PUBLIC} || path( $self->location, 'public' );
     return {
         content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset        => ( $ENV{DANCER_CHARSET}      || '' ),
@@ -480,14 +484,10 @@ sub _build_default_config {
         views          => ( $ENV{DANCER_VIEWS}
                             || path( $self->config_location, 'views' ) ),
         appdir         => $self->location,
+        public_dir     => $public,
+        static_handler => ( -d $public ),
         template       => 'Tiny',
         route_handlers => [
-            [
-                File => {
-                    public_dir => $ENV{DANCER_PUBLIC} ||
-                                  path( $self->location, 'public' )
-                }
-            ],
             [
                 AutoPage => 1
             ],
@@ -977,9 +977,21 @@ sub to_app {
         return $response;
     };
 
-    my $builder = Plack::Builder->new;
-    $builder->add_middleware('Head');
-    return $builder->wrap($psgi);
+    # Static content passes through to app on 404, conditionally applied.
+    $psgi = Plack::Middleware::Conditional->wrap(
+        $psgi,
+        builder => sub { Plack::Middleware::Static->wrap(
+            $psgi,
+            path => qr/.+/,
+            root => $self->config->{public_dir},
+            pass_through => 1
+        ) },
+        condition => sub { $self->config->{static_handler} },
+    );
+
+    # Apply Head. After static so a HEAD request on static content DWIM.
+    $psgi = Plack::Middleware::Head->wrap( $psgi );
+    return $psgi;
 }
 
 sub dispatch {
