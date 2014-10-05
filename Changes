@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * Apps are now a proper independent PSGI application. Forwarding
+      and passing requests between apps will still work if you use the
+      'Dancer2->psgi_app' method without providing a class, but it might
+      still be phased out in the future.
+      (Sawyer X)
+
     [ DOCUMENTATION ]
     * GH #667: Fix typo in cookbook pod. (Lindsey Beesley) 
     * GH #649, #670: Document core logger. (simbabque)

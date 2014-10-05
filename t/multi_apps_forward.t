@@ -33,7 +33,7 @@ use HTTP::Request::Common;
 
 {
     # test each single app
-    my $app1 = App1->psgi_app;
+    my $app1 = App1->to_app;
     test_psgi $app1, sub {
         my $cb = shift;
         is( $cb->( GET '/' )->code, 200, '[GET /] OK' );
@@ -53,7 +53,7 @@ use HTTP::Request::Common;
         );
     };
 
-    my $app2 = App2->psgi_app;
+    my $app2 = App2->to_app;
     test_psgi $app2, sub {
         my $cb = shift;
         is( $cb->( GET '/' )->code, 200, '[GET /] OK' );
@@ -61,11 +61,12 @@ use HTTP::Request::Common;
     };
 }
 
-{
+note 'Old format using psgi_app to loop over multiple apps'; {
     # test global
     my $app = Dancer2->psgi_app;
     test_psgi $app, sub {
         my $cb = shift;
+
         is(
             $cb->( GET '/forward_to_new' )->code,
             200,
@@ -79,3 +80,4 @@ use HTTP::Request::Common;
         );
     };
 }
+

@@ -2,9 +2,6 @@ package Dancer2::Core::Dispatcher;
 # ABSTRACT: Class for dispatching request to the appropriate route handler
 
 use Moo;
-use Encode;
-use Safe::Isa;
-use Return::MultiLevel qw(with_return);
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request;
@@ -16,214 +13,46 @@ has apps => (
     default => sub { [] },
 );
 
-# take the list of applications and an $env hash, return a Response object.
+has apps_psgi => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    lazy    => 1,
+    builder => '_build_apps_psgi',
+);
+
+sub _build_apps_psgi {
+    my $self = shift;
+    return [ map +( $_->name, $_->to_app ), @{ $self->apps } ];
+}
+
 sub dispatch {
-    my ( $self, $env, $request ) = @_;
+    my ( $self, $env ) = @_;
+    my @apps = @{ $self->apps_psgi };
 
-    my %preexisting_sessions;
+    DISPATCH: while (1) {
+        for ( my $i = 0; $i < @apps; $i += 2 ) {
+            my ( $app_name, $app ) = @apps[ $i, $i + 1 ];
 
-    # warn "dispatching ".$env->{PATH_INFO}
-    #    . " with ".join(", ", map { $_->name } @{$self->apps });
+            my $response = $app->($env);
 
-DISPATCH:
-    while (1) {
-    foreach my $app ( @{ $self->apps } ) {
-        # warn "walking through routes of ".$app->name;
+            # check for an internal request
+            delete Dancer2->runner->{'internal_forward'}
+                and next DISPATCH;
 
-        # create request if we didn't get any
-        $request ||= $self->build_request( $env, $app );
-
-        my $cname       = $app->engine('session')->cookie_name;
-        my $http_method = lc $request->method;
-        my $path_info   =    $request->path_info;
-
-        $app->log( core => "looking for $http_method $path_info" );
-
-      ROUTE:
-        foreach my $route ( @{ $app->routes->{$http_method} } ) {
-            # warn "testing route ".$route->regexp;
-
-            # TODO store in route cache
-
-            # go to the next route if no match
-            my $match = $route->match($request)
-                or next ROUTE;
-
-            $request->_set_route_params($match);
-            $app->set_request($request);
-            # Add session to app *if* we have a session and the request
-            # has the appropriate cookie header for _this_ app.
-
-            $preexisting_sessions{$cname}
-                and $app->set_session( $preexisting_sessions{$cname} );
-
-            my $response = with_return {
-                my ($return) = @_;
-
-                # stash the multilevel return coderef in the app
-                $app->has_with_return
-                    or $app->set_with_return($return);
-
-                return $self->_dispatch_route($route, $app);
-            };
-
-            # Ensure we clear the with_return handler
-            $app->clear_with_return;
-
-            # handle forward requests
-            if ( ref $response eq 'Dancer2::Core::Request' ) {
-                # this is actually a request, not response
-                $request = $response;
-
-                # Get the session object from the app before we clean up
-                # the request context, so we can propogate this to the
-                # next dispatch cycle (if required).
-                $app->_has_session
-                    and $preexisting_sessions{$cname} = $app->session;
-
-                $app->cleanup;
-
-                next DISPATCH;
-            }
-
-            # from here we assume the response is a Dancer2::Core::Response
-
-            # No further processing of this response if its halted
-            if ( $response->is_halted ) {
-                $app->cleanup;
-                return $response;
-            }
-
-            # pass the baton if the response says so...
-            if ( $response->has_passed ) {
-                ## A previous route might have used splat, failed
-                ## this needs to be cleaned from the request.
-                exists $request->{_params}{splat}
-                    and delete $request->{_params}{splat};
-
-                $response->has_passed(0); # clear for the next round
-                next ROUTE;
-            }
-
-            $app->execute_hook( 'core.app.after_request', $response );
-            $app->cleanup;
-
-            return $response;
+            # the app raised a flag saying it couldn't match anything
+            # which is different than "I matched and it's a 404"
+            delete Dancer2->runner->{'internal_404'}
+                or return $response;
         }
 
-        # Get current session object to allow propogation to next app.
-        $app->_has_session
-            and $preexisting_sessions{$cname} = $app->session;
-        $app->cleanup;
-    }
-
+        # don't run anymore
         last;
     } # while
 
-    # Assume there was at least one app to the request object was instantiated..
-    return $self->response_not_found( $request );
-}
-
-# the dispatcher can build requests now :)
-sub build_request {
-    my ( $self, $env, $app ) = @_;
-
-    # If we have an app, send the serialization engine
-    my $engine  = $app->engine('serializer');
-    my $request = Dancer2::Core::Request->new(
-          env             => $env,
-          is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
-        ( serializer      => $engine )x!! $engine,
-    );
-
-    # if it's a mutable serializer, we add more headers
-    # so it can be set properly
-    # I don't like doing this... -- Sawyer
-    if ( $engine->$_isa('Dancer2::Serializer::Mutable') ) {
-        $engine->{'extra_headers'} = {
-            map +( $_ => $request->$_ ), qw<content_type accept accept_type>
-        }
-    }
-
-    # Log deserialization errors
-    if ($engine) {
-        $engine->has_error and $app->log(
-            core => "Failed to deserialize the request : " .
-                    $engine->error
-        );
-    }
-
-    return $request;
-}
-
-# Call any before hooks then the matched route.
-sub _dispatch_route {
-    my ($self, $route, $app) = @_;
-
-    $app->execute_hook( 'core.app.before_request', $app );
-    my $response = $app->response;
-
-    my $content;
-    if ( $response->is_halted ) {
-        # if halted, it comes from the 'before' hook. Take its content
-        $content = $response->content;
-    }
-    else {
-        $content = eval { $route->execute($app) };
-        my $error = $@;
-        if ($error) {
-            $app->log( error => "Route exception: $error" );
-            $app->execute_hook( 'core.app.route_exception', $app, $error );
-            return $self->response_internal_error( $app, $error );
-        }
-    }
-
-    if ( ref $content eq 'Dancer2::Core::Response' ) {
-        $response = $app->set_response($content);
-    }
-    elsif ( defined $content ) {
-        # The response object has no back references to the content or app
-        # Update the default_content_type of the response if any value set in
-        # config so it can be applied when the response is encoded/returned.
-        if ( exists $app->config->{content_type}
-          && $app->config->{content_type} ) {
-            $response->default_content_type($app->config->{content_type});
-        }
-
-        $response->content($content);
-        $response->encode_content;
-    }
-
-    return $response;
-}
-
-sub response_internal_error {
-    my ( $self, $app, $error ) = @_;
-
-    # warn "got error: $error";
-
-    return Dancer2::Core::Error->new(
-        app       => $app,
-        status    => 500,
-        exception => $error,
-    )->throw;
-}
-
-sub response_not_found {
-    my ( $self, $request ) = @_;
-
-    # Use first defined app (for now)
-    my $app = $self->apps->[0];
-    $app->set_request($request);
-
-    my $response = Dancer2::Core::Error->new(
-        app    => $app,
-        status  => 404,
-        message => $request->path,
-    )->throw;
-
-    $app->cleanup;
-    return $response;
+    # a 404 on all apps, using the first app
+    my $default_app = $self->apps->[0];
+    my $request     = $default_app->build_request($env);
+    return $default_app->response_not_found($request)->to_psgi;
 }
 
 1;

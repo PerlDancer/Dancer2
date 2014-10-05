@@ -21,7 +21,7 @@ use Capture::Tiny 'capture_stderr';
     };
 }
 
-my $app = Dancer2->psgi_app;
+my $app = App->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {

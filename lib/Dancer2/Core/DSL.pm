@@ -71,6 +71,7 @@ sub dsl_keywords {
         start                => { is_global => 1 },
         status               => { is_global => 0 },
         template             => { is_global => 0 },
+        to_app               => { is_global => 1 },
         to_dumper            => { is_global => 1 },
         to_json              => { is_global => 1 },
         to_yaml              => { is_global => 1 },
@@ -277,8 +278,10 @@ sub dance { shift->start(@_) }
 sub psgi_app {
     my $self = shift;
 
-    $self->runner->psgi_app( [ $self->app ] );
+    $self->app->to_app;
 }
+
+sub to_app { shift->app->to_app }
 
 #
 # Response alterations
