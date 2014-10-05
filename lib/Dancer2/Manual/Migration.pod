@@ -99,3 +99,27 @@ For example:
 would return an error. The correct way to write this would be to use
 C<get '/0'>
 
+=head3 Session Engines: Configuration
+
+In L<Dancer2>, configuration of the session engines is passed to the 
+constructor of the engine. 
+
+For example:
+ 
+ session: "DBIC"
+ engines:
+   session:
+     DBIC:
+       dsn:      "DBI:mysql:database=testing;host=127.0.0.1;port=3306" # DBI Data Source Name
+       schema_class:    "Interchange6::Schema"  # DBIx::Class schema
+       
+The following attributes need to be added to your engine class, to make 
+C<dsn> and C<schema_class> B<read only>:
+ 
+ has dsn => (
+     is => 'ro',
+ );
+
+ has schema_class => (
+     is => 'ro',
+ );
