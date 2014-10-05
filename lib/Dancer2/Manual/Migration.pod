@@ -99,3 +99,84 @@ For example:
 would return an error. The correct way to write this would be to use
 C<get '/0'>
 
+=head3 Tests
+
+Dancer2 recommends the use of L<Plack::Test>. 
+
+For example:
+ 
+    use strict;
+    use warnings;
+
+    use Test::More tests => 3;
+
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    use Test2;
+    { package Test2; set apphandler => 'PSGI'; set log => 'error'; }
+
+    test_psgi( Test2::dance, sub {
+        my $app = shift;
+
+        my $res = $app->( GET '/' );
+
+        ok $res->is_success;
+
+        is $res->code => 200, 'response status is 200 for /';
+
+        like $res->content => qr#<title>Test2</title>#, 'title is okay';
+    } );
+ 
+Other modules that could be used for testing are: 
+
+=over 4
+
+=item * L<Test::TCP> 
+
+=item * L<Test::WWW::Mechanize::PSGI>
+
+=back
+
+=head4 Logs
+
+C<read_logs> can no longer be used, as with L<Dancer2::Test>. Instead, 
+L<Dancer2::Logger::Capture> could be used for testing, to capture all 
+logs to an object. 
+
+For example:
+
+    use strict;
+    use warnings;
+    use Test::More import => ['!pass'];
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    {
+        package App;
+        use Dancer2;
+
+        set log       => 'debug';
+        set logger    => 'capture';
+
+        get '/' => sub {
+            debug 'this is my debug message';
+            return 1;
+        };
+    }
+
+    my $app = Dancer2->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        my $res = $cb->( GET '/' );
+        is $res->code, 200;
+
+        my $trap = App->dancer_app->logger_engine->trapper;
+
+        is_deeply $trap->read, [
+            { level => 'debug', message => 'this is my debug message' }
+        ];
+    };
