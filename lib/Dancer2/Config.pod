@@ -132,6 +132,11 @@ If set to true, Dancer2 will look to C<X-Forwarded-Protocol> and
 C<X-Forwarded-host> when constructing URLs (for example, when using
 C<redirect>). This is useful if your application is behind a proxy.
 
+Note that if you are using Apache and want to retrieve the protocol,
+then you will need to manually specify it in your Apache config:
+
+    RequestHeader set X_FORWARDED_PROTO "https"
+
 =head2 Content type / character set
 
 =head3 content_type (string)
