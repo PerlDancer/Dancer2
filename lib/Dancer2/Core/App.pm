@@ -10,7 +10,10 @@ use Safe::Isa;
 use File::Spec;
 
 use Plack::Middleware::Conditional;
+use Plack::Middleware::ContentLength;
+use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
+use Plack::Middleware::RemoveRedundantBody;
 use Plack::Middleware::Static;
 
 use Dancer2::FileUtils 'path';
@@ -976,6 +979,12 @@ sub to_app {
 
         return $response;
     };
+
+    # Wrap with common middleware
+    # RemoveRedundantBody, FixMissingBodyInRedirect, ContentLength
+    $psgi = Plack::Middleware::RemoveRedundantBody->wrap( $psgi );
+    $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap( $psgi );
+    $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
     $psgi = Plack::Middleware::Conditional->wrap(
