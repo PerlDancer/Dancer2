@@ -77,13 +77,12 @@ sub deserialize {
 
 sub _get_content_type {
     my $self    = shift;
-    my $headers = $self->{'extra_headers'}
-        or return;
+    $self->has_request or return;
 
     # Search for the first HTTP header variable which
     # specifies supported content.
     foreach my $method ( qw<content_type accept accept_type> ) {
-        if ( my $value = $headers->{$method} ) {
+        if ( my $value = $self->request->header($method) ) {
             if ( exists $formats->{$value} ) {
                 $self->set_content_type($value);
                 return $formats->{$value};
