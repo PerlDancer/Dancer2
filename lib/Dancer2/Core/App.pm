@@ -575,6 +575,13 @@ sub cleanup {
     $self->clear_response;
     $self->clear_session;
     $self->clear_destroyed_session;
+    # Clear engine attributes
+    for my $type ( @{ $self->supported_engines } ) {
+        my $attr   = "${type}_engine";
+        my $engine = $self->$attr or next;
+        $engine->has_session && $engine->clear_session;
+        $engine->has_request && $engine->clear_request;
+    }
 }
 
 sub engine {
@@ -1008,7 +1015,13 @@ DISPATCH:
 
             $request->_set_route_params($match);
 
+            # Add request to app and engines
             $self->set_request($request);
+            for my $type ( @{ $self->supported_engines } ) {
+                my $attr   = "${type}_engine";
+                my $engine = $self->$attr or next;
+                $engine->set_request( $request );
+            }
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
