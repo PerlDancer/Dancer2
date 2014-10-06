@@ -1119,15 +1119,6 @@ sub build_request {
         ( serializer      => $engine )x!! $engine,
     );
 
-    # if it's a mutable serializer, we add more headers
-    # so it can be set properly
-    # I don't like doing this... -- Sawyer
-    if ( $engine->$_isa('Dancer2::Serializer::Mutable') ) {
-        $engine->{'extra_headers'} = {
-            map +( $_ => $request->$_ ), qw<content_type accept accept_type>
-        }
-    }
-
     # Log deserialization errors
     if ($engine) {
         $engine->has_error and $self->log(
