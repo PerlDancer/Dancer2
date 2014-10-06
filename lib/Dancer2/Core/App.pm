@@ -602,7 +602,7 @@ sub template {
     $template->set_settings( $self->config );
 
     # return content
-    return $template->process( $self->request, @_ );
+    return $template->process( @_ );
 }
 
 sub hook_candidates {
