@@ -1,0 +1,193 @@
+package Dancer2::Manual::Migration;
+
+use strict;
+use warnings;
+
+1;
+
+__END__
+
+=pod
+
+=head2 Migration from Dancer1 to Dancer2
+
+This document covers some changes that users will need to be aware of
+while upgrading from L<Dancer> (version 1) to L<Dancer2>.
+
+=head3 Apps
+
+1. In L<Dancer2>, each module is a B<separate application> with its own
+namespace and variables. You can set the application name in each of your
+L<Dancer2> application modules. Different modules can be tied into the same
+app by setting the application name to the same value.
+
+For example, to set the appname directive explicitly:
+
+C<MyApp>:
+
+    package MyApp;
+    use Dancer2;
+    use MyApp::Admin
+
+    hook before => sub {
+        var db => 'Users';
+    };
+
+    get '/' => sub {...};
+
+    1;
+
+C<MyApp::Admin>:
+
+    package MyApp::Admin;
+    use Dancer2 appname => 'MyApp';
+
+    # use a lexical prefix so we don't override it globally
+    prefix '/admin' => sub {
+        get '/' => sub {...};
+    };
+
+    1;
+
+Without the appname directive, C<MyApp::Admin> would not have access
+to variable C<db>. In fact, when accessing C</admin>, the before hook would
+not be executed.
+
+See L<Dancer2::Cookbook|https://metacpan.org/pod/Dancer2::Cookbook#Using-the-prefix-feature-to-split-your-application>
+for details.
+
+2. The following modules can be used to speed up an app in Dancer2:
+
+=over 4
+
+=item * L<URL::Encode::XS>
+
+=item * L<CGI::Deurl::XS>
+
+=item * L<HTTP::Parser::XS>
+
+=back
+
+They would need to be installed separately. This is because L<Dancer2> does
+not incorporate any C code, but it can get C-code compiled as a module.
+Thus, these modules can be used for speed improvement provided:
+
+=over 4
+
+=item * You have access to a C interpreter
+
+=item * You don't need to fatpack your application
+
+=back
+
+=head3 Plugins: plugin_setting
+
+C<plugin_setting> returns the configuration of the plugin. It can no
+longer be called outside of C<register> or C<on_plugin_import>.
+
+=head3 Routes
+
+L<Dancer2> requires all routes defined via a string to begin with a leading
+slash C</>.
+
+For example:
+
+    get '0' => sub {
+        return "not gonna fly";
+    };
+
+would return an error. The correct way to write this would be to use
+C<get '/0'>
+
+=head3 Tests
+
+Dancer2 recommends the use of L<Plack::Test>.
+
+For example:
+
+    use strict;
+    use warnings;
+
+    use Test::More tests => 3;
+
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    use Test2;
+    { package Test2; set apphandler => 'PSGI'; set log => 'error'; }
+
+    test_psgi( Test2::dance, sub {
+        my $app = shift;
+
+        my $res = $app->( GET '/' );
+
+        ok $res->is_success;
+
+        is $res->code => 200, 'response status is 200 for /';
+
+        like $res->content => qr#<title>Test2</title>#, 'title is okay';
+    } );
+
+Other modules that could be used for testing are:
+
+=over 4
+
+=item * L<Test::TCP>
+
+=item * L<Test::WWW::Mechanize::PSGI>
+
+=back
+
+=head4 Logs
+
+C<read_logs> can no longer be used, as with L<Dancer2::Test>. Instead,
+L<Dancer2::Logger::Capture> could be used for testing, to capture all
+logs to an object.
+
+For example:
+
+    use strict;
+    use warnings;
+    use Test::More import => ['!pass'];
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    {
+        package App;
+        use Dancer2;
+
+        set log       => 'debug';
+        set logger    => 'capture';
+
+        get '/' => sub {
+            debug 'this is my debug message';
+            return 1;
+        };
+    }
+
+    my $app = Dancer2->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        my $res = $cb->( GET '/' );
+        is $res->code, 200;
+
+        my $trap = App->dancer_app->logger_engine->trapper;
+
+        is_deeply $trap->read, [
+            { level => 'debug', message => 'this is my debug message' }
+        ];
+    };
+
+=head3 Exports: Tags
+
+The following tags are not needed in L<Dancer2>:
+
+ use Dancer2 qw(:syntax);
+ use Dancer2 qw(:tests);
+ use Dancer2 qw(:script);
+
+The C<plackup> command should be used instead. It provides a development
+server and reads the configuration options in your command line utilities.

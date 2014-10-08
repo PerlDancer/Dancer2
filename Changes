@@ -8,6 +8,7 @@
       (Sawyer X)
 
     [ DOCUMENTATION ]
+    * Migration document! (Snigdha Dagar)
     * GH #667: Fix typo in cookbook pod. (Lindsey Beesley) 
     * GH #649, #670: Document core logger. (simbabque)
     * GH #689: Git guide markdown fixes. (Paul Cochrane)
