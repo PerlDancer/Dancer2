@@ -180,3 +180,14 @@ For example:
             { level => 'debug', message => 'this is my debug message' }
         ];
     };
+
+=head3 Exports: Tags
+
+The following tags are not needed in L<Dancer2>:
+
+ use Dancer2 qw(:syntax);
+ use Dancer2 qw(:tests);
+ use Dancer2 qw(:script);
+
+The C<plackup> command should be used instead. It provides a development
+server and reads the configuration options in your command line utilities. 
