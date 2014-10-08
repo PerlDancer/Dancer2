@@ -90,7 +90,7 @@ longer be called outside of C<register> or C<on_plugin_import>.
 L<Dancer2> requires all routes defined via a string to begin with a leading
 slash C</>.
 
-For example: 
+For example:
 
     get '0' => sub {
         return "not gonna fly";
@@ -101,10 +101,10 @@ C<get '/0'>
 
 =head3 Tests
 
-Dancer2 recommends the use of L<Plack::Test>. 
+Dancer2 recommends the use of L<Plack::Test>.
 
 For example:
- 
+
     use strict;
     use warnings;
 
@@ -127,12 +127,12 @@ For example:
 
         like $res->content => qr#<title>Test2</title>#, 'title is okay';
     } );
- 
-Other modules that could be used for testing are: 
+
+Other modules that could be used for testing are:
 
 =over 4
 
-=item * L<Test::TCP> 
+=item * L<Test::TCP>
 
 =item * L<Test::WWW::Mechanize::PSGI>
 
@@ -140,9 +140,9 @@ Other modules that could be used for testing are:
 
 =head4 Logs
 
-C<read_logs> can no longer be used, as with L<Dancer2::Test>. Instead, 
-L<Dancer2::Logger::Capture> could be used for testing, to capture all 
-logs to an object. 
+C<read_logs> can no longer be used, as with L<Dancer2::Test>. Instead,
+L<Dancer2::Logger::Capture> could be used for testing, to capture all
+logs to an object.
 
 For example:
 
@@ -190,4 +190,4 @@ The following tags are not needed in L<Dancer2>:
  use Dancer2 qw(:script);
 
 The C<plackup> command should be used instead. It provides a development
-server and reads the configuration options in your command line utilities. 
+server and reads the configuration options in your command line utilities.
