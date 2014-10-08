@@ -12,13 +12,15 @@
     * GH #649, #670: Document core logger. (simbabque)
     * GH #689: Git guide markdown fixes. (Paul Cochrane)
     * GH #690, #691, #694, #696, #698, #699, #700, #702, #703,
-      #704, #705, #706, #707, #708, #710: Doc cleanups.
+         #704, #705, #706, #707, #708, #710: Doc cleanups.
       (Paul Cochrane)
     * GH #688: Improve testing documentation. (Paul Chochrane)
     * GH #692: Document serving static files using
       Plack::Middleware::Static. (Dávid Kovács @DavsX)
     * GH #695: Correct Dancer2::Logger::Capture, add test example.
       (Dávid Kovács @DavsX)
+    * GH #716: Correct document on proxy procotol forwarding
+      in Apache. (Andy Beverley)
 
 0.150000  2014-08-17 01:35:16CEST+0200 Europe/Amsterdam
 
