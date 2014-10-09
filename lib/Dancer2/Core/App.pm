@@ -1159,17 +1159,11 @@ sub _dispatch_route {
         $content = $response->content;
     }
     else {
-        # FIXME: check for memory leak here
-        # perhaps we need to weaken $self, perhaps not
-        # would it matter if we do? could it be a problem?
         $content = eval { $route->execute($self) };
 
         my $error = $@;
         if ($error) {
             $self->log( error => "Route exception: $error" );
-            # FIXME: check for memory leak here
-            # perhaps we need to weaken $self, perhaps not
-            # would it matter if we do? could it be a problem?
             $self->execute_hook( 'core.app.route_exception', $self, $error );
             return $self->response_internal_error($error);
         }
