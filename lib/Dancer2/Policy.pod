@@ -19,14 +19,13 @@ of conduct) for the Dancer core developers and broad community.
 
 This is what we expect from our community and ourselves and these are
 the standards of behavior we set forth in order to make sure the community
-stays a safe space for all of its members, without exception.
+remains a safe space for all of its members, without exception.
 
 =head1 STANDARDS OF CONDUCT
 
-These standards apply in any context in which the community comes
-together as a community. This includes, but is not limited to, the
-Dancer IRC channel, the Dancer mailing list, Dancer hackathons, and
-Dancer conferences.
+These standards applies anywhere the community comes together as a group.
+This includes, but is not limited to, the Dancer IRC channel, the Dancer
+mailing list, Dancer hackathons, and Dancer conferences.
 
 =over 4
 
@@ -71,27 +70,30 @@ document would be updated to include their names.
 Additionally, it's important to understand the self-regulating nature we
 foster at the Dancer community. This means anyone and everyone in the
 community - in the channel, on the list, at an event - has the ability to
-call you up on your behavior and your incivility to others in the community.
+call out unacceptable behavior and incivility to others in the community.
 
-While it remains the responsibility of moderators to issue warnings and make
-decisions, do not expect that they will be the only ones who make a note of
-the way you treat others.
+Moderators are responsibe for issuing warnings and take disciplenary actions,
+but anyone may - and is encouraged - to publicly make note of unacceptable
+treatment of others.
 
-As a core principle, abuse is never tolerated. You cannot berate, insult,
+As a core principle, abuse is never tolerated. One cannot berate, insult,
 debase, deride, put-down, or vilify anyone, or act towards anyone in a way
-intending to hurt someone. This includes any attempts to otherize anyone,
-whether by their gender, sexual orientation, or any other characteristic.
+intending to hurt them.
 
-The community aims to provide a safe space for everyone, in any forum it
-has. If you ever feel this has been compromised, please do contact the
-moderators. We are always here. This is B<your> community, as much as it
-is anyone else's.
+The community specifically considers as abuse any attempts to otherize anyone,
+whether by their technical skill, knowledge, gender, sexual orientation,
+or any other characteristic.
+
+The community aims to maintain a safe space for everyone, in any forum it
+has. If you ever feel this core principle has been compromised, you are strongly
+urged to contact a moderator. We are always here.
+
+Remember, this is B<your> community, as much as it is anyone else's.
 
 =head1 CREDITS
 
 This policy has been adopted and adapted from the policy available for
-the Perl language development, provided by and on B<p5p> (the Perl 5
-Porters).
+the Perl language development, provided by B<p5p> (the Perl 5 Porters).
 
 The original inspiration policy document can be read at L<perlpolicy>.
 
