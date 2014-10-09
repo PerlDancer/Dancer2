@@ -57,6 +57,13 @@ has serializer_engine => (
     writer  => 'set_serializer_engine',
 );
 
+sub defined_engines {
+    my $self = shift;
+    return grep { defined }
+        map { my $type = "${_}_engine"; $self->$type }
+            @{$self->supported_engines}
+}
+
 has '+local_triggers' => (
     default => sub {
         my $self     = shift;
@@ -367,10 +374,7 @@ sub destroy_session {
 sub setup_session {
     my $self = shift;
 
-    for my $type ( @{ $self->supported_engines } ) {
-        my $attr   = "${type}_engine";
-        my $engine = $self->$attr or next;
-
+    for my $engine ( $self->defined_engines ) {
         $self->has_session                         ?
             $engine->set_session( $self->session ) :
             $engine->clear_session;
@@ -589,11 +593,9 @@ sub cleanup {
     $self->clear_session;
     $self->clear_destroyed_session;
     # Clear engine attributes
-    for my $type ( @{ $self->supported_engines } ) {
-        my $attr   = "${type}_engine";
-        my $engine = $self->$attr or next;
-        $engine->has_session && $engine->clear_session;
-        $engine->has_request && $engine->clear_request;
+    for my $engine ( $self->defined_engines ) {
+        $engine->clear_session;
+        $engine->clear_request;
     }
 }
 
@@ -621,12 +623,7 @@ sub template {
 sub hook_candidates {
     my $self = shift;
 
-    my @engines;
-    for my $e ( @{ $self->supported_engines } ) {
-        my $attr   = "${e}_engine";
-        my $engine = $self->$attr or next;
-        push @engines, $engine;
-    }
+    my @engines = $self->defined_engines;
 
     my @route_handlers;
     for my $handler ( @{ $self->route_handlers } ) {
@@ -1030,11 +1027,7 @@ DISPATCH:
 
             # Add request to app and engines
             $self->set_request($request);
-            for my $type ( @{ $self->supported_engines } ) {
-                my $attr   = "${type}_engine";
-                my $engine = $self->$attr or next;
-                $engine->set_request( $request );
-            }
+            $_->set_request( $request ) for $self->defined_engines;
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
