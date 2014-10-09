@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * GH #718: Clean up App's Template engine. (Russell Jenkins)
+
+
 0.151000  2014-10-08 21:49:06+02:00 Europe/Amsterdam
 
     [ ENHANCEMENT ]
