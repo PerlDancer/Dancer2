@@ -15,9 +15,17 @@ has session => (
 );
 
 has config => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => HashRef,
     default => sub { {} },
+);
+
+has request => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::Request'],
+    writer    => 'set_request',
+    clearer   => 'clear_request',
+    predicate => 'has_request',
 );
 
 1;

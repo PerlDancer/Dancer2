@@ -575,6 +575,13 @@ sub cleanup {
     $self->clear_response;
     $self->clear_session;
     $self->clear_destroyed_session;
+    # Clear engine attributes
+    for my $type ( @{ $self->supported_engines } ) {
+        my $attr   = "${type}_engine";
+        my $engine = $self->$attr or next;
+        $engine->has_session && $engine->clear_session;
+        $engine->has_request && $engine->clear_request;
+    }
 }
 
 sub engine {
@@ -595,7 +602,7 @@ sub template {
     $template->set_settings( $self->config );
 
     # return content
-    return $template->process( $self->request, @_ );
+    return $template->process( @_ );
 }
 
 sub hook_candidates {
@@ -1008,7 +1015,13 @@ DISPATCH:
 
             $request->_set_route_params($match);
 
+            # Add request to app and engines
             $self->set_request($request);
+            for my $type ( @{ $self->supported_engines } ) {
+                my $attr   = "${type}_engine";
+                my $engine = $self->$attr or next;
+                $engine->set_request( $request );
+            }
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
@@ -1105,15 +1118,6 @@ sub build_request {
           is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
         ( serializer      => $engine )x!! $engine,
     );
-
-    # if it's a mutable serializer, we add more headers
-    # so it can be set properly
-    # I don't like doing this... -- Sawyer
-    if ( $engine->$_isa('Dancer2::Serializer::Mutable') ) {
-        $engine->{'extra_headers'} = {
-            map +( $_ => $request->$_ ), qw<content_type accept accept_type>
-        }
-    }
 
     # Log deserialization errors
     if ($engine) {
