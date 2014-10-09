@@ -364,9 +364,11 @@ sub destroy_session {
     $session->expires(-86400);    # yesterday
     $engine->destroy( id => $session->id );
 
-    # Clear session and invalidate session cookie in request
+    # Invalidate session cookie in request
+    # and clear session in app and engines
     $self->set_destroyed_session($session);
     $self->clear_session;
+    $_->clear_session for $self->defined_engines;
 
     return;
 }
