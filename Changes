@@ -1,6 +1,7 @@
 {{$NEXT}}
 
     [ ENHANCEMENT ]
+    * GH #616, #155, #615: Session engines are now lazy! (Russell Jenkins)
     * GH #718: Clean up App's Template engine. (Russell Jenkins)
 
 
