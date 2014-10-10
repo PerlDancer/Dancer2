@@ -17,13 +17,20 @@ use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
 use Dancer2::Core::Request;
-
+use Dancer2::Core::Factory;
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
 with 'Dancer2::Core::Role::ConfigReader';
 
 sub supported_engines { [ qw<logger serializer session template> ] }
+
+has _factory => (
+    is      => 'ro',
+    isa     => Object['Dancer2::Core::Factory'],
+    lazy    => 1,
+    default => sub { Dancer2::Core::Factory->new },
+);
 
 has logger_engine => (
     is      => 'ro',
@@ -126,7 +133,7 @@ sub _build_logger_engine {
     my $engine_options =
         $self->_get_config_for_engine( logger => $value, $config );
 
-    my $logger = Dancer2::Core::Factory->create(
+    my $logger = $self->_factory->create(
         logger => $value,
         %{$engine_options},
         app_name        => $self->name,
@@ -154,7 +161,7 @@ sub _build_session_engine {
     my $engine_options =
           $self->_get_config_for_engine( session => $value, $config );
 
-    return Dancer2::Core::Factory->create(
+    return $self->_factory->create(
         session => $value,
         %{$engine_options},
         postponed_hooks => $self->get_postponed_hooks,
@@ -183,7 +190,7 @@ sub _build_template_engine {
     $engine_attrs->{views}  ||= $config->{views}
         || path( $self->location, 'views' );
 
-    return Dancer2::Core::Factory->create(
+    return $self->_factory->create(
         template => $value,
         %{$engine_attrs},
         postponed_hooks => $self->get_postponed_hooks,
@@ -204,7 +211,7 @@ sub _build_serializer_engine {
     my $engine_options =
         $self->_get_config_for_engine( serializer => $value, $config );
 
-    return Dancer2::Core::Factory->create(
+    return $self->_factory->create(
         serializer      => $value,
         config          => $engine_options,
         postponed_hooks => $self->get_postponed_hooks,
@@ -695,7 +702,7 @@ sub send_file {
     # pretending it's a file (on-the-fly file sending)
     ref $path eq 'SCALAR' and return $$path;
 
-    my $file_handler = Dancer2::Core::Factory->create(
+    my $file_handler = $self->_factory->create(
         Handler => 'File',
         app     => $self,
         postponed_hooks => $self->postponed_hooks,
@@ -738,7 +745,7 @@ sub init_route_handlers {
         my ($handler_name, $config) = @{$handler_data};
         $config = {} if !ref($config);
 
-        my $handler = Dancer2::Core::Factory->create(
+        my $handler = $self->_factory->create(
             Handler => $handler_name,
             app     => $self,
             %$config,

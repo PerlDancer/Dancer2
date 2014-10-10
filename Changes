@@ -3,6 +3,7 @@
     [ ENHANCEMENT ]
     * GH #616, #155, #615: Session engines are now lazy! (Russell Jenkins)
     * GH #718: Clean up App's Template engine. (Russell Jenkins)
+    * Adding class-based tests. (Sawyer X)
 
     [ DOCUMENTATION ]
     * Add a policy document under Dancer2::Policy. (Sawyer X)
