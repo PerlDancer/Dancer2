@@ -53,6 +53,17 @@ $app->add_route(
     },
 );
 
+# a route with a 204 response
+$app->add_route(
+    method => 'get',
+    regexp => '/twoohfour',
+    code   => sub {
+        my $app = shift;
+        $app->response->status(204);
+        "This content should be removed";
+    },
+);
+
 # the tests
 my @tests = (
     {   env => {
@@ -83,16 +94,28 @@ my @tests = (
     },
     {   env => {
             REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/twoohfour',
+        },
+        expected => [
+            204,
+            [   'Content-Type'   => 'text/html; charset=UTF-8',
+                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+            ],
+            []
+        ]
+    },
+    {   env => {
+            REQUEST_METHOD => 'GET',
             PATH_INFO      => '/haltme',
         },
         expected => [
             302,
             [   'Location'       => 'http://perldancer.org',
-                'Content-Length' => '0',
-                'Content-Type'   => 'text/html',
+                'Content-Length' => '305',
+                'Content-Type'   => 'text/html; charset=utf-8',
                 'Server'         => "Perl Dancer2 $Dancer2::VERSION",
             ],
-            ['']
+            qr/This item has moved/
         ]
     },
 
@@ -143,7 +166,7 @@ $app->add_route(
 );
 $app->compile_hooks;
 
-plan tests => 13;
+plan tests => 16;
 
 my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 my $counter = 0;

@@ -194,19 +194,12 @@ note 'Check both apps only call the second hook (correct app), not both'; {
             '[GET /2] Correct content',
         );
 
-        # INFO: %called_hooks will contain the count '3' for App1
-        #       because we called ->psgi_app a few times beforehand
-        #       which called ->finish on App1, which added more and more
-        #       handlers to be added to its routes. Since they use
-        #       megasplats, they *always* match and *always* run, but
-        #       since they have no actual code (there are autopage
-        #       templates that match, or static files), they don't
-        #       actually serve anything.
+        # INFO: %called_hooks does not contain any counts for App1;
+        #       no routes match, so no hooks are called.
         is_deeply(
             \%called_hooks,
             {
                 App2 => { before => 1, before_template => 1 },
-                App1 => { before => 3 },
             },
             'Only App2\'s before_template hook was called (full PSGI app)',
         );

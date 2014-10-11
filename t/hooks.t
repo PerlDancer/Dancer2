@@ -158,11 +158,6 @@ test_psgi $app, sub {
         $cb->( GET '/send_file' );
         is $tests_flags->{before_file_render}, 1, "before_file_render was called";
         is $tests_flags->{after_file_render},  1, "after_file_render was called";
-
-        $cb->( GET '/file.txt' );
-
-        is $tests_flags->{before_file_render}, 2, "before_file_render was called";
-        is $tests_flags->{after_file_render},  2, "after_file_render was called";
     };
 
     subtest 'template render hook' => sub {
