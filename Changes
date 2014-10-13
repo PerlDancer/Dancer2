@@ -8,6 +8,7 @@
 
     [ DOCUMENTATION ]
     * Add a policy document under Dancer2::Policy. (Sawyer X)
+    * Document log_format instead of logger_format. (Sawyer X)
 
 0.151000  2014-10-08 21:49:06+02:00 Europe/Amsterdam
 
