@@ -876,6 +876,23 @@ Accesses the configuration of the application:
         return "This is " . config->{appname};
     };
 
+=head2 content
+
+Sets the content for the response.
+
+    get '/' => sub {
+        content 'Hello, world!';
+
+        # the return value of the route is ignored
+        return 'Ignored String';
+    };
+
+Once you set the content using the keyword, your return value (which
+is usually the content) is ignored.
+
+B<WARNING> : If you are using the C<pass> keyword, the last route will be
+in charge of setting the content.
+
 =head2 content_type
 
 Sets the B<content-type> rendered, for the current route handler:
@@ -1171,6 +1188,10 @@ route.  So it's not necessary anymore to use C<return> with pass.
             do_stuff();
         }
     };
+
+B<WARNING> : You cannot set the content before passing and have it remain,
+even if you use the C<content> keyword or set it directly in the response
+object.
 
 =head2 patch
 
