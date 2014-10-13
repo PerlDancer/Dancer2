@@ -1105,6 +1105,10 @@ DISPATCH:
                     and delete $request->{_params}{splat};
 
                 $response->has_passed(0); # clear for the next round
+
+                # clear the content because if you pass it,
+                # the next route is in charge of catching it
+                $response->clear_content;
                 next ROUTE;
             }
 
@@ -1154,9 +1158,6 @@ sub build_request {
 sub _dispatch_route {
     my ( $self, $route ) = @_;
 
-    # FIXME: check for memory leak here
-    # perhaps we need to weaken $self, perhaps not
-    # would it matter if we do? could it be a problem?
     $self->execute_hook( 'core.app.before_request', $self );
     my $response = $self->response;
 
@@ -1175,6 +1176,9 @@ sub _dispatch_route {
             return $self->response_internal_error($error);
         }
     }
+
+    $response->has_content
+        and $content = $response->content;
 
     if ( ref $content eq 'Dancer2::Core::Response' ) {
         $response = $self->set_response($content);
