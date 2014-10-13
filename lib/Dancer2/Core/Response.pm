@@ -120,6 +120,26 @@ sub encode_content {
     return $content;
 }
 
+sub from_plack {
+    my ($self, $psgi_res) = @_;
+
+    return Dancer2::Core::Response->new(
+        status  => $psgi_res->status,
+        headers => $psgi_res->headers,
+        content => $psgi_res->body,
+    );
+}
+
+sub from_array {
+    my ($self, $arrayref) = @_;
+
+    return Dancer2::Core::Response->new(
+        status  => $arrayref->[0],
+        headers => $arrayref->[1],
+        content => $arrayref->[2][0],
+    );
+}
+
 sub to_psgi {
     my ($self) = @_;
     # It is possible to have no content and/or no content type set
@@ -239,6 +259,16 @@ Interally, it uses the L<is_encoded> flag to make sure that content is not encod
 
 If it encodes the content, then it will return the encoded content.  In all other
 cases it returns C<false>.
+
+=method from_plack
+
+Creates a response object from a L<Plack::Response> object.
+
+=method from_array
+
+Creates a response object from a PSGI arrayref.
+
+=method from_array
 
 =method to_psgi
 
