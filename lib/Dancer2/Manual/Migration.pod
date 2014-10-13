@@ -141,6 +141,9 @@ Other modules that could be used for testing are:
 
 =head4 Logs
 
+The C<logger_format> in the Logger role (L<Dancer2::Core::Role::Logger>)
+is now C<log_format>.
+
 C<read_logs> can no longer be used, as with L<Dancer2::Test>. Instead,
 L<Dancer2::Logger::Capture> could be used for testing, to capture all
 logs to an object.
