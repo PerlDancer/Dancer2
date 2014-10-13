@@ -18,18 +18,18 @@ sub normalize_headers {
     return %headers;
 }
 
-can_ok( Dancer2::Core::Response::, qw<from_array from_plack> );
+can_ok( Dancer2::Core::Response::, qw<new_from_array new_from_plack> );
 
 my %default_headers = (
     'Content-Type' => 'text/plain',
     'X-Test'       => 'Val',
 );
 
-subtest 'from_array' => sub {
+subtest 'new_from_array' => sub {
     plan tests => 4;
 
     my $array    = [ 200, [%default_headers], ['Foo'] ];
-    my $response = Dancer2::Core::Response->from_array($array);
+    my $response = Dancer2::Core::Response->new_from_array($array);
 
     isa_ok( $response, 'Dancer2::Core::Response' );
     is( $response->status,  200,   'Correct status' );
@@ -48,7 +48,7 @@ subtest 'from_array' => sub {
     );
 };
 
-subtest 'from_plack' => sub {
+subtest 'new_from_plack' => sub {
     plan tests => 5;
 
     my $plack = Plack::Response->new();
@@ -60,7 +60,7 @@ subtest 'from_plack' => sub {
         $plack->header( $header_name => $default_headers{$header_name} );
     }
 
-    my $response = Dancer2::Core::Response->from_plack($plack);
+    my $response = Dancer2::Core::Response->new_from_plack($plack);
     isa_ok( $response, 'Dancer2::Core::Response' );
     is( $response->status,  200,   'Correct status' );
     is( $response->content, 'Bar', 'Correct content' );

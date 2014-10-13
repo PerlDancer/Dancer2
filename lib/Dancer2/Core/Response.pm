@@ -120,7 +120,7 @@ sub encode_content {
     return $content;
 }
 
-sub from_plack {
+sub new_from_plack {
     my ($self, $psgi_res) = @_;
 
     return Dancer2::Core::Response->new(
@@ -130,7 +130,7 @@ sub from_plack {
     );
 }
 
-sub from_array {
+sub new_from_array {
     my ($self, $arrayref) = @_;
 
     return Dancer2::Core::Response->new(
@@ -260,15 +260,13 @@ Interally, it uses the L<is_encoded> flag to make sure that content is not encod
 If it encodes the content, then it will return the encoded content.  In all other
 cases it returns C<false>.
 
-=method from_plack
+=method new_from_plack
 
-Creates a response object from a L<Plack::Response> object.
+Creates a new response object from a L<Plack::Response> object.
 
-=method from_array
+=method new_from_array
 
-Creates a response object from a PSGI arrayref.
-
-=method from_array
+Creates a new response object from a PSGI arrayref.
 
 =method to_psgi
 
