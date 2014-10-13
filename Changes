@@ -3,6 +3,8 @@
     [ ENHANCEMENT ]
     * Provide 'content' keyword to set the response content. (Sawyer x)
     * GH #616, #155, #615: Session engines are now lazy! (Russell Jenkins)
+    * Dancer2 response objects can be created from arrays or from
+      Plack::Response objects. (Sawyer X)
     * GH #718: Clean up App's Template engine. (Russell Jenkins)
     * Adding class-based tests. (Sawyer X)
 
