@@ -184,8 +184,7 @@ You can change it either in your config.yml file:
     logger: "console"
 
 The log format can also be configured,
-please see L<Dancer2::Core::Role::Logger/"logger_format"> for details.
-
+please see L<Dancer2::Core::Role::Logger/"log_format"> for details.
 
 =head1 METHODS
 
