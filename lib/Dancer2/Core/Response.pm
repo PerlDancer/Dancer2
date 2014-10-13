@@ -69,7 +69,6 @@ has status => (
 has content => (
     is      => 'rw',
     isa     => Str,
-    default => sub {''},
     coerce  => sub {
         my $value = shift;
         return "$value";
@@ -82,6 +81,9 @@ has content => (
         $self->has_passed or $self->header( 'Content-Length' => length($value) );
         return $value;
     },
+
+    predicate => 'has_content',
+    clearer   => 'clear_content',
 );
 
 before content => sub {

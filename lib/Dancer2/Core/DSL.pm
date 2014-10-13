@@ -20,6 +20,7 @@ sub dsl_keywords {
         app                  => { is_global => 1 },
         captures             => { is_global => 0 },
         config               => { is_global => 1 },
+        content              => { is_global => 0 },
         content_type         => { is_global => 0 },
         context              => { is_global => 0 },
         cookie               => { is_global => 0 },
@@ -291,6 +292,7 @@ sub status       { shift->response->status(@_) }
 sub push_header  { shift->response->push_header(@_) }
 sub header       { shift->response->header(@_) }
 sub headers      { shift->response->header(@_) }
+sub content      { shift->response->content(@_) }
 sub content_type { shift->response->content_type(@_) }
 sub pass         { shift->app->pass }
 
