@@ -46,6 +46,7 @@ sub dispatch {
         }
 
         # don't run anymore
+        delete Dancer2->runner->{'internal_request'};
         last;
     } # while
 

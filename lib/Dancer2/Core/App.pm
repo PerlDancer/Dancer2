@@ -1128,7 +1128,13 @@ DISPATCH:
 
     # make sure Core::Dispatcher recognizes this failure
     # so it can try the next Core::App
-    Dancer2->runner->{'internal_404'} = 1;
+    # and set the created request so we don't create it again
+    # (this is important so we don't ignore the previous body)
+    if ( Dancer2->runner->{'internal_dispatch'} ) {
+        Dancer2->runner->{'internal_404'}     = 1;
+        Dancer2->runner->{'internal_request'} = $request;
+    }
+
     return $self->response_not_found($request);
 }
 
