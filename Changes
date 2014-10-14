@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #723: Redispatched requests lose data. (Sawyer X)
+
     [ ENHANCEMENT ]
     * Provide 'content' keyword to set the response content. (Sawyer x)
     * GH #616, #155, #615: Session engines are now lazy! (Russell Jenkins)
