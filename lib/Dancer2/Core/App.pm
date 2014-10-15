@@ -1077,9 +1077,8 @@ sub to_app {
         $psgi,
         builder => sub { Plack::Middleware::Static->wrap(
             $psgi,
-            path => qr/.+/,
+            path => sub { -f path( $self->config->{public_dir}, shift ) },
             root => $self->config->{public_dir},
-            pass_through => 1
         ) },
         condition => sub { $self->config->{static_handler} },
     );
