@@ -13,6 +13,7 @@ use Plack::Builder;
 use Dancer2::FileUtils 'path';
 use Dancer2::Core;
 use Dancer2::Core::Cookie;
+use Dancer2::Core::Error;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
@@ -678,6 +679,23 @@ sub log {
       or croak "No logger defined";
 
     $logger->$level(@_);
+}
+
+sub send_error {
+    my $self = shift;
+    my ( $message, $status ) = @_;
+
+    my $serializer = $self->engine('serializer');
+    my $err = Dancer2::Core::Error->new(
+          message    => $message,
+          app        => $self,
+        ( status     => $status     )x!! $status,
+        ( serializer => $serializer )x!! $serializer,
+    )->throw;
+
+    # Immediately return to dispatch if with_return coderef exists
+    $self->has_with_return && $self->with_return->($err);
+    return $err;
 }
 
 sub send_file {
