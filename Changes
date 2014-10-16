@@ -4,6 +4,9 @@
     * GH #727: Disable regex metachars when calculating app location in tests
       (Gregor Herrmann)
 
+    [ DOCUMENTATION ]
+    * GH #728: Typos in Policy document. (Olaf Alders, Sawyer X)
+
 0.152000  2014-10-14 04:30:59+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
