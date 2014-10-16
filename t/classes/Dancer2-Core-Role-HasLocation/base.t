@@ -42,7 +42,7 @@ note 'With lib/ and bin/:'; {
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
-    $location =~ s/$basedir//;
+    $location =~ s/\Q$basedir\E//;
 
     is(
         $location,
@@ -61,7 +61,7 @@ note 'With .dancer file:'; {
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
-    $location =~ s/$basedir//;
+    $location =~ s/\Q$basedir\E//;
 
     is(
         $location,
@@ -80,7 +80,7 @@ note 'blib/ ignored:'; {
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
-    $location =~ s/$basedir//;
+    $location =~ s/\Q$basedir\E//;
 
     is(
         $location,
