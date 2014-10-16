@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #727: Disable regex metachars when calculating app location in tests
       (Gregor Herrmann)
+    * GH #681, #682, #712: Clear session engine within destroy_session.
+      (DavX, Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #728: Typos in Policy document. (Olaf Alders, Sawyer X)
