@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Fatal;
 use Scalar::Util 'refaddr';
 use Plack::Test;
@@ -57,6 +57,17 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
         ::exception { Dancer2->import(':script') },
         undef,
         ':script is allowed',
+    );
+}
+
+{
+    package App::TestsAllowed;
+    require Dancer2;
+
+    ::is(
+        ::exception { Dancer2->import(':tests') },
+        undef,
+        ':tests is allowed',
     );
 }
 
@@ -136,7 +147,12 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
     isa_ok( $runner, 'Dancer2::Core::Runner' );
     my $apps = $runner->apps;
 
-    ok( scalar @{$apps} == 10, 'Correct number of Apps created so far' );
+    cmp_ok(
+        scalar @{$apps},
+        '==',
+        11,
+        'Correct number of Apps created so far',
+    );
 
     my @names = sort map +( $_->name ), @{$apps};
 
@@ -153,6 +169,7 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
             App::ScriptAllowed
             App::StrictAndWarningsAndUTF8
             App::SyntaxAllowed
+            App::TestsAllowed
             App::WithSettingsChanged
         >],
         'All apps accounted for',

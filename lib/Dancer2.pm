@@ -32,7 +32,7 @@ sub import {
 
     my @final_args;
     foreach my $arg (@args) {
-        grep +( $arg eq $_ ), qw<:script :syntax>
+        grep +( $arg eq $_ ), qw<:script :syntax :tests>
             and next;
 
         if ( substr( $arg, 0, 1 ) eq '!' ) {
@@ -43,7 +43,7 @@ sub import {
     }
 
     scalar @final_args % 2
-      and die q{parameters must be key/value pairs, ':script' or '!keyword'};
+      and die q{parameters must be key/value pairs or '!keyword'};
 
     my %final_args = @final_args;
 

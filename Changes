@@ -5,6 +5,7 @@
       (Gregor Herrmann)
     * GH #681, #682, #712: Clear session engine within destroy_session.
       (DavX, Russell Jenkins)
+    * Ignore :tests in importing, don't suggest :script. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #728: Typos in Policy document. (Olaf Alders, Sawyer X)
