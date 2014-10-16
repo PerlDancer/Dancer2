@@ -66,9 +66,12 @@ has serializer_engine => (
 
 sub defined_engines {
     my $self = shift;
-    return grep { defined }
-        map { my $type = "${_}_engine"; $self->$type }
-            @{$self->supported_engines}
+    return map {
+        my $type   = "${_}_engine";
+        my $engine = $self->$type;
+
+        defined $engine ? $engine : ()
+    } @{ $self->supported_engines };
 }
 
 has '+local_triggers' => (
