@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Fatal;
 use Plack::Test;
 use HTTP::Request::Common;
 
@@ -37,22 +38,39 @@ my @tests = (
           { c => [ { d => 3, e => { f => 4, g => 'word', } } ], h => 6 },
         options => { pretty => 1 },
         name    => "nested",
+    },
+    {   entity  => { error => bless({}, 'invalid') },
+        options => {},
+        name    => "exception propagates",
     }
 );
 
 my $app = MyApp->to_app;
 
 for my $test (@tests) {
-    my $expected = JSON::to_json( $test->{entity}, $test->{options} );
+    my $expected;
+    my $expected_exception = exception {
+        $expected = JSON::to_json( $test->{entity}, $test->{options} );
+    };
 
     # Helpers pass options
-    my $actual =
-      Dancer2::Serializer::JSON::to_json( $test->{entity}, $test->{options} );
-    is( $actual, $expected, "to_json: $test->{name}" );
+    my $actual;
+    my $actual_exception = exception {
+        $actual = Dancer2::Serializer::JSON::to_json( $test->{entity}, $test->{options} );
+    };
+    is( $actual,      $expected,      "to_json: $test->{name}" );
+    if(defined $expected_exception) {
+        # Expect to see the JSON exception somewhere within the thrown one
+        like( $actual_exception, qr/\Q$expected_exception\E/, "to_json: $test->{name} dies as expected" );
+    } else {
+        is( $actual_exception, undef, "to_json: $test->{name} lives" );
+    }
 
     # Options from config
     my $serializer = Dancer2::Serializer::JSON->new(config => $test->{options});
-    my $output = $serializer->serialize( $test->{entity} );
+    my $output;
+    my $serializer_exception = exception { $output = $serializer->serialize( $test->{entity} ); };
+    is( $serializer_exception, undef, "serialize: $test->{name} lives" );
     is( $output, $expected, "serialize: $test->{name}" );
 
     $MyApp::entity = $test->{entity};
@@ -60,11 +78,17 @@ for my $test (@tests) {
         my $cb = shift;
 
         my $res = $cb->( GET '/serialize' );
-        is($res->content, $expected,
-          "serialized content in response: $test->{name}");
+        if(defined $expected_exception) {
+            is($res->code, 500,
+              "response code for failed serialize: $test->{name}");
+            # TODO Add appropriate content test; at the moment this actually
+            #      errors out about an undefined variable
+        } else {
+            is($res->content, $expected,
+              "serialized content in response: $test->{name}");
+        }
     };
 
 }
-
 
 done_testing();

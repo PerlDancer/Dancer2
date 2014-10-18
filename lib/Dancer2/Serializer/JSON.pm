@@ -9,21 +9,26 @@ with 'Dancer2::Core::Role::Serializer';
 has '+content_type' => (default => 'application/json');
 
 # helpers
+# Do not use (de)serialize(), since they are wrapped to trap exceptions
 sub from_json {
+    my ( $entity, $options ) = @_;
+
     my $s = Dancer2::Serializer::JSON->new;
-    $s->deserialize(@_);
+    JSON::from_json( $entity, $s->_merge_options($options) );
 }
 
 sub to_json {
+    my ( $entity, $options ) = @_;
+
     my $s = Dancer2::Serializer::JSON->new;
-    $s->serialize(@_);
+    JSON::to_json( $entity, $s->_merge_options($options) );
 }
 
 # class definition
 sub loaded {1}
 
-sub serialize {
-    my ( $self, $entity, $options ) = @_;
+sub _merge_options {
+    my ( $self, $options ) = @_;
 
     my $config = $self->config;
 
@@ -33,14 +38,19 @@ sub serialize {
 
     $options->{utf8} = 1 if !defined $options->{utf8};
 
-    JSON::to_json( $entity, $options );
+    $options;
+}
+
+sub serialize {
+    my ( $self, $entity, $options ) = @_;
+
+    JSON::to_json( $entity, $self->_merge_options($options) );
 }
 
 sub deserialize {
     my ( $self, $entity, $options ) = @_;
 
-    $options->{utf8} = 1 if !defined $options->{utf8};
-    JSON::from_json( $entity, $options );
+    JSON::from_json( $entity, $self->_merge_options($options) );
 }
 
 1;
