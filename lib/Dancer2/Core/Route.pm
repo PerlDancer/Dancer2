@@ -178,11 +178,11 @@ sub _build_regexp_from_string {
     my $capture = 0;
     my @params;
 
-    # look for route with params (/hello/:foo)
+    # look for route with tokens [aka params] (/hello/:foo)
     if ( $string =~ /:/ ) {
         @params = $string =~ /:([^\/\.\?]+)/g;
         if (@params) {
-            $string =~ s/(:[^\/\.\?]+)/\(\[\^\/\]\+\)/g;
+            $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
             $capture = 1;
         }
     }
