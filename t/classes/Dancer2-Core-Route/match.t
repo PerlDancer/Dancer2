@@ -7,21 +7,33 @@ use Dancer2::Core::Request;
 use Dancer2::Core::Route;
 
 my @tests = (
-    [ [ 'get', '/', sub {11} ], '/', [ {}, 11 ] ],
+    [   [ 'get', '/', sub {11} ], '/', [ {}, 11 ] ],
     [   [ 'get', '/', sub {11} ],
         '/failure',
         [ undef, 11 ]
     ],
 
+    # token tests
     [   [ 'get', '/hello/:name', sub {22} ],
         '/hello/sukria',
         [ { name => 'sukria' }, 22 ]
     ],
-
-    [ [ 'get', '/', sub {33}, '/forum' ], '/forum', [ { splat => [1] }, 33 ] ],
-    [   [ 'get', '/', sub {33}, '/forum' ], '/forum/', [ { splat => [1] }, 33 ]
+    [   [ 'get', '/hello/:name?', sub {22} ],
+        '/hello/',
+        [ { name => undef }, 22 ]
     ],
-    [   [ 'get', '/mywebsite', sub {33}, '/forum' ], '/forum/mywebsite',
+
+    # prefix tests
+    [   [ 'get', '/', sub {33}, '/forum' ],
+        '/forum',
+        [ { splat => [1] }, 33 ]
+    ],
+    [   [ 'get', '/', sub {33}, '/forum' ],
+        '/forum/',
+        [ { splat => [1] }, 33 ]
+    ],
+    [   [ 'get', '/mywebsite', sub {33}, '/forum' ],
+        '/forum/mywebsite',
         [ {}, 33 ]
     ],
 
@@ -37,18 +49,17 @@ my @tests = (
         [ { splat => [ [ 'some', 'where' ], '42' ] }, 44 ]
     ],
 
-
+    # supplied regex
     [   [ 'get', qr{stuff(\d+)}, sub {44} ], '/stuff48',
         [ { splat => [48] }, 44 ]
     ],
-
     [   [ 'get', qr{/stuff(\d+)}, sub {44}, '/foo' ],
         '/foo/stuff48',
         [ { splat => [48] }, 44 ],
     ],
 );
 
-plan tests => 43;
+plan tests => 47;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
