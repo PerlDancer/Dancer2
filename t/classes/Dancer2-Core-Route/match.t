@@ -49,6 +49,16 @@ my @tests = (
         [ { splat => [ [ 'some', 'where' ], '42' ] }, 44 ]
     ],
 
+    # mixed (mega)splat and tokens
+    [   [ 'get', '/some/:id/**/*', sub {55} ],
+        '/some/where/to/run/and/hide',
+        [ { id => 'where', splat => [ [ 'to', 'run', 'and' ], 'hide' ] }, 55 ]
+    ],
+    [   [ 'get', '/some/*/**/:id?', sub {55} ],
+        '/some/one/to/say/boo/',
+        [ { id => undef, splat => [ 'one', [ 'to', 'say', 'boo' ] ] }, 55 ]
+    ],
+
     # supplied regex
     [   [ 'get', qr{stuff(\d+)}, sub {44} ], '/stuff48',
         [ { splat => [48] }, 44 ]
@@ -59,7 +69,7 @@ my @tests = (
     ],
 );
 
-plan tests => 47;
+plan tests => 55;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;

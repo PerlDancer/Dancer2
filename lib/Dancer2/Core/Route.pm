@@ -81,18 +81,7 @@ sub match {
         return unless $self->validate_options($request);
     }
 
-    my %params;
     my @values = $request->dispatch_path =~ $self->regexp;
-
-    # the regex comments are how we know if we captured
-    # a splat or a megasplat
-    if ( my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g )
-    {
-        for (@values) {
-            $_ = [ split '/' => $_ ]
-              if ( shift @splat_or_megasplat ) =~ /megasplat/;
-        }
-    }
 
     # if some named captures are found, return captures
     # no warnings is for perl < 5.10
@@ -105,25 +94,35 @@ sub match {
 
     return unless @values;
 
-    # save the route pattern that matched
-    # TODO : as soon as we have proper Dancer2::Internal, we should remove
-    # that, it's just a quick hack for plugins to access the matching
-    # pattern.
-    # NOTE: YOU SHOULD NOT USE THAT, OR IF YOU DO, YOU MUST KNOW
-    # IT WILL MOVE VERY SOON
-    # $request->{_route_pattern} = $self->regexp;
+    # regex comments are how we know if we captured a token,
+    # splat or a megasplat
+    my @token_or_splat = $self->regexp =~ /\(\?#([token|(?:mega)?splat]+)\)/g;
+    if (@token_or_splat) {
+        # our named tokens
+        my @tokens = @{ $self->_params };
 
-    # named tokens
-    my @tokens = @{ $self->_params };
+        my %params;
+        my @splat;
+        for ( my $i = 0; $i < @values; $i++ ) {
+            # Is this value from a token?
+            if ( $token_or_splat[$i] eq 'token' ) {
+                $params{ shift @tokens } = $values[$i];
+                 next;
+            }
 
-    if (@tokens) {
-        for ( my $i = 0; $i < @tokens; $i++ ) {
-            $params{ $tokens[$i] } = $values[$i];
+            # megasplat values are split on '/'
+            if ($token_or_splat[$i] eq 'megasplat') {
+                $values[$i] = [ split '/' => $values[$i] ];
+            }
+            push @splat, $values[$i];
         }
-        return $self->_match_data( \%params );
+        return $self->_match_data( {
+            %params,
+            (splat => \@splat)x!! @splat,
+        });
     }
 
-    elsif ( $self->_should_capture ) {
+    if ( $self->_should_capture ) {
         return $self->_match_data( { splat => \@values } );
     }
 
