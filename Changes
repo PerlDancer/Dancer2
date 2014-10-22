@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * Internal: Move the implementation of send_file from DSL to App.
+      (Russell Jenkins)
+
     [ BUG FIXES ]
     * GH #730: Make App use app-level config for behind_proxy. (Sawyer X)
     * GH #727: Disable regex metachars when calculating app location in tests
