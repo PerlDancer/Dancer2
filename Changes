@@ -1,6 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #730: Make App use app-level config for behind_proxy. (Sawyer X)
     * GH #727: Disable regex metachars when calculating app location in tests
       (Gregor Herrmann)
     * GH #681, #682, #712: Clear session engine within destroy_session.

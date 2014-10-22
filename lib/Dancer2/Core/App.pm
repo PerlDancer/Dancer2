@@ -1143,7 +1143,7 @@ sub build_request {
     my $engine  = $self->serializer_engine;
     my $request = Dancer2::Core::Request->new(
           env             => $env,
-          is_behind_proxy => Dancer2->runner->config->{'behind_proxy'} || 0,
+          is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
         ( serializer      => $engine )x!! $engine,
     );
 
