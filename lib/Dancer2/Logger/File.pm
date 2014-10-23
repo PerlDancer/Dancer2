@@ -12,18 +12,14 @@ use Fcntl qw(:flock SEEK_END);
 use Dancer2::FileUtils qw(open_file);
 use IO::File;
 
-# FIXME: this is not a good way to do this
 has environment => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub { $_[0]->app->environment },
+    is       => 'ro',
+    required => 1,
 );
 
-# FIXME: this is not a good way to do this
 has location => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub { $_[0]->app->config_location },
+    is       => 'ro',
+    required => 1,
 );
 
 has log_dir => (
@@ -31,14 +27,7 @@ has log_dir => (
     isa     => Str,
     lazy    => 1,
     builder => '_build_log_dir',
-    trigger => sub {
-        my ( $self, $dir ) = @_;
-        if ( !-d $dir && !mkdir $dir ) {
-            return carp
-              "Log directory \"$dir\" does not exist and unable to create it.";
-        }
-        return carp "Log directory \"$dir\" is not writable." if !-w $dir;
-    },
+    trigger => sub { my ($self, $dir) = @_; $self->_check_log_dir($dir); },
 );
 
 has file_name => (
@@ -61,7 +50,24 @@ has fh => (
     builder => '_build_fh',
 );
 
-sub _build_log_dir {File::Spec->catdir( $_[0]->location, 'logs' )}
+#ensure that the existence of the log dir is checked even is $self->dir
+#is build via _build_log_dir (in which case the trigger is not executed)
+sub BUILD {
+    my ($self) = @_;
+    $self->_check_log_dir( $self->log_dir );
+}
+
+sub _check_log_dir {
+    my ($self, $dir) = @_;
+    if ( !-d $dir && !mkdir $dir ) {
+        die "log directory \"$dir\" does not exist and unable to create it.";
+    }
+    if ( !-w $dir ) {
+        die "log directory \"$dir\" is not writable."
+    }
+}
+
+sub _build_log_dir { File::Spec->catdir( $_[0]->location, 'logs' ) }
 
 sub _build_file_name {$_[0]->environment . ".log"}
 
