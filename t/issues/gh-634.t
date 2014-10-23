@@ -44,43 +44,61 @@ my $log_dir = tempdir( CLEANUP => 1 );
     set logger  => 'file';
 }
 
-subtest 'test Logger::File with log_dir specified' => sub {
-    plan tests => 6;
-
-    my $app = [
-        grep { $_->name eq 'LogDirSpecified'} @{ Dancer2->runner->apps }
-    ]->[0];
-
+my $check_cb = sub {
+    my ( $app, $dir, $file ) = @_;
     my $logger = $app->logger_engine;
 
     isa_ok( $logger, 'Dancer2::Logger::File' );
-    is( $logger->environment, $app->environment );
-    is( $logger->location, $app->config_location );
-    is( $logger->log_dir, $log_dir );
-    is( $logger->file_name, 'test_log.log' );
-    is( $logger->log_file, File::Spec->catfile($log_dir, 'test_log.log') );
+    is(
+        $logger->environment,
+        $app->environment,
+        'Logger got correct environment',
+    );
+
+    is(
+        $logger->location,
+        $app->config_location,
+        'Logger got correct location',
+    );
+
+    is(
+        $logger->log_dir,
+        $dir,
+        'Logger got correct log directory',
+    );
+
+    is(
+        $logger->file_name,
+        $file,
+        'Logger got correct filename',
+    );
+
+    is(
+        $logger->log_file,
+        File::Spec->catfile( $dir, $file ),
+        'Logger got correct log file',
+    );
+};
+
+subtest 'test Logger::File with log_dir specified' => sub {
+    plan tests => 6;
+    my $app = [
+        grep { $_->name eq 'LogDirSpecified' } @{ Dancer2->runner->apps }
+    ]->[0];
+
+    $check_cb->( $app, $log_dir, 'test_log.log' );
 };
 
 subtest 'test Logger::File with log_dir NOT specified' => sub {
     plan tests => 6;
-
     my $app = [
-        grep { $_->name eq 'LogDirNotSpecified'} @{ Dancer2->runner->apps }
+        grep { $_->name eq 'LogDirNotSpecified' } @{ Dancer2->runner->apps }
     ]->[0];
 
-    my $logger = $app->logger_engine;
-
-    my $log_dir = File::Spec->catdir($app->config_location, 'logs');
-
-    isa_ok( $logger, 'Dancer2::Logger::File' );
-    is( $logger->environment, $app->environment );
-    is( $logger->location, $app->config_location );
-    is( $logger->log_dir, $log_dir );
-    is( $logger->file_name, $app->environment.".log" );
-
-    is(
-        $logger->log_file,
-        File::Spec->catfile($log_dir, $app->environment.'.log')
+    $check_cb->(
+        $app,
+        File::Spec->catdir( $app->config_location, 'logs' ),
+        $app->environment . '.log',
     );
 };
 
@@ -93,14 +111,10 @@ subtest 'test Logger::File with non-existent log_dir specified' => sub {
 
     my $logger = $app->logger_engine;
 
-    isa_ok( $logger, 'Dancer2::Logger::File' );
-    is( $logger->environment, $app->environment );
-    is( $logger->location, $app->config_location );
-    is( $logger->log_dir, "$log_dir/notexist" );
-    is( $logger->file_name, 'test_log.log' );
-    is(
-        $logger->log_file,
-        File::Spec->catfile( "$log_dir/notexist", 'test_log.log'),
+    $check_cb->(
+        $app,
+        "$log_dir/notexist",
+        'test_log.log',
     );
 };
 
