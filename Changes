@@ -5,6 +5,8 @@
       (Russell Jenkins)
 
     [ BUG FIXES ]
+    * GH #634, #687: Fix file logger defaults.
+      (Russell Jenkins, Dávid Kovács, Sawyer X)
     * GH #730: Make App use app-level config for behind_proxy. (Sawyer X)
     * GH #727: Disable regex metachars when calculating app location in tests
       (Gregor Herrmann)
