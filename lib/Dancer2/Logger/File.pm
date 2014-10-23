@@ -24,10 +24,18 @@ has location => (
 
 has log_dir => (
     is      => 'rw',
-    isa     => Str,
+    isa     => sub {
+        my $dir = shift;
+
+        if ( !-d $dir && !mkdir $dir ) {
+            die "log directory \"$dir\" does not exist and unable to create it.";
+        }
+        if ( !-w $dir ) {
+            die "log directory \"$dir\" is not writable."
+        }
+    },
     lazy    => 1,
     builder => '_build_log_dir',
-    trigger => sub { my ($self, $dir) = @_; $self->_check_log_dir($dir); },
 );
 
 has file_name => (
@@ -49,23 +57,6 @@ has fh => (
     lazy    => 1,
     builder => '_build_fh',
 );
-
-#ensure that the existence of the log dir is checked even is $self->dir
-#is build via _build_log_dir (in which case the trigger is not executed)
-sub BUILD {
-    my ($self) = @_;
-    $self->_check_log_dir( $self->log_dir );
-}
-
-sub _check_log_dir {
-    my ($self, $dir) = @_;
-    if ( !-d $dir && !mkdir $dir ) {
-        die "log directory \"$dir\" does not exist and unable to create it.";
-    }
-    if ( !-w $dir ) {
-        die "log directory \"$dir\" is not writable."
-    }
-}
 
 sub _build_log_dir { File::Spec->catdir( $_[0]->location, 'logs' ) }
 
