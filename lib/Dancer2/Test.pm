@@ -611,9 +611,22 @@ sub _find_dancer_apps_for_dispatcher {
 
 __END__
 
+=head1 SYNOPSIS
+
+  use Plack::Test;
+  use HTTP::Request::Common; # not included in Dancer2
+
+  use YourDancerApp;
+  my $app = YourDancerApp->psgi_app;
+  my $test = Plack::Test->create($app);
+
+  my $res = $test->request(GET "/");  
+  is $res->code, 200, "GET / is found";
+  like $res->content, qr/hello, world/, "content looks good for /";
+
 =head1 DESCRIPTION
 
-DEPRECATED - Please use L<Plack::Test> instead.
+B<DEPRECATED>.  Please use L<Plack::Test> instead as shown in the SYNOPSIS!
 
 This module will warn for a while until we actually remove it. This is to
 provide enough time to fully remove it from your system.
