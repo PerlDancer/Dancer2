@@ -611,9 +611,26 @@ sub _find_dancer_apps_for_dispatcher {
 
 __END__
 
+=head1 SYNOPSIS
+
+    use Test::More;
+    use Plack::Test;
+    use HTTP::Request::Common; # install separately
+
+    use YourDancerApp;
+
+    my $app  = YourDancerApp->to_app;
+    my $test = Plack::Test->create($app);
+
+    my $res = $test->request( GET '/' );
+    is( $res->code, 200, '[GET /] Request successful' );
+    like( $res->content, qr/hello, world/, '[GET /] Correct content';
+
+    done_testing;
+
 =head1 DESCRIPTION
 
-DEPRECATED - Please use L<Plack::Test> instead.
+B<DEPRECATED>.  Please use L<Plack::Test> instead as shown in the SYNOPSIS!
 
 This module will warn for a while until we actually remove it. This is to
 provide enough time to fully remove it from your system.
