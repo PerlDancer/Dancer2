@@ -25,7 +25,7 @@ note 'Defaults:'; {
 
     is(
         $app->caller,
-        't/classes/Dancer2-Core-Role-HasLocation/base.t',
+        't/classes/Dancer2-Core-Role-HasLocation/with.t',
         'Default caller',
     );
 }

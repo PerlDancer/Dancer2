@@ -1,7 +1,8 @@
 use strict;
 use warnings;
-use Test::More tests => 40;
-use Dancer2::Core::Runner;
+use Test::More tests => 41;
+
+use_ok('Dancer2::Core::Runner');
 
 is( $Dancer2::runner, undef, 'No runner defined in Dancer2 yet' );
 
