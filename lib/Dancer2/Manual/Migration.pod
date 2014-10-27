@@ -10,12 +10,12 @@ __END__
 
 =pod
 
-=head2 Migration from Dancer1 to Dancer2
+=head1 Migration from Dancer1 to Dancer2
 
 This document covers some changes that users will need to be aware of
 while upgrading from L<Dancer> (version 1) to L<Dancer2>.
 
-=head3 Apps
+=head2 Apps
 
 1. In L<Dancer2>, each module is a B<separate application> with its own
 namespace and variables. You can set the application name in each of your
@@ -81,12 +81,12 @@ Thus, these modules can be used for speed improvement provided:
 
 =back
 
-=head3 Plugins: plugin_setting
+=head2 Plugins: plugin_setting
 
 C<plugin_setting> returns the configuration of the plugin. It can no
 longer be called outside of C<register> or C<on_plugin_import>.
 
-=head3 Routes
+=head2 Routes
 
 L<Dancer2> requires all routes defined via a string to begin with a leading
 slash C</>.
@@ -100,7 +100,7 @@ For example:
 would return an error. The correct way to write this would be to use
 C<get '/0'>
 
-=head3 Tests
+=head2 Tests
 
 Dancer2 recommends the use of L<Plack::Test>.
 
@@ -139,7 +139,7 @@ Other modules that could be used for testing are:
 
 =back
 
-=head4 Logs
+=head3 Logs
 
 The C<logger_format> in the Logger role (L<Dancer2::Core::Role::Logger>)
 is now C<log_format>.
@@ -185,7 +185,7 @@ For example:
         ];
     };
 
-=head3 Exports: Tags
+=head2 Exports: Tags
 
 The following tags are not needed in L<Dancer2>:
 
