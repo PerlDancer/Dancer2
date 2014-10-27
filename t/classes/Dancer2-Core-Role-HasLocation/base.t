@@ -43,10 +43,11 @@ note 'With lib/ and bin/:'; {
 
     my $location = $app->location;
     $location =~ s/\Q$basedir\E//;
+    $location =~ s{[\\/]}{}g;
 
     is(
         $location,
-        '/FakeDancerDir/',
+        'FakeDancerDir',
         'Got correct location with lib/ and bin/',
     );
 }
@@ -62,10 +63,11 @@ note 'With .dancer file:'; {
 
     my $location = $app->location;
     $location =~ s/\Q$basedir\E//;
+    $location =~ s{[\\/]}{}g;
 
     is(
         $location,
-        '/FakeDancerFile',
+        'FakeDancerFile',
         'Got correct location with .dancer file',
     );
 }
@@ -81,10 +83,11 @@ note 'blib/ ignored:'; {
 
     my $location = $app->location;
     $location =~ s/\Q$basedir\E//;
+    $location =~ s{[\\/]}{}g;
 
     is(
         $location,
-        '/FakeDancerDir/',
+        'FakeDancerDir',
         'blib/ dir is ignored',
     );
 }

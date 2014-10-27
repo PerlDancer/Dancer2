@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #734: Failing tests on Windows. (Sawyer X)
+
     [ DOCUMENTATION ]
     * GH #724: Plack::Test example in Dancer2::Test. (Jakob Voss)
 
