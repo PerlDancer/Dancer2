@@ -33,8 +33,6 @@ my $serializer = {
     },
 };
 
-sub loaded {1}
-
 sub support_content_type {
     my ( $self, $ct ) = @_;
 

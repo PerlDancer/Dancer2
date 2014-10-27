@@ -25,7 +25,6 @@ sub to_yaml {
 # class definition
 
 sub BUILD { eval "use YAML ()"; croak "Fail to load YAML: $@" if $@ }
-sub loaded {1}
 
 sub serialize {
     my ( $self, $entity ) = @_;
