@@ -1,9 +1,11 @@
-#!/usr/bin/perl
+#!perl
+
 use strict;
 use warnings;
 
-use Test::More tests => 4;
-use Dancer2::Core::Factory;
+use Test::More tests => 5;
+
+use_ok('Dancer2::Core::Factory');
 
 my $factory = Dancer2::Core::Factory->new;
 isa_ok( $factory, 'Dancer2::Core::Factory' );

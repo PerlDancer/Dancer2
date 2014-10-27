@@ -36,7 +36,7 @@ if ( $ENV{DANCER_TEST_COOKIE} ) {
 
 foreach my $engine (@engines) {
 
-    diag "Testing engine $engine";
+    note "Testing engine $engine";
     Test::TCP::test_tcp(
         client => sub {
             my $port = shift;

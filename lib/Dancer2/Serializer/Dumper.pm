@@ -22,8 +22,6 @@ sub to_dumper {
 }
 
 # class definition
-sub loaded {1}
-
 sub serialize {
     my ( $self, $entity ) = @_;
 

@@ -9,6 +9,7 @@ use Encode;
 use HTTP::Body;
 use URI;
 use URI::Escape;
+use Class::Load 'try_load_class';
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
@@ -41,11 +42,8 @@ foreach my $attr ( @http_env_keys ) {
 }
 
 # check presence of XS module to speedup request
-eval { require URL::Encode::XS; };
-our $XS_URL_DECODE = !$@;
-
-eval { require CGI::Deurl::XS; };
-our $XS_PARSE_QUERY_STRING = !$@;
+our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
+our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
 # then all the native attributes
 has env => (

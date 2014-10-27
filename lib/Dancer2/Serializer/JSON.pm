@@ -6,7 +6,7 @@ use JSON ();
 
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => (default => 'application/json');
+has '+content_type' => ( default => 'application/json' );
 
 # helpers
 sub from_json {
@@ -20,8 +20,6 @@ sub to_json {
 }
 
 # class definition
-sub loaded {1}
-
 sub serialize {
     my ( $self, $entity, $options ) = @_;
 
