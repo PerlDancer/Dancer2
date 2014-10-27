@@ -313,7 +313,6 @@ has with_return => (
     clearer   => 'clear_with_return',
 );
 
-
 has session => (
     is        => 'ro',
     isa       => InstanceOf['Dancer2::Core::Session'],
@@ -759,7 +758,6 @@ sub send_file {
     # TODO Streaming support
 }
 
-
 sub BUILD {
     my $self = shift;
     $self->init_route_handlers();
@@ -875,6 +873,7 @@ sub route_exists {
         $existing_route->spec_route eq $route->spec_route
             and return 1;
     }
+
     return 0;
 }
 
@@ -991,6 +990,7 @@ sub make_forward_to {
     exists $new_request->cookies->{$name} and return $new_request;
     $new_request->cookies->{$name} =
         Dancer2::Core::Cookie->new( name => $name, value => $self->session->id );
+
     return $new_request;
 }
 
