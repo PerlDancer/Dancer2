@@ -32,7 +32,7 @@ isa_ok( $app, 'Dancer2::Core::App' );
 }
 
 foreach my $engine_type ( qw<logger session template> ) {
-    diag($engine_type);
+    note($engine_type);
     my $engine;
     my $build_method = "_build_${engine_type}_engine";
 
