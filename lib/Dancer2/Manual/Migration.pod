@@ -100,6 +100,26 @@ For example:
 would return an error. The correct way to write this would be to use
 C<get '/0'>
 
+=head3 Session
+
+The session keyword returns a L<Dancer2::Core::Session> object, which has methods
+for L<read>, L<write> and L<delete>. 
+
+In turn direct access to a value doesn't work anymore:
+
+    session->{foo}
+    session foo => 'bar';
+
+Use the read and write method instead:
+
+    session->read('foo');
+    session->write(foo => 'bar');
+
+In Dancer1 it wasn't possible to delete a key, but in Dancer2 we have finally a
+delete method:
+
+    session->delete('foo');
+
 =head3 Tests
 
 Dancer2 recommends the use of L<Plack::Test>.
