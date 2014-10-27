@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.153001  2014-10-27 12:39:54+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #734: Failing tests on Windows. (Sawyer X)
 
