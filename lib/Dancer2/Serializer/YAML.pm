@@ -6,10 +6,9 @@ use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => (default => 'text/x-yaml');
+has '+content_type' => ( default => 'text/x-yaml' );
 
 # helpers
-
 sub from_yaml {
     my ($yaml) = @_;
     my $s = Dancer2::Serializer::YAML->new;
