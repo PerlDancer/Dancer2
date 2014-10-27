@@ -195,3 +195,9 @@ The following tags are not needed in L<Dancer2>:
 
 The C<plackup> command should be used instead. It provides a development
 server and reads the configuration options in your command line utilities.
+
+=head2 Serializers
+
+You no longer need to implement the C<loaded> method. It is simply
+unnecessary.
+
