@@ -1,8 +1,9 @@
 package Dancer2::Core::Role::Serializer;
 # ABSTRACT: Role for Serializer engines
 
-use Dancer2::Core::Types;
 use Moo::Role;
+use Try::Tiny;
+use Dancer2::Core::Types;
 
 with 'Dancer2::Core::Role::Engine';
 
@@ -17,42 +18,48 @@ sub _build_type {'Serializer'}
 
 requires 'serialize';
 requires 'deserialize';
-requires 'loaded';
 
-has error => (
-    is        => 'rw',
-    isa       => Str,
-    predicate => 1,
+has logger => (
+    is        => 'ro',
+    isa       => Object['Dancer2::Core::Logger'],
+    handles   => ['log'],
+    predicate => 'has_logger',
 );
 
-around serialize => sub {
-    my ( $orig, $self, $content, $options ) = @_;
-
-    $self->execute_hook( 'engine.serializer.before', $content );
-    my $serialized = eval {$self->$orig($content, $options);};
-
-    if ($@) {
-        $self->error($@);
-    }else{
-        $self->execute_hook( 'engine.serializer.after', $serialized );
-    }
-    return $serialized;
-};
-
-around deserialize => sub {
-    my ( $orig, $self, $content, $options ) = @_;
-    my $data = eval { $self->$orig($content, $options); };
-    $self->error($@) if $@;
-    return $data;
-};
-
-# attribute vs method?
 has content_type => (
     is       => 'ro',
     isa      => Str,
     required => 1,
     writer   => 'set_content_type'
 );
+
+around serialize => sub {
+    my ( $orig, $self, $content, $options ) = @_;
+
+    $self->execute_hook( 'engine.serializer.before', $content );
+
+    my $data = try {
+        $self->$orig($content, $options);
+    } catch {
+        $self->log( core => "Failed to serialize the request: $_" );
+    };
+
+    $data and $self->execute_hook( 'engine.serializer.after', $data );
+
+    return $data;
+};
+
+around deserialize => sub {
+    my ( $orig, $self, $content, $options ) = @_;
+
+    my $data = try {
+        $self->$orig($content, $options);
+    } catch {
+        $self->log( core => "Failed to deserialize the request: $_" );
+    };
+
+    return $data;
+};
 
 # most serializer don't have to overload this one
 sub support_content_type {
@@ -74,18 +81,10 @@ Any class that consumes this role will be able to be used as a
 serializer under Dancer2.
 
 In order to implement this role, the consumer B<must> implement the
-methods C<serialize>, C<deserialize> and C<loaded>, and should define
+methods C<serialize> and C<deserialize>, and should define
 the C<content_type> attribute value.
 
 =head1 METHODS
-
-=method has_error
-
-A predicate to check whether the serializer is in error state.
-
-=attr error
-
-The error string in case the serializer is in error state.
 
 =attr content_type
 
@@ -118,10 +117,3 @@ serializer.
 The deserialize method receives encoded bytes and must therefore
 handle any decoding required.
 
-=method loaded
-
-This method should return a boolean true value if the serializer is
-able to work. This method might verify the existence of some Perl
-module or some other detail. If everything needed for the serializer
-to work is present the method returns a true value. If not, returns a
-false value.

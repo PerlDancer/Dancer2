@@ -20,8 +20,6 @@ sub to_json {
 }
 
 # class definition
-sub loaded {1}
-
 sub serialize {
     my ( $self, $entity, $options ) = @_;
 
