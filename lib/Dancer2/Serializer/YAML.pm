@@ -4,6 +4,7 @@ package Dancer2::Serializer::YAML;
 use Moo;
 use Carp 'croak';
 use Encode;
+use Class::Load 'load_class';
 with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => 'text/x-yaml' );
@@ -22,8 +23,7 @@ sub to_yaml {
 }
 
 # class definition
-
-sub BUILD { eval "use YAML ()"; croak "Fail to load YAML: $@" if $@ }
+sub BUILD { load_class('YAML') }
 
 sub serialize {
     my ( $self, $entity ) = @_;
