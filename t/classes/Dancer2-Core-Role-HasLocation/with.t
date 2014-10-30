@@ -1,4 +1,5 @@
-#!/usr/bin/perl
+#!perl
+
 use strict;
 use warnings;
 
@@ -25,7 +26,7 @@ note 'Defaults:'; {
 
     like(
         $app->caller,
-        qr{^t[\\/]classes[\\/]Dancer2-Core-Role-HasLocation[\\/]base\.t$},
+        qr{^t[\\/]classes[\\/]Dancer2-Core-Role-HasLocation[\\/]with\.t$},
         'Default caller',
     );
 }

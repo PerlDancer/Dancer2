@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Engines now have "logger" attribute to log errors. It sends the
+      Dancer2::Logger:: object, if one exists. (Sawyer X)
+    * Serializers do not need to implement "loaded" method. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * Migration document update relating to enhancements. (Sawyer X)
+
 0.153002  2014-10-30 09:23:52+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]

@@ -34,6 +34,13 @@ sub _build_type {
     'SessionFactory';
 }    # XXX vs 'Session'?  Unused, so I can't tell -- xdg
 
+has logger => (
+    is        => 'ro',
+    isa       => Object['Dancer2::Core::Logger'],
+    handles   => ['log'],
+    predicate => 'has_logger',
+);
+
 has cookie_name => (
     is      => 'ro',
     isa     => Str,

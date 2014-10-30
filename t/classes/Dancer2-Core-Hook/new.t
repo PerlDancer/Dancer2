@@ -1,10 +1,12 @@
-#!/usr/bin/perl
+#!perl
+
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::Fatal;
-use Dancer2::Core::Hook;
+
+use_ok('Dancer2::Core::Hook');
 
 like(
     exception { Dancer2::Core::Hook->new( name => 'myname' ) },

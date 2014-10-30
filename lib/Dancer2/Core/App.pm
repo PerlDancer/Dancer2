@@ -34,11 +34,12 @@ has _factory => (
 );
 
 has logger_engine => (
-    is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
-    lazy    => 1,
-    builder => '_build_logger_engine',
-    writer  => 'set_logger_engine',
+    is        => 'ro',
+    isa       => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
+    lazy      => 1,
+    builder   => '_build_logger_engine',
+    predicate => 'has_logger_engine',
+    writer    => 'set_logger_engine',
 );
 
 has session_engine => (
@@ -145,7 +146,7 @@ sub _build_logger_engine {
         $self->_get_config_for_engine( logger => $value, $config );
 
     my $logger = $self->_factory->create(
-        logger => $value,
+        logger          => $value,
         %{$engine_options},
         location        => $self->config_location,
         environment     => $self->environment,
@@ -175,9 +176,15 @@ sub _build_session_engine {
           $self->_get_config_for_engine( session => $value, $config );
 
     return $self->_factory->create(
-        session => $value,
+        session         => $value,
         %{$engine_options},
         postponed_hooks => $self->get_postponed_hooks,
+
+        # do NOT change to Enterprise operator
+        # because it will call the builder
+        $self->has_logger_engine         ?
+      ( logger => $self->logger_engine ) :
+        (),
     );
 }
 
@@ -204,9 +211,15 @@ sub _build_template_engine {
         || path( $self->location, 'views' );
 
     return $self->_factory->create(
-        template => $value,
+        template        => $value,
         %{$engine_attrs},
         postponed_hooks => $self->get_postponed_hooks,
+
+        # do NOT change to Enterprise operator
+        # because it will call the builder
+        $self->has_logger_engine         ?
+      ( logger => $self->logger_engine ) :
+        (),
     );
 }
 
@@ -228,6 +241,12 @@ sub _build_serializer_engine {
         serializer      => $value,
         config          => $engine_options,
         postponed_hooks => $self->get_postponed_hooks,
+
+        # do NOT change to Enterprise operator
+        # because it will call the builder
+        $self->has_logger_engine         ?
+      ( logger => $self->logger_engine ) :
+        (),
     );
 }
 
@@ -299,7 +318,6 @@ has with_return => (
     writer    => 'set_with_return',
     clearer   => 'clear_with_return',
 );
-
 
 has session => (
     is        => 'ro',
@@ -746,7 +764,6 @@ sub send_file {
     # TODO Streaming support
 }
 
-
 sub BUILD {
     my $self = shift;
     $self->init_route_handlers();
@@ -768,8 +785,8 @@ sub init_route_handlers {
         $config = {} if !ref($config);
 
         my $handler = $self->_factory->create(
-            Handler => $handler_name,
-            app     => $self,
+            Handler         => $handler_name,
+            app             => $self,
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
@@ -862,6 +879,7 @@ sub route_exists {
         $existing_route->spec_route eq $route->spec_route
             and return 1;
     }
+
     return 0;
 }
 
@@ -978,6 +996,7 @@ sub make_forward_to {
     exists $new_request->cookies->{$name} and return $new_request;
     $new_request->cookies->{$name} =
         Dancer2::Core::Cookie->new( name => $name, value => $self->session->id );
+
     return $new_request;
 }
 
@@ -1166,14 +1185,6 @@ sub build_request {
           is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
         ( serializer      => $engine )x!! $engine,
     );
-
-    # Log deserialization errors
-    if ($engine) {
-        $engine->has_error and $self->log(
-            core => "Failed to deserialize the request : " .
-                    $engine->error
-        );
-    }
 
     return $request;
 }
