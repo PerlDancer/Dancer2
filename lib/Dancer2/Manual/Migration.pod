@@ -206,3 +206,4 @@ unnecessary.
 Engines now receive a logger that consumes L<Dancer2::Core::Role::Logger> in
 order to log errors. The attribute is called C<logger>.
 
+The logger engine doesn't have the attribute since it is the logger itself.
