@@ -23,9 +23,9 @@ note 'Defaults:'; {
         'App consumes Dancer2::Core::Role::HasLocation',
     );
 
-    is(
+    like(
         $app->caller,
-        't/classes/Dancer2-Core-Role-HasLocation/base.t',
+        qr{^t[\\/]classes[\\/]Dancer2-Core-Role-HasLocation[\\/]base\.t$},
         'Default caller',
     );
 }
@@ -43,11 +43,10 @@ note 'With lib/ and bin/:'; {
 
     my $location = $app->location;
     $location =~ s/\Q$basedir\E//;
-    $location =~ s{[\\/]}{}g;
 
-    is(
+    like(
         $location,
-        'FakeDancerDir',
+        qr{^[\\/]FakeDancerDir[\\/]$},
         'Got correct location with lib/ and bin/',
     );
 }
@@ -63,11 +62,10 @@ note 'With .dancer file:'; {
 
     my $location = $app->location;
     $location =~ s/\Q$basedir\E//;
-    $location =~ s{[\\/]}{}g;
 
-    is(
+    like(
         $location,
-        'FakeDancerFile',
+        qr{^[\\/]FakeDancerFile$},
         'Got correct location with .dancer file',
     );
 }
@@ -83,11 +81,10 @@ note 'blib/ ignored:'; {
 
     my $location = $app->location;
     $location =~ s/\Q$basedir\E//;
-    $location =~ s{[\\/]}{}g;
 
-    is(
+    like(
         $location,
-        'FakeDancerDir',
+        qr{^[\\/]FakeDancerDir[\\/]$},
         'blib/ dir is ignored',
     );
 }
