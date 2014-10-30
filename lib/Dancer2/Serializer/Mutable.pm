@@ -79,7 +79,7 @@ sub _get_content_type {
 
     # Search for the first HTTP header variable which
     # specifies supported content.
-    foreach my $method ( qw<content_type accept accept_type> ) {
+    foreach my $method ( qw<content_type accept> ) {
         if ( my $value = $self->request->header($method) ) {
             if ( exists $formats->{$value} ) {
                 $self->set_content_type($value);
@@ -133,10 +133,6 @@ The B<content_type> from the request headers
 =item
 
 the B<accept> from the request headers
-
-=item
-
-the B<accept_type> from the request headers
 
 =item
 
