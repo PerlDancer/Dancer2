@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More tests => 24;
 
 {
     package Handler;
@@ -65,7 +65,7 @@ note 'Checking our fake response'; {
 
 my $handler = Handler->new;
 isa_ok( $handler, 'Handler' );
-can_ok( $handler, qw<response response_400 response_403 response_404> );
+can_ok( $handler, qw<response standard_response> );
 
 note '->response'; {
     # set up status and header
@@ -93,7 +93,7 @@ note '->response'; {
     );
 }
 
-note '->response_400'; {
+note '->standard_response'; {
     # set up status and header
     my $app = App->new(
         response => Response->new(
@@ -113,60 +113,9 @@ note '->response_400'; {
     );
 
     is(
-        $handler->response_400($app),
+        $handler->standard_response( $app, 400 ),
         'Bad Request',
         'Correct response 400 created',
     );
 }
 
-note '->response_403'; {
-    # set up status and header
-    my $app = App->new(
-        response => Response->new(
-            status => sub {
-                my ( $self, $code ) = @_;
-                ::isa_ok( $self, 'Response' );
-                ::is( $code, '403', 'Correct status code' );
-            },
-
-            header => sub {
-                my ( $self, $hdr_name, $hdr_content ) = @_;
-                ::isa_ok( $self, 'Response' );
-                ::is( $hdr_name, 'Content-Type', 'Correct header name' );
-                ::is( $hdr_content, 'text/plain', 'Correct header value' );
-            },
-        )
-    );
-
-    is(
-        $handler->response_403($app),
-        'Forbidden',
-        'Correct response 403 created',
-    );
-}
-
-note '->response_404'; {
-    # set up status and header
-    my $app = App->new(
-        response => Response->new(
-            status => sub {
-                my ( $self, $code ) = @_;
-                ::isa_ok( $self, 'Response' );
-                ::is( $code, '404', 'Correct status code' );
-            },
-
-            header => sub {
-                my ( $self, $hdr_name, $hdr_content ) = @_;
-                ::isa_ok( $self, 'Response' );
-                ::is( $hdr_name, 'Content-Type', 'Correct header name' );
-                ::is( $hdr_content, 'text/plain', 'Correct header value' );
-            },
-        )
-    );
-
-    is(
-        $handler->response_404($app),
-        'Not Found',
-        'Correct response 404 created',
-    );
-}

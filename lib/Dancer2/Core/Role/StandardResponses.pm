@@ -2,6 +2,7 @@ package Dancer2::Core::Role::StandardResponses;
 # ABSTRACT: Role to provide commonly used responses
 
 use Moo::Role;
+use Dancer2::Core::HTTP;
 
 sub response {
     my ( $self, $app, $code, $message ) = @_;
@@ -10,41 +11,36 @@ sub response {
     return $message;
 }
 
-sub response_400 {
-    my ( $self, $app ) = @_;
-    $self->response( $app, 400, 'Bad Request' );
-}
+sub standard_response {
+    my ( $self, $app, $status_code ) = @_;
 
-sub response_404 {
-    my ( $self, $app ) = @_;
-    $self->response( $app, 404, 'Not Found' );
-}
-
-sub response_403 {
-    my ( $self, $app ) = @_;
-    $self->response( $app, 403, 'Forbidden' );
+    return $self->response(
+        $app,
+        $status_code,
+        Dancer2::Core::HTTP->status_message($status_code),
+    );
 }
 
 1;
 
 __END__
 
+=pod
+
 =method response
 
-Generic method that produces a response given with a code and a message:
+Generic method that produces a custom response given with a code and a message:
 
-    $self->response( $app, 404, "not found" );
+    $self->response( $app, 404, 'Not Found' );
 
-=method response_400
+This could be used to create your own, which is separate from the standard one:
 
-Produces a 400 response
+    $self->response( $app, 404, 'File missing in action' );
 
-=method response_404
+=method standard_response
 
-Produces a 404 response
+Produces a standard response using the code.
 
-=method response_403
+    # first example can be more easily written as
+    $self->standard_response( $app, 404 );
 
-Produces a 403 response
-
-=cut
