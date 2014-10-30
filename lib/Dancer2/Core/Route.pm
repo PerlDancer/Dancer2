@@ -89,8 +89,10 @@ sub match {
     if ( my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g )
     {
         for (@values) {
+            my $wildcard = shift @splat_or_megasplat;
+
             $_ = [ split '/' => $_ ]
-              if ( shift @splat_or_megasplat ) =~ /megasplat/;
+              if defined $wildcard and ($wildcard) =~ /megasplat/;
         }
     }
 
