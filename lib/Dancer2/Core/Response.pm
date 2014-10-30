@@ -16,12 +16,6 @@ use overload
 
 with 'Dancer2::Core::Role::Headers';
 
-sub BUILD {
-    my ($self) = @_;
-    $self->header( 'Server' => "Perl Dancer2 $Dancer2::VERSION" )
-        if Dancer2->runner->config->{'server_tokens'};
-}
-
 # boolean to tell if the route passes or not
 has has_passed => (
     is      => 'rw',
@@ -143,6 +137,10 @@ sub new_from_array {
 
 sub to_psgi {
     my ($self) = @_;
+
+    Dancer2->runner->config->{'no_server_tokens'}
+        or $self->header( 'Server' => "Perl Dancer2 $Dancer2::VERSION" );
+
     # It is possible to have no content and/or no content type set
     # e.g. if all routes 'pass'. Apply defaults here..
     $self->content_type or $self->content_type($self->default_content_type);

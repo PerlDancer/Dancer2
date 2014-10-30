@@ -110,19 +110,19 @@ note 'Server tokens';
 {
     my $runner = Dancer2::Core::Runner->new();
     is(
-        $runner->config->{'server_tokens'},
-        1,
-        'Default server_tokens',
+        $runner->config->{'no_server_tokens'},
+        0,
+        'Default no_server_tokens',
     );
 }
 
 {
-    local $ENV{DANCER_SERVER_TOKENS} = 0;
+    local $ENV{DANCER_NO_SERVER_TOKENS} = 1;
     my $runner = Dancer2::Core::Runner->new();
     is(
-        $runner->config->{'server_tokens'},
-        0,
-        'Successfully set server_tokens using DANCER_SERVER_TOKENS',
+        $runner->config->{'no_server_tokens'},
+        1,
+        'Successfully set no_server_tokens using DANCER_NO_SERVER_TOKENS',
     );
 }
 
