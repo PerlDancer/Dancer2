@@ -255,3 +255,9 @@ Engines now receive a logger that consumes L<Dancer2::Core::Role::Logger> in
 order to log errors. The attribute is called C<logger>.
 
 The logger engine doesn't have the attribute since it is the logger itself.
+
+=head2 Keywords
+
+=head3 param_array
+
+This keyword doesn't exist in Dancer2.
