@@ -12,6 +12,8 @@
       standard_response. (Sawyer X, Mickey Nasriachi, Omar M. Othman)
     * GH #514, #642, #729: Allow mixing named params, splat, and
       megasplat. (Russell Jenkins, Johan Spade, Dávid Kovács)
+    * GH #596: no_server_tokens works, as well as DANCER_NO_SERVER_TOKENS.
+      (Omar M. Othman, Sawyer X, Mickey Nasriachi)
 
     [ DOCUMENTATION ]
     * Migration document update relating to enhancements. (Sawyer X)
