@@ -255,3 +255,12 @@ Engines now receive a logger that consumes L<Dancer2::Core::Role::Logger> in
 order to log errors. The attribute is called C<logger>.
 
 The logger engine doesn't have the attribute since it is the logger itself.
+
+=head2 Configuration
+
+=head3 server_tokens
+
+The configuration C<server_tokens> has been introduced in the reverse (but
+more sensible, and Plack-compatible) form as C<no_server_tokens>.
+
+C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
