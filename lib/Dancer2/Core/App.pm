@@ -180,6 +180,8 @@ sub _build_session_engine {
         %{$engine_options},
         postponed_hooks => $self->get_postponed_hooks,
 
+        # do NOT change to Enterprise operator
+        # because it will call the builder
         $self->has_logger_engine         ?
       ( logger => $self->logger_engine ) :
         (),
@@ -213,6 +215,8 @@ sub _build_template_engine {
         %{$engine_attrs},
         postponed_hooks => $self->get_postponed_hooks,
 
+        # do NOT change to Enterprise operator
+        # because it will call the builder
         $self->has_logger_engine         ?
       ( logger => $self->logger_engine ) :
         (),
@@ -238,6 +242,8 @@ sub _build_serializer_engine {
         config          => $engine_options,
         postponed_hooks => $self->get_postponed_hooks,
 
+        # do NOT change to Enterprise operator
+        # because it will call the builder
         $self->has_logger_engine         ?
       ( logger => $self->logger_engine ) :
         (),

@@ -201,3 +201,8 @@ server and reads the configuration options in your command line utilities.
 You no longer need to implement the C<loaded> method. It is simply
 unnecessary.
 
+=head2 Engines
+
+Engines now receive a logger that consumes L<Dancer2::Core::Role::Logger> in
+order to log errors. The attribute is called C<logger>.
+
