@@ -329,6 +329,18 @@ has session => (
     predicate => '_has_session',
 );
 
+around _build_config => sub {
+    my ( $orig, $self ) = @_;
+    my $config          = $self->$orig;
+
+    $config && $config->{'engines'}
+        or return;
+
+    $self->_validate_engine($_) for keys %{ $config->{'engines'} };
+
+    return $config;
+};
+
 sub _build_response {
     my $self   = shift;
     my $engine = $self->engine('serializer');
@@ -632,12 +644,19 @@ sub cleanup {
     }
 }
 
+sub _validate_engine {
+    my $self = shift;
+    my $name = shift;
+
+    grep +( $_ eq $name ), @{ $self->supported_engines }
+        or croak "Engine '$name' is not supported.";
+}
+
 sub engine {
     my $self = shift;
     my $name = shift;
 
-    grep { $_ eq $name } @{ $self->supported_engines }
-        or croak "Engine '$name' is not supported.";
+    $self->_validate_engine($name);
 
     my $attr_name = "${name}_engine";
     return $self->$attr_name;
