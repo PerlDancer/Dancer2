@@ -10,6 +10,8 @@
     * Serializers do not need to implement "loaded" method. (Sawyer X)
     * GH #733: In core: response_xxx removed in favor of generic
       standard_response. (Sawyer X, Mickey Nasriachi, Omar M. Othman)
+    * GH #514, #642, #729: Allow mixing named params, splat, and
+      megasplat. (Russell Jenkins, Johan Spade, Dávid Kovács)
 
     [ DOCUMENTATION ]
     * Migration document update relating to enhancements. (Sawyer X)
