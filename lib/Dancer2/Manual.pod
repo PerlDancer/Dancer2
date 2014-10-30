@@ -180,8 +180,8 @@ must be defined explicitly with C<qr{}>, like the following:
 
 =head3 Conditional Matching
 
-Routes may include some matching conditions (on the useragent and the
-hostname at the moment):
+Routes may include some matching conditions (on content_type, agent,
+user_agent, content_length and path_info):
 
     get '/foo', {agent => 'Songbird (\d\.\d)[\d\/]*?'} => sub {
       'foo method for songbird'
