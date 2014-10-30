@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #732: Correct name for 403 (Forbidden, not Unauthorized).
+      (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
+
     [ ENHANCEMENTS ]
     * Engines now have "logger" attribute to log errors. It sends the
       Dancer2::Logger:: object, if one exists. (Sawyer X)

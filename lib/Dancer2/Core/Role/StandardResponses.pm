@@ -22,7 +22,7 @@ sub response_404 {
 
 sub response_403 {
     my ( $self, $app ) = @_;
-    $self->response( $app, 403, 'Unauthorized' );
+    $self->response( $app, 403, 'Forbidden' );
 }
 
 1;

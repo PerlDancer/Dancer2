@@ -140,7 +140,7 @@ note '->response_403'; {
 
     is(
         $handler->response_403($app),
-        'Unauthorized',
+        'Forbidden',
         'Correct response 403 created',
     );
 }
