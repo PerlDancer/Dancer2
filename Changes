@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.153002  2014-10-30 09:23:52+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #734: More failing tests. (Sawyer X)
 
