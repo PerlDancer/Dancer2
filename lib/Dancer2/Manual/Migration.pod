@@ -264,3 +264,9 @@ The configuration C<server_tokens> has been introduced in the reverse (but
 more sensible, and Plack-compatible) form as C<no_server_tokens>.
 
 C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
+
+=head2 Keywords
+
+=head3 param_array
+
+This keyword doesn't exist in Dancer2.
