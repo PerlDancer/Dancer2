@@ -10,7 +10,7 @@ __END__
 
 =pod
 
-=head1 Migration from Dancer1 to Dancer2
+=head1 Migration from Dancer 1 to Dancer2
 
 This document covers some changes that users will need to be aware of
 while upgrading from L<Dancer> (version 1) to L<Dancer2>.
@@ -102,23 +102,51 @@ C<get '/0'>
 
 =head2 Session
 
-The session keyword returns a L<Dancer2::Core::Session> object, which has methods
-for L<read>, L<write> and L<delete>. 
+The session keyword has multiple states:
 
-In turn direct access to a value doesn't work anymore:
+=over 4
 
-    session->{foo}
-    session foo => 'bar';
+=item * No arguments
 
-Use the read and write method instead:
+Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
+object, which has methods for L<read>, L<write>, and L<delete>. 
 
-    session->read('foo');
-    session->write(foo => 'bar');
+    my $session = session;
+    $session->read($key);
+    $session->write( $key => $value );
+    $session->delete($key);
 
-In Dancer1 it wasn't possible to delete a key, but in Dancer2 we have finally a
-delete method:
+=item * Single argument (key)
 
-    session->delete('foo');
+If a single argument is provided, it is treated as the key, and it will retrieve
+the value for it.
+
+    my $value = session $key;
+
+=item * Two arguments (key, value)
+
+If two arguments are provided, they are treated as a key and a value, in which
+case the session will assign the value to the key.
+
+    session $key => $value;
+
+=item * Two arguments (key, undef)
+
+If two arguments are provided, but the second is B<undef>, the key will be
+deleted from the session.
+
+    session $key => undef;
+
+=back
+
+In Dancer 1 it wasn't possible to delete a key, but in Dancer2 we can finally
+delete:
+
+    # these two are equivalent
+    session $key => undef;
+
+    my $session = session;
+    $session->delete($key);
 
 =head2 Tests
 
