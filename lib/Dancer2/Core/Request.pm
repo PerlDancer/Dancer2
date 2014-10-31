@@ -24,7 +24,6 @@ my @http_env_keys = (qw/
     accept_charset
     accept_encoding
     accept_language
-    accept_type
     connection
     keep_alive
     referer
@@ -736,8 +735,6 @@ specific accessors, here are those supported:
 =item C<accept_encoding>
 
 =item C<accept_language>
-
-=item C<accept_type>
 
 =item C<agent> (alias for C<user_agent>)
 
