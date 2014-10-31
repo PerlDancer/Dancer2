@@ -9,9 +9,7 @@ use HTTP::Request::Common;
 my $app = [% appname %]->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
-test_psgi $app, sub {
-    my $cb = shift;
+my $test = Plack::Test->create($app);
 
-    ok( $cb->( GET '/' )->is_success, '[GET /] successful' );
-};
-
+my $res = $test->request( GET '/' );
+ok $res->is_success, '[GET /] successful';
