@@ -100,54 +100,6 @@ For example:
 would return an error. The correct way to write this would be to use
 C<get '/0'>
 
-=head2 Session
-
-The session keyword has multiple states:
-
-=over 4
-
-=item * No arguments
-
-Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
-object, which has methods for L<read>, L<write>, and L<delete>. 
-
-    my $session = session;
-    $session->read($key);
-    $session->write( $key => $value );
-    $session->delete($key);
-
-=item * Single argument (key)
-
-If a single argument is provided, it is treated as the key, and it will retrieve
-the value for it.
-
-    my $value = session $key;
-
-=item * Two arguments (key, value)
-
-If two arguments are provided, they are treated as a key and a value, in which
-case the session will assign the value to the key.
-
-    session $key => $value;
-
-=item * Two arguments (key, undef)
-
-If two arguments are provided, but the second is B<undef>, the key will be
-deleted from the session.
-
-    session $key => undef;
-
-=back
-
-In Dancer 1 it wasn't possible to delete a key, but in Dancer2 we can finally
-delete:
-
-    # these two are equivalent
-    session $key => undef;
-
-    my $session = session;
-    $session->delete($key);
-
 =head2 Tests
 
 Dancer2 recommends the use of L<Plack::Test>.
@@ -157,25 +109,20 @@ For example:
     use strict;
     use warnings;
 
-    use Test::More tests => 3;
-
+    use Test::More tests => 2;
     use Plack::Test;
     use HTTP::Request::Common;
 
-    use Test2;
-    { package Test2; set apphandler => 'PSGI'; set log => 'error'; }
+    {
+        package App::Test; # or whatever you want to call it
+        get '/' => sub { template 'index' };
+    }
 
-    test_psgi( Test2::dance, sub {
-        my $app = shift;
+    my $test = Plack::Test->create( App::Test->to_app );
+    my $res  = $test->request( GET '/' );
 
-        my $res = $app->( GET '/' );
-
-        ok $res->is_success;
-
-        is $res->code => 200, 'response status is 200 for /';
-
-        like $res->content => qr#<title>Test2</title>#, 'title is okay';
-    } );
+    ok( $res->is_success, '[GET /] Successful' );
+    like( $res->content, qr{<title>Test2</title>}, 'Correct title' );
 
 Other modules that could be used for testing are:
 
@@ -244,17 +191,17 @@ The following tags are not needed in L<Dancer2>:
 The C<plackup> command should be used instead. It provides a development
 server and reads the configuration options in your command line utilities.
 
-=head2 Serializers
-
-You no longer need to implement the C<loaded> method. It is simply
-unnecessary.
-
 =head2 Engines
 
 Engines now receive a logger that consumes L<Dancer2::Core::Role::Logger> in
 order to log errors. The attribute is called C<logger>.
 
 The logger engine doesn't have the attribute since it is the logger itself.
+
+=head3 Serializers
+
+You no longer need to implement the C<loaded> method. It is simply
+unnecessary.
 
 =head2 Configuration
 
@@ -264,3 +211,58 @@ The configuration C<server_tokens> has been introduced in the reverse (but
 more sensible, and Plack-compatible) form as C<no_server_tokens>.
 
 C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
+
+=head2 Keywords
+
+=head3 param_array
+
+This keyword doesn't exist in Dancer2.
+
+=head3 session
+
+The session keyword has multiple states:
+
+=over 4
+
+=item * No arguments
+
+Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
+object, which has methods for L<read>, L<write>, and L<delete>. 
+
+    my $session = session;
+    $session->read($key);
+    $session->write( $key => $value );
+    $session->delete($key);
+
+=item * Single argument (key)
+
+If a single argument is provided, it is treated as the key, and it will retrieve
+the value for it.
+
+    my $value = session $key;
+
+=item * Two arguments (key, value)
+
+If two arguments are provided, they are treated as a key and a value, in which
+case the session will assign the value to the key.
+
+    session $key => $value;
+
+=item * Two arguments (key, undef)
+
+If two arguments are provided, but the second is B<undef>, the key will be
+deleted from the session.
+
+    session $key => undef;
+
+=back
+
+In Dancer 1 it wasn't possible to delete a key, but in Dancer2 we can finally
+delete:
+
+    # these two are equivalent
+    session $key => undef;
+
+    my $session = session;
+    $session->delete($key);
+
