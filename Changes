@@ -16,6 +16,8 @@
       (Omar M. Othman, Sawyer X, Mickey Nasriachi)
     * GH #639: Validate engine types in configuration.
       (Sawyer X, Omar M. Othman, Mickey Nasriachi, Russell Jenkins)
+    * GH #663, #741: Remove "accept_type" attribute and other references.
+      (Mickey Nasriachi, Theo van Hoesel)
 
     [ DOCUMENTATION ]
     * Migration document update relating to enhancements. (Sawyer X)
