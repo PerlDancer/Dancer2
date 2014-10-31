@@ -333,10 +333,9 @@ around _build_config => sub {
     my ( $orig, $self ) = @_;
     my $config          = $self->$orig;
 
-    $config && $config->{'engines'}
-        or return;
-
-    $self->_validate_engine($_) for keys %{ $config->{'engines'} };
+    if ( $config && $config->{'engines'} ) {
+        $self->_validate_engine($_) for keys %{ $config->{'engines'} };
+    }
 
     return $config;
 };
