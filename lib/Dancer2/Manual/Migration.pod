@@ -109,25 +109,20 @@ For example:
     use strict;
     use warnings;
 
-    use Test::More tests => 3;
-
+    use Test::More tests => 2;
     use Plack::Test;
     use HTTP::Request::Common;
 
-    use Test2;
-    { package Test2; set apphandler => 'PSGI'; set log => 'error'; }
+    {
+        package App::Test; # or whatever you want to call it
+        get '/' => sub { template 'index' };
+    }
 
-    test_psgi( Test2::dance, sub {
-        my $app = shift;
+    my $test = Plack::Test->create( App::Test->to_app );
+    my $res  = $test->request( GET '/' );
 
-        my $res = $app->( GET '/' );
-
-        ok $res->is_success;
-
-        is $res->code => 200, 'response status is 200 for /';
-
-        like $res->content => qr#<title>Test2</title>#, 'title is okay';
-    } );
+    ok( $res->is_success, '[GET /] Successful' );
+    like( $res->content, qr{<title>Test2</title>}, 'Correct title' );
 
 Other modules that could be used for testing are:
 
