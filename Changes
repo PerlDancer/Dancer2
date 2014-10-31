@@ -15,7 +15,7 @@
     * GH #596: no_server_tokens works, as well as DANCER_NO_SERVER_TOKENS.
       (Omar M. Othman, Sawyer X, Mickey Nasriachi)
     * GH #639: Validate engine types in configuration.
-      (Sawyer X, Omar M. Othman, Mickey Nasriachi)
+      (Sawyer X, Omar M. Othman, Mickey Nasriachi, Russell Jenkins)
 
     [ DOCUMENTATION ]
     * Migration document update relating to enhancements. (Sawyer X)
