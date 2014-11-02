@@ -111,10 +111,12 @@ sub plugin_args {@_}
 
 sub plugin_setting {
     my $plugin = caller;
-    my $dsl    = _get_dsl();
+    my $dsl    = _get_dsl()
+        or croak 'No DSL object found';
+
     ( my $plugin_name = $plugin ) =~ s/Dancer2::Plugin:://;
-    my $app = $dsl->dancer_app;
-    return $app->config->{'plugins'}->{$plugin_name} ||= {};
+
+    return $dsl->app->config->{'plugins'}->{$plugin_name} ||= {};
 }
 
 sub register_hook {
