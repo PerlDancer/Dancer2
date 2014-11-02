@@ -83,8 +83,8 @@ Thus, these modules can be used for speed improvement provided:
 
 =head2 Plugins: plugin_setting
 
-C<plugin_setting> returns the configuration of the plugin. It can no
-longer be called outside of C<register> or C<on_plugin_import>.
+C<plugin_setting> returns the configuration of the plugin. It can only be
+called in C<register> or C<on_plugin_import>.
 
 =head2 Routes
 
