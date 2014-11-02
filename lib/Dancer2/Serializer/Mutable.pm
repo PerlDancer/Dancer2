@@ -7,7 +7,7 @@ use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => (
-    default => 'application/json',
+    default => sub {'application/json'},
 );
 
 my $formats = {

@@ -7,7 +7,7 @@ use Encode;
 use Class::Load 'load_class';
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => ( default => 'text/x-yaml' );
+has '+content_type' => ( default => sub {'text/x-yaml'} );
 
 # helpers
 sub from_yaml {
