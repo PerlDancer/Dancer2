@@ -279,14 +279,6 @@ sub deserialize {
 
     return unless $self->has_serializer;
 
-    # Content-Type may contain additional parameters
-    # (http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7)
-    # which should be safe to ignore at this level.
-    # So accept either e.g. text/xml or text/xml; charset=utf-8
-    my ($content_type) = split /\s*;/, $self->content_type, 2;
-
-    return unless $self->serializer->support_content_type($content_type);
-
     # The latest draft of the RFC does not forbid DELETE to have content,
     # rather the behaviour is undefined. Take the most lenient route and
     # deserialize any content on delete as well.
