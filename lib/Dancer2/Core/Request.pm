@@ -236,6 +236,8 @@ sub host {
 sub agent                 { $_[0]->user_agent }
 sub remote_address        { $_[0]->address }
 sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
+sub forwarded_host        { $_[0]->env->{HTTP_X_FORWARDED_HOST} }
+sub forwarded_protocol    { $_[0]->env->{HTTP_X_FORWARDED_PROTOCOL} }
 sub address               { $_[0]->env->{REMOTE_ADDR} }
 sub remote_host           { $_[0]->env->{REMOTE_HOST} }
 sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
