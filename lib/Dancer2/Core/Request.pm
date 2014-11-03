@@ -255,13 +255,10 @@ sub scheme {
              $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
           || $self->env->{'HTTP_X_FORWARDED_PROTO'}
           || $self->env->{'HTTP_FORWARDED_PROTO'}
-          || "";
+          || '';
     }
-    return
-         $scheme
-      || $self->env->{'psgi.url_scheme'}
-      || $self->env->{'PSGI.URL_SCHEME'}
-      || "";
+
+    return $scheme || $self->env->{'psgi.url_scheme'} || '';
 }
 
 has serializer => (
@@ -321,7 +318,7 @@ sub is_patch  { $_[0]->{method} eq 'PATCH' }
 
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
-sub input_handle { $_[0]->env->{'psgi.input'} || $_[0]->env->{'PSGI.INPUT'} }
+sub input_handle { $_[0]->env->{'psgi.input'} }
 
 our $_count = 0;
 
