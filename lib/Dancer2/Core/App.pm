@@ -1091,6 +1091,9 @@ DISPATCH:
             $self->set_request($request);
             $_->set_request( $request ) for $self->defined_engines;
 
+            ## This should be replaced with a localised variable
+            $self->has_session and $self->clear_session;
+
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
             if ( my $sess = Dancer2->runner->{'internal_sessions'}{$cname} ) {
