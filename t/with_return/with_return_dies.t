@@ -14,7 +14,7 @@ use Scalar::Util qw/refaddr/;
 
 hook before_template_render => sub {
     my $path = request->path;
-    my $refadd = refaddr(app->with_return);
+    my $refadd = refaddr(app->{with_return});
     if ( $path =~ m!route_with_renderer_error! ) {
         die $refadd;
     }
@@ -24,7 +24,7 @@ get '/route_with_renderer_error' => sub {
     ## This route first gets called, then template fires the above hook.
     ## This hook errors, causing Dancer2::Core::App, to throw an error
     ## which *also* fires the hook, crashing the server.
-    my $addr = refaddr(app->with_return);
+    my $addr = refaddr(app->{with_return});
     template \$addr;
 };
 
@@ -32,7 +32,7 @@ get '/normal_route' => sub {
     ## This should issue normally
     # my $addr = refaddr(app->with_return);
     # template \$addr;
-    return refaddr(app->with_return);
+    return refaddr(app->{with_return});
 };
 
 package main;
