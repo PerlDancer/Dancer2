@@ -46,9 +46,9 @@ our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
 # then all the native attributes
 has env => (
-    is      => 'ro',
-    isa     => HashRef,
-    default => sub { {} },
+    is       => 'ro',
+    isa      => HashRef,
+    required => 1,
 );
 
 # a buffer for per-request variables
