@@ -790,6 +790,14 @@ returns the value of 'some_variable', while
 
 will set it.
 
+=method id()
+
+The ID of the request. This allows you to trace a specific request in loggers,
+per the string created using C<to_string>.
+
+The ID of the request is essentially the number of requests run in the current
+class.
+
 =method path()
 
 Return the path requested by the client.
