@@ -1,4 +1,5 @@
 package Dancer2::Serializer::Mutable;
+
 # ABSTRACT: Serialize and deserialize content based on HTTP header
 
 use Moo;
@@ -6,9 +7,7 @@ use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => (
-    default => 'application/json',
-);
+has '+content_type' => ( default => 'application/json', );
 
 my $formats = {
     'text/x-yaml'        => 'YAML',
@@ -19,32 +18,25 @@ my $formats = {
 };
 
 my $serializer = {
-    'YAML'   => {
-        to      => sub { Dancer2::Core::DSL::to_yaml(@_)   },
-        from    => sub { Dancer2::Core::DSL::from_yaml(@_) },
+    'YAML' => {
+        to   => sub { Dancer2::Core::DSL::to_yaml(@_) },
+        from => sub { Dancer2::Core::DSL::from_yaml(@_) },
     },
     'Dumper' => {
-        to      => sub { Dancer2::Core::DSL::to_dumper(@_)   },
-        from    => sub { Dancer2::Core::DSL::from_dumper(@_) },
+        to   => sub { Dancer2::Core::DSL::to_dumper(@_) },
+        from => sub { Dancer2::Core::DSL::from_dumper(@_) },
     },
-    'JSON'   => {
-        to      => sub { Dancer2::Core::DSL::to_json(@_)   },
-        from    => sub { Dancer2::Core::DSL::from_json(@_) },
+    'JSON' => {
+        to   => sub { Dancer2::Core::DSL::to_json(@_) },
+        from => sub { Dancer2::Core::DSL::from_json(@_) },
     },
 };
 
 sub support_content_type {
     my ( $self, $ct ) = @_;
 
-    # FIXME: are we getting full content type?
-
-    if ( $ct && grep +( $_ eq $ct ), keys %{$formats} ) {
-        $self->set_content_type($ct);
-
-        return 1;
-    }
-
-    return 0;
+ #We support everything. If we don't support it explicitly, we default to json
+    return 1;
 }
 
 sub serialize {
@@ -54,9 +46,7 @@ sub serialize {
     my $format = $self->_get_content_type();
 
     # Match format with a serializer and return
-    $format and return $serializer->{$format}{'to'}->(
-        $self, $entity
-    );
+    $format and return $serializer->{$format}{'to'}->( $self, $entity );
 
     # If none is found then just return the entity without change
     return $entity;
@@ -66,8 +56,7 @@ sub deserialize {
     my ( $self, $content ) = @_;
 
     # The right content type should already be set
-    my $format = $formats->{$self->content_type};
-
+    my $format = $formats->{ $self->content_type };
     $format and return $serializer->{$format}{'from'}->( $self, $content );
 
     return $content;
@@ -79,7 +68,7 @@ sub _get_content_type {
 
     # Search for the first HTTP header variable which
     # specifies supported content.
-    foreach my $method ( qw<content_type accept> ) {
+    foreach my $method ( qw<content_type accept accept_type> ) {
         if ( my $value = $self->request->header($method) ) {
             if ( exists $formats->{$value} ) {
                 $self->set_content_type($value);
@@ -88,8 +77,9 @@ sub _get_content_type {
         }
     }
 
-    # If none if found, return undef.
-    return;
+    # If none if found, return the default, 'JSON'.
+    $self->set_content_type('application/json');
+    return 'JSON';
 }
 
 1;
