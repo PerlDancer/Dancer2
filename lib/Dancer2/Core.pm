@@ -1,15 +1,8 @@
-# ABSTRACT: Core libraries for Dancer2 2.0
-
 package Dancer2::Core;
+# ABSTRACT: Core libraries for Dancer2 2.0
 
 use strict;
 use warnings;
-
-=func camelize
-
-Camelize a underscore-separated-string.
-
-=cut
 
 sub camelize {
     my ($value) = @_;
@@ -23,3 +16,11 @@ sub camelize {
 
 
 1;
+
+__END__
+
+=func camelize
+
+Camelize a underscore-separated-string.
+
+=cut

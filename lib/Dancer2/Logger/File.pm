@@ -12,33 +12,30 @@ use Fcntl qw(:flock SEEK_END);
 use Dancer2::FileUtils qw(open_file);
 use IO::File;
 
-# FIXME: this is not a good way to do this
 has environment => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub { $_[0]->app->environment },
+    is       => 'ro',
+    required => 1,
 );
 
-# FIXME: this is not a good way to do this
 has location => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub { $_[0]->app->config_location },
+    is       => 'ro',
+    required => 1,
 );
 
 has log_dir => (
     is      => 'rw',
-    isa     => Str,
+    isa     => sub {
+        my $dir = shift;
+
+        if ( !-d $dir && !mkdir $dir ) {
+            die "log directory \"$dir\" does not exist and unable to create it.";
+        }
+        if ( !-w $dir ) {
+            die "log directory \"$dir\" is not writable."
+        }
+    },
     lazy    => 1,
     builder => '_build_log_dir',
-    trigger => sub {
-        my ( $self, $dir ) = @_;
-        if ( !-d $dir && !mkdir $dir ) {
-            return carp
-              "Log directory \"$dir\" does not exist and unable to create it.";
-        }
-        return carp "Log directory \"$dir\" is not writable." if !-w $dir;
-    },
 );
 
 has file_name => (
@@ -61,7 +58,7 @@ has fh => (
     builder => '_build_fh',
 );
 
-sub _build_log_dir {File::Spec->catdir( $_[0]->location, 'logs' )}
+sub _build_log_dir { File::Spec->catdir( $_[0]->location, 'logs' ) }
 
 sub _build_file_name {$_[0]->environment . ".log"}
 

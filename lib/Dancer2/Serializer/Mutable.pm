@@ -33,8 +33,6 @@ my $serializer = {
     },
 };
 
-sub loaded {1}
-
 sub support_content_type {
     my ( $self, $ct ) = @_;
 
@@ -77,13 +75,12 @@ sub deserialize {
 
 sub _get_content_type {
     my $self    = shift;
-    my $headers = $self->{'extra_headers'}
-        or return;
+    $self->has_request or return;
 
     # Search for the first HTTP header variable which
     # specifies supported content.
-    foreach my $method ( qw<content_type accept accept_type> ) {
-        if ( my $value = $headers->{$method} ) {
+    foreach my $method ( qw<content_type accept> ) {
+        if ( my $value = $self->request->header($method) ) {
             if ( exists $formats->{$value} ) {
                 $self->set_content_type($value);
                 return $formats->{$value};
@@ -136,10 +133,6 @@ The B<content_type> from the request headers
 =item
 
 the B<accept> from the request headers
-
-=item
-
-the B<accept_type> from the request headers
 
 =item
 

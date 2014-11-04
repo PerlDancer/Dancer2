@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 56;
+use Test::More tests => 41;
 use Dancer2::Serializer::Mutable;
 use Plack::Test;
 use HTTP::Request::Common;
@@ -26,7 +26,7 @@ use YAML;
     };
 }
 
-my $app = Dancer2->runner->psgi_app;
+my $app = MyApp->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
@@ -56,7 +56,7 @@ test_psgi $app, sub {
             # Response with implicit call to the serializer
             for my $content_type ( @{ $s->{types} } ) {
 
-                for my $ct (qw/Content-Type Accept Accept-Type/) {
+                for my $ct (qw/Content-Type Accept/) {
 
                     # Test getting the value serialized in the correct format
                     my $res = $cb->( GET '/serialize', $ct => $content_type );
@@ -83,4 +83,3 @@ test_psgi $app, sub {
     }
 
 }
-

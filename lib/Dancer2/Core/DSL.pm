@@ -6,7 +6,6 @@ use Moo;
 use Carp;
 use Class::Load 'load_class';
 use Dancer2::Core::Hook;
-use Dancer2::Core::Error;
 use Dancer2::FileUtils;
 
 with 'Dancer2::Core::Role::DSL';
@@ -20,6 +19,7 @@ sub dsl_keywords {
         app                  => { is_global => 1 },
         captures             => { is_global => 0 },
         config               => { is_global => 1 },
+        content              => { is_global => 0 },
         content_type         => { is_global => 0 },
         context              => { is_global => 0 },
         cookie               => { is_global => 0 },
@@ -71,6 +71,7 @@ sub dsl_keywords {
         start                => { is_global => 1 },
         status               => { is_global => 0 },
         template             => { is_global => 0 },
+        to_app               => { is_global => 1 },
         to_dumper            => { is_global => 1 },
         to_json              => { is_global => 1 },
         to_yaml              => { is_global => 1 },
@@ -105,26 +106,7 @@ sub config { shift->app->settings }
 
 sub engine { shift->app->engine(@_) }
 
-=func setting
-
-Lets you define settings and access them:
-    setting('foo' => 42);
-    setting('foo' => 42, 'bar' => 43);
-    my $foo=setting('foo');
-
-If settings were defined returns number of settings.
-
-=cut
-
 sub setting { shift->app->setting(@_) }
-
-=func set ()
-
-alias for L<setting>:
-    set('foo' => '42');
-    my $port=set('port');
-
-=cut
 
 sub set { shift->setting(@_) }
 
@@ -159,6 +141,8 @@ sub session {
         $session->delete($key);
     }
 }
+
+sub send_error { shift->app->send_error(@_) }
 
 sub send_file { shift->app->send_file(@_) }
 
@@ -296,8 +280,10 @@ sub dance { shift->start(@_) }
 sub psgi_app {
     my $self = shift;
 
-    $self->runner->psgi_app( [ $self->app ] );
+    $self->app->to_app;
 }
+
+sub to_app { shift->app->to_app }
 
 #
 # Response alterations
@@ -307,6 +293,7 @@ sub status       { shift->response->status(@_) }
 sub push_header  { shift->response->push_header(@_) }
 sub header       { shift->response->header(@_) }
 sub headers      { shift->response->header(@_) }
+sub content      { shift->response->content(@_) }
 sub content_type { shift->response->content_type(@_) }
 sub pass         { shift->app->pass }
 
@@ -357,24 +344,6 @@ sub mime {
     }
 }
 
-sub send_error {
-    my ( $self, $message, $status ) = @_;
-
-    my $serializer = $self->app->engine('serializer');
-    my $x = Dancer2::Core::Error->new(
-          message    => $message,
-          app        => $self->app,
-        ( status     => $status     )x!! $status,
-        ( serializer => $serializer )x!! $serializer,
-    )->throw;
-
-    # return if there is a with_return coderef
-    $self->app->with_return->($x)
-      if $self->app->has_with_return;
-
-    return $x;
-}
-
 #
 # engines
 #
@@ -417,10 +386,27 @@ sub to_dumper {
 
 sub log { shift->app->log(@_) }
 
+1;
+
+__END__
+
+=func setting
+
+Lets you define settings and access them:
+    setting('foo' => 42);
+    setting('foo' => 42, 'bar' => 43);
+    my $foo=setting('foo');
+
+If settings were defined returns number of settings.
+
+=func set ()
+
+alias for L<setting>:
+    set('foo' => '42');
+    my $port=set('port');
+
 =head1 SEE ALSO
 
 L<http://advent.perldancer.org/2010/18>
 
 =cut
-
-1;

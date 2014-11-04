@@ -51,6 +51,8 @@ sub render {
 
 1;
 
+__END__
+
 =head1 SYNOPSIS
 
 To use this engine, you may configure L<Dancer2> via C<config.yaml>:

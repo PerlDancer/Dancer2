@@ -2,16 +2,23 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp            'croak';
-use Scalar::Util    'blessed';
-use Module::Runtime 'is_module_name';
+use Carp               'croak';
+use Scalar::Util       'blessed';
+use Module::Runtime    'is_module_name';
+use Return::MultiLevel ();
+use Safe::Isa;
 use File::Spec;
+use Plack::Builder;
 
 use Dancer2::FileUtils 'path';
 use Dancer2::Core;
+use Dancer2::Core::Cookie;
+use Dancer2::Core::Error;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
+use Dancer2::Core::Request;
+use Dancer2::Core::Factory;
 
 # we have hooks here
 with 'Dancer2::Core::Role::Hookable';
@@ -19,12 +26,20 @@ with 'Dancer2::Core::Role::ConfigReader';
 
 sub supported_engines { [ qw<logger serializer session template> ] }
 
-has logger_engine => (
+has _factory => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
+    isa     => Object['Dancer2::Core::Factory'],
     lazy    => 1,
-    builder => '_build_logger_engine',
-    writer  => 'set_logger_engine',
+    default => sub { Dancer2::Core::Factory->new },
+);
+
+has logger_engine => (
+    is        => 'ro',
+    isa       => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
+    lazy      => 1,
+    builder   => '_build_logger_engine',
+    predicate => 'has_logger_engine',
+    writer    => 'set_logger_engine',
 );
 
 has session_engine => (
@@ -50,6 +65,16 @@ has serializer_engine => (
     builder => '_build_serializer_engine',
     writer  => 'set_serializer_engine',
 );
+
+sub defined_engines {
+    my $self = shift;
+    return map {
+        my $type   = "${_}_engine";
+        my $engine = $self->$type;
+
+        defined $engine ? $engine : ()
+    } @{ $self->supported_engines };
+}
 
 has '+local_triggers' => (
     default => sub {
@@ -120,9 +145,11 @@ sub _build_logger_engine {
     my $engine_options =
         $self->_get_config_for_engine( logger => $value, $config );
 
-    my $logger = Dancer2::Core::Factory->create(
-        logger => $value,
+    my $logger = $self->_factory->create(
+        logger          => $value,
         %{$engine_options},
+        location        => $self->config_location,
+        environment     => $self->environment,
         app_name        => $self->name,
         postponed_hooks => $self->get_postponed_hooks
     );
@@ -148,10 +175,16 @@ sub _build_session_engine {
     my $engine_options =
           $self->_get_config_for_engine( session => $value, $config );
 
-    return Dancer2::Core::Factory->create(
-        session => $value,
+    return $self->_factory->create(
+        session         => $value,
         %{$engine_options},
         postponed_hooks => $self->get_postponed_hooks,
+
+        # do NOT change to Enterprise operator
+        # because it will call the builder
+        $self->has_logger_engine         ?
+      ( logger => $self->logger_engine ) :
+        (),
     );
 }
 
@@ -177,10 +210,16 @@ sub _build_template_engine {
     $engine_attrs->{views}  ||= $config->{views}
         || path( $self->location, 'views' );
 
-    return Dancer2::Core::Factory->create(
-        template => $value,
+    return $self->_factory->create(
+        template        => $value,
         %{$engine_attrs},
         postponed_hooks => $self->get_postponed_hooks,
+
+        # do NOT change to Enterprise operator
+        # because it will call the builder
+        $self->has_logger_engine         ?
+      ( logger => $self->logger_engine ) :
+        (),
     );
 }
 
@@ -198,10 +237,16 @@ sub _build_serializer_engine {
     my $engine_options =
         $self->_get_config_for_engine( serializer => $value, $config );
 
-    return Dancer2::Core::Factory->create(
+    return $self->_factory->create(
         serializer      => $value,
         config          => $engine_options,
         postponed_hooks => $self->get_postponed_hooks,
+
+        # do NOT change to Enterprise operator
+        # because it will call the builder
+        $self->has_logger_engine         ?
+      ( logger => $self->logger_engine ) :
+        (),
     );
 }
 
@@ -267,19 +312,12 @@ has response => (
     predicate => 'has_response',
 );
 
-=attr with_return
-
-Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
-
-=cut
-
 has with_return => (
     is        => 'ro',
     predicate => 1,
     writer    => 'set_with_return',
-    clearer   => 'clear_with_response',
+    clearer   => 'clear_with_return',
 );
-
 
 has session => (
     is        => 'ro',
@@ -290,6 +328,17 @@ has session => (
     clearer   => 'clear_session',
     predicate => '_has_session',
 );
+
+around _build_config => sub {
+    my ( $orig, $self ) = @_;
+    my $config          = $self->$orig;
+
+    if ( $config && $config->{'engines'} ) {
+        $self->_validate_engine($_) for keys %{ $config->{'engines'} };
+    }
+
+    return $config;
+};
 
 sub _build_response {
     my $self   = shift;
@@ -326,14 +375,6 @@ sub _build_session {
     return $session ||= $engine->create();
 }
 
-=method has_session
-
-Returns true if session engine has been defined and if either a session
-object has been instantiated or if a session cookie was found and not
-subsequently invalidated.
-
-=cut
-
 sub has_session {
     my $self = shift;
 
@@ -344,15 +385,6 @@ sub has_session {
              && !$self->has_destroyed_session );
 }
 
-=attr destroyed_session
-
-We cache a destroyed session here; once this is set we must not attempt to
-retrieve the session from the cookie in the request.  If no new session is
-created, this is set (with expiration) as a cookie to force the browser to
-expire the cookie.
-
-=cut
-
 has destroyed_session => (
     is        => 'ro',
     isa       => InstanceOf ['Dancer2::Core::Session'],
@@ -360,13 +392,6 @@ has destroyed_session => (
     writer    => 'set_destroyed_session',
     clearer   => 'clear_destroyed_session',
 );
-
-=method destroy_session
-
-Destroys the current session and ensures any subsequent session is created
-from scratch and not from the request session cookie
-
-=cut
 
 sub destroy_session {
     my $self = shift;
@@ -381,9 +406,11 @@ sub destroy_session {
     $session->expires(-86400);    # yesterday
     $engine->destroy( id => $session->id );
 
-    # Clear session and invalidate session cookie in request
+    # Invalidate session cookie in request
+    # and clear session in app and engines
     $self->set_destroyed_session($session);
     $self->clear_session;
+    $_->clear_session for $self->defined_engines;
 
     return;
 }
@@ -391,10 +418,7 @@ sub destroy_session {
 sub setup_session {
     my $self = shift;
 
-    for my $type ( @{ $self->supported_engines } ) {
-        my $attr   = "${type}_engine";
-        my $engine = $self->$attr or next;
-
+    for my $engine ( $self->defined_engines ) {
         $self->has_session                         ?
             $engine->set_session( $self->session ) :
             $engine->clear_session;
@@ -524,31 +548,48 @@ sub _init_hooks {
 
  # Hook to flush the session at the end of the request, this way, we're sure we
  # flush only once per request
+ #
+ # Note: we create a weakened copy $self before closing over the weakened copy
+ # to avoid circular memory refs.
+    Scalar::Util::weaken(my $app = $self);
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
-                my $response = $self->response;
+                my $response = $app->response;
 
                 # make sure an engine is defined, if not, nothing to do
-                my $engine = $self->session_engine;
+                my $engine = $app->session_engine;
                 defined $engine or return;
 
                 # if a session has been instantiated or we already had a
                 # session, first flush the session so cookie-based sessions can
                 # update the session ID if needed, then set the session cookie
                 # in the response
+                #
+                # if there is NO session object but the request has a cookie with
+                # a session key, create a dummy session with the same ID (without
+                # actually retrieving and flushing immediately) and generate the
+                # cookie header from the dummy session. Lazy Sessions FTW!
 
-                if ( $self->has_session ) {
-                    my $session = $self->session;
-                    $session->is_dirty and $engine->flush( session => $session );
+                if ( $app->has_session ) {
+                    my $session;
+                    if ( $app->_has_session ) { # Session object exists
+                        $session = $app->session;
+                        $session->is_dirty and $engine->flush( session => $session );
+                    }
+                    else { # Cookie header exists. Create a dummy session object
+                        my $cookie = $app->cookie( $engine->cookie_name );
+                        my $session_id = $cookie->value;
+                        $session = Dancer2::Core::Session->new( id => $session_id );
+                    }
                     $engine->set_cookie_header(
                         response => $response,
                         session  => $session
                     );
                 }
-                elsif ( $self->has_destroyed_session ) {
-                    my $session = $self->destroyed_session;
+                elsif ( $app->has_destroyed_session ) {
+                    my $session = $app->destroyed_session;
                     $engine->set_cookie_header(
                         response  => $response,
                         session   => $session,
@@ -595,14 +636,26 @@ sub cleanup {
     $self->clear_response;
     $self->clear_session;
     $self->clear_destroyed_session;
+    # Clear engine attributes
+    for my $engine ( $self->defined_engines ) {
+        $engine->clear_session;
+        $engine->clear_request;
+    }
+}
+
+sub _validate_engine {
+    my $self = shift;
+    my $name = shift;
+
+    grep +( $_ eq $name ), @{ $self->supported_engines }
+        or croak "Engine '$name' is not supported.";
 }
 
 sub engine {
     my $self = shift;
     my $name = shift;
 
-    grep { $_ eq $name } @{ $self->supported_engines }
-        or croak "Engine '$name' is not supported.";
+    $self->_validate_engine($name);
 
     my $attr_name = "${name}_engine";
     return $self->$attr_name;
@@ -615,18 +668,13 @@ sub template {
     $template->set_settings( $self->config );
 
     # return content
-    return $template->process( $self->request, @_ );
+    return $template->process( @_ );
 }
 
 sub hook_candidates {
     my $self = shift;
 
-    my @engines;
-    for my $e ( @{ $self->supported_engines } ) {
-        my $attr   = "${e}_engine";
-        my $engine = $self->$attr or next;
-        push @engines, $engine;
-    }
+    my @engines = $self->defined_engines;
 
     my @route_handlers;
     for my $handler ( @{ $self->route_handlers } ) {
@@ -673,6 +721,23 @@ sub log {
     $logger->$level(@_);
 }
 
+sub send_error {
+    my $self = shift;
+    my ( $message, $status ) = @_;
+
+    my $serializer = $self->engine('serializer');
+    my $err = Dancer2::Core::Error->new(
+          message    => $message,
+          app        => $self,
+        ( status     => $status     )x!! $status,
+        ( serializer => $serializer )x!! $serializer,
+    )->throw;
+
+    # Immediately return to dispatch if with_return coderef exists
+    $self->has_with_return && $self->with_return->($err);
+    return $err;
+}
+
 sub send_file {
     my $self    = shift;
     my $path    = shift;
@@ -695,10 +760,9 @@ sub send_file {
     # pretending it's a file (on-the-fly file sending)
     ref $path eq 'SCALAR' and return $$path;
 
-    my $conf = { app => $self };
-    my $file_handler = Dancer2::Core::Factory->create(
+    my $file_handler = $self->_factory->create(
         Handler => 'File',
-        %$conf,
+        app     => $self,
         postponed_hooks => $self->postponed_hooks,
         ( public_dir => File::Spec->rootdir )x!! $options{system_path},
     );
@@ -718,7 +782,6 @@ sub send_file {
     # TODO Streaming support
 }
 
-
 sub BUILD {
     my $self = shift;
     $self->init_route_handlers();
@@ -737,11 +800,11 @@ sub init_route_handlers {
     my $handlers_config = $self->config->{route_handlers};
     for my $handler_data ( @{$handlers_config} ) {
         my ($handler_name, $config) = @{$handler_data};
-        ref $config or $config = {};
-        $config->{app} = $self;
+        $config = {} if !ref($config);
 
-        my $handler = Dancer2::Core::Factory->create(
-            Handler => $handler_name,
+        my $handler = $self->_factory->create(
+            Handler         => $handler_name,
+            app             => $self,
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
@@ -773,7 +836,10 @@ sub compile_hooks {
                     and return;
 
                 eval  { $hook->(@_); 1; }
-                or do { croak "Exception caught in '$position' filter: $@" };
+                or do {
+                    $self->log('error', "Exception caught in '$position' filter: $@");
+                    croak "Exception caught in '$position' filter: $@";
+                };
             };
 
             push @{$compiled_hooks}, $compiled;
@@ -831,6 +897,7 @@ sub route_exists {
         $existing_route->spec_route eq $route->spec_route
             and return 1;
     }
+
     return 0;
 }
 
@@ -852,13 +919,6 @@ sub cookie {
       Dancer2::Core::Cookie->new( name => $name, value => $value, %options );
     $self->response->push_header( 'Set-Cookie' => $c->to_header );
 }
-
-=method redirect($destination, $status)
-
-Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
-be made into an absolute URI, relative to the URI in the request.
-
-=cut
 
 sub redirect {
     my $self        = shift;
@@ -883,15 +943,6 @@ sub redirect {
         and $self->with_return->($self->response);
 }
 
-=method halt
-
-Flag the response object as 'halted'.
-
-If called during request dispatch, immediatly returns the response
-to the dispatcher and after hooks will not be run.
-
-=cut
-
 sub halt {
    my $self = shift;
    $self->response->halt;
@@ -901,15 +952,6 @@ sub halt {
        and $self->with_return->($self->response);
 }
 
-=method pass
-
-Flag the response object as 'passed'.
-
-If called during request dispatch, immediatly returns the response
-to the dispatcher.
-
-=cut
-
 sub pass {
    my $self = shift;
    $self->response->pass;
@@ -918,21 +960,6 @@ sub pass {
    $self->has_with_return
        and $self->with_return->($self->response);
 }
-
-=method forward
-
-Create a new request which is a clone of the current one, apart
-from the path location, which points instead to the new location.
-This is used internally to chain requests using the forward keyword.
-
-Note that the new location should be a hash reference. Only one key is
-required, the C<to_url>, that should point to the URL that forward
-will use. Optional values are the key C<params> to a hash of
-parameters to be added to the current request parameters, and the key
-C<options> that points to a hash of options about the redirect (for
-instance, C<method> pointing to a new request method).
-
-=cut
 
 sub forward {
     my $self    = shift;
@@ -978,6 +1005,16 @@ sub make_forward_to {
     $new_request->{body}          = $request->body;
     $new_request->{headers}       = $request->headers;
 
+    # If a session object was created during processing of the original request
+    # i.e. a session object exists but no cookie existed
+    # add a cookie so the dispatcher can assign the session to the appropriate app
+    my $engine = $self->engine('session');
+    $engine && $self->_has_session or return $new_request;
+    my $name = $engine->cookie_name;
+    exists $new_request->cookies->{$name} and return $new_request;
+    $new_request->cookies->{$name} =
+        Dancer2::Core::Cookie->new( name => $name, value => $self->session->id );
+
     return $new_request;
 }
 
@@ -989,6 +1026,258 @@ sub _merge_params {
         $params->{$key} = $to_add->{$key};
     }
     return $params;
+}
+
+sub app { shift }
+
+# DISPATCHER
+sub to_app {
+    my $self = shift;
+
+    $self->finish;
+
+    my $psgi = sub {
+        my $env = shift;
+
+        # pre-request sanity check
+        my $method = uc $env->{'REQUEST_METHOD'};
+        $Dancer2::Core::Types::supported_http_methods{$method}
+            or return [
+                405,
+                [ 'Content-Type' => 'text/plain' ],
+                [ "Method Not Allowed\n\n$method is not supported." ]
+            ];
+
+        my $response;
+        eval {
+            $response = $self->dispatch($env)->to_psgi;
+            1;
+        } or do {
+            return [
+                500,
+                [ 'Content-Type' => 'text/plain' ],
+                [ "Internal Server Error\n\n$@"  ],
+            ];
+        };
+
+        return $response;
+    };
+
+    my $builder = Plack::Builder->new;
+    $builder->add_middleware('Head');
+    return $builder->wrap($psgi);
+}
+
+sub dispatch {
+    my $self = shift;
+    my $env  = shift;
+
+    my $request = Dancer2->runner->{'internal_request'} ||
+                  $self->build_request($env);
+    my $cname   = $self->session_engine->cookie_name;
+
+DISPATCH:
+    while (1) {
+        my $http_method = lc $request->method;
+        my $path_info   =    $request->path_info;
+
+        $self->log( core => "looking for $http_method $path_info" );
+
+        ROUTE:
+        foreach my $route ( @{ $self->routes->{$http_method} } ) {
+            #warn "testing route " . $route->regexp . "\n";
+            # TODO store in route cache
+
+            # go to the next route if no match
+            my $match = $route->match($request)
+                or next ROUTE;
+
+            $request->_set_route_params($match);
+
+            # Add request to app and engines
+            $self->set_request($request);
+            $_->set_request( $request ) for $self->defined_engines;
+
+            # Add session to app *if* we have a session and the request
+            # has the appropriate cookie header for _this_ app.
+            if ( my $sess = Dancer2->runner->{'internal_sessions'}{$cname} ) {
+                $self->set_session($sess);
+            }
+
+            # calling the actual route
+            my $response = Return::MultiLevel::with_return {
+                my ($return) = @_;
+
+                # stash the multilevel return coderef in the app
+                $self->has_with_return
+                    or $self->set_with_return($return);
+
+                return $self->_dispatch_route($route);
+            };
+
+            # ensure we clear the with_return handler
+            $self->clear_with_return;
+
+            # handle forward requests
+            if ( ref $response eq 'Dancer2::Core::Request' ) {
+                # this is actually a request, not response
+                # however, we need to clean up the request & response
+                $self->clear_request;
+                $self->clear_response;
+
+                # this is in case we're asked for an old-style dispatching
+                if ( Dancer2->runner->{'internal_dispatch'} ) {
+                    # Get the session object from the app before we clean up
+                    # the request context, so we can propogate this to the
+                    # next dispatch cycle (if required).
+                    $self->_has_session
+                        and Dancer2->runner->{'internal_sessions'}{$cname} =
+                            $self->session;
+
+                    Dancer2->runner->{'internal_forward'} = 1;
+                    Dancer2->runner->{'internal_request'} = $response;
+                    return $self->response_not_found($request);
+                }
+
+                $request = $response;
+                next DISPATCH;
+            }
+
+            # from here we assume the response is a Dancer2::Core::Response
+
+            # halted response, don't process further
+            if ( $response->is_halted ) {
+                $self->cleanup;
+                delete Dancer2->runner->{'internal_request'};
+                return $response;
+            }
+
+            # pass the baton if the response says so...
+            if ( $response->has_passed ) {
+                ## A previous route might have used splat, failed
+                ## this needs to be cleaned from the request.
+                exists $request->{_params}{splat}
+                    and delete $request->{_params}{splat};
+
+                $response->has_passed(0); # clear for the next round
+
+                # clear the content because if you pass it,
+                # the next route is in charge of catching it
+                $response->clear_content;
+                next ROUTE;
+            }
+
+            # it's just a regular response
+            $self->execute_hook( 'core.app.after_request', $response );
+            $self->cleanup;
+            delete Dancer2->runner->{'internal_request'};
+
+            return $response;
+        }
+
+        # we don't actually want to continue the loop
+        last;
+    }
+
+    $self->cleanup;
+
+    # make sure Core::Dispatcher recognizes this failure
+    # so it can try the next Core::App
+    # and set the created request so we don't create it again
+    # (this is important so we don't ignore the previous body)
+    if ( Dancer2->runner->{'internal_dispatch'} ) {
+        Dancer2->runner->{'internal_404'}     = 1;
+        Dancer2->runner->{'internal_request'} = $request;
+    }
+
+    return $self->response_not_found($request);
+}
+
+sub build_request {
+    my ( $self, $env ) = @_;
+
+    # If we have an app, send the serialization engine
+    my $engine  = $self->serializer_engine;
+    my $request = Dancer2::Core::Request->new(
+          env             => $env,
+          is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
+        ( serializer      => $engine )x!! $engine,
+    );
+
+    return $request;
+}
+
+# Call any before hooks then the matched route.
+sub _dispatch_route {
+    my ( $self, $route ) = @_;
+
+    $self->execute_hook( 'core.app.before_request', $self );
+    my $response = $self->response;
+
+    my $content;
+    if ( $response->is_halted ) {
+        # if halted, it comes from the 'before' hook. Take its content
+        $content = $response->content;
+    }
+    else {
+        $content = eval { $route->execute($self) };
+
+        my $error = $@;
+        if ($error) {
+            $self->log( error => "Route exception: $error" );
+            $self->execute_hook( 'core.app.route_exception', $self, $error );
+            return $self->response_internal_error($error);
+        }
+    }
+
+    $response->has_content
+        and $content = $response->content;
+
+    if ( ref $content eq 'Dancer2::Core::Response' ) {
+        $response = $self->set_response($content);
+    }
+    elsif ( defined $content ) {
+        # The response object has no back references to the content or app
+        # Update the default_content_type of the response if any value set in
+        # config so it can be applied when the response is encoded/returned.
+        if ( exists $self->config->{content_type}
+          && $self->config->{content_type} ) {
+            $response->default_content_type($self->config->{content_type});
+        }
+
+        $response->content($content);
+        $response->encode_content;
+    }
+
+    return $response;
+}
+
+sub response_internal_error {
+    my ( $self, $error ) = @_;
+
+    # warn "got error: $error";
+
+    return Dancer2::Core::Error->new(
+        app       => $self,
+        status    => 500,
+        exception => $error,
+    )->throw;
+}
+
+sub response_not_found {
+    my ( $self, $request ) = @_;
+
+    $self->set_request($request);
+
+    my $response = Dancer2::Core::Error->new(
+        app    => $self,
+        status  => 404,
+        message => $request->path,
+    )->throw;
+
+    $self->cleanup;
+
+    return $response;
 }
 
 1;
@@ -1012,6 +1301,28 @@ that package, thanks to that encapsulation.
 =attr runner_config
 
 =attr default_config
+
+=attr with_return
+
+Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
+
+=method has_session
+
+Returns true if session engine has been defined and if either a session
+object has been instantiated or if a session cookie was found and not
+subsequently invalidated.
+
+=attr destroyed_session
+
+We cache a destroyed session here; once this is set we must not attempt to
+retrieve the session from the cookie in the request.  If no new session is
+created, this is set (with expiration) as a cookie to force the browser to
+expire the cookie.
+
+=method destroy_session
+
+Destroys the current session and ensures any subsequent session is created
+from scratch and not from the request session cookie
 
 =method register_plugin
 
@@ -1053,3 +1364,62 @@ Sugar for getting the ordered list of all registered route regexps by method.
     my $regexps = $app->routes_regexps_for( 'get' );
 
 Returns an ArrayRef with the results.
+
+=method redirect($destination, $status)
+
+Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
+be made into an absolute URI, relative to the URI in the request.
+
+=method halt
+
+Flag the response object as 'halted'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher and after hooks will not be run.
+
+=method pass
+
+Flag the response object as 'passed'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher.
+
+=method forward
+
+Create a new request which is a clone of the current one, apart
+from the path location, which points instead to the new location.
+This is used internally to chain requests using the forward keyword.
+
+Note that the new location should be a hash reference. Only one key is
+required, the C<to_url>, that should point to the URL that forward
+will use. Optional values are the key C<params> to a hash of
+parameters to be added to the current request parameters, and the key
+C<options> that points to a hash of options about the redirect (for
+instance, C<method> pointing to a new request method).
+
+=head2 app
+
+Returns itself. This is simply available as a shim to help transition from
+a previous version in which hooks were sent a context object (originally
+C<Dancer2::Core::Context>) which has since been removed.
+
+    # before
+    hook before => sub {
+        my $ctx = shift;
+        my $app = $ctx->app;
+    };
+
+    # after
+    hook before => sub {
+        my $app = shift;
+    };
+
+This meant that C<< $app->app >> would fail, so this method has been provided
+to make it work.
+
+    # now
+    hook before => sub {
+        my $WannaBeCtx = shift;
+        my $app        = $WannaBeContext->app; # works
+    };
+

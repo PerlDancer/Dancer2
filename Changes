@@ -1,6 +1,131 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #732: Correct name for 403 (Forbidden, not Unauthorized).
+      (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
+
+    [ ENHANCEMENTS ]
+    * Engines now have "logger" attribute to log errors. It sends the
+      Dancer2::Logger:: object, if one exists. (Sawyer X)
+    * Serializers do not need to implement "loaded" method. (Sawyer X)
+    * GH #733: In core: response_xxx removed in favor of generic
+      standard_response. (Sawyer X, Mickey Nasriachi, Omar M. Othman)
+    * GH #514, #642, #729: Allow mixing named params, splat, and
+      megasplat. (Russell Jenkins, Johan Spade, Dávid Kovács)
+    * GH #596: no_server_tokens works, as well as DANCER_NO_SERVER_TOKENS.
+      (Omar M. Othman, Sawyer X, Mickey Nasriachi)
+    * GH #639: Validate engine types in configuration.
+      (Sawyer X, Omar M. Othman, Mickey Nasriachi, Russell Jenkins)
+    * GH #663, #741: Remove "accept_type" attribute and other references.
+      (Mickey Nasriachi, Theo van Hoesel)
+
+    [ DOCUMENTATION ]
+    * Migration document update relating to enhancements.
+      (Sawyer X, Mickey Nasriachi)
+    * GH #731: Document changes in session.
+      (racke, Sawyer X, Mickey Nasriachi, Omar M. Othman)
+
+0.153002  2014-10-30 09:23:52+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #734: More failing tests. (Sawyer X)
+
+0.153001  2014-10-27 12:39:54+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #734: Failing tests on Windows. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #724: Plack::Test example in Dancer2::Test. (Jakob Voss)
+
+0.153000  2014-10-23 23:45:36+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #634, #687: Fix file logger defaults.
+      (Russell Jenkins, Dávid Kovács, Sawyer X)
+    * GH #730: Make App use app-level config for behind_proxy. (Sawyer X)
+    * GH #727: Disable regex metachars when calculating app location in tests
+      (Gregor Herrmann)
+    * GH #681, #682, #712: Clear session engine within destroy_session.
+      (DavX, Russell Jenkins)
+    * Ignore :tests in importing, don't suggest :script. (Sawyer X)
+
     [ ENHANCEMENT ]
+    * Internal: Move the implementation of send_file from DSL to App.
+      (Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #728: Typos in Policy document. (Olaf Alders, Sawyer X)
+
+0.152000  2014-10-14 04:30:59+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #723: Redispatched requests lose data. (Sawyer X)
+
+    [ ENHANCEMENT ]
+    * Provide 'content' keyword to set the response content. (Sawyer x)
+    * GH #616, #155, #615: Session engines are now lazy! (Russell Jenkins)
+    * Dancer2 response objects can be created from arrays or from
+      Plack::Response objects. (Sawyer X)
+    * GH #718: Clean up App's Template engine. (Russell Jenkins)
+    * Adding class-based tests. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * Add a policy document under Dancer2::Policy. (Sawyer X)
+    * Document log_format instead of logger_format. (Sawyer X)
+
+0.151000  2014-10-08 21:49:06+02:00 Europe/Amsterdam
+
+    [ ENHANCEMENT ]
+    * Apps are now a proper independent PSGI application. Forwarding
+      and passing requests between apps will still work if you use the
+      'Dancer2->psgi_app' method without providing a class, but it might
+      still be phased out in the future.
+      (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * Migration document! (Snigdha Dagar)
+    * GH #667: Fix typo in cookbook pod. (Lindsey Beesley) 
+    * GH #649, #670: Document core logger. (simbabque)
+    * GH #689: Git guide markdown fixes. (Paul Cochrane)
+    * GH #690, #691, #694, #696, #698, #699, #700, #702, #703,
+         #704, #705, #706, #707, #708, #710: Doc cleanups.
+      (Paul Cochrane)
+    * GH #688: Improve testing documentation. (Paul Chochrane)
+    * GH #692: Document serving static files using
+      Plack::Middleware::Static. (Dávid Kovács @DavsX)
+    * GH #695: Correct Dancer2::Logger::Capture, add test example.
+      (Dávid Kovács @DavsX)
+    * GH #716: Correct document on proxy procotol forwarding
+      in Apache. (Andy Beverley)
+
+0.150000  2014-08-17 01:35:16CEST+0200 Europe/Amsterdam
+
+    [ DOCUMENTATION ]
+    * GH #657: Update multi-app example in cookbook to include route
+      merging. (Bas Bloemsaat)
+    * GH #643: Improve session factory docs by mentioning Dancer2::Config.
+      (Andy Jack)
+
+    [ BUG FIXES ]
+    * Postponed hooks are no longer sent to all Apps.
+      (Sawyer X, Mickey Nasriachi)
+    * 404 File Not Found Application reworked to stay up to date with
+      postponed hooks merging in multiple apps. (Russell Jenkins)
+    * GH #610, #662: Removed two circular references memory leaks!
+      (Russell Jenkins)
+    * GH #633: Log an error when a hook dies. (DavsX)
+
+    [ ENHANCEMENT ]
+    * Allow settings apps in the psgi_app() call by name or regex.
+      (Sawyer X)
+    * GH #651: silly typo in clearer method name (DavsX).
+
+0.149000_02 2014-08-10 13:50:39CEST+0200 Europe/Amsterdam
+
+    [ ENHANCEMENT ]
+    * GH #641: Adding a shim layer to prevent available hooks (and
+      thus plugins) from breaking.
     * Each App can now define its own configuration. The Runner's
       application-specific configure has been untangled.
       (Russell @veryrusty Jenkins, Sawyer X, Mickey Nasriachi)
@@ -20,6 +145,7 @@
       (Andrew Solomon, Pedro Bruno)
     * GH #627, #607: Remove potential context issues with returning
       undef explicitly. (Javier Rojas)
+    * GH #646: Fix whitespacing for tests. (DavsX)
 
 0.149000_01 2014-07-23 21:31:21CEST+0200 Europe/Amsterdam
 

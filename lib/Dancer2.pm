@@ -15,12 +15,12 @@ our $AUTHORITY = 'SUKRIA';
 # set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '0.143000'; # 2.14.3
+$Dancer2::VERSION ||= '0.153002'; # 2.153.2
 
 our $runner;
 
 sub runner   {$runner}
-sub psgi_app { __PACKAGE__->runner->psgi_app }
+sub psgi_app { shift->runner->psgi_app(@_) }
 
 sub import {
     my ( $class,  @args   ) = @_;
@@ -32,7 +32,7 @@ sub import {
 
     my @final_args;
     foreach my $arg (@args) {
-        grep +( $arg eq $_ ), qw<:script :syntax>
+        grep +( $arg eq $_ ), qw<:script :syntax :tests>
             and next;
 
         if ( substr( $arg, 0, 1 ) eq '!' ) {
@@ -43,7 +43,7 @@ sub import {
     }
 
     scalar @final_args % 2
-      and die q{parameters must be key/value pairs, ':script' or '!keyword'};
+      and die q{parameters must be key/value pairs or '!keyword'};
 
     my %final_args = @final_args;
 
@@ -66,7 +66,7 @@ sub import {
             name            => $appname,
             caller          => $script,
             environment     => $runner->environment,
-            postponed_hooks => $runner->postponed_hooks,
+            postponed_hooks => $runner->postponed_hooks->{$appname} || {},
         );
 
         # register the app within the runner instance
@@ -227,6 +227,7 @@ things:
     B10m
     baynes
     Blabos de Blebe
+    Bas Bloemsaat
     Breno G. de Oliveira
     Celogeek
     Cesare Gargano
@@ -272,4 +273,3 @@ things:
     Tom Hukins
     Upasana
     Vincent Bachelier
-

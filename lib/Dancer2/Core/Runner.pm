@@ -2,6 +2,7 @@ package Dancer2::Core::Runner;
 # ABSTRACT: Top-layer class to start a dancer app
 
 use Moo;
+use Carp 'croak';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
@@ -90,18 +91,18 @@ sub _build_config {
       and $ENV{DANCER_APPHANDLER} = 'PSGI';
 
     return {
-        behind_proxy  => 0,
-        apphandler    => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
-        warnings      => ( $ENV{DANCER_WARNINGS}     || 0 ),
-        traces        => ( $ENV{DANCER_TRACES}       || 0 ),
-        host          => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
-        port          => ( $ENV{DANCER_PORT}         || '3000' ),
-        server_tokens => ( defined $ENV{DANCER_SERVER_TOKENS} ?
-                           $ENV{DANCER_SERVER_TOKENS}         :
-                           1 ),
-        startup_info  => ( defined $ENV{DANCER_STARTUP_INFO} ?
-                           $ENV{DANCER_STARTUP_INFO}         :
-                           1 ),
+        behind_proxy     => 0,
+        apphandler       => ( $ENV{DANCER_APPHANDLER} || 'Standalone' ),
+        warnings         => ( $ENV{DANCER_WARNINGS}   || 0 ),
+        traces           => ( $ENV{DANCER_TRACES}     || 0 ),
+        host             => ( $ENV{DANCER_SERVER}     || '0.0.0.0' ),
+        port             => ( $ENV{DANCER_PORT}       || '3000' ),
+        no_server_tokens => ( defined $ENV{DANCER_NO_SERVER_TOKENS} ?
+                              $ENV{DANCER_NO_SERVER_TOKENS}         :
+                              0 ),
+        startup_info     => ( defined $ENV{DANCER_STARTUP_INFO} ?
+                              $ENV{DANCER_STARTUP_INFO}         :
+                              1 ),
     };
 }
 
@@ -128,15 +129,16 @@ sub register_application {
     push @{ $self->apps }, $app;
 
     # add postponed hooks to our psgi app
-    $self->add_postponed_hooks( $app->postponed_hooks );
+    $self->add_postponed_hooks( $app->name, $app->postponed_hooks );
 }
 
 sub add_postponed_hooks {
     my $self  = shift;
+    my $name  = shift;
     my $hooks = shift;
 
     # merge postponed hooks
-    @{ $self->{'postponed_hooks'} }{ keys %{$hooks} } = values %{$hooks};
+    @{ $self->{'postponed_hooks'}{$name} }{ keys %{$hooks} } = values %{$hooks};
 }
 
 # decide what to start
@@ -168,45 +170,56 @@ sub start_server {
 sub psgi_app {
     my ($self, $apps) = @_;
 
-    # dispatch over all apps by default
-    defined $apps or $apps = $self->apps;
-    foreach my $app ( @$apps ) {
-        $app->finish;
+    if ( $apps && @{$apps} ) {
+        my @found_apps = ();
+
+        foreach my $app_req ( @{$apps} ) {
+            if ( ref $app_req eq 'Regexp' ) {
+                # find it in the apps registry
+                push @found_apps,
+                    grep +( $_->name =~ $app_req ), @{ $self->apps };
+            } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
+                # use it directly
+                push @found_apps, $app_req;
+            } elsif ( ! ref $app_req ) {
+                # find it in the apps registry
+                push @found_apps,
+                    grep +( $_->name eq $app_req ), @{ $self->apps };
+            } else {
+                croak "Invalid input to psgi_app: $app_req";
+            }
+        }
+
+        $apps = \@found_apps;
+    } else {
+        # dispatch over all apps by default
+        $apps = $self->apps;
     }
 
     my $dispatcher = Dancer2::Core::Dispatcher->new( apps => $apps );
 
-    # eval entire request to catch any internal errors
-    my $psgi = sub {
+    # initialize psgi_apps
+    # (calls ->finish on the apps and create their PSGI apps)
+    # the dispatcher caches that in the attribute
+    # so ->finish isn't actually called again if you run this method
+    $dispatcher->apps_psgi;
+
+    return sub {
         my $env = shift;
-        my $response;
 
-        # pre-request sanity check
-        my $method = uc $env->{'REQUEST_METHOD'};
-        $Dancer2::Core::Types::supported_http_methods{$method}
-            or return [
-                405,
-                [ 'Content-Type' => 'text/plain' ],
-                [ "Method Not Allowed\n\n$method is not supported." ]
-            ];
+        # mark it as an old-style dispatching
+        $self->{'internal_dispatch'} = 1;
 
-        eval {
-            $response = $dispatcher->dispatch($env)->to_psgi;
-            1;
-        } or do {
-            return [
-                500,
-                [ 'Content-Type' => 'text/plain' ],
-                [ "Internal Server Error\n\n$@"  ],
-            ];
-        };
+        my $response = $dispatcher->dispatch($env);
+
+        # unmark it
+        delete $self->{'internal_dispatch'};
+
+        # cleanup
+        delete $self->{'internal_sessions'};
 
         return $response;
     };
-
-    my $builder = Plack::Builder->new;
-    $builder->add_middleware('Head');
-    return $builder->wrap($psgi);
 }
 
 sub print_banner {

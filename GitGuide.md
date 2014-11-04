@@ -42,7 +42,7 @@ below.
 
 Dancer2 should be able to install for all Perl versions since 5.8, on
 any platform for which Perl exists. We focus mainly on GNU/Linux (any
-distribution), *BSD and Windows (native and Cygwin).
+distribution), \*BSD and Windows (native and Cygwin).
 
 We should avoid regressions as much as possible and keep backwards
 compatibility in mind when refactoring. Stable releases should not
@@ -66,7 +66,7 @@ If you find a failing test report, feel free to report it as a
 We prefer to have all our bug reports on GitHub, in the
 [issues section](http://github.com/PerlDancer/Dancer2/issues).
 
-Please make sure the bug you're reporting does not yet exist. In doubt
+Please make sure the bug you're reporting does not yet exist. If in doubt
 please ask on IRC.
 
 ## Environment and Patch Submission
@@ -78,9 +78,9 @@ likely also [_Dist::Zilla_](https://metacpan.org/module/Dist::Zilla).
 We also recommend perlbrew (see below) or,
 alternatively, [_App::Plenv_](https://github.com/tokuhirom/plenv))
 to test and develop Dancer2 on a recent
-version of perl. We also suggest
+version of Perl. We also suggest
 [_App::cpanminus_](https://metacpan.org/module/App::cpanminus)
-to quickly and comfortably install perl modules.
+to quickly and comfortably install Perl modules.
 
 In the following sections we provide tips for the installation of some
 of these tools together with Dancer. Please also see the documentation
@@ -88,15 +88,15 @@ that comes with these tools for more info.
 
 #### Perlbrew tips (Optional)
 
-Install perlbrew for example with 
-    
+Install perlbrew for example with
+
     $ cpanm App::perlbrew
 
-Check which perls are available
+Check which Perls are available
 
     $ perlbrew available
 
-It should list the available perl versions, like this (incomplete) list:
+It should list the available Perl versions, like this (incomplete) list:
 
     perl-5.17.1
     perl-5.16.0
@@ -104,14 +104,14 @@ It should list the available perl versions, like this (incomplete) list:
     perl-5.12.4
     ...
 
-Now run the init command for perlbrew. The init command initializes and controls 
-processes. The init command is run as the last step of any startup 
+Now run the init command for perlbrew. The init command initializes and controls
+processes. The init command is run as the last step of any startup
 process.
 
     $ perlbrew init
 
 
-Then go on and install a version inside Perlbrew. We recommend you
+Then install a version inside perlbrew. We recommend you
 give a name to the installation (`--as` option), as well as compiling
 without the tests (`--n` option) to speed it up.
 
@@ -125,7 +125,7 @@ Now you are using the fresh Perl, you can check it with:
 
     $ which perl
 
-Install cpanm on your brewed version of perl.
+Install cpanm on your brewed version of Perl.
 
     $ perlbrew install-cpanm
 
@@ -146,9 +146,9 @@ Clone your fork to have a local copy using the following command:
      $ git clone git://github.com/perldancer/Dancer2.git
 
 The Dancer2 sources come with a `dist.ini`. That's the configuration
-files for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
+file for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
 use dist.ini to install additional `Dist::Zilla` plugins which are
-not yet installed on your system (or perl installation):
+not yet installed on your system (or Perl installation):
 
      $ dzil authordeps | cpanm -n
 
@@ -157,10 +157,11 @@ running, you should install the dependencies required by Dancer2:
 
      $ dzil listdeps | cpanm -n
 
-When that is done, you're good to go! You can use dzil to build and test Dancer2:
+When that is done, you're good to go! You can use `dzil` to build and test
+Dancer2:
 
      $ dzil build
-     $ dzil test
+     $ dzil test --no-author
 
 
 ### Patch Submission (Github workflow)
@@ -171,10 +172,9 @@ these contributions and applying them much, much easier. This gives
 your contribution a much better chance of being integrated into
 Dancer2 quickly!
 
-**NOTE:** unlike before, we no longer use the _devel_ branch. All
-active development is performed in the _master_ branch. Therefore, all
-your contribution work should be done in a fork of the _master_
-branch.
+**NOTE:** All active development is performed in the _master_ branch.
+Therefore, all your contribution work should be done in a fork of the
+_master_ branch.
 
 Here is the workflow for submitting a patch:
 
@@ -222,7 +222,7 @@ Here is the workflow for submitting a patch:
    that it incorporates the appropriate commits only.
 
    It's also a good idea to summarize your work in a report sent to
-   the users mailing list (see below), in order to make sure the team
+   the users' mailing list (see below), in order to make sure the team
    is aware of it.
 
    You could also notify the core team on IRC, on `irc.perl.org`,
@@ -236,15 +236,15 @@ Here is the workflow for submitting a patch:
    team is enough to understand what the mistake was. Above all,
    please don't be offended.
 
-   If your pull-request is merged into _master_, then all you have to
-   do is to remove your local and remote _pr/$name_ branch:
+   If your pull request is merged into _master_, then all you have to
+   do is remove your local and remote _pr/$name_ branch:
 
         $ git checkout master
         $ git branch -D pr/$name
         $ git push origin :pr/$name
 
    And then, of course, you need to sync your local devel branch with
-   the upstream:
+   upstream:
 
         $ git pull upstream master
         $ git push origin master

@@ -2,28 +2,9 @@
 
 package Dancer2::Core::Role::Headers;
 
-=head1 DESCRIPTION
-
-When a class consumes this role, it gets a C<headers> attribute and all the
-helper methods to manipulate it.
-
-This logic is contained in this role in order to reuse the code between
-L<Dancer2::Core::Response> and L<Dancer2::Core::Request> objects.
-
-=cut
-
 use Moo::Role;
 use Dancer2::Core::Types;
 use HTTP::Headers;
-
-=attr headers
-
-The attribute that store the headers in a L<HTTP::Headers> object.
-
-That attribute coerces from ArrayRef and defaults to an empty L<HTTP::Headers>
-instance.
-
-=cut
 
 has headers => (
     is     => 'rw',
@@ -39,14 +20,6 @@ has headers => (
     },
 );
 
-=method header($name)
-
-Return the value of the given header, if present. If the header has multiple
-values, returns the list of values if called in list context, the first one
-if in scalar context.
-
-=cut
-
 sub header {
     my $self   = shift;
     my $header = shift;
@@ -58,19 +31,6 @@ sub header {
         return $self->headers->header($header);
     }
 }
-
-=method push_header
-
-Add the header no matter if it already exists or not.
-
-    $self->push_header( 'X-Wing' => '1' );
-
-It can also be called with multiple values to add many times the same header
-with different values:
-
-    $self->push_header( 'X-Wing' => 1, 2, 3 );
-
-=cut
 
 sub push_header {
     my $self   = shift;
@@ -85,12 +45,6 @@ sub push_header {
         return $self->headers->header($header);
     }
 }
-
-=method headers_to_array
-
-Convert the C<headers> attribute to an ArrayRef.
-
-=cut
 
 sub headers_to_array {
     my $self = shift;
@@ -110,3 +64,43 @@ sub headers_to_array {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+When a class consumes this role, it gets a C<headers> attribute and all the
+helper methods to manipulate it.
+
+This logic is contained in this role in order to reuse the code between
+L<Dancer2::Core::Response> and L<Dancer2::Core::Request> objects.
+
+=attr headers
+
+The attribute that store the headers in a L<HTTP::Headers> object.
+
+That attribute coerces from ArrayRef and defaults to an empty L<HTTP::Headers>
+instance.
+
+=method header($name)
+
+Return the value of the given header, if present. If the header has multiple
+values, returns the list of values if called in list context, the first one
+if in scalar context.
+
+=method push_header
+
+Add the header no matter if it already exists or not.
+
+    $self->push_header( 'X-Wing' => '1' );
+
+It can also be called with multiple values to add many times the same header
+with different values:
+
+    $self->push_header( 'X-Wing' => 1, 2, 3 );
+
+=method headers_to_array
+
+Convert the C<headers> attribute to an ArrayRef.
+
+=cut

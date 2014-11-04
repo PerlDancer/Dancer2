@@ -23,6 +23,13 @@ sub _build_type {'Template'}
 
 requires 'render';
 
+has logger => (
+    is        => 'ro',
+    isa       => Object['Dancer2::Core::Logger'],
+    handles   => ['log'],
+    predicate => 'has_logger',
+);
+
 has name => (
     is      => 'ro',
     lazy    => 1,
@@ -101,9 +108,9 @@ sub render_layout {
 }
 
 sub apply_renderer {
-    my ( $self, $request, $view, $tokens ) = @_;
+    my ( $self, $view, $tokens ) = @_;
     $view = $self->view_pathname($view) if !ref $view;
-    $tokens = $self->_prepare_tokens_options($request,$tokens);
+    $tokens = $self->_prepare_tokens_options( $tokens );
 
     $self->execute_hook( 'engine.template.before_render', $tokens );
 
@@ -116,9 +123,9 @@ sub apply_renderer {
 }
 
 sub apply_layout {
-    my ( $self, $request, $content, $tokens, $options ) = @_;
+    my ( $self, $content, $tokens, $options ) = @_;
 
-    $tokens = $self->_prepare_tokens_options( $request, $tokens );
+    $tokens = $self->_prepare_tokens_options( $tokens );
 
    # If 'layout' was given in the options hashref, use it if it's a true value,
    # or don't use a layout if it was false (0, or undef); if layout wasn't
@@ -150,7 +157,7 @@ sub apply_layout {
 }
 
 sub _prepare_tokens_options {
-    my ( $self, $request, $tokens ) = @_;
+    my ( $self, $tokens ) = @_;
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
@@ -158,9 +165,9 @@ sub _prepare_tokens_options {
     $tokens->{dancer_version} = Dancer2->VERSION;
 
     $tokens->{settings} = $self->settings;
-    $tokens->{request}  = $request;
-    $tokens->{params}   = $request->params;
-    $tokens->{vars}     = $request->vars;
+    $tokens->{request}  = $self->request;
+    $tokens->{params}   = $self->request->params;
+    $tokens->{vars}     = $self->request->vars;
 
     $tokens->{session} = $self->session->data
       if $self->has_session;
@@ -169,7 +176,7 @@ sub _prepare_tokens_options {
 }
 
 sub process {
-    my ( $self, $request, $view, $tokens, $options ) = @_;
+    my ( $self, $view, $tokens, $options ) = @_;
     my ( $content, $full_content );
 
     # it's important that $tokens is not undef, so that things added to it via
@@ -181,11 +188,11 @@ sub process {
 
     $content =
         $view
-      ? $self->apply_renderer( $request, $view, $tokens )
+      ? $self->apply_renderer( $view, $tokens )
       : delete $options->{content};
 
     defined $content
-      and $full_content = $self->apply_layout( $request, $content, $tokens, $options );
+      and $full_content = $self->apply_layout( $content, $tokens, $options );
 
     defined $full_content
       and return $full_content;

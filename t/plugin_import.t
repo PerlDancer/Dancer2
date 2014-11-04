@@ -15,7 +15,7 @@ use HTTP::Request::Common;
     };
 }
 
-my $app = Dancer2->runner->psgi_app;
+my $app = __PACKAGE__->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
@@ -41,7 +41,7 @@ subtest 'import flags' => sub {
 
         register 'foo' => sub { request };
     ";
-    like $@, qr{Bareword "request" not allowed while "strict subs"}, 
+    like $@, qr{Bareword "request" not allowed while "strict subs"},
       "with :no_dsl, the Dancer's dsl is not imported.";
 
     eval "

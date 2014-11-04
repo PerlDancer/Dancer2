@@ -9,36 +9,17 @@ use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
 
-=attr method
-
-The HTTP method of the route (lowercase). Required.
-
-=cut
-
 has method => (
     is       => 'ro',
     isa      => Dancer2Method,
     required => 1,
 );
 
-=attr code
-
-The code reference to execute when the route is ran. Required.
-
-=cut
-
 has code => (
     is       => 'ro',
     required => 1,
     isa      => CodeRef,
 );
-
-=attr regexp
-
-The regular expression that defines the path of the route.
-Required. Coerce from Dancer2's route I<patterns>.
-
-=cut
 
 has regexp => (
     is       => 'ro',
@@ -47,23 +28,11 @@ has regexp => (
 
 has spec_route => ( is => 'ro' );
 
-=attr prefix
-
-The prefix to prepend to the C<regexp>. Optional.
-
-=cut
-
 has prefix => (
     is        => 'ro',
     isa       => Maybe [Dancer2Prefix],
     predicate => 1,
 );
-
-=attr options
-
-A HashRef of conditions on which the matching will depend. Optional.
-
-=cut
 
 has options => (
     is        => 'ro',
@@ -105,16 +74,6 @@ has _params => (
     default => sub { [] },
 );
 
-=method match
-
-Try to match the route with a given pair of method/path.
-Returns the hash of matching data if success (captures and values of the route
-against the path) or undef if not.
-
-    my $match = $route->match( get => '/hello/sukria' );
-
-=cut
-
 sub match {
     my ( $self, $request ) = @_;
 
@@ -122,18 +81,7 @@ sub match {
         return unless $self->validate_options($request);
     }
 
-    my %params;
     my @values = $request->dispatch_path =~ $self->regexp;
-
-    # the regex comments are how we know if we captured
-    # a splat or a megasplat
-    if ( my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g )
-    {
-        for (@values) {
-            $_ = [ split '/' => $_ ]
-              if ( shift @splat_or_megasplat ) =~ /megasplat/;
-        }
-    }
 
     # if some named captures are found, return captures
     # no warnings is for perl < 5.10
@@ -146,36 +94,40 @@ sub match {
 
     return unless @values;
 
-    # save the route pattern that matched
-    # TODO : as soon as we have proper Dancer2::Internal, we should remove
-    # that, it's just a quick hack for plugins to access the matching
-    # pattern.
-    # NOTE: YOU SHOULD NOT USE THAT, OR IF YOU DO, YOU MUST KNOW
-    # IT WILL MOVE VERY SOON
-    # $request->{_route_pattern} = $self->regexp;
+    # regex comments are how we know if we captured a token,
+    # splat or a megasplat
+    my @token_or_splat = $self->regexp =~ /\(\?#([token|(?:mega)?splat]+)\)/g;
+    if (@token_or_splat) {
+        # our named tokens
+        my @tokens = @{ $self->_params };
 
-    # named tokens
-    my @tokens = @{ $self->_params };
+        my %params;
+        my @splat;
+        for ( my $i = 0; $i < @values; $i++ ) {
+            # Is this value from a token?
+            if ( $token_or_splat[$i] eq 'token' ) {
+                $params{ shift @tokens } = $values[$i];
+                 next;
+            }
 
-    if (@tokens) {
-        for ( my $i = 0; $i < @tokens; $i++ ) {
-            $params{ $tokens[$i] } = $values[$i];
+            # megasplat values are split on '/'
+            if ($token_or_splat[$i] eq 'megasplat') {
+                $values[$i] = [ split '/' => $values[$i] ];
+            }
+            push @splat, $values[$i];
         }
-        return $self->_match_data( \%params );
+        return $self->_match_data( {
+            %params,
+            (splat => \@splat)x!! @splat,
+        });
     }
 
-    elsif ( $self->_should_capture ) {
+    if ( $self->_should_capture ) {
         return $self->_match_data( { splat => \@values } );
     }
 
     return $self->_match_data( {} );
 }
-
-=method execute
-
-Runs the coderef of the route.
-
-=cut
 
 sub execute {
     my ( $self, @args ) = @_;
@@ -225,11 +177,11 @@ sub _build_regexp_from_string {
     my $capture = 0;
     my @params;
 
-    # look for route with params (/hello/:foo)
+    # look for route with tokens [aka params] (/hello/:foo)
     if ( $string =~ /:/ ) {
         @params = $string =~ /:([^\/\.\?]+)/g;
         if (@params) {
-            $string =~ s/(:[^\/\.\?]+)/\(\[\^\/\]\+\)/g;
+            $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
             $capture = 1;
         }
     }
@@ -262,3 +214,40 @@ sub validate_options {
 }
 
 1;
+
+__END__
+
+=attr method
+
+The HTTP method of the route (lowercase). Required.
+
+=attr code
+
+The code reference to execute when the route is ran. Required.
+
+=attr regexp
+
+The regular expression that defines the path of the route.
+Required. Coerce from Dancer2's route I<patterns>.
+
+=attr prefix
+
+The prefix to prepend to the C<regexp>. Optional.
+
+=attr options
+
+A HashRef of conditions on which the matching will depend. Optional.
+
+=method match
+
+Try to match the route with a given pair of method/path.
+Returns the hash of matching data if success (captures and values of the route
+against the path) or undef if not.
+
+    my $match = $route->match( get => '/hello/sukria' );
+
+=method execute
+
+Runs the coderef of the route.
+
+=cut

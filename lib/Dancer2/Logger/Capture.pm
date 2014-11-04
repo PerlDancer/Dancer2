@@ -6,6 +6,25 @@ use Dancer2::Logger::Capture::Trap;
 
 with 'Dancer2::Core::Role::Logger';
 
+has trapper => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_trapper',
+);
+
+sub _build_trapper { Dancer2::Logger::Capture::Trap->new }
+
+sub log {
+    my ( $self, $level, $message ) = @_;
+
+    $self->trapper->store( $level => $message );
+    return;
+}
+
+1;
+
+__END__
+
 =head1 SYNOPSIS
 
 The basics:
@@ -40,31 +59,52 @@ A worked-out real-world example:
 
 This is a logger class for L<Dancer2> which captures all logs to an object.
 
-It's primary purpose is for testing.
+It's primary purpose is for testing. Here is an example of a test:
 
-=method trap
+    use strict;
+    use warnings;
+    use Test::More;
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    {
+        package App;
+        use Dancer2;
+
+        set log       => 'debug';
+        set logger    => 'capture';
+
+        get '/' => sub {
+            log(debug => 'this is my debug message');
+            log(core  => 'this should not be logged');
+            log(info  => 'this is my info message');
+        };
+    }
+
+    my $app = Dancer2->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        my $res = $cb->( GET '/' );
+
+        my $trap = App->dancer_app->logger_engine->trapper;
+
+        is_deeply $trap->read, [
+            { level => 'debug', message => 'this is my debug message' },
+            { level => 'info',  message => 'this is my info message' },
+        ];
+
+        is_deeply $trap->read, [];
+    };
+
+    done_testing;
+
+=method trapper
 
 Returns the L<Dancer2::Logger::Capture::Trap> object used to capture
 and read logs.
-
-=cut
-
-has trapper => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_trapper',
-);
-
-sub _build_trapper { Dancer2::Logger::Capture::Trap->new }
-
-sub log {
-    my ( $self, $level, $message ) = @_;
-
-    $self->trapper->store( $level => $message );
-    return;
-}
-
-1;
 
 =head1 SEE ALSO
 

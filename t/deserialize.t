@@ -1,9 +1,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 18;
 use Plack::Test;
 use HTTP::Request::Common;
+use Dancer2::Logger::Capture;
+
+my $logger = Dancer2::Logger::Capture->new;
+isa_ok( $logger, 'Dancer2::Logger::Capture' );
 
 {
 
@@ -35,7 +39,7 @@ use HTTP::Request::Common;
     };
 }
 
-my $app = Dancer2->runner->psgi_app;
+my $app = MyApp->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 test_psgi $app, sub {
@@ -160,6 +164,10 @@ note "Deserialze any body content that is allowed or undefined"; {
 }
 
 note 'Check serialization errors'; {
+    Dancer2->runner->apps->[0]->set_serializer_engine(
+        Dancer2::Serializer::JSON->new( logger => $logger )
+    );
+
     test_psgi $app, sub {
         my $cb = shift;
 
@@ -169,18 +177,27 @@ note 'Check serialization errors'; {
                 Content        => '---',
         );
 
-        ok(
-            Dancer2->runner->apps->[0]->serializer_engine->has_error,
-            "Invalid JSON threw error in serializer",
-        );
+        my $trap = $logger->trapper;
+        isa_ok( $trap, 'Dancer2::Logger::Capture::Trap' );
 
+        my $errors = $trap->read;
+        isa_ok( $errors, 'ARRAY' );
+        is( scalar @{$errors}, 1, 'One error caught' );
+
+        my $msg = $errors->[0];
+        isa_ok( $msg, 'HASH' );
+        is( scalar keys %{$msg}, 2, 'Two items in the error' );
+
+        is( $msg->{'level'}, 'core', 'Correct level' );
         like(
-            Dancer2->runner->apps->[0]->serializer_engine->error,
-            qr/malformed number/,
-            ".. of a 'malformed number'",
+            $msg->{'message'},
+            qr{
+                ^
+                \QFailed to deserialize the request: \E
+                \Qmalformed number\E
+            }x,
+            'Correct error message',
         );
     }
 }
-
-done_testing();
 

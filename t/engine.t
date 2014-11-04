@@ -5,12 +5,21 @@ use Test::Fatal;
 use Dancer2::Core::App;
 use Dancer2::Template::Tiny;
 
-my $f = Dancer2::Template::Tiny->new();
-isa_ok $f, 'Dancer2::Template::Tiny';
-ok( $f->does('Dancer2::Core::Role::Engine') );
-ok( $f->does('Dancer2::Core::Role::Template') );
+{
+    my $f = Dancer2::Template::Tiny->new();
+    isa_ok( $f, 'Dancer2::Template::Tiny' );
+    ok(
+        $f->does('Dancer2::Core::Role::Engine'),
+        'Consumed Role::Engine',
+    );
 
-is( $f->name, 'Tiny' );
+    ok(
+        $f->does('Dancer2::Core::Role::Template'),
+        'Consumed Role::Template',
+    );
+
+    is( $f->name, 'Tiny', 'Correct engine name' );
+}
 
 # checks for validity of engine names
 
@@ -23,6 +32,7 @@ isa_ok( $app, 'Dancer2::Core::App' );
 }
 
 foreach my $engine_type ( qw<logger session template> ) {
+    note($engine_type);
     my $engine;
     my $build_method = "_build_${engine_type}_engine";
 
@@ -33,7 +43,7 @@ foreach my $engine_type ( qw<logger session template> ) {
             );
         },
         undef,
-        "Built $engine_type successfully",
+        "Built $engine_type successfully with proper name",
     );
 
     like(
@@ -43,7 +53,7 @@ foreach my $engine_type ( qw<logger session template> ) {
             );
         },
         qr/^Cannot load $engine_type engine '7&&afail': illegal module name/,
-        "Built $engine_type successfully",
+        "Failed creating $engine_type with illegal name",
     );
 
     is( $engine, $engine_type, 'Correct response from override' );

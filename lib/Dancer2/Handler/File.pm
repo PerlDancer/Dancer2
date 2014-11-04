@@ -73,7 +73,7 @@ sub code {
         my $path   = $app->request->path_info;
 
         if ( $path =~ /\0/ ) {
-            return $self->response_400($app);
+            return $self->standard_response( $app, 400 );
         }
 
         if ( $prefix && $prefix ne '/' ) {
@@ -84,7 +84,7 @@ sub code {
           File::Spec->splitdir( join '',
             ( File::Spec->splitpath($path) )[ 1, 2 ] );
         if ( grep $_ eq '..', @tokens ) {
-            return $self->response_403($app);
+            return $self->standard_response( $app, 403 );
         }
 
         my $file_path = path( $self->public_dir, @tokens );
@@ -95,7 +95,7 @@ sub code {
         }
 
         if ( !-r $file_path ) {
-            return $self->response_403($app);
+            return $self->standard_response( $app, 403 );
         }
 
         # Now we are sure we can render the file...
