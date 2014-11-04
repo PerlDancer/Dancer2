@@ -9,15 +9,18 @@ is $r->status,  200;
 is $r->content, 'hello';
 
 note "content_type";
+my $content_body = "foo";
+
 $r = Dancer2::Core::Response->new(
     headers => [ 'Content-Type' => 'text/html' ],
-    content => 'foo',
+    content => $content_body,
 );
 
 is_deeply $r->to_psgi,
   [ 200,
-    [   Server         => "Perl Dancer2 $Dancer2::VERSION",
-        'Content-Type' => 'text/html',
+    [   'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+        'Content-Length' => length($content_body),
+        'Content-Type'   => 'text/html',
     ],
     ['foo']
   ];
@@ -47,20 +50,18 @@ $r->header( 'X-Bar' => 234 );
 is $r->header('X-Bar'),      '234';
 is $r->push_header('X-Bar'), '234';
 
-is scalar( @{ $r->headers_to_array } ), 10;
+is scalar( @{ $r->headers_to_array } ), 12;
 
 # check that we drop the content on 204
 $r = Dancer2::Core::Response->new( content => "foo" );
 $r->status(204);
 is $r->content, '';
-is $r->header('Content-Length'), 0;
 
 # stringify HTTP status
 $r = Dancer2::Core::Response->new( content => "foo", status => "Not Found" );
 is $r->status, 404;
 
-$r =
-  Dancer2::Core::Response->new( content => "foo", status => "not_modified" );
+$r = Dancer2::Core::Response->new( content => "foo", status => "not_modified" );
 is $r->status, 304;
 
 done_testing;
