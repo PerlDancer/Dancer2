@@ -237,7 +237,6 @@ sub agent                 { $_[0]->user_agent }
 sub remote_address        { $_[0]->address }
 sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
 sub forwarded_host        { $_[0]->env->{HTTP_X_FORWARDED_HOST} }
-sub forwarded_protocol    { $_[0]->env->{HTTP_X_FORWARDED_PROTOCOL} }
 sub address               { $_[0]->env->{REMOTE_ADDR} }
 sub remote_host           { $_[0]->env->{REMOTE_HOST} }
 sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
@@ -245,6 +244,12 @@ sub port                  { $_[0]->env->{SERVER_PORT} }
 sub request_uri           { $_[0]->env->{REQUEST_URI} }
 sub user                  { $_[0]->env->{REMOTE_USER} }
 sub script_name           { $_[0]->env->{SCRIPT_NAME} }
+
+# there are two options
+sub forwarded_protocol    {
+    $_[0]->env->{HTTP_X_FORWARDED_PROTO} ||
+    $_[0]->env->{HTTP_X_FORWARDED_PROTOCOL}
+}
 
 sub scheme {
     my ($self) = @_;
