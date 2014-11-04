@@ -68,15 +68,6 @@ has content => (
         my $value = shift;
         return "$value";
     },
-
-   # This trigger makes sure we have a good content-length whenever the content
-   # changes
-    trigger => sub {
-        my ( $self, $value ) = @_;
-        $self->has_passed or $self->header( 'Content-Length' => length($value) );
-        return $value;
-    },
-
     predicate => 'has_content',
     clearer   => 'clear_content',
 );
@@ -145,6 +136,10 @@ sub to_psgi {
     # e.g. if all routes 'pass'. Apply defaults here..
     $self->content_type or $self->content_type($self->default_content_type);
     $self->content('') if ! defined $self->content;
+
+    defined $self->header('Content-Length') or
+        $self->header('Content-Length' => length($self->content));
+
     return [ $self->status, $self->headers_to_array, [ $self->content ], ];
 }
 
