@@ -6,9 +6,7 @@ use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => (
-    default => sub {'application/json'},
-);
+has '+content_type' => ( default => sub {'application/json'} );
 
 my $formats = {
     'text/x-yaml'        => 'YAML',
