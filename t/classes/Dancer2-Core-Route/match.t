@@ -97,14 +97,16 @@ for my $t (@tests) {
         );
         isa_ok $r, 'Dancer2::Core::Route';
 
-        my $request =
-          Dancer2::Core::Request->new( method => $route->[0], path => $path );
+        my $request = Dancer2::Core::Request->new(
+            env => {}, method => $route->[0], path => $path
+        );
         my $m = $r->match($request);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
         is $r->execute, $expected->[1], "got expected result for '$path'";
 
         # failing request
         my $failing_request = Dancer2::Core::Request->new(
+            env    => {},
             method => 'get',
             path   => '/something_that_doesnt_exist',
         );
@@ -133,6 +135,7 @@ SKIP: {
     );
 
     my $request = Dancer2::Core::Request->new(
+        env    => {},
         method => 'get',
         path   => '/user/delete/234',
     );

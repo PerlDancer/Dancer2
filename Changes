@@ -24,12 +24,16 @@
       (Sawyer X, Omar M. Othman, Mickey Nasriachi, Russell Jenkins)
     * GH #663, #741: Remove "accept_type" attribute and other references.
       (Mickey Nasriachi, Theo van Hoesel)
+    * GH #748: Provide forwarded_host, forwarded_protocol. (Sawyer X)
+    * GH #748: Do not provide a default env, require env for a request.
+      (Sawyer X)
 
     [ DOCUMENTATION ]
     * Migration document update relating to enhancements.
       (Sawyer X, Mickey Nasriachi)
     * GH #731: Document changes in session.
       (racke, Sawyer X, Mickey Nasriachi, Omar M. Othman)
+    * Document "id" attribute in Request object. (Sawyer X)
 
 0.153002  2014-10-30 09:23:52+01:00 Europe/Amsterdam
 

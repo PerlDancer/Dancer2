@@ -46,9 +46,9 @@ our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
 # then all the native attributes
 has env => (
-    is      => 'ro',
-    isa     => HashRef,
-    default => sub { {} },
+    is       => 'ro',
+    isa      => HashRef,
+    required => 1,
 );
 
 # a buffer for per-request variables
@@ -236,6 +236,7 @@ sub host {
 sub agent                 { $_[0]->user_agent }
 sub remote_address        { $_[0]->address }
 sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
+sub forwarded_host        { $_[0]->env->{HTTP_X_FORWARDED_HOST} }
 sub address               { $_[0]->env->{REMOTE_ADDR} }
 sub remote_host           { $_[0]->env->{REMOTE_HOST} }
 sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
@@ -243,6 +244,12 @@ sub port                  { $_[0]->env->{SERVER_PORT} }
 sub request_uri           { $_[0]->env->{REQUEST_URI} }
 sub user                  { $_[0]->env->{REMOTE_USER} }
 sub script_name           { $_[0]->env->{SCRIPT_NAME} }
+
+# there are two options
+sub forwarded_protocol    {
+    $_[0]->env->{HTTP_X_FORWARDED_PROTO} ||
+    $_[0]->env->{HTTP_X_FORWARDED_PROTOCOL}
+}
 
 sub scheme {
     my ($self) = @_;
@@ -253,13 +260,10 @@ sub scheme {
              $self->env->{'HTTP_X_FORWARDED_PROTOCOL'}
           || $self->env->{'HTTP_X_FORWARDED_PROTO'}
           || $self->env->{'HTTP_FORWARDED_PROTO'}
-          || "";
+          || '';
     }
-    return
-         $scheme
-      || $self->env->{'psgi.url_scheme'}
-      || $self->env->{'PSGI.URL_SCHEME'}
-      || "";
+
+    return $scheme || $self->env->{'psgi.url_scheme'} || '';
 }
 
 has serializer => (
@@ -311,7 +315,7 @@ sub is_patch  { $_[0]->{method} eq 'PATCH' }
 
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
-sub input_handle { $_[0]->env->{'psgi.input'} || $_[0]->env->{'PSGI.INPUT'} }
+sub input_handle { $_[0]->env->{'psgi.input'} }
 
 our $_count = 0;
 
@@ -782,6 +786,14 @@ returns the value of 'some_variable', while
   $request->var('some_variable' => 'value');
 
 will set it.
+
+=method id()
+
+The ID of the request. This allows you to trace a specific request in loggers,
+per the string created using C<to_string>.
+
+The ID of the request is essentially the number of requests run in the current
+class.
 
 =method path()
 
