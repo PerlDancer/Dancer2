@@ -5,6 +5,10 @@
       (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
 
     [ ENHANCEMENTS ]
+    * GH #664, #684, #715: Handler::File replaced for static files with
+      Plack::Middleware::Static, allowing files to be served *before* routes.
+      This means hooks do not apply to static files anymore!
+      (Russell Jenkins, DavsX)
     * Engines now have "logger" attribute to log errors. It sends the
       Dancer2::Logger:: object, if one exists. (Sawyer X)
     * Serializers do not need to implement "loaded" method. (Sawyer X)
