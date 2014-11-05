@@ -6,7 +6,7 @@ use JSON ();
 
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => ( default => 'application/json' );
+has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
 sub from_json {

@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #732: Correct name for 403 (Forbidden, not Unauthorized).
       (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
+    * GH #744: Serialize anything, not just references. (Sawyer X)
+    * GH #744: Serialize regardless of content_type of serializer. (Sawyer X)
 
     [ ENHANCEMENTS ]
     * GH #664, #684, #715: Handler::File replaced for static files with

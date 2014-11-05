@@ -8,7 +8,7 @@ use Data::Dumper;
 
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => (default => 'text/x-data-dumper');
+has '+content_type' => ( default => sub {'text/x-data-dumper'} );
 
 # helpers
 sub from_dumper {
