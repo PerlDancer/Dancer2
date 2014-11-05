@@ -51,14 +51,6 @@ has status => (
     default => sub {200},
     lazy    => 1,
     coerce  => sub { Dancer2::Core::HTTP->status(shift) },
-
-    # This trigger makes sure we drop the content whenever
-    # we set the status to [23]04.
-    trigger => sub {
-        my ( $self, $value ) = @_;
-        $self->content('') if $value =~ /^(?:1\d{2}|[23]04)$/;
-        $value;
-    },
 );
 
 has content => (
@@ -68,15 +60,6 @@ has content => (
         my $value = shift;
         return "$value";
     },
-
-   # This trigger makes sure we have a good content-length whenever the content
-   # changes
-    trigger => sub {
-        my ( $self, $value ) = @_;
-        $self->has_passed or $self->header( 'Content-Length' => length($value) );
-        return $value;
-    },
-
     predicate => 'has_content',
     clearer   => 'clear_content',
 );
@@ -240,9 +223,6 @@ The HTTP status for the response.
 
 The content for the response, stored as a string.  If a reference is passed, the
 response will try coerce it to a string via double quote interpolation.
-
-Whenever the content changes, it recalculates and updates the Content-Length header,
-unless the response has_passed.
 
 =attr default_content_type
 
