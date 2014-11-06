@@ -27,7 +27,7 @@ sub pass { shift->has_passed(1) }
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
+    isa       => MaybeConsumerOf['Dancer2::Core::Role::Serializer'],
     predicate => 1,
 );
 
@@ -66,7 +66,7 @@ has content => (
 
 before content => sub {
     my $self = shift;
-    if ( $self->has_serializer ) {
+    if ( ref($_[0]) && $self->has_serializer ) {
         $_[0] = $self->serialize($_[0]);
         $self->is_encoded(1); # All serializers return byte strings
     }

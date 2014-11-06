@@ -268,7 +268,7 @@ sub scheme {
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
+    isa       => MaybeConsumerOf['Dancer2::Core::Role::Serializer'],
     predicate => 1,
 );
 
