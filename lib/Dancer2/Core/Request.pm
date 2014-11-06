@@ -169,7 +169,7 @@ has _params => (
 
 has _body_params => (
     is      => 'ro',
-    isa     => Maybe[ HashRef ],
+    isa     => Maybe[HashRef],
     default => sub {undef},
 );
 
@@ -181,7 +181,7 @@ sub _set_body_params {
 
 has _query_params => (
     is      => 'ro',
-    isa     => Maybe[ HashRef ],
+    isa     => Maybe[HashRef],
     default => sub {undef},
 );
 
@@ -268,7 +268,7 @@ sub scheme {
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe[ ConsumerOf ['Dancer2::Core::Role::Serializer'] ],
+    isa       => Maybe[ ConsumerOf['Dancer2::Core::Role::Serializer'] ],
     predicate => 1,
 );
 
