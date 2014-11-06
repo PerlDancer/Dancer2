@@ -20,9 +20,14 @@ use YAML;
         return { bar => 'baz' }
     };
     post '/deserialize'  => sub {
-        return request->data &&
-               ref request->data eq 'HASH' &&
-               request->data->{bar} ? request->data->{bar} : '?';
+        if (request->data &&
+            ref request->data eq 'HASH' &&
+            request->data->{bar} eq 'baz'
+        ) {
+            return { bar => 'baz' };
+        } else {
+            return { foo => 'more foo' };
+        }
     };
 }
 
@@ -35,21 +40,21 @@ test_psgi $app, sub {
     # Configure all test cases
     my $d = {
         yaml    => {
-                types       => [ qw(text/x-yaml text/html) ],
-                value       => encode('UTF-8', YAML::Dump({ bar => 'baz' })),
-            },
+            types    => [ qw(text/x-yaml text/html) ],
+            value    => encode('UTF-8', YAML::Dump({ bar => 'baz' })),
+        },
         dumper  => {
-                types       => [ qw(text/x-data-dumper) ],
-                value       => Data::Dumper::Dumper({ bar => 'baz' }),
-            },
+            types    => [ qw(text/x-data-dumper) ],
+            value    => Data::Dumper::Dumper({ bar => 'baz' }),
+        },
         json    => {
-                types       => [ qw(text/x-json application/json) ],
-                value       => JSON::to_json({ bar => 'baz' }),
-            },
+            types    => [ qw(text/x-json application/json) ],
+            value    => JSON::to_json({ bar => 'baz' }),
+        },
     };
 
     {
-        for my $format (keys %$d) {
+        for my $format (sort keys %$d) {
 
             my $s = $d->{$format};
 
@@ -77,7 +82,8 @@ test_psgi $app, sub {
                                  content        => $s->{value} );
 
                 is( $req->code, 200, "[/$format] Correct status" );
-                is( $req->content, 'baz', "[/$format] Correct content" );
+                is( $req->content, $s->{value}, "[/$format] Correct content" );
+
             } #/ for my $content_type
         } #/ for my $format
     }
