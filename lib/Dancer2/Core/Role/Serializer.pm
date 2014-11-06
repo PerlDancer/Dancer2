@@ -21,7 +21,7 @@ requires 'deserialize';
 
 has logger => (
     is        => 'ro',
-    isa       => MaybeConsumerOf['Dancer2::Core::Logger'],
+    isa       => MaybeConsumerOf['Dancer2::Core::Role::Logger'],
     handles   => ['log'],
     predicate => 'has_logger',
 );
