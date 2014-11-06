@@ -27,7 +27,7 @@ sub pass { shift->has_passed(1) }
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
+    isa       => MaybeConsumerOf['Dancer2::Core::Role::Serializer'],
     predicate => 1,
 );
 
