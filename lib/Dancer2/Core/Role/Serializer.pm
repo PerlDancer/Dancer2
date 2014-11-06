@@ -41,7 +41,7 @@ around serialize => sub {
     my $data = try {
         $self->$orig($content, $options);
     } catch {
-        $self->log( core => "Failed to serialize the request: $_" );
+        $self->handler_error("Failed to serialize the request: $_");
     };
 
     $data and $self->execute_hook( 'engine.serializer.after', $data );
@@ -55,7 +55,7 @@ around deserialize => sub {
     my $data = try {
         $self->$orig($content, $options);
     } catch {
-        $self->log( core => "Failed to deserialize the request: $_" );
+        $self->handler_error("Failed to deserialize the request: $_");
     };
 
     return $data;
@@ -69,6 +69,16 @@ sub support_content_type {
     my @toks = split ';', $ct;
     $ct = lc( $toks[0] );
     return $ct eq $self->content_type;
+}
+
+sub handler_error {
+    my ($self, $error) = @_;
+
+    if ($self->has_logger) {
+        $self->log(core => $error);
+    } else {
+        print STDERR "$error\n";
+    }
 }
 
 1;
