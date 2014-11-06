@@ -91,6 +91,21 @@ my $definitions = [
           sub { return exception_message( $_[0], 'a Dancer2HTTPMethod' ) },
         inflate => 0,
     },
+    {   name       => 'MaybeConsumerOf',
+        test       => sub {
+            my ($instance, @roles) = (shift, @_);
+            return 1 if not defined $instance;
+            return if not blessed($instance);
+            return if (!$instance->can('does'));
+            my @missing_roles = grep { !$instance->does($_) } @roles;
+            return (scalar @missing_roles ? 0 : 1);
+        },
+        message => sub {
+            my ($instance, @roles) = @_;
+            return "$instance does not consume the required roles: @roles";
+        },
+        inflate => 0,
+    },
 ];
 
 # generate abbreviated class types for core dancer objects
