@@ -181,6 +181,7 @@ subtest 'Defaults' => sub {
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
+
         isa_ok( $request, 'Dancer2::Core::Request' );
 
         ok(
@@ -284,14 +285,14 @@ subtest 'Serializer' => sub {
     {
         { package Nothing; use Moo; }
 
-        ok(
+        like(
             exception {
                 Dancer2::Core::Request->new(
                     env        => {},
                     serializer => Nothing->new,
                 )
             },
-            'Cannot send random object to request as serializer',
+            qr/Dancer2::Core::Role::Serializer/,
         );
 
         {
@@ -344,7 +345,7 @@ subtest 'Path when mounting' => sub {
 
     ok(
         $test->request( GET '/mount/mounted_path' )->is_success,
-        'Request successful',    
+        'Request successful',
     );
 };
 
@@ -370,9 +371,10 @@ subtest 'Different method' => sub {
     );
 };
 
-# the calling order to this method matters because it checks
-# how many requests were run so far
 subtest 'Checking request ID' => sub {
+    # Set this here, so the ordering of this test would not matter
+    $Dancer2::Core::Request::_count = 6;
+
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
@@ -387,7 +389,7 @@ subtest 'Checking request ID' => sub {
     );
 };
 
-subtest 'is_$method (head/post/get/put/delete/patch' => sub {
+subtest 'is_$method (head/post/get/put/delete/patch)' => sub {
     foreach my $http_method ( qw<head post get put delete patch> ) {
         my $test = Plack::Test->create( sub {
             my $env     = shift;
