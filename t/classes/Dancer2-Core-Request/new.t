@@ -284,6 +284,7 @@ subtest 'Serializer' => sub {
     {
         { package Nothing; use Moo; }
 
+        # The type check fails - BUILD is not called, no increment of _count.
         ok(
             exception {
                 Dancer2::Core::Request->new(
@@ -376,7 +377,7 @@ subtest 'Checking request ID' => sub {
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
-        is( $request->id, 7, 'Correct request id' );
+        is( $request->id, 6, 'Correct request id' );
 
         return psgi_ok;
     } );
