@@ -27,7 +27,7 @@ sub pass { shift->has_passed(1) }
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe( ConsumerOf ['Dancer2::Core::Role::Serializer'] ),
+    isa       => Maybe[ ConsumerOf ['Dancer2::Core::Role::Serializer'] ],
     predicate => 1,
 );
 
@@ -60,17 +60,25 @@ has content => (
         my $value = shift;
         return "$value";
     },
+    reader    => 'get_content',
+    writer    => 'set_content',
     predicate => 'has_content',
     clearer   => 'clear_content',
 );
 
-before content => sub {
+sub content {
     my $self = shift;
+    # get content
+    ! @_ && return $self->get_content;
+
+    # serialize before setting
+    my $content = shift;
     if ( $self->has_serializer ) {
-        $_[0] = $self->serialize($_[0]);
+        $content = $self->serialize($content);
         $self->is_encoded(1); # All serializers return byte strings
     }
-};
+    $self->set_content($content);
+}
 
 has default_content_type => (
     is      => 'rw',
