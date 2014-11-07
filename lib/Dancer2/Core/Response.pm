@@ -60,25 +60,21 @@ has content => (
         my $value = shift;
         return "$value";
     },
-    reader    => 'get_content',
-    writer    => 'set_content',
     predicate => 'has_content',
     clearer   => 'clear_content',
 );
 
-sub content {
+around content => sub {
+    my $orig = shift;
     my $self = shift;
-    # get content
-    ! @_ && return $self->get_content;
 
-    # serialize before setting
-    my $content = shift;
-    if ( $self->has_serializer ) {
-        $content = $self->serialize($content);
+    if ( @_ && $self->has_serializer ) {
+        $_[0] = $self->serialize($_[0]);
         $self->is_encoded(1); # All serializers return byte strings
     }
-    $self->set_content($content);
-}
+
+    return $self->$orig(@_);
+};
 
 has default_content_type => (
     is      => 'rw',
