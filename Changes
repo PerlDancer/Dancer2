@@ -5,7 +5,8 @@
       (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
     * GH #744: Serialize anything, not just references. (Sawyer X)
     * GH #744: Serialize regardless of content_type of serializer. (Sawyer X)
-    * GH #753: Syntax of parameterized types. (Russell Jenkins)
+    * GH #753: Syntax of parameterized types. Custom accessor for response
+      content get/set. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * GH #664, #684, #715: Handler::File replaced for static files with
