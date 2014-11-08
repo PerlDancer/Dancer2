@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 15;
 use Plack::Test;
 use HTTP::Request::Common;
 use Dancer2::Logger::Capture;
@@ -10,55 +10,56 @@ my $logger = Dancer2::Logger::Capture->new;
 isa_ok( $logger, 'Dancer2::Logger::Capture' );
 
 {
-
-    package MyApp;
-
+    package App;
     use Dancer2;
 
+    # default, we're actually overriding this later
     set serializer => 'JSON';
+
+    # for now
+    set logger     => 'Console';
 
     put '/from_params' => sub {
         my %p = params();
-        return join " : ", map { $_ => $p{$_} } sort keys %p;
+        return [ map +( $_ => $p{$_} ), sort keys %p ];
     };
 
     put '/from_data' => sub {
         my $p = request->data;
-        return join " : ", map { $_ => $p->{$_} } sort keys %$p;
+        return [ map +( $_ => $p->{$_} ), sort keys %{$p} ];
     };
 
     # This route is used for both toure and body params.
     post '/from/:town' => sub {
         my $p = params;
-        return $p;
+        return [ map +( $_ => $p->{$_} ), sort keys %{$p} ];
     };
 
     any [qw/del patch/] => '/from/:town' => sub {
         my $p = params('body');
-        return $p;
+        return [ map +( $_ => $p->{$_} ), sort keys %{$p} ];
     };
 }
 
-my $app = MyApp->to_app;
-is( ref $app, 'CODE', 'Got app' );
+my $test = Plack::Test->create( App->to_app );
 
-test_psgi $app, sub {
-    my $cb = shift;
+subtest 'PUT request with parameters' => sub {
+    for my $type ( qw<params data> ) {
+        my $res = $test->request(
+            PUT '/from_params',
+                'Content-Type' => 'application/json',
+                Content        => '{ "foo": 1, "bar": 2 }'
+        );
 
-    foreach my $type ( qw<params data> ) {
         is(
-            $cb->(
-                PUT '/from_params',
-                    'Content-Type' => 'application/json',
-                    Content        => '{ "foo": 1, "bar": 2 }'
-            )->content,
-            'bar : 2 : foo : 1',
-            "Using $type",
-        )
+            $res->content,
+            '["bar",2,"foo",1]',
+            "Parameters deserialized from $type",
+        );
     }
 };
 
-
+my $app = App->to_app;
 use utf8;
 use JSON;
 use Encode;
@@ -90,11 +91,28 @@ note "Verify Serializers decode into characters"; {
             );
 
             my $content = Encode::decode( 'UTF-8', $r->content );
-            is(
-                $content,
-                "utf8 : $utf8",
-                "utf-8 string returns the same using the $type serializer",
-            );
+
+            # Dumper is a jerk and represents it in Perl \x{...} notation
+
+            if ( $type eq 'Dumper' ) {
+                {
+                    no strict;
+                    $content = eval $content;
+                }
+
+                # now $content is an actual ref again
+                is_deeply(
+                    $content,
+                    [ 'utf8', $utf8 ],
+                    "utf-8 string returns the same using the $type serializer",
+                )
+            } else {
+                like(
+                    $content,
+                    qr{\Q$utf8\E},
+                    "utf-8 string returns the same using the $type serializer",
+                );
+            }
         }
     };
 }
@@ -117,20 +135,13 @@ note "Decoding of mixed route and deserialized body params"; {
             Content        => JSON::to_json({ population => 592393 }),
         );
 
-        my $r       = $cb->( POST @req_params );
-        my $content = Encode::decode( 'UTF-8', $r->content );
+        my $r = $cb->( POST @req_params );
 
         # Watch out for hash order randomization..
-        like(
-            $content,
-            qr/[{,]"population":592393/,
-            "Integer from JSON body remains integer",
-        );
-
-        like(
-            $content,
-            qr/[{,]"town":"Düsseldorf"/,
-            "Route params are decoded",
+        is_deeply(
+            $r->content,
+            '["population",592393,"town","'."D\x{c3}\x{bc}sseldorf".'"]',
+            "Integer from JSON body remains integer and route params decoded",
         );
     };
 }
@@ -156,7 +167,7 @@ note "Deserialze any body content that is allowed or undefined"; {
             # Only body params returned
             is(
                 $content,
-                '{"population":592393}',
+                '["population",592393]',
                 "JSON body deserialized for " . uc($method) . " requests",
             );
         }
