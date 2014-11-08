@@ -11,18 +11,14 @@ use YAML;
 
 {
     package MyApp;
-
     use Dancer2;
-
     set serializer => 'Mutable';
 
-    get '/serialize'  => sub {
-        return { bar => 'baz' }
-    };
+    get '/serialize'     => sub { +{ bar => 'baz' } };
     post '/deserialize'  => sub {
         return request->data &&
                ref request->data eq 'HASH' &&
-               request->data->{bar} ? request->data->{bar} : '?';
+               request->data->{bar} ? { bar => request->data->{bar} } : { ret => '?' };
     };
 }
 
@@ -37,19 +33,23 @@ test_psgi $app, sub {
         yaml    => {
                 types       => [ qw(text/x-yaml text/html) ],
                 value       => encode('UTF-8', YAML::Dump({ bar => 'baz' })),
+                last_val    => "---bar:baz",
             },
         dumper  => {
                 types       => [ qw(text/x-data-dumper) ],
                 value       => Data::Dumper::Dumper({ bar => 'baz' }),
+                last_val    => "\$VAR1={'bar'=>'baz'};",
             },
         json    => {
                 types       => [ qw(text/x-json application/json) ],
                 value       => JSON::to_json({ bar => 'baz' }),
+                last_val    => '{"bar":"baz"}',
             },
     };
 
     {
         for my $format (keys %$d) {
+            diag("Format: $format");
 
             my $s = $d->{$format};
 
@@ -76,8 +76,10 @@ test_psgi $app, sub {
                                  'Content-Type' => $content_type,
                                  content        => $s->{value} );
 
+                my $content = $req->content;
+                $content =~ s/\s//g;
                 is( $req->code, 200, "[/$format] Correct status" );
-                is( $req->content, 'baz', "[/$format] Correct content" );
+                is( $content, $s->{last_val}, "[/$format] Correct content" );
             } #/ for my $content_type
         } #/ for my $format
     }
