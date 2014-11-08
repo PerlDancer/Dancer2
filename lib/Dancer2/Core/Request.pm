@@ -44,6 +44,8 @@ foreach my $attr ( @http_env_keys ) {
 our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
 our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
+our $_count = 1;
+
 # then all the native attributes
 has env => (
     is       => 'ro',
@@ -111,8 +113,9 @@ has body => (
 );
 
 has id => (
-    is  => 'ro',
-    isa => Num,
+    is      => 'ro',
+    isa     => Num,
+    default => sub { $_count++ },
 );
 
 # Private 'read-only' attributes for request params. See the params()
@@ -280,12 +283,8 @@ sub is_patch  { $_[0]->{method} eq 'PATCH' }
 sub request_method { method(@_) }
 sub input_handle { $_[0]->env->{'psgi.input'} }
 
-our $_count = 0;
-
 sub BUILD {
     my ($self) = @_;
-
-    $self->{id} = ++$_count;
 
     $self->{_chunk_size}    = 4096;
     $self->{_read_position} = 0;
