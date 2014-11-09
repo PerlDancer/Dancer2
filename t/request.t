@@ -217,6 +217,7 @@ sub run_test {
                              );
 
     is $req->path,   '/new/path', 'path is changed';
+
     is $req->method, 'POST',      'method is changed';
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
@@ -229,13 +230,13 @@ run_test();
 if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
     diag "Run test without XS_PARSE_QUERY_STRING";
     $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer2::Core::Request::_count                = 0;
+    $Dancer2::Core::Request::_count                = 1;
     run_test();
 }
 if ($Dancer2::Core::Request::XS_URL_DECODE) {
     diag "Run test without XS_URL_DECODE";
     $Dancer2::Core::Request::XS_URL_DECODE = 0;
-    $Dancer2::Core::Request::_count        = 0;
+    $Dancer2::Core::Request::_count        = 1;
     run_test();
 }
 

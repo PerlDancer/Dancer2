@@ -45,7 +45,6 @@ is $r->header('X-Foo'), '432, 777';
 
 $r->header( 'X-Bar' => 234 );
 is $r->header('X-Bar'),      '234';
-is $r->push_header('X-Bar'), '234';
 
 is scalar( @{ $r->headers_to_array } ), 10;
 
