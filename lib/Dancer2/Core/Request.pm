@@ -10,12 +10,21 @@ use HTTP::Body;
 use URI;
 use URI::Escape;
 use Class::Load 'try_load_class';
+use Plack::Request;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
 use Dancer2::Core::Cookie;
 
 with 'Dancer2::Core::Role::Headers';
+
+my $_preq = sub {
+    my $request;
+    return sub {
+        my $self = shift;
+        return $request ||= Plack::Request->new( $self->env );
+    };
+};
 
 # add an attribute for each HTTP_* variables
 # (HOST is managed manually)
@@ -26,8 +35,6 @@ my @http_env_keys = (qw/
     accept_language
     connection
     keep_alive
-    referer
-    user_agent
     x_requested_with
 /);
 
@@ -80,30 +87,6 @@ has path_info => (
     lazy    => 1,
     writer  => 'set_path_info',
     default => sub { $_[0]->env->{'PATH_INFO'} },
-);
-
-has method => (
-    is      => 'rw',
-    isa     => Dancer2HTTPMethod,
-    default => sub {
-        my $self = shift;
-        $self->env->{REQUEST_METHOD} || 'GET';
-    },
-    coerce => sub { uc $_[0] },
-);
-
-has content_type => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    default => sub { $_[0]->env->{CONTENT_TYPE} || '' },
-);
-
-has content_length => (
-    is      => 'ro',
-    isa     => Num,
-    lazy    => 1,
-    default => sub { $_[0]->env->{CONTENT_LENGTH} || 0 },
 );
 
 has body => (
@@ -199,17 +182,28 @@ sub host {
 }
 
 # aliases, kept for backward compat
-sub agent                 { $_[0]->user_agent }
-sub remote_address        { $_[0]->address }
-sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
-sub forwarded_host        { $_[0]->env->{HTTP_X_FORWARDED_HOST} }
-sub address               { $_[0]->env->{REMOTE_ADDR} }
-sub remote_host           { $_[0]->env->{REMOTE_HOST} }
-sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
-sub port                  { $_[0]->env->{SERVER_PORT} }
-sub request_uri           { $_[0]->env->{REQUEST_URI} }
-sub user                  { $_[0]->env->{REMOTE_USER} }
-sub script_name           { $_[0]->env->{SCRIPT_NAME} }
+sub agent                 { shift->user_agent }
+sub remote_address        { shift->address }
+sub forwarded_for_address { shift->env->{'HTTP_X_FORWARDED_FOR'} }
+sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
+
+# attributes
+sub address               { $_preq->()->(shift)->address }
+sub remote_host           { $_preq->()->(shift)->remote_host }
+sub protocol              { $_preq->()->(shift)->protocol }
+sub port                  { $_preq->()->(shift)->port }
+sub method                { $_preq->()->(shift)->method }
+sub user                  { $_preq->()->(shift)->user }
+sub request_uri           { $_preq->()->(shift)->request_uri }
+sub script_name           { $_preq->()->(shift)->script_name }
+sub secure                { $_[0]->scheme eq 'https' }
+sub content_length        { $_preq->()->(shift)->content_length }
+sub content_type          { $_preq->()->(shift)->content_type }
+
+# headers
+sub content_encoding      { $_preq->()->(shift)->content_encoding }
+sub referer               { $_preq->()->(shift)->referer }
+sub user_agent            { $_preq->()->(shift)->user_agent }
 
 # there are two options
 sub forwarded_protocol    {
@@ -270,14 +264,13 @@ sub deserialize {
     return $data;
 }
 
-sub secure    { $_[0]->scheme   eq 'https' }
 sub uri       { $_[0]->request_uri }
-sub is_head   { $_[0]->{method} eq 'HEAD' }
-sub is_post   { $_[0]->{method} eq 'POST' }
-sub is_get    { $_[0]->{method} eq 'GET' }
-sub is_put    { $_[0]->{method} eq 'PUT' }
-sub is_delete { $_[0]->{method} eq 'DELETE' }
-sub is_patch  { $_[0]->{method} eq 'PATCH' }
+sub is_head   { $_[0]->method eq 'HEAD' }
+sub is_post   { $_[0]->method eq 'POST' }
+sub is_get    { $_[0]->method eq 'GET' }
+sub is_put    { $_[0]->method eq 'PUT' }
+sub is_delete { $_[0]->method eq 'DELETE' }
+sub is_patch  { $_[0]->method eq 'PATCH' }
 
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
@@ -537,7 +530,7 @@ sub _read_to_end {
     my $content_length = $self->content_length;
     return unless $self->_has_something_to_read();
 
-    if ( $content_length > 0 ) {
+    if ( defined $content_length && $content_length > 0 ) {
         while ( my $buffer = $self->_read() ) {
             $self->{body} .= $buffer;
             $self->{_http_body}->add($buffer);
@@ -777,6 +770,10 @@ Return the content type of the request.
 =method content_length()
 
 Return the content length of the request.
+
+=method content_encoding()
+
+Return the content encoding of the request.
 
 =method body()
 

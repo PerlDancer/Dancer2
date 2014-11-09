@@ -995,7 +995,7 @@ sub make_forward_to {
     my $new_params = _merge_params( scalar( $request->params ), $params || {} );
 
     exists $options->{method} and
-        $new_request->method( $options->{method} );
+        $new_request->env->{'REQUEST_METHOD'} = $options->{method};
 
     # Copy params (these are already decoded)
     $new_request->{_params}       = $new_params;

@@ -308,7 +308,7 @@ subtest 'Serializer' => sub {
         is(
             exception {
                 $request = Dancer2::Core::Request->new(
-                    env        => {},
+                    env        => { REQUEST_METHOD => 'GET' },
                     serializer => Serializer->new,
                 )
             },
@@ -389,7 +389,7 @@ subtest 'Checking request ID' => sub {
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
-        is( $request->id, 6, 'Correct request id' );
+        is( $request->id, 7, 'Correct request id' );
 
         return psgi_ok;
     } );
