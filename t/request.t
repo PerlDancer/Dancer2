@@ -60,7 +60,7 @@ sub run_test {
     ok( !$req->is_head );
 
     is $req->id,        1;
-    is $req->to_string, '[#1] GET /foo/bar/baz';
+    is $req->to_string, '[#1] GET /bar/baz';
 
     note "tests params";
     is_deeply { $req->params }, { foo => 42, bar => [ 12, 13, 14 ] };
@@ -126,7 +126,7 @@ sub run_test {
             REQUEST_URI => '/foo',
         };
         my $req = Dancer2::Core::Request->new( env => $env );
-        is( $req->path, '/foo', 'path corrent when empty PATH_INFO' );
+        is( $req->path, '/', 'path corrent when empty PATH_INFO' );
         is( $req->uri_base, 'http://localhost:5000/foo',
             'uri_base correct when empty PATH_INFO'
         );
@@ -159,7 +159,7 @@ sub run_test {
             REQUEST_URI => '/foo/bar/baz/',
         };
         $req = Dancer2::Core::Request->new( env => $env );
-        is( $req->path, '/foo/bar/baz/',
+        is( $req->path, '/bar/baz/',
             'path corrent when both PATH_INFO and SCRIPT_NAME set'
         );
         is( $req->uri_base, 'http://localhost:5000/foo',
@@ -177,13 +177,13 @@ sub run_test {
             REQUEST_URI => '/foo/',
         };
         $req = Dancer2::Core::Request->new( env => $env );
-        is( $req->path, '/foo/',
+        is( $req->path, '/',
             'path corrent when calculated from REQUEST_URI'
         );
         is( $req->uri_base, 'http://localhost:5000',
             'uri_base correct when calculated from REQUEST_URI',
         );
-        is( $req->dispatch_path, '/foo/',
+        is( $req->dispatch_path, '/',
             'dispatch_path correct when calculated from REQUEST_URI'
         );
     }

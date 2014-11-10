@@ -327,8 +327,20 @@ subtest 'Path when mounting' => sub {
         my $request = Dancer2::Core::Request->new( env => $env );
 
         is(
-            $request->path,
+            $request->script_name,
+            '/mount',
+            'Script name when mounted (script_name)',
+        );
+
+        is(
+            $request->request_uri,
             '/mount/mounted_path',
+            'Correct request_uri',
+        );
+
+        is(
+            $request->path,
+            '/mounted_path',
             'Full path when mounted (path)',
         );
 

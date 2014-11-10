@@ -69,49 +69,16 @@ has path => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
-    builder => '_build_path',
+    default => sub { $_[0]->path_info || '/' },
 );
-
-sub _build_path {
-    my $self = shift;
-
-    # Written from PSGI specs:
-    # http://search.cpan.org/dist/PSGI/PSGI.pod
-
-    my $path = "";
-
-    $path .= $self->script_name if defined $self->script_name;
-    $path .= $self->env->{PATH_INFO} if defined $self->env->{PATH_INFO};
-
-    # fallback to REQUEST_URI if nothing found
-    # we have to decode it, according to PSGI specs.
-    if ( defined $self->request_uri ) {
-        $path ||= $self->_url_decode( $self->request_uri );
-    }
-
-    croak "Cannot resolve path" if not $path;
-
-    return $path;
-}
 
 has path_info => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
     writer  => 'set_path_info',
-    builder => '_build_path_info',
+    default => sub { $_[0]->env->{'PATH_INFO'} },
 );
-
-sub _build_path_info {
-    my $self = shift;
-
-    my $info = $self->env->{PATH_INFO};
-
-    # Empty path info will be interpreted as "root".
-    return $info || '/' if defined $info;
-
-    return $self->path;
-}
 
 has method => (
     is      => 'rw',
@@ -127,18 +94,14 @@ has content_type => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
-    default => sub {
-        $_[0]->env->{CONTENT_TYPE} || '';
-    },
+    default => sub { $_[0]->env->{CONTENT_TYPE} || '' },
 );
 
 has content_length => (
     is      => 'ro',
     isa     => Num,
     lazy    => 1,
-    default => sub {
-        $_[0]->env->{CONTENT_LENGTH} || 0;
-    },
+    default => sub { $_[0]->env->{CONTENT_LENGTH} || 0 },
 );
 
 has body => (
