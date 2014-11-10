@@ -18,14 +18,6 @@ use Dancer2::Core::Cookie;
 
 with 'Dancer2::Core::Role::Headers';
 
-my $_preq = sub {
-    my $request;
-    return sub {
-        my $self = shift;
-        return $request ||= Plack::Request->new( $self->env );
-    };
-};
-
 # add an attribute for each HTTP_* variables
 # (HOST is managed manually)
 my @http_env_keys = (qw/
@@ -58,6 +50,13 @@ has env => (
     is       => 'ro',
     isa      => HashRef,
     required => 1,
+);
+
+has _preq => (
+    is      => 'ro',
+    isa     => InstanceOf['Plack::Request'],
+    lazy    => 1, # make sure it's after env has been verified
+    default => sub { Plack::Request->new( $_[0]->env ) },
 );
 
 # a buffer for per-request variables
@@ -188,22 +187,22 @@ sub forwarded_for_address { shift->env->{'HTTP_X_FORWARDED_FOR'} }
 sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
 
 # attributes
-sub address               { $_preq->()->(shift)->address }
-sub remote_host           { $_preq->()->(shift)->remote_host }
-sub protocol              { $_preq->()->(shift)->protocol }
-sub port                  { $_preq->()->(shift)->port }
-sub method                { $_preq->()->(shift)->method }
-sub user                  { $_preq->()->(shift)->user }
-sub request_uri           { $_preq->()->(shift)->request_uri }
-sub script_name           { $_preq->()->(shift)->script_name }
+sub address               { $_[0]->_preq->address }
+sub remote_host           { $_[0]->_preq->remote_host }
+sub protocol              { $_[0]->_preq->protocol }
+sub port                  { $_[0]->_preq->port }
+sub method                { $_[0]->_preq->method }
+sub user                  { $_[0]->_preq->user }
+sub request_uri           { $_[0]->_preq->request_uri }
+sub script_name           { $_[0]->_preq->script_name }
+sub content_length        { $_[0]->_preq->content_length }
+sub content_type          { $_[0]->_preq->content_type }
 sub secure                { $_[0]->scheme eq 'https' }
-sub content_length        { $_preq->()->(shift)->content_length }
-sub content_type          { $_preq->()->(shift)->content_type }
 
 # headers
-sub content_encoding      { $_preq->()->(shift)->content_encoding }
-sub referer               { $_preq->()->(shift)->referer }
-sub user_agent            { $_preq->()->(shift)->user_agent }
+sub content_encoding      { $_[0]->_preq->content_encoding }
+sub referer               { $_[0]->_preq->referer }
+sub user_agent            { $_[0]->_preq->user_agent }
 
 # there are two options
 sub forwarded_protocol    {
