@@ -364,6 +364,7 @@ sub dispatch_path {
 sub uri_for {
     my ( $self, $part, $params, $dont_escape ) = @_;
 
+    $part ||= '';
     my $uri = $self->base;
 
     # Make sure there's exactly one slash between the base and the new part
