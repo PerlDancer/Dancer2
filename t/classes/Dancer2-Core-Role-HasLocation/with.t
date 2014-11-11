@@ -47,7 +47,7 @@ note 'With lib/ and bin/:'; {
 
     like(
         $location,
-        qr{^[\\/]FakeDancerDir[\\/]$},
+        qr{^[\\/]FakeDancerDir[\\/]?$},
         'Got correct location with lib/ and bin/',
     );
 }
@@ -85,7 +85,7 @@ note 'blib/ ignored:'; {
 
     like(
         $location,
-        qr{^[\\/]FakeDancerDir[\\/]$},
+        qr{^[\\/]FakeDancerDir[\\/]?$},
         'blib/ dir is ignored',
     );
 }
