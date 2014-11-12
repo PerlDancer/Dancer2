@@ -24,11 +24,11 @@ note 'Defaults:'; {
         'App consumes Dancer2::Core::Role::HasLocation',
     );
 
-    like(
-        $app->caller,
-        qr{^t[\\/]classes[\\/]Dancer2-Core-Role-HasLocation[\\/]with\.t$},
-        'Default caller',
-    );
+    my $path = File::Spec->catfile(qw<
+        t classes Dancer2-Core-Role-HasLocation with.t
+    >);
+
+    is( $app->caller, $path, 'Default caller' );
 }
 
 my $basedir = dirname( File::Spec->rel2abs(__FILE__) );
@@ -43,11 +43,18 @@ note 'With lib/ and bin/:'; {
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
-    $location =~ s/\Q$basedir\E//;
+    $location =~ s/\/$//;
 
-    like(
+    my $path = File::Spec->rel2abs(
+        File::Spec->catdir(
+            File::Spec->curdir,
+            qw<t classes Dancer2-Core-Role-HasLocation FakeDancerDir>,
+        )
+    );
+
+    is(
         $location,
-        qr{^[\\/]FakeDancerDir[\\/]$},
+        $path,
         'Got correct location with lib/ and bin/',
     );
 }
@@ -62,13 +69,15 @@ note 'With .dancer file:'; {
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
-    $location =~ s/\Q$basedir\E//;
 
-    like(
-        $location,
-        qr{^[\\/]FakeDancerFile$},
-        'Got correct location with .dancer file',
+    my $path = File::Spec->rel2abs(
+        File::Spec->catdir(
+            File::Spec->curdir,
+            qw<t classes Dancer2-Core-Role-HasLocation FakeDancerFile>,
+        )
     );
+
+    is( $location, $path, 'Got correct location with .dancer file' );
 }
 
 note 'blib/ ignored:'; {
@@ -81,11 +90,14 @@ note 'blib/ ignored:'; {
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
-    $location =~ s/\Q$basedir\E//;
+    $location =~ s/\/$//;
 
-    like(
-        $location,
-        qr{^[\\/]FakeDancerDir[\\/]$},
-        'blib/ dir is ignored',
+    my $path = File::Spec->rel2abs(
+        File::Spec->catdir(
+            File::Spec->curdir,
+            qw<t classes Dancer2-Core-Role-HasLocation FakeDancerDir>,
+        )
     );
+
+    is( $location, $path, 'blib/ dir is ignored' );
 }
