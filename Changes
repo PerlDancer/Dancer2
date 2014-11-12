@@ -36,6 +36,7 @@
     * GH #731: Document changes in session.
       (racke, Sawyer X, Mickey Nasriachi, Omar M. Othman)
     * Document "id" attribute in Request object. (Sawyer X)
+    * Correct Cookbook examples on command line scripts. (Sawyer X)
 
 0.153002  2014-10-30 09:23:52+01:00 Europe/Amsterdam
 
