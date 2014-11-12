@@ -30,7 +30,7 @@ start with, let's make an incredibly simple "Hello World" example:
 
 Yes - the above is a fully-functioning web app; running that script will
 launch a webserver listening on the default port (3000). Now you can make a
-request
+request:
 
     $ curl http://localhost:3000/hello/Bob
     Why, hello there Bob
@@ -50,41 +50,43 @@ single command:
 
     $ dancer2 -a mywebapp
     + mywebapp
+    + mywebapp/config.yml
+    + mywebapp/MANIFEST.SKIP
+    + mywebapp/Makefile.PL
+    + mywebapp/lib
+    + mywebapp/lib/mywebapp.pm
+    + mywebapp/public
+    + mywebapp/public/500.html
+    + mywebapp/public/favicon.ico
+    + mywebapp/public/dispatch.cgi
+    + mywebapp/public/404.html
+    + mywebapp/public/dispatch.fcgi
+    + mywebapp/public/images
+    + mywebapp/public/images/perldancer.jpg
+    + mywebapp/public/images/perldancer-bg.jpg
+    + mywebapp/public/css
+    + mywebapp/public/css/error.css
+    + mywebapp/public/css/style.css
+    + mywebapp/public/javascripts
+    + mywebapp/public/javascripts/jquery.js
+    + mywebapp/t
+    + mywebapp/t/001_base.t
+    + mywebapp/t/002_index_route.t
     + mywebapp/bin
     + mywebapp/bin/app.pl
-    + mywebapp/config.yml
-    + mywebapp/environments
-    + mywebapp/environments/development.yml
-    + mywebapp/environments/production.yml
     + mywebapp/views
     + mywebapp/views/index.tt
     + mywebapp/views/layouts
     + mywebapp/views/layouts/main.tt
-    + mywebapp/MANIFEST.SKIP
-    + mywebapp/lib
-    + mywebapp/lib/
-    + mywebapp/lib/mywebapp.pm
-    + mywebapp/public
-    + mywebapp/public/css
-    + mywebapp/public/css/style.css
-    + mywebapp/public/css/error.css
-    + mywebapp/public/images
-    + mywebapp/public/500.html
-    + mywebapp/public/404.html
-    + mywebapp/public/dispatch.fcgi
-    + mywebapp/public/dispatch.cgi
-    + mywebapp/public/javascripts
-    + mywebapp/public/javascripts/jquery.js
-    + mywebapp/t
-    + mywebapp/t/002_index_route.t
-    + mywebapp/t/001_base.t
-    + mywebapp/Makefile.PL
+    + mywebapp/environments
+    + mywebapp/environments/development.yml
+    + mywebapp/environments/production.yml
 
 As you can see, it creates a directory named after the name of the app,
 along with a configuration file, a views directory (where your templates and
 layouts will live), an environments directory (where environment-specific
-settings live), a module containing the actual guts of your application and
-a script to start it - or to run your web app via Plack/PSGI.
+settings live), a module containing the actual guts of your application, and
+a script to start it - or to run your web app via Plack (see: L<plackup>).
 
 =head1 DANCE ROUTINES: ROUTES
 
@@ -705,61 +707,40 @@ the values from C<config.yml> and some additional default values:
     print "template:".config->{template}."\n"; # simple
     print "log:".config->{log}."\n"; # undef
 
-Note that C<< config->{log} >> should result in an C<undef> error on a default
-scaffold since the environment isn't loaded and
+Note that C<< config->{log} >> should result in an uninitialized warning
+on a default scaffold since the environment isn't loaded and
 log is defined in the environment and not in C<config.yml>. Hence C<undef>.
 
-If you want to load an environment you need to tell Dancer2 where to look
-for it. One way to do so is to tell Dancer2 where the webapp lives. From
-there Dancer2 deduces where the config.yml file is (typically
-C<$webapp/config.yml>).
+Dancer2 will load your C<config.yml> configuration file along with the
+correct environment file located in your C<environments> directory.
 
-    # bin/show_app_config_and_env.pl
-    use FindBin;
-    use Cwd qw/realpath/;
+The environment is determined by two environment variables in the following
+order:
+
+=over 4
+
+=item * DANCER_ENVIRONMENT
+
+=item * PLACK_ENV
+
+=back
+
+If neither of those is set, it will default to loading the development
+environment (typically C<$webapp/environment/development.yml>).
+
+If you wish to load a different environment, you need to override these
+variables.
+
+You can call your script with the environment changed:
+
+    $ PLACK_ENV=production perl bin/show_app_config.pl
+
+Or you can override them directly in the script (less recommended):
+
+    BEGIN { $ENV{'DANCER_ENVIRONMENT'} = 'production' }
     use Dancer2;
 
-    # tell the Dancer2 where the app lives
-    my $appdir = realpath( "$FindBin::Bin/..");
-
-    Dancer2::Config::setting('appdir', $appdir);
-    Dancer2::Config::load();
-
-    # getter
-    print "environment:".config->{environment}."\n"; # development
-    print "log:".config->{log}."\n"; # value from development environment
-
-By default Dancer2 loads the development environment (typically
-C<$webapp/environment/development.yml>). In contrast to the example above,
-now you do have a value from the development environment
-(C<environment/development.yml>). Also note that in the above example
-L<Cwd> and L<FindBin> are used. They are likely to be already loaded by
-Dancer2 anyways, so it's not a big overhead. You could just as well hand
-over a simple path for the app if you like that better, e.g.:
-
-    Dancer2::Config::setting('appdir','/path/to/app/dir');
-
-If you want to load an environment other than the default, try this:
-
-    # bin/show_app_config_and_env.pl
-    use Dancer2;
-
-    # tell the Dancer2 where the app lives
-    Dancer2::Config::setting('appdir', '/path/to/app/dir');
-
-    # which environment to load
-    config->{environment} = 'production';
-
-    Dancer2::Config::load();
-
-    # getter
-    print "log:".config->{log}."\n"; # has value from production environment
-
-By the way, you not only get values, you can also set values straightforwardly
-like we do above with C<< config->{environment}='production' >>. Of course,
-this value does not get written in any file; it only lives in memory and thus
-your webapp doesn't have access to it, but you can use it inside your
-script.
+    ...
 
 =head2 Logging
 

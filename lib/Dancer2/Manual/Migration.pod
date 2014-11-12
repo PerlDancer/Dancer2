@@ -214,6 +214,12 @@ C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
 
 =head2 Keywords
 
+=head3 load
+
+This keyword is no longer required. Dancer2 loads the environment
+automatically and will not reload any other environment when called with
+L<load>. (It's a good thing.)
+
 =head3 param_array
 
 This keyword doesn't exist in Dancer2.
