@@ -50,7 +50,10 @@ sub _build_location {
 
         # if one of them is found, keep that; but skip ./blib since both lib and bin exist
         # under it, but views and public do not.
-        if ( ( $subdir !~ m!/blib/?$! && -d $libdir && -d $bindir ) || ( -f $dancerdir ) ) {
+        if (
+            ( $subdir !~ m![\\/]blib[\\/]?$! && -d $libdir && -d $bindir ) ||
+            ( -f $dancerdir )
+        ) {
             $subdir_found = 1;
             last;
         }
