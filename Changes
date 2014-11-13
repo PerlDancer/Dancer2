@@ -7,6 +7,7 @@
     * GH #744: Serialize regardless of content_type of serializer. (Sawyer X)
     * GH #753: Syntax of parameterized types. (Russell Jenkins)
     * Calling uri_for(undef) doesn't crash. (Sawyer X)
+    * GH #734: Failing tests on Windows. (Russell Jenkins, Sawyer X)
 
     [ ENHANCEMENTS ]
     * GH #664, #684, #715: Handler::File replaced for static files with
