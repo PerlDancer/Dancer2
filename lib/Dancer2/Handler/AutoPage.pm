@@ -5,8 +5,10 @@ use Moo;
 use Carp 'croak';
 use Dancer2::Core::Types;
 
-with 'Dancer2::Core::Role::Handler';
-with 'Dancer2::Core::Role::StandardResponses';
+with qw<
+    Dancer2::Core::Role::Handler
+    Dancer2::Core::Role::StandardResponses
+>;
 
 sub register {
     my ( $self, $app ) = @_;
