@@ -27,8 +27,10 @@ use Dancer2::Core::Request;
 use Dancer2::Core::Factory;
 
 # we have hooks here
-with 'Dancer2::Core::Role::Hookable';
-with 'Dancer2::Core::Role::ConfigReader';
+with qw<
+    Dancer2::Core::Role::Hookable
+    Dancer2::Core::Role::ConfigReader
+>;
 
 sub supported_engines { [ qw<logger serializer session template> ] }
 

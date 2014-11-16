@@ -9,9 +9,11 @@ use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use File::Spec;
 
-with 'Dancer2::Core::Role::Handler';
-with 'Dancer2::Core::Role::StandardResponses';
-with 'Dancer2::Core::Role::Hookable';
+with qw<
+    Dancer2::Core::Role::Handler
+    Dancer2::Core::Role::StandardResponses
+    Dancer2::Core::Role::Hookable
+>;
 
 sub supported_hooks {
     qw(
