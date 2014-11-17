@@ -1,12 +1,13 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * GH #732: Correct name for 403 (Forbidden, not Unauthorized).
-      (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
     * GH #744: Serialize anything, not just references. (Sawyer X)
     * GH #744: Serialize regardless of content_type of serializer. (Sawyer X)
-    * GH #753: Syntax of parameterized types. (Russell Jenkins)
+    * GH #764: Catch template render errors. (Russell Jenkins, Steven Humphrey)
     * Calling uri_for(undef) doesn't crash. (Sawyer X)
+    * GH #732: Correct name for 403 (Forbidden, not Unauthorized).
+      (Theo van Hoesel, Sawyer X, Mickey Nasriachi, Omar M. Othman)
+    * GH #753: Syntax of parameterized types. (Russell Jenkins)
     * GH #734: Failing tests on Windows. (Russell Jenkins, Sawyer X)
 
     [ ENHANCEMENTS ]
