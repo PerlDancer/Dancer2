@@ -320,13 +320,6 @@ has response => (
     predicate => 'has_response',
 );
 
-has with_return => (
-    is        => 'ro',
-    predicate => 1,
-    writer    => 'set_with_return',
-    clearer   => 'clear_with_return',
-);
-
 has session => (
     is        => 'ro',
     isa       => InstanceOf['Dancer2::Core::Session'],
@@ -739,7 +732,7 @@ sub send_error {
     )->throw;
 
     # Immediately return to dispatch if with_return coderef exists
-    $self->has_with_return && $self->with_return->($err);
+    $self->{with_return} && $self->{with_return}->($err);
     return $err;
 }
 
@@ -782,7 +775,7 @@ sub send_file {
 
     $self->request->set_path_info($path);
     $file_handler->code( $self->prefix )->( $self ); # slurp file
-    $self->has_with_return and $self->with_return->( $self->response );
+    $self->{with_return} and $self->{with_return}->( $self->response );
 
     # TODO Streaming support
 }
@@ -944,8 +937,8 @@ sub redirect {
 
     # Short circuit any remaining before hook / route code
     # ('pass' and after hooks are still processed)
-    $self->has_with_return
-        and $self->with_return->($self->response);
+    $self->{with_return}
+        and $self->{with_return}->($self->response);
 }
 
 sub halt {
@@ -953,8 +946,8 @@ sub halt {
    $self->response->halt;
 
    # Short citcuit any remaining hook/route code
-   $self->has_with_return
-       and $self->with_return->($self->response);
+   $self->{with_return}
+       and $self->{with_return}->($self->response);
 }
 
 sub pass {
@@ -962,8 +955,8 @@ sub pass {
    $self->response->pass;
 
    # Short citcuit any remaining hook/route code
-   $self->has_with_return
-       and $self->with_return->($self->response);
+   $self->{with_return}
+       and $self->{with_return}->($self->response);
 }
 
 sub forward {
@@ -974,8 +967,8 @@ sub forward {
 
     my $new_request = $self->make_forward_to( $url, $params, $options );
 
-    $self->has_with_return
-        and $self->with_return->($new_request);
+    $self->{with_return}
+        and $self->{with_return}->($new_request);
 
     # nothing else will run after this
 }
@@ -1120,6 +1113,9 @@ DISPATCH:
             $self->set_request($request);
             $_->set_request( $request ) for $self->defined_engines;
 
+            ## This should be replaced with a localised variable
+            $self->has_session and $self->clear_session;
+
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
             if ( my $sess = Dancer2->runner->{'internal_sessions'}{$cname} ) {
@@ -1131,14 +1127,10 @@ DISPATCH:
                 my ($return) = @_;
 
                 # stash the multilevel return coderef in the app
-                $self->has_with_return
-                    or $self->set_with_return($return);
+                local $self->{with_return} = $return;
 
                 return $self->_dispatch_route($route);
             };
-
-            # ensure we clear the with_return handler
-            $self->clear_with_return;
 
             # handle forward requests
             if ( ref $response eq 'Dancer2::Core::Request' ) {
@@ -1323,10 +1315,6 @@ that package, thanks to that encapsulation.
 =attr runner_config
 
 =attr default_config
-
-=attr with_return
-
-Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
 
 =method has_session
 
