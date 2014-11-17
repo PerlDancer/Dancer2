@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.154000  2014-11-17 15:36:31+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #744: Serialize anything, not just references. (Sawyer X)
     * GH #744: Serialize regardless of content_type of serializer. (Sawyer X)
