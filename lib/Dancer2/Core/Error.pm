@@ -242,14 +242,22 @@ has content => (
         # if all else fail, the default error page
 
         if ( $self->has_app and $self->template ) {
-            return $self->app->template(
-                $self->template,
-                {   title     => $self->title,
-                    content   => $self->message,
-                    exception => $self->exception,
-                    status    => $self->status,
-                }
-            );
+            # Render the template using apps' template engine.
+            # This may well be what caused the initial error, in which
+            # case we fall back to static page if any error was thrown.
+            # Note: this calls before/after render hooks.
+            my $content = eval {
+                $self->app->template(
+                    $self->template,
+                    {   title     => $self->title,
+                        content   => $self->message,
+                        exception => $self->exception,
+                        status    => $self->status,
+                    }
+                );
+            };
+            # return rendered content unless there was an error.
+            defined $content && return $content;
         }
 
         # It doesn't make sense to return a static page if show_errors is on
