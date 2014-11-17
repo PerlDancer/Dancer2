@@ -31,6 +31,7 @@
     * GH #748: Provide forwarded_host, forwarded_protocol. (Sawyer X)
     * GH #748: Do not provide a default env, require env for a request.
       (Sawyer X)
+    * GH #742: Update test skeleton to use to_app. (Dávid Kovács)
 
     [ DOCUMENTATION ]
     * Improved documentation of route matching. (Russell Jenkins)
