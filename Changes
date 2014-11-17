@@ -32,6 +32,7 @@
     * GH #748: Do not provide a default env, require env for a request.
       (Sawyer X)
     * GH #742: Update test skeleton to use to_app. (Dávid Kovács)
+    * GH #636: Use Plack::Test in more tests. (Dávid Kovács)
 
     [ DOCUMENTATION ]
     * Improved documentation of route matching. (Russell Jenkins)
