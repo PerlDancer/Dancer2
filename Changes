@@ -35,6 +35,8 @@
     * GH #636: Use Plack::Test in more tests. (Dávid Kovács)
 
     [ DOCUMENTATION ]
+    * GH #656: Dancer2::Manual::Testing as a guide for testing Dancer2
+      applications. (Sawyer X)
     * Improved documentation of route matching. (Russell Jenkins)
     * Migration document update relating to enhancements.
       (Sawyer X, Mickey Nasriachi)
