@@ -33,6 +33,7 @@
       (Sawyer X)
 
     [ DOCUMENTATION ]
+    * Improved documentation of route matching. (Russell Jenkins)
     * Migration document update relating to enhancements.
       (Sawyer X, Mickey Nasriachi)
     * GH #731: Document changes in session.
