@@ -166,6 +166,37 @@ will be returned in an arrayref, accessible via the C<splat> keyword.
         # do something with $file.$ext here
     };
 
+An extensive, greedier wildcard represented by C<**> (A.K.A. "megasplat") can be
+used to define a route. The additional path is broken down and returned as an
+ArrayRef:
+
+    get '/entry/*/tags/**' => sub {
+        my ( $entry_id, $tags ) = splat;
+        my @tags = @{$tags};
+    };
+
+=head3 Mixed named and wildcard matching
+
+A route can combine named (token) matching and wildcard matching.
+This is useful when chaining actions:
+
+    get '/team/:team/**' => sub {
+        var team => param('team');
+        pass;
+    };
+
+    prefix '/team/:team';
+
+    get '/player/*' => sub {
+        my ($player) = splat;
+
+        # etc...
+    };
+
+    get '/score' => sub {
+        return score_for( vars->{'team'} );
+    };
+
 =head3 Regular Expression Matching
 
 A route can be defined with a Perl regular expression.
@@ -177,6 +208,9 @@ must be defined explicitly with C<qr{}>, like the following:
         my ($name) = splat;
         return "Hello $name";
     };
+
+For Perl 5.10+, a route regex may use named capture groups. The C<captures>
+keyword will return a reference to a copy of C<%+>.
 
 =head3 Conditional Matching
 
@@ -1546,26 +1580,6 @@ path is broken down and returned as an ArrayRef:
     get '/entry/*/tags/**' => sub {
         my ( $entry_id, $tags ) = splat;
         my @tags = @{$tags};
-    };
-
-This helps with chained actions:
-
-    get '/team/*/**' => sub {
-        my ($team) = splat;
-        var team => $team;
-        pass;
-    };
-
-    prefix '/team/*';
-
-    get '/player/*' => sub {
-        my ($player) = splat;
-
-        # etc...
-    };
-
-    get '/score' => sub {
-        return score_for( vars->{'team'} );
     };
 
 =head2 start
