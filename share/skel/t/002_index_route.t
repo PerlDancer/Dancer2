@@ -10,6 +10,6 @@ my $app = [% appname %]->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 my $test = Plack::Test->create($app);
+my $res  = $test->request( GET '/' );
 
-my $res = $test->request( GET '/' );
-ok $res->is_success, '[GET /] successful';
+ok( $res->is_success, '[GET /] successful' );
