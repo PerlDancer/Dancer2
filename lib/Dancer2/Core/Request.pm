@@ -169,6 +169,22 @@ has is_behind_proxy => (
     default => sub {0},
 );
 
+sub BUILDARGS {
+    my ( $class, @args ) = @_;
+
+    # regular hash (or empty)
+    @args != 1 and return {@args};
+
+    # we don't know what this is
+    ref $args[0] eq 'HASH' or return {@args};
+
+    # handle what could be a single arg env
+    $args[0]->{'env'} or return { env => $args[0] };
+
+    # everything else
+    return $args[0];
+}
+
 sub host {
     my ($self) = @_;
 
