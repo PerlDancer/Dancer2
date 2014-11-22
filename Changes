@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Remove documented hack for static content because we use the middleware
+      now anyway. (Sawyer X)
+
 0.154000  2014-11-17 15:36:31+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
