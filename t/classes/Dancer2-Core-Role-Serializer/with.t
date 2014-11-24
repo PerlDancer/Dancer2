@@ -67,7 +67,10 @@ subtest 'Unsuccessful' => sub {
         my $logger = Dancer2::Logger::Capture->new;
         isa_ok( $logger, 'Dancer2::Logger::Capture' );
 
-        my $srl = Serializer::NotOK->new( logger => $logger );
+        my $srl = Serializer::NotOK->new(
+            log_cb => sub { $logger->log(@_) }
+        );
+
         isa_ok( $srl, 'Serializer::NotOK' );
         is( $srl->serialize('foo'), undef, 'Serialization result' );
 
@@ -94,7 +97,10 @@ subtest 'Unsuccessful' => sub {
         my $logger = Dancer2::Logger::Capture->new;
         isa_ok( $logger, 'Dancer2::Logger::Capture' );
 
-        my $srl = Serializer::NotOK->new( logger => $logger );
+        my $srl = Serializer::NotOK->new(
+            log_cb => sub { $logger->log(@_) }
+        );
+
         isa_ok( $srl, 'Serializer::NotOK' );
         is( $srl->deserialize('bar'), undef, 'Deserialization result' );
 

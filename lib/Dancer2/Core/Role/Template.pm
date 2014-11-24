@@ -23,11 +23,10 @@ sub _build_type {'Template'}
 
 requires 'render';
 
-has logger => (
-    is        => 'ro',
-    isa       => Object['Dancer2::Core::Logger'],
-    handles   => ['log'],
-    predicate => 'has_logger',
+has log_cb => (
+    is      => 'ro',
+    isa     => CodeRef,
+    default => sub { sub {1} },
 );
 
 has name => (
