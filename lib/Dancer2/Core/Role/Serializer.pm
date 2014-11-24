@@ -41,7 +41,8 @@ around serialize => sub {
     my $data = try {
         $self->$orig($content, $options);
     } catch {
-        $self->log( core => "Failed to serialize the request: $_" );
+        $self->has_logger
+            and $self->log( core => "Failed to serialize the request: $_" );
     };
 
     $data and $self->execute_hook( 'engine.serializer.after', $data );
@@ -55,7 +56,8 @@ around deserialize => sub {
     my $data = try {
         $self->$orig($content, $options);
     } catch {
-        $self->log( core => "Failed to deserialize the request: $_" );
+        $self->has_logger
+            and $self->log( core => "Failed to deserialize the request: $_" );
     };
 
     return $data;
