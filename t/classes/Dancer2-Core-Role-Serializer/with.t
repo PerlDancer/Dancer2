@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Test::Fatal;
 
 use_ok('Dancer2::Core::Hook');
@@ -166,4 +166,45 @@ subtest 'support_content_type' => sub {
         'Content type supported when first',
     );
 };
+
+{
+    package Serializer::Empty;
+    use Moo;
+    with 'Dancer2::Core::Role::Serializer';
+    has '+content_type' => ( default => 'plain/test' );
+    sub serialize   {'BAD SERIALIZE'}
+    sub deserialize {'BAD DESERIALIZE'}
+}
+
+subtest 'Called with empty content' => sub {
+    plan tests => 6;
+
+    my $srl = Serializer::Empty->new;
+    isa_ok( $srl, 'Serializer::Empty'  );
+    can_ok( $srl, qw<serialize deserialize> );
+
+    is(
+        $srl->serialize(),
+        undef,
+        'Do not try to serialize without input',
+    );
+
+    is(
+        $srl->serialize(''),
+        '',
+        'Do not try to serialize with empty input',
+    );
+
+    is(
+        $srl->deserialize(),
+        undef,
+        'Do not try to deserialize without input',
+    );
+
+    is(
+        $srl->deserialize(''),
+        '',
+        'Do not try to deserialize with empty input',
+    );
+}
 

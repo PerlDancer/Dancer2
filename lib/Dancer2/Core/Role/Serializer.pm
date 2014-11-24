@@ -39,7 +39,9 @@ around serialize => sub {
 
     my $data;
     try {
-        $data = $self->$orig($content, $options);
+        $data = length $content ? $self->$orig($content, $options)
+                                : $content;
+
         $self->execute_hook( 'engine.serializer.after', $data );
     } catch {
         $self->log_cb->( core => "Failed to serialize the request: $_" );
@@ -53,7 +55,8 @@ around deserialize => sub {
 
     my $data;
     try {
-        $data = $self->$orig($content, $options);
+        $data = length $content ? $self->$orig($content, $options)
+                                : $content;
     } catch {
         $self->log_cb->( core => "Failed to deserialize the request: $_" );
     };
