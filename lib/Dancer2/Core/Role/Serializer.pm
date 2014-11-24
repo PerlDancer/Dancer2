@@ -19,11 +19,10 @@ sub _build_type {'Serializer'}
 requires 'serialize';
 requires 'deserialize';
 
-has logger => (
-    is        => 'ro',
-    isa       => Object['Dancer2::Core::Logger'],
-    handles   => ['log'],
-    predicate => 'has_logger',
+has log_cb => (
+    is      => 'ro',
+    isa     => CodeRef,
+    default => sub { sub {1} },
 );
 
 has content_type => (
@@ -38,14 +37,13 @@ around serialize => sub {
 
     $self->execute_hook( 'engine.serializer.before', $content );
 
-    my $data = try {
-        $self->$orig($content, $options);
+    my $data;
+    try {
+        $data = $self->$orig($content, $options);
+        $self->execute_hook( 'engine.serializer.after', $data );
     } catch {
-        $self->has_logger
-            and $self->log( core => "Failed to serialize the request: $_" );
+        $self->log_cb->( core => "Failed to serialize the request: $_" );
     };
-
-    $data and $self->execute_hook( 'engine.serializer.after', $data );
 
     return $data;
 };
@@ -53,11 +51,11 @@ around serialize => sub {
 around deserialize => sub {
     my ( $orig, $self, $content, $options ) = @_;
 
-    my $data = try {
-        $self->$orig($content, $options);
+    my $data;
+    try {
+        $data = $self->$orig($content, $options);
     } catch {
-        $self->has_logger
-            and $self->log( core => "Failed to deserialize the request: $_" );
+        $self->log_cb->( core => "Failed to deserialize the request: $_" );
     };
 
     return $data;

@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #770: Prevent crazy race condition between the logger engine and
+      other engines. This means engines now call "log_cb" to log.
+      (Sawyer X)
+
     [ ENHANCEMENTS ]
     * Don't log serialization error when there's no logger. (Sawyer X)
 

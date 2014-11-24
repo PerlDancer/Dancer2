@@ -183,16 +183,14 @@ sub _build_session_engine {
     my $engine_options =
           $self->_get_config_for_engine( session => $value, $config );
 
+    Scalar::Util::weaken( my $weak_self = $self );
+
     return $self->_factory->create(
         session         => $value,
         %{$engine_options},
         postponed_hooks => $self->get_postponed_hooks,
 
-        # do NOT change to Enterprise operator
-        # because it will call the builder
-        $self->has_logger_engine         ?
-      ( logger => $self->logger_engine ) :
-        (),
+        log_cb => sub { $weak_self->logger->log(@_) },
     );
 }
 
@@ -218,16 +216,14 @@ sub _build_template_engine {
     $engine_attrs->{views}  ||= $config->{views}
         || path( $self->location, 'views' );
 
+    Scalar::Util::weaken( my $weak_self = $self );
+
     return $self->_factory->create(
         template        => $value,
         %{$engine_attrs},
         postponed_hooks => $self->get_postponed_hooks,
 
-        # do NOT change to Enterprise operator
-        # because it will call the builder
-        $self->has_logger_engine         ?
-      ( logger => $self->logger_engine ) :
-        (),
+        log_cb => sub { $weak_self->logger->log(@_) },
     );
 }
 
@@ -245,16 +241,14 @@ sub _build_serializer_engine {
     my $engine_options =
         $self->_get_config_for_engine( serializer => $value, $config );
 
+    Scalar::Util::weaken( my $weak_self = $self );
+
     return $self->_factory->create(
         serializer      => $value,
         config          => $engine_options,
         postponed_hooks => $self->get_postponed_hooks,
 
-        # do NOT change to Enterprise operator
-        # because it will call the builder
-        $self->has_logger_engine         ?
-      ( logger => $self->logger_engine ) :
-        (),
+        log_cb => sub { $weak_self->logger_engine->log(@_) },
     );
 }
 
