@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Don't log serialization error when there's no logger. (Sawyer X)
+
     [ DOCUMENTATION ]
     * Remove documented hack for static content because we use the middleware
       now anyway. (Sawyer X)
