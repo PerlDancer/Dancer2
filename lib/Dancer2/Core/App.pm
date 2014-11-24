@@ -292,8 +292,9 @@ has route_handlers => (
 );
 
 has name => (
-    is  => 'ro',
-    isa => Str,
+    is      => 'ro',
+    isa     => Str,
+    default => sub { (caller(1))[0] },
 );
 
 has request => (
