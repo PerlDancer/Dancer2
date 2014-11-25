@@ -28,6 +28,10 @@ sub code {
         my $prefix = shift;
 
         my $page = $app->request->path_info;
+        if ( $page =~ m{^/layouts/} ) {
+            $app->response->has_passed(1);
+            return;
+        }
 
         my $template = $app->engine('template');
         if ( !defined $template ) {
