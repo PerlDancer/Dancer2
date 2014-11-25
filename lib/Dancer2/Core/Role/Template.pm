@@ -93,8 +93,12 @@ sub view_pathname {
 
 sub layout_pathname {
     my ( $self, $layout ) = @_;
-    $layout = $self->_template_name($layout);
-    return path( $self->views, 'layouts', $layout );
+
+    return path(
+        $self->views,
+        'layouts',
+        $self->_template_name($layout),
+    );
 }
 
 sub render_layout {
