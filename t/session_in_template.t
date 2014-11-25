@@ -9,34 +9,34 @@ use HTTP::Cookies;
 {
     package TestApp;
 
-        use Dancer2;
+    use Dancer2;
 
-        get '/' => sub {
-            template 'session_in_template'
-        };
+    get '/' => sub {
+        template 'session_in_template'
+    };
 
-        get '/set_session/*' => sub {
-            my ($name) = splat;
-            session name => $name;
-            template 'session_in_template';
-        };
+    get '/set_session/*' => sub {
+        my ($name) = splat;
+        session name => $name;
+        template 'session_in_template';
+    };
 
-        get '/destroy_session' => sub {
-            # Need to call the 'session' keyword, so app->setup_session
-            # is called and the session attribute in the engines is populated
-            my $name = session 'name';
-            # Destroying the session should remove the session object from
-            # all engines.
-            app->destroy_session;
-            template 'session_in_template';
-        };
+    get '/destroy_session' => sub {
+        # Need to call the 'session' keyword, so app->setup_session
+        # is called and the session attribute in the engines is populated
+        my $name = session 'name';
+        # Destroying the session should remove the session object from
+        # all engines.
+        app->destroy_session;
+        template 'session_in_template';
+    };
 
-        setting(
-            engines => {
-                session => { 'Simple' => { session_dir => 't/sessions' } }
-            }
-        );
-        setting( session => 'Simple' );
+    setting(
+        engines => {
+            session => { 'Simple' => { session_dir => 't/sessions' } }
+        }
+    );
+    setting( session => 'Simple' );
 }
 
 my $app = TestApp->to_app;
