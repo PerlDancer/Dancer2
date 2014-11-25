@@ -77,6 +77,12 @@ has settings => (
     writer  => 'set_settings',
 );
 
+has layout_dir => (
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'layouts'},
+);
+
 sub _template_name {
     my ( $self, $view ) = @_;
     my $def_tmpl_ext = $self->default_tmpl_ext();
@@ -96,7 +102,7 @@ sub layout_pathname {
 
     return path(
         $self->views,
-        'layouts',
+        $self->layout_dir,
         $self->_template_name($layout),
     );
 }
@@ -245,6 +251,12 @@ Path to the directory containing the views.
 =attr layout
 
 Path to the directory containing the layouts.
+
+=attr layout_dir
+
+Relative path to the layout directory.
+
+Default: B<layouts>.
 
 =attr engine
 
