@@ -10,8 +10,6 @@ use HTTP::Request::Common;
     use Dancer2;
 
     set auto_page => 1;
-    ## HACK HACK HACK
-    Dancer2::Handler::AutoPage->register(app);
     engine('template')->views('t/views');
     engine('template')->layout('main');
 }
