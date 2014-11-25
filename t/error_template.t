@@ -6,13 +6,12 @@ use Plack::Test;
 use HTTP::Request::Common;
 
 {
-
-    package PrettyError;
+    package CustomError;
 
     use Dancer2;
 
-    engine('template')->views('t/corpus/pretty');
-    $ENV{DANCER_PUBLIC} = 't/corpus/pretty_public';
+    set views      => 't/corpus/pretty';
+    set public_dir => 't/corpus/pretty_public';
 
     get '/error' => sub {
         send_error "oh my", 505;
@@ -21,51 +20,56 @@ use HTTP::Request::Common;
     get '/public' => sub {
         send_error "static", 510;
     };
-
-    get '/no_template' => sub {
-        local $ENV{DANCER_PUBLIC} = undef;
-
-        send_error "oopsie", 404;
-    };
-
 }
 
-my $app = PrettyError->to_app;
-is( ref $app, 'CODE', 'Got app' );
+{
+    package StandardError;
 
-test_psgi $app, sub {
-    my $cb = shift;
+    use Dancer2;
 
-    subtest "/error" => sub {
-        my $r = $cb->( GET '/error' );
-
-        is $r->code, 505, 'send_error sets the status to 505';
-        like $r->content, qr{Template selected}, 'Error message looks good';
-        like $r->content, qr{message: oh my};
-        like $r->content, qr{status: 505};
+    get '/no_template' => sub {
+        send_error "oopsie", 404;
     };
+}
 
-    subtest "/public" => sub {
-        my $r = $cb->( GET '/public' );
+my $custom_error_app   = CustomError->to_app;
+my $standard_error_app = StandardError->to_app;
 
-        is $r->code,    510,             'send_error sets the status to 510';
-        like $r->content, qr{Static page}, 'Error message looks good';
-    };
+is( ref $custom_error_app,   'CODE', 'Got app' );
+is( ref $standard_error_app, 'CODE', 'Got app' );
 
-    subtest "/no_template" => sub {
-        my $r = $cb->( GET '/no_template' );
+my $custom_error_test   = Plack::Test->create($custom_error_app);
+my $standard_error_test = Plack::Test->create($standard_error_app);
 
-        is $r->code, 404, 'send_error sets the status to 404';
-        like $r->content, qr{<h1>Error 404 - Not Found</h1>},
-          'Error message looks good';
-    };
+subtest "/error" => sub {
+    my $res = $custom_error_test->request( GET '/error' );
 
-    subtest '404 with static template' => sub {
-        my $r = $cb->( GET '/middle/of/nowhere' );
+    is $res->code, 505, 'send_error sets the status to 505';
+    like $res->content, qr{Template selected}, 'Error message looks good';
+    like $res->content, qr{message: oh my};
+    like $res->content, qr{status: 505};
+};
 
-        is $r->code, 404, 'unknown route => 404';
-        like $r->content, qr{you're lost}i, 'Error message looks good';
-    };
+subtest "/public" => sub {
+    my $res = $custom_error_test->request( GET '/public' );
+
+    is $res->code, 510, 'send_error sets the status to 510';
+    like $res->content, qr{Static page}, 'Error message looks good';
+};
+
+subtest '404 with static template' => sub {
+    my $res = $custom_error_test->request( GET '/middle/of/nowhere' );
+
+    is $res->code, 404, 'unknown route => 404';
+    like $res->content, qr{you're lost}i, 'Error message looks good';
+};
+
+subtest "/no_template" => sub {
+    my $res = $standard_error_test->request( GET '/no_template' );
+
+    is $res->code, 404, 'send_error sets the status to 404';
+    like $res->content, qr{<h1>Error 404 - Not Found</h1>},
+      'Error message looks good';
 };
 
 done_testing;
