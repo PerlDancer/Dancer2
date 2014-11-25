@@ -2,38 +2,12 @@ use strict;
 use warnings;
 use Test::More;
 
-use YAML;
-use Test::TCP 1.13;
-use File::Temp 0.22;
-use LWP::UserAgent;
-use HTTP::Date qw/str2time/;
-use File::Spec;
+use Plack::Test;
+use HTTP::Request::Common;
+use HTTP::Cookies;
 
-my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
-
-Test::TCP::test_tcp(
-    client => sub {
-        my $port = shift;
-
-        my $ua = LWP::UserAgent->new;
-        $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
-
-        my $res = $ua->get("http://127.0.0.1:$port/");
-        ok $res->is_success;
-        is $res->content, "session.name \n";
-
-        $res = $ua->get("http://127.0.0.1:$port/set_session/test_name");
-        ok $res->is_success;
-        is $res->content, "session.name test_name\n";
-
-        $res = $ua->get("http://127.0.0.1:$port/destroy_session");
-        ok $res->is_success;
-        is $res->content, "session.name \n";
-
-        File::Temp::cleanup();
-    },
-    server => sub {
-        my $port = shift;
+{
+    package TestApp;
 
         use Dancer2;
 
@@ -57,23 +31,49 @@ Test::TCP::test_tcp(
             template 'session_in_template';
         };
 
-        setting appdir => $tempdir;
         setting(
             engines => {
                 session => { 'Simple' => { session_dir => 't/sessions' } }
             }
         );
         setting( session => 'Simple' );
+}
 
-        set(show_errors  => 1,
-            startup_info => 0,
-            environment  => 'production',
-            port         => $port
-        );
+my $app = TestApp->to_app;
+is( ref $app, 'CODE', 'Got app' );
 
-        # we're overiding a RO attribute only for this test!
-        Dancer2->runner->{'port'} = $port;
-        start;
-    },
-);
-done_testing;
+my $test = Plack::Test->create($app);
+my $jar = HTTP::Cookies->new();
+
+{
+    my $res = $test->request( GET '/' );
+
+    ok $res->is_success, 'Successful request';
+    is $res->content, "session.name \n";
+
+    $jar->extract_cookies($res);
+}
+
+{
+    my $request = GET '/set_session/test_name';
+    $jar->add_cookie_header($request);
+
+    my $res = $test->request($request);
+    ok $res->is_success, 'Successful request';
+    is $res->content, "session.name test_name\n";
+
+    $jar->extract_cookies($res);
+}
+
+{
+    my $request = GET '/destroy_session';
+    $jar->add_cookie_header($request);
+
+    my $res = $test->request($request);
+    ok $res->is_success, 'Successful request';
+    is $res->content, "session.name \n";
+
+    $jar->extract_cookies($res);
+}
+
+done_testing();
