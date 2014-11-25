@@ -48,6 +48,11 @@ test_psgi $app, sub {
     }
 
     {
+        my $r = $cb->( GET '/layouts/main');
+        is( $r->code, 404, 'Layouts are not served' );
+    }
+
+    {
         my $r = $cb->( GET '/file.txt' );
         is( $r->code, 200, 'found file on public with autopage' );
         is(
