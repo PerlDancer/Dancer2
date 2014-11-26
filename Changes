@@ -8,6 +8,8 @@
     * Serializers will not try to serialize empty content. (Sawyer X)
 
     [ ENHANCEMENTS ]
+    * Layouts directory can be configured using 'layout_dir'.
+      (Sawyer X)
     * Serializers having errors will not fail if there is no logger.
       (Sawyer X)
 
