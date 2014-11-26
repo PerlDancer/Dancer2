@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Fatal;
 use Plack::Test;
 use HTTP::Request::Common;
@@ -274,6 +274,29 @@ subtest 'Defaults' => sub {
     );
 };
 
+subtest 'Create with single env' => sub {
+    isa_ok(
+        Dancer2::Core::Request->new( env => {} ),
+        'Dancer2::Core::Request',
+        'Create with env hash',
+    );
+
+    isa_ok(
+        Dancer2::Core::Request->new({ env => {} }),
+        'Dancer2::Core::Request',
+        'Create with env hashref',
+    );
+
+    my $request;
+    isa_ok(
+        $request = Dancer2::Core::Request->new({ REQUEST_METHOD => 'X' }),
+        'Dancer2::Core::Request',
+        'Create with single argument for env',
+    );
+
+    is( $request->method, 'X', 'env() attribute populated successfully' );
+};
+
 subtest 'Serializer' => sub {
     {
         my $request = Dancer2::Core::Request->new( env => {} );
@@ -308,7 +331,7 @@ subtest 'Serializer' => sub {
         is(
             exception {
                 $request = Dancer2::Core::Request->new(
-                    env        => {},
+                    env        => { REQUEST_METHOD => 'GET' },
                     serializer => Serializer->new,
                 )
             },
@@ -389,7 +412,7 @@ subtest 'Checking request ID' => sub {
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
-        is( $request->id, 6, 'Correct request id' );
+        is( $request->id, 10, 'Correct request id' );
 
         return psgi_ok;
     } );

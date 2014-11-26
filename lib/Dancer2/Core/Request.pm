@@ -10,6 +10,7 @@ use HTTP::Body;
 use URI;
 use URI::Escape;
 use Class::Load 'try_load_class';
+use Plack::Request;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
@@ -26,8 +27,6 @@ my @http_env_keys = (qw/
     accept_language
     connection
     keep_alive
-    referer
-    user_agent
     x_requested_with
 /);
 
@@ -44,11 +43,20 @@ foreach my $attr ( @http_env_keys ) {
 our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
 our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
+our $_count = 1;
+
 # then all the native attributes
 has env => (
     is       => 'ro',
     isa      => HashRef,
     required => 1,
+);
+
+has _preq => (
+    is      => 'ro',
+    isa     => InstanceOf['Plack::Request'],
+    lazy    => 1, # make sure it's after env has been verified
+    default => sub { Plack::Request->new( $_[0]->env ) },
 );
 
 # a buffer for per-request variables
@@ -80,30 +88,6 @@ has path_info => (
     default => sub { $_[0]->env->{'PATH_INFO'} },
 );
 
-has method => (
-    is      => 'rw',
-    isa     => Dancer2HTTPMethod,
-    default => sub {
-        my $self = shift;
-        $self->env->{REQUEST_METHOD} || 'GET';
-    },
-    coerce => sub { uc $_[0] },
-);
-
-has content_type => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    default => sub { $_[0]->env->{CONTENT_TYPE} || '' },
-);
-
-has content_length => (
-    is      => 'ro',
-    isa     => Num,
-    lazy    => 1,
-    default => sub { $_[0]->env->{CONTENT_LENGTH} || 0 },
-);
-
 has body => (
     is      => 'ro',
     isa     => Str,
@@ -111,8 +95,9 @@ has body => (
 );
 
 has id => (
-    is  => 'ro',
-    isa => Num,
+    is      => 'ro',
+    isa     => Num,
+    default => sub { $_count++ },
 );
 
 # Private 'read-only' attributes for request params. See the params()
@@ -184,6 +169,22 @@ has is_behind_proxy => (
     default => sub {0},
 );
 
+sub BUILDARGS {
+    my ( $class, @args ) = @_;
+
+    # regular hash (or empty)
+    @args != 1 and return {@args};
+
+    # we don't know what this is
+    ref $args[0] eq 'HASH' or return {@args};
+
+    # handle what could be a single arg env
+    $args[0]->{'env'} or return { env => $args[0] };
+
+    # everything else
+    return $args[0];
+}
+
 sub host {
     my ($self) = @_;
 
@@ -196,17 +197,28 @@ sub host {
 }
 
 # aliases, kept for backward compat
-sub agent                 { $_[0]->user_agent }
-sub remote_address        { $_[0]->address }
-sub forwarded_for_address { $_[0]->env->{HTTP_X_FORWARDED_FOR} }
-sub forwarded_host        { $_[0]->env->{HTTP_X_FORWARDED_HOST} }
-sub address               { $_[0]->env->{REMOTE_ADDR} }
-sub remote_host           { $_[0]->env->{REMOTE_HOST} }
-sub protocol              { $_[0]->env->{SERVER_PROTOCOL} }
-sub port                  { $_[0]->env->{SERVER_PORT} }
-sub request_uri           { $_[0]->env->{REQUEST_URI} }
-sub user                  { $_[0]->env->{REMOTE_USER} }
-sub script_name           { $_[0]->env->{SCRIPT_NAME} }
+sub agent                 { shift->user_agent }
+sub remote_address        { shift->address }
+sub forwarded_for_address { shift->env->{'HTTP_X_FORWARDED_FOR'} }
+sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
+
+# attributes
+sub address               { $_[0]->_preq->address }
+sub remote_host           { $_[0]->_preq->remote_host }
+sub protocol              { $_[0]->_preq->protocol }
+sub port                  { $_[0]->_preq->port }
+sub method                { $_[0]->_preq->method }
+sub user                  { $_[0]->_preq->user }
+sub request_uri           { $_[0]->_preq->request_uri }
+sub script_name           { $_[0]->_preq->script_name }
+sub content_length        { $_[0]->_preq->content_length }
+sub content_type          { $_[0]->_preq->content_type }
+sub secure                { $_[0]->scheme eq 'https' }
+
+# headers
+sub content_encoding      { $_[0]->_preq->content_encoding }
+sub referer               { $_[0]->_preq->referer }
+sub user_agent            { $_[0]->_preq->user_agent }
 
 # there are two options
 sub forwarded_protocol    {
@@ -267,25 +279,20 @@ sub deserialize {
     return $data;
 }
 
-sub secure    { $_[0]->scheme   eq 'https' }
 sub uri       { $_[0]->request_uri }
-sub is_head   { $_[0]->{method} eq 'HEAD' }
-sub is_post   { $_[0]->{method} eq 'POST' }
-sub is_get    { $_[0]->{method} eq 'GET' }
-sub is_put    { $_[0]->{method} eq 'PUT' }
-sub is_delete { $_[0]->{method} eq 'DELETE' }
-sub is_patch  { $_[0]->{method} eq 'PATCH' }
+sub is_head   { $_[0]->method eq 'HEAD' }
+sub is_post   { $_[0]->method eq 'POST' }
+sub is_get    { $_[0]->method eq 'GET' }
+sub is_put    { $_[0]->method eq 'PUT' }
+sub is_delete { $_[0]->method eq 'DELETE' }
+sub is_patch  { $_[0]->method eq 'PATCH' }
 
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
 sub input_handle { $_[0]->env->{'psgi.input'} }
 
-our $_count = 0;
-
 sub BUILD {
     my ($self) = @_;
-
-    $self->{id} = ++$_count;
 
     $self->{_chunk_size}    = 4096;
     $self->{_read_position} = 0;
@@ -538,7 +545,7 @@ sub _read_to_end {
     my $content_length = $self->content_length;
     return unless $self->_has_something_to_read();
 
-    if ( $content_length > 0 ) {
+    if ( defined $content_length && $content_length > 0 ) {
         while ( my $buffer = $self->_read() ) {
             $self->{body} .= $buffer;
             $self->{_http_body}->add($buffer);
@@ -778,6 +785,10 @@ Return the content type of the request.
 =method content_length()
 
 Return the content length of the request.
+
+=method content_encoding()
+
+Return the content encoding of the request.
 
 =method body()
 

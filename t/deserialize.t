@@ -154,7 +154,7 @@ note "Deserialze any body content that is allowed or undefined"; {
     test_psgi $app, sub {
         my $cb = shift;
 
-        for my $method ( qw/delete patch/ ) {
+        for my $method ( qw/DELETE PATCH/ ) {
             my $request  = HTTP::Request->new(
                 $method,
                 "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf

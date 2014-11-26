@@ -6,12 +6,16 @@
       (Sawyer X)
     * App now has default name to caller package. (Sawyer X)
     * Serializers will not try to serialize empty content. (Sawyer X)
+    * Lots of cleanups in Core::Request in favor of Plack::Request.
+      (Sawyer X)
 
     [ ENHANCEMENTS ]
     * Layouts directory can be configured using 'layout_dir'.
       (Sawyer X)
     * Serializers having errors will not fail if there is no logger.
       (Sawyer X)
+    * Create a request object with a single argument of $env, like
+      Plack::Request. (Sawyer X)
 
     [ DOCUMENTATION ]
     * Remove documented hack for static content because we use the middleware
