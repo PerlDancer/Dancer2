@@ -175,6 +175,9 @@ ArrayRef:
         my @tags = @{$tags};
     };
 
+The splat keyword in the above example for the route '/entry/1/tags/one/two'
+would set $entry_id to 1 and $tags to ['one', 'two']
+
 =head3 Mixed named and wildcard matching
 
 A route can combine named (token) matching and wildcard matching.
