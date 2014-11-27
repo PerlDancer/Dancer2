@@ -12,6 +12,9 @@
     [ ENHANCEMENTS ]
     * Layouts directory can be configured using 'layout_dir'.
       (Sawyer X)
+    * GH #648, #760: Logger format now supports 'h', 'u', 'U', 'h', 'i'.
+      They are documented but weren't really available.
+      (Lennart Hengstmengel)
     * Serializers having errors will not fail if there is no logger.
       (Sawyer X)
     * Create a request object with a single argument of $env, like
