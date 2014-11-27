@@ -27,14 +27,14 @@ sub code {
         my $app    = shift;
         my $prefix = shift;
 
-        my $page = $app->request->path_info;
-        if ( $page =~ m{^/layouts/} ) {
+        my $template = $app->engine('template');
+        if ( !defined $template ) {
             $app->response->has_passed(1);
             return;
         }
 
-        my $template = $app->engine('template');
-        if ( !defined $template ) {
+        my $layout_dir = $template->layout_dir;
+        if ( $app->request->path =~ m{^/\Q$layout_dir\E/} ) {
             $app->response->has_passed(1);
             return;
         }
