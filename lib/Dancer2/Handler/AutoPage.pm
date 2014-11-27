@@ -33,8 +33,9 @@ sub code {
             return;
         }
 
+        my $page       = $app->request->path;
         my $layout_dir = $template->layout_dir;
-        if ( $app->request->path =~ m{^/\Q$layout_dir\E/} ) {
+        if ( $page =~ m{^/\Q$layout_dir\E/} ) {
             $app->response->has_passed(1);
             return;
         }
