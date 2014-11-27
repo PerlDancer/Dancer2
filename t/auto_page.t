@@ -10,8 +10,6 @@ use HTTP::Request::Common;
     use Dancer2;
 
     set auto_page => 1;
-    ## HACK HACK HACK
-    Dancer2::Handler::AutoPage->register(app);
     engine('template')->views('t/views');
     engine('template')->layout('main');
 }
@@ -47,6 +45,11 @@ test_psgi $app, sub {
     {
         my $r = $cb->( GET '/non_existent_page' );
         is( $r->code, 404, 'Autopage doesnt try to render nonexistent pages' );
+    }
+
+    {
+        my $r = $cb->( GET '/layouts/main');
+        is( $r->code, 404, 'Layouts are not served' );
     }
 
     {
