@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #773, #775: AutoPage handler no longer renders layouts.
+      (Dávid Kovács, Sawyer X)
     * GH #770: Prevent crazy race condition between the logger engine and
       other engines. This means engines now call "log_cb" to log.
       (Sawyer X)
