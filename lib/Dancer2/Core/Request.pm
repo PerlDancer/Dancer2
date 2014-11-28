@@ -300,7 +300,7 @@ sub BUILD {
     $self->_init_request_headers();
 
     $self->{_http_body} =
-      HTTP::Body->new( $self->content_type, $self->content_length );
+      HTTP::Body->new( $self->content_type || '', $self->content_length );
     $self->{_http_body}->cleanup(1);
 
     $self->data;      # Deserialize body
