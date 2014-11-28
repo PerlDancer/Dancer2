@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * GH #799: Set current request earlier so log formats using requests
       will work. (Sawyer X)
+    * Stop littering the test directories with session files. (Sawyer X)
 
     [ ENHANCEMENT ]
     * GH #810: strict && warnings in the app.pl. (Sawyer X)
