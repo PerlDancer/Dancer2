@@ -46,7 +46,7 @@ my $test = Plack::Test->create( App->to_app );
 subtest 'PUT request with parameters' => sub {
     for my $type ( qw<params data> ) {
         my $res = $test->request(
-            PUT '/from_params',
+            PUT "/from_$type",
                 'Content-Type' => 'application/json',
                 Content        => '{ "foo": 1, "bar": 2 }'
         );
