@@ -1,0 +1,13 @@
+requires "Dancer2"  => "[% dancer_version %]";
+requires "YAML"     => "0";
+requires "perl"     => "5.008001";
+requires "strict"   => "0";
+requires "warnings" => "0";
+
+on "test" => sub {
+    requires "Dancer2"               => "[% dancer_version %]";
+    requires "YAML"                  => "0";
+    requries "Test::More"            => "0";
+    requries "Plack::Test"           => "0";
+    requries "HTTP::Request::Common" => "0";
+};
