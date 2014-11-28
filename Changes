@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.155000  2014-11-28 01:18:39+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #773, #775: AutoPage handler no longer renders layouts.
       (Dávid Kovács, Sawyer X)
