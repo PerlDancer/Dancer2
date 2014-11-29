@@ -4,6 +4,7 @@ package Dancer2::Plugin;
 use Moo::Role;
 use Carp 'croak', 'carp';
 use Dancer2::Core::DSL;
+use Scalar::Util qw();
 
 # singleton for storing all keywords,
 # their code and the plugin they come from
@@ -213,8 +214,12 @@ sub import {
                 $code->( $dsl, @_ );
             };
 
-            # bind the newly compiled symbol to the caller's namespace.
-            *{"${plugin}::${symbol}"} = $compiled;
+            # Bind the newly compiled symbol to the caller's namespace.
+            # As this may redefine a symbol, ensure the new coderef has
+            # the same prototype signature.
+            my $existing = *{"${plugin}::${symbol}"};
+            my $prototype = prototype \&$existing;
+            *{"${plugin}::${symbol}"} = Scalar::Util::set_prototype( \&$compiled, $prototype );
 
             $dsl_deprecation_wrapper = $compiled if $symbol eq 'dsl';
         }
