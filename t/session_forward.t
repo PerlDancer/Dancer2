@@ -1,12 +1,9 @@
-use Test::More;
 use strict;
 use warnings;
-use LWP::UserAgent;
-use LWP::Protocol::PSGI;
-
-use File::Temp;
-
-my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
+use Test::More;
+use Plack::Test;
+use HTTP::Cookies;
+use HTTP::Request::Common;
 
 {
     package Test::Forward::Single;
@@ -77,82 +74,99 @@ my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 }
 
 # base uri for all requests.
-my $base = "http://localhost:3000";
+my $base = 'http://localhost';
 
-note "Forwards within a single app"; {
-    # Register single app as the handler for all LWP requests.
-    LWP::Protocol::PSGI->register( Test::Forward::Single->to_app );
-    my $ua = LWP::UserAgent->new;
-    my $cookies_store = "$tempdir/.cookies.txt";
-    $ua->cookie_jar( { file => $cookies_store } );
+subtest 'Forwards within a single app' => sub {
+    my $test = Plack::Test->create( Test::Forward::Single->to_app );
+    my $jar  = HTTP::Cookies->new;
 
-    my $res = $ua->get("$base/main");
-    is(
-        $res->content,
-        q{Single/main:Single/outer:Single/inner},
-        'session value preserved after chained forwards',
-    );
+    {
+        my $res = $test->request( GET "$base/main" );
+        is(
+            $res->content,
+            q{Single/main:Single/outer:Single/inner},
+            'session value preserved after chained forwards',
+        );
 
-    $res = $ua->get("$base/inner");
-    is(
-        $res->content,
-        q{Single/main:Single/outer:Single/inner},
-        'session values preserved between calls',
-    );
+        $jar->extract_cookies($res);
+    }
 
-    $res = $ua->get("$base/clear");
+    {
+        my $req = GET "$base/inner";
+        $jar->add_cookie_header($req);
 
-    $res = $ua->get("$base/outer");
-    is(
-        $res->content,
-        q{:Single/outer:Single/inner},
-        'session value preserved after forward from route',
-    );
+        my $res = $test->request($req);
+        is(
+            $res->content,
+            q{Single/main:Single/outer:Single/inner},
+            'session values preserved between calls',
+        );
 
-    # cleanup.
-    -e $cookies_store and unlink $cookies_store;
-}
+        $jar->extract_cookies($res);
+    }
 
-# Register all apps as the handler for all LWP requests.
-LWP::Protocol::PSGI->register( Dancer2->psgi_app );
-note "Forwards between multiple apps using the same cookie name"; {
-    my $ua = LWP::UserAgent->new;
-    my $cookies_store = "$tempdir/.cookies.txt";
-    $ua->cookie_jar( { file => $cookies_store } );
+    {
+        my $req = GET "$base/clear";
+        $jar->add_cookie_header($req);
 
-    my $res = $ua->get("$base/same/main");
-    is(
-        $res->content,
-        q{SameCookieName/main:Single/outer:Single/inner},
-        'session value preserved after chained forwards between apps',
-    );
+        my $res = $test->request( GET "$base/clear" );
+        $jar->extract_cookies($res);
+    }
 
-    $res = $ua->get("$base/outer");
-    is(
-        $res->content,
-        q{SameCookieName/main:Single/outer:Single/inner},
-        'session value preserved after forward from route',
-    );
+    {
+        my $req = GET "$base/outer";
+        $jar->add_cookie_header($req);
 
-    # cleanup.
-    -e $cookies_store and unlink $cookies_store;
-}
+        my $res = $test->request( GET "$base/outer" );
+        is(
+            $res->content,
+            q{:Single/outer:Single/inner},
+            'session value preserved after forward from route',
+        );
 
-note "Forwards between multiple apps using different cookie names"; {
-    my $ua = LWP::UserAgent->new;
-    my $cookies_store = "$tempdir/.cookies.txt";
-    $ua->cookie_jar( { file => $cookies_store } );
+        $jar->extract_cookies($res);
+    }
+};
 
-    my $res = $ua->get("$base/other/main");
+subtest 'Forwards between multiple apps using the same cookie name' => sub {
+    my $test = Plack::Test->create( Dancer2->psgi_app );
+    my $jar  = HTTP::Cookies->new;
+
+    {
+        my $res = $test->request( GET "$base/same/main" );
+        is(
+            $res->content,
+            q{SameCookieName/main:Single/outer:Single/inner},
+            'session value preserved after chained forwards between apps',
+        );
+
+        $jar->extract_cookies($res);
+    }
+
+    {
+        my $req = GET "$base/outer";
+        $jar->add_cookie_header($req);
+
+        my $res = $test->request($req);
+        is(
+            $res->content,
+            q{SameCookieName/main:Single/outer:Single/inner},
+            'session value preserved after forward from route',
+        );
+    }
+};
+
+subtest 'Forwards between multiple apps using different cookie names' => sub {
+    my $test = Plack::Test->create( Dancer2->psgi_app );
+    my $jar  = HTTP::Cookies->new;
+    my $res  = $test->request( GET "$base/other/main" );
+
     is(
         $res->content,
         q{:Single/outer:Single/inner},
         'session value only from forwarded app',
     );
-
-    # cleanup.
-    -e $cookies_store and unlink $cookies_store;
-}
+};
 
 # we need to make sure B doesn't override A when forwarding to C
 # A -> B -> C
@@ -166,20 +180,16 @@ note "Forwards between multiple apps using different cookie names"; {
 # if A -> Single, B -> OtherCookieName, C -> SameCookieName
 # call A, create session, then forward to B, create session,
 # then forward to C, check has values as in A and C
-note "Forwards between multiple apps using multiple different cookie names"; {
-    my $ua = LWP::UserAgent->new;
-    my $cookies_store = "$tempdir/.cookies.txt";
-    $ua->cookie_jar( { file => $cookies_store } );
+subtest 'Forwards between multiple apps using multiple different cookie names' => sub {
+    my $test = Plack::Test->create( Dancer2->psgi_app );
+    my $jar  = HTTP::Cookies->new;
+    my $res  = $test->request( GET "$base/same/bad_chain" );
 
-    my $res = $ua->get("$base/same/bad_chain");
     is(
         $res->content,
         q{SameCookieName/bad_chain:Single/outer:Single/inner},
         'session value only from apps with same session cookie name',
     );
-
-    # cleanup.
-    -e $cookies_store and unlink $cookies_store;
-}
+};
 
 done_testing;
