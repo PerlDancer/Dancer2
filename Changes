@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Fix test on Windows. (A. Sinan Unur)
+
 0.155001  2014-11-28 17:42:24+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
