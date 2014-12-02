@@ -28,7 +28,12 @@ note 'Defaults:'; {
         t classes Dancer2-Core-Role-HasLocation with.t
     >);
 
-    is( $app->caller, $path, 'Default caller' );
+    is(
+        File::Spec->canonpath( $app->caller ),
+        $path,
+        'Default caller',
+    );
+
 }
 
 my $basedir = dirname( File::Spec->rel2abs(__FILE__) );
