@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.155003  2014-12-03 22:32:12+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #798: More test fixes on Windows. (A. Sinan Unur)
 
