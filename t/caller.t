@@ -6,6 +6,7 @@ use warnings;
 use Test::More tests => 2;
 use Plack::Test;
 use HTTP::Request::Common;
+use File::Spec;
 
 {
     package App;
@@ -21,5 +22,9 @@ test_psgi $app, sub {
     my $res = $cb->( GET '/' );
 
     is( $res->code, 200, '[GET /] Successful' );
-    is( $res->content, 't/caller.t', 'Correct App name from caller' );
+    is(
+        File::Spec->canonpath( $res->content),
+        File::Spec->catfile(t => 'caller.t'),
+        'Correct App name from caller',
+    );
 };

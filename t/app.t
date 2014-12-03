@@ -208,8 +208,8 @@ is_deeply(
 );
 
 is(
-    $app->caller,
-    't/app.t',
+    File::Spec->canonpath( $app->caller ),
+    File::Spec->catfile(t => 'app.t'),
     'Correct caller for app',
 );
 
