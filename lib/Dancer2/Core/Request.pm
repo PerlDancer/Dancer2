@@ -545,7 +545,7 @@ sub _read_to_end {
     my $content_length = $self->content_length;
     return unless $self->_has_something_to_read();
 
-    if ( defined $content_length && $content_length > 0 ) {
+    if ( $content_length && $content_length > 0 ) {
         while ( my $buffer = $self->_read() ) {
             $self->{body} .= $buffer;
             $self->{_http_body}->add($buffer);
