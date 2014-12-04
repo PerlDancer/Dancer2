@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Guard against content length being empty strings. This is really
+      bizarre case but saw it once. (Sawyer X)
+
 0.155003  2014-12-03 22:32:12+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
