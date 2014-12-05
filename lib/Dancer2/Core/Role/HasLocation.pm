@@ -17,6 +17,7 @@ has caller => (
     isa     => Str,
     default => quote_sub( q{
         my ( $caller, $script ) = CORE::caller;
+        $script = File::Spec->abs2rel( $script ) if File::Spec->file_name_is_absolute( $script );
         $script;
     } ),
 );
