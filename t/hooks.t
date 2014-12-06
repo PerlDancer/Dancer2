@@ -176,8 +176,8 @@ subtest 'Request hooks' => sub {
     note 'Serializer hooks';
     is(
         $tests_flags->{before_serializer},
-        $tests_flags->{after_serializer} + 1,
-        'before_serializer called once more than after (redirect)',
+        $tests_flags->{after_serializer},
+        'before_serializer not called because content was empty',
     );
 
     $test->request( GET '/forward' );
@@ -189,7 +189,7 @@ subtest 'Request hooks' => sub {
 
     my $res = $test->request( GET '/json' );
     is( $res->content, '["foo",42,"added_in_hook",1]', 'Response serialized' );
-    is( $tests_flags->{before_serializer}, 4, 'before_serializer was called' );
+    is( $tests_flags->{before_serializer}, 3, 'before_serializer was called' );
     is( $tests_flags->{after_serializer},  3, 'after_serializer was called' );
     is( $tests_flags->{before_file_render}, undef, "before_file_render undef" );
 };

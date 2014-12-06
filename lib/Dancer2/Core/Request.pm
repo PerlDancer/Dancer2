@@ -266,6 +266,10 @@ sub deserialize {
 
     # try to deserialize
     my $body = $self->_read_to_end();
+
+    $body && length $body > 0
+        or return;
+
     my $data = $self->serializer->deserialize($self->body);
     return if !defined $data;
 

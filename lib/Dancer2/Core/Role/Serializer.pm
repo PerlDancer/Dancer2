@@ -35,13 +35,14 @@ has content_type => (
 around serialize => sub {
     my ( $orig, $self, $content, $options ) = @_;
 
+    $content && length $content > 0
+        or return $content;
+
     $self->execute_hook( 'engine.serializer.before', $content );
 
     my $data;
     try {
-        $data = length $content ? $self->$orig($content, $options)
-                                : $content;
-
+        $data = $self->$orig($content, $options);
         $self->execute_hook( 'engine.serializer.after', $data );
     } catch {
         $self->log_cb->( core => "Failed to serialize the request: $_" );
@@ -53,10 +54,12 @@ around serialize => sub {
 around deserialize => sub {
     my ( $orig, $self, $content, $options ) = @_;
 
+    $content && length $content > 0
+        or return $content;
+
     my $data;
     try {
-        $data = length $content ? $self->$orig($content, $options)
-                                : $content;
+        $data = $self->$orig($content, $options);
     } catch {
         $self->log_cb->( core => "Failed to deserialize the request: $_" );
     };
