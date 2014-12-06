@@ -218,7 +218,7 @@ look by default for your config files, templates and static content.
 It is typically set by C<use Dancer2> to use the same directory as your
 script.
 
-=head3 public (directory)
+=head3 public_dir (directory)
 
 This is the directory, where static files are stored. Any existing file in
 that directory will be served as a static file, before matching any route.
