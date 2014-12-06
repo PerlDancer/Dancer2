@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Do not try to deserialize empty content.
+      (Lennart Hengstmengel, Sawyer X)
+    * Do not call serialization hooks when no serialization took place.
+      (Sawyer X)
+
     [ ENHANCEMENTS ]
     * Add cpanfile when scaffolding a new app.
       (Dávid Kovács, Sawyer X)
