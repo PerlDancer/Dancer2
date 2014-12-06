@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Add cpanfile when scaffolding a new app.
+      (Dávid Kovács, Sawyer X)
+
 0.155004  2014-12-04 11:51:23+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
