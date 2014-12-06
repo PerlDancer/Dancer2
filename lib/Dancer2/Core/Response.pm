@@ -54,12 +54,8 @@ has status => (
 );
 
 has content => (
-    is      => 'rw',
-    isa     => Str,
-    coerce  => sub {
-        my $value = shift;
-        return "$value";
-    },
+    is        => 'rw',
+    isa       => Str,
     predicate => 'has_content',
     clearer   => 'clear_content',
 );

@@ -78,9 +78,9 @@ sub run_test {
       'http://localhost:5000/foo/bar?baz=baz';
 
     is $req->uri_for('/bar'), 'http://localhost:5000/foo/bar';
-    ok $req->uri_for('/bar')->isa('URI'), 'uri_for returns a URI';
-    ok $req->uri_for( '/bar', undef, 1 )->isa('URI'),
-      'uri_for returns a URI (with $dont_escape)';
+    is $req->uri_for( '/bar', undef, 1 ),
+       'http://localhost:5000/foo/bar',
+       'uri_for returns a URI (with $dont_escape)';
 
     is $req->request_uri, '/foo/bar/baz';
     is $req->path_info,   '/bar/baz';

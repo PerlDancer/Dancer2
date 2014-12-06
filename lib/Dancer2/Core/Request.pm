@@ -382,7 +382,9 @@ sub uri_for {
 
     $uri->query_form($params) if $params;
 
-    return $dont_escape ? uri_unescape( $uri->canonical ) : $uri->canonical;
+    return $dont_escape
+           ? uri_unescape( ${ $uri->canonical } )
+           : ${ $uri->canonical };
 }
 
 sub params {

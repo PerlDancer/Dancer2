@@ -3,6 +3,10 @@
     [ ENHANCEMENTS ]
     * Add cpanfile when scaffolding a new app.
       (Dávid Kovács, Sawyer X)
+    * Response "content" attribute no longer stringifies. This should help
+      reduce warnings, odd debugging problems, etc. (Sawyer X)
+    * DSL "uri_for" no longer returns URI object. Instead just the URI.
+      (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #777: Fix doc for mentioning public dir.
