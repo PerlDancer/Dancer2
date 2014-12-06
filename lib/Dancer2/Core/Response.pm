@@ -65,7 +65,8 @@ around content => sub {
     my $self = shift;
 
     if ( @_ && $self->has_serializer ) {
-        $_[0] = $self->serialize($_[0]);
+        my $content = $self->serialize( shift );
+        unshift @_, defined $content ? $content : '';
         $self->is_encoded(1); # All serializers return byte strings
     }
 

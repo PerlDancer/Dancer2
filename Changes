@@ -5,6 +5,8 @@
       (Lennart Hengstmengel, Sawyer X)
     * Do not call serialization hooks when no serialization took place.
       (Sawyer X)
+    * Be more cautious on undef output from serializer.
+      (Daniel Böhmer, Sawyer X)
 
     [ ENHANCEMENTS ]
     * Add cpanfile when scaffolding a new app.
