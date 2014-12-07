@@ -468,20 +468,90 @@ This is the same as specifying
 
 in your module. dsl_class defaults to L<Dancer2::Core::DSL> if not specified
 
-=head2 DANCER_CONFDIR and DANCER_ENVDIR
+=head2 Environment variables
 
-It's possible to set the configuration directory and environment directory
-using this two environment variables. Setting B<DANCER_CONFDIR> will have
-the same effect as doing
+=head3 DANCER_CONFDIR
 
-    set confdir => '/path/to/confdir'
+Sets the configuration directory.
 
-and setting B<DANCER_ENVDIR> will be similar to:
+This correlates to the C<confdir> config option.
 
-    set envdir => '/path/to/environments'
+=head3 DANCER_ENVDIR
+
+Sets the environment directory.
+
+This correlates to the C<envdir> config option.
+
+=head3 PLACK_ENV
+
+Sets the given environment. This can be overridden by
+C<DANCER_ENVIRONMENT>.
+
+=head3 DANCER_ENVIRONMENT
+
+Sets the given environment. This takes higher precedence over
+C<PLACK_ENV>.
+
+If neither C<PLACK_ENV> or C<DANCER_ENVIRONMENT> is set, the environment
+defaults to B<development>.
+
+=head3 DANCER_APPHANDLER
+
+The C<DANCER_APPHANDLER> configuration controls what the C<dance> keyword
+does.
+
+If is set to C<PSGI> (which will automatically be set if C<PLACK_ENV> is
+set), C<dance> will return the PSGI application coderef.
+
+Otherwise (which is the default is - C<Standalone>), it runs the Plack
+standalone server with the application.
+
+=head3 DANCER_PORT
+
+Sets the port which will be used by the development server (if not run
+by L<plackup>).
+
+=head3 DANCER_SERVER
+
+Sets the host the development server will be used by the development
+server (if not run by L<plackup>).
+
+B<Note>: this might change in the future.
+
+=head3 DANCER_STARTUP_INFO
+
+Controls whether to display start up info.
+
+=head3 DANCER_NO_SERVER_TOKENS
+
+Controls whether to display the server tokens.
+
+=head3 DANCER_PUBLIC
+
+Sets the public directory location.
+
+=head3 DANCER_TRACES
+
+Sets the tracing flag which sets L<Carp>'s C<$Verbose> flag.
+
+=head3 DANCER_VIEWS
+
+Sets the views (templates) directory.
+
+=head3 DANCER_LOGGER
+
+Sets the logger engine.
+
+=head3 DANCER_CHARSET
+
+Sets the default charset.
+
+=head3 DANCER_CONTENT_TYPE
+
+Sets the default content type.
+
+If not set, defaults to B<text/html>.
 
 =head1 SEE ALSO
 
 L<Dancer2>
-
-=cut
