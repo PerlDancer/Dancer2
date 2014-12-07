@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.156000  2014-12-07 18:04:14+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * Do not try to deserialize empty content.
       (Lennart Hengstmengel, Sawyer X)
