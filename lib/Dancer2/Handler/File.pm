@@ -82,14 +82,8 @@ sub code {
             $path =~ s/^\Q$prefix\E//;
         }
 
-        my @tokens =
-          File::Spec->splitdir( join '',
-            ( File::Spec->splitpath($path) )[ 1, 2 ] );
-        if ( grep $_ eq '..', @tokens ) {
-            return $self->standard_response( $app, 403 );
-        }
-
-        my $file_path = path( $self->public_dir, @tokens );
+        my $file_path = $self->merge_paths( $path, $self->public_dir );
+        return $self->standard_response( $app, 403 ) if !defined $file_path;
 
         if ( !-f $file_path ) {
             $app->response->has_passed(1);
@@ -133,6 +127,24 @@ sub code {
         $self->execute_hook( 'handler.file.after_render', $app->response );
         return ( $app->request->method eq 'GET' ) ? $content : '';
     };
+}
+
+sub merge_paths {
+    my ( undef, $path, $public_dir ) = @_;
+
+    my ( $volume, $dirs, $file ) = File::Spec->splitpath( $path );
+    my @tokens = File::Spec->splitdir( "$dirs$file" );
+    my $updir = File::Spec->updir;
+    return if grep $_ eq $updir, @tokens;
+
+    my ( $pub_vol, $pub_dirs, $pub_file ) = File::Spec->splitpath( $public_dir );
+    my @pub_tokens = File::Spec->splitdir( "$pub_dirs$pub_file" );
+    return if length $volume and length $pub_vol and $volume ne $pub_vol;
+
+    my @final_vol = ( length $pub_vol ? $pub_vol : length $volume ? $volume : () );
+    my @file_path = ( @final_vol, @pub_tokens, @tokens );
+    my $file_path = path( @file_path );
+    return $file_path;
 }
 
 1;
