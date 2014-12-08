@@ -307,7 +307,6 @@ sub BUILD {
       HTTP::Body->new( $self->content_type || '', $self->content_length );
     $self->{_http_body}->cleanup(1);
 
-    $self->data;      # Deserialize body
     $self->_params(); # Decode query and body prams
     $self->_build_uploads();
 }

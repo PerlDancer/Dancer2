@@ -63,8 +63,8 @@ sub serialize {
 sub deserialize {
     my ( $self, $content ) = @_;
 
-    # The right content type should already be set
-    my $format = $formats->{$self->content_type};
+    # Look for valid format in the headers
+    my $format = $self->_get_content_type();
 
     $format and return $serializer->{$format}{'from'}->( $self, $content );
 
