@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Documentations suggested serializers aren't consistent. We fixed it
+      so we make sure docs reflect that. (Sawyer X)
+
 0.156000  2014-12-07 18:04:14+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
