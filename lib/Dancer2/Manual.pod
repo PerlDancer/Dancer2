@@ -570,9 +570,7 @@ Here is an example of a route handler that will return a HashRef
         }
     };
 
-As soon as the content is not a scalar - and a serializer is set, which is
-not the case by default - Dancer2 renders the response via the current
-serializer.
+Dancer2 will render the response via the current serializer.
 
 Hence, with the JSON serializer set, the route handler above would result in
 a content like the following:
