@@ -6,7 +6,7 @@ use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => ( default => sub {'application/json'} );
+has '+content_type' => (default => 1);    # to satify 'required'
 
 my $formats = {
     'text/x-yaml'        => 'YAML',
@@ -63,8 +63,8 @@ sub serialize {
 sub deserialize {
     my ( $self, $content ) = @_;
 
-    # The right content type should already be set
-    my $format = $formats->{$self->content_type};
+    # Look for valid format in the headers
+    my $format = $self->_get_content_type();
 
     $format and return $serializer->{$format}{'from'}->( $self, $content );
 
@@ -86,7 +86,17 @@ sub _get_content_type {
         }
     }
 
-    # If none if found, return undef.
+    # If no header found, try default.
+    my $content_type = 'application/json';    # TODO make this a config option
+
+    # Try to serialize.
+    if (exists $formats->{$content_type}) {
+        $self->set_content_type($content_type);
+        return $formats->{$content_type};
+    }
+
+    # Fallback: plaintext without serialization.
+    $self->set_content_type('text/plain');
     return;
 }
 
