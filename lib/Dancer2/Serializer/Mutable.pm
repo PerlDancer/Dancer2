@@ -49,7 +49,7 @@ sub serialize {
     my ( $self, $entity ) = @_;
 
     # Look for valid format in the headers
-    my $format = $self->_get_content_type();
+    my $format = $self->_get_content_type(qw<accept content_type>);
 
     # Match format with a serializer and return
     $format and return $serializer->{$format}{'to'}->(
@@ -64,7 +64,7 @@ sub deserialize {
     my ( $self, $content ) = @_;
 
     # Look for valid format in the headers
-    my $format = $self->_get_content_type();
+    my $format = $self->_get_content_type(qw<content_type accept>);
 
     $format and return $serializer->{$format}{'from'}->( $self, $content );
 
@@ -72,17 +72,21 @@ sub deserialize {
 }
 
 sub _get_content_type {
-    my $self    = shift;
+    my ( $self, @methods ) = @_;
     $self->has_request or return;
 
     # Search for the first HTTP header variable which
     # specifies supported content.
-    foreach my $method ( qw<content_type accept> ) {
+    foreach my $method ( @methods ) {
         if ( my $value = $self->request->header($method) ) {
             if ( exists $formats->{$value} ) {
                 $self->set_content_type($value);
                 return $formats->{$value};
             }
+
+            # If header found but type not compatible, return undef.
+            $self->set_content_type('text/plain');
+            return;
         }
     }
 
@@ -129,8 +133,9 @@ Dancer2::Serializer::Mutable - Serialize and deserialize content using the appro
 =head1 DESCRIPTION
 
 This serializer will try find the best (de)serializer for a given request.
-For this, it will pick the first valid content type found from the following list
-and use its related serializer.
+
+For deserialization it will take the first value from the HTTP request headers
+in the following list and use the respective Serializer.
 
 =over
 
@@ -145,6 +150,12 @@ the B<accept> from the request headers
 =item
 
 The default is B<application/json>
+
+For deserialization the same HTTP request headers are tried but in the opposite
+order.
+
+It is possible to set a different Content-Type for deserialization than the
+Accept header for deserialization.
 
 =back
 
@@ -178,4 +189,5 @@ be one of YAML, Dumper, JSON.
 
 Returns the content-type that was used during the last C<serialize> /
 C<deserialize> call. B<WARNING> : you must call C<serialize> / C<deserialize>
-before calling C<content_type>. Otherwise the return value will be C<undef>.
+before calling C<content_type>. Otherwise the return value will be any value
+remaing from the last request.

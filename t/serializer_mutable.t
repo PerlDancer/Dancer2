@@ -1,10 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 41;
+use Test::More tests => 37;
 use Dancer2::Serializer::Mutable;
 use Plack::Test;
-use HTTP::Request::Common;
+use HTTP::Request;
 use Encode;
 use JSON;
 use YAML;
@@ -14,8 +14,7 @@ use YAML;
     use Dancer2;
     set serializer => 'Mutable';
 
-    get '/serialize'     => sub { +{ bar => 'baz' } };
-    post '/deserialize'  => sub {
+    post '/' => sub {
         return request->data &&
                ref request->data eq 'HASH' &&
                request->data->{bar} ? { bar => request->data->{bar} } : { ret => '?' };
@@ -47,41 +46,72 @@ test_psgi $app, sub {
             },
     };
 
-    {
-        for my $format (keys %$d) {
-            diag("Format: $format");
+    for my $output ( keys %$d ) {
+        my $o = $d->{$output};
 
-            my $s = $d->{$format};
+        for my $o_type ( @{$o->{types}} ) {
 
-            # Response with implicit call to the serializer
-            for my $content_type ( @{ $s->{types} } ) {
+            for my $header ( qw/Content-Type Accept/ ) {
 
-                for my $ct (qw/Content-Type Accept/) {
+                subtest "deserialize $output by $header: $o_type" => sub {
+                    my $res = $cb->( HTTP::Request->new(
+                        POST => '/',
+                        [
+                            $header => $o_type,
+                        ],
+                        $o->{value},
+                    ) );
 
-                    # Test getting the value serialized in the correct format
-                    my $res = $cb->( GET '/serialize', $ct => $content_type );
+                    is( $res->code                  => 200,     "Correct status" );
+                    is( $res->headers->content_type => $o_type, "Correct content-type response header" );
 
-                    is( $res->code, 200, "[/$format] Correct status" );
-                    is( $res->content, $s->{value}, "[/$format] Correct content" );
-                    is(
-                        $res->headers->content_type,
-                        $content_type,
-                        "[/$format] Correct content-type headers",
-                    );
+                    my $content = $res->content;
+                    $content =~ s/\s//g;
+                    is( $content => $o->{last_val}, "Correct content");
+                  };
+            }
+
+            for my $input ( keys %$d ) {
+                my $i = $d->{$input};
+
+                for my $i_type (@{$i->{types}}) {
+
+                    subtest "deserialize from $i_type, serialize to $o_type" => sub {
+                        my $res = $cb->( HTTP::Request->new(
+                            POST => '/',
+                            [
+                                'Accept'       => $o_type,
+                                'Content-Type' => $i_type,
+                            ],
+                            $i->{value},
+                        ) );
+
+                        is( $res->code                  => 200,     "Correct status" );
+                        is( $res->headers->content_type => $o_type, "Correct content-type response header" );
+
+                        my $content = $res->content;
+                        $content =~ s/\s//g;
+                        is( $content => $o->{last_val}, "Correct content" );
+                    };
                 }
+            } #/ for my $input
+        } #/ for my $o_type
+    } #/ for my $output
 
-                # Test sending the value serialized in the correct format
-                # needs to be de-serialized and returned
-                my $req = $cb->( POST '/deserialize',
-                                 'Content-Type' => $content_type,
-                                 content        => $s->{value} );
+    subtest "default to JSON" => sub {
+        my $res = $cb->( HTTP::Request->new(
+            POST => '/',
+            [
+                # no headers
+            ],
+            $d->{json}{value},
+        ) );
 
-                my $content = $req->content;
-                $content =~ s/\s//g;
-                is( $req->code, 200, "[/$format] Correct status" );
-                is( $content, $s->{last_val}, "[/$format] Correct content" );
-            } #/ for my $content_type
-        } #/ for my $format
-    }
-
-}
+        is( $res->code => 200, "Correct status" );
+        ok(
+            scalar grep( { $res->headers->content_type eq $_ } @{$d->{json}{types}} ),
+            "Any correct content-type header"
+        );
+        is( $res->content => $d->{json}{last_val}, "Correct content" );
+    };
+  }
