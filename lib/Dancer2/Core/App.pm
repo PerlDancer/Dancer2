@@ -531,6 +531,7 @@ sub _build_default_config {
         logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
         views          => ( $ENV{DANCER_VIEWS}
                             || path( $self->config_location, 'views' ) ),
+        environment    => $self->environment,
         appdir         => $self->location,
         public_dir     => $public,
         static_handler => ( -d $public ),
