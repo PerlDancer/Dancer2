@@ -15,6 +15,32 @@ __END__
 This document covers some changes that users will need to be aware of
 while upgrading from L<Dancer> (version 1) to L<Dancer2>.
 
+=head2 Launcher script bin/app.pl
+
+The default launcher script C<bin/app.pl> in L<Dancer> looked like this:
+
+    #!/usr/bin/env perl
+    use Dancer;
+    use MyApp;
+    dance;
+
+In L<Dancer2> it looks like this:
+
+    #!/usr/bin/env perl
+
+    use FindBin;
+    use lib "$FindBin::Bin/../lib";
+
+    use MyApp;
+    MyApp->dance;
+
+So you need to remove the C<use Dancer;> part, replace the C<dance;> command
+by C<MyApp->dance;> (where MyApp is the name of your application), and add
+the following 2 lines:
+
+    use FindBin;
+    use lib "$FindBin::Bin/../lib";
+
 =head2 Apps
 
 1. In L<Dancer2>, each module is a B<separate application> with its own
