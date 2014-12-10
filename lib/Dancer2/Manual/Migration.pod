@@ -260,6 +260,53 @@ more sensible, and Plack-compatible) form as C<no_server_tokens>.
 
 C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
 
+=head3 engines
+
+If you want to use Template::Toolkit instead of the built-in simple templating
+engine you used to enable the following line in the config.yml file.
+
+    template: "template_toolkit"
+
+That was enough to get started. The start_tag and end_tag it used were the same as in
+the simple template <% and %> respectively.
+
+If you wanted to further customize the Template::Toolkit you could also enable or add
+the following:
+
+    engines:
+      template_toolkit:
+         encoding:  'utf8'
+         start_tag: '[%'
+         end_tag:   '%]'
+
+In Dancer 2 you can also enable Template::Toolkit with the same configuration option:
+
+    template: "template_toolkit"
+
+But the default start_tag and end_tag are now [% and %], so if you used the default in Dancer 1
+now you will have to explicitly change the start_tag and end_tag values.
+The configuration also got an extral level of depth. Under the C<engine> key there is a C<template>
+key and the C<template_toolkit> key comes below that. As in this example:
+
+    engines:
+      template:
+        template_toolkit:
+          start_tag: '<%'
+          end_tag:   '%>'
+
+In a nutshell, if you used to have
+
+    template: "template_toolkit"
+
+You need to replace it with
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          start_tag: '<%'
+          end_tag:   '%>'
+
 =head2 Keywords
 
 =head3 load
