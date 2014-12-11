@@ -173,6 +173,11 @@ Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
 plugins. Note that although we try to keep this list up to date we
 expect plugin authors to tell us about new modules.
 
+=item * Dancer2 Migration guide
+
+L<Dancer2::Manual::Migration> provides the most up-to-date instruction on
+how to convert a Dancer (1) based application to Dancer2.
+
 =back
 
 =func my $runner=runner();
