@@ -2,6 +2,7 @@
 
     [ ENHANCEMENT ]
     * GH #810: strict && warnings in the app.pl. (Sawyer X)
+    * Use to_app keyword in skeleton. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #802: Remove indication of warnings configuration option
