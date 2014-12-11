@@ -7,6 +7,8 @@
     [ DOCUMENTATION ]
     * GH #802: Remove indication of warnings configuration option
       and add explanation in migration document. (Sawyer X)
+    * GH #807: Update migration document with more session data,
+      changes to app.pl, and Template::Toolkit configuration. (Gabor Szabo)
 
 0.156001  2014-12-08 23:03:43+01:00 Europe/Amsterdam
 
