@@ -1603,6 +1603,10 @@ You can call it as a method on the class or as a DSL:
 
     my $app = to_app;
 
+There is a
+L<Dancer Advent Calendar article|http://advent.perldancer.org/2014/9> covering
+this keyword and its usage further.
+
 =head2 psgi_app
 
 Provides the same functionality as C<to_app> but uses the deprecated
