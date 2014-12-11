@@ -28,18 +28,26 @@ In L<Dancer2> it looks like this:
 
     #!/usr/bin/env perl
 
+    use strict;
+    use warnings;
     use FindBin;
     use lib "$FindBin::Bin/../lib";
 
     use MyApp;
-    MyApp->dance;
+    MyApp->to_app;
 
 So you need to remove the C<use Dancer;> part, replace the C<dance;> command
-by C<MyApp->dance;> (where MyApp is the name of your application), and add
-the following 2 lines:
+by C<< MyApp->to_app; >> (where MyApp is the name of your application), and
+add the following lines:
 
+    use strict;
+    use warnings;
     use FindBin;
     use lib "$FindBin::Bin/../lib";
+
+There is a L<Dancer Advent Calendar|http://advent.perldancer.org> article
+L<< covering the C<to_app> keyword|http://advent.perldancer.org/2014/9 >>
+and its usage.
 
 =head2 Apps
 
