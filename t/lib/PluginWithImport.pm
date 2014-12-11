@@ -1,6 +1,5 @@
 package t::lib::PluginWithImport;
-
-#ABSTRACT: a plugin that implement its own import method
+# ABSTRACT: a plugin that implement its own import method
 
 =head1 DESCRIPTION
 

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 41;
+use Test::More tests => 39;
 
 use_ok('Dancer2::Core::Runner');
 
@@ -143,26 +143,6 @@ note 'Startup info';
         $runner->config->{'startup_info'},
         0,
         'Successfully set startup_info using DANCER_STARTUP_INFO',
-    );
-}
-
-note 'Warnings';
-{
-    my $runner = Dancer2::Core::Runner->new();
-    is(
-        $runner->config->{'warnings'},
-        0,
-        'Default warnings',
-    );
-}
-
-{
-    local $ENV{DANCER_WARNINGS} = 1;
-    my $runner = Dancer2::Core::Runner->new();
-    is(
-        $runner->config->{'warnings'},
-        1,
-        'Successfully set warnings using DANCER_WARNINGS',
     );
 }
 
