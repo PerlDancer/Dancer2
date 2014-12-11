@@ -1,16 +1,13 @@
 package Dancer2::Core::Role::SessionFactory::File;
-#ABSTRACT: Role for file-based session factories
+# ABSTRACT: Role for file-based session factories
 
-use strict;
-use warnings;
+use Moo::Role;
+with 'Dancer2::Core::Role::SessionFactory';
+
 use Carp 'croak';
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw(path set_file_mode);
 use Fcntl ':flock';
-
-use Moo::Role;
-
-with 'Dancer2::Core::Role::SessionFactory';
 
 #--------------------------------------------------------------------------#
 # Required by classes consuming this role

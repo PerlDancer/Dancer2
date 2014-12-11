@@ -1,8 +1,9 @@
 package Dancer2::Core::Role::SessionFactory;
-#ABSTRACT: Role for session factories
+# ABSTRACT: Role for session factories
 
-use strict;
-use warnings;
+use Moo::Role;
+with 'Dancer2::Core::Role::Engine';
+
 use Carp 'croak';
 use Class::Load 'try_load_class';
 use Dancer2::Core::Session;
@@ -10,9 +11,6 @@ use Dancer2::Core::Types;
 use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
-
-use Moo::Role;
-with 'Dancer2::Core::Role::Engine';
 
 sub supported_hooks {
     qw/

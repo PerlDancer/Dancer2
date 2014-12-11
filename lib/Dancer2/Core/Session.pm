@@ -1,9 +1,6 @@
 package Dancer2::Core::Session;
+# ABSTRACT: class to represent any session object
 
-#ABSTRACT: class to represent any session object
-
-use strict;
-use warnings;
 use Moo;
 use Dancer2::Core::Types;
 use Dancer2::Core::Time;

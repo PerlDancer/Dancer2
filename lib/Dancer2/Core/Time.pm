@@ -1,5 +1,5 @@
 package Dancer2::Core::Time;
-#ABSTRACT: class to handle common helpers for time manipulations
+# ABSTRACT: class to handle common helpers for time manipulations
 
 use Moo;
 

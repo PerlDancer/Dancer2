@@ -1,9 +1,5 @@
-# ABSTRACT: Dancer2's route handler
-
 package Dancer2::Core::Route;
-
-use strict;
-use warnings;
+# ABSTRACT: Dancer2's route handler
 
 use Moo;
 use Dancer2::Core::Types;

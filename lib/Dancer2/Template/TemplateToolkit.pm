@@ -2,10 +2,8 @@
 
 package Dancer2::Template::TemplateToolkit;
 
-use strict;
-use warnings;
-use Carp qw/croak/;
 use Moo;
+use Carp qw/croak/;
 use Dancer2::Core::Types;
 use Template;
 

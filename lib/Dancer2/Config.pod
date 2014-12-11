@@ -272,10 +272,6 @@ versions and the environment (or "dancefloor").
 
 Conforms to the environment variable C<DANCER_STARTUP_INFO>.
 
-=head3 warnings (boolean)
-
-If set to true, tells Dancer2 to consider all warnings as blocking errors.
-
 =head3 traces (boolean)
 
 If set to true, Dancer2 will display full stack traces when a warning or a
