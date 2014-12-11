@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * GH #810: strict && warnings in the app.pl. (Sawyer X)
+
 0.156001  2014-12-08 23:03:43+01:00 Europe/Amsterdam
 
     [ DOCUMENTATION ]
