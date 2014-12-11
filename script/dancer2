@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # PODNAME: dancer2
 # ABSTRACT: Dancer2 command line interface
 
