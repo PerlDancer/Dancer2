@@ -1,16 +1,9 @@
 use strict;
 use warnings;
 use Test::More;
-
-use File::Temp 0.22;
-use YAML;
-
-use LWP::UserAgent;
-
-eval "use LWP::Protocol::PSGI";
-plan skip_all => "LWP::Protocol::PSGI is needed for this test" if $@;
-
-my @engines = qw(Simple);
+use Plack::Test;
+use HTTP::Cookies;
+use HTTP::Request::Common;
 
 my @hooks_to_test = qw(
   engine.session.before_retrieve
@@ -25,143 +18,137 @@ my @hooks_to_test = qw(
   engine.session.before_flush
   engine.session.after_flush
 );
-#we'll set a flag here when each hook is called. Then our test will then verify this
+
+# we'll set a flag here when each hook is called. Then our test will then verify this
 my $test_flags = {};
-my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
 
-#I need this to make sure it works with LWP::Protocol::PSGI See GH#447
-BEGIN {
-    $ENV{DANCER_APPHANDLER} = 'PSGI';
-}
-
-sub get_app_for_engine {
-    my $engine = shift;
+{
+    package App;
     use Dancer2;
 
-    #Possibly this doesn't seem to have a real effect. See GH#447
-    setting apphandler => 'PSGI';
-    setting appdir => $tempdir;
-    setting(
-            engines => { #we'll need this for YAML sessions
-                session => { engine => {session_dir => 't/sessions'}}
-            }
+    set(
+        show_errors => 1,
+        envoriment  => 'production'
     );
-    set(show_errors  => 1,
-        startup_info => 0,
-        envoriment   => 'production'
-    );
-    setting(session => $engine);
+
+    setting( session => 'Simple' );
 
     for my $hook (@hooks_to_test) {
         hook $hook => sub {
-         $test_flags->{$hook} ||= 0;
-         $test_flags->{$hook}++;
+            $test_flags->{$hook} ||= 0;
+            $test_flags->{$hook}++;
         }
     }
 
     get '/set_session' => sub {
-       session foo => 'bar'; #setting causes a session flush
-       return "ok";
+        session foo => 'bar'; #setting causes a session flush
+        return "ok";
     };
+
     get '/get_session' => sub {
-      is session->read('foo'), 'bar', "Got the right session back";
-      return "ok";
+        ::is session->read('foo'), 'bar', "Got the right session back";
+        return "ok";
     };
+
     get '/destroy_session' => sub {
-      app->destroy_session;
-      return "ok";
+        app->destroy_session;
+        return "ok";
     };
 
     #setup each hook again and test whether they return the correct type
     #there is unfortunately quite some duplication here.
     hook 'engine.session.before_create' => sub {
-       my ($response) = @_;
-       is ref($response), 'Dancer2::Core::Session',
-                           'Correct response type returned in before_create';
+        my ($response) = @_;
+        ::isa_ok( $response, 'Dancer2::Core::Session' );
     };
+
     hook 'engine.session.after_create' => sub {
-       my ($response) = @_;
-       is ref($response), 'Dancer2::Core::Session',
-                            'Correct response type returned in after_create';
+        my ($response) = @_;
+        ::isa_ok( $response, 'Dancer2::Core::Session' );
     };
+
     hook 'engine.session.after_retrieve' => sub {
-       my ($response) = @_;
-       is ref($response), 'Dancer2::Core::Session',
-                            'Correct response type returned in after_retrieve';
+        my ($response) = @_;
+        ::isa_ok( $response, 'Dancer2::Core::Session' );
     };
-    #this returns dancer app. We'll register it with LWP::Protocol::PSGI
-    dance;
 }
 
-foreach my $engine (@engines) {
-    note "Testing against $engine engine";
+my $test = Plack::Test->create( App->to_app );
+my $jar  = HTTP::Cookies->new;
+my $url  = "http://localhost";
 
-    $test_flags = {};
+is_deeply( $test_flags, {}, 'Make sure flag hash is clear' );
 
-    #This will hijack lwp requests to localhost:3000 and send them to our dancer app
-    LWP::Protocol::PSGI->register(get_app_for_engine($engine)); #if I set to hijack a particular <host:port> the connection is refused.
+subtest set_session => sub {
+    my $res = $test->request( GET "$url/set_session" );
+    is $res->content, "ok", "set_session ran ok";
+    $jar->extract_cookies($res);
+};
 
-    my $ua = LWP::UserAgent->new;
-    $ua->cookie_jar({file => "$tempdir/.cookies.$engine.txt"});
+# we verify whether the hooks were called correctly.
+subtest 'verify hooks for session create and session flush' => sub {
+    is $test_flags->{'engine.session.before_create'}, 1, "session.before_create called";
+    is $test_flags->{'engine.session.after_create'}, 1, "session.after_create called";
+    is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush called";
+    is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush called";
 
-    my $r = $ua->get("http://localhost:3000/set_session");
-    is $r->content, "ok", "set_session ran ok";
+    is $test_flags->{'engine.session.before_retrieve'}, undef, "session.before_retrieve not called";
+    is $test_flags->{'engine.session.after_retrieve'}, undef, "session.after_retrieve not called";
+    is $test_flags->{'engine.session.before_destroy'}, undef, "session.before_destroy not called";
+    is $test_flags->{'engine.session.after_destroy'}, undef, "session.after_destroy not called";
+};
 
-    #we verify whether the hooks were called correctly.
-    subtest 'verify hooks for session create and session flush' => sub {
-        is $test_flags->{'engine.session.before_create'}, 1, "session.before_create called";
-        is $test_flags->{'engine.session.after_create'}, 1, "session.after_create called";
-        is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush called";
-        is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush called";
+subtest 'verify Handler::File (static content) does not retrieve session' => sub {
+    my $req = GET "$url/file.txt";
+    $jar->add_cookie_header($req);
+    my $res = $test->request($req);
+    $jar->extract_cookies($res);
 
-        is $test_flags->{'engine.session.before_retrieve'}, undef, "session.before_retrieve not called";
-        is $test_flags->{'engine.session.after_retrieve'}, undef, "session.after_retrieve not called";
-        is $test_flags->{'engine.session.before_destroy'}, undef, "session.before_destroy not called";
-        is $test_flags->{'engine.session.after_destroy'}, undef, "session.after_destroy not called";
-    };
+    # These should not change from previous subtest
+    is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
+    is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
+    is $test_flags->{'engine.session.before_retrieve'}, undef, "session.before_retrieve not called";
+    is $test_flags->{'engine.session.after_retrieve'}, undef, "session.after_retrieve not called";
+};
 
-    subtest 'verify Handler::File (static content) does not retrieve session' => sub {
-        my $r = $ua->get("http://localhost:3000/file.txt");
+subtest get_session => sub {
+    my $req = GET "$url/get_session";
+    $jar->add_cookie_header($req);
+    my $res = $test->request($req);
+    is $res->content, "ok", "get_session ran ok";
+    $jar->extract_cookies($res);
+};
 
-        # These should not change from previous subtest
-        is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
-        is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
-        is $test_flags->{'engine.session.before_retrieve'}, undef, "session.before_retrieve not called";
-        is $test_flags->{'engine.session.after_retrieve'}, undef, "session.after_retrieve not called";
-    };
+subtest 'verify hooks for session retrieve' => sub {
+    is $test_flags->{'engine.session.before_retrieve'}, 1, "session.before_retrieve called";
+    is $test_flags->{'engine.session.after_retrieve'}, 1, "session.after_retrieve called";
 
-    $r = $ua->get("http://localhost:3000/get_session");
-    is $r->content, "ok", "get_session ran ok";
+    is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
+    is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
+    is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush not called";
+    is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush not called";
+    is $test_flags->{'engine.session.before_destroy'}, undef, "session.before_destroy not called";
+    is $test_flags->{'engine.session.after_destroy'}, undef, "session.after_destroy not called";
+};
 
-    subtest 'verify hooks for session retrieve' => sub {
-        is $test_flags->{'engine.session.before_retrieve'}, 1, "session.before_retrieve called";
-        is $test_flags->{'engine.session.after_retrieve'}, 1, "session.after_retrieve called";
+subtest destroy_session => sub {
+    my $req = GET "$url/destroy_session";
+    $jar->add_cookie_header($req);
+    my $res = $test->request($req);
+    is $res->content, "ok", "destroy_session ran ok";
+};
 
-        is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
-        is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
-        is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush not called";
-        is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush not called";
-        is $test_flags->{'engine.session.before_destroy'}, undef, "session.before_destroy not called";
-        is $test_flags->{'engine.session.after_destroy'}, undef, "session.after_destroy not called";
-    };
+subtest 'verify session destroy hooks' => sub {
+    is $test_flags->{'engine.session.before_destroy'}, 1, "session.before_destroy called";
+    is $test_flags->{'engine.session.after_destroy'}, 1, "session.after_destroy called";
+    #not sure if before and after retrieve should be called when the session is destroyed. But this happens.
+    is $test_flags->{'engine.session.before_retrieve'}, 2, "session.before_retrieve called";
+    is $test_flags->{'engine.session.after_retrieve'}, 2, "session.after_retrieve called";
 
-    $r = $ua->get("http://localhost:3000/destroy_session");
-    is $r->content, "ok", "destroy_session ran ok";
-
-    subtest 'verify session destroy hooks' => sub {
-        is $test_flags->{'engine.session.before_destroy'}, 1, "session.before_destroy called";
-        is $test_flags->{'engine.session.after_destroy'}, 1, "session.after_destroy called";
-        #not sure if before and after retrieve should be called when the session is destroyed. But this happens.
-        is $test_flags->{'engine.session.before_retrieve'}, 2, "session.before_retrieve called";
-        is $test_flags->{'engine.session.after_retrieve'}, 2, "session.after_retrieve called";
-
-        is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
-        is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
-        is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush not called";
-        is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush not called";
-    };
-
-    File::Temp::cleanup();
-}
+    is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
+    is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
+    is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush not called";
+    is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush not called";
+};
 
 done_testing;

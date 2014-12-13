@@ -1,180 +1,169 @@
 use strict;
 use warnings;
 use Test::More;
+use Plack::Test;
+use HTTP::Request::Common;
+use HTTP::Cookies;
 
-use YAML;
-use Test::TCP 1.13;
-use File::Temp 0.22;
-use LWP::UserAgent;
-use HTTP::Date qw/str2time/;
-use File::Spec;
+{
+    package App;
+    use Dancer2;
 
-sub extract_cookie {
-    my ($res) = @_;
-    my @cookies = $res->header('set-cookie');
-    for my $c (@cookies) {
-        next unless $c =~ /dancer\.session/;
-        my @parts = split /;\s+/, $c;
-        my %hash =
-          map { my ( $k, $v ) = split /\s*=\s*/; $v ||= 1; ( lc($k), $v ) }
-          @parts;
-        $hash{expires} = str2time( $hash{expires} )
-          if $hash{expires};
-        return \%hash;
-    }
-    return;
+    set session     => 'Simple';
+    set show_errors => 1;
+
+    get '/no_session_data' => sub {
+        return "session not modified";
+    };
+
+    get '/set_session/*' => sub {
+        my ($name) = splat;
+        session name => $name;
+    };
+
+    get '/read_session' => sub {
+        my $name = session('name') || '';
+        "name='$name'";
+    };
+
+    get '/destroy_session' => sub {
+        my $name = session('name') || '';
+        app->destroy_session;
+        return "destroyed='$name'";
+    };
+
+    get '/churn_session' => sub {
+        app->destroy_session;
+        session name => 'damian';
+        return "churned";
+    };
 }
 
-my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
+my $url  = 'http://localhost';
+my $jar  = HTTP::Cookies->new();
+my $test = Plack::Test->create( App->to_app );
 
-my @engines = qw(YAML Simple);
+subtest 'No cookie set if session not referenced' => sub {
+    my $res = $test->request( GET "$url/no_session_data" );
+    ok $res->is_success, "/no_session_data"
+      or diag explain $res;
 
-if ( $ENV{DANCER_TEST_COOKIE} ) {
-    push @engines, "cookie";
-    setting( session_cookie_key => "secret/foo*@!" );
-}
+    $jar->extract_cookies($res);
+    ok( !$jar->as_string, 'No cookie set' );
+};
 
-foreach my $engine (@engines) {
+subtest 'No empty session created if session read attempted' => sub {
+    my $res = $test->request( GET "$url/read_session" );
+    ok $res->is_success, "/read_session";
 
-    note "Testing engine $engine";
-    Test::TCP::test_tcp(
-        client => sub {
-            my $port = shift;
+    $jar->extract_cookies($res);
+    ok( !$jar->as_string, 'No cookie set' );
+};
 
-            my $ua = LWP::UserAgent->new;
-            $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
+my $sid1;
+subtest 'Set value into session' => sub {
+    my $res = $test->request( GET "$url/set_session/larry" );
+    ok $res->is_success, "/set_session/larry";
 
-            # no session cookie set if session not referenced
-            my $res = $ua->get("http://127.0.0.1:$port/no_session_data");
-            ok $res->is_success, "/no_session_data"
-              or diag explain $res;
-            my $cookie = extract_cookie($res);
-            ok !$cookie, "no cookie set"
-              or diag explain $cookie;
+    $jar->extract_cookies($res);
+    ok( $jar->as_string, 'Cookie set' );
 
-            # no empty session created if session read attempted
-            $res = $ua->get("http://127.0.0.1:$port/read_session");
-            ok $res->is_success, "/read_session";
-            $cookie = extract_cookie($res);
-            ok !$cookie, "no cookie set"
-              or diag explain $cookie;
+    # extract SID
+    $jar->scan( sub { $sid1 = $_[2] } );
+    ok( $sid1, 'Got SID from cookie' );
+};
 
-            # set value into session
-            $res = $ua->get("http://127.0.0.1:$port/set_session/larry");
-            ok $res->is_success, "/set_session/larry";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            my $sid1 = $cookie->{"dancer.session"};
+subtest 'Read value back' => sub {
+    # read value back
+    my $req = GET "$url/read_session";
+    $jar->add_cookie_header($req);
+    my $res = $test->request($req);
+    ok $res->is_success, "/read_session";
 
-            # read value back
-            $res = $ua->get("http://127.0.0.1:$port/read_session");
-            ok $res->is_success, "/read_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            like $res->content, qr/name='larry'/, "session value looks good";
+    $jar->clear;
+    ok( !$jar->as_string, 'Jar cleared' );
 
-            # session cookie should persist even if we don't touch sessions
-            $res = $ua->get("http://127.0.0.1:$port/no_session_data");
-            ok $res->is_success, "/no_session_data";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
+    $jar->extract_cookies($res);
+    ok( $jar->as_string, 'session cookie set again' );
+    like $res->content, qr/name='larry'/, "session value looks good";
+};
 
-            # destroy session and check that cookies expiration is set
-            $res = $ua->get("http://127.0.0.1:$port/destroy_session");
-            ok $res->is_success, "/destroy_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            is $cookie->{"dancer.session"}, $sid1, "correct cookie expired";
-            ok $cookie->{expires} < time, "session cookie is expired";
+subtest 'Session cookie persists even if we do not touch sessions' => sub {
+    my $req = GET "$url/no_session_data";
+    $jar->add_cookie_header($req);
 
-            # shouldn't be sent session cookie after session destruction
-            $res = $ua->get("http://127.0.0.1:$port/no_session_data");
-            ok $res->is_success, "/no_session_data";
-            $cookie = extract_cookie($res);
-            ok !$cookie, "no cookie set"
-              or diag explain $cookie;
+    my $res = $test->request($req);
+    ok $res->is_success, "/no_session_data";
 
-            # set value into session again
-            $res = $ua->get("http://127.0.0.1:$port/set_session/curly");
-            ok $res->is_success, "/set_session/larry";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            my $sid2 = $cookie->{"dancer.session"};
-            isnt $sid2, $sid1, "New session has different ID";
+    $jar->clear;
+    ok( !$jar->as_string, 'Jar cleared' );
 
-            # destroy and create a session in one request
-            $res = $ua->get("http://127.0.0.1:$port/churn_session");
-            ok $res->is_success, "/churn_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            my $sid3 = $cookie->{"dancer.session"};
-            isnt $sid3, $sid2, "Changed session has different ID";
+    $jar->extract_cookies($res);
+    ok( $jar->as_string, 'session cookie set again' );
+};
 
-            # read value back
-            $res = $ua->get("http://127.0.0.1:$port/read_session");
-            ok $res->is_success, "/read_session";
-            $cookie = extract_cookie($res);
-            ok $cookie, "session cookie set"
-              or diag explain $cookie;
-            like $res->content, qr/name='damian'/, "session value looks good";
+subtest 'Destroy session and check that cookies expiration is set' => sub {
+    my $req = GET "$url/destroy_session";
+    $jar->add_cookie_header($req);
 
-            File::Temp::cleanup();
-        },
-        server => sub {
-            my $port = shift;
+    my $res = $test->request($req);
+    ok $res->is_success, "/destroy_session";
 
-            use Dancer2;
+    ok( $jar->as_string, 'We have a cookie before reading response' );
+    $jar->extract_cookies($res);
+    ok( ! $jar->as_string, 'Cookie was removed from jar' );
+};
 
-            get '/no_session_data' => sub {
-                return "session not modified";
-            };
+subtest 'Session cookie not sent after session destruction' => sub {
+    my $req = GET "$url/no_session_data";
+    $jar->add_cookie_header($req);
 
-            get '/set_session/*' => sub {
-                my ($name) = splat;
-                session name => $name;
-            };
+    my $res = $test->request($req);
+    ok $res->is_success, "/no_session_data";
 
-            get '/read_session' => sub {
-                my $name = session('name') || '';
-                "name='$name'";
-            };
+    ok( !$jar->as_string, 'Jar is empty' );
+    $jar->extract_cookies($res);
+    ok( !$jar->as_string, 'Jar still empty (no new session cookie)' );
+};
 
-            get '/destroy_session' => sub {
-                my $name = session('name') || '';
-                app->destroy_session;
-                return "destroyed='$name'";
-            };
+my $sid2;
+subtest 'Set value into session again' => sub {
+    my $res = $test->request( GET "$url/set_session/curly" );
+    ok $res->is_success, "/set_session/larry";
 
-            get '/churn_session' => sub {
-                app->destroy_session;
-                session name => 'damian';
-                return "churned";
-            };
+    $jar->extract_cookies($res);
+    ok( $jar->as_string, 'session cookie set' );
 
-            setting appdir => $tempdir;
-            setting(
-                engines => {
-                    session => { $engine => { session_dir => 't/sessions' } }
-                }
-            );
-            setting( session => $engine );
+    # extract SID
+    $jar->scan( sub { $sid2 = $_[2] } );
+    isnt $sid2, $sid1, "New session has different ID";
+};
 
-            set(show_errors  => 1,
-                startup_info => 0,
-                environment  => 'production',
-                port         => $port
-            );
+subtest 'Destroy and create a session in one request' => sub {
+    my $req = GET "$url/churn_session";
+    $jar->add_cookie_header($req);
 
-            # we're overiding a RO attribute only for this test!
-            Dancer2->runner->{'port'} = $port;
-            start;
-        },
-    );
-}
+    my $res = $test->request($req);
+    ok $res->is_success, "/churn_session";
+
+    $jar->extract_cookies($res);
+    ok( $jar->as_string, 'session cookie set' );
+
+    my $sid3;
+    $jar->scan( sub { $sid3 = $_[2] } );
+    isnt $sid3, $sid2, "Changed session has different ID";
+};
+
+subtest 'Read value back' => sub {
+    my $req = GET "$url/read_session";
+    $jar->add_cookie_header($req);
+
+    my $res = $test->request($req);
+    ok $res->is_success, "/read_session";
+
+    $jar->extract_cookies($res);
+    ok( $jar->as_string, "session cookie set" );
+    like $res->content, qr/name='damian'/, "session value looks good";
+};
+
 done_testing;
