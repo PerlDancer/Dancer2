@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Test::More tests => 2;
 use Plack::Test;
 use HTTP::Request::Common;

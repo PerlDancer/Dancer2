@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use File::Spec;
 use File::Basename;
 use Test::More tests => 11;

@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Test::More tests => 3;
 use Plack::Response;
 use Dancer2::Core::Response;

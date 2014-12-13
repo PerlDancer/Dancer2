@@ -1,5 +1,3 @@
-#!/usr/bin/env perl
-
 # define a sample DSL extension that will be used in the rest of these test
 # This extends Dancer2::Core::DSL but provides an extra keyword
 #
