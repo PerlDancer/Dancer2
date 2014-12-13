@@ -1098,6 +1098,10 @@ DISPATCH:
         my $http_method = lc $request->method;
         my $path_info   =    $request->path_info;
 
+        # Add request to app and engines
+        $self->set_request($request);
+        $_->set_request( $request ) for $self->defined_engines;
+
         $self->log( core => "looking for $http_method $path_info" );
 
         ROUTE:
@@ -1110,10 +1114,6 @@ DISPATCH:
                 or next ROUTE;
 
             $request->_set_route_params($match);
-
-            # Add request to app and engines
-            $self->set_request($request);
-            $_->set_request( $request ) for $self->defined_engines;
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
