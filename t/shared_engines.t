@@ -1,54 +1,50 @@
 use strict;
 use warnings;
-
-use File::Spec;
-use File::Temp 0.22;
-use LWP::UserAgent;
 use Test::More;
-use Test::TCP 1.13;
-use YAML;
+use Plack::Test;
+use HTTP::Cookies;
+use HTTP::Request::Common;
 
-my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
+{
+    package App;
 
-Test::TCP::test_tcp(
-    client => sub {
-        my $port = shift;
+    # call stuff before next use() statement
+    BEGIN {
+        use Dancer2;
+        set session => 'Simple';
+        engine('session')->{'__marker__'} = 1;
+    }
 
-        my $ua = LWP::UserAgent->new;
-        $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
+    use t::lib::Foo with => { session => engine('session') };
 
-        my $res = $ua->get("http://127.0.0.1:$port/main");
-        like $res->content, qr{42}, "session is set in main";
+    get '/main' => sub {
+        session( 'test' => 42 );
+    };
+}
 
-        $res = $ua->get("http://127.0.0.1:$port/in_foo");
-        like $res->content, qr{42}, "session is set in foo";
+my $jar = HTTP::Cookies->new;
+my $url = 'http://localhost';
 
-        my $engine = t::lib::Foo->dsl->engine('session');
-        is $engine->{__marker__}, 1,
-          "the session engine in subapp is the same";
+{
+    my $test = Plack::Test->create( App->to_app );
+    my $res  = $test->request( GET "$url/main" );
+    like $res->content, qr{42}, "session is set in main";
+    $jar->extract_cookies($res);
 
-        File::Temp::cleanup();
-    },
-    server => sub {
-        my $port = shift;
+    ok( $jar->as_string, 'Got cookie' );
+}
 
-        BEGIN {
-            use Dancer2;
-            set session => 'Simple';
-            engine('session')->{'__marker__'} = 1;
-        }
+{
+    my $test = Plack::Test->create( t::lib::Foo->to_app );
+    my $req  = GET "$url/in_foo";
+    $jar->add_cookie_header($req);
 
-        use t::lib::Foo with => { session => engine('session') };
+    my $res = $test->request($req);
+    like $res->content, qr{42}, "session is set in foo";
+}
 
-        get '/main' => sub {
-            session( 'test' => 42 );
-        };
-
-        setting appdir => $tempdir;
-        # we're overiding a RO attribute only for this test!
-        Dancer2->runner->{'port'} = $port;
-        start;
-    },
-);
+my $engine = t::lib::Foo->dsl->engine('session');
+is $engine->{__marker__}, 1,
+  "the session engine in subapp is the same";
 
 done_testing;
