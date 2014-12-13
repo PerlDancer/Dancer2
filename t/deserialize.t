@@ -196,6 +196,7 @@ note 'Check serialization errors'; {
         is( scalar @{$errors}, 1, 'One error caught' );
 
         my $msg = $errors->[0];
+        delete $msg->{'formatted'};
         isa_ok( $msg, 'HASH' );
         is( scalar keys %{$msg}, 2, 'Two items in the error' );
 

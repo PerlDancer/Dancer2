@@ -80,7 +80,7 @@ subtest 'Unsuccessful' => sub {
 
         my $msg = $errors->[0];
         isa_ok( $msg, 'HASH' );
-        is( scalar keys %{$msg}, 2, 'Two items in the error' );
+        is( scalar keys %{$msg}, 3, 'Two items in the error' );
 
         is( $msg->{'level'}, 'core', 'Correct level' );
         like(
@@ -110,7 +110,7 @@ subtest 'Unsuccessful' => sub {
 
         my $msg = $errors->[0];
         isa_ok( $msg, 'HASH' );
-        is( scalar keys %{$msg}, 2, 'Two items in the error' );
+        is( scalar keys %{$msg}, 3, 'Two items in the error' );
 
         is( $msg->{'level'}, 'core', 'Correct level' );
         like(

@@ -30,8 +30,9 @@ has auto_encoding_charset => (
 );
 
 has app_name => (
-    is  => 'ro',
-    isa => Str,
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'-'},
 );
 
 has log_format => (
@@ -87,7 +88,7 @@ sub format_message {
             );
         }
         elsif ( $type eq 'h' ) {
-            return $request->header( $block ) || '-';
+            return ( $request && $request->header($block) ) || '-';
         }
         else {
             Carp::carp("{$block}$type not supported");
@@ -116,8 +117,10 @@ sub format_message {
         m => sub {$message},
         f => sub { $stack[1] || '-' },
         l => sub { $stack[2] || '-' },
-        h => sub { $request->remote_host || $request->address || '-' },
-        i => sub { $request->id || '-' },
+        h => sub {
+            ( $request && $request->remote_host || $request->address ) || '-'
+        },
+        i => sub { ( $request && $request->id ) || '-' },
     };
 
     my $char_mapping = sub {

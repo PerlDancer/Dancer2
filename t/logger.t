@@ -44,9 +44,19 @@ subtest 'log level and capture' => sub {
     debug "I like pie.";
 
     my $trap = dancer_app->engine('logger')->trapper;
-    is_deeply $trap->read,
-      [ { level => "warning", message => "Danger!  Warning!" },
-        { level => "info",    message => "Tango, Foxtrot" },
+    my $msg  = $trap->read;
+    delete $msg->[0]{'formatted'};
+    delete $msg->[1]{'formatted'};
+    is_deeply $msg,
+      [
+        {
+            level => "warning",
+            message => "Danger!  Warning!",
+        },
+        {
+            level => "info",
+            message => "Tango, Foxtrot",
+        },
       ];
 
     # each call to read cleans the trap
