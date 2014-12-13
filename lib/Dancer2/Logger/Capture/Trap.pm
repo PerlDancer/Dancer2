@@ -11,8 +11,12 @@ has storage => (
 );
 
 sub store {
-    my ( $self, $level, $message ) = @_;
-    push @{ $self->storage }, { level => $level, message => $message };
+    my ( $self, $level, $message, $fmt_string ) = @_;
+    push @{ $self->storage }, {
+        level     => $level,
+        message   => $message,
+        formatted => $fmt_string,
+    };
 }
 
 sub read {
