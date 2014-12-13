@@ -9,6 +9,8 @@
     * GH #810: strict && warnings in the app.pl. (Sawyer X)
     * Use to_app keyword in skeleton. (Sawyer X)
     * GH #801: Under production, server tokens are disabled. (Sawyer X)
+    * GH #588: Remove LWP::UserAgent in favor of HTTP::Tiny. (Sawyer X)
+    * Remove all usages of Test::TCP in favor of Plack::Test. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #802: Remove indication of warnings configuration option
