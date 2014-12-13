@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Test::More tests => 39;
 
 use_ok('Dancer2::Core::Runner');

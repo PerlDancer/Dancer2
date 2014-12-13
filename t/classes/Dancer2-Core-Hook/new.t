@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Test::More tests => 12;
 use Test::Fatal;
 

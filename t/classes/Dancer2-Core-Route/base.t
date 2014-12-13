@@ -1,7 +1,5 @@
-#!/usr/bin/perl
 use strict;
 use warnings;
-
 use Test::More;
 use Test::Fatal;
 use Dancer2::Core::Route;

@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Test::More tests => 4;
 use Plack::Test;
 use Plack::Request;

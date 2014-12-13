@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Dancer2::Core;
 use Test::More tests => 4;
 

@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Fatal;
-
 use Dancer2::Core::Request;
 use Dancer2::Core::Route;
 

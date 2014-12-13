@@ -1,8 +1,5 @@
-#!perl
-
 use strict;
 use warnings;
-
 use Test::More tests => 32;
 use Test::Fatal;
 use Scalar::Util 'refaddr';
