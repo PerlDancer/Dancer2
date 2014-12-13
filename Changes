@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #799: Set current request earlier so log formats using requests
+      will work. (Sawyer X)
+
     [ ENHANCEMENT ]
     * GH #810: strict && warnings in the app.pl. (Sawyer X)
     * Use to_app keyword in skeleton. (Sawyer X)
