@@ -5,22 +5,6 @@ use Plack::Test;
 use HTTP::Request::Common;
 use HTTP::Cookies;
 
-#sub extract_cookie {
-#    my ($res) = @_;
-#    my @cookies = $res->header('set-cookie');
-#    for my $c (@cookies) {
-#        next unless $c =~ /dancer\.session/;
-#        my @parts = split /;\s+/, $c;
-#        my %hash =
-#          map { my ( $k, $v ) = split /\s*=\s*/; $v ||= 1; ( lc($k), $v ) }
-#          @parts;
-#        $hash{expires} = str2time( $hash{expires} )
-#          if $hash{expires};
-#        return \%hash;
-#    }
-#    return;
-#}
-
 {
     package App;
     use Dancer2;
@@ -54,11 +38,6 @@ use HTTP::Cookies;
         return "churned";
     };
 }
-
-#if ( $ENV{DANCER_TEST_COOKIE} ) {
-#    push @engines, "cookie";
-#    setting( session_cookie_key => "secret/foo*@!" );
-#}
 
 my $url  = 'http://localhost';
 my $jar  = HTTP::Cookies->new();
