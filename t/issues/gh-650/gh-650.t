@@ -31,12 +31,12 @@ test_psgi $app, sub {
     my $res;
 
     $res = $cb->(GET '/foo');
-    is $res->code, 200;
-    like $res->content, qr/development/;
+    is $res->code, 200, 'Successful request';
+    like $res->content, qr/development/, 'Correct content';
 
     $res = $cb->(GET '/bar');
-    is $res->code, 200;
-    like $res->content, qr/development/;
+    is $res->code, 200, 'Successful request';
+    like $res->content, qr/development/, 'Correct content';
 };
 
 done_testing();
