@@ -115,6 +115,36 @@ Thus, these modules can be used for speed improvement provided:
 
 =back
 
+=head2 Request
+
+The request object (L<Dancer2::Core::Request>) is now deferring much of
+its code to L<Plack::Request> to be consistent with the known interface
+to L<PSGI> requests.
+
+Currently the following attributes pass directly to L<Plack::Request>:
+
+C<address>, C<remote_host>, C<protocol>, C<port>, C<method>, C<user>,
+C<request_uri>, C<script_name>, C<content_length>, C<content_type>,
+C<content_encoding>, C<referer>, and C<user_agent>.
+
+If previous attributes returned I<undef> for no value beforehand, they
+will return whatever L<Plack::Request> defines now, which just might be
+an empty list.
+
+For example:
+
+    my %data = (
+        referer    => request->referer,
+        user_agent => request->user_agent,
+    );
+
+should be replaced by:
+
+    my %data = (
+        referer    => request->referer    || '',
+        user_agent => request->user_agent || '',
+    );
+
 =head2 Plugins: plugin_setting
 
 C<plugin_setting> returns the configuration of the plugin. It can only be
@@ -226,10 +256,33 @@ server and reads the configuration options in your command line utilities.
 
 =head2 Engines
 
-Engines now receive a logger that consumes L<Dancer2::Core::Role::Logger> in
-order to log errors. The attribute is called C<logger>.
+=over 4
+
+=item * Engines receive a logging callback
+
+Engines now receive a logging callback named C<log_cb>. Engines can use it
+to log anything in run-time, without having to worry about what logging
+engine is used.
+
+This is provided as a callback because the logger might be changed in
+run-time and we want engines to be able to always reach the current one
+without having a reference back to the core application object.
 
 The logger engine doesn't have the attribute since it is the logger itself.
+
+=item * Engines handle encoding consistently
+
+All engines are now expected to handle encoding on their own. User code
+is expected to be in internal Perl representation.
+
+Therefore, all serializers, for example, should deserialize to the Perl
+representation. Templates, in turn, encode to UTF-8 if requested by the
+user, or by default.
+
+One side-effect of this is that C<from_yaml> will call L<YAML>'s C<Load>
+function with decoded input.
+
+=back
 
 =head3 Serializers
 
@@ -257,7 +310,7 @@ You can also use Dancer2 within a narrower scope:
 
     { use Dancer2 }
     use strict;
-    # no warnings
+    # warnings are not turned on
 
 However, having L<warnings> turned it is very recommended.
 

@@ -21,6 +21,8 @@
     * GH #806: Link in main docs to the migration document. (Gabor Szabo)
     * GH #807: Update migration document with more session data,
       changes to app.pl, and Template::Toolkit configuration. (Gabor Szabo)
+    * GH #813: Update migration document with information on encoding and
+      usage of Plack::Request internally. (Gabor Szabo, Sawyer X)
 
 0.156001  2014-12-08 23:03:43+01:00 Europe/Amsterdam
 
