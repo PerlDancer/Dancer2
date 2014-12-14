@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.157000  2014-12-14 18:23:33+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #799: Set current request earlier so log formats using requests
       will work. (Sawyer X)
