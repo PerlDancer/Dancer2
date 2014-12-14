@@ -380,3 +380,37 @@ delete:
     my $session = session;
     $session->delete($key);
 
+=head3 from_yaml
+
+C<from_yaml> now converts UTF8 first, so if you used it earlier on strings that were already UTF8
+this will not work properly any more.
+
+One solution is to use the C<Load> function of the L<YAML> module. So instaed of
+
+   return from_yaml $read_from_file;
+
+write this:
+
+   return YAML::Load $read_from_file;
+
+=head3 request referer and user_agent
+
+The C<referer> and C<user_agent> methods of the L<Dancer2::Core::Request> object returned by the C<request> function,
+if not set, now return an empty list in list context. (They used to return a single C<undef> in list context if
+they did not have a real value. So when used in list context you might need to force scalar context on them using
+the C<scalar> function. For example
+
+  my %data = (
+      referer    => request->referer,
+      user_agent => request->user_agent,
+  )
+
+Should be replaced by
+
+
+  my %data = (
+      referer    => scalar(request->referer),
+      user_agent => scalar(request->user_agent),
+  )
+
+
