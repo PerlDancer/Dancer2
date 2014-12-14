@@ -270,6 +270,7 @@ sub deserialize {
     $body && length $body > 0
         or return;
 
+    $self->serializer->has_request || $self->serializer->set_request($self);
     my $data = $self->serializer->deserialize($self->body);
     return if !defined $data;
 
@@ -307,6 +308,7 @@ sub BUILD {
       HTTP::Body->new( $self->content_type || '', $self->content_length );
     $self->{_http_body}->cleanup(1);
 
+    $self->data;
     $self->_params(); # Decode query and body prams
     $self->_build_uploads();
 }
