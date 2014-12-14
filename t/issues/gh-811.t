@@ -8,6 +8,15 @@ use HTTP::Request::Common;
 {
     package App;
     use Dancer2;
+
+    set engines => {
+        session => {
+            Cookie => { secret_key => 'you cannot buy happiness' }
+        }
+    };
+
+    set session => 'Cookie';
+
     get '/set' => sub {
         session foo => 'bar';
         redirect '/get';
