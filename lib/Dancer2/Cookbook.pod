@@ -73,7 +73,7 @@ single command:
     + mywebapp/t/001_base.t
     + mywebapp/t/002_index_route.t
     + mywebapp/bin
-    + mywebapp/bin/app.pl
+    + mywebapp/bin/app.psgi
     + mywebapp/views
     + mywebapp/views/index.tt
     + mywebapp/views/layouts
@@ -839,7 +839,7 @@ webserver using L<HTTP::Server::PSGI>.
 
 Simply fire up your app:
 
-    $ perl bin/app.pl
+    $ plackup bin/app.psgi
     >> Listening on 0.0.0.0:3000
     == Entering the dance floor ...
 
@@ -855,7 +855,7 @@ To edit your files without the need to restart the webserver on each file
 change, simply start your Dancer2 app using L<plackup> and
 L<Plack::Loader::Shotgun>:
 
-    $ plackup -L Shotgun bin/app.pl
+    $ plackup -L Shotgun bin/app.psgi
     HTTP::Server::PSGI: Accepting connections at http://0:5000/
 
 Point your browser at it. Files can now be changed in your favorite editor
@@ -869,7 +869,7 @@ On Windows, Shotgun loader is known to cause huge memory leaks in a
 fork-emulation layer. If you are aware of this and still want to run the
 loader, please use the following command:
 
-    > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.pl
+    > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
     HTTP::Server::PSGI: Accepting connections at http://0:5000/
 
 =head2 CGI and Fast-CGI
@@ -1009,7 +1009,7 @@ This example configuration uses TCP/IP:
 
 Launch your application:
 
-    plackup -s FCGI --port 5000 bin/app.pl
+    plackup -s FCGI --port 5000 bin/app.psgi
 
 This example configuration uses a socket:
 
@@ -1026,7 +1026,7 @@ This example configuration uses a socket:
 
 Launch your application:
 
-    plackup -s FCGI --listen /tmp/fcgi.sock bin/app.pl
+    plackup -s FCGI --listen /tmp/fcgi.sock bin/app.psgi
 
 =head2 Plack middlewares
 
@@ -1098,8 +1098,8 @@ C<Corona> is a C<Coro> based web server.
 To start your application, just run plackup (see L<Plack> and specific
 servers above for all available options):
 
-   $ plackup bin/app.pl
-   $ plackup -E deployment -s Starman --workers=10 -p 5001 -a bin/app.pl
+   $ plackup bin/app.psgi
+   $ plackup -E deployment -s Starman --workers=10 -p 5001 -a bin/app.psgi
 
 As you can see, the scaffolded Perl script for your app can be used as a
 PSGI startup file.
@@ -1172,7 +1172,7 @@ following:
         <Location />
             SetHandler perl-script
             PerlResponseHandler Plack::Handler::Apache2
-            PerlSetVar psgi_app /websites/myapp.example.com/app.pl
+            PerlSetVar psgi_app /websites/myapp.example.com/app.psgi
         </Location>
 
         ErrorLog  /websites/myapp.example.com/logs/error_log
@@ -1212,7 +1212,7 @@ A basic PSGI service description (usually in C</etc/ubic/service/application>):
 
     __PACKAGE__->new(
         server => 'Starman',
-        app => '/path/to/your/application/app.pl',
+        app => '/path/to/your/application/app.psgi',
         port => 5000,
         user => 'www-data',
     );
@@ -1232,7 +1232,7 @@ A basic script to start an application: (in C</service/application/run>)
     export PERL5LIB='/path/to/your/application/lib'
 
     exec 2>&1 \
-    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.pl -p 5000
+    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.psgi -p 5000
 
 =head2 Running stand-alone behind a proxy / load balancer
 
@@ -1378,7 +1378,7 @@ You will need plackup to start a worker listening on a socket :
 
     cd YOUR_PROJECT_PATH
     sudo -u www plackup -E production -s Starman --workers=2 \
-        -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.pl
+        -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.psgi
 
 A good way to start this is to use C<daemontools> and place this line with
 all environments variables in the "run" file.

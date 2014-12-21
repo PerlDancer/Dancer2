@@ -15,16 +15,16 @@ __END__
 This document covers some changes that users will need to be aware of
 while upgrading from L<Dancer> (version 1) to L<Dancer2>.
 
-=head2 Launcher script bin/app.pl
+=head2 Launcher script
 
-The default launcher script C<bin/app.pl> in L<Dancer> looked like this:
+The default launcher script F<bin/app.pl> in L<Dancer> looked like this:
 
     #!/usr/bin/env perl
     use Dancer;
     use MyApp;
     dance;
 
-In L<Dancer2> it looks like this:
+In L<Dancer2> it is available as F<bin/app.psgi> and looks like this:
 
     #!/usr/bin/env perl
 

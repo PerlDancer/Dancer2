@@ -10,7 +10,7 @@ use Plack::Runner;
 set apphandler => 'PSGI';
 set environment => 'production';
 
-my $psgi = path($RealBin, '..', 'bin', 'app.pl');
+my $psgi = path($RealBin, '..', 'bin', 'app.psgi');
 die "Unable to read startup script: $psgi" unless -r $psgi;
 
 Plack::Runner->run($psgi);

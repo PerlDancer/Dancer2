@@ -78,7 +78,7 @@ Here is an application created with dancer2:
     $ dancer2 gen -a MyWeb::App
     + MyWeb-App
     + MyWeb-App/bin
-    + MyWeb-App/bin/app.pl
+    + MyWeb-App/bin/app.psgi
     + MyWeb-App/config.yml
     + MyWeb-App/environments
     + MyWeb-App/environments/development.yml
@@ -110,7 +110,7 @@ Here is an application created with dancer2:
 The application is ready to serve:
 
     $ cd MyWeb-App
-    $ ./bin/app.pl
+    $ plackup bin/app.psgi
     >> Listening on 127.0.0.1:3000
     == Entering the development dance floor ...
 
