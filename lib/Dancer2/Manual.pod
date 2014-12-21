@@ -41,7 +41,7 @@ Create a web application using the dancer script:
 
 And voilà! You can now run the web application:
 
-    bin/app.pl
+    plackup bin/app.psgi
 
 View the web application at:
 
@@ -50,7 +50,7 @@ View the web application at:
 Note that as Dancer2 supports the L<PSGI> specification, you can also use
 the C<plackup> tool (provided by L<Plack>) for launching the application:
 
-    plackup ./bin/app.pl -p 5000
+    plackup -p 5000 bin/app.psgi
 
 =head1 USAGE
 

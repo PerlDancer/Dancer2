@@ -137,7 +137,7 @@
 
                 <p>
                 Once you've made your changes, restart your standalone server
-                (bin/app.pl) and you're ready to test your web application.
+                (bin/app.psgi) and you're ready to test your web application.
                 </p>
             </li>
 
