@@ -41,7 +41,7 @@ is $app->environment, 'development';
 my $routes_regexps = $app->routes_regexps_for('get');
 is( scalar(@$routes_regexps), 4, "route regexps are OK" );
 
-for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
+for my $path ( '/', '/blog', '/mywebsite/', '/mywebsite/blog', ) {
     my $env = {
         REQUEST_METHOD => 'GET',
         PATH_INFO      => $path
@@ -50,7 +50,7 @@ for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
     my $expected = {
         '/'               => '/',
         '/blog'           => '/blog',
-        '/mywebsite'      => '/',
+        '/mywebsite/'     => '/',
         '/mywebsite/blog' => '/blog',
     };
 
@@ -71,7 +71,7 @@ $app->lexical_prefix(
         $app->add_route(
             method => 'get',
             regexp => '/',
-            code   => sub {'/foo'}
+            code   => sub {'/foo/'}
         );
 
         $app->add_route(
@@ -116,7 +116,7 @@ $app->lexical_prefix(
 );
 
 for
-  my $path ( '/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere' )
+  my $path ( '/foo/', '/foo/second', '/foo/bar/second', '/root', '/somewhere' )
 {
     my $env = {
         REQUEST_METHOD => 'GET',
