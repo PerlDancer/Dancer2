@@ -18,7 +18,7 @@ Dancer2 has been designed to be easy to work with - it's trivial to write a
 simple web app, but still has the power to work with larger projects. To
 start with, let's make an incredibly simple "Hello World" example:
 
-    #!/usr/bin/perl
+    #!/usr/bin/env perl
 
     use Dancer2;
 
