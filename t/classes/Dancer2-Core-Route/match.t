@@ -24,16 +24,20 @@ my @tests = (
 
     # prefix tests
     [   [ 'get', '/', sub {33}, '/forum' ],
-        '/forum',
-        [ { splat => [1] }, 33 ]
+        '/forum/',
+        [ {}, 33 ]
     ],
     [   [ 'get', '/', sub {33}, '/forum' ],
         '/forum/',
-        [ { splat => [1] }, 33 ]
+        [ {}, 33 ]
     ],
     [   [ 'get', '/mywebsite', sub {33}, '/forum' ],
         '/forum/mywebsite',
         [ {}, 33 ]
+    ],
+    [   [ 'get', '', sub {'concat'}, '/' ],
+        '/',
+        [ {}, 'concat' ]
     ],
 
     # splat test
@@ -68,7 +72,7 @@ my @tests = (
     ],
 );
 
-plan tests => 55;
+plan tests => 59;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
