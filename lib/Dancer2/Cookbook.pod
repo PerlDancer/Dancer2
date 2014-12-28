@@ -236,14 +236,14 @@ So, instead of having the following code:
 
 you can have
 
-    get '/user/:user' => sub {
-        template users, {...}
+    ajax '/user/:user' => sub {
+         to_xml({...}, RootName => undef);
     }
 
 and
 
-    ajax '/user/:user' => sub {
-         to_xml({...}, RootName => undef);
+    get '/user/:user' => sub {
+        template users, {...}
     }
 
 Because it's an Ajax query, you know you need to return XML content, so
