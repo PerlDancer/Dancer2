@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 32;
+use Test::More tests => 34;
 use Test::Fatal;
 use Scalar::Util 'refaddr';
 use Plack::Test;
@@ -147,7 +147,7 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
     cmp_ok(
         scalar @{$apps},
         '==',
-        11,
+        12,
         'Correct number of Apps created so far',
     );
 
@@ -162,6 +162,7 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
             App::GettingSelectiveDSL
             App::KeyPairOnly
             App::Main
+            App::NoStrictNoWarningsNoUTF8
             App::NotRecreatingRunner
             App::ScriptAllowed
             App::StrictAndWarningsAndUTF8
@@ -210,7 +211,8 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
 }
 
 {
-    package NoStrictNoWarningsNoUTF8;
+    package App::NoStrictNoWarningsNoUTF8;
+    use Dancer2;
     no strict;
     no warnings;
     no utf8;
@@ -234,6 +236,9 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
     };
 
     eval 'my $var; my $var;';
+
+    my $str = "щука";
+    ::isnt( length $str, 4, 'utf8 pragma not imported' );
 }
 
 {
@@ -258,5 +263,8 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
     );
 
     eval 'my $var; my $var;';
+
+    my $str = "щука";
+    ::is( length $str, 4, 'utf8 pragma imported' );
 }
 
