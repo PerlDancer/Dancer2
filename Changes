@@ -5,6 +5,10 @@
     * GH #622: Refactoring. (James Raspass)
     * GH #778: Avoid hard-coded static page location. (Dávid Kovács)
 
+    [ DOCUMENTATION ]
+    * GH #713: Change order of statements in Cookbook to not imply that
+      D2::P::Ajax::ajax() calls have priority. (Sawyer X)
+
 0.157001  2014-12-21 20:40:13+01:00 Europe/Amsterdam
 
     [ ENHANCEMENT ]
