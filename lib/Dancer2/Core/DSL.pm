@@ -165,12 +165,12 @@ sub prefix {
 
 sub halt { shift->app->halt }
 
-sub del     { shift->_route( [qw/delete  /], @_ ) }
-sub get     { shift->_route( [qw/get head/], @_ ) }
-sub options { shift->_route( [qw/options /], @_ ) }
-sub patch   { shift->_route( [qw/patch   /], @_ ) }
-sub post    { shift->_route( [qw/post    /], @_ ) }
-sub put     { shift->_route( [qw/put     /], @_ ) }
+sub del     { shift->_normalize_route( [qw/delete  /], @_ ) }
+sub get     { shift->_normalize_route( [qw/get head/], @_ ) }
+sub options { shift->_normalize_route( [qw/options /], @_ ) }
+sub patch   { shift->_normalize_route( [qw/patch   /], @_ ) }
+sub post    { shift->_normalize_route( [qw/post    /], @_ ) }
+sub put     { shift->_normalize_route( [qw/put     /], @_ ) }
 
 sub any {
     my $self = shift;
@@ -184,18 +184,21 @@ sub any {
         unshift @_, [qw/delete get head options patch post put/];
     }
 
-    $self->_route(@_);
+    $self->_normalize_route(@_);
 }
 
-sub _route {
+sub _normalize_route {
     my $app     = shift->app;
     my $methods = shift;
     my %args;
 
     # Options are optional, deduce their presence from arg length.
+    # @_ = ( REGEXP, OPTIONS, CODE )
+    # or
+    # @_ = ( REGEXP, CODE )
     @args{qw/regexp options code/} = @_ == 3 ? @_ : ( $_[0], {}, $_[1] );
 
-    $app->add_route( %args, method => $_ ) for @$methods;
+    $app->add_route( %args, method => $_ ) for @{$methods};
 }
 
 #
