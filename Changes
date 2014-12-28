@@ -4,6 +4,7 @@
     * GH #786: Update scripts' shebang to "/usr/bin/env perl" (Dávid Kovács)
     * GH #622: Refactoring. (James Raspass)
     * GH #778: Avoid hard-coded static page location. (Dávid Kovács)
+    * Speed up big uploads significantly. (Rick Myers)
 
     [ DOCUMENTATION ]
     * GH #713: Change order of statements in Cookbook to not imply that
