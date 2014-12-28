@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 32;
+use Test::More tests => 34;
 use Test::Fatal;
 use Scalar::Util 'refaddr';
 use Plack::Test;
@@ -234,6 +234,9 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
     };
 
     eval 'my $var; my $var;';
+
+    my $str = "щука";
+    ::isnt( length $str, 4, 'utf8 pragma not imported' );
 }
 
 {
@@ -258,5 +261,8 @@ is( refaddr( Dancer2->runner ), $runner_refaddr, 'Runner not recreated' );
     );
 
     eval 'my $var; my $var;';
+
+    my $str = "щука";
+    ::is( length $str, 4, 'utf8 pragma imported' );
 }
 
