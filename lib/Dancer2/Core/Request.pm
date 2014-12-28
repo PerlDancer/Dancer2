@@ -554,8 +554,8 @@ sub _read_to_end {
     if ( $content_length && $content_length > 0 ) {
         while ( my $buffer = $self->_read() ) {
             $self->{body} .= $buffer;
-            $self->{_http_body}->add($buffer);
         }
+        $self->{_http_body}->add( $self->{body} );
     }
 
     return $self->{body};
