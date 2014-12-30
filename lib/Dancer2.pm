@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use List::Util  'first';
 use Class::Load 'load_class';
+use Import::Into;
 use Dancer2::Core;
 use Dancer2::Core::App;
 use Dancer2::Core::Runner;
@@ -26,9 +27,7 @@ sub import {
     my ( $class,  @args   ) = @_;
     my ( $caller, $script ) = caller;
 
-    strict->import;
-    warnings->import;
-    utf8->import;
+    $_->import::into($caller) for qw(strict warnings utf8);
 
     my @final_args;
     foreach my $arg (@args) {

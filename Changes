@@ -5,6 +5,7 @@
     * GH #622: Refactoring. (James Raspass)
     * GH #778: Avoid hard-coded static page location. (Dávid Kovács)
     * Speed up big uploads significantly. (Rick Myers)
+    * GH #821: Use Import::Into to import pragmas (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #713: Change order of statements in Cookbook to not imply that
