@@ -1,12 +1,14 @@
 {{$NEXT}}
 
+    ** Happy new year! **
+
     [ ENHANCEMENT ]
-    * GH #786: Update scripts' shebang to "/usr/bin/env perl" (Dávid Kovács)
-    * GH #622: Refactoring. (James Raspass)
     * GH #778: Avoid hard-coded static page location. (Dávid Kovács)
     * Speed up big uploads significantly. (Rick Myers)
-    * GH #782, #821: Use Import::Into to import pragmas
-      (Russell Jenkins, Maxim Vuets)
+    * GH #821: Use Import::Into to import pragmas. (Russell Jenkins)
+    * GH #782: Fix utf8 pragma import. (Maxim Vuets)
+    * GH #786: Perlbrew fix. (Dávid Kovács)
+    * GH #622: Refactoring. (James Raspass)
 
     [ DOCUMENTATION ]
     * GH #713: Change order of statements in Cookbook to not imply that
