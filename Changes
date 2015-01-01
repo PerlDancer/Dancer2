@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+    ** Happy new year! **
+
     [ ENHANCEMENT ]
     * GH #778: Avoid hard-coded static page location. (Dávid Kovács)
     * Speed up big uploads significantly. (Rick Myers)
