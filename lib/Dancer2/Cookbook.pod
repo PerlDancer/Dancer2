@@ -211,16 +211,16 @@ view (e.g. C</foo/bar.tt> and render it with the default layout etc. if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
-=head2 Simplifying Ajax queries with the Ajax plugin
+=head2 Simplifying AJAX queries with the AJAX plugin
 
-As an Ajax query is just an HTTP query, it's similar to a GET or POST route.
+As an AJAX query is just an HTTP query, it's similar to a GET or POST route.
 You may ask yourself why you may want to use the C<ajax> keyword (from the
 L<Dancer2::Plugin::Ajax> plugin) instead of a simple C<get>.
 
 Let's say you have a path like C</user/:user> in your application. You may
 want to be able to serve this page with a layout and HTML content. But you
 may also want to be able to call this same url from a javascript query using
-Ajax.
+AJAX.
 
 So, instead of having the following code:
 
@@ -247,7 +247,7 @@ and
         template users => {...}
     }
 
-Because it's an Ajax query, you know you need to return XML content, so
+Because it's an AJAX query, you know you need to return XML content, so
 the content type of the response is set for you.
 
 =head2 Using the prefix feature to split your application
@@ -767,7 +767,7 @@ message and the caller information (file and line).
 
 =head3 Logging your own messages
 
-Just call  L<debug|Dancer2/debug>, L<info|Dancer2/info>,
+Just call L<debug|Dancer2/debug>, L<info|Dancer2/info>,
 L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
 
     debug "This is a debug message from my app.";
