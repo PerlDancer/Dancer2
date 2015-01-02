@@ -101,7 +101,7 @@ requests.
 
 =item L<Dancer2::Session::Cookie>
 
-A session factory for Dancer 2 that stores session state within a browser
+A session factory for Dancer2 that stores session state within a browser
 cookie.
 
 =back
