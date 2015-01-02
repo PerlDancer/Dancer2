@@ -8,7 +8,8 @@ package Dancer2::Cookbook;
 =head1 DESCRIPTION
 
 A quick-start guide with examples to get you up and running with the Dancer2
-web framework.
+web framework. This document will be twice as useful if you finish reading
+the manual (L<Dancer2::Manual>) first, but that is not required... :-)
 
 =head1 BEGINNER'S DANCE
 
@@ -127,7 +128,7 @@ requests.
 
 The L<params|Dancer2/params> keyword returns a hashref of request
 parameters; these will be parameters supplied on the query string within
-the path itself (with named placeholders) and, for HTTTP POST requests, the
+the path itself (with named placeholders) and, for HTTP POST requests, the
 content of the POST body.
 
 =head2 Named parameters in route path declarations
@@ -160,9 +161,9 @@ with the L<splat|Dancer2/splat> keyword:
         }
     };
 
-=head2 Before filters - processed before a request
+=head2 C<before> hooks - processed before a request
 
-A L<before|Dancer2/before> filter declares code which should be handled before
+A L<before|Dancer2/before> hook declares code which should be handled before
 a request is passed to the appropriate route.
 
     hook before => sub {
@@ -174,7 +175,7 @@ a request is passed to the appropriate route.
         params->{note};      # 'Hi there'
     };
 
-The above declares a before filter which uses C<forward> to do an internal
+The above declares a before hook which uses C<forward> to do an internal
 redirect to C</foo/oversee> with an additional parameter C<note>.
 
 See also the L<hook|Dancer2/hook> keyword.
@@ -210,16 +211,16 @@ view (e.g. C</foo/bar.tt> and render it with the default layout etc. if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
-=head2 Simplifying Ajax queries with the Ajax plugin
+=head2 Simplifying AJAX queries with the Ajax plugin
 
-As an Ajax query is just an HTTP query, it's similar to a GET or POST route.
+As an AJAX query is just an HTTP query, it's similar to a GET or POST route.
 You may ask yourself why you may want to use the C<ajax> keyword (from the
 L<Dancer2::Plugin::Ajax> plugin) instead of a simple C<get>.
 
 Let's say you have a path like C</user/:user> in your application. You may
 want to be able to serve this page with a layout and HTML content. But you
 may also want to be able to call this same url from a javascript query using
-Ajax.
+AJAX.
 
 So, instead of having the following code:
 
@@ -230,7 +231,7 @@ So, instead of having the following code:
               header('Cache-Control' =>  'no-store, no-cache, must-revalidate');
               to_xml({...})
          }else{
-             template users, {....}
+             template users => {...}
          }
     };
 
@@ -243,10 +244,10 @@ you can have
 and
 
     get '/user/:user' => sub {
-        template users, {...}
+        template users => {...}
     }
 
-Because it's an Ajax query, you know you need to return XML content, so
+Because it's an AJAX query, you know you need to return XML content, so
 the content type of the response is set for you.
 
 =head2 Using the prefix feature to split your application
@@ -376,7 +377,7 @@ When you're done with your session, you can destroy it:
 A common requirement is to check the user is logged in, and, if not, require
 them to log in before continuing.
 
-This can easily be handled with a before filter to check their session:
+This can easily be handled using a before hook to check their session:
 
     use Dancer2;
     set session => "Simple";
@@ -752,8 +753,8 @@ To enable logging to a file, add the following to your config file:
 
 Then you can choose which kind of messages you want to actually log:
 
-    log: 'core'      # will log debug, warnings, errors,
-                     # and messages from Dancer2 itself
+    log: 'core'      # will log debug, info, warnings, errors,
+                     #   and messages from Dancer2 itself
     log: 'debug'     # will log debug, info, warning and errors
     log: 'info'      # will log info, warning and errors
     log: 'warning'   # will log warning and errors
@@ -766,7 +767,7 @@ message and the caller information (file and line).
 
 =head3 Logging your own messages
 
-Just call  L<debug|Dancer2/debug>, L<info|Dancer2/info>,
+Just call L<debug|Dancer2/debug>, L<info|Dancer2/info>,
 L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
 
     debug "This is a debug message from my app.";
