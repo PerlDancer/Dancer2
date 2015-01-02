@@ -71,14 +71,14 @@ L<HTTP::Cookies> to store cookies and then retrieve them:
         my $res = $test->request( GET '/login', ... );
         ok( $res->is_success, 'Successful login' );
 
-        # extract cookies from request and store in jar
+        # extract cookies from the response and store in the jar
         $jar->extract_cookies($res);
     };
 
     subtest 'Check session' => sub {
         my $req = GET '/logout';
 
-        # add cookies to request object
+        # add cookies to the request
         $jar->add_cookie_header($req);
 
         my $res = $test->request($req);
