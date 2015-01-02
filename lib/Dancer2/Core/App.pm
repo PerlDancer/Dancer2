@@ -1077,6 +1077,7 @@ sub to_app {
             $psgi,
             path => sub { -f path( $self->config->{public_dir}, shift ) },
             root => $self->config->{public_dir},
+            content_type => sub { $self->mime_type->for_name(shift) },
         ) },
         condition => sub { $self->config->{static_handler} },
     );
