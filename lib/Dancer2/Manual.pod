@@ -1,9 +1,9 @@
 # ABSTRACT: A gentle introduction to Dancer2
 package Dancer2::Manual;
 
-=encoding utf8
-
 =pod
+
+=encoding utf8
 
 =head1 DESCRIPTION
 
@@ -363,7 +363,8 @@ template engine.
 
     hook after_template_render => sub {
         my $ref_content = shift;
-        my $content = ${ $ref_content };
+        my $content     = ${$ref_content};
+
         # do something with $content
         $ref_content = \$content;
     };
@@ -695,7 +696,7 @@ C<request>, and C<params> tokens. This allows you to insert per-page content
 into the HTML boilerplate, such as page titles, current-page tags for
 navigation... etc.
 
-Here is an example of a layout... F<views/layouts/main.tt>:
+For example, the layout F<views/layouts/main.tt>:
 
     <html>
         <head>[% page_title %]</head>
@@ -742,7 +743,8 @@ different location by setting the C<public> option:
     set public => path(dirname(__FILE__), 'static');
 
 Note that the public directory name is not included in the URL. A file
-F<./public/css/style.css> is made available as L<example.com/css/style.css>.
+F<./public/css/style.css> is made available as
+L<http://example.com/css/style.css>.
 
 =head3 Static File from a Route Handler
 
@@ -1087,7 +1089,8 @@ renders the response immediately:
     hook before => sub {
         if ($some_condition) {
             halt("Unauthorized");
-            # This code is not executed :
+
+            # this code is not executed
             do_stuff();
         }
     };
@@ -1216,7 +1219,8 @@ route. Hence, it's not necessary anymore to use C<return> with pass.
         if (...) {
             # we want to let the next matching route handler process this one
             pass(...);
-            # This code will be ignored
+
+            # this code will be ignored
             do_stuff();
         }
     };
@@ -1233,7 +1237,7 @@ Defines a route for HTTP B<PATCH> requests to the given URL:
 
 (C<PATCH> is a relatively new and not-yet-common HTTP verb, which is
 intended to work as a "partial-PUT", transferring just the changes; please
-see L<http://tools.ietf.org/html/rfc5789|RFC5789> for further details.)
+see L<RFC5789|http://tools.ietf.org/html/rfc5789> for further details.)
 
 =head2 path
 
@@ -1368,7 +1372,8 @@ with C<send_error>.
         if (...) {
             # Something bad happened, stop immediately!
             send_error(..);
-            # This code will be ignored
+
+            # this code will be ignored
             do_stuff();
         }
     };
@@ -1392,7 +1397,8 @@ with C<send_file>.
         if (...) {
             # OK, send her what she wants...
             send_file(...);
-            # This code will be ignored
+
+            # this code will be ignored
             do_stuff();
         }
     };

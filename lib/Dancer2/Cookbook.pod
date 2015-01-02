@@ -211,7 +211,7 @@ view (e.g. C</foo/bar.tt> and render it with the default layout etc. if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
-=head2 Simplifying AJAX queries with the AJAX plugin
+=head2 Simplifying AJAX queries with the Ajax plugin
 
 As an AJAX query is just an HTTP query, it's similar to a GET or POST route.
 You may ask yourself why you may want to use the C<ajax> keyword (from the
