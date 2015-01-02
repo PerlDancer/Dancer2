@@ -30,6 +30,7 @@ sub dsl_keywords {
         dancer_major_version => { is_global => 1 },
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
+        deserialize          => { is_global => 1 },
         dirname              => { is_global => 1 },
         dsl                  => { is_global => 1 },
         engine               => { is_global => 1 },
@@ -64,6 +65,7 @@ sub dsl_keywords {
         runner               => { is_global => 1 },
         send_error           => { is_global => 0 },
         send_file            => { is_global => 0 },
+        serialize            => { is_global => 1 },
         session              => { is_global => 0 },
         set                  => { is_global => 1 },
         setting              => { is_global => 1 },
@@ -320,6 +322,30 @@ sub to_dumper {
     shift; # remove first element
     require Dancer2::Serializer::Dumper;
     Dancer2::Serializer::Dumper::to_dumper(@_);
+}
+
+sub serialize {
+    my $self = shift;
+
+    my $serializer = $self->app->engine('serializer');
+
+    if ($serializer) {
+        return $serializer->serialize(@_);
+    } else {
+        carp 'Please set a serializer first!';
+    }
+}
+
+sub deserialize {
+    my $self = shift;
+
+    my $serializer = $self->app->engine('serializer');
+
+    if ($serializer) {
+        return $serializer->deserialize(@_);
+    } else {
+        carp 'Please set a serializer first!';
+    }
 }
 
 sub log { shift->app->log(@_) }
