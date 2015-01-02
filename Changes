@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * GH #XXXX: Use Plack::MIME by default, and MIME::Types when
+      available as failback (Alberto Simões)
+      
     [ DOCUMENTATION ]
     * GH #823: Cleanup Manual and Cookbook docs. (Omar M. Othman)
 
