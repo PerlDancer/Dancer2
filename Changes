@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
+      (Alberto Simões)
+
     [ DOCUMENTATION ]
     * GH #823: Cleanup Manual and Cookbook docs. (Omar M. Othman)
     * GH #828: Provide README.mkdn. (Nuno Carvalho)

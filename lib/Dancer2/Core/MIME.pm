@@ -4,8 +4,8 @@ package Dancer2::Core::MIME;
 
 use Moo;
 
-use MIME::Types;
-
+use Class::Load 'try_load_class';
+use Plack::MIME;
 use Dancer2::Core::Types;
 
 # Initialise MIME::Types at compile time, to ensure it's done before
@@ -14,15 +14,15 @@ use Dancer2::Core::Types;
 # as MIME::Types fails to load its mappings from the DATA handle. See
 # t/04_static_file/003_mime_types_reinit.t and GH#136.
 BEGIN {
-    MIME::Types->new( only_complete => 1 );
+    if ( try_load_class('MIME::Types') ) {
+        my $mime_types = MIME::Types->new(only_complete => 1);
+        Plack::MIME->set_fallback(
+            sub {
+                $mime_types->mimeTypeOf($_[0])
+            }
+        );
+    }
 }
-
-has mime_type => (
-    is      => 'ro',
-    isa     => InstanceOf ['MIME::Types'],
-    default => sub { MIME::Types->new( only_complete => 1 ) },
-    lazy    => 1,
-);
 
 has custom_types => (
     is      => 'ro',
@@ -70,9 +70,10 @@ sub name_or_type {
 
 sub for_name {
     my ( $self, $name ) = @_;
+
     return
          $self->custom_types->{ lc $name }
-      || $self->mime_type->mimeTypeOf( lc $name )
+      || Plack::MIME->mime_type( lc ".$name" )
       || $self->default;
 }
 
@@ -114,10 +115,6 @@ Dancer::MIME is a thin wrapper around L<MIME::Types> providing helpful methods
 for MIME handling.
 
 =head1 ATTRIBUTES
-
-=head2 mime_type
-
-The mime_type which is found with MIME::Types.
 
 =head2 custom_types
 
