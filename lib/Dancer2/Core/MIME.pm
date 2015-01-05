@@ -14,7 +14,7 @@ use Dancer2::Core::Types;
 # as MIME::Types fails to load its mappings from the DATA handle. See
 # t/04_static_file/003_mime_types_reinit.t and GH#136.
 BEGIN {
-    if (try_load_class 'MIME::Types') {
+    if ( try_load_class('MIME::Types') ) {
         my $mime_types = MIME::Types->new(only_complete => 1);
         Plack::MIME->set_fallback(
             sub {
@@ -73,7 +73,7 @@ sub for_name {
 
     return
          $self->custom_types->{ lc $name }
-      || Plack::MIME->mime_type( lc ".$name" ) # simulate a filename
+      || Plack::MIME->mime_type( lc ".$name" )
       || $self->default;
 }
 
