@@ -8,7 +8,7 @@ my $logger;
 {
     package App::ContentFail; ## no critic
     use Dancer2;
-    set show_errors => 1;
+    set show_stacktrace => 1;
     set logger      => 'Capture';
 
     $logger = app->engine('logger');

@@ -123,24 +123,24 @@ subtest 'Throwing an error with a response' => sub {
 
     my $err = eval { Dancer2::Core::Error->new(
         exception   => 'our exception',
-        show_errors => 1
+        show_stacktrace => 1
     )->throw($resp) };
       
     isa_ok($err, 'Dancer2::Core::Response', "Error->throw() accepts a response");
 };
 
-subtest 'Error with show_errors: 0' => sub {
+subtest 'Error with show_stacktrace: 0' => sub {
     my $err = Dancer2::Core::Error->new(
-        exception   => 'our exception',
-        show_errors => 0
+        exception       => 'our exception',
+        show_stacktrace => 0
     )->throw;
     unlike $err->content => qr/our exception/;
 };
 
-subtest 'Error with show_errors: 1' => sub {
+subtest 'Error with show_stacktrace: 1' => sub {
     my $err = Dancer2::Core::Error->new(
-        exception   => 'our exception',
-        show_errors => 1
+        exception       => 'our exception',
+        show_stacktrace => 1
     )->throw;
     like $err->content => qr/our exception/;
 };
@@ -176,8 +176,8 @@ subtest 'Error with exception object' => sub {
     local $@;
     eval { MyTestException->throw('a test exception object') };
     my $err = Dancer2::Core::Error->new(
-        exception   => $@,
-        show_errors => 1,
+        exception       => $@,
+        show_stacktrace => 1,
     )->throw;
 
     like $err->content, qr/a test exception object/, 'Error content contains exception message';
@@ -201,11 +201,11 @@ subtest 'Errors without server tokens' => sub {
     is( $r->header('server'), undef, "No server header when no_server_tokens => 1" );
 };
 
-subtest 'Errors with show_errors and circular references' => sub {
+subtest 'Errors with show_stacktrace and circular references' => sub {
     {
         package App::ShowErrorsCircRef;
         use Dancer2;
-        set show_errors           => 1;
+        set show_stacktrace           => 1;
         set something_with_config => {something => config};
         set password              => '===VERY-UNIQUE-STRING===';
         set innocent_thing        => '===VERY-INNOCENT-STRING===';

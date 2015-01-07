@@ -403,7 +403,7 @@ to use them.
 Sessions are configured with a corresponding L</Session engine> section, as
 shown below.
 
-=head3 show_errors (boolean)
+=head3 show_stacktrace (boolean)
 
 If set to true, Dancer2 will render a detailed debug screen whenever an
 error is caught. If set to false, Dancer2 will render the default error
@@ -412,7 +412,7 @@ by the C<error_template> setting.
 
 The error screen attempts to sanitise sensitive looking information
 (passwords / card numbers in the request, etc) but you still should not have
-show_errors enabled whilst in production, as there is still a risk of
+show_stacktrace enabled whilst in production, as there is still a risk of
 divulging details.
 
 =head3 error_template (template path)

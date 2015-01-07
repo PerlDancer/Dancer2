@@ -7,7 +7,7 @@ use HTTP::Request::Common;
 {
     package App;
     use Dancer2;
-    set show_errors => 1;
+    set show_stacktrace => 1;
 }
 
 my $test = Plack::Test->create( App->to_app );

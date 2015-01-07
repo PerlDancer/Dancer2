@@ -1,6 +1,6 @@
 main: 1
 charset: 'UTF-8'
-show_errors: 1
+show_stacktrace: 1
 
 application:
    feature_1: foo

@@ -104,7 +104,7 @@ In your C<config.yaml>:
         Baz : 0
 
 In your main route controller:
-    
+
     use Dancer2;
     use Module::Runtime 'require_module';
 

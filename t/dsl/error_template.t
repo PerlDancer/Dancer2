@@ -27,7 +27,7 @@ use Ref::Util qw<is_coderef>;
     package StandardError;
 
     use Dancer2;
-    set show_errors => 1;
+    set show_stacktrace => 1;
 
     get '/no_template' => sub {
         send_error "oopsie", 404;

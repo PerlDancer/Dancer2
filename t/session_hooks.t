@@ -30,8 +30,8 @@ my $test_flags = {};
     use Dancer2;
 
     set(
-        show_errors => 1,
-        envoriment  => 'production'
+        show_stacktrace => 1,
+        envoriment      => 'production'
     );
 
     setting( session => 'Simple' );
