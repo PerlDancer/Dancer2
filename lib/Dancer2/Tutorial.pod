@@ -257,7 +257,7 @@ more options than just the session engine we want to set.
   set 'template'     => 'template_toolkit';
   set 'logger'       => 'console';
   set 'log'          => 'debug';
-  set 'show_errors'  => 1;
+  set 'show_stacktrace'  => 1;
   set 'startup_info' => 1;
   set 'warnings'     => 1;
 
@@ -468,7 +468,7 @@ Here's the complete 'dancr.pl' script from start to finish.
  set 'template'     => 'template_toolkit';
  set 'logger'       => 'console';
  set 'log'          => 'debug';
- set 'show_errors'  => 1;
+ set 'show_stacktrace'  => 1;
  set 'startup_info' => 1;
  set 'warnings'     => 1;
  set 'username'     => 'admin';

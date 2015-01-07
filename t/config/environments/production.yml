@@ -1,2 +1,2 @@
-show_errors: 0
+show_stacktrace: 0
 logger: "console"
