@@ -37,7 +37,7 @@ human-readable session storage for the developer.
 This backend is intended to be used in development environments, when digging
 inside a session can be useful.
 
-This backend an perfectly be used in production environments, but two things
+This backend can perfectly be used in production environments, but two things
 should be kept in mind: The content of the session files is in plain text, and
 the session files should be purged by a CRON job.
 
