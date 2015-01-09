@@ -65,6 +65,6 @@ This module depends on L<YAML>.
 
 =head1 SEE ALSO
 
-See L<Dancer2::Session> for details about session usage in route handlers.
+See L<Dancer2::Core::Session> for details about session usage in route handlers.
 
 =cut
