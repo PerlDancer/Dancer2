@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #762: Delay app cleanup until errors are rendered. (Russell Jenkins)
+
     [ ENHANCEMENT ]
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
       (Alberto Simões)
