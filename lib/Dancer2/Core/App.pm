@@ -1198,9 +1198,8 @@ DISPATCH:
         last;
     }
 
-    $self->cleanup;
 
-    # make sure Core::Dispatcher recognizes this failure
+    # No response! ensure Core::Dispatcher recognizes this failure
     # so it can try the next Core::App
     # and set the created request so we don't create it again
     # (this is important so we don't ignore the previous body)
@@ -1209,7 +1208,10 @@ DISPATCH:
         Dancer2->runner->{'internal_request'} = $request;
     }
 
-    return $self->response_not_found($request);
+    # Render 404 response, cleanup, and return the response.
+    my $response = $self->response_not_found($request);
+    $self->cleanup;
+    return $response;
 }
 
 sub build_request {
