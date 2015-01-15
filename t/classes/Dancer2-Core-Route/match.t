@@ -101,7 +101,19 @@ for my $t (@tests) {
         );
         my $m = $r->match($request);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
-        is $r->execute, $expected->[1], "got expected result for '$path'";
+
+        {
+            package App; use Dancer2; ## no critic
+        }
+
+        use Dancer2::Core::App;
+        use Dancer2::Core::Response;
+        my $app = Dancer2::Core::App->new(
+            request  => $request,
+            response => Dancer2::Core::Response->new,
+        );
+
+        is $r->execute($app)->content, $expected->[1], "got expected result for '$path'";
 
         # failing request
         my $failing_request = Dancer2::Core::Request->new(
@@ -121,9 +133,13 @@ SKIP: {
     ## Regexp is parsed in compile time. So, eval with QUOTES to force to parse later.
     my $route_regex;
 
+    ## no critic
+
     eval q{
     $route_regex = qr{/(?<class> user | content | post )/(?<action> delete | find )/(?<id> \d+ )}x;
       };
+
+    ## use critic
 
     my $r = Dancer2::Core::Route->new(
         regexp => $route_regex,

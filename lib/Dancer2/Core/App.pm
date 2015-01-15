@@ -1241,41 +1241,39 @@ sub _dispatch_route {
     $self->execute_hook( 'core.app.before_request', $self );
     my $response = $self->response;
 
-    my $content;
     if ( $response->is_halted ) {
-        # if halted, it comes from the 'before' hook. Take its content
-        $content = $response->content;
+        return $self->_add_content_to_response(
+            $response, $response->content,
+        );
     }
-    else {
-        $content = eval { $route->execute($self) };
 
+    $response = eval {
+        $route->execute($self)
+    } or do {
         my $error = $@;
-        if ($error) {
-            $self->log( error => "Route exception: $error" );
-            $self->execute_hook( 'core.app.route_exception', $self, $error );
-            return $self->response_internal_error($error);
-        }
+        $self->log( error => "Route exception: $error" );
+        $self->execute_hook( 'core.app.route_exception', $self, $error );
+        return $self->response_internal_error($error);
+    };
+
+    return $response;
+}
+
+sub _add_content_to_response {
+    my ( $self, $response, $content ) = @_;
+
+    defined $content or return $response;
+
+    # The response object has no back references to the content or app
+    # Update the default_content_type of the response if any value set in
+    # config so it can be applied when the response is encoded/returned.
+    if ( exists $self->config->{content_type}
+      && $self->config->{content_type} ) {
+        $response->default_content_type($self->config->{content_type});
     }
 
-    $response->has_content
-        and $content = $response->content;
-
-    if ( ref $content eq 'Dancer2::Core::Response' ) {
-        $response = $self->set_response($content);
-    }
-    elsif ( defined $content ) {
-        # The response object has no back references to the content or app
-        # Update the default_content_type of the response if any value set in
-        # config so it can be applied when the response is encoded/returned.
-        if ( exists $self->config->{content_type}
-          && $self->config->{content_type} ) {
-            $response->default_content_type($self->config->{content_type});
-        }
-
-        $response->content($content);
-        $response->encode_content;
-    }
-
+    $response->content($content);
+    $response->encode_content;
     return $response;
 }
 

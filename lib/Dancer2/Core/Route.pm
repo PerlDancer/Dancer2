@@ -4,6 +4,9 @@ package Dancer2::Core::Route;
 use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use Scalar::Util 'blessed';
+
+our ( $REQUEST, $RESPONSE );
 
 has method => (
     is       => 'ro',
@@ -126,8 +129,37 @@ sub match {
 }
 
 sub execute {
-    my ( $self, @args ) = @_;
-    return $self->code->(@args);
+    my ( $self, $app, @args ) = @_;
+    local $REQUEST  = $app->request;
+    local $RESPONSE = $app->response;
+
+    my $content = $self->code->( $app, @args );
+
+    # a user might have set the content in the response,
+    # so we ignore the return value and use that content instead
+    $RESPONSE->has_content
+        and $content = $RESPONSE->content;
+
+    my $type = blessed($content)
+        or return $app->_add_content_to_response( $RESPONSE, $content );
+
+    # Plack::Response: proper ArrayRef-style response
+    $type eq 'Plack::Response'
+        and $RESPONSE = Dancer2::Core::Response->new_from_plack($RESPONSE);
+
+    # CodeRef: raw PSGI response
+    # do we want to allow it and forward it back?
+    # do we want to upgrade it to an asynchronous response?
+    $type eq 'CODE'
+        and die "We do not support returning code references from routes.\n";
+
+    # Dancer2::Core::Response: proper response
+    $type eq 'Dancer2::Core::Response'
+        and return $RESPONSE;
+
+    # we can't handle arrayref or hashref
+    # because those might be serialized back
+    die "Unrecognized response type from route: $type.\n";
 }
 
 # private subs
