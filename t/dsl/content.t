@@ -1,11 +1,11 @@
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 6;
 use Plack::Test;
 use HTTP::Request::Common;
 
 {
-    package App::SetContent;
+    package App::SetContent; ## no critic
     use Dancer2;
     get '/' => sub {
         content 'OK';
@@ -41,10 +41,7 @@ use HTTP::Request::Common;
 }
 
 {
-    my $app = App::SetContent->to_app;
-    isa_ok( $app, 'CODE' );
-
-    my $test = Plack::Test->create($app);
+    my $test = Plack::Test->create( App::SetContent->to_app );
     my $res  = $test->request( GET '/' );
 
     is( $res->code,    200,  'Reached route'   );
@@ -52,10 +49,7 @@ use HTTP::Request::Common;
 }
 
 {
-    my $app = App::PassSuccess->to_app;
-    isa_ok( $app, 'CODE' );
-
-    my $test = Plack::Test->create($app);
+    my $test = Plack::Test->create( App::PassSuccess->to_app );
     my $res  = $test->request( GET '/' );
 
     is( $res->code,    200,     'Reached route'   );
@@ -63,13 +57,9 @@ use HTTP::Request::Common;
 }
 
 {
-    my $app = App::PassFail->to_app;
-    isa_ok( $app, 'CODE' );
-
-    my $test = Plack::Test->create($app);
+    my $test = Plack::Test->create( App::PassFail->to_app );
     my $res  = $test->request( GET '/' );
 
     is( $res->code,    200, 'Reached route'   );
     is( $res->content, '',  'Correct content' );
 }
-
