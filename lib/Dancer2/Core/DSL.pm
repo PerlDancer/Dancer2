@@ -30,6 +30,7 @@ sub dsl_keywords {
         dancer_major_version => { is_global => 1 },
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
+        delayed              => { is_global => 0 },
         dirname              => { is_global => 1 },
         dsl                  => { is_global => 1 },
         engine               => { is_global => 1 },
@@ -254,6 +255,16 @@ sub content {
 sub content_type {
     shift;
     $Dancer2::Core::Route::RESPONSE->content_type(@_);
+}
+
+sub delayed {
+    my ( $dsl, $cb ) = @_;
+    use Dancer2::Core::Response::Delayed;
+    return Dancer2::Core::Response::Delayed->new(
+        cb       => $cb,
+        request  => $Dancer2::Core::Route::REQUEST,
+        response => $Dancer2::Core::Route::RESPONSE,
+    );
 }
 
 sub pass         { shift->app->pass }

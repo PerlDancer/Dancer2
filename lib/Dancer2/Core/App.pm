@@ -560,7 +560,7 @@ sub _init_hooks {
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
-                my $response = $app->response;
+                my $response = $Dancer2::Core::Route::RESPONSE;
 
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $app->session_engine;

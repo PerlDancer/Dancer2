@@ -14,7 +14,10 @@ use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
 
-with 'Dancer2::Core::Role::Headers';
+with qw<
+    Dancer2::Core::Role::Response
+    Dancer2::Core::Role::Headers
+>;
 
 # boolean to tell if the route passes or not
 has has_passed => (
