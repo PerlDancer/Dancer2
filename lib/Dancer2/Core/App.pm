@@ -511,6 +511,9 @@ around execute_hook => sub {
     my $orig = shift;
     my $self = shift;
 
+    local $Dancer2::Core::Route::REQUEST  = $self->request;
+    local $Dancer2::Core::Route::RESPONSE = $self->response;
+
     my ( $hook, @args ) = @_;
     if ( !$self->has_hook($hook) ) {
         foreach my $cand ( $self->hook_candidates ) {
