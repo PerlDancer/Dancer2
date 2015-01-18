@@ -137,7 +137,8 @@ sub execute {
 
     # a user might have set the content in the response,
     # so we ignore the return value and use that content instead
-    $RESPONSE->has_content
+    # but we only override if there was no object returned
+    $RESPONSE->has_content && !ref $content
         and $content = $RESPONSE->content;
 
     my $type = blessed($content)
@@ -153,9 +154,13 @@ sub execute {
     $type eq 'CODE'
         and die "We do not support returning code references from routes.\n";
 
-    # Dancer2::Core::Response: proper response
+    # Dancer2::Core::Response, Dancer2::Core::Response::Delayed:
+    # proper responses
     $type eq 'Dancer2::Core::Response'
         and return $RESPONSE;
+
+    $type eq 'Dancer2::Core::Response::Delayed'
+        and return $content;
 
     # we can't handle arrayref or hashref
     # because those might be serialized back

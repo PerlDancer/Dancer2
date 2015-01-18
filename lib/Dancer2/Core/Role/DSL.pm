@@ -49,6 +49,7 @@ sub export_symbols_to {
     my ( $self, $caller, $args ) = @_;
     my $exports = $self->_construct_export_map($args);
 
+    ## no critic
     foreach my $export ( keys %{$exports} ) {
         no strict 'refs';
         my $existing = *{"${caller}::${export}"}{CODE};
@@ -57,6 +58,7 @@ sub export_symbols_to {
 
         *{"${caller}::${export}"} = $exports->{$export};
     }
+    ## use critic
 
     return keys %{$exports};
 }
@@ -71,7 +73,7 @@ sub _compile_keyword {
     if ( !$is_global ) {
         my $code = $compiled_code;
         $compiled_code = sub {
-            $self->app->has_request or
+            defined $Dancer2::Core::Route::REQUEST or
                 croak "Function '$keyword' must be called from a route handler";
             $code->(@_);
         };
