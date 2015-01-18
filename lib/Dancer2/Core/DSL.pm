@@ -227,12 +227,35 @@ sub to_app { shift->app->to_app }
 # Response alterations
 #
 
-sub status       { shift->response->status(@_) }
-sub push_header  { shift->response->push_header(@_) }
-sub header       { shift->response->header(@_) }
-sub headers      { shift->response->header(@_) }
-sub content      { shift->response->content(@_) }
-sub content_type { shift->response->content_type(@_) }
+sub status {
+    $Dancer2::Core::Route::RESPONSE->status( $_[1] );
+}
+
+sub push_header {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->push_header(@_);
+}
+
+sub header {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->header(@_);
+}
+
+sub headers {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->header(@_);
+}
+
+sub content {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->content(@_);
+}
+
+sub content_type {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->content_type(@_);
+}
+
 sub pass         { shift->app->pass }
 
 #
@@ -244,30 +267,31 @@ sub context {
     shift->app;
 }
 
-sub request { shift->app->request }
+sub request { $Dancer2::Core::Route::REQUEST }
 
-sub response { shift->app->response }
+sub response { $Dancer2::Core::Route::RESPONSE }
 
-sub upload { shift->request->upload(@_) }
+sub upload { shift; $Dancer2::Core::Route::REQUEST->upload(@_); }
 
-sub captures { shift->request->captures }
+sub captures { $Dancer2::Core::Route::REQUEST->captures }
 
-sub uri_for { shift->request->uri_for(@_) }
+sub uri_for { shift; $Dancer2::Core::Route::REQUEST->uri_for(@_); }
 
-sub splat { shift->request->splat }
+sub splat { $Dancer2::Core::Route::REQUEST->splat }
 
-sub params { shift->request->params(@_) }
+sub params { shift; $Dancer2::Core::Route::REQUEST->params(@_); }
 
-sub param { shift->request->param(@_) }
+sub param { shift; $Dancer2::Core::Route::REQUEST->param(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
 sub forward { shift->app->forward(@_) }
 
-sub vars { shift->request->vars }
-sub var  { shift->request->var(@_) }
+sub vars { $Dancer2::Core::Route::REQUEST->vars }
 
-sub cookies { shift->request->cookies }
+sub var  { shift; $Dancer2::Core::Route::REQUEST->var(@_); }
+
+sub cookies { $Dancer2::Core::Route::REQUEST->cookies }
 sub cookie { shift->app->cookie(@_) }
 
 sub mime {
