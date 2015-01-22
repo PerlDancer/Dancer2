@@ -118,7 +118,7 @@ sub format_message {
         f => sub { $stack[1] || '-' },
         l => sub { $stack[2] || '-' },
         h => sub {
-            ( $request && $request->remote_host || $request->address ) || '-'
+            ( $request && ($request->remote_host || $request->address) ) || '-'
         },
         i => sub { ( $request && $request->id ) || '-' },
     };
