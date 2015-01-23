@@ -444,6 +444,55 @@ We can now add the B<POST> method for verifying that username and password:
          # let's render instead of redirect...
          template login => { error => 'Invalid username or password' };
      };
+     
+=head2 Accessing configuration information from a separate script
+
+You may want to access your webapp's configuration from outside your
+webapp. You could, of course, use the YAML module of your choice and load
+your webapps's C<config.yml>, but chances are that this is not convenient.
+
+Use Dancer2 instead. You can simply use
+the values from C<config.yml> and some additional default values:
+
+    # bin/show_app_config.pl
+    use Dancer2;
+    print "template:".config->{template}."\n"; # simple
+    print "log:".config->{log}."\n"; # undef
+
+Note that C<< config->{log} >> should result in an uninitialized warning
+on a default scaffold since the environment isn't loaded and
+log is defined in the environment and not in C<config.yml>. Hence C<undef>.
+
+Dancer2 will load your C<config.yml> configuration file along with the
+correct environment file located in your C<environments> directory.
+
+The environment is determined by two environment variables in the following
+order:
+
+=over 4
+
+=item * DANCER_ENVIRONMENT
+
+=item * PLACK_ENV
+
+=back
+
+If neither of those is set, it will default to loading the development
+environment (typically C<$webapp/environment/development.yml>).
+
+If you wish to load a different environment, you need to override these
+variables.
+
+You can call your script with the environment changed:
+
+    $ PLACK_ENV=production perl bin/show_app_config.pl
+
+Or you can override them directly in the script (less recommended):
+
+    BEGIN { $ENV{'DANCER_ENVIRONMENT'} = 'production' }
+    use Dancer2;
+
+    ...
 
 =head2 Template Toolkit's WRAPPER directive in Dancer2
 
