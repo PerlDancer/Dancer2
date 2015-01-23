@@ -8,8 +8,34 @@ use HTTP::Request::Common;
     package App::Content; ## no critic
     use Dancer2;
     get '/' => sub {
+        ::is( $Dancer2::Core::Route::RESPONDER, undef, 'No responder yet' );
+
         delayed sub {
+            ::isa_ok(
+                $Dancer2::Core::Route::RESPONDER,
+                'CODE',
+                'Got a responder in the delayed callback',
+            );
+
+            ::is( $Dancer2::Core::Route::WRITER, undef, 'No writer yet' );
+
             content 'OK';
+            ::ok( $Dancer2::Core::Route::WRITER, 'Got a writer' );
+
+            done;
+        };
+    };
+}
+
+{
+    package App::Content::MultiWrite; ## no critic
+    use Dancer2;
+    get '/' => sub {
+        delayed sub {
+            flush;
+            content 'Foo';
+            content 'Bar';
+            done;
         };
     };
 }
@@ -18,18 +44,7 @@ use HTTP::Request::Common;
     package App::NoContent; ## no critic
     use Dancer2;
     get '/' => sub {
-        delayed sub {'Not OK'};
-    };
-}
-
-{
-    package App::ContentOverride; ## no critic
-    use Dancer2;
-    get '/' => sub {
-        content 'Foo';
-        delayed sub {
-            content 'Bar';
-        };
+        delayed sub {content;done;'Not OK'};
     };
 }
 
@@ -39,6 +54,7 @@ use HTTP::Request::Common;
     get '/' => sub {
         delayed sub {
             content 'Bar';
+            done;
         };
         return 'OK';
     };
@@ -51,6 +67,13 @@ subtest 'Testing an app with content keyword' => sub {
     is( $res->content, 'OK', 'Correct content' );
 };
 
+subtest 'Testing an app with multiple content keyword calls' => sub {
+    my $test = Plack::Test->create( App::Content::MultiWrite->to_app );
+    my $res  = $test->request( GET '/' );
+    ok( $res->is_success, 'Successful request' );
+    is( $res->content, 'FooBar', 'Correct content' );
+};
+
 subtest 'Testing an app without content keyword' => sub {
     my $test = Plack::Test->create( App::NoContent->to_app );
     my $res  = $test->request( GET '/' );
@@ -58,14 +81,7 @@ subtest 'Testing an app without content keyword' => sub {
     is( $res->content, '', 'Correct content' );
 };
 
-subtest 'Delayed response overrides content' => sub {
-    my $test = Plack::Test->create( App::ContentOverride->to_app );
-    my $res  = $test->request( GET '/' );
-    ok( $res->is_success, 'Successful request' );
-    is( $res->content, 'Bar', 'Correct content' );
-};
-
-subtest 'Delayed response overrides content' => sub {
+subtest 'Delayed response ignored for non-delayed content' => sub {
     my $test = Plack::Test->create( App::MultipleContent->to_app );
     my $res  = $test->request( GET '/' );
     ok( $res->is_success, 'Successful request' );
