@@ -17,8 +17,9 @@ use Plack::Test;
     get '/**' => sub {
         return { hello => 'world' };
     };
-
 }
+
+MyApp::Cycles->to_app;
 
 my $runner = Dancer2->runner;
 memory_cycle_ok( $runner, "runner has no memory cycles" );
