@@ -47,6 +47,7 @@ If you I<really> do not want the C<warnings> pragma (for example, due to an
 undesired warning about use of undef values), add a C<no warnings> pragma to
 the appropriate block in your module or psgi file.
 
+
 =head2 Starting a Dancer2 project
 
 The first simple example is fine for trivial projects, but for anything more
@@ -93,6 +94,7 @@ will live), an environments directory (where environment-specific settings
 live), a module containing the actual guts of your application, a script to
 start it - or to run your web app via Plack/PSGI - more on that later.
 
+
 =head2 Default Route
 
 In case you want to avoid a I<404 error>, or handle multiple routes in the
@@ -115,6 +117,7 @@ Then you can set up the template like so:
 
     Please try again or contact us at <contact@example.com>.
 
+
 =head2 Using the C<auto_page> feature for automatic route creation
 
 For simple "static" pages you can simply enable the C<auto_page> config
@@ -123,6 +126,7 @@ pages; if a request is for C</foo/bar>, Dancer2 will check for a matching
 view (e.g. C</foo/bar.tt> and render it with the default layout etc. if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
+
 
 =head2 Simplifying AJAX queries with the Ajax plugin
 
@@ -220,6 +224,7 @@ care of the JSON encapsulation.
 For more serious AJAX interaction, there's also L<Dancer2::Plugin::Ajax> 
 that adds an I<ajax> route handler to the mix.
 
+
 =head2 Using the prefix feature to split your application
 
 For better maintainability, you may want to separate some of your application
@@ -261,6 +266,7 @@ When using multiple applications please ensure that your path definitions do
 not overlap. For example, if using a default route as described above, once
 a request is matched to the default route then no further routes (or
 applications) would be reached.
+
 
 =head2 Delivering custom error pages
 
@@ -344,6 +350,97 @@ And if total control is needed:
 
          ...;
      };
+
+
+=head2 Template Toolkit's WRAPPER directive in Dancer2
+
+Dancer2 already provides a WRAPPER-like ability, which we call a "layout".
+The reason we don't use Template Toolkit's WRAPPER (which also makes us incompatible with
+it) is because not all template systems support it. Actually, most don't.
+
+However, you might want to use it, and be able to define META variables and
+regular L<Template::Toolkit> variables.
+
+These few steps will get you there:
+
+=over 4
+
+=item * Disable the layout in Dancer2
+
+You can do this by simply commenting (or removing) the C<layout>
+configuration in the config file.
+
+=item * Use the Template Toolkit template engine
+
+Change the configuration of the template to Template Toolkit:
+
+    # in config.yml
+    template: "template_toolkit"
+
+=item * Tell the Template Toolkit engine which wrapper to use
+
+    # in config.yml
+    # ...
+    engines:
+        template:
+            template_toolkit:
+                WRAPPER: layouts/main.tt
+
+=back
+
+Done! Everything will work fine out of the box, including variables and META
+variables.
+
+
+=head2 Accessing configuration information from a separate script
+
+You may want to access your webapp's configuration from outside your
+webapp. You could, of course, use the YAML module of your choice and load
+your webapps's C<config.yml>, but chances are that this is not convenient.
+
+Use Dancer2 instead. You can simply use
+the values from C<config.yml> and some additional default values:
+
+    # bin/show_app_config.pl
+    use Dancer2;
+    print "template:".config->{template}."\n"; # simple
+    print "log:".config->{log}."\n"; # undef
+
+Note that C<< config->{log} >> should result in an uninitialized warning
+on a default scaffold since the environment isn't loaded and
+log is defined in the environment and not in C<config.yml>. Hence C<undef>.
+
+Dancer2 will load your C<config.yml> configuration file along with the
+correct environment file located in your C<environments> directory.
+
+The environment is determined by two environment variables in the following
+order:
+
+=over 4
+
+=item * DANCER_ENVIRONMENT
+
+=item * PLACK_ENV
+
+=back
+
+If neither of those is set, it will default to loading the development
+environment (typically C<$webapp/environment/development.yml>).
+
+If you wish to load a different environment, you need to override these
+variables.
+
+You can call your script with the environment changed:
+
+    $ PLACK_ENV=production perl bin/show_app_config.pl
+
+Or you can override them directly in the script (less recommended):
+
+    BEGIN { $ENV{'DANCER_ENVIRONMENT'} = 'production' }
+    use Dancer2;
+
+    ...
+
 
 =head2 Authentication
 
@@ -445,296 +542,6 @@ We can now add the B<POST> method for verifying that username and password:
          template login => { error => 'Invalid username or password' };
      };
      
-=head2 Accessing configuration information from a separate script
-
-You may want to access your webapp's configuration from outside your
-webapp. You could, of course, use the YAML module of your choice and load
-your webapps's C<config.yml>, but chances are that this is not convenient.
-
-Use Dancer2 instead. You can simply use
-the values from C<config.yml> and some additional default values:
-
-    # bin/show_app_config.pl
-    use Dancer2;
-    print "template:".config->{template}."\n"; # simple
-    print "log:".config->{log}."\n"; # undef
-
-Note that C<< config->{log} >> should result in an uninitialized warning
-on a default scaffold since the environment isn't loaded and
-log is defined in the environment and not in C<config.yml>. Hence C<undef>.
-
-Dancer2 will load your C<config.yml> configuration file along with the
-correct environment file located in your C<environments> directory.
-
-The environment is determined by two environment variables in the following
-order:
-
-=over 4
-
-=item * DANCER_ENVIRONMENT
-
-=item * PLACK_ENV
-
-=back
-
-If neither of those is set, it will default to loading the development
-environment (typically C<$webapp/environment/development.yml>).
-
-If you wish to load a different environment, you need to override these
-variables.
-
-You can call your script with the environment changed:
-
-    $ PLACK_ENV=production perl bin/show_app_config.pl
-
-Or you can override them directly in the script (less recommended):
-
-    BEGIN { $ENV{'DANCER_ENVIRONMENT'} = 'production' }
-    use Dancer2;
-
-    ...
-
-=head2 Template Toolkit's WRAPPER directive in Dancer2
-
-Dancer2 already provides a WRAPPER-like ability, which we call a "layout".
-The reason we don't use Template Toolkit's WRAPPER (which also makes us incompatible with
-it) is because not all template systems support it. Actually, most don't.
-
-However, you might want to use it, and be able to define META variables and
-regular L<Template::Toolkit> variables.
-
-These few steps will get you there:
-
-=over 4
-
-=item * Disable the layout in Dancer2
-
-You can do this by simply commenting (or removing) the C<layout>
-configuration in the config file.
-
-=item * Use the Template Toolkit template engine
-
-Change the configuration of the template to Template Toolkit:
-
-    # in config.yml
-    template: "template_toolkit"
-
-=item * Tell the Template Toolkit engine which wrapper to use
-
-    # in config.yml
-    # ...
-    engines:
-        template:
-            template_toolkit:
-                WRAPPER: layouts/main.tt
-
-=back
-
-Done! Everything will work fine out of the box, including variables and META
-variables.
-
-=head2 Creating a service
-
-You can turn your app into a proper service running in the background using one of
-the following examples.
-
-=head3 Using Ubic
-
-L<Ubic> is an extensible perlish service manager. You can use it to start
-and stop any services, automatically start them on reboots or daemon
-failures, and implement custom status checks.
-
-A basic PSGI service description (usually in C</etc/ubic/service/application>):
-
-    use parent qw(Ubic::Service::Plack);
-
-    # if your application is not installed in @INC path:
-    sub start {
-        my $self = shift;
-        $ENV{PERL5LIB} = '/path/to/your/application/lib';
-        $self->SUPER::start(@_);
-    }
-
-    __PACKAGE__->new(
-        server => 'Starman',
-        app => '/path/to/your/application/app.psgi',
-        port => 5000,
-        user => 'www-data',
-    );
-
-Run C<ubic start application> to start the service.
-
-=head3 Using daemontools
-
-daemontools is a collection of tools for managing UNIX services. You can use
-it to easily start/restart/stop services.
-
-A basic script to start an application: (in C</service/application/run>)
-
-    #!/bin/sh
-
-    # if your application is not installed in @INC path:
-    export PERL5LIB='/path/to/your/application/lib'
-
-    exec 2>&1 \
-    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.psgi -p 5000
-
-=head2 Running stand-alone behind a proxy / load balancer
-
-Another option would be to run your app stand-alone as described above, but
-then use a proxy or load balancer to accept incoming requests (on the
-standard port 80, say) and feed them to your Dancer2 app.
-
-This could be achieved using various software; examples would include:
-
-=head3 Using Apache's C<mod_proxy>
-
-You could set up a C<VirtualHost> for your web app, and proxy all requests
-through to it:
-
-    <VirtualHost mywebapp.example.com:80>
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
-    </VirtualHost>
-
-Or, if you want your webapp to share an existing VirtualHost, you could have
-it under a specified dir:
-
-    ProxyPass /mywebapp/ http://localhost:3000/
-    ProxyPassReverse /mywebapp/ http://localhost:3000/
-
-It is important for you to note that the Apache2 modules C<mod_proxy> and
-C<mod_proxy_http> must be enabled:
-
-    $ a2enmod proxy
-    $ a2enmod proxy_http
-
-It is also important to set permissions for proxying for security purposes,
-below is an example.
-
-    <Proxy *>
-      Order allow,deny
-      Allow from all
-    </Proxy>
-
-=head3 Using perlbal
-
-C<perlbal> is a single-threaded event-based server written in Perl
-supporting HTTP load balancing, web serving, and a mix of the two, available
-from L<http://www.danga.com/perlbal/>.
-
-It processes hundreds of millions of requests a day just for LiveJournal,
-Vox and TypePad and dozens of other "Web 2.0" applications.
-
-It can also provide a management interface to let you see various
-information on requests handled etc.
-
-It could easily be used to handle requests for your Dancer2 apps, too.
-
-It can be easily installed from CPAN:
-
-    perl -MCPAN -e 'install Perlbal'
-
-Once installed, you'll need to write a configuration file. See the examples
-provided with perlbal, but you'll probably want something like:
-
-    CREATE POOL my_dancers
-    POOL my_dancers ADD 10.0.0.10:3030
-    POOL my_dancers ADD 10.0.0.11:3030
-    POOL my_dancers ADD 10.0.0.12:3030
-    POOL my_dancers ADD 10.0.0.13:3030
-
-    CREATE SERVICE my_webapp
-    SET listen          = 0.0.0.0:80
-    SET role            = reverse_proxy
-    SET pool            = my_dancers
-    SET persist_client  = on
-    SET persist_backend = on
-    SET verify_backend  = on
-    ENABLE my_webapp
-
-=head3 Using balance
-
-C<balance> is a simple load-balancer from Inlab Software, available from
-L<http://www.inlab.de/balance.html>.
-
-It could be used simply to hand requests to a standalone Dancer2 app. You
-could even run several instances of your Dancer2 app, on the same machine or
-on several machines, and use a machine running C<balance> to distribute the
-requests between them, for some serious heavy traffic handling!
-
-To listen on port 80, and send requests to a Dancer2 app on port 3000:
-
-    balance http localhost:3000
-
-To listen on a specified IP only on port 80, and distribute requests between
-multiple Dancer2 apps on multiple other machines:
-
-    balance -b 10.0.0.1 80 10.0.0.2:3000 10.0.0.3:3000 10.0.0.4:3000
-
-=head3 Using lighttpd
-
-You can use lighttp's C<mod_proxy>:
-
-    $HTTP["url"] =~ "/application" {
-        proxy.server = (
-            "/" => (
-                "application" => ( "host" => "127.0.0.1", "port" => 3000 )
-            )
-        )
-    }
-
-This configuration will proxy all requests to the C</application> path to the
-path C</> on localhost:3000.
-
-=head3 Using Nginx
-
-with Nginx:
-
-    upstream backendurl {
-        server unix:THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock;
-    }
-
-    server {
-      listen       80;
-      server_name YOUR_HOST_HERE;
-
-      access_log /var/log/YOUR_ACCESS_LOG_HERE.log;
-      error_log  /var/log/YOUR_ERROR_LOG_HERE.log info;
-
-      root YOUR_ROOT_PROJECT/public;
-      location / {
-        try_files $uri @proxy;
-        access_log off;
-        expires max;
-      }
-
-      location @proxy {
-            proxy_set_header Host $http_host;
-            proxy_set_header X-Forwarded-Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_pass       http://backendurl;
-      }
-
-    }
-
-You will need plackup to start a worker listening on a socket :
-
-    cd YOUR_PROJECT_PATH
-    sudo -u www plackup -E production -s Starman --workers=2 \
-        -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.psgi
-
-A good way to start this is to use C<daemontools> and place this line with
-all environments variables in the "run" file.
-
-=head2 Turning off warnings
-
-The C<warnings> pragma is already used when one loads Dancer2. However, if
-you I<really> do not want the C<warnings> pragma (for example, due to an
-undesired warning about use of undef values), add a C<no warnings> pragma to
-the appropriate block in your module or psgi file.
-
 =head2 Writing a REST application
 
 With Dancer2, it's easy to write REST applications. Dancer2 provides helpers
@@ -970,3 +777,206 @@ will filter it for only the simple keys in the retrieved data:
 All that is left now is to render it:
 
      template index => { metrics => $metrics };
+
+     
+=head2 Creating a service
+
+You can turn your app into a proper service running in the background using one of
+the following examples.
+
+=head3 Using Ubic
+
+L<Ubic> is an extensible perlish service manager. You can use it to start
+and stop any services, automatically start them on reboots or daemon
+failures, and implement custom status checks.
+
+A basic PSGI service description (usually in C</etc/ubic/service/application>):
+
+    use parent qw(Ubic::Service::Plack);
+
+    # if your application is not installed in @INC path:
+    sub start {
+        my $self = shift;
+        $ENV{PERL5LIB} = '/path/to/your/application/lib';
+        $self->SUPER::start(@_);
+    }
+
+    __PACKAGE__->new(
+        server => 'Starman',
+        app => '/path/to/your/application/app.psgi',
+        port => 5000,
+        user => 'www-data',
+    );
+
+Run C<ubic start application> to start the service.
+
+=head3 Using daemontools
+
+daemontools is a collection of tools for managing UNIX services. You can use
+it to easily start/restart/stop services.
+
+A basic script to start an application: (in C</service/application/run>)
+
+    #!/bin/sh
+
+    # if your application is not installed in @INC path:
+    export PERL5LIB='/path/to/your/application/lib'
+
+    exec 2>&1 \
+    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.psgi -p 5000
+
+=head2 Running stand-alone behind a proxy / load balancer
+
+Another option would be to run your app stand-alone as described above, but
+then use a proxy or load balancer to accept incoming requests (on the
+standard port 80, say) and feed them to your Dancer2 app.
+
+This could be achieved using various software; examples would include:
+
+=head3 Using Apache's C<mod_proxy>
+
+You could set up a C<VirtualHost> for your web app, and proxy all requests
+through to it:
+
+    <VirtualHost mywebapp.example.com:80>
+    ProxyPass / http://localhost:3000/
+    ProxyPassReverse / http://localhost:3000/
+    </VirtualHost>
+
+Or, if you want your webapp to share an existing VirtualHost, you could have
+it under a specified dir:
+
+    ProxyPass /mywebapp/ http://localhost:3000/
+    ProxyPassReverse /mywebapp/ http://localhost:3000/
+
+It is important for you to note that the Apache2 modules C<mod_proxy> and
+C<mod_proxy_http> must be enabled:
+
+    $ a2enmod proxy
+    $ a2enmod proxy_http
+
+It is also important to set permissions for proxying for security purposes,
+below is an example.
+
+    <Proxy *>
+      Order allow,deny
+      Allow from all
+    </Proxy>
+
+=head3 Using perlbal
+
+C<perlbal> is a single-threaded event-based server written in Perl
+supporting HTTP load balancing, web serving, and a mix of the two, available
+from L<http://www.danga.com/perlbal/>.
+
+It processes hundreds of millions of requests a day just for LiveJournal,
+Vox and TypePad and dozens of other "Web 2.0" applications.
+
+It can also provide a management interface to let you see various
+information on requests handled etc.
+
+It could easily be used to handle requests for your Dancer2 apps, too.
+
+It can be easily installed from CPAN:
+
+    perl -MCPAN -e 'install Perlbal'
+
+Once installed, you'll need to write a configuration file. See the examples
+provided with perlbal, but you'll probably want something like:
+
+    CREATE POOL my_dancers
+    POOL my_dancers ADD 10.0.0.10:3030
+    POOL my_dancers ADD 10.0.0.11:3030
+    POOL my_dancers ADD 10.0.0.12:3030
+    POOL my_dancers ADD 10.0.0.13:3030
+
+    CREATE SERVICE my_webapp
+    SET listen          = 0.0.0.0:80
+    SET role            = reverse_proxy
+    SET pool            = my_dancers
+    SET persist_client  = on
+    SET persist_backend = on
+    SET verify_backend  = on
+    ENABLE my_webapp
+
+=head3 Using balance
+
+C<balance> is a simple load-balancer from Inlab Software, available from
+L<http://www.inlab.de/balance.html>.
+
+It could be used simply to hand requests to a standalone Dancer2 app. You
+could even run several instances of your Dancer2 app, on the same machine or
+on several machines, and use a machine running C<balance> to distribute the
+requests between them, for some serious heavy traffic handling!
+
+To listen on port 80, and send requests to a Dancer2 app on port 3000:
+
+    balance http localhost:3000
+
+To listen on a specified IP only on port 80, and distribute requests between
+multiple Dancer2 apps on multiple other machines:
+
+    balance -b 10.0.0.1 80 10.0.0.2:3000 10.0.0.3:3000 10.0.0.4:3000
+
+=head3 Using lighttpd
+
+You can use lighttp's C<mod_proxy>:
+
+    $HTTP["url"] =~ "/application" {
+        proxy.server = (
+            "/" => (
+                "application" => ( "host" => "127.0.0.1", "port" => 3000 )
+            )
+        )
+    }
+
+This configuration will proxy all requests to the C</application> path to the
+path C</> on localhost:3000.
+
+=head3 Using Nginx
+
+with Nginx:
+
+    upstream backendurl {
+        server unix:THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock;
+    }
+
+    server {
+      listen       80;
+      server_name YOUR_HOST_HERE;
+
+      access_log /var/log/YOUR_ACCESS_LOG_HERE.log;
+      error_log  /var/log/YOUR_ERROR_LOG_HERE.log info;
+
+      root YOUR_ROOT_PROJECT/public;
+      location / {
+        try_files $uri @proxy;
+        access_log off;
+        expires max;
+      }
+
+      location @proxy {
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass       http://backendurl;
+      }
+
+    }
+
+You will need plackup to start a worker listening on a socket :
+
+    cd YOUR_PROJECT_PATH
+    sudo -u www plackup -E production -s Starman --workers=2 \
+        -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.psgi
+
+A good way to start this is to use C<daemontools> and place this line with
+all environments variables in the "run" file.
+
+=head2 Turning off warnings
+
+The C<warnings> pragma is already used when one loads Dancer2. However, if
+you I<really> do not want the C<warnings> pragma (for example, due to an
+undesired warning about use of undef values), add a C<no warnings> pragma to
+the appropriate block in your module or psgi file.
