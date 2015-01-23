@@ -100,7 +100,7 @@ my $tests_flags = {};
     get '/intercepted' => sub {'not intercepted'};
 
     hook before => sub {
-        content 'halted by before';
+        response->content('halted by before');
         halt;
     };
 }

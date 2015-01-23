@@ -306,6 +306,39 @@ can use lexical prefix like this:
 
     get '/page1' => sub {}; # will match /page1
 
+=head2 Delayed responses (Async/Streaming)
+
+L<Dancer2> can provide delayed (otherwise known as I<asynchronous>) responses
+using the C<delayed> keyword. These responses are streamed, although you can
+set the content all at once, if you prefer.
+
+    get '/status' => sub {
+        delayed sub {
+            add_header 'X-Foo' => 'Bar';
+
+            # optionally flush headers
+            flush;
+
+            # send content to the user
+            content 'Hello, world!';
+
+            # you can write more content
+            # all streaming
+            content 'Hello, again!';
+
+            # when done, close the connection
+            done;
+
+            # do whatever you want else, asynchronously
+            # the user socket closed by now
+            ...
+        };
+    };
+
+If you do not flush the response status and the headers manually (using the
+C<flush> keyword), they will be flushed as soon as you set the content for
+the first time using the C<content> keyword.
+
 =head2 Action Skipping
 
 An action can choose not to serve the current request and ask Dancer2 to
@@ -374,10 +407,12 @@ is sent.
 It receives a L<Dancer2::Core::Response> object, which it can modify if it
 needs to make changes to the response which is about to be sent.
 
-The hook is given the response object as its first argument:
+The hook can use other keywords in order to do whatever it wants.
 
     hook after => sub {
-        content q{The "after" hook can alter the response's content here!};
+        response->content(
+            q{The "after" hook can alter the response's content here!}
+        );
     };
 
 =back
@@ -2174,20 +2209,24 @@ Accesses the configuration of the application:
 
 =head2 content
 
-Sets the content for the response.
+Sets the content for the response. This B<only> works within a delayed
+response.
+
+This will crash:
 
     get '/' => sub {
+        # THIS WILL CRASH
         content 'Hello, world!';
-
-        # the return value of the route is ignored
-        return 'Ignored String';
     };
 
-Once you set the content using the keyword, your return value (which
-is usually the content) is ignored.
+But this will work just fine:
 
-B<WARNING:> If you are using the C<pass> keyword, the last route will be
-in charge of setting the content.
+    get '/' => sub {
+        delayed sub {
+            content 'Hello, world!';
+            ...
+        };
+    };
 
 =head2 content_type
 

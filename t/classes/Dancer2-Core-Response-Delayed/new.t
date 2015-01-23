@@ -40,8 +40,15 @@ my $del_res = Dancer2::Core::Response::Delayed->new(
             'Correct path in the request',
         );
 
+        ::isa_ok(
+            $Dancer2::Core::Route::RESPONDER,
+            'CODE',
+            'Got a responder callback',
+        );
+
         $test++;
-        $Dancer2::Core::Route::RESPONSE->content('OK');
+
+        $Dancer2::Core::Route::RESPONDER->('OK');
     },
 );
 
@@ -52,22 +59,7 @@ can_ok( $del_res, qw<is_halted has_passed to_psgi> );
 is( $del_res->is_halted,  0, 'is_halted returns no'  );
 is( $del_res->has_passed, 0, 'has_passed returns no' );
 
-my $res_cb = sub {
-    my $response = shift;
-    isa_ok( $response, 'ARRAY' );
-    is_deeply(
-        $response,
-        [
-            200,
-            [
-                'Server',       "Perl Dancer2 $Dancer2::VERSION",
-                'Content-Type', 'text/html',
-            ],
-            ['OK'],
-        ],
-        'Correct response sent asynchronously',
-    );
-};
+my $res_cb = sub { is( $_[0], 'OK', 'Correct response asynchronously' ) };
 
 my $psgi_res = $del_res->to_psgi();
 is( $test, 0, 'Callback not run yet' );

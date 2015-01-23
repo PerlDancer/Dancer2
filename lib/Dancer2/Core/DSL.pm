@@ -7,6 +7,7 @@ use Carp;
 use Class::Load 'load_class';
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
+use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
 
@@ -32,10 +33,12 @@ sub dsl_keywords {
         del                  => { is_global => 1 },
         delayed              => { is_global => 0 },
         dirname              => { is_global => 1 },
+        done                 => { is_global => 0 },
         dsl                  => { is_global => 1 },
         engine               => { is_global => 1 },
         error                => { is_global => 1 },
         false                => { is_global => 1 },
+        flush                => { is_global => 0 },
         forward              => { is_global => 0 },
         from_dumper          => { is_global => 1 },
         from_json            => { is_global => 1 },
@@ -249,7 +252,20 @@ sub headers {
 
 sub content {
     shift;
-    $Dancer2::Core::Route::RESPONSE->content(@_);
+
+    # simple synchronous response
+    my $responder = $Dancer2::Core::Route::RESPONDER
+        or croak 'Cannot use content keyword outside delayed response';
+
+    # flush if wasn't flushed before
+    if ( !$Dancer2::Core::Route::WRITER ) {
+        my $response = $Dancer2::Core::Route::RESPONSE;
+        $Dancer2::Core::Route::WRITER = $responder->([
+            $response->status, [ $response->headers_to_array ],
+        ]);
+    }
+
+    $Dancer2::Core::Route::WRITER->write(@_);
 }
 
 sub content_type {
@@ -259,12 +275,28 @@ sub content_type {
 
 sub delayed {
     my ( $dsl, $cb ) = @_;
-    use Dancer2::Core::Response::Delayed;
     return Dancer2::Core::Response::Delayed->new(
         cb       => $cb,
         request  => $Dancer2::Core::Route::REQUEST,
         response => $Dancer2::Core::Route::RESPONSE,
     );
+}
+
+sub flush {
+    my $responder = $Dancer2::Core::Route::RESPONDER
+        or croak 'flush() called outside streaming response';
+
+    my $response = $Dancer2::Core::Route::RESPONSE;
+    $Dancer2::Core::Route::WRITER = $responder->([
+        $response->status, [ $response->headers_to_array ],
+    ]);
+}
+
+sub done {
+    my $writer = $Dancer2::Core::Route::WRITER
+        or croak 'done() called outside streaming response';
+
+    $writer->close;
 }
 
 sub pass         { shift->app->pass }

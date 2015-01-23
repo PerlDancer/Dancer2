@@ -28,14 +28,14 @@ sub has_passed() {0}
 sub to_psgi {
     my $self = shift;
     return sub {
-        my $res = shift; # callback to use
+        my $responder = shift;
 
-        $Dancer2::Core::Route::REQUEST  = $self->request;
-        $Dancer2::Core::Route::RESPONSE = $self->response;
+        local $Dancer2::Core::Route::REQUEST   = $self->request;
+        local $Dancer2::Core::Route::RESPONSE  = $self->response;
+        local $Dancer2::Core::Route::RESPONDER = $responder;
+        local $Dancer2::Core::Route::WRITER;
 
         $self->cb->();
-
-        $res->( $Dancer2::Core::Route::RESPONSE->to_psgi );
     };
 }
 
