@@ -185,35 +185,43 @@ parameters; these will be parameters supplied on the query string within
 the path itself (with named placeholders) and, for HTTP POST requests, the
 content of the POST body.
 
-=head3 Named parameters in route path declarations
+=head3 Named matching
 
-As seen above, you can use C<:somename> in a route's path to capture part of the
-path; this will become available by calling L<params|Dancer2/params>.
+A route pattern can contain one or more tokens (a word prefixed with ':'). 
+Each token found in a route pattern is used as a named-pattern match. Any 
+match will be set in the params hashref.
 
-So, for a web app where you want to display information on a company, you might
-use something like:
-
-    get '/company/view/:companyid' => sub {
-        my $company_id = params->{companyid};
-        # Look up the company and return appropriate page
+    get '/hello/:name' => sub {
+        "Hey ".param('name').", welcome here!";
     };
 
-=head3 Wildcard path matching and splat
+Tokens can be optional, for example:
 
-You can also declare wildcards in a path and retrieve the values they matched
-with the L<splat|Dancer2/splat> keyword:
-
-    get '/*/*' => sub {
-        my ($action, $id) = splat;
-        if (my $action eq 'view') {
-            return display_item($id);
-        } elsif ($action eq 'delete') {
-            return delete_item($id);
-        } else {
-            status 'not_found';
-            return "What?";
-        }
+    get '/hello/:name?' => sub {
+        defined param('name') ? "Hello there ".param('name') : "whoever you are!";
     };
+
+=head3 Wildcard matching
+
+A route can contain a wildcard (represented by a C<*>). Each wildcard match
+will be placed in a list, which the C<splat> keyword returns.
+
+    get '/download/*.*' => sub {
+        my ($file, $ext) = splat;
+        # do something with $file.$ext here
+    };
+
+An extensive, greedier wildcard represented by C<**> (A.K.A. "megasplat") can be
+used to define a route. The additional path is broken down and returned as an
+arrayref:
+
+    get '/entry/*/tags/**' => sub {
+        my ( $entry_id, $tags ) = splat;
+        my @tags = @{$tags};
+    };
+
+The C<splat> keyword in the above example for the route F</entry/1/tags/one/two>
+would set C<$entry_id> to C<1> and C<$tags> to C<['one', 'two']>.
 
 =head3 Mixed named and wildcard matching
 
