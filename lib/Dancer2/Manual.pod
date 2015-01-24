@@ -475,6 +475,105 @@ receives the serialized content as an argument.
   };
 
 
+=head1 HANDLERS
+
+=head2 File Handler
+
+Whenever a content is produced out of the parsing of a static file, the
+L<Dancer2::Handler::File> component is used. This component provides two
+hooks, C<before_file_render> and C<after_file_render>.
+
+C<before_file_render> hooks are called just before starting to parse the
+file, the hook receives as its first argument the file path that is going to
+be processed.
+
+    hook before_file_render => sub {
+        my $path = shift;
+    };
+
+C<after_file_render> hooks are called after the file has been parsed and the
+response content produced. It receives the response object
+(L<Dancer2::Core::Response>) produced.
+
+    hook after_file_render => sub {
+       my $response = shift;
+    };
+    
+=head2 Auto page
+
+Whenever a page that matches an existing template needs to be served, the
+L<Dancer2::Handler::AutoPage> component is used.
+
+=head2 Writing your own
+
+A route handler is a class that consumes the L<Dancer::Core::Role::Handler> 
+role. The class must implement a set of methods: C<methods>, C<regexp> and 
+C<code> which will be used to declare the route.
+
+Let's look at LDancer::Handler::AutoPage> for example.
+
+First, the matching methods are C<get> and C<head>:
+
+    sub methods { qw(head get) }
+
+Then, the C<regexp> or the I<path> we want to match:
+
+    sub regexp { '/:page' }
+    
+Anything will be matched by this route, since we want to check if there's 
+a view named with the value of the C<page> token. If not, the route needs 
+to C<pass>, letting the dispatching flow to proceed further.
+
+    sub code {
+        sub {
+            my $ctx = shift;
+    
+            my $template = $ctx->app->config->{template};
+            if (! defined $template) {
+                $ctx->response->has_passed(1);
+                return;
+            }
+    
+            my $page = $ctx->request->params->{'page'};
+            my $view_path = $template->view($page);
+            if (! -f $view_path) {
+                $ctx->response->has_passed(1);
+                return;
+            }
+    
+            my $ct = $template->process($page);
+            $ctx->response->header('Content-Length', length($ct));
+            return ($ctx->request->method eq 'GET') ? $ct : '';
+        };
+    }
+    
+The C<code> method passed the L<Dancer::Core::Context> object which provides 
+access to anything needed to process the request.
+
+A C<register> is then implemented to add the route to the registry and if 
+the C<auto_page setting> is off, it does nothing.
+
+    sub register {
+        my ($self, $app) = @_;
+    
+        return unless $app->config->{auto_page};
+    
+        $app->add_route(
+            method => $_,
+            regexp => $self->regexp,
+            code   => $self->code,
+        ) for $self->methods;
+    }
+
+The config parser looks for a C<route_handlers> section and any handler defined 
+there is loaded. Thus, any random handler can be added to your app.
+For example, the default config file for any Dancer2 application is as follows:
+
+    route_handlers:
+      File:
+        public_dir: /path/to/public
+      AutoPage: 1
+
 =head1 SESSIONS
 
 =head2 Handling sessions
