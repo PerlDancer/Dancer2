@@ -442,6 +442,220 @@ Or you can override them directly in the script (less recommended):
     ...
 
 
+=head2 Using DBIx::Class
+
+L<DBIx::Class>, also known as DBIC, is one of the many Perl ORM 
+(I<Object Relational Mapper>). It is easy to use DBIC in Dancer using the
+L<Dancer2::Plugin::DBIC>.
+
+=head3 An example
+
+This example demonstrates a simple Dancer application that allows to search 
+for authors or books. The application is connected to a database, that contains 
+authors, and their books. The website will have one single page with a form, 
+that allows to query books or authors, and display the results.
+
+=head4 Creating the application
+
+    $> dancer -a bookstore
+    
+To use the Template Toolkit as the template engine, we specify it in the 
+congiguration file:
+
+    # add in bookstore/config.yml
+    template: template_toolkit
+    
+=head4 Creating the view
+
+We need a view to display the search form, and below, the results, if any. The 
+results will be fed by the route to the view as an arrayref of results. Each 
+result is a I<hashref>, with a author key containing the name of the author, and 
+a books key containing an I<arrayref> of strings : the books names.
+
+    # example of a list of results
+    [ { author => 'author 1',
+        books => [ 'book 1', 'book 2' ],
+      },
+      { author => 'author 2',
+        books => [ 'book 3', 'book 4' ],
+      }
+    ]
+    
+# bookstore/views/search.tt
+<p>
+<form action="/search">
+Search query: <input type="text" name="query" />
+</form>
+</p>
+<br>  
+
+An example of the view, displaying the search form, and the results, if any:
+
+    <% IF query.length %>
+      <p>Search query was : <% query %>.</p>
+      <% IF results.size %>
+        Results:
+        <ul>
+        <% FOREACH result IN results %>
+          <li>Author: <% result.author.replace("((?i)$query)", '<b>$1</b>') %>
+          <ul>
+          <% FOREACH book IN result.books %>
+            <li><% book.replace("((?i)$query)", '<b>$1</b>') %>
+          <% END %>
+          </ul>
+        <% END %>
+      <% ELSE %>
+        No result
+      <% END %>
+    <% END %>
+    
+=head4 Creating a Route
+
+A simple route, to be added in the I<bookstore.pm> module:
+
+    # add in bookstore/lib/bookstore.pm
+    get '/search' => sub {
+        my $query = params->{query};
+        my @results = ();
+        if (length $query) {
+            @results = _perform_search($query);
+        }
+        template 'search', { query => $query,
+                             results => \@results,
+                           };
+    };
+    
+=head4 Creating a database
+
+We create a SQLite file database:
+    
+    $> sqlite3 bookstore.db
+    CREATE TABLE author( 
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+      firstname text default '' not null, 
+      lastname text not null);
+    
+    CREATE TABLE book(
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+      author INTEGER REFERENCES author (id), 
+      title text default '' not null );
+      
+Now, to populate the database with some data, we use L<DBIx::Class>:
+
+    # populate_database.pl
+    package My::Bookstore::Schema;
+    use base qw(DBIx::Class::Schema::Loader);
+    package main;
+    my $schema = My::Bookstore::Schema->connect('dbi:SQLite:dbname=bookstore.db');
+    $schema->populate('Author', [
+      [ 'firstname', 'lastname'],
+      [ 'Ian M.',    'Banks'   ],
+      [ 'Richard',   'Matheson'],
+      [ 'Frank',     'Herbert' ],
+    ]);
+    my @books_list = (
+      [ 'Consider Phlebas',    'Banks'    ],
+      [ 'The Player of Games', 'Banks'    ],
+      [ 'Use of Weapons',      'Banks'    ],
+      [ 'Dune',                'Herbert'  ],
+      [ 'Dune Messiah',        'Herbert'  ],
+      [ 'Children of Dune',    'Herbert'  ],
+      [ 'The Night Stalker',   'Matheson' ],
+      [ 'The Night Strangler', 'Matheson' ],
+    );
+    # transform author names into ids
+    $_->[1] = $schema->resultset('Author')->find({ lastname => $_->[1] })->id
+      foreach (@books_list);
+    $schema->populate('Book', [
+      [ 'title', 'author' ],
+      @books_list,
+    ]);
+    
+Then run it in the directory where I<bookstore.db> sits:
+
+    perl populate_database.db
+    
+=head4 Using Dancer::Plugin::DBIC
+
+There are 2 ways of configuring DBIC to understand how the data is organized
+in your database:
+
+=over 4
+
+=item Use auto-detection
+
+The configuration file needs to be updated to indicate the use of the 
+Dancer::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
+to indicate that this schema is connected to the SQLite database we created.
+
+    # add in bookstore/config.yml
+    plugins:
+      DBIC:
+        bookstore:
+          dsn:  "dbi:SQLite:dbname=bookstore.db"
+          
+Now, C<_perform_search> can be implemented using L<Dancer::Plugin::DBIC>. The 
+plugin gives you access to an additional keyword called B<schema>, which you 
+give the name of schema you want to retrieve. It returns a C<DBIx::Class::Schema::Loader> 
+which can be used to get a resultset and perform searches, as per standard 
+usage of DBIX::Class.
+
+    # add in bookstore/lib/bookstore.pm
+    sub _perform_search {
+        my ($query) = @_;
+        my $bookstore_schema = schema 'bookstore';
+        my @results;
+        # search in authors
+        my @authors = $bookstore_schema->resultset('Author')->search({
+          -or => [
+            firstname => { like => "%$query%" },
+            lastname  => { like => "%$query%" },
+          ]
+        });
+        push @results, map {
+            { author => join(' ', $_->firstname, $_->lastname),
+              books => [],
+            }
+        } @authors;
+        my %book_results;
+        # search in books
+        my @books = $bookstore_schema->resultset('Book')->search({
+            title => { like => "%$query%" },
+        });
+        foreach my $book (@books) {
+            my $author_name = join(' ', $book->author->firstname, $book->author->lastname);
+            push @{$book_results{$author_name}}, $book->title;
+        }
+        push @results, map {
+            { author => $_,
+              books => $book_results{$_},
+            }
+        } keys %book_results;
+        return @results;
+    }
+
+=item Use home made schema classes
+
+The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes 
+using L<Moose>. The schema classes should be put in a place that Dancer 
+will find. A good place is in I<bookstore/lib/>.
+
+Once your schema classes are in place, all you need to do is modify I<config.yml> 
+to specify that you want to use them, instead of the default auto-detection method:
+
+    # change in bookstore/config.yml
+    plugins:
+      DBIC:
+        bookstore:
+          schema_class: My::Bookstore::Schema
+          dsn: "dbi:SQLite:dbname=bookstore.db"
+          
+B<Starting the application>:
+Our bookstore lookup application can now be started using the built-in server:
+
+    # start the web application
+    bookstore/bin/app.pl
+
 =head2 Authentication
 
 Writing a form for authentication is simple: we check the user credentials 
