@@ -324,7 +324,9 @@ define their own.
 
 =head2 Request workflow
 
-C<before> hooks are evaluated before each request within the context of the
+=over
+
+=item * C<before> hooks are evaluated before each request within the context of the
 request and receives as argument the app (a L<Dancer2::Core::App> object).
 
 It's possible to define variables which will be accessible in the action
@@ -352,7 +354,7 @@ give non-logged-in users a login page:
 The request keyword returns the current L<Dancer2::Core::Request> object
 representing the incoming request.
 
-C<after> hooks are evaluated after the response has been built by a route
+=item * C<after> hooks are evaluated after the response has been built by a route
 handler, and can alter the response itself, just before it's sent to the
 client.
 
@@ -368,9 +370,13 @@ The hook is given the response object as its first argument:
         content q{The "after" hook can alter the response's content here!};
     };
 
+=back
+
 =head2 Templates
 
-C<before_template_render> hooks are called whenever a template is going to
+=over
+
+=item * C<before_template_render> hooks are called whenever a template is going to
 be processed, they are passed the tokens hash which they can alter.
 
     hook before_template_render => sub {
@@ -383,7 +389,7 @@ modifications performed by the hook. This is a good way to setup some
 global vars you like to have in all your templates, like the name of the
 user logged in or a section name.
 
-C<after_template_render> hooks are called after the view has been rendered.
+=item * C<after_template_render> hooks are called after the view has been rendered.
 They receive as their first argument the reference to the content that has
 been produced. This can be used to post-process the content rendered by the
 template engine.
@@ -396,7 +402,7 @@ template engine.
         $ref_content = \$content;
     };
 
-C<before_layout_render> hooks are called whenever the layout is going to be
+=item * C<before_layout_render> hooks are called whenever the layout is going to be
 applied to the current content. The arguments received by the hook are the
 current tokens hashref and a reference to the current content.
 
@@ -406,7 +412,7 @@ current tokens hashref and a reference to the current content.
         $ref_content = \"new content";
     };
 
-C<after_layout_render> hooks are called once the complete content of the
+=item * C<after_layout_render> hooks are called once the complete content of the
 view has been produced, after the layout has been applied to the content.
 The argument received by the hook is a reference to the complete content
 string.
@@ -416,14 +422,43 @@ string.
         # do something with ${ $ref_content }, which reflects directly
         #   in the caller
     };
+    
+=back
 
-=head2 L<Error Handling|https://github.com/SnigdhaD/Dancer2/blob/snigdha/lib/Dancer2/Manual.pod#error-handling>
+=head2 Error Handling
+
+Refer to L<Error Handling|https://github.com/SnigdhaD/Dancer2/edit/snigdha/lib/Dancer2/Manual.pod#error-handling-1>
+for details about the following hooks:
+
+=over
+
+=item * C<init_error>
+
+=item * C<before_error>
+
+=item * C<after_error>
+
+=item * C<on_route_exception>
+
+=back
 
 =head2 File Rendering
 
+Refer to L<File Rendering> for details on the following hooks:
+
+=over
+
+=item * C<before_file_render>
+
+=item * C<after_file_render>
+
+=back
+
 =head2 Serializers
 
-C<before_serializer> is called before serializing the content, and receives
+=over
+
+=item * C<before_serializer> is called before serializing the content, and receives
 the content to serialize as an argument.
 
   hook before_serializer => sub {
@@ -431,7 +466,7 @@ the content to serialize as an argument.
     ...
   };
 
-C<after_serializer> is called after the payload has been serialized, and
+=item * C<after_serializer> is called after the payload has been serialized, and
 receives the serialized content as an argument.
 
   hook after_serializer => sub {
