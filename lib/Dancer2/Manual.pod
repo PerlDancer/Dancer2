@@ -312,6 +312,133 @@ This is done with the B<pass> keyword, like in the following example
     get '/say/:number' => sub {
         "I say a number: ".params->{number};
     };
+    
+    
+=head1 HOOKS
+
+Hooks are code references (or anonymous subroutines) that are triggered at
+specific moments during the resolution of a request.
+
+Many of them are supported by the core but plugins and engines can also
+define their own.
+
+=head2 Request workflow
+
+C<before> hooks are evaluated before each request within the context of the
+request and receives as argument the app (a L<Dancer2::Core::App> object).
+
+It's possible to define variables which will be accessible in the action
+blocks with the keyword C<var>.
+
+    hook before => sub {
+        var note => 'Hi there';
+    };
+
+    get '/foo/*' => sub {
+        my ($match) = splat; # 'oversee';
+        vars->{note}; # 'Hi there'
+    };
+
+For another example, this can be used along with session support to easily
+give non-logged-in users a login page:
+
+    hook before => sub {
+        if (!session('user') && request->dispatch_path !~ m{^/login}) {
+            # Pass the original path requested along to the handler:
+            forward '/login', { requested_path => request->dispatch_path };
+        }
+    };
+
+The request keyword returns the current L<Dancer2::Core::Request> object
+representing the incoming request.
+
+C<after> hooks are evaluated after the response has been built by a route
+handler, and can alter the response itself, just before it's sent to the
+client.
+
+This hook runs after a request has been processed, but before the response
+is sent.
+
+It receives a L<Dancer2::Core::Response> object, which it can modify if it
+needs to make changes to the response which is about to be sent.
+
+The hook is given the response object as its first argument:
+
+    hook after => sub {
+        content q{The "after" hook can alter the response's content here!};
+    };
+
+=head2 Templates
+
+C<before_template_render> hooks are called whenever a template is going to
+be processed, they are passed the tokens hash which they can alter.
+
+    hook before_template_render => sub {
+        my $tokens = shift;
+        $tokens->{foo} = 'bar';
+    }
+
+The tokens hash will then be passed to the template with all the
+modifications performed by the hook. This is a good way to setup some
+global vars you like to have in all your templates, like the name of the
+user logged in or a section name.
+
+C<after_template_render> hooks are called after the view has been rendered.
+They receive as their first argument the reference to the content that has
+been produced. This can be used to post-process the content rendered by the
+template engine.
+
+    hook after_template_render => sub {
+        my $ref_content = shift;
+        my $content     = ${$ref_content};
+
+        # do something with $content
+        $ref_content = \$content;
+    };
+
+C<before_layout_render> hooks are called whenever the layout is going to be
+applied to the current content. The arguments received by the hook are the
+current tokens hashref and a reference to the current content.
+
+    hook before_layout_render => sub {
+        my ($tokens, $ref_content) = @_;
+        $tokens->{new_stuff} = 42;
+        $ref_content = \"new content";
+    };
+
+C<after_layout_render> hooks are called once the complete content of the
+view has been produced, after the layout has been applied to the content.
+The argument received by the hook is a reference to the complete content
+string.
+
+    hook after_layout_render => sub {
+        my $ref_content = shift;
+        # do something with ${ $ref_content }, which reflects directly
+        #   in the caller
+    };
+
+=head2 L<Error Handling|https://github.com/SnigdhaD/Dancer2/blob/snigdha/lib/Dancer2/Manual.pod#error-handling>
+
+=head2 File Rendering
+
+=head2 Serializers
+
+C<before_serializer> is called before serializing the content, and receives
+the content to serialize as an argument.
+
+  hook before_serializer => sub {
+    my $content = shift;
+    ...
+  };
+
+C<after_serializer> is called after the payload has been serialized, and
+receives the serialized content as an argument.
+
+  hook after_serializer => sub {
+    my $serialized_content = shift;
+    ...
+  };
+
 
 =head1 SESSIONS
 
