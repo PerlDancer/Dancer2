@@ -1282,6 +1282,60 @@ Environment-specific settings can also be defined in environment-specific
 files (for instance, you do not want to show error stacktraces in
 production, and might want extra logging in development).
 
+=head2 Serializers
+
+When writing a webservice, data serialization/deserialization is a common
+issue to deal with. Dancer2 can automatically handle that for you, via a
+serializer.
+
+When setting up a serializer, a new behaviour is authorized for any route
+handler you define: any non-scalar response will be rendered as a serialized
+string, via the current serializer.
+
+Here is an example of a route handler that will return a hashref:
+
+    use Dancer2;
+    set serializer => 'JSON';
+
+    get '/user/:id/' => sub {
+        { foo => 42,
+          number => 100234,
+          list => [qw(one two three)],
+        }
+    };
+
+Dancer2 will render the response via the current serializer.
+
+Hence, with the JSON serializer set, the route handler above would result in
+a content like the following:
+
+    {"number":100234,"foo":42,"list":["one","two","three"]}
+
+The following serializers are available, be aware they dynamically depend on
+Perl modules you may not have on your system.
+
+=over 4
+
+=item B<JSON>
+
+requires L<JSON>
+
+=item B<YAML>
+
+requires L<YAML>
+
+=item B<XML>
+
+requires L<XML::Simple>
+
+=item B<Mutable>
+
+will try to find the appropriate serializer using the B<Content-Type> and
+B<Accept-type> header of the request.
+
+=back
+
+
 =head2 Importing using Appname
 
 An app in Dancer2 uses the class name (defined by the C<package> function) to
