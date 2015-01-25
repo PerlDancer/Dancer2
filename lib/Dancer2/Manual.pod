@@ -475,6 +475,8 @@ receives the serialized content as an argument.
     ...
   };
 
+=back
+
 
 =head1 HANDLERS
 
