@@ -1161,6 +1161,38 @@ template toolkit, your config file will look like this:
         template_toolkit:
           ENCODING: utf8
 
+
+=head1 STATIC FILES
+
+=head2 Static Directory
+
+Static files are served from the F<./public> directory. You can specify a
+different location by setting the C<public> option:
+
+    set public => path(dirname(__FILE__), 'static');
+
+Note that the public directory name is not included in the URL. A file
+F<./public/css/style.css> is made available as
+L<http://example.com/css/style.css>.
+
+=head2 Static File from a Route Handler
+
+It's possible for a route handler to send a static file, as follows:
+
+    get '/download/*' => sub {
+        my ($file) = splat;
+
+        send_file $file;
+    };
+
+Or even if you want your index page to be a plain old F<index.html> file,
+just do:
+
+    get '/' => sub {
+        send_file '/index.html'
+    };
+
+
 =head1 FILE UPLOADS
 
 =head1 CONFIGURATION
