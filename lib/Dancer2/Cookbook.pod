@@ -271,11 +271,11 @@ In Dancer2, creating new errors is done by creating a new L<Dancer2::Core::Error
      my $oopsie = Dancer2::Core::Error->new(
          status  => 418,
          message => "This is the Holidays. Tea not acceptable. We want eggnog.",
-         context => $context,
+         app     => $app,
      )
 
 If not given, the status code defaults to a 500, there is no need for a message if
-we feel taciturn, and while the C<$context> (which is a I<Dancer::Core::Context>
+we feel taciturn, and while the C<$app> (which is a I<Dancer::Core::App>
 object holding all the pieces of information related to the current request) is
 needed if we want to take advantage of the templates, we can also do without.
 
@@ -571,14 +571,14 @@ Then run it in the directory where I<bookstore.db> sits:
 
     perl populate_database.db
 
-=head4 Using Dancer::Plugin::DBIC
+=head4 Using Dancer2::Plugin::DBIC
 
 There are 2 ways of configuring DBIC to understand how the data is organized
 in your database:
 
 =over 4
 
-=item Use auto-detection
+=item * Use auto-detection
 
 The configuration file needs to be updated to indicate the use of the
 Dancer::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
@@ -590,7 +590,7 @@ to indicate that this schema is connected to the SQLite database we created.
         bookstore:
           dsn:  "dbi:SQLite:dbname=bookstore.db"
 
-Now, C<_perform_search> can be implemented using L<Dancer::Plugin::DBIC>. The
+Now, C<_perform_search> can be implemented using L<Dancer2::Plugin::DBIC>. The
 plugin gives you access to an additional keyword called B<schema>, which you
 give the name of schema you want to retrieve. It returns a C<DBIx::Class::Schema::Loader>
 which can be used to get a resultset and perform searches, as per standard
@@ -630,7 +630,7 @@ usage of DBIX::Class.
         return @results;
     }
 
-=item Use home made schema classes
+=item * Use home made schema classes
 
 The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes
 using L<Moose>. The schema classes should be put in a place that Dancer
@@ -1074,14 +1074,14 @@ below is an example.
       Allow from all
     </Proxy>
 
-=head3 Using perlbal
+=head3 Using Perlbal
 
-C<perlbal> is a single-threaded event-based server written in Perl
+C<Perlbal> is a single-threaded event-based server written in Perl
 supporting HTTP load balancing, web serving, and a mix of the two, available
 from L<http://www.danga.com/perlbal/>.
 
 It processes hundreds of millions of requests a day just for LiveJournal,
-Vox and TypePad and dozens of other "Web 2.0" applications.
+Vox, and TypePad and dozens of other "Web 2.0" applications.
 
 It can also provide a management interface to let you see various
 information on requests handled etc.
@@ -1144,9 +1144,9 @@ You can use lighttp's C<mod_proxy>:
 This configuration will proxy all requests to the C</application> path to the
 path C</> on localhost:3000.
 
-=head3 Using Nginx
+=head3 Using NGINX
 
-with Nginx:
+with NGINX:
 
     upstream backendurl {
         server unix:THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock;
@@ -1188,11 +1188,6 @@ all environments variables in the "run" file.
 =head1 NON-STANDARD STEPS
 
 =head2 Turning off warnings
-
-The C<warnings> pragma is already used when one loads Dancer2. However, if
-you I<really> do not want the C<warnings> pragma (for example, due to an
-undesired warning about use of undef values), add a C<no warnings> pragma to
-the appropriate block in your module or psgi file.
 
 The C<warnings> pragma is already used when one loads Dancer2. However, if
 you I<really> do not want the C<warnings> pragma (for example, due to an
