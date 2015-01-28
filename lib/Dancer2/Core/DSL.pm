@@ -261,7 +261,7 @@ sub content {
     if ( !$Dancer2::Core::Route::WRITER ) {
         my $response = $Dancer2::Core::Route::RESPONSE;
         $Dancer2::Core::Route::WRITER = $responder->([
-            $response->status, [ $response->headers_to_array ],
+            $response->status, $response->headers_to_array,
         ]);
     }
 
@@ -288,7 +288,7 @@ sub flush {
 
     my $response = $Dancer2::Core::Route::RESPONSE;
     $Dancer2::Core::Route::WRITER = $responder->([
-        $response->status, [ $response->headers_to_array ],
+        $response->status, $response->headers_to_array,
     ]);
 }
 
