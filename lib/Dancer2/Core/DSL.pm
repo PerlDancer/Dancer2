@@ -275,11 +275,29 @@ sub content_type {
 
 sub delayed {
     my ( $dsl, $cb ) = @_;
-    return Dancer2::Core::Response::Delayed->new(
-        cb       => $cb,
-        request  => $Dancer2::Core::Route::REQUEST,
-        response => $Dancer2::Core::Route::RESPONSE,
-    );
+
+    # first time, responder doesn't exist yet
+    $Dancer2::Core::Route::RESPONDER
+        or return Dancer2::Core::Response::Delayed->new(
+            cb       => $cb,
+            request  => $Dancer2::Core::Route::REQUEST,
+            response => $Dancer2::Core::Route::RESPONSE,
+        );
+
+    # we're in an async request process
+    my $request   = $Dancer2::Core::Route::REQUEST;
+    my $response  = $Dancer2::Core::Route::RESPONSE;
+    my $responder = $Dancer2::Core::Route::RESPONDER;
+    my $writer    = $Dancer2::Core::Route::WRITER;
+
+    return sub {
+        local $Dancer2::Core::Route::REQUEST   = $request;
+        local $Dancer2::Core::Route::RESPONSE  = $response;
+        local $Dancer2::Core::Route::RESPONDER = $responder;
+        local $Dancer2::Core::Route::WRITER    = $writer;
+
+        $cb->();
+    };
 }
 
 sub flush {
