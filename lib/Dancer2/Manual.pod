@@ -98,9 +98,9 @@ keyword is exported by the module.
 Here are some of the standard HTTP methods which you can use to define your
 route handlers.
 
-=over 8
+=over 4
 
-=item B<GET> The GET method retrieves information, and is the most common
+=item * B<GET> The GET method retrieves information, and is the most common
 
 GET requests should be used for typical "fetch" requests - retrieving
 information. They should not be used for requests which change data on the
@@ -112,11 +112,11 @@ requests for each of your GET route handlers).
 
 To define a GET action, use the L<get|Dancer2::Manual/get> keyword.
 
-=item B<POST> The POST method is used to create a resource on the server.
+=item * B<POST> The POST method is used to create a resource on the server.
 
 To define a POST action, use the L<post|Dancer2::Manual/post> keyword.
 
-=item B<PUT> The PUT method is used to replace an existing resource.
+=item * B<PUT> The PUT method is used to replace an existing resource.
 
 To define a PUT action, use the L<put|Dancer2::Manual/put> keyword.
 
@@ -125,11 +125,11 @@ instance - if you wanted to just update an email address for a user, you'd
 have to specify all attributes of the user again; to make a partial update,
 a PATCH request is used.
 
-=item B<PATCH> The PATCH method updates some attributes of an existing resource.
+=item * B<PATCH> The PATCH method updates some attributes of an existing resource.
 
 To define a PATCH action, use the L<patch|Dancer2::Manual/patch> keyword.
 
-=item B<DELETE> The DELETE method requests that the origin server delete the
+=item * B<DELETE> The DELETE method requests that the origin server delete the
 resource identified by the Request-URI.
 
 To define a DELETE action, use the L<del|Dancer2::Manual/del> keyword.
@@ -198,7 +198,9 @@ match will be set in the params hashref.
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        defined param('name') ? "Hello there ".param('name') : "whoever you are!";
+        "Hello there, " . defined param('name')
+                        ? param('name')
+                        : "whoever you are!";
     };
 
 =head3 Wildcard Matching
@@ -323,9 +325,11 @@ define their own.
 
 =head2 Request workflow
 
-=over
+=over 4
 
-=item * C<before> hooks are evaluated before each request within the context of the
+=item * C<before> hooks
+
+C<before> hooks are evaluated before each request within the context of the
 request and receives as argument the app (a L<Dancer2::Core::App> object).
 
 It's possible to define variables which will be accessible in the action
@@ -337,7 +341,7 @@ blocks with the keyword C<var>.
 
     get '/foo/*' => sub {
         my ($match) = splat; # 'oversee';
-        vars->{note}; # 'Hi there'
+        vars->{note};        # 'Hi there'
     };
 
 For another example, this can be used along with session support to easily
@@ -353,7 +357,9 @@ give non-logged-in users a login page:
 The request keyword returns the current L<Dancer2::Core::Request> object
 representing the incoming request.
 
-=item * C<after> hooks are evaluated after the response has been built by a route
+=item * C<after> hooks
+
+C<after> hooks are evaluated after the response has been built by a route
 handler, and can alter the response itself, just before it's sent to the
 client.
 
@@ -373,9 +379,11 @@ The hook is given the response object as its first argument:
 
 =head2 Templates
 
-=over
+=over 4
 
-=item * C<before_template_render> hooks are called whenever a template is going to
+=item * C<before_template_render>
+
+C<before_template_render> hooks are called whenever a template is going to
 be processed, they are passed the tokens hash which they can alter.
 
     hook before_template_render => sub {
@@ -388,7 +396,9 @@ modifications performed by the hook. This is a good way to setup some
 global vars you like to have in all your templates, like the name of the
 user logged in or a section name.
 
-=item * C<after_template_render> hooks are called after the view has been rendered.
+=item * C<after_template_render>
+
+C<after_template_render> hooks are called after the view has been rendered.
 They receive as their first argument the reference to the content that has
 been produced. This can be used to post-process the content rendered by the
 template engine.
@@ -401,7 +411,9 @@ template engine.
         $ref_content = \$content;
     };
 
-=item * C<before_layout_render> hooks are called whenever the layout is going to be
+=item * C<before_layout_render>
+
+C<before_layout_render> hooks are called whenever the layout is going to be
 applied to the current content. The arguments received by the hook are the
 current tokens hashref and a reference to the current content.
 
@@ -411,7 +423,9 @@ current tokens hashref and a reference to the current content.
         $ref_content = \"new content";
     };
 
-=item * C<after_layout_render> hooks are called once the complete content of the
+=item * C<after_layout_render>
+
+C<after_layout_render> hooks are called once the complete content of the
 view has been produced, after the layout has been applied to the content.
 The argument received by the hook is a reference to the complete content
 string.
@@ -429,7 +443,7 @@ string.
 Refer to L<Error Handling|https://github.com/SnigdhaD/Dancer2/blob/snigdha/lib/Dancer2/Manual.pod#error-handling-1>
 for details about the following hooks:
 
-=over
+=over 4
 
 =item * C<init_error>
 
@@ -446,7 +460,7 @@ for details about the following hooks:
 Refer to L<File Rendering|https://github.com/SnigdhaD/Dancer2/blob/snigdha/lib/Dancer2/Manual.pod#file-handler>
 for details on the following hooks:
 
-=over
+=over 4
 
 =item * C<before_file_render>
 
@@ -456,7 +470,7 @@ for details on the following hooks:
 
 =head2 Serializers
 
-=over
+=over 4
 
 =item * C<before_serializer> is called before serializing the content, and receives
 the content to serialize as an argument.
@@ -1054,8 +1068,8 @@ By default, the internal template engine L<Dancer2::Template::Simple> is
 used, but you may want to upgrade to L<Template
 Toolkit|http://www.template-toolkit.org/>. If you do so, you have to enable
 this engine in your settings as explained in
-L<Dancer2::Template::TemplateToolkit> and you'll also have to import the
-L<Template> module in your application code.
+L<Dancer2::Template::TemplateToolkit> and you'll also have to install the
+L<Template> module.
 
 In order to render a view, just call the
 L<template|Dancer2::Manual/template> keyword at the end of the action by
@@ -1149,9 +1163,9 @@ further modification of the CSS inclusion.
 
 =head2 Encoding
 
-If you use L<Plack> and have a unicode problem with your Dancer2
+If you use L<Plack> and have a Unicode problem with your Dancer2
 application, don't forget to check if you have set your template engine to
-use unicode, and set the default charset to UTF-8. So, if you are using
+use Unicode, and set the default charset to UTF-8. So, if you are using
 template toolkit, your config file will look like this:
 
     charset: UTF-8
@@ -1250,9 +1264,11 @@ And in a production one:
     startup_info: 0
     show_errors:  0
 
-=head2 Accessing configuration information
+Please note that you are not limited to writing configuration files in YAML.
+Dancer2 supports any file format that is supported by L<Config::Any>, such
+as JSON, XML, INI files, and Apache-style config files.
 
-=head3 From inside your application
+=head2 Accessing configuration information
 
 A Dancer2 application can use the C<config> keyword to easily access the
 settings within its config file, for instance:
@@ -1262,7 +1278,7 @@ settings within its config file, for instance:
     };
 
 This makes keeping your application's settings all in one place simple and
-easy - you shouldn't need to worry about implementing all that yourself :)
+easy - you shouldn't need to worry about implementing all that yourself. :)
 
 =head2 Settings
 
@@ -1312,25 +1328,24 @@ Perl modules you may not have on your system.
 
 =over 4
 
-=item B<JSON>
+=item * B<JSON>
 
-requires L<JSON>
+Requires L<JSON>.
 
-=item B<YAML>
+=item * B<YAML>
 
-requires L<YAML>
+Requires L<YAML>,
 
-=item B<XML>
+=item * B<XML>
 
-requires L<XML::Simple>
+Requires L<XML::Simple>.
 
-=item B<Mutable>
+=item * B<Mutable>
 
-will try to find the appropriate serializer using the B<Content-Type> and
+Will try to find the appropriate serializer using the B<Content-Type> and
 B<Accept-type> header of the request.
 
 =back
-
 
 =head2 Importing using Appname
 
@@ -1463,17 +1478,17 @@ On Windows, Shotgun loader is known to cause huge memory leaks in a
 fork-emulation layer. If you are aware of this and still want to run the
 loader, please use the following command:
 
-    > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
+    $ set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
     HTTP::Server::PSGI: Accepting connections at http://0:5000/
 
-=head2 CGI and Fast-CGI
+=head2 CGI and FastCGI
 
 In providing ultimate flexibility in terms of deployment, your Dancer2 app
-can be run as a simple cgi-script out-of-the-box. No additional web-server
-configuration needed. Your web server should recognize .cgi files and be
+can be run as a simple CGI script out-of-the-box. No additional web-server
+configuration needed. Your web server should recognize F<.cgi> files and be
 able to serve Perl scripts. The Perl module L<Plack::Runner> is required.
 
-=head3 Running on Apache (CGI and FCGI)
+=head3 Running on Apache (CGI and FastCGI)
 
 Start by adding the following to your apache configuration (C<httpd.conf> or
 C<sites-available/*site*>):
@@ -1499,7 +1514,7 @@ C<sites-available/*site*>):
         CustomLog /var/log/apache2/www.example.com-access_log common
     </VirtualHost>
 
-Note that when using fast-cgi your rewrite rule should be:
+Note that when using FastCGI your rewrite rule should be:
 
         RewriteRule ^(.*)$ /dispatch.fcgi$1 [QSA,L]
 
@@ -1823,15 +1838,15 @@ Carton to set up the environment again and you will then be able to run it.
 
 The benefits are multifold:
 
-=over
+=over 4
 
-=item Local Directory copy
+=item * Local Directory copy
 
 By putting all the dependencies in a local directory, you can make
 sure they aren't updated by someone else by accident and their versions
 locked to the version you picked.
 
-=item Sync versions
+=item * Sync versions
 
 Deciding which versions of the dependent modules your project needs
 allows you to sync this with other developers as well. Now you're all
@@ -1839,7 +1854,7 @@ using the same version and they don't change unless you want update the
 versions you want. When updated everyone again uses the same new version
 of everything.
 
-=item Carry only the requirement, not bundled modules
+=item * Carry only the requirement, not bundled modules
 
 Instead of bundling the modules, you only actually bundle the requirements.
 Carton builds them for you when you need it.
@@ -2006,17 +2021,17 @@ A number of Perl web servers supporting PSGI are available on CPAN:
 
 =over 4
 
-=item L<Starman|http://search.cpan.org/dist/Starman/>
+=item * L<Starman|http://search.cpan.org/dist/Starman/>
 
 C<Starman> is a high performance web server, with support for preforking,
 signals, multiple interfaces, graceful restarts and dynamic worker pool
 configuration.
 
-=item L<Twiggy|http://search.cpan.org/dist/Twiggy/>
+=item * L<Twiggy|http://search.cpan.org/dist/Twiggy/>
 
 C<Twiggy> is an C<AnyEvent> web server, it's light and fast.
 
-=item L<Corona|http://search.cpan.org/dist/Corona/>
+=item * L<Corona|http://search.cpan.org/dist/Corona/>
 
 C<Corona> is a C<Coro> based web server.
 
@@ -2068,8 +2083,8 @@ Start by creating a simple app.psgi file:
     use Plack::Builder;
 
     builder {
-        mount '/wiki'  => OurWiki->psgi_app;
-        mount '/forum' => OurForum->psgi_app;
+        mount '/wiki'  => OurWiki->to_app;
+        mount '/forum' => OurForum->to_app;
     };
 
 and now use L<Starman>
@@ -2209,7 +2224,7 @@ exports and webapp namespace.
 
 =over 4
 
-=item B<!keyword>
+=item * B<!keyword>
 
 If you want to prevent Dancer2 from exporting specific keywords (perhaps you
 plan to implement them yourself in a different way, or they clash with
@@ -2220,7 +2235,7 @@ another module you're loading), you can simply exclude them:
 
 The above would import all keywords as usual, with the exception of C<pass>.
 
-=item B<appname>
+=item * B<appname>
 
 A larger application may split its source between several packages to aid
 maintainability. Dancer2 will create a separate application for each
@@ -2248,7 +2263,7 @@ tags on import:
 
 =over 4
 
-=item B<with>
+=item * B<with>
 
 The C<with> tag allows an app to pass one or more config entries to another
 app, when it C<use>s it.
@@ -3056,7 +3071,7 @@ this keyword and its usage further.
 =head2 psgi_app
 
 Provides the same functionality as C<to_app> but uses the deprecated
-Dispatcher engine. You should use C<to_app>.
+Dispatcher engine. You should use C<to_app> instead.
 
 =head2 status
 
