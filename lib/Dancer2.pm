@@ -201,6 +201,10 @@ things:
     use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
     use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
 
+=head2 KEYWORDS
+
+The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
+
 =head1 AUTHORS
 
 =head2 CORE DEVELOPERS
