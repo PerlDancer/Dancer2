@@ -1456,6 +1456,155 @@ This option can be useful for small personal web apps or internal apps, but
 if you want to make your app available to the world, it probably won't suit
 you.
 
+=head2 Running stand-alone behind a proxy / load balancer
+
+Another option would be to run your app stand-alone as described above, but
+then use a proxy or load balancer to accept incoming requests (on the
+standard port 80, say) and feed them to your Dancer2 app.
+
+This could be achieved using various software; examples would include:
+
+=head3 Using Apache's C<mod_proxy>
+
+You could set up a C<VirtualHost> for your web app, and proxy all requests
+through to it:
+
+    <VirtualHost mywebapp.example.com:80>
+    ProxyPass / http://localhost:3000/
+    ProxyPassReverse / http://localhost:3000/
+    </VirtualHost>
+
+Or, if you want your webapp to share an existing VirtualHost, you could have
+it under a specified dir:
+
+    ProxyPass /mywebapp/ http://localhost:3000/
+    ProxyPassReverse /mywebapp/ http://localhost:3000/
+
+It is important for you to note that the Apache2 modules C<mod_proxy> and
+C<mod_proxy_http> must be enabled:
+
+    $ a2enmod proxy
+    $ a2enmod proxy_http
+
+It is also important to set permissions for proxying for security purposes,
+below is an example.
+
+    <Proxy *>
+      Order allow,deny
+      Allow from all
+    </Proxy>
+
+=head3 Using Perlbal
+
+C<Perlbal> is a single-threaded event-based server written in Perl
+supporting HTTP load balancing, web serving, and a mix of the two, available
+from L<http://www.danga.com/perlbal/>.
+
+It processes hundreds of millions of requests a day just for LiveJournal,
+Vox, and TypePad and dozens of other "Web 2.0" applications.
+
+It can also provide a management interface to let you see various
+information on requests handled etc.
+
+It could easily be used to handle requests for your Dancer2 apps, too.
+
+It can be easily installed from CPAN:
+
+    perl -MCPAN -e 'install Perlbal'
+
+Once installed, you'll need to write a configuration file. See the examples
+provided with perlbal, but you'll probably want something like:
+
+    CREATE POOL my_dancers
+    POOL my_dancers ADD 10.0.0.10:3030
+    POOL my_dancers ADD 10.0.0.11:3030
+    POOL my_dancers ADD 10.0.0.12:3030
+    POOL my_dancers ADD 10.0.0.13:3030
+
+    CREATE SERVICE my_webapp
+    SET listen          = 0.0.0.0:80
+    SET role            = reverse_proxy
+    SET pool            = my_dancers
+    SET persist_client  = on
+    SET persist_backend = on
+    SET verify_backend  = on
+    ENABLE my_webapp
+
+=head3 Using balance
+
+C<balance> is a simple load-balancer from Inlab Software, available from
+L<http://www.inlab.de/balance.html>.
+
+It could be used simply to hand requests to a standalone Dancer2 app. You
+could even run several instances of your Dancer2 app, on the same machine or
+on several machines, and use a machine running C<balance> to distribute the
+requests between them, for some serious heavy traffic handling!
+
+To listen on port 80, and send requests to a Dancer2 app on port 3000:
+
+    balance http localhost:3000
+
+To listen on a specified IP only on port 80, and distribute requests between
+multiple Dancer2 apps on multiple other machines:
+
+    balance -b 10.0.0.1 80 10.0.0.2:3000 10.0.0.3:3000 10.0.0.4:3000
+
+=head3 Using lighttpd
+
+You can use lighttp's C<mod_proxy>:
+
+    $HTTP["url"] =~ "/application" {
+        proxy.server = (
+            "/" => (
+                "application" => ( "host" => "127.0.0.1", "port" => 3000 )
+            )
+        )
+    }
+
+This configuration will proxy all requests to the C</application> path to the
+path C</> on localhost:3000.
+
+=head3 Using NGINX
+
+with NGINX:
+
+    upstream backendurl {
+        server unix:THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock;
+    }
+
+    server {
+      listen       80;
+      server_name YOUR_HOST_HERE;
+
+      access_log /var/log/YOUR_ACCESS_LOG_HERE.log;
+      error_log  /var/log/YOUR_ERROR_LOG_HERE.log info;
+
+      root YOUR_ROOT_PROJECT/public;
+      location / {
+        try_files $uri @proxy;
+        access_log off;
+        expires max;
+      }
+
+      location @proxy {
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass       http://backendurl;
+      }
+
+    }
+
+You will need plackup to start a worker listening on a socket :
+
+    cd YOUR_PROJECT_PATH
+    sudo -u www plackup -E production -s Starman --workers=2 \
+        -l THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock -a bin/app.psgi
+
+A good way to start this is to use C<daemontools> and place this line with
+all environments variables in the "run" file.
+
 =head2 Auto Reloading with Plack and Shotgun
 
 To edit your files without the need to restart the webserver on each file
