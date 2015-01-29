@@ -323,8 +323,6 @@ specific moments during the resolution of a request.
 Many of them are supported by the core but plugins and engines can also
 define their own.
 
-=head2 Request workflow
-
 =over 4
 
 =item * C<before> hooks
