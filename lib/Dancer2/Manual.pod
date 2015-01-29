@@ -445,7 +445,7 @@ string.
 
 =head2 Error Handling
 
-Refer to L<Error Handling|https://github.com/SnigdhaD/Dancer2/blob/snigdha/lib/Dancer2/Manual.pod#error-handling-1>
+Refer to L<Error Handling|Dancer2::Manual/error-handling-1>
 for details about the following hooks:
 
 =over 4
@@ -462,7 +462,7 @@ for details about the following hooks:
 
 =head2 File Rendering
 
-Refer to L<File Rendering|https://github.com/SnigdhaD/Dancer2/blob/snigdha/lib/Dancer2/Manual.pod#file-handler>
+Refer to L<File Rendering|Dancer2::Manual/file-handler>
 for details on the following hooks:
 
 =over 4
