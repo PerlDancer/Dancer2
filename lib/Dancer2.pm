@@ -152,6 +152,10 @@ information on the concepts of Dancer2 application development and
 a comprehensive reference to the Dancer2 domain specific
 language.
 
+=item * Dancer2 Keywords
+
+The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
+
 =item * Dancer2 Cookbook
 
 There are some situations that are common to a lot of users. For
@@ -200,10 +204,6 @@ things:
     use Dancer2 '!quux'; # Don't import DSL keyword quux
     use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
     use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
-
-=head2 KEYWORDS
-
-The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
 
 =head1 AUTHORS
 
