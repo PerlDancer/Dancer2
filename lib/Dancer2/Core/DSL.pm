@@ -296,7 +296,7 @@ sub delayed {
         local $Dancer2::Core::Route::RESPONDER = $responder;
         local $Dancer2::Core::Route::WRITER    = $writer;
 
-        $cb->();
+        $cb->(@_);
     };
 }
 
