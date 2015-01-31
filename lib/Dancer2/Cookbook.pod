@@ -237,7 +237,7 @@ object with the error's data. This is done via:
 
      $oopsie->throw($response);
 
-Or, if we want to use the response object already present in the C<$context>
+Or, if we want to use the response object already present in the C<$app>
 (which is usually the case):
 
      $oopsie->throw;
