@@ -943,52 +943,6 @@ All that is left now is to render it:
 
      template index => { metrics => $metrics };
 
-=head2 Creating a service
-
-You can turn your app into a proper service running in the background using one of
-the following examples.
-
-=head3 Using Ubic
-
-L<Ubic> is an extensible perlish service manager. You can use it to start
-and stop any services, automatically start them on reboots or daemon
-failures, and implement custom status checks.
-
-A basic PSGI service description (usually in C</etc/ubic/service/application>):
-
-    use parent qw(Ubic::Service::Plack);
-
-    # if your application is not installed in @INC path:
-    sub start {
-        my $self = shift;
-        $ENV{PERL5LIB} = '/path/to/your/application/lib';
-        $self->SUPER::start(@_);
-    }
-
-    __PACKAGE__->new(
-        server => 'Starman',
-        app => '/path/to/your/application/app.psgi',
-        port => 5000,
-        user => 'www-data',
-    );
-
-Run C<ubic start application> to start the service.
-
-=head3 Using daemontools
-
-daemontools is a collection of tools for managing UNIX services. You can use
-it to easily start/restart/stop services.
-
-A basic script to start an application: (in C</service/application/run>)
-
-    #!/bin/sh
-
-    # if your application is not installed in @INC path:
-    export PERL5LIB='/path/to/your/application/lib'
-
-    exec 2>&1 \
-    /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.psgi -p 5000
-
 
 =head1 NON-STANDARD STEPS
 
