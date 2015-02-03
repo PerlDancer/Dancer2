@@ -7,6 +7,7 @@ use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';
 use Return::MultiLevel ();
 use Safe::Isa;
+use Scalar::Lazy       ();
 use File::Spec;
 
 use Plack::Middleware::Conditional;
@@ -667,6 +668,11 @@ sub template {
 
     my $template = $self->template_engine;
     $template->set_settings( $self->config );
+
+    # A session may exist but the route code may not have instantiated
+    # the session object (sessions are lazy). If this is the case, do
+    # that now, so the templates have the session data for rendering.
+    $self->has_session && ! $template->has_session && $self->setup_session;
 
     # return content
     return $template->process( @_ );
