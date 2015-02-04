@@ -144,6 +144,10 @@ sub BUILDARGS {
             ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
             $prefix . $regexp;
     }
+    elsif ( ref($regexp) ne 'Regexp' ) {
+        # No prefix, so ensure regexp begins with a '/'
+        index( $regexp, '/', 0 ) == 0 or $args{regexp} = "/$regexp";
+    }
 
     # init regexp
     $regexp = $args{regexp}; # updated value
