@@ -7,6 +7,7 @@
     * GH #843: Add missing attributes to Moo class used in tests. (Graham Knop)
     * GH #839: Correct "no_server_tokens" definition in production.yml.
                (Nikita K)
+    * GH #565: Fix HTTP Status template logic and documentation (Daniel Muey)
 
     [ ENHANCEMENT ]
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
