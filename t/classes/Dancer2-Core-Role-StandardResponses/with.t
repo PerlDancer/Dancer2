@@ -17,8 +17,10 @@ use Test::More tests => 24;
 {
     package Response;
     use Moo;
-    sub status { shift->{'status'}->(@_) }
-    sub header { shift->{'header'}->(@_) }
+    has status => (is => 'ro', reader => '_status');
+    has header => (is => 'ro', reader => '_header');
+    sub status { shift->_status->(@_) }
+    sub header { shift->_header->(@_) }
 }
 
 note 'Checking our fake app'; {
