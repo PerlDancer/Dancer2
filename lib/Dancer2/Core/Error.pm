@@ -237,9 +237,8 @@ has content => (
             return $self->serializer->serialize($content);
         }
 
-        # Otherwise we check for a template, for a static file and,
+        # Otherwise we check for a template, for a static file, for configured error_template, and,
         # if all else fail, the default error page
-
         if ( $self->has_app and $self->template ) {
             # Render the template using apps' template engine.
             # This may well be what caused the initial error, in which
@@ -255,13 +254,38 @@ has content => (
                     }
                 );
             };
+
             # return rendered content unless there was an error.
-            defined $content && return $content;
+            if (defined $content) {
+                # Why is this necessary here and not with other templates e.g. like route templates?
+                utf8::encode($content) if utf8::is_utf8($content); # less confusing via String::UnicodeUTF8: $content = get_utf8($content) if is_unicode($content)
+                return $content;
+            }
         }
 
         # It doesn't make sense to return a static page if show_errors is on
         if ( !$self->show_errors && (my $content = $self->static_page) ) {
             return $content;
+        }
+
+        if ($self->has_app && $self->app->config->{error_template}) {
+            my $content = eval {
+                $self->app->template(
+                    $self->app->config->{error_template},
+                    {   title     => $self->title,
+                        content   => $self->message,
+                        exception => $self->exception,
+                        status    => $self->status,
+                    }
+                );
+            };
+
+            # return rendered content unless there was an error.
+            if (defined $content) {
+                # Why is this necessary here and not with other templates e.g. like route templates?
+                utf8::encode($content) if utf8::is_utf8($content); # less confusing via String::UnicodeUTF8: $content = get_utf8($content) if is_unicode($content)
+                return $content;
+            }
         }
 
         return $self->default_error_page;
@@ -461,24 +485,6 @@ sub _html_encode {
     $value =~ s/"/&quot;/g;
 
     return $value;
-}
-
-sub _render_html {
-    my $self = shift;
-
-    # error_template defaults to something, always
-    my $template_name = $self->error_template;
-
-    my $ops = {
-        title   => $self->title,
-        content => $self->message,
-        status  => $self->status,
-        defined $self->exception ? ( exception => $self->exception ) : (),
-    };
-    my $content = $self->template->apply_renderer( $template_name, $ops );
-    $self->response->status( $self->status );
-    $self->response->header( 'Content-Type' => 'text/html' );
-    return $content;
 }
 
 1;
