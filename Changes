@@ -4,6 +4,7 @@
     * GH #762: Delay app cleanup until errors are rendered. (Russell Jenkins)
     * GH #835: Correct Logic error in Logger if no request exists.
       (Lennart Hengstmengel)
+    * GH #565: Fix HTTP Status template logic and documentation (Daniel Muey)
 
     [ ENHANCEMENT ]
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.

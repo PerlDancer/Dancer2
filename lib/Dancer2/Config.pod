@@ -312,7 +312,7 @@ shown below.
 
 If set to true, Dancer2 will render a detailed debug screen whenever an
 error is caught. If set to false, Dancer2 will render the default error
-page, using $public/$error_code.html if it exists or the template specified
+page, using $public/$error_code.html if it exists, $views/$error_code.tt or the template specified
 by the C<error_template> setting.
 
 The error screen attempts to sanitise sensitive looking information
@@ -323,7 +323,7 @@ divulging details.
 =head3 error_template (template path)
 
 This setting lets you specify a template to be used in case of runtime
-error. At the present moment the template can use three variables:
+error. At the present moment the template (as well as $views/$error_code.tt templates) can use four variables:
 
 =over 4
 
@@ -331,15 +331,29 @@ error. At the present moment the template can use three variables:
 
 The error title.
 
-=item B<message>
+=item B<content>
 
-The error message.
+The error specific content (if any).
 
-=item B<code>
+=item B<status>
 
-The code throwing that error.
+The HTTP status code throwing that error.
+
+=item B<exception>
+
+The stringified exception (e.g. $@) if any.
 
 =back
+
+Keep in mind that 'content' and 'exception' can vary depending on the problem.
+
+For example:
+
+A 404 has an empty 'exception' and 'content' contains the URI that was not found. Unless you do the 404 yourself via  C<send_error("You chose … poorly!", 404);>, then 'content' is 'You chose … poorly!'.
+
+A 500 because of, say, dividing 0 by 0 will have an empty 'content' and 'exception like 'Illegal division by zero at …'.
+
+A 401 from C<send_error("You can not know the secret until you sign in grasshopper!", 401);> will have an empty 'exception' and 'content' will contain 'You can not know the secret until you sign in grasshopper!'.
 
 =head2 Logger engine
 
