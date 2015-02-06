@@ -13,6 +13,8 @@
                (Alberto Simões)
 
     [ DOCUMENTATION ]
+    * GH #837, #838, #841: Major documentation restructure. (Snigdha Dagar)
+      (Check eb9416e9 and a78e27d7 for more details.)
     * GH #823: Cleanup Manual and Cookbook docs. (Omar M. Othman)
     * GH #828: Provide README.mkdn. (Nuno Carvalho)
     * GH #830: Fix typo in Session::YAML pod. (Vince W)

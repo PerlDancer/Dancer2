@@ -152,14 +152,19 @@ information on the concepts of Dancer2 application development and
 a comprehensive reference to the Dancer2 domain specific
 language.
 
+=item * Dancer2 Keywords
+
+The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
+
+=item * Dancer2 Deployment
+
+For configuration examples of different deployment solutions involving
+Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
+
 =item * Dancer2 Cookbook
 
-There are some situations that are common to a lot of users. For
-example, application deployment. in L<Dancer2::Cookbook> you will find
-recipes for common tasks, like defining routes, storing data as
-sessions or cookies, using templates, configuring and logging, writing
-REST services, and deploying your Dancer2 application using different
-technologies.
+Specific examples of code for real-life problems and some 'tricks' for
+applications in Dancer can be found in <Dancer2::Cookbook>
 
 =item * Dancer2 Config
 
