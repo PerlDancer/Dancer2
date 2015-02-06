@@ -72,8 +72,8 @@ Create a web application using the dancer script:
     + mywebapp/t/001_base.t
     + mywebapp/t/002_index_route.t
 
-It creates a directory named after the name of the app, along with a 
-configuration file, a views directory (where your templates and layouts 
+It creates a directory named after the name of the app, along with a
+configuration file, a views directory (where your templates and layouts
 will live), an environments directory (where environment-specific
 settings live), a module containing the actual guts of your application, and
 a script to start it

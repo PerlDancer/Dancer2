@@ -158,12 +158,12 @@ The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL K
 
 =item * Dancer2 Deployment
 
-For configuration examples of different deployment solutions involving 
-Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>. 
+For configuration examples of different deployment solutions involving
+Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
 
 =item * Dancer2 Cookbook
 
-Specific examples of code for real-life problems and some 'tricks' for 
+Specific examples of code for real-life problems and some 'tricks' for
 applications in Dancer can be found in <Dancer2::Cookbook>
 
 =item * Dancer2 Config

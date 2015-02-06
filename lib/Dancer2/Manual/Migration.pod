@@ -394,7 +394,7 @@ The session keyword has multiple states:
 =item * No arguments
 
 Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
-object, which has methods for L<read>, L<write>, and L<delete>. 
+object, which has methods for L<read>, L<write>, and L<delete>.
 
     my $session = session;
     $session->read($key);

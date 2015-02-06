@@ -42,7 +42,7 @@ sites-available/*site*):
          RewriteEngine On
          RewriteCond %{REQUEST_FILENAME} !-f
          RewriteRule ^(.*)$ /dispatch.cgi$1 [QSA,L]
- 
+
          ErrorLog  /var/log/apache2/www.example.com-error.log
          CustomLog /var/log/apache2/www.example.com-access_log common
      </VirtualHost>
@@ -459,7 +459,7 @@ Then start the haproxy itself:
     $ sudo haproxy -c -f haproxy.conf
     # now really start it..
     $ sudo haproxy -f haproxy.conf
-   
+
 =head2 Running from Apache
 
 You can run your Dancer app from Apache using the following examples:
