@@ -3,12 +3,14 @@
     [ BUG FIXES ]
     * GH #762: Delay app cleanup until errors are rendered. (Russell Jenkins)
     * GH #835: Correct Logic error in Logger if no request exists.
-      (Lennart Hengstmengel)
+               (Lennart Hengstmengel)
     * GH #843: Add missing attributes to Moo class used in tests. (Graham Knop)
+    * GH #839: Correct "no_server_tokens" definition in production.yml.
+               (Nikita K)
 
     [ ENHANCEMENT ]
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
-      (Alberto Simões)
+               (Alberto Simões)
 
     [ DOCUMENTATION ]
     * GH #823: Cleanup Manual and Cookbook docs. (Omar M. Othman)
