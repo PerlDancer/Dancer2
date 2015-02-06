@@ -17,7 +17,7 @@ my $buffer = {};
 my $app = Dancer2::Core::App->new( name => 'main' );
 
 $app->setting( logger      => engine('logger') );
-$app->setting( show_errors => 1 );
+$app->setting( show_stacktrace => 1 );
 
 # a simple / route
 $app->add_route(

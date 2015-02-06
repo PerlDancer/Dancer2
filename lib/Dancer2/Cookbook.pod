@@ -664,14 +664,14 @@ file:
     # appdir/environments/development.yml
     log: 'debug'
     startup_info: 1
-    show_errors:  1
+    show_stacktrace:  1
 
 And in a production one:
 
     # appdir/environments/production.yml
     log: 'warning'
     startup_info: 0
-    show_errors:  0
+    show_stacktrace:  0
 
 =head2 Accessing configuration information
 

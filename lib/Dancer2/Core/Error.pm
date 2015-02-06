@@ -14,14 +14,14 @@ has app => (
     predicate => 'has_app',
 );
 
-has show_errors => (
+has show_stacktrace => (
     is      => 'ro',
     isa     => Bool,
     default => sub {
         my $self = shift;
 
         $self->has_app
-            and return $self->app->setting('show_errors');
+            and return $self->app->setting('show_stacktrace');
     },
 );
 
@@ -105,7 +105,7 @@ sub default_error_page {
         $self->app->request->uri_base : '';
 
     my $message = $self->message;
-    if ( $self->show_errors && $self->exception) {
+    if ( $self->show_stacktrace && $self->exception) {
         $message .= "\n" . $self->exception;
     }
 
@@ -259,8 +259,8 @@ has content => (
             defined $content && return $content;
         }
 
-        # It doesn't make sense to return a static page if show_errors is on
-        if ( !$self->show_errors && (my $content = $self->static_page) ) {
+        # It doesn't make sense to return a static page if show_stacktrace is on
+        if ( !$self->show_stacktrace && (my $content = $self->static_page) ) {
             return $content;
         }
 
@@ -512,7 +512,7 @@ Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES
 
 =method supported_hooks ();
 
-=attr show_errors
+=attr show_stacktrace
 
 =attr charset
 
