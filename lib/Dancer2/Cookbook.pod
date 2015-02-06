@@ -87,100 +87,10 @@ As you can see, it creates a directory named after the name of the app,
 along with a configuration file, a views directory (where your templates and
 layouts will live), an environments directory (where environment-specific
 settings live), a module containing the actual guts of your application, and
-a script to start it - or to run your web app via Plack (see: L<plackup>).
+a script to start it - or to run your web app via Plack (see: L<plackup>) -
+more on that later.
 
-=head1 DANCE ROUTINES: ROUTES
-
-=head2 Declaring routes
-
-To control what happens when a web request is received by your webapp,
-you'll need to declare C<routes>. A route declaration indicates which HTTP
-method(s) it is valid for, the path it matches (e.g. C</foo/bar>), and a
-coderef to execute, which returns the response.
-
-    get '/hello/:name' => sub {
-        return "Hi there " . params->{name};
-    };
-
-The above route specifies that, for GET requests to C</hello/...>, the code
-block provided should be executed.
-
-=head2 Handling multiple HTTP request methods
-
-Routes can use C<any> to match all, or a specified list of HTTP methods.
-
-The following will match any HTTP request to the path C</myaction>:
-
-    any '/myaction' => sub {
-        # code
-    }
-
-The following will match GET or POST requests to C</myaction>:
-
-    any ['get', 'post'] => '/myaction' => sub {
-        # code
-    };
-
-For convenience, any route which matches GET requests will also match HEAD
-requests.
-
-=head2 Retrieving request parameters
-
-The L<params|Dancer2/params> keyword returns a hashref of request
-parameters; these will be parameters supplied on the query string within
-the path itself (with named placeholders) and, for HTTP POST requests, the
-content of the POST body.
-
-=head2 Named parameters in route path declarations
-
-As seen above, you can use C<:somename> in a route's path to capture part of the
-path; this will become available by calling L<params|Dancer2/params>.
-
-So, for a web app where you want to display information on a company, you might
-use something like:
-
-    get '/company/view/:companyid' => sub {
-        my $company_id = params->{companyid};
-        # Look up the company and return appropriate page
-    };
-
-=head2 Wildcard path matching and splat
-
-You can also declare wildcards in a path and retrieve the values they matched
-with the L<splat|Dancer2/splat> keyword:
-
-    get '/*/*' => sub {
-        my ($action, $id) = splat;
-        if (my $action eq 'view') {
-            return display_item($id);
-        } elsif ($action eq 'delete') {
-            return delete_item($id);
-        } else {
-            status 'not_found';
-            return "What?";
-        }
-    };
-
-=head2 C<before> hooks - processed before a request
-
-A L<before|Dancer2/before> hook declares code which should be handled before
-a request is passed to the appropriate route.
-
-    hook before => sub {
-        forward '/foo/oversee', { note => 'Hi there' };
-    };
-
-    get '/foo/*' => sub {
-        my ($match) = splat; # 'oversee';
-        params->{note};      # 'Hi there'
-    };
-
-The above declares a before hook which uses C<forward> to do an internal
-redirect to C</foo/oversee> with an additional parameter C<note>.
-
-See also the L<hook|Dancer2/hook> keyword.
-
-=head2 Default route
+=head2 Default Route
 
 In case you want to avoid a I<404 error>, or handle multiple routes in the
 same way and you don't feel like configuring all of them, you can set up a
@@ -207,7 +117,7 @@ Then you can set up the template like so:
 For simple "static" pages you can simply enable the C<auto_page> config
 setting; this means you don't need to declare a route handler for those
 pages; if a request is for C</foo/bar>, Dancer2 will check for a matching
-view (e.g. C</foo/bar.tt> and render it with the default layout etc. if
+view (e.g. C</foo/bar.tt> and render it with the default layout, if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
@@ -225,12 +135,12 @@ AJAX.
 So, instead of having the following code:
 
     get '/user/:user' => sub {
-         if (request->is_ajax) {
+         if ( request->is_ajax ) {
              # create xml, set headers to text/xml, blablabla
-              header('Content-Type' => 'text/xml');
-              header('Cache-Control' =>  'no-store, no-cache, must-revalidate');
+              header( 'Content-Type'  => 'text/xml' );
+              header( 'Cache-Control' =>  'no-store, no-cache, must-revalidate' );
               to_xml({...})
-         }else{
+         } else {
              template users => {...}
          }
     };
@@ -238,7 +148,7 @@ So, instead of having the following code:
 you can have
 
     ajax '/user/:user' => sub {
-         to_xml({...}, RootName => undef);
+         to_xml( {...}, RootName => undef );
     }
 
 and
@@ -246,6 +156,66 @@ and
     get '/user/:user' => sub {
         template users => {...}
     }
+
+Because it's an AJAX query, you know you need to return XML content, so
+the content type of the response is set for you.
+
+=head3 Example: Feeding graph data through AJAX
+
+Let us assume we are building an application that uses a plotting library
+to generate a graph and expects to get its data, which is in the form
+of wordcount from an AJAX call.
+
+For the graph, we need the url I</data> to return a JSON representation
+of the wordcount data. Dancer infact has a C<to_json()> function that takes
+care of the JSON encapsulation.
+
+     get '/data' => sub {
+         open my $fh, '<', $count_file;
+
+         my %contestant;
+         while (<$fh>) {
+             chomp;
+             my ( $date, $who, $count ) = split '\s*,\s*';
+
+             my $epoch = DateTime::Format::Flexible->parse_datetime($date)->epoch;
+             my $time = 1000 * $epoch;
+             $contestant{$who}{$time} = $count;
+         }
+
+         my @json;  # data structure that is going to be JSONified
+
+         while ( my ( $peep, $data ) = each %contestant ) {
+             push @json, {
+                 label     => $peep,
+                 hoverable => \1,    # so that it becomes JavaScript's 'true'
+                 data => [ map  { [ $_, $data->{$_} ] }
+                         sort { $a <=> $b }
+                         keys %$data ],
+             };
+         }
+
+         my $beginning = DateTime::Format::Flexible->parse_datetime( "2010-11-01")->epoch;
+         my $end       = DateTime::Format::Flexible->parse_datetime( "2010-12-01")->epoch;
+
+         push @json, {
+             label => 'de par',
+             data => [
+                 [$beginning * 1000, 0],
+                 [   DateTime->now->epoch * 1_000,
+                     50_000
+                       * (DateTime->now->epoch - $beginning)
+                       / ($end - $beginning)
+                 ]
+               ],
+
+         };
+
+         to_json( \@json );
+     };
+
+For more serious AJAX interaction, there's also L<Dancer2::Plugin::Ajax>
+that adds an I<ajax> route handler to the mix.
 
 Because it's an AJAX query, you know you need to return XML content, so
 the content type of the response is set for you.
@@ -292,307 +262,95 @@ not overlap. For example, if using a default route as described above, once
 a request is matched to the default route then no further routes (or
 applications) would be reached.
 
-=head1 MUSCLE MEMORY: STORING DATA
+=head2 Delivering custom error pages
 
-=head2 Handling sessions
+=head3 At the Core
 
-It's common to want to use sessions to give your web applications state; for
-instance, allowing a user to log in, creating a session, and checking that
-session on subsequent requests.
+In Dancer2, creating new errors is done by creating a new L<Dancer2::Core::Error>
 
-To make use of sessions, you must first enable the session engine - pick the
-session engine you want to use, then declare it in your config file like
-this:
+     my $oopsie = Dancer2::Core::Error->new(
+         status  => 418,
+         message => "This is the Holidays. Tea not acceptable. We want eggnog.",
+         app     => $app,
+     )
 
-    session: Simple
+If not given, the status code defaults to a 500, there is no need for a message if
+we feel taciturn, and while the C<$app> (which is a I<Dancer::Core::App>
+object holding all the pieces of information related to the current request) is
+needed if we want to take advantage of the templates, we can also do without.
 
-The L<Dancer2::Session::Simple> backend implements very simple in-memory
-session storage. This will be fast and useful for testing, but such sessions
-will not persist between restarts of your app.
+However, to be seen by the end user, we have to populate the L<Dancer2::Core::Response>
+object with the error's data. This is done via:
 
-You can also use the L<Dancer2::Session::YAML> backend included with
-Dancer2, which stores session data on disc in YAML files (since YAML is a
-nice human-readable format, it makes inspecting the contents of sessions a
-breeze):
+     $oopsie->throw($response);
 
-    session: YAML
+Or, if we want to use the response object already present in the C<$context>
+(which is usually the case):
 
-Or, to enable session support from within your code,
+     $oopsie->throw;
 
-    set session => 'YAML';
+This populates the status code of the response, sets its content, and throws a
+I<halt()> in the dispatch process.
 
-However, controlling settings is best done from your config file.
+=head3 What it will look like
 
-'YAML' in the example is the session backend to use; this is shorthand for
-L<Dancer2::Session::YAML>. There are other session backends - for instance
-L<Dancer2::Session::Memcached> - but the YAML backend is simple and easy to
-use.
+The error object has quite a few ways to generate its content.
 
-You can then use the L<session|Dancer2/session> keyword to manipulate the
-session:
+First, it can be explicitly given
 
-=head3 Storing data in the session
+     my $oopsie = Dancer::Core::Error->new(
+         content => '<html><body><h1>OMG</h1></body></html>',
+     );
 
-Storing data in the session is as easy as:
+If the C<$context> was given, the error will check if there is a
+template by the name of the status code (so, say you're using Template
+Toolkit, I<418.tt>) and will use it to generate the content, passing it
+the error's C<$message>, C<$status> code and C<$title> (which, if not
+specified, will be the standard http error definition for the status code).
 
-    session varname => 'value';
+If there is no template, the error will then look for a static page (to
+continue with our example, I<418.html>) in the I<public/> directory.
 
-=head3 Retrieving data from the session
+And finally, if all of that failed, the error object will fall back on
+an internal template.
 
-Retrieving data from the session is as easy as:
+=head3 Errors in Routes
 
-    session('varname')
+The simplest way to use errors in routes is:
 
-Or, alternatively,
+     get '/xmas/gift/:gift' => sub {
+         die "sorry, we're all out of ponies\n"
+             if param('gift') eq 'pony';
+     };
 
-    session->read("varname")
+The die will be intercepted by Dancer, converted into an error (status
+code 500, message set to the dying words) and passed to the response.
 
-=head3 Controlling where sessions are stored
+In the cases where more control is required, C<send_error()> is the way to go:
 
-For disc-based session backends like L<Dancer2::Session::YAML>,
-L<Dancer2::Session::Storable> etc., session files are written to the session
-dir specified by the C<session_dir> setting, which defaults to C<./sessions>
-if not specifically set.
+     get '/glass/eggnog' => sub {
+         send_error "Sorry, no eggnog here", 418;
+     };
 
-If you need to control where session files are created, you can do so
-quickly and easily within your config file, for example:
+And if total control is needed:
 
-    session: YAML
-    engines:
-      session:
-        YAML:
-          session_dir: /tmp/dancer-sessions
+     get '/xmas/wishlist' => sub {
+         Dancer::Core::Error->new(
+             response => response(),
+             status   => 406,
+             message  => "nothing but coal for you, I'm afraid",
+             template => 'naughty/index',
+         )->throw unless user_was_nice();
 
-If the directory you specify does not exist, Dancer2 will attempt to create
-it for you.
-
-=head3 Destroying a session
-
-When you're done with your session, you can destroy it:
-
-    app->destroy_session
-
-=head2 Sessions and logging in
-
-A common requirement is to check the user is logged in, and, if not, require
-them to log in before continuing.
-
-This can easily be handled using a before hook to check their session:
-
-    use Dancer2;
-    set session => "Simple";
-
-    hook before => sub {
-        if (!session('user') && request->dispatch_path !~ m{^/login}) {
-            forward '/login', { requested_path => request->dispatch_path };
-        }
-    };
-
-    get '/' => sub { return "Home Page"; };
-
-    get '/secret' => sub { return "Top Secret Stuff here"; };
-
-    get '/login' => sub {
-        # Display a login page; the original URL they requested is available as
-        # param('requested_path'), so could be put in a hidden field in the form
-        template 'login', { path => param('requested_path') };
-    };
-
-    post '/login' => sub {
-        # Validate the username and password they supplied
-        if (param('user') eq 'bob' && param('pass') eq 'letmein') {
-            session user => param('user');
-            redirect param('path') || '/';
-        } else {
-            redirect '/login?failed=1';
-        }
-    };
-
-    dance();
-
-Here is what the corresponding C<login.tt> file should look like. You should
-place it in a directory called C<views/>:
-
-    <html>
-      <head>
-        <title>Session and logging in</title>
-      </head>
-      <body>
-        <form action='/login' method='POST'>
-            User Name : <input type='text' name='user'/>
-            Password: <input type='password' name='pass' />
-
-            <!-- Put the original path requested into a hidden
-                       field so it's sent back in the POST and can be
-                       used to redirect to the right page after login -->
-            <input type='hidden' name='path' value='[% path %]'/>
-
-            <input type='submit' value='Login' />
-        </form>
-      </body>
-    </html>
-
-Of course, you'll probably want to validate your users against a database
-table, or maybe via IMAP/LDAP/SSH/POP3/local system accounts via PAM etc.
-L<Authen::Simple> is probably a good starting point here!
-
-A simple working example of handling authentication against a database table
-yourself (using L<Dancer2::Plugin::Database> which provides the C<database>
-keyword, and L<Crypt::SaltedHash> to handle salted hashed passwords (well,
-you wouldn't store your users passwords in the clear, would you?)) follows:
-
-    post '/login' => sub {
-        my $user = database->quick_select('users',
-            { username => params->{user} }
-        );
-        if (!$user) {
-            warning "Failed login for unrecognised user " . params->{user};
-            redirect '/login?failed=1';
-        } else {
-            if (Crypt::SaltedHash->validate($user->{password}, params->{pass}))
-            {
-                debug "Password correct";
-                # Logged in successfully
-                session user => $user;
-                redirect params->{path} || '/';
-            } else {
-                debug("Login failed - password incorrect for " . params->{user});
-                redirect '/login?failed=1';
-            }
-        }
-    };
-
-=head3 Retrieve complete hash stored in session
-
-Get complete hash stored in session:
-
-    my $hash = session;
-
-=head1 APPEARANCE: TEMPLATES AND LAYOUTS
-
-Returning plain content is all well and good for examples or trivial apps,
-but soon you'll want to use templates to maintain separation between your
-code and your content. Dancer2 makes this easy.
-
-Your route handlers can use the L<template|Dancer2::Manual/template> keyword
-to render templates.
-
-=head2 Views
-
-It's possible to render the action's content with a template, this is called
-a view. The C<appdir/views> directory is the place where views are located.
-
-You can change this location by changing the setting 'views'.
-
-By default, the internal template engine L<Dancer2::Template::Simple> is
-used, but you may want to upgrade to L<Template
-Toolkit|http://www.template-toolkit.org/>. If you do so, you have to enable
-this engine in your settings as explained in
-L<Dancer2::Template::TemplateToolkit> and you'll also have to import the
-L<Template> module in your application code.
-
-Views use a C<.tt> extension by convention. This can be overridden by
-setting the C<extension> attribute in the template engine configuration.
-See the L<Using Templates|Dancer2::Manual/"Using Templates"> section in the
-manual for details.
-
-In order to render a view, just call the
-L<template|Dancer2::Manual/template> keyword at the end of the action by
-giving the view name and the HASHREF of tokens to interpolate in the view
-(note that for convenience, the request, session, params and vars are
-automatically accessible in the view, named C<request>, C<session>,
-C<params> and C<vars>) - for example:
-
-    hook before => sub { var time => scalar(localtime) };
-
-    get '/hello/:name' => sub {
-        my $name = params->{name};
-        template 'hello.tt', { name => $name };
-    };
-
-The template C<hello.tt> could contain, for example:
-
-    <p>Hi there, [% name %]!</p>
-    <p>You're using [% request.user_agent %]</p>
-    [% IF session.username %]
-        <p>You're logged in as [% session.username %]</p>
-    [% END %]
-    It's currently [% vars.time %]
-
-For a full list of the tokens automatically added to your template (like
-C<session>, C<request> and C<vars>, refer to
-L<Dancer2::Core::Role::Template>).
-
-=head2 Layouts
-
-A layout is a special view, located in the 'layouts' directory (inside the
-views directory) which must have a token named C<content>. That token marks
-the place where to render the action view. This lets you define a global
-layout for your actions, and have each individual view contain only
-specific content. This is a good thing to avoid lots of needless
-duplication of HTML :)
-
-Here is an example of a layout: C<views/layouts/main.tt> :
-
-    <html>
-        <head>...</head>
-        <body>
-        <div id="header">
-        ...
-        </div>
-
-        <div id="content">
-        [% content %]
-        </div>
-
-        </body>
-    </html>
-
-You can tell your app which layout to use with C<layout: name> in the config
-file, or within your code:
-
-    set layout => 'main';
-
-You can control which layout to use (or whether to use a layout at all) for
-a specific request without altering the layout setting by passing an options
-hashref as the third param to the template keyword:
-
-    template 'index.tt', {}, { layout => undef };
-
-If your application is not mounted under root (C</>), you can use a
-C<before_template> hook instead of hardcoding the path into your application for your
-CSS, images and JavaScript:
-
-    hook before_template_render => sub {
-        my $tokens = shift;
-        $tokens->{uri_base} = request->base->path;
-    };
-
-Then in your layout, modify your CSS inclusion as follows:
-
-    <link rel="stylesheet" href="[% uri_base %]/css/style.css" />
-
-From now on you can mount your application wherever you want, without any
-further modification of the CSS inclusion.
-
-=head2 Templates and unicode
-
-If you use L<Plack> and have a unicode problem with your Dancer2
-application, don't forget to check if you have set your template engine to
-use unicode, and set the default charset to UTF-8. So, if you are using
-template toolkit, your config file will look like this:
-
-    charset: UTF-8
-    engines:
-      template:
-        template_toolkit:
-          ENCODING: utf8
+         ...;
+     };
 
 =head2 Template Toolkit's WRAPPER directive in Dancer2
 
 Dancer2 already provides a WRAPPER-like ability, which we call a "layout".
-The reason we don't use Template Toolkit's WRAPPER (which also makes us incompatible with
-it) is because not all template systems support it. Actually, most don't.
+The reason we don't use Template Toolkit's WRAPPER (which also makes us
+incompatible with it) is because not all template systems support it.
+In fact, most don't.
 
 However, you might want to use it, and be able to define META variables and
 regular L<Template::Toolkit> variables.
@@ -627,67 +385,8 @@ Change the configuration of the template to Template Toolkit:
 Done! Everything will work fine out of the box, including variables and META
 variables.
 
-=head1 SETTING THE STAGE: CONFIGURATION AND LOGGING
 
-=head2 Configuration and environments
-
-Configuring a Dancer2 application can be done in many ways. The easiest one
-(and maybe the dirtiest) is to put all your settings statements at the top
-of your script, before calling the C<dance()> method.
-
-Other ways are possible: for example, you can define all your settings in the file
-C<appdir/config.yml>. For this, you must have installed the YAML module, and
-of course, write the config file in YAML.
-
-That's better than the first option, but it's still not perfect as you can't
-switch easily from an environment to another without rewriting the config
-file.
-
-A better solution is to have one C<config.yml> file with default global
-settings, like the following:
-
-    # appdir/config.yml
-    logger: 'file'
-    layout: 'main'
-
-And then write as many environment files as you like in
-C<appdir/environments>. That way, the appropriate environment config file
-will be loaded according to the running environment (if none is specified,
-it will be 'development').
-
-Note that you can change the running environment using the C<--environment>
-command line switch.
-
-Typically, you'll want to set the following values in a development config
-file:
-
-    # appdir/environments/development.yml
-    log: 'debug'
-    startup_info: 1
-    show_errors:  1
-
-And in a production one:
-
-    # appdir/environments/production.yml
-    log: 'warning'
-    startup_info: 0
-    show_errors:  0
-
-=head2 Accessing configuration information
-
-=head3 From inside your application
-
-A Dancer2 application can use the C<config> keyword to easily access the
-settings within its config file, for instance:
-
-    get '/appname' => sub {
-        return "This is " . config->{appname};
-    };
-
-This makes keeping your application's settings all in one place simple and
-easy - you shouldn't need to worry about implementing all that yourself :)
-
-=head3 From a separate script
+=head2 Accessing configuration information from a separate script
 
 You may want to access your webapp's configuration from outside your
 webapp. You could, of course, use the YAML module of your choice and load
@@ -698,8 +397,8 @@ the values from C<config.yml> and some additional default values:
 
     # bin/show_app_config.pl
     use Dancer2;
-    print "template:".config->{template}."\n"; # simple
-    print "log:".config->{log}."\n"; # undef
+    printf "template: %s\n", config->{'template'}; # simple
+    printf "log: %s\n",      config->{'log'};      # undef
 
 Note that C<< config->{log} >> should result in an uninitialized warning
 on a default scaffold since the environment isn't loaded and
@@ -736,43 +435,324 @@ Or you can override them directly in the script (less recommended):
 
     ...
 
-=head2 Logging
+=head2 Using DBIx::Class
 
-=head3 Configuring logging
+L<DBIx::Class>, also known as DBIC, is one of the many Perl ORM
+(I<Object Relational Mapper>). It is easy to use DBIC in Dancer using the
+L<Dancer2::Plugin::DBIC>.
 
-It's possible to log messages generated by the application and by Dancer2
-itself.
+=head3 An example
 
-To start logging, select the logging engine you wish to use with the
-C<logger> setting; Dancer2 includes built-in log engines named C<file> and
-C<console>, which log to a logfile and to the console respectively.
+This example demonstrates a simple Dancer application that allows to search
+for authors or books. The application is connected to a database, that contains
+authors, and their books. The website will have one single page with a form,
+that allows to query books or authors, and display the results.
 
-To enable logging to a file, add the following to your config file:
+=head4 Creating the application
 
-    logger: 'file'
+    $ dancer -a bookstore
 
-Then you can choose which kind of messages you want to actually log:
+To use the Template Toolkit as the template engine, we specify it in the
+congiguration file:
 
-    log: 'core'      # will log debug, info, warnings, errors,
-                     #   and messages from Dancer2 itself
-    log: 'debug'     # will log debug, info, warning and errors
-    log: 'info'      # will log info, warning and errors
-    log: 'warning'   # will log warning and errors
-    log: 'error'     # will log only errors
+    # add in bookstore/config.yml
+    template: template_toolkit
 
-If you're using the C<file> logging engine, a directory C<appdir/logs> will
-be created and will host one logfile per environment. The log message
-contains the time it was written, the PID of the current process, the
-message and the caller information (file and line).
+=head4 Creating the view
 
-=head3 Logging your own messages
+We need a view to display the search form, and below, the results, if any. The
+results will be fed by the route to the view as an arrayref of results. Each
+result is a I<hashref>, with a author key containing the name of the author, and
+a books key containing an I<arrayref> of strings : the books names.
 
-Just call L<debug|Dancer2/debug>, L<info|Dancer2/info>,
-L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
+    # example of a list of results
+    [ { author => 'author 1',
+        books => [ 'book 1', 'book 2' ],
+      },
+      { author => 'author 2',
+        books => [ 'book 3', 'book 4' ],
+      }
+    ]
 
-    debug "This is a debug message from my app.";
+# bookstore/views/search.tt
+<p>
+<form action="/search">
+Search query: <input type="text" name="query" />
+</form>
+</p>
+<br>
 
-=head1 RESTING
+An example of the view, displaying the search form, and the results, if any:
+
+    <% IF query.length %>
+      <p>Search query was : <% query %>.</p>
+      <% IF results.size %>
+        Results:
+        <ul>
+        <% FOREACH result IN results %>
+          <li>Author: <% result.author.replace("((?i)$query)", '<b>$1</b>') %>
+          <ul>
+          <% FOREACH book IN result.books %>
+            <li><% book.replace("((?i)$query)", '<b>$1</b>') %>
+          <% END %>
+          </ul>
+        <% END %>
+      <% ELSE %>
+        No result
+      <% END %>
+    <% END %>
+
+=head4 Creating a Route
+
+A simple route, to be added in the I<bookstore.pm> module:
+
+    # add in bookstore/lib/bookstore.pm
+    get '/search' => sub {
+        my $query   = params->{'query'};
+        my @results = ();
+
+        if ( length $query ) {
+            @results = _perform_search($query);
+        }
+
+        template search => {
+            query   => $query,
+            results => \@results,
+        };
+    };
+
+=head4 Creating a database
+
+We create a SQLite file database:
+
+    $ sqlite3 bookstore.db
+    CREATE TABLE author(
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      firstname text default '' not null,
+      lastname text not null);
+
+    CREATE TABLE book(
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      author INTEGER REFERENCES author (id),
+      title text default '' not null );
+
+Now, to populate the database with some data, we use L<DBIx::Class>:
+
+    # populate_database.pl
+    package My::Bookstore::Schema;
+    use base qw(DBIx::Class::Schema::Loader);
+    package main;
+    my $schema = My::Bookstore::Schema->connect('dbi:SQLite:dbname=bookstore.db');
+    $schema->populate('Author', [
+      [ 'firstname', 'lastname'],
+      [ 'Ian M.',    'Banks'   ],
+      [ 'Richard',   'Matheson'],
+      [ 'Frank',     'Herbert' ],
+    ]);
+    my @books_list = (
+      [ 'Consider Phlebas',    'Banks'    ],
+      [ 'The Player of Games', 'Banks'    ],
+      [ 'Use of Weapons',      'Banks'    ],
+      [ 'Dune',                'Herbert'  ],
+      [ 'Dune Messiah',        'Herbert'  ],
+      [ 'Children of Dune',    'Herbert'  ],
+      [ 'The Night Stalker',   'Matheson' ],
+      [ 'The Night Strangler', 'Matheson' ],
+    );
+    # transform author names into ids
+    $_->[1] = $schema->resultset('Author')->find({ lastname => $_->[1] })->id
+      foreach (@books_list);
+    $schema->populate('Book', [
+      [ 'title', 'author' ],
+      @books_list,
+    ]);
+
+Then run it in the directory where I<bookstore.db> sits:
+
+    perl populate_database.db
+
+=head4 Using Dancer2::Plugin::DBIC
+
+There are 2 ways of configuring DBIC to understand how the data is organized
+in your database:
+
+=over 4
+
+=item * Use auto-detection
+
+The configuration file needs to be updated to indicate the use of the
+Dancer::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
+to indicate that this schema is connected to the SQLite database we created.
+
+    # add in bookstore/config.yml
+    plugins:
+      DBIC:
+        bookstore:
+          dsn:  "dbi:SQLite:dbname=bookstore.db"
+
+Now, C<_perform_search> can be implemented using L<Dancer2::Plugin::DBIC>. The
+plugin gives you access to an additional keyword called B<schema>, which you
+give the name of schema you want to retrieve. It returns a C<DBIx::Class::Schema::Loader>
+which can be used to get a resultset and perform searches, as per standard
+usage of DBIX::Class.
+
+    # add in bookstore/lib/bookstore.pm
+    sub _perform_search {
+        my ($query) = @_;
+        my $bookstore_schema = schema 'bookstore';
+        my @results;
+        # search in authors
+        my @authors = $bookstore_schema->resultset('Author')->search({
+          -or => [
+            firstname => { like => "%$query%" },
+            lastname  => { like => "%$query%" },
+          ]
+        });
+        push @results, map {
+            { author => join(' ', $_->firstname, $_->lastname),
+              books => [],
+            }
+        } @authors;
+        my %book_results;
+        # search in books
+        my @books = $bookstore_schema->resultset('Book')->search({
+            title => { like => "%$query%" },
+        });
+        foreach my $book (@books) {
+            my $author_name = join(' ', $book->author->firstname, $book->author->lastname);
+            push @{$book_results{$author_name}}, $book->title;
+        }
+        push @results, map {
+            { author => $_,
+              books => $book_results{$_},
+            }
+        } keys %book_results;
+        return @results;
+    }
+
+=item * Use home made schema classes
+
+The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes
+using L<Moose>. The schema classes should be put in a place that Dancer
+will find. A good place is in I<bookstore/lib/>.
+
+Once your schema classes are in place, all you need to do is modify I<config.yml>
+to specify that you want to use them, instead of the default auto-detection method:
+
+    # change in bookstore/config.yml
+    plugins:
+      DBIC:
+        bookstore:
+          schema_class: My::Bookstore::Schema
+          dsn: "dbi:SQLite:dbname=bookstore.db"
+
+B<Starting the application>:
+Our bookstore lookup application can now be started using the built-in server:
+
+    # start the web application
+    bookstore/bin/app.pl
+
+=back
+
+=head2 Authentication
+
+Writing a form for authentication is simple: we check the user credentials
+on a request and decide whether to continue or redirect them to a form.
+The form allows them to submit their username and password and we save that
+and create a session for them so when they now try the original request,
+we recognize them and allow them in.
+
+=head3 Basic Application
+
+The application is fairly simple. We have a route that needs authentication,
+we have a route for showing the login page, and we have a route for posting
+login information and creating a session.
+
+     package MyApp;
+     use Dancer2;
+
+     get '/' => sub {
+         session('user')
+             or redirect('/login');
+
+         template index => {};
+     };
+
+     get '/login' => sub {
+         template login => {};
+     };
+
+     post '/login' => sub {
+         my $username  = param('username');
+         my $password  = param('password');
+         my $redir_url = param('redirect_url') || '/login';
+
+         $username eq 'john' && $password eq 'correcthorsebatterystaple'
+             or redirect $redir_url;
+
+         session user => $username;
+         redirect $redir_url;
+     };
+
+=head3 Tiny Authentication Helper
+
+L<Dancer2::Plugin::Auth::Tiny> allows you to abstract away not only the
+part that checks whether the session exists, but to also generate a
+redirect with the right path and return URL.
+
+We simply have to define what routes needs a login using Auth::Tiny's
+C<needs> keyword.
+
+     get '/' => needs login => sub {
+         template index => {};
+     };
+
+It creates a proper return URL using C<uri_for> and the address from which
+the user arrived.
+
+We can thus decorate all of our private routes to require authentication in
+this manner. If a user does not have a session, it will automatically forward
+it to I</login>, in which we would render a form for the user to send a login request.
+
+Auth::Tiny even provides a new parameter, C<return_url>, which can be used to send
+the user back to their original requested path.
+
+=head3 Password Hashing
+
+L<Dancer2::Plugin::Passphrase> provides a simple passwords-as-objects interface with
+sane defaults for hashed passwords which you can use in your web application. It uses
+B<bcrypt> as the default but supports anything the L<Digest> interface does.
+
+Assuming we have the original user-creation form submitting a username and password:
+
+     package MyApp;
+     use Dancer2;
+     use Dancer2::Plugin::Passphrase;
+     post '/register' => sub {
+         my $username = param('username');
+         my $password = passphrase( param('password') )->generate;
+
+         # $password is now a hashed password object
+         save_user_in_db( $username, $password->rfc2307 );
+
+         template registered => { success => 1 };
+     };
+
+We can now add the B<POST> method for verifying that username and password:
+
+     post '/login' => sub {
+         my $username   = param('username');
+         my $password   = param('password');
+         my $saved_pass = fetch_password_from_db($username);
+
+         if ( passphrase($password)->matches($saved_pass) ) {
+             session user => $username;
+             redirect param('return_url') || '/';
+         }
+
+         # let's render instead of redirect...
+         template login => { error => 'Invalid username or password' };
+     };
 
 =head2 Writing a REST application
 
@@ -831,363 +811,184 @@ can be a string, an arrayref or a hashref:
 The content of the error will be serialized using the appropriate
 serializer.
 
-=head1 DANCER ON THE STAGE: DEPLOYMENT
+=head2 Using the serializer
 
-=head2 Running stand-alone
-
-At the simplest, your Dancer2 app can run standalone, operating as its own
-webserver using L<HTTP::Server::PSGI>.
-
-Simply fire up your app:
-
-    $ plackup bin/app.psgi
-    >> Listening on 0.0.0.0:3000
-    == Entering the dance floor ...
-
-Point your browser at it, and away you go!
-
-This option can be useful for small personal web apps or internal apps, but
-if you want to make your app available to the world, it probably won't suit
-you.
-
-=head2 Auto Reloading with Plack and Shotgun
-
-To edit your files without the need to restart the webserver on each file
-change, simply start your Dancer2 app using L<plackup> and
-L<Plack::Loader::Shotgun>:
-
-    $ plackup -L Shotgun bin/app.psgi
-    HTTP::Server::PSGI: Accepting connections at http://0:5000/
-
-Point your browser at it. Files can now be changed in your favorite editor
-and the browser needs to be refreshed to see the saved changes.
-
-Please note that this is not recommended for production for performance
-reasons. This is the Dancer2 replacement solution of the old Dancer
-experimental C<auto_reload> option.
-
-On Windows, Shotgun loader is known to cause huge memory leaks in a
-fork-emulation layer. If you are aware of this and still want to run the
-loader, please use the following command:
-
-    > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
-    HTTP::Server::PSGI: Accepting connections at http://0:5000/
-
-=head2 CGI and Fast-CGI
-
-In providing ultimate flexibility in terms of deployment, your Dancer2 app
-can be run as a simple cgi-script out-of-the-box. No additional web-server
-configuration needed. Your web server should recognize .cgi files and be
-able to serve Perl scripts. The Perl module L<Plack::Runner> is required.
-
-=head3 Running on Apache (CGI and FCGI)
-
-Start by adding the following to your apache configuration (C<httpd.conf> or
-C<sites-available/*site*>):
-
-    <VirtualHost *:80>
-        ServerName www.example.com
-        DocumentRoot /srv/www.example.com/public
-        ServerAdmin you@example.com
-
-        <Directory "/srv/www.example.com/public">
-           AllowOverride None
-           Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-           Order allow,deny
-           Allow from all
-           AddHandler cgi-script .cgi
-        </Directory>
-
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteRule ^(.*)$ /dispatch.cgi$1 [QSA,L]
-
-        ErrorLog  /var/log/apache2/www.example.com-error.log
-        CustomLog /var/log/apache2/www.example.com-access_log common
-    </VirtualHost>
-
-Note that when using fast-cgi your rewrite rule should be:
-
-        RewriteRule ^(.*)$ /dispatch.fcgi$1 [QSA,L]
-
-Here, the mod_rewrite magic for Pretty-URLs is directly put in Apache's
-configuration. But if your web server supports C<.htaccess> files, you can
-drop those lines in a C<.htaccess> file.
-
-To check if your server supports mod_rewrite type C<apache2 -l> to list
-modules. To enable C<mod_rewrite> on Debian or Ubuntu, run C<a2enmod rewrite>. Place
-following code in a file called C<.htaccess> in your application's root folder:
-
-    # BEGIN dancer application htaccess
-    RewriteEngine On
-    RewriteCond %{SCRIPT_FILENAME} !-d
-    RewriteCond %{SCRIPT_FILENAME} !-f
-    RewriteRule (.*) /dispatch.cgi$1 [L]
-    # END dancer application htaccess
-
-Now you can access your Dancer2 application URLs as if you were using the
-embedded web server:
-
-    http://localhost/
-
-This option is a no-brainer, easy to setup, low maintenance but serves
-requests slower than all other options.
-
-You can use the same technique to deploy with FastCGI, by just changing the
-line:
-
-    AddHandler cgi-script .cgi
-
-to:
-
-    AddHandler fastcgi-script .fcgi
-
-Of course remember to update your rewrite rules, if you have set any:
-
-    RewriteRule (.*) /dispatch.fcgi$1 [L]
-
-=head4 Running under an appdir
-
-If you want to deploy multiple applications under the same C<VirtualHost>
-(using one application per directory, for example) you can use the following
-example Apache configuration.
-
-This example uses the FastCGI dispatcher that comes with Dancer2, but you
-should be able to adapt this to use any other way of deployment described in
-this guide. The only purpose of this example is to show how to deploy
-multiple applications under the same base directory/C<VirtualHost>.
-
-    <VirtualHost *:80>
-        ServerName localhost
-        DocumentRoot "/path/to/rootdir"
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-
-        <Directory "/path/to/rootdir">
-            AllowOverride None
-            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-            Order allow,deny
-            Allow from all
-            AddHandler fastcgi-script .fcgi
-        </Directory>
-
-        RewriteRule /App1(.*)$ /App1/public/dispatch.fcgi$1 [QSA,L]
-        RewriteRule /App2(.*)$ /App2/public/dispatch.fcgi$1 [QSA,L]
-        ...
-        RewriteRule /AppN(.*)$ /AppN/public/dispatch.fcgi$1 [QSA,L]
-    </VirtualHost>
-
-Of course, if your Apache configuration allows that, you can put the
-RewriteRules in a .htaccess file directly within the application's
-directory, which lets you add a new application without changing the Apache
-configuration.
-
-=head3 Running on lighttpd (CGI)
-
-To run as a CGI app on lighttpd, just create a soft link to the C<dispatch.cgi>
-script (created when you run C<dancer -a MyApp>) inside your system's C<cgi-bin>
-folder. Make sure C<mod_cgi> is enabled.
-
-    ln -s /path/to/MyApp/public/dispatch.cgi /usr/lib/cgi-bin/mycoolapp.cgi
-
-=head3 Running on lighttpd (FastCGI)
-
-Make sure C<mod_fcgi> is enabled. You also must have L<FCGI> installed.
-
-This example configuration uses TCP/IP:
-
-    $HTTP["url"] == "^/app" {
-        fastcgi.server += (
-            "/app" => (
-                "" => (
-                    "host" => "127.0.0.1",
-                    "port" => "5000",
-                    "check-local" => "disable",
-                )
-            )
-        )
-    }
-
-Launch your application:
-
-    plackup -s FCGI --port 5000 bin/app.psgi
-
-This example configuration uses a socket:
-
-    $HTTP["url"] =~ "^/app" {
-        fastcgi.server += (
-            "/app" => (
-                "" => (
-                    "socket" => "/tmp/fcgi.sock",
-                    "check-local" => "disable",
-                )
-            )
-        )
-    }
-
-Launch your application:
-
-    plackup -s FCGI --listen /tmp/fcgi.sock bin/app.psgi
-
-=head2 Plack middlewares
-
-If you want to use Plack middlewares, you need to enable them using
-L<Plack::Builder> as such:
-
-    # in app.psgi or any other handler
-    use Dancer2;
-    use MyWebApp;
-    use Plack::Builder;
-
-    builder {
-        enable 'Deflater';
-        enable 'Session', store => 'File';
-        enable 'Debug', panels => [ qw<DBITrace Memory Timer> ];
-        dance;
-    };
-
-The nice thing about this setup is that it will work seamlessly through
-Plack or through the internal web server.
-
-    # load dev web server (without middlewares)
-    perl -Ilib app.psgi
-
-    # load plack web server (with middlewares)
-    plackup -I lib app.psgi
-
-You do not need to provide different files for either server.
-
-=head3 Path-based middlewares
-
-If you want to set up a middleware for a specific path, you can do that using
-L<Plack::Builder> which uses L<Plack::App::URLMap>:
-
-    # in your app.psgi or any other handler
-    use Dancer2;
-    use MyWebApp;
-    use Plack::Builder;
-
-    my $special_handler = sub { ... };
-
-    builder {
-        mount '/'        => dance;
-        mount '/special' => $special_handler;
-    };
-
-=head3 Running on Perl web servers with plackup
-
-A number of Perl web servers supporting PSGI are available on CPAN:
+Serializers essentially do two things:
 
 =over 4
 
-=item L<Starman|http://search.cpan.org/dist/Starman/>
+=item * Deserialize incoming requests
 
-C<Starman> is a high performance web server, with support for preforking,
-signals, multiple interfaces, graceful restarts and dynamic worker pool
-configuration.
+When a user makes a request with serialized input, the serializer
+automatically deserializes it into actual input parameters.
 
-=item L<Twiggy|http://search.cpan.org/dist/Twiggy/>
+=item * Serialize outgoing responses
 
-C<Twiggy> is an C<AnyEvent> web server, it's light and fast.
-
-=item L<Corona|http://search.cpan.org/dist/Corona/>
-
-C<Corona> is a C<Coro> based web server.
+When you return a data structure from a route, it will automatically
+serialize it for you before returning it to the user.
 
 =back
 
-To start your application, just run plackup (see L<Plack> and specific
-servers above for all available options):
+=head3 Configuring
 
-   $ plackup bin/app.psgi
-   $ plackup -E deployment -s Starman --workers=10 -p 5001 -a bin/app.psgi
+In order to configure a serializer, you just need to pick which format
+you want for encoding/decoding (from L<Dancer2::Serializer>) and set it
+up using the C<serializer> configuration keyword.
 
-As you can see, the scaffolded Perl script for your app can be used as a
-PSGI startup file.
+It is recommended to explicitly add it in the actual code instead of the
+configuration file so it doesn't apply automatically to every app that
+reads the configuration file (unless that's what you want):
 
-=head4 Enabling content compression
+     package MyApp;
+     use Dancer2;
+     set serializer => 'JSON'; # Dancer2::Serializer::JSON
 
-Content compression (gzip, deflate) can be easily enabled via a Plack
-middleware (see L<Plack/Plack::Middleware>): L<Plack::Middleware::Deflater>.
-It's a middleware to encode the response body in gzip or deflate, based on the
-C<Accept-Encoding> HTTP request header.
+     ...
 
-Enable it as you would enable any Plack middleware. First you need to
-install L<Plack::Middleware::Deflater>, then in the handler (usually
-F<app.psgi>) edit it to use L<Plack::Builder>, as described above:
+=head3 Using
 
-    use Dancer2;
-    use MyWebApp;
-    use Plack::Builder;
+Now that we have a serializer set up, we can just return data structures:
 
-    builder {
-        enable 'Deflater';
-        dance;
-    };
+     get '/' => sub {
+         return { resources => \%resources };
+     };
 
-To test if content compression works, trace the HTTP request and response
-before and after enabling this middleware. Among other things, you should
-notice that the response is gzip or deflate encoded, and contains a header
-C<Content-Encoding> set to C<gzip> or C<deflate>.
+When we return this data structure, it will automatically be serialized
+into JSON. No other code is necessary.
 
-=head3 Running multiple apps with Plack::Builder
+We also now receive requests in JSON:
 
-You can use L<Plack::Builder> to mount multiple Dancer2 applications on a
-L<PSGI> webserver like L<Starman>.
+     post '/:entity/:id' => sub {
+         my $entity = param('entity');
+         my $id     = param('id');
 
-Start by creating a simple app.psgi file:
+         # input which was sent serialized
+         my $user = param('user');
 
-    use OurWiki;  # first app
-    use OurForum; # second app
-    use Plack::Builder;
+         ...
+     };
 
-    builder {
-        mount '/wiki'  => OurWiki->psgi_app;
-        mount '/forum' => OurForum->psgi_app;
-    };
+We can now make a serialized request:
 
-and now use L<Starman>
+     $ curl -X POST http://ourdomain/person/16 -d '{"user":"sawyer_x"}'
 
-    plackup -a app.psgi -s Starman
+=head3 App-specific feature
 
-Currently this still demands the same appdir for both (default circumstance)
-but in a future version this will be easier to change while staying very
-simple to mount.
+Serializers are engines. They affect a Dancer Application, which means
+that once you've set a serializer, B<all> routes within that package
+will be serialized and deserialized. This is how the feature works.
 
-=head3 Running from Apache with Plack
+As suggested above, if you would like to have both, you need to create
+another application which will not be serialized.
 
-You can run your app from Apache using PSGI (Plack), with a config like the
-following:
+A common usage for this is an API providing serialized endpoints (and
+receiving serialized requests) and providing rendered pages.
 
-    <VirtualHost myapp.example.com>
-        ServerName www.myapp.example.com
-        ServerAlias myapp.example.com
-        DocumentRoot /websites/myapp.example.com
+     # MyApp.pm
+     package MyApp;
+     use Dancer2;
 
-        <Directory /home/myapp/myapp>
-            AllowOverride None
-            Order allow,deny
-            Allow from all
-        </Directory>
+     # another useful feature:
+     set auto_page => 1;
 
-        <Location />
-            SetHandler perl-script
-            PerlResponseHandler Plack::Handler::Apache2
-            PerlSetVar psgi_app /websites/myapp.example.com/app.psgi
-        </Location>
+     get '/' => sub { template 'index' => {...} };
 
-        ErrorLog  /websites/myapp.example.com/logs/error_log
-        CustomLog /websites/myapp.example.com/logs/access_log common
-    </VirtualHost>
+     # MyApp/API.pm
+     package MyApp::API;
+     use Dancer2;
+     set serializer => 'JSON'; # or any other serializer
 
-To set the environment you want to use for your application (production or
-development), you can set it this way:
+     get '/' => sub { +{ resources => \%resources, ... } };
 
-    <VirtualHost>
-        ...
-        SetEnv DANCER_ENVIRONMENT "production"
-        ...
-    </VirtualHost>
+     # user-specific routes, for example
+     prefix => '/users' => sub {
+         get '/view'     => sub {...};
+         get '/view/:id' => sub {...};
+         put '/add'      => sub {...}; # automatically deserialized params
+     };
+
+     ...
+
+Then those will be mounted together for a single app:
+
+     # handler: app.pl:
+     use MyApp;
+     use MyApp::API;
+     use Plack::Builder;
+
+     builder {
+         mount '/'    => MyApp->to_app;
+         mount '/api' => MyApp::API->to_app;
+     };
+
+=head3 An example: Writing API interfaces
+
+This example demonstrates an app that makes a request to a weather
+API and then displays it dynamically in a web page.
+
+Other than L<Dancer2> for defining routes, we will use L<HTTP::Tiny>
+to make the weather API request, L<JSON> to decode it from JSON format,
+and finally L<File::Spec> to provide a fully-qualified path to our
+template engine.
+
+     use JSON;
+     use Dancer2;
+     use HTTP::Tiny;
+     use File::Spec;
+
+=head4 Configuration
+
+We use the L<Template::Toolkit> template system for this app.
+Dancer searches for our templates in our views directory, which defaults
+to I<views> directory in our current directory. Since we want to put our
+template in our current directory, we will configure that. However,
+I<Template::Toolkit> does not want us to provide a relative path without
+configuring it to allow it. This is a security issue. So, we're using
+L<File::Spec> to create a full path to where we are.
+
+We also unset the default layout, so Dancer won't try to wrap our template
+with another one. This is a feature in Dancer to allow you to wrap your
+templates with a layout when your templating system doesn't support it. Since
+we're not using a layout here, we don't need it.
+
+     set template => 'template_toolkit';       # set template engine
+     set layout   => undef;                    # disable layout
+     set views    => File::Spec->rel2abs('.'); # full path to views
+
+Now, we define our URL:
+
+     my $url = 'http://api.openweathermap.org/data/2.5/weather?id=5110629&units=imperial';
+
+=head4 Route
+
+We will define a main route which, upon a request, will fetch the information
+from the weather API, decode it, and then display it to the user.
+
+Route definition:
+
+     get '/' => sub {
+         ...
+     };
+
+Editing the stub of route dispatching code, we start by making the request
+and decoding it:
+
+     # fetch data
+     my $res = HTTP::Tiny->new->get($url);
+
+     # decode request
+     my $data = decode_json $res->{'content'};
+
+The data is not just a flat hash. It's a deep structure. In this example, we
+will filter it for only the simple keys in the retrieved data:
+
+     my $metrics = { map +(
+         ref $data->{$_} ? () : ( $_ => $data->{$_} )
+     ), keys %{$data} };
+
+All that is left now is to render it:
+
+     template index => { metrics => $metrics };
 
 =head2 Creating a service
 
@@ -1273,14 +1074,14 @@ below is an example.
       Allow from all
     </Proxy>
 
-=head3 Using perlbal
+=head3 Using Perlbal
 
-C<perlbal> is a single-threaded event-based server written in Perl
+C<Perlbal> is a single-threaded event-based server written in Perl
 supporting HTTP load balancing, web serving, and a mix of the two, available
 from L<http://www.danga.com/perlbal/>.
 
 It processes hundreds of millions of requests a day just for LiveJournal,
-Vox and TypePad and dozens of other "Web 2.0" applications.
+Vox, and TypePad and dozens of other "Web 2.0" applications.
 
 It can also provide a management interface to let you see various
 information on requests handled etc.
@@ -1343,9 +1144,9 @@ You can use lighttp's C<mod_proxy>:
 This configuration will proxy all requests to the C</application> path to the
 path C</> on localhost:3000.
 
-=head3 Using Nginx
+=head3 Using NGINX
 
-with Nginx:
+with NGINX:
 
     upstream backendurl {
         server unix:THE_PATH_OF_YOUR_PLACKUP_SOCKET_HERE.sock;
@@ -1392,5 +1193,3 @@ The C<warnings> pragma is already used when one loads Dancer2. However, if
 you I<really> do not want the C<warnings> pragma (for example, due to an
 undesired warning about use of undef values), add a C<no warnings> pragma to
 the appropriate block in your module or psgi file.
-
-=cut
