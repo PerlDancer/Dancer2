@@ -50,7 +50,7 @@ sub export_symbols_to {
     my $exports = $self->_construct_export_map($args);
 
     foreach my $export ( keys %{$exports} ) {
-        no strict 'refs';
+        no strict 'refs'; ## no critic (TestingAndDebugging::ProhibitNoStrict)
         my $existing = *{"${caller}::${export}"}{CODE};
 
         next if defined $existing;
@@ -64,18 +64,25 @@ sub export_symbols_to {
 # private
 
 sub _compile_keyword {
-    my ( $self, $keyword, $is_global ) = @_;
+    my ( $self, $keyword, $opts ) = @_;
 
-    my $compiled_code = sub { $self->$keyword(@_); };
-
-    if ( !$is_global ) {
-        my $code = $compiled_code;
-        $compiled_code = sub {
-            $self->app->has_request or
-                croak "Function '$keyword' must be called from a route handler";
-            $code->(@_);
+    ## no critic (BuiltinFunctions::ProhibitStringyEval)
+    my $prototype     = $opts->{'prototype'} || '@';
+    my $main_code     = qq{ \$self->$keyword(\@_); };
+    my $compiled_code = $opts->{'is_global'}
+        ? eval qq{
+            sub($prototype) { $main_code }
+        }
+        : eval qq{
+            sub($prototype) {
+                \$self->app->has_request or
+                  croak "Function '\$keyword' must be called from a route handler";
+                $main_code
+            }
         };
-    }
+    ## use critic
+
+    $@ and die "Cannot compile keyword $keyword: $@\n";
 
     return $compiled_code;
 }
@@ -87,7 +94,7 @@ sub _construct_export_map {
     foreach my $keyword ( keys %$keywords ) {
         # check if the keyword were excluded from importation
         $args->{ '!' . $keyword } and next;
-        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword}{is_global} );
+        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword} );
     }
     return \%map;
 }
