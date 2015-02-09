@@ -40,7 +40,7 @@ sub register {
 
     $_keywords->{$plugin} ||= [];
     push @{ $_keywords->{$plugin} },
-      [ $keyword, $code, $options->{is_global} ];
+      [ $keyword, $code, $options ];
 }
 
 sub on_plugin_import(&) {
@@ -64,10 +64,10 @@ sub register_plugin {
     # bind all registered keywords to the plugin
     my $dsl = $caller->dsl;
     for my $k ( @{ $_keywords->{$plugin} } ) {
-        my ( $keyword, $code, $is_global ) = @{$k};
+        my ( $keyword, $code, $options ) = @{$k};
         {
             no strict 'refs';
-            *{"${plugin}::${keyword}"} = $code;
+            *{"${plugin}::${keyword}"} = $dsl->_apply_prototype($code, $options);
         }
     }
 
@@ -80,7 +80,8 @@ sub register_plugin {
         my $caller = caller(1);
 
         for my $k ( @{ $_keywords->{$plugin} } ) {
-            my ( $keyword, $code, $is_global ) = @{$k};
+            my ( $keyword, $code, $options ) = @{$k};
+            my $is_global = exists $options->{is_global} && $options->{is_global};
             $caller->dsl->register( $keyword, $is_global );
         }
 

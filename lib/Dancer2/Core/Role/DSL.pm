@@ -76,6 +76,12 @@ sub _compile_keyword {
             $self->$keyword(@_)
         };
 
+    return $self->_apply_prototype($code, $opts);
+}
+
+sub _apply_prototype {
+    my ($self, $code, $opts) = @_;
+
     # set prototype if one is defined for the keyword. undef => no prototype
     my $prototype;
     exists $opts->{'prototype'} and $prototype = $opts->{'prototype'};
