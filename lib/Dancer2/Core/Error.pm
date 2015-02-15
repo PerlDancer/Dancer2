@@ -205,7 +205,13 @@ has exception => (
 has response => (
     is      => 'rw',
     lazy    => 1,
-    default => sub { Dancer2::Core::Response->new }
+    default => sub {
+        my $self = shift;
+        my $serializer = $self->serializer;
+        return Dancer2::Core::Response->new(
+            ( serializer => $serializer )x!! $serializer
+        );
+    }
 );
 
 has content_type => (
@@ -222,75 +228,70 @@ has content_type => (
 has content => (
     is      => 'ro',
     lazy    => 1,
-    default => sub {
-        my $self = shift;
-
-        # Apply serializer
-        if ( $self->serializer ) {
-            my $content = {
-                message => $self->message,
-                title   => $self->title,
-                status  => $self->status,
-            };
-            $content->{exception} = $self->exception
-              if $self->has_exception;
-            return $self->serializer->serialize($content);
-        }
-
-        # Otherwise we check for a template, for a static file, for configured error_template, and,
-        # if all else fail, the default error page
-        if ( $self->has_app and $self->template ) {
-            # Render the template using apps' template engine.
-            # This may well be what caused the initial error, in which
-            # case we fall back to static page if any error was thrown.
-            # Note: this calls before/after render hooks.
-            my $content = eval {
-                $self->app->template(
-                    $self->template,
-                    {   title     => $self->title,
-                        content   => $self->message,
-                        exception => $self->exception,
-                        status    => $self->status,
-                    }
-                );
-            };
-
-            # return rendered content unless there was an error.
-            if (defined $content) {
-                # Why is this necessary here and not with other templates e.g. like route templates?
-                utf8::encode($content) if utf8::is_utf8($content); # less confusing via String::UnicodeUTF8: $content = get_utf8($content) if is_unicode($content)
-                return $content;
-            }
-        }
-
-        # It doesn't make sense to return a static page if show_errors is on
-        if ( !$self->show_errors && (my $content = $self->static_page) ) {
-            return $content;
-        }
-
-        if ($self->has_app && $self->app->config->{error_template}) {
-            my $content = eval {
-                $self->app->template(
-                    $self->app->config->{error_template},
-                    {   title     => $self->title,
-                        content   => $self->message,
-                        exception => $self->exception,
-                        status    => $self->status,
-                    }
-                );
-            };
-
-            # return rendered content unless there was an error.
-            if (defined $content) {
-                # Why is this necessary here and not with other templates e.g. like route templates?
-                utf8::encode($content) if utf8::is_utf8($content); # less confusing via String::UnicodeUTF8: $content = get_utf8($content) if is_unicode($content)
-                return $content;
-            }
-        }
-
-        return $self->default_error_page;
-    },
+    builder => '_build_content',
 );
+
+sub _build_content {
+    my $self = shift;
+
+    # return a hashref if a serializer is available
+    if ( $self->serializer ) {
+        my $content = {
+            message => $self->message,
+            title   => $self->title,
+            status  => $self->status,
+        };
+        $content->{exception} = $self->exception
+          if $self->has_exception;
+        return $content;
+    }
+
+    # otherwise we check for a template, for a static file,
+    # for configured error_template, and, if all else fails,
+    # the default error page
+    if ( $self->has_app and $self->template ) {
+        # Render the template using apps' template engine.
+        # This may well be what caused the initial error, in which
+        # case we fall back to static page if any error was thrown.
+        # Note: this calls before/after render hooks.
+        my $content = eval {
+            $self->app->template(
+                $self->template,
+                {   title     => $self->title,
+                    content   => $self->message,
+                    exception => $self->exception,
+                    status    => $self->status,
+                }
+            );
+        };
+
+        # return rendered content unless there was an error.
+        return $content if defined $content;
+    }
+
+    # It doesn't make sense to return a static page if show_errors is on
+    if ( !$self->show_errors && (my $content = $self->static_page) ) {
+        return $content;
+    }
+
+    if ($self->has_app && $self->app->config->{error_template}) {
+        my $content = eval {
+            $self->app->template(
+                $self->app->config->{error_template},
+                {   title     => $self->title,
+                    content   => $self->message,
+                    exception => $self->exception,
+                    status    => $self->status,
+                }
+            );
+        };
+
+        # return rendered content unless there was an error.
+        return $content if defined $content;
+    }
+
+    return $self->default_error_page;
+}
 
 sub throw {
     my $self = shift;
@@ -307,6 +308,7 @@ sub throw {
     $self->response->status( $self->status );
     $self->response->content_type( $self->content_type );
     $self->response->content($message);
+    $self->response->encode_content;
 
     $self->has_app &&
         $self->app->execute_hook('core.error.after', $self->response);
