@@ -11,6 +11,8 @@
     [ ENHANCEMENT ]
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
                (Alberto Simões)
+    * GH #792, #848: Keywords can now use prototypes.
+                     (Russell Jenkins, Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #837, #838, #841: Major documentation restructure. (Snigdha Dagar)
