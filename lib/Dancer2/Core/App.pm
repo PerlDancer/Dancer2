@@ -668,6 +668,12 @@ sub template {
     my $template = $self->template_engine;
     $template->set_settings( $self->config );
 
+    # A session may exist but the route code may not have instantiated
+    # the session object (sessions are lazy). If this is the case, do
+    # that now, so the templates have the session data for rendering.
+    $self->has_session && ! $template->has_session
+        and $self->setup_session;
+
     # return content
     return $template->process( @_ );
 }
