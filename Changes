@@ -8,6 +8,8 @@
     * GH #839: Correct "no_server_tokens" definition in production.yml.
                (Nikita K)
     * GH #853, #852: Handle malformed (contentless) cookies. (pants)
+    * GH #840, #842: Ensure session data available to template engines.
+                     (Russell Jenkins)
 
     [ ENHANCEMENT ]
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
