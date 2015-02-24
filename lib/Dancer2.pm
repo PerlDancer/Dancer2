@@ -164,7 +164,7 @@ Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
 =item * Dancer2 Cookbook
 
 Specific examples of code for real-life problems and some 'tricks' for
-applications in Dancer can be found in <Dancer2::Cookbook>
+applications in Dancer can be found in L<Dancer2::Cookbook>
 
 =item * Dancer2 Config
 
