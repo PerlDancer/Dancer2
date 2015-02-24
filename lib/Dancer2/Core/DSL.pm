@@ -7,6 +7,7 @@ use Carp;
 use Class::Load 'load_class';
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
+use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
 
@@ -30,11 +31,16 @@ sub dsl_keywords {
         dancer_major_version => { is_global => 1 },
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
+        delayed              => {
+            is_global => 0, prototype => '&',
+        },
         dirname              => { is_global => 1 },
+        done                 => { is_global => 0 },
         dsl                  => { is_global => 1 },
         engine               => { is_global => 1 },
         error                => { is_global => 1 },
         false                => { is_global => 1 },
+        flush                => { is_global => 0 },
         forward              => { is_global => 0 },
         from_dumper          => { is_global => 1 },
         from_json            => { is_global => 1 },
@@ -227,12 +233,92 @@ sub to_app { shift->app->to_app }
 # Response alterations
 #
 
-sub status       { shift->response->status(@_) }
-sub push_header  { shift->response->push_header(@_) }
-sub header       { shift->response->header(@_) }
-sub headers      { shift->response->header(@_) }
-sub content      { shift->response->content(@_) }
-sub content_type { shift->response->content_type(@_) }
+sub status {
+    $Dancer2::Core::Route::RESPONSE->status( $_[1] );
+}
+
+sub push_header {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->push_header(@_);
+}
+
+sub header {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->header(@_);
+}
+
+sub headers {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->header(@_);
+}
+
+sub content {
+    shift;
+
+    # simple synchronous response
+    my $responder = $Dancer2::Core::Route::RESPONDER
+        or croak 'Cannot use content keyword outside delayed response';
+
+    # flush if wasn't flushed before
+    if ( !$Dancer2::Core::Route::WRITER ) {
+        my $response = $Dancer2::Core::Route::RESPONSE;
+        $Dancer2::Core::Route::WRITER = $responder->([
+            $response->status, $response->headers_to_array,
+        ]);
+    }
+
+    $Dancer2::Core::Route::WRITER->write(@_);
+}
+
+sub content_type {
+    shift;
+    $Dancer2::Core::Route::RESPONSE->content_type(@_);
+}
+
+sub delayed {
+    my ( $dsl, $cb ) = @_;
+
+    # first time, responder doesn't exist yet
+    $Dancer2::Core::Route::RESPONDER
+        or return Dancer2::Core::Response::Delayed->new(
+            cb       => $cb,
+            request  => $Dancer2::Core::Route::REQUEST,
+            response => $Dancer2::Core::Route::RESPONSE,
+        );
+
+    # we're in an async request process
+    my $request   = $Dancer2::Core::Route::REQUEST;
+    my $response  = $Dancer2::Core::Route::RESPONSE;
+    my $responder = $Dancer2::Core::Route::RESPONDER;
+    my $writer    = $Dancer2::Core::Route::WRITER;
+
+    return sub {
+        local $Dancer2::Core::Route::REQUEST   = $request;
+        local $Dancer2::Core::Route::RESPONSE  = $response;
+        local $Dancer2::Core::Route::RESPONDER = $responder;
+        local $Dancer2::Core::Route::WRITER    = $writer;
+
+        $cb->(@_);
+    };
+}
+
+sub flush {
+    my $responder = $Dancer2::Core::Route::RESPONDER
+        or croak 'flush() called outside streaming response';
+
+    my $response = $Dancer2::Core::Route::RESPONSE;
+    $Dancer2::Core::Route::WRITER = $responder->([
+        $response->status, $response->headers_to_array,
+    ]);
+}
+
+sub done {
+    my $writer = $Dancer2::Core::Route::WRITER
+        or croak 'done() called outside streaming response';
+
+    $writer->close;
+}
+
 sub pass         { shift->app->pass }
 
 #
@@ -244,30 +330,31 @@ sub context {
     shift->app;
 }
 
-sub request { shift->app->request }
+sub request { $Dancer2::Core::Route::REQUEST }
 
-sub response { shift->app->response }
+sub response { $Dancer2::Core::Route::RESPONSE }
 
-sub upload { shift->request->upload(@_) }
+sub upload { shift; $Dancer2::Core::Route::REQUEST->upload(@_); }
 
-sub captures { shift->request->captures }
+sub captures { $Dancer2::Core::Route::REQUEST->captures }
 
-sub uri_for { shift->request->uri_for(@_) }
+sub uri_for { shift; $Dancer2::Core::Route::REQUEST->uri_for(@_); }
 
-sub splat { shift->request->splat }
+sub splat { $Dancer2::Core::Route::REQUEST->splat }
 
-sub params { shift->request->params(@_) }
+sub params { shift; $Dancer2::Core::Route::REQUEST->params(@_); }
 
-sub param { shift->request->param(@_) }
+sub param { shift; $Dancer2::Core::Route::REQUEST->param(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
 sub forward { shift->app->forward(@_) }
 
-sub vars { shift->request->vars }
-sub var  { shift->request->var(@_) }
+sub vars { $Dancer2::Core::Route::REQUEST->vars }
 
-sub cookies { shift->request->cookies }
+sub var  { shift; $Dancer2::Core::Route::REQUEST->var(@_); }
+
+sub cookies { $Dancer2::Core::Route::REQUEST->cookies }
 sub cookie { shift->app->cookie(@_) }
 
 sub mime {

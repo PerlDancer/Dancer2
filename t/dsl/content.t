@@ -1,75 +1,24 @@
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 1;
 use Plack::Test;
 use HTTP::Request::Common;
 
 {
-    package App::SetContent;
+    package App::ContentFail; ## no critic
     use Dancer2;
-    get '/' => sub {
-        content 'OK';
-
-        'Not OK';
-    };
+    set show_errors => 1;
+    get '/' => sub { content 'Foo' };
 }
 
-{
-    package App::PassSuccess;
-    use Dancer2;
-
-    get '/' => sub {
-        content 'Missing';
-        pass;
-    };
-
-    get '/' => sub {
-        'There';
-    };
-}
-
-{
-    package App::PassFail;
-    use Dancer2;
-
-    get '/' => sub {
-        content 'Missing';
-        pass;
-    };
-
-    get '/' => sub {};
-}
-
-{
-    my $app = App::SetContent->to_app;
-    isa_ok( $app, 'CODE' );
-
-    my $test = Plack::Test->create($app);
+subtest 'Delayed response overrides content' => sub {
+    my $test = Plack::Test->create( App::ContentFail->to_app );
     my $res  = $test->request( GET '/' );
-
-    is( $res->code,    200,  'Reached route'   );
-    is( $res->content, 'OK', 'Correct content' );
-}
-
-{
-    my $app = App::PassSuccess->to_app;
-    isa_ok( $app, 'CODE' );
-
-    my $test = Plack::Test->create($app);
-    my $res  = $test->request( GET '/' );
-
-    is( $res->code,    200,     'Reached route'   );
-    is( $res->content, 'There', 'Correct content' );
-}
-
-{
-    my $app = App::PassFail->to_app;
-    isa_ok( $app, 'CODE' );
-
-    my $test = Plack::Test->create($app);
-    my $res  = $test->request( GET '/' );
-
-    is( $res->code,    200, 'Reached route'   );
-    is( $res->content, '',  'Correct content' );
-}
-
+    ok( ! $res->is_success, 'Request failed' );
+    is( $res->code, 500, 'Correct response code' );
+    like(
+        $res->content,
+        qr/Cannot use content keyword outside delayed response/,
+        'Failed to use content keyword outside delayed response',
+    );
+};
