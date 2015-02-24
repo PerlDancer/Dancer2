@@ -14,6 +14,9 @@
                            (Daniel Muey, Russell Jenkins, Dávid Kovács)
 
     [ ENHANCEMENT ]
+    * GH #836: Support delayed (asynchronous) responses!
+               ("Delayed responses" in Dancer2::Manual for more information.)
+               (Sawyer X)
     * GH #824: Use Plack::MIME by default, MIME::Types as failback if available.
                (Alberto Simões)
     * GH #792, #848: Keywords can now use prototypes.
