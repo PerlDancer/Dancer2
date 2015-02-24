@@ -10,7 +10,7 @@ use HTTP::Request::Common;
     get '/' => sub {
         ::is( $Dancer2::Core::Route::RESPONDER, undef, 'No responder yet' );
 
-        delayed sub {
+        delayed {
             ::isa_ok(
                 $Dancer2::Core::Route::RESPONDER,
                 'CODE',
@@ -31,7 +31,7 @@ use HTTP::Request::Common;
     package App::Content::MultiWrite; ## no critic
     use Dancer2;
     get '/' => sub {
-        delayed sub {
+        delayed {
             flush;
             content 'Foo';
             content 'Bar';
@@ -44,7 +44,7 @@ use HTTP::Request::Common;
     package App::NoContent; ## no critic
     use Dancer2;
     get '/' => sub {
-        delayed sub {content;done;'Not OK'};
+        delayed {content;done;'Not OK'};
     };
 }
 
@@ -52,7 +52,7 @@ use HTTP::Request::Common;
     package App::MultipleContent; ## no critic
     use Dancer2;
     get '/' => sub {
-        delayed sub {
+        delayed {
             content 'Bar';
             done;
         };

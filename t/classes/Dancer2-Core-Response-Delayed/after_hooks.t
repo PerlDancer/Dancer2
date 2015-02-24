@@ -18,7 +18,7 @@ use HTTP::Cookies;
     get '/' => sub {
         session file => __FILE__;
         open my $fh, "<", __FILE__;
-        delayed sub {
+        delayed {
             my $responder = $Dancer2::Core::Route::RESPONDER;
             my $res = $Dancer2::Core::Route::RESPONSE;
             return $responder->(

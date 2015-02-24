@@ -313,7 +313,7 @@ using the C<delayed> keyword. These responses are streamed, although you can
 set the content all at once, if you prefer.
 
     get '/status' => sub {
-        delayed sub {
+        delayed {
             add_header 'X-Foo' => 'Bar';
 
             # optionally flush headers
@@ -2222,7 +2222,7 @@ This will crash:
 But this will work just fine:
 
     get '/' => sub {
-        delayed sub {
+        delayed {
             content 'Hello, world!';
             ...
         };

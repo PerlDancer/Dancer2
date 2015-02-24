@@ -31,7 +31,9 @@ sub dsl_keywords {
         dancer_major_version => { is_global => 1 },
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
-        delayed              => { is_global => 0 },
+        delayed              => {
+            is_global => 0, prototype => '&',
+        },
         dirname              => { is_global => 1 },
         done                 => { is_global => 0 },
         dsl                  => { is_global => 1 },
