@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.159000  2015-02-24 04:51:20+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #762: Delay app cleanup until errors are rendered. (Russell Jenkins)
     * GH #835: Correct Logic error in Logger if no request exists.
