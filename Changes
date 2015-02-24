@@ -4,7 +4,6 @@
     * GH #762: Delay app cleanup until errors are rendered. (Russell Jenkins)
     * GH #835: Correct Logic error in Logger if no request exists.
                (Lennart Hengstmengel)
-    * GH #843: Add missing attributes to Moo class used in tests. (Graham Knop)
     * GH #839: Correct "no_server_tokens" definition in production.yml.
                (Nikita K)
     * GH #853, #852: Handle malformed (contentless) cookies. (pants)
@@ -12,6 +11,7 @@
                      (Russell Jenkins)
     * GH #565, #847, #849: Fix HTTP Status template logic and documentation.
                            (Daniel Muey, Russell Jenkins, Dávid Kovács)
+    * GH #843: Add missing attributes to Moo class used in tests. (Graham Knop)
 
     [ ENHANCEMENT ]
     * GH #836: Support delayed (asynchronous) responses!
