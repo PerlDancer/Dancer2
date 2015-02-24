@@ -448,7 +448,7 @@ template engine.
         my $content     = ${$ref_content};
 
         # do something with $content
-        $ref_content = \$content;
+        ${$ref_content} = $content;
     };
 
 =item * C<before_layout_render>
