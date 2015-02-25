@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.159000
+version 0.159001
 
 # DESCRIPTION
 
@@ -59,7 +59,7 @@ complete outline on where to go for help.
 - Dancer2 Cookbook
 
     Specific examples of code for real-life problems and some 'tricks' for
-    applications in Dancer can be found in <Dancer2::Cookbook>
+    applications in Dancer can be found in [Dancer2::Cookbook](https://metacpan.org/pod/Dancer2::Cookbook)
 
 - Dancer2 Config
 
