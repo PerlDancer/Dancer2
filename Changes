@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #855: Ensure Dancer2::Test is compatible with Pod::Simple 3.30
+      (Russell Jenkins)
+
     [ DOCUMENTATION ]
     * Small link fix. (Sawyer X)
 
