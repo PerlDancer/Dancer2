@@ -847,6 +847,7 @@ sub compile_hooks {
 
                 eval  { $hook->(@_); 1; }
                 or do {
+                    $self->cleanup;
                     $self->log('error', "Exception caught in '$position' filter: $@");
                     croak "Exception caught in '$position' filter: $@";
                 };

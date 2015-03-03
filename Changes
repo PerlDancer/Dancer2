@@ -1,9 +1,12 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #856: Memory leak when throwing exception from a hook. (Sawyer X)
+
 0.159001  2015-02-25 15:31:35+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
-    * GH #855: Ensure Dancer2::Test is compatible with Pod::Simple 3.30
+    * GH #855: Ensure Dancer2::Test is compatible with Pod::Simple 3.30.
       (Russell Jenkins)
 
     [ DOCUMENTATION ]
