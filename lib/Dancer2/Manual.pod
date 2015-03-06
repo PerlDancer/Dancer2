@@ -272,7 +272,7 @@ keyword will return a reference to a copy of C<%+>.
 =head3 Conditional Matching
 
 Routes may include some matching conditions (on content_type, agent,
-user_agent, content_length and path_info):
+user_agent, content_length, path_info and accept):
 
     get '/foo', {agent => 'Songbird (\d\.\d)[\d\/]*?'} => sub {
       'foo method for songbird'

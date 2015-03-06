@@ -68,7 +68,7 @@ my @tests = (
     ],
 );
 
-plan tests => 55;
+plan tests => 57;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
@@ -182,7 +182,7 @@ SKIP: {
     );
 
     my $m = $route_w_options->match($req);
-    ok !defined $m;
+    ok !defined $m, "no match with option agent";
 
     $req = Dancer2::Core::Request->new(
         path   => '/',
@@ -191,5 +191,30 @@ SKIP: {
     );
 
     $m = $route_w_options->match($req);
-    ok defined $m;
+    ok defined $m, "match with option agent";
+
+    my $route_w_accept = Dancer2::Core::Route->new(
+        method  => 'get',
+        regexp  => '/',
+        code    => sub {'options'},
+        options => { 'accept' => 'foo/bar-v3' },
+    );
+
+    $req = Dancer2::Core::Request->new(
+        path   => '/',
+        method => 'get',
+        env    => { 'HTTP_ACCEPT' => 'foo/bar-v2' },
+    );
+
+    $m = $route_w_accept->match($req);
+    ok !defined $m, "no match with option accept";
+    $req = Dancer2::Core::Request->new(
+        path   => '/',
+        method => 'get',
+        env    => { 'HTTP_ACCEPT' => 'foo/bar-v3' },
+    );
+
+    $m = $route_w_accept->match($req);
+    ok defined $m, "match with option accept";
+
 }

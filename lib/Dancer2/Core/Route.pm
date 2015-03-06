@@ -46,7 +46,7 @@ sub _check_options {
 
     my @supported_options = (
         qw/content_type agent user_agent content_length
-          path_info/
+          path_info accept/
     );
     for my $opt ( keys %{$options} ) {
         croak "Not a valid option for route matching: `$opt'"
