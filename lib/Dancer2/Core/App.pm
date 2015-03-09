@@ -1085,14 +1085,16 @@ sub to_app {
     $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
+    # Construct the statis app to avoid a closure over $psgi
+    my $static_content = Plack::Middleware::Static->wrap(
+        $psgi,
+        path => sub { -f path( $self->config->{public_dir}, shift ) },
+        root => $self->config->{public_dir},
+        content_type => sub { $self->mime_type->for_name(shift) },
+    );
     $psgi = Plack::Middleware::Conditional->wrap(
         $psgi,
-        builder => sub { Plack::Middleware::Static->wrap(
-            $psgi,
-            path => sub { -f path( $self->config->{public_dir}, shift ) },
-            root => $self->config->{public_dir},
-            content_type => sub { $self->mime_type->for_name(shift) },
-        ) },
+        builder => sub { $static_content },
         condition => sub { $self->config->{static_handler} },
     );
 
