@@ -2,6 +2,8 @@
 
     [ BUG FIXES ]
     * Fixed another memory leak with compiled hooks. (Sawyer X)
+    * Fixed a memory leak with conditionally applied static middleware
+      (Russell Jenkins)
 
 0.159002  2015-03-03 19:21:21+01:00 Europe/Amsterdam
 
