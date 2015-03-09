@@ -339,6 +339,41 @@ If you do not flush the response status and the headers manually (using the
 C<flush> keyword), they will be flushed as soon as you set the content for
 the first time using the C<content> keyword.
 
+Here is an example of using delayed responses with L<AnyEvent>:
+
+    use Dancer2;
+    use AnyEvent;
+
+    my %timers;
+    my $count = 5;
+    get '/drums' => sub {
+        delayed {
+            print "Stretching...\n";
+            flush;
+
+            $timers{'Snare'} = AE::timer 1, 1, delayed {
+                $timers{'HiHat'} ||= AE::timer 0, 0.5, delayed {
+                    content "Tss...\n";
+                };
+
+                content "Bap!\n";
+
+                if ( $count-- == 0 ) {
+                    %timers = ();
+                    content "Tugu tugu tugu dum!\n";
+                    done;
+
+                    print "<enter sound of applause>\n\n";
+                    $timers{'Applause'} = AE::timer 3, 0, sub {
+                        # the DSL will not available here
+                        # because we didn't call the "delayed" keyword
+                        print "<applause dies out>\n";
+                    };
+                }
+            };
+        };
+    };
+
 =head2 Action Skipping
 
 An action can choose not to serve the current request and ask Dancer2 to
