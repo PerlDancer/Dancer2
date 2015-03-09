@@ -19,10 +19,10 @@ use Plack::Test;
     };
 }
 
-MyApp::Cycles->to_app;
+my $app = MyApp::Cycles->to_app;
 
 my $runner = Dancer2->runner;
 memory_cycle_ok( $runner, "runner has no memory cycles" );
-memory_cycle_ok( $runner->apps->[0], "App has no memory cycles" );
+memory_cycle_ok( $app, "App has no memory cycles" );
 
 done_testing();
