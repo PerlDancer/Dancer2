@@ -34,6 +34,44 @@ with qw<
 
 sub supported_engines { [ qw<logger serializer session template> ] }
 
+sub with_plugins {
+    my( $self, @plugins ) = @_;
+
+    my @result;
+
+    for my $p ( @plugins ) {
+        if ( ref $p ) {
+            # already loaded?
+            #                                   # TODO probably wrong
+            if( my ( $already ) = grep { ref($p) eq ref $_; } @{ $self->plugins } ) {
+                push @result, $already;
+                if ( refaddr($p) != refaddr($already) ) {
+                    warn "trying to load two different objects for plugin ". ref $p;
+                }
+                next;
+            }
+        } else {
+            $p =~ s/^/Dancer2::Plugin::/;
+            use Class::Load qw/ load_class /;
+
+            # already loaded?
+            if( my ( $already ) = grep {
+                $p eq ref $_; # TODO probably wrong
+            } @{ $self->plugins } ) {
+                push @result, $already;
+            }
+
+            $p = load_class($p)->new( app => $self );
+        }
+        # TODO check if one is already loaded?
+        # TODO ref $p gives the right name?
+        push @result, $p;
+        push @{ $self->plugins }, $p;
+    }
+
+    return wantarray ? @result : $result[0];
+}
+
 has _factory => (
     is      => 'ro',
     isa     => Object['Dancer2::Core::Factory'],
@@ -271,6 +309,7 @@ has postponed_hooks => (
     default => sub { {} },
 );
 
+# TODO I'd be happier with a HashRef, really
 has plugins => (
     is      => 'rw',
     isa     => ArrayRef,
@@ -755,7 +794,7 @@ sub all_hook_aliases {
     my $self = shift;
 
     my $aliases = $self->hook_aliases;
-    for my $plugin ( @{ $self->plugins } ) {
+    for my $plugin ( grep { $_->can('hook_aliases') } @{ $self->plugins } ) {
         $aliases = { %{$aliases}, %{ $plugin->hook_aliases } };
     }
 
