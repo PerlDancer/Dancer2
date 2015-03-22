@@ -1419,12 +1419,14 @@ Create a new request which is a clone of the current one, apart
 from the path location, which points instead to the new location.
 This is used internally to chain requests using the forward keyword.
 
-Note that the new location should be a hash reference. Only one key is
-required, the C<to_url>, that should point to the URL that forward
-will use. Optional values are the key C<params> to a hash of
-parameters to be added to the current request parameters, and the key
-C<options> that points to a hash of options about the redirect (for
-instance, C<method> pointing to a new request method).
+This method takes 3 parameters: the url to forward to, followed by an
+optional hashref of parameters added to the current request parameters,
+followed by a hashref of options regarding the redirect, such as
+C<method> to change the request method.
+
+For example:
+
+    forward '/login', { login_failed => 1 }, { method => 'GET' });
 
 =head2 app
 
