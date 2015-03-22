@@ -5,13 +5,13 @@
     * Fixed a memory leak with conditionally applied static middleware
       (Russell Jenkins)
 
+    [ DOCUMENTATION ]
+    * GH #861: Improve documentation of 'forward'. (Andy Beverley)
+
 0.159002  2015-03-03 19:21:21+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
     * GH #856: Memory leak when throwing exception from a hook. (Sawyer X)
-
-    [ DOCUMENTATION ]
-    * GH #861: Improve documentation of 'forward'. (Andy Beverley)
 
 0.159001  2015-02-25 15:31:35+01:00 Europe/Amsterdam
 
