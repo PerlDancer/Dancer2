@@ -550,12 +550,14 @@ sub _build_default_config {
 sub _init_hooks {
     my $self = shift;
 
- # Hook to flush the session at the end of the request, this way, we're sure we
- # flush only once per request
- #
- # Note: we create a weakened copy $self before closing over the weakened copy
- # to avoid circular memory refs.
+    # Hook to flush the session at the end of the request,
+    # this way, we're sure we flush only once per request
+    #
+    # Note: we create a weakened copy $self
+    # before closing over the weakened copy
+    # to avoid circular memory refs.
     Scalar::Util::weaken(my $app = $self);
+
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
@@ -840,15 +842,17 @@ sub compile_hooks {
     for my $position ( $self->supported_hooks ) {
         my $compiled_hooks = [];
         for my $hook ( @{ $self->hooks->{$position} } ) {
+            Scalar::Util::weaken( my $app = $self );
             my $compiled = sub {
                 # don't run the filter if halt has been used
-                $self->has_response && $self->response->is_halted
+                $Dancer2::Core::Route::RESPONSE &&
+                $Dancer2::Core::Route::RESPONSE->is_halted
                     and return;
 
                 eval  { $hook->(@_); 1; }
                 or do {
-                    $self->cleanup;
-                    $self->log('error', "Exception caught in '$position' filter: $@");
+                    $app->cleanup;
+                    $app->log('error', "Exception caught in '$position' filter: $@");
                     croak "Exception caught in '$position' filter: $@";
                 };
             };
@@ -1081,14 +1085,16 @@ sub to_app {
     $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
+    # Construct the statis app to avoid a closure over $psgi
+    my $static_content = Plack::Middleware::Static->wrap(
+        $psgi,
+        path => sub { -f path( $self->config->{public_dir}, shift ) },
+        root => $self->config->{public_dir},
+        content_type => sub { $self->mime_type->for_name(shift) },
+    );
     $psgi = Plack::Middleware::Conditional->wrap(
         $psgi,
-        builder => sub { Plack::Middleware::Static->wrap(
-            $psgi,
-            path => sub { -f path( $self->config->{public_dir}, shift ) },
-            root => $self->config->{public_dir},
-            content_type => sub { $self->mime_type->for_name(shift) },
-        ) },
+        builder => sub { $static_content },
         condition => sub { $self->config->{static_handler} },
     );
 
