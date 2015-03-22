@@ -1415,14 +1415,14 @@ to the dispatcher.
 
 =method forward
 
-Create a new request which is a clone of the current one, apart from the path
-location, which points instead to the new location.  This is used internally to
-chain requests using the forward keyword.
+Create a new request which is a clone of the current one, apart
+from the path location, which points instead to the new location.
+This is used internally to chain requests using the forward keyword.
 
-This method takes 3 parameters: the url to forward to, followed optionally by a
-hash ref of parameters to be added to the current request parameters, followed
-optionally by a hash ref of options about the redirect (for instance, C<method>
-pointing to a new request method).
+This method takes 3 parameters: the url to forward to, followed by an
+optional hashref of parameters added to the current request parameters,
+followed by a hashref of options regarding the redirect, such as
+C<method> to change the request method.
 
 For example:
 
