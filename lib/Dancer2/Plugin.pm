@@ -404,6 +404,8 @@ Give your call the dsl to plugin_setting
         ...
     }
 
+=back
+
 =method register_hook
 
 Allows a plugin to declare a list of supported hooks. Any hook declared like so
