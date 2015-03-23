@@ -6,6 +6,7 @@
       (Russell Jenkins)
 
     [ DOCUMENTATION ]
+    * GH #854, #858: Fix after_template_render hook example. (Adam Weinberger)
     * GH #861: Improve documentation of 'forward'. (Andy Beverley)
 
 0.159002  2015-03-03 19:21:21+01:00 Europe/Amsterdam
