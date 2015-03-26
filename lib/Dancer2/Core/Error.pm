@@ -295,7 +295,7 @@ sub _build_content {
 
 sub throw {
     my $self = shift;
-    $self->set_response(shift) if @_;
+    $self->response(shift) if @_;
 
     $self->response
         or croak "error has no response to throw at";
