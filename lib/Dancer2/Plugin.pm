@@ -218,14 +218,17 @@ sub import {
                 $code->( $dsl, @_ );
             };
 
+            if ( $symbol eq 'dsl' ) {
+                $compiled = sub { $dsl };
+                $dsl_deprecation_wrapper = $compiled
+            }
+
             # Bind the newly compiled symbol to the caller's namespace.
             # As this may redefine a symbol, ensure the new coderef has
             # the same prototype signature.
             my $existing = *{"${plugin}::${symbol}"};
             my $prototype = prototype \&$existing;
             *{"${plugin}::${symbol}"} = Scalar::Util::set_prototype( \&$compiled, $prototype );
-
-            $dsl_deprecation_wrapper = $compiled if $symbol eq 'dsl';
         }
     }
 
