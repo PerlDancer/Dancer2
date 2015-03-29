@@ -2745,106 +2745,40 @@ with C<send_file>.
         }
     };
 
-C<send_file> supports streaming possibility using PSGI streaming. The server
-should support it, but normal streaming is supported on most (if not all)
-servers.
+C<send_file> will use PSGI streaming if the server supports it (most, if
+not all, do). You can explicitly disable streaming by passing
+C<streaming => 0> as an option to C<send_file>.
 
     get '/download/:file' => sub {
-        return send_file( params->{file}, streaming => 1 );
+        send_file( params->{file}, streaming => 0 );
     }
 
-You can control what happens using callbacks.
-
-First, C<around_content> allows you to get the writer object and the chunk
-of content read, and then decide what to do with each chunk:
-
-    get '/download/:file' => sub {
-        return send_file(
-            params->{file},
-            streaming => 1,
-            callbacks => {
-                around_content => sub {
-                    my ( $writer, $chunk ) = @_;
-                    $writer->write("* $chunk");
-                },
-            },
-        );
-    }
-
-You can use C<around> to get all the content (whether a filehandle if it's a
-regular file or a full string if it's a scalar ref) and decide what to do
-with it:
-
-    get '/download/:file' => sub {
-        return send_file(
-            params->{file},
-            streaming => 1,
-            callbacks => {
-                around => sub {
-                    my ( $writer, $content ) = @_;
-
-                    # we know it's a text file, so we'll just stream
-                    # line by line
-                    while ( my $line = <$content> ) {
-                        $writer->write($line);
-                    }
-                },
-            },
-        );
-    }
-
-Or you could use C<override> to control the entire streaming callback
-request:
-
-    get '/download/:file' => sub {
-        return send_file(
-            params->{file},
-            streaming => 1,
-            callbacks => {
-                override => sub {
-                    my ( $respond, $response ) = @_;
-
-                    my $writer = $respond->( [ $newstatus, $newheaders ] );
-                    $writer->write("some line");
-                },
-            },
-        );
-    }
-
-You can also set the number of bytes that will be read at a time (default
-being 42K bytes) using C<bytes>:
-
-    get '/download/:file' => sub {
-        return send_file(
-            params->{file},
-            streaming => 1,
-            bytes     => 524288, # 512K
-        );
-    };
 
 The content-type will be set depending on the current MIME types definition
 (see C<mime> if you want to define your own).
 
-If your filename does not have an extension, or you need to force a specific
-mime type, you can pass it to C<send_file> as follows:
+If your filename does not have an extension, you are passing in a filehandle,
+or you need to force a specific mime type, you can pass it to C<send_file>
+as follows:
 
-    return send_file(params->{file}, content_type => 'image/png');
+    send_file(params->{file}, content_type => 'image/png');
+    send_file($fh, content_type => 'image/png');
 
 Also, you can use your aliases or file extension names on C<content_type>,
 like this:
 
-    return send_file(params->{file}, content_type => 'png');
+    send_file(params->{file}, content_type => 'png');
 
 For files outside your B<public> folder, you can use the C<system_path>
 switch. Just bear in mind that its use needs caution as it can be dangerous.
 
-   return send_file('/etc/passwd', system_path => 1);
+   send_file('/etc/passwd', system_path => 1);
 
 If you have your data in a scalar variable, C<send_file> can be useful as
 well. Pass a reference to that scalar, and C<send_file> will behave as if
 there was a file with that contents:
 
-   return send_file( \$data, content_type => 'image/png' );
+   send_file( \$data, content_type => 'image/png' );
 
 Note that Dancer is unable to guess the content type from the data contents.
 Therefore you might need to set the C<content_type> properly. For this kind
@@ -2852,11 +2786,9 @@ of usage an attribute named C<filename> can be useful. It is used as the
 Content-Disposition header, to hint the browser about the filename it should
 use.
 
-   return send_file( \$data, content_type => 'image/png'
+   send_file( \$data, content_type => 'image/png'
                              filename     => 'onion.png' );
 
-Note that you should always use C<return send_file ...> to stop execution of
-your route handler at that point.
 
 =head2 set
 
