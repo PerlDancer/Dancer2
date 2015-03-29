@@ -1251,9 +1251,9 @@ template toolkit, your config file will look like this:
 =head2 Static Directory
 
 Static files are served from the F<./public> directory. You can specify a
-different location by setting the C<public> option:
+different location by setting the C<public_dir> option:
 
-    set public => path(dirname(__FILE__), 'static');
+    set public_dir => path(dirname(__FILE__), 'static');
 
 Note that the public directory name is not included in the URL. A file
 F<./public/css/style.css> is made available as

@@ -12,7 +12,7 @@ use File::Temp;
     use Dancer2;
 
     set views  => 't/corpus/static';
-    set public => 't/corpus/static';
+    set public_dir => 't/corpus/static';
 
     get '/' => sub {
         send_file 'index.html';
