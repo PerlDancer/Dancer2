@@ -805,7 +805,6 @@ sub send_file {
         $err_response->(403) if !-r $file_path;
 
         # Read file content as bytes
-        use Dancer2::FileUtils;
         $fh = Dancer2::FileUtils::open_file( "<", $file_path );
         binmode $fh;
 
