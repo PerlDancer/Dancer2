@@ -46,7 +46,7 @@ has regexp => (
 
 sub _build_public_dir {
     my $self = shift;
-    return $self->app->config->{public}
+    return $self->app->config->{public_dir}
         || $ENV{DANCER_PUBLIC}
         || path( $self->app->location, 'public' );
 }
