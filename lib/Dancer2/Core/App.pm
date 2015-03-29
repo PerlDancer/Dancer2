@@ -793,7 +793,6 @@ sub send_file {
                 || path( $self->location, 'public' );
 
         $file_path = Dancer2::Handler::File->merge_paths( $path, $dir );
-        print STDERR "### $file_path\n";
         my $err_response = sub {
             my $status = shift;
             $self->response->status($status);
