@@ -18,7 +18,7 @@ register foo_wrap_request => sub {
 register foo_route => sub {
     my ($self) = plugin_args(@_);
     $self->get( '/foo', sub {'foo'} );
-};
+} => { is_global => 1, prototype => '$@' };
 
 register p_config => sub {
     my $dsl    = shift;

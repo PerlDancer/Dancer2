@@ -16,7 +16,7 @@ our $AUTHORITY = 'SUKRIA';
 # set version in dist.ini now
 # but we still need a basic version for
 # the tests
-$Dancer2::VERSION ||= '0.158000';
+$Dancer2::VERSION ||= '0.159000';
 
 our $runner;
 
@@ -164,7 +164,7 @@ Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
 =item * Dancer2 Cookbook
 
 Specific examples of code for real-life problems and some 'tricks' for
-applications in Dancer can be found in <Dancer2::Cookbook>
+applications in Dancer can be found in L<Dancer2::Cookbook>
 
 =item * Dancer2 Config
 

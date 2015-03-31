@@ -4,6 +4,7 @@ package Dancer2::Core::Role::DSL;
 use Moo::Role;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use Scalar::Util qw();
 
 with 'Dancer2::Core::Role::Hookable';
 
@@ -49,14 +50,16 @@ sub export_symbols_to {
     my ( $self, $caller, $args ) = @_;
     my $exports = $self->_construct_export_map($args);
 
+    ## no critic
     foreach my $export ( keys %{$exports} ) {
-        no strict 'refs';
+        no strict 'refs'; ## no critic (TestingAndDebugging::ProhibitNoStrict)
         my $existing = *{"${caller}::${export}"}{CODE};
 
         next if defined $existing;
 
         *{"${caller}::${export}"} = $exports->{$export};
     }
+    ## use critic
 
     return keys %{$exports};
 }
@@ -64,20 +67,27 @@ sub export_symbols_to {
 # private
 
 sub _compile_keyword {
-    my ( $self, $keyword, $is_global ) = @_;
+    my ( $self, $keyword, $opts ) = @_;
 
-    my $compiled_code = sub { $self->$keyword(@_); };
+    my $code = $opts->{is_global}
+               ? sub { $self->$keyword(@_) }
+               : sub {
+            croak "Function '$keyword' must be called from a route handler"
+                unless defined $Dancer2::Core::Route::REQUEST;
 
-    if ( !$is_global ) {
-        my $code = $compiled_code;
-        $compiled_code = sub {
-            $self->app->has_request or
-                croak "Function '$keyword' must be called from a route handler";
-            $code->(@_);
+            $self->$keyword(@_)
         };
-    }
 
-    return $compiled_code;
+    return $self->_apply_prototype($code, $opts);
+}
+
+sub _apply_prototype {
+    my ($self, $code, $opts) = @_;
+
+    # set prototype if one is defined for the keyword. undef => no prototype
+    my $prototype;
+    exists $opts->{'prototype'} and $prototype = $opts->{'prototype'};
+    return Scalar::Util::set_prototype( \&$code, $prototype );
 }
 
 sub _construct_export_map {
@@ -87,7 +97,7 @@ sub _construct_export_map {
     foreach my $keyword ( keys %$keywords ) {
         # check if the keyword were excluded from importation
         $args->{ '!' . $keyword } and next;
-        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword}{is_global} );
+        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword} );
     }
     return \%map;
 }

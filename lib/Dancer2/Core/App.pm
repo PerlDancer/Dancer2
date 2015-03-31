@@ -511,6 +511,9 @@ around execute_hook => sub {
     my $orig = shift;
     my $self = shift;
 
+    local $Dancer2::Core::Route::REQUEST  = $self->request;
+    local $Dancer2::Core::Route::RESPONSE = $self->response;
+
     my ( $hook, @args ) = @_;
     if ( !$self->has_hook($hook) ) {
         foreach my $cand ( $self->hook_candidates ) {
@@ -547,17 +550,19 @@ sub _build_default_config {
 sub _init_hooks {
     my $self = shift;
 
- # Hook to flush the session at the end of the request, this way, we're sure we
- # flush only once per request
- #
- # Note: we create a weakened copy $self before closing over the weakened copy
- # to avoid circular memory refs.
+    # Hook to flush the session at the end of the request,
+    # this way, we're sure we flush only once per request
+    #
+    # Note: we create a weakened copy $self
+    # before closing over the weakened copy
+    # to avoid circular memory refs.
     Scalar::Util::weaken(my $app = $self);
+
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
             code => sub {
-                my $response = $app->response;
+                my $response = $Dancer2::Core::Route::RESPONSE;
 
                 # make sure an engine is defined, if not, nothing to do
                 my $engine = $app->session_engine;
@@ -667,6 +672,12 @@ sub template {
 
     my $template = $self->template_engine;
     $template->set_settings( $self->config );
+
+    # A session may exist but the route code may not have instantiated
+    # the session object (sessions are lazy). If this is the case, do
+    # that now, so the templates have the session data for rendering.
+    $self->has_session && ! $template->has_session
+        and $self->setup_session;
 
     # return content
     return $template->process( @_ );
@@ -831,14 +842,17 @@ sub compile_hooks {
     for my $position ( $self->supported_hooks ) {
         my $compiled_hooks = [];
         for my $hook ( @{ $self->hooks->{$position} } ) {
+            Scalar::Util::weaken( my $app = $self );
             my $compiled = sub {
                 # don't run the filter if halt has been used
-                $self->has_response && $self->response->is_halted
+                $Dancer2::Core::Route::RESPONSE &&
+                $Dancer2::Core::Route::RESPONSE->is_halted
                     and return;
 
                 eval  { $hook->(@_); 1; }
                 or do {
-                    $self->log('error', "Exception caught in '$position' filter: $@");
+                    $app->cleanup;
+                    $app->log('error', "Exception caught in '$position' filter: $@");
                     croak "Exception caught in '$position' filter: $@";
                 };
             };
@@ -1071,14 +1085,16 @@ sub to_app {
     $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
+    # Construct the statis app to avoid a closure over $psgi
+    my $static_content = Plack::Middleware::Static->wrap(
+        $psgi,
+        path => sub { -f path( $self->config->{public_dir}, shift ) },
+        root => $self->config->{public_dir},
+        content_type => sub { $self->mime_type->for_name(shift) },
+    );
     $psgi = Plack::Middleware::Conditional->wrap(
         $psgi,
-        builder => sub { Plack::Middleware::Static->wrap(
-            $psgi,
-            path => sub { -f path( $self->config->{public_dir}, shift ) },
-            root => $self->config->{public_dir},
-            content_type => sub { $self->mime_type->for_name(shift) },
-        ) },
+        builder => sub { $static_content },
         condition => sub { $self->config->{static_handler} },
     );
 
@@ -1235,41 +1251,39 @@ sub _dispatch_route {
     $self->execute_hook( 'core.app.before_request', $self );
     my $response = $self->response;
 
-    my $content;
     if ( $response->is_halted ) {
-        # if halted, it comes from the 'before' hook. Take its content
-        $content = $response->content;
+        return $self->_add_content_to_response(
+            $response, $response->content,
+        );
     }
-    else {
-        $content = eval { $route->execute($self) };
 
+    $response = eval {
+        $route->execute($self)
+    } or do {
         my $error = $@;
-        if ($error) {
-            $self->log( error => "Route exception: $error" );
-            $self->execute_hook( 'core.app.route_exception', $self, $error );
-            return $self->response_internal_error($error);
-        }
+        $self->log( error => "Route exception: $error" );
+        $self->execute_hook( 'core.app.route_exception', $self, $error );
+        return $self->response_internal_error($error);
+    };
+
+    return $response;
+}
+
+sub _add_content_to_response {
+    my ( $self, $response, $content ) = @_;
+
+    defined $content or return $response;
+
+    # The response object has no back references to the content or app
+    # Update the default_content_type of the response if any value set in
+    # config so it can be applied when the response is encoded/returned.
+    if ( exists $self->config->{content_type}
+      && $self->config->{content_type} ) {
+        $response->default_content_type($self->config->{content_type});
     }
 
-    $response->has_content
-        and $content = $response->content;
-
-    if ( ref $content eq 'Dancer2::Core::Response' ) {
-        $response = $self->set_response($content);
-    }
-    elsif ( defined $content ) {
-        # The response object has no back references to the content or app
-        # Update the default_content_type of the response if any value set in
-        # config so it can be applied when the response is encoded/returned.
-        if ( exists $self->config->{content_type}
-          && $self->config->{content_type} ) {
-            $response->default_content_type($self->config->{content_type});
-        }
-
-        $response->content($content);
-        $response->encode_content;
-    }
-
+    $response->content($content);
+    $response->encode_content;
     return $response;
 }
 
@@ -1411,12 +1425,14 @@ Create a new request which is a clone of the current one, apart
 from the path location, which points instead to the new location.
 This is used internally to chain requests using the forward keyword.
 
-Note that the new location should be a hash reference. Only one key is
-required, the C<to_url>, that should point to the URL that forward
-will use. Optional values are the key C<params> to a hash of
-parameters to be added to the current request parameters, and the key
-C<options> that points to a hash of options about the redirect (for
-instance, C<method> pointing to a new request method).
+This method takes 3 parameters: the url to forward to, followed by an
+optional hashref of parameters added to the current request parameters,
+followed by a hashref of options regarding the redirect, such as
+C<method> to change the request method.
+
+For example:
+
+    forward '/login', { login_failed => 1 }, { method => 'GET' });
 
 =head2 app
 

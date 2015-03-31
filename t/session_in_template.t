@@ -44,9 +44,10 @@ is( ref $app, 'CODE', 'Got app' );
 
 my $test = Plack::Test->create($app);
 my $jar = HTTP::Cookies->new();
+my $base = 'http://localhost';
 
 {
-    my $res = $test->request( GET '/' );
+    my $res = $test->request( GET "$base/" );
 
     ok $res->is_success, 'Successful request';
     is $res->content, "session.name \n";
@@ -55,7 +56,23 @@ my $jar = HTTP::Cookies->new();
 }
 
 {
-    my $request = GET '/set_session/test_name';
+    my @requests = (
+        GET("$base/set_session/test_name"),
+        GET("$base/")
+    );
+    for my $req ( @requests ) {
+        $jar->add_cookie_header($req);
+
+        my $res = $test->request($req);
+        ok $res->is_success, 'Successful request';
+        is $res->content, "session.name test_name\n";
+
+        $jar->extract_cookies($res);
+    }
+}
+
+{
+    my $request = GET "$base/";
     $jar->add_cookie_header($request);
 
     my $res = $test->request($request);
@@ -65,8 +82,9 @@ my $jar = HTTP::Cookies->new();
     $jar->extract_cookies($res);
 }
 
+
 {
-    my $request = GET '/destroy_session';
+    my $request = GET "$base/destroy_session";
     $jar->add_cookie_header($request);
 
     my $res = $test->request($request);
