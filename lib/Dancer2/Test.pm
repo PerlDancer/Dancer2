@@ -416,8 +416,11 @@ sub route_pod_coverage {
         $all_routes->{ $app->name }{routes} = [@$available_routes]
           if @$available_routes;
 
+        # Pod::Simple v3.30 excluded the current directory even when in @INC.
+        # include the current directory as a search path; its backwards compatible
+        # with previous version.
         my $undocumented_routes = [];
-        my $file                = Pod::Simple::Search->new->find( $app->name );
+        my $file                = Pod::Simple::Search->new->find( $app->name, '.' );
         if ($file) {
             $all_routes->{ $app->name }{has_pod} = 1;
             my $parser       = Pod::Simple::SimpleTree->new->parse_file($file);

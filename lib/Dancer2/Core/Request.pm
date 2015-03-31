@@ -661,7 +661,7 @@ sub _build_cookies {
         # we want `cookie_name' as the value and `foo=bar' as the value
         my ( $name, $value ) = split( /\s*=\s*/, $cookie, 2 );
         my @values;
-        if ( $value ne '' ) {
+        if ( defined $value and $value ne '' ) {
             @values = map { uri_unescape($_) } split( /[&;]/, $value );
         }
         $cookies->{$name} =

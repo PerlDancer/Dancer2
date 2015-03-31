@@ -13,17 +13,18 @@ envoie '/' => sub {
 };
 
 prend '/' => sub {
+    proto { ::ok('in proto') }; # no sub!
     request->method;
 };
 
-my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
 
-test_psgi $app, sub {
-    my $cb = shift;
+my $test = Plack::Test->create( __PACKAGE__->to_app );
 
-    is( $cb->( GET '/' )->content, 'GET', '[GET /] Correct content' );
-    is( $cb->( POST '/' )->content, 'POST', '[POST /] Correct content' );
-};
+is( $test->request( GET '/' )->content,
+    'GET', '[GET /] Correct content'
+);
+is( $test->request( POST '/' )->content,
+    'POST', '[POST /] Correct content'
+);
 
-done_testing;
+done_testing();
