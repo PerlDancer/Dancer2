@@ -43,7 +43,7 @@ sub render {
     my $charset = $self->charset;
     my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
     $self->engine->process( $template, $tokens, \$content, @options )
-      or croak $self->engine->error;
+      or croak "Templating Engine Error, Failed to render template! " . $self->engine->error;
     return $content;
 }
 
