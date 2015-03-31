@@ -2333,12 +2333,12 @@ Constant that returns a false value (0).
 
 =head2 forward
 
-Runs an "internal redirect" of the current request to another request. More
-formally; when C<forward> is executed, the current dispatch of the request is
+Runs an "internal redirect" of the current route to another route. More
+formally; when C<forward> is executed, the current dispatch of the route is
 aborted, the request is modified (altering query params or request method),
-and the modified request is dispatched again. Any remaining code (route and
-hooks) from the current dispatch will never be run and the modified request's
-dispatch will execute hooks for the new request normally.
+and the modified request following a new route is dispatched again. Any remaining code (route and
+hooks) from the current dispatch will never be run and the modified route's
+dispatch will execute hooks for the new route normally.
 
 It effectively lets you chain routes together in a clean manner.
 
@@ -2361,6 +2361,9 @@ You'll notice that in the example we didn't indicate whether it was B<GET>
 or B<POST>. That is because C<forward> chains the same type of route the
 user reached. If it was a B<GET>, it will remain a B<GET> (but if you do
 need to change the method, you can do so; read on below for details.)
+
+Also notice that C<forward> only redirects to a new route. It does not redirect
+the requests involving static files.
 
 B<WARNING:> Any code after a C<forward> is ignored, until the end of the
 route. It's not necessary to use C<return> with C<forward> anymore.
