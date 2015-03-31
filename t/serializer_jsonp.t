@@ -53,8 +53,7 @@ for my $test (@tests) {
     $MyApp::entity = $test->{entity};
     test_psgi $app, sub {
         my $cb = shift;
-
-	my $cbname = 'cb'.time;
+        my $cbname = 'cb'.time;
         my $res = $cb->( GET '/serialize?callback='.$cbname );
         is($res->content, "$cbname($expected);",
           "serialized content in response: $test->{name}");
