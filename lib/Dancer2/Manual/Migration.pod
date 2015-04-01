@@ -368,6 +368,51 @@ You need to replace it with
           start_tag: '<%'
           end_tag:   '%>'
 
+=head4 Session engine
+
+The session engine is configured in the C<engine> section.
+
+=over 4
+
+=item * C<session_name> changed to C<cookie_name>.
+
+=item * C<session_domain> changed to C<cookie_domain>.
+
+=item * C<session_expires> changed to C<cookie_duration>.
+
+=item * C<session_secure> changed to C<is_secure>.
+
+=item * C<session_is_http_only> changed to C<is_http_only>.
+
+=back
+
+L<Dancer2> also adds two attributes for session:
+
+=over 4
+
+=item * C<cookie_path>
+The path of the cookie to create for storing the session key. Defaults to "/".
+
+=item * C<session_duration>
+Duration in seconds before sessions should expire, regardless of cookie
+expiration. If set, then SessionFactories should use this to enforce a limit on
+session validity.
+
+=back
+
+See L<Dancer2::Core::Role::SessionFactory> for more detailed documentation
+for these options, or the particular session engine for other supported options.
+
+  session: Simple
+
+  engines:
+     session:
+	   Simple:
+	    cookie_name: dance.set
+        cookie_duration: '24 hours'
+	    is_secure: 1
+        is_http_only: 1
+
 =head2 Keywords
 
 =head3 load
