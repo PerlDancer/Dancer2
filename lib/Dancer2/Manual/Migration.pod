@@ -372,26 +372,38 @@ You need to replace it with
 
 The session engine is configured in the C<engine> section.
 
-C<session_name> changed to C<cookie_name>.
-C<session_domain> changed to C<cookie_domain>.
-C<session_expires> changed to C<cookie_duration>.
-C<session_secure> changed to C<is_secure>.
-C<session_is_http_only> changed to C<is_http_only>.
+=over 4
+
+=item * C<session_name> changed to C<cookie_name>.
+
+=item * C<session_domain> changed to C<cookie_domain>.
+
+=item * C<session_expires> changed to C<cookie_duration>.
+
+=item * C<session_secure> changed to C<is_secure>.
+
+=item * C<session_is_http_only> changed to C<is_http_only>.
+
+=back
 
 L<Dancer2> also adds two attributes for session:
 
-C<cookie_path>
+=over 4
+
+=item * C<cookie_path>
 The path of the cookie to create for storing the session key. Defaults to "/".
 
-C<session_duration>
+=item * C<session_duration>
 Duration in seconds before sessions should expire, regardless of cookie
 expiration. If set, then SessionFactories should use this to enforce a limit on
 session validity.
 
+=back
+
 See L<Dancer2::Core::Role::SessionFactory> for more detailed documentation
 for these options, or the particular session engine for other supported options.
 
- session: Simple
+  session: Simple
 
   engines:
      session:
