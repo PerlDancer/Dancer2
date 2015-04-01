@@ -3,9 +3,14 @@
     [ DOCUMENTATION ]
     * GH #816, #874 Document session engine changes in migration documentation.
       (Chenchen Zhao)
+    * GH #866, #870: Clarify that you cannot forward to a static file, why,
+      and two different ways of accomplishing it without forward.
+      (Sakshee Vijayvargia)
 
     [ ENHANCEMENT ]
-    * GH #857, #875: Clarify when TT has an error vs. internals. (valerycodes)
+    * GH #857, #875: When failing to render in Template::Toolkit, make the
+      error reflect it's a TT error, not an internal one.
+      (valerycodes)
 
 0.159003  2015-03-23 14:57:15+01:00 Europe/Amsterdam
 
