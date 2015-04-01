@@ -1,38 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 package Dancer2::Manual::Migration;
 # ABSTRACT: Migrating from Dancer to Dancer2
 
