@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH #816, #874 Document session engine changes in migration documentation.
+      (Chenchen Zhao)
+
 0.159003  2015-03-23 14:57:15+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
