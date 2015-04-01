@@ -37,13 +37,14 @@ sub render {
     my ( $self, $template, $tokens ) = @_;
 
     ( ref $template || -f $template )
-      or croak "$template is not a regular file or reference";
+      or croak "Failed to render template: $template is not a regular file or reference";
 
-    my $content = "";
+    my $content = '';
     my $charset = $self->charset;
     my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
     $self->engine->process( $template, $tokens, \$content, @options )
-      or croak "Templating Engine Error, Failed to render template! " . $self->engine->error;
+      or croak 'Failed to render template: ' . $self->engine->error;
+
     return $content;
 }
 
