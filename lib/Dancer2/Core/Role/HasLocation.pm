@@ -36,35 +36,35 @@ sub _build_location {
     my $location = Dancer2::FileUtils::dirname($script);
 
     #we try to find bin and lib
-    my $subdir       = $location;
-    my $subdir_found = 0;
+#    my $subdir       = $location;
+#    my $subdir_found = 0;
 
     #maximum of 10 iterations, to prevent infinite loop
-    for ( 1 .. 10 ) {
+#    for ( 1 .. 10 ) {
 
         #try to find libdir and bindir to determine the root of dancer app
-        my $libdir = Dancer2::FileUtils::path( $subdir, 'lib' );
-        my $bindir = Dancer2::FileUtils::path( $subdir, 'bin' );
+#        my $libdir = Dancer2::FileUtils::path( $subdir, 'lib' );
+#        my $bindir = Dancer2::FileUtils::path( $subdir, 'bin' );
 
         #try to find .dancer_app file to determine the root of dancer app
-        my $dancerdir = Dancer2::FileUtils::path( $subdir, '.dancer' );
+#        my $dancerdir = Dancer2::FileUtils::path( $subdir, '.dancer' );
 
         # if one of them is found, keep that; but skip ./blib since both lib and bin exist
         # under it, but views and public do not.
-        if (
-            ( $subdir !~ m![\\/]blib[\\/]?$! && -d $libdir && -d $bindir ) ||
-            ( -f $dancerdir )
-        ) {
-            $subdir_found = 1;
-            last;
-        }
+#        if (
+#            ( $subdir !~ m![\\/]blib[\\/]?$! && -d $libdir && -d $bindir ) ||
+#            ( -f $dancerdir )
+#        ) {
+#            $subdir_found = 1;
+#            last;
+#        }
 
-        $subdir = Dancer2::FileUtils::path( $subdir, '..' ) || '.';
-        last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
+#        $subdir = Dancer2::FileUtils::path( $subdir, '..' ) || '.';
+#        last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
 
-    }
+#    }
 
-    my $path = $subdir_found ? $subdir : $location;
+    my $path = $location;
 
     # return if absolute
     File::Spec->file_name_is_absolute($path)
