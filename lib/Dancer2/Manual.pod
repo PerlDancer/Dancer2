@@ -205,9 +205,8 @@ match will be set in the params hashref.
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        "Hello there, " . defined param('name')
-                        ? param('name')
-                        : "whoever you are!";
+        "Hello there, " .
+          (defined param('name') ? param('name') : "whoever you are!");
     };
 
 =head3 Wildcard Matching
