@@ -89,7 +89,8 @@ following subroutines in that file:
 
 Nothing too fancy in here, I hope. Standard DBI except for the
 C<setting('database')> thing - more on that in a bit.  For now, just assume
-that the expression evaluates to the location of the database file.
+that the expression evaluates to the location of the database file. As here we 
+assume that the 'dancer.pl' and 'schema.sql' are in the same directory.
 
 (Note that you may want to look at the L<Dancer2::Plugin::Database> module
 for an easy way to configure and manage database connections for your
@@ -569,8 +570,22 @@ Here's the complete 'dancr.pl' script from start to finish.
     redirect '/';
  };
 
+
  init_db();
  start;
+
+=head1 Get it run
+
+To run 'dancer.pl' script, run the following command:
+
+    $ plackup -p 5000 dancer.pl
+
+View the Web Application at:
+
+    $ http://localhost:5000
+
+Here we assume that 'dancer.pl' lives in the same directory from where the 
+command is run. '5000' represents the port number.
 
 =head1 Advanced route moves
 
