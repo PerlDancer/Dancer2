@@ -29,12 +29,12 @@ before allowing access to certain routes.
 
 =item L<Dancer2::Plugin::BrowserDetect>
 
-Provides an easy to have info of the browser. keyword within your
+Provides an easy way to have information of the browser. keyword within your
 Dancer application.
 
 =item L<Dancer2::Plugin::Cache::CHI>
 
-Provides caching for generated pages and/or arbitrary data.  Uses L<CHI>, so
+Provides caching for generated pages and/or arbitrary data. Uses L<CHI>, so
 is backend-agnostic - caching can be done in memory, to files, using
 Memcache, in a database, or any other method for which there is a
 L<CHI::Driver> module.
@@ -50,7 +50,7 @@ inserting/updating data as simple as it should be.
 
 =item L<Dancer2::Plugin::DBIC>
 
-Provides easy acces to DBIx::Class database virtualization.
+Provides easy access to DBIx::Class database virtualization.
 
 =item L<Dancer2::Plugin::Deferred>
 
@@ -61,7 +61,7 @@ from multiple tabs in a browser or from AJAX requests.
 =item L<Dancer2::Plugin::Emailesque>
 
 Provides easy email-sending powered by Email::Send - simply call the
-C<email> keyword.  Email sending settings can be taken from your app's
+C<email> keyword. Email sending settings can be taken from your app's
 config.
 
 =item L<Dancer2::Plugin::Feed>

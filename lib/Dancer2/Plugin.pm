@@ -191,7 +191,7 @@ sub import {
 
 # DEPRECATION NOTICE
 # We expect plugin to be written with a $dsl object now, so
-# this keywords will trigger a deprecation notice and will be removed in a later
+# these keywords will trigger a deprecation notice and will be removed in a later
 # version of Dancer2.
 
  # Support for Dancer 1 syntax for plugin.
@@ -227,7 +227,7 @@ sub import {
     }
 
     # Finally, make sure our caller becomes a Moo::Role
-    # Perl 5.8.5+ mandatory for that trick
+    # Perl 5.8.5+ is mandatory for that trick
     @_ = ('Moo::Role');
     goto &Moo::Role::import;
 }
@@ -269,7 +269,7 @@ For a more gentle introduction to Dancer2 plugins, see L<Dancer2::Plugins>.
 Allows the plugin to define a keyword that will be exported to the caller's
 namespace.
 
-The first argument is the symbol name, the second one the coderef to execute
+The first argument is the symbol name, the second one is the coderef to execute
 when the symbol is called.
 
 The coderef receives as its first argument the Dancer2::Core::DSL object.
@@ -326,7 +326,7 @@ the symbols defined with C<register> as exported symbols:
 
     register_plugin;
 
-Register_plugin returns 1 on success and undef if it fails.
+Register_plugin returns 1 on success and undef, if it fails.
 
 =head3 Deprecation note
 
@@ -388,7 +388,7 @@ Allows a plugin to execute the hooks attached at the given position
 
     execute_hook 'some_hook';
 
-Arguments can be passed which will be received by handlers attached to that
+Arguments can be passed, which will be received by handlers attached to that
 hook:
 
     execute_hook 'some_hook', $some_args, ... ;

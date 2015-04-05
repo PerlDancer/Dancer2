@@ -150,7 +150,7 @@ Like path, but returns '' if path doesn't exist.
     my $dir = dirname($path);
 
 Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
-a path. On most OS, returns all but last level of file path. See
+a path. In most OS, it returns all but last level of file path. See
 L<File::Basename> for details.
 
 =func set_file_mode($fh);

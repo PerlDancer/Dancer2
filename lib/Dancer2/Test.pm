@@ -418,7 +418,7 @@ sub route_pod_coverage {
 
         # Pod::Simple v3.30 excluded the current directory even when in @INC.
         # include the current directory as a search path; its backwards compatible
-        # with previous version.
+        # with the previous version.
         my $undocumented_routes = [];
         my $file                = Pod::Simple::Search->new->find( $app->name, '.' );
         if ($file) {
@@ -785,7 +785,7 @@ differing.
 
 =func response_headers_are_deeply([$method, $path], $expected, $test_name)
 
-Asserts that the response headers data structure equals the one given.
+Asserts that the response headers data structure equals to the one given.
 
     response_headers_are_deeply [GET => '/'], [ 'X-Powered-By' => 'Dancer2 1.150' ];
 
@@ -929,10 +929,10 @@ head1, head2,head3,head4, item.
 
 =func import
 
-When Dancer2::Test is imported, it should be passed all the
+When Dancer2::Test is imported, it should be passed to all the
 applications that are supposed to be tested.
 
-If none passed, then the caller is supposed to be the sole application
+If none is passed, then the caller is supposed to be the sole application
 to test.
 
     # t/sometest.t

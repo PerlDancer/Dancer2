@@ -22,8 +22,8 @@ You can change a setting with the keyword C<set>:
 
 =head1 MANIPULATING SETTINGS VIA CONFIGURATION FILES
 
-There's nothing wrong with using C<set> to configure your application.  In
-fact you might have some great reasons for doing so.  For greater
+There's nothing wrong with using C<set> to configure your application. In
+fact you might have some great reasons for doing so. For greater
 flexibility, ease of deployment, etc., you should also consider extracting
 those settings into a configuration file.
 
@@ -31,14 +31,14 @@ those settings into a configuration file.
 
 Dancer2 will first look for the file F<config.ext> (where .ext is the type
 of configuration file you are using) in the root directory of your
-application.  This is considered your global Dancer2 config file.  If you do
+application. This is considered your global Dancer2 config file. If you do
 not care to have separate settings for production and development
 environments (B<not> a recommended practice!), then this file is all you
 need.
 
 Next, Dancer2 will look in the F<environments> directory for a configuration
 file specific to the platform you are deploying to (F<production.ext> and
-F<development.ext>, for example).  Any settings in these files that are
+F<development.ext>, for example). Any settings in these files that are
 named the same as settings in your global configuration file will take
 precedence over those settings in the global file. The rest of the settings
 are merged and Dancer2 uses the combination of settings from the two files
@@ -47,7 +47,7 @@ as its operating configuration.
 =head2 Supported configuration file formats
 
 Dancer2 supports any configuration file format that is supported by
-L<Config::Any>.  At the time of this writing, that includes YAML (.yml and
+L<Config::Any>. At the time of this writing, that includes YAML (.yml and
 .yaml), JSON (.jsn and .json), INI (.ini), Apache-style configurations (.cnf
 and .conf), XML (.xml), and Perl-style hashes (.pl and .perl).
 
@@ -212,7 +212,7 @@ not defined.
 
 =head3 appdir (directory)
 
-This is the path where your application will live.  It's where Dancer2 will
+This is the path where your application will live. It's where Dancer2 will
 look by default for your config files, templates and static content.
 
 It is typically set by C<use Dancer2> to use the same directory as your
@@ -366,7 +366,7 @@ The logger must be configured in a separate C<engines> section, like so:
        Console:
          log_level: core
 
-All loggers support the configuration options below.  See documentation for
+All loggers support the configuration options below. See documentation for
 a particular logger for other supported options.
 
 =head3 log_level
@@ -388,7 +388,7 @@ values are B<core>, B<info>, B<debug>, B<warning> or B<error>.
 
 =back
 
-During development, you'll probably want to use C<debug> to see your own
+During development, you will probably want to use C<debug> to see your own
 debug messages, and C<core> if you need to see what Dancer2 is doing.  In
 production, you'll likely want C<error> or C<warning> only, for less-chatty
 logs.
@@ -433,7 +433,7 @@ time.
 
 =head3 is_secure
 
-The user's session ID is stored in a cookie.  If the C<is_secure> setting is
+The user's session ID is stored in a cookie. If the C<is_secure> setting is
 set to a true value, the cookie will be marked as secure, meaning it should
 only be sent over HTTPS connections.
 
@@ -467,7 +467,7 @@ pages.
 =head2 dsl_class
 
 For complex applications that require extended DSL keywords or other
-functionality the DSL class used can be specified at import time or in the
+functionality, the DSL class used can be specified at import time or in the
 config settings.
 
     dsl_class: 'My::DSL'
