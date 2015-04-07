@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
+
     [ DOCUMENTATION ]
     * GH #816, #874 Document session engine changes in migration documentation.
       (Chenchen Zhao)

@@ -116,6 +116,17 @@ subtest 'Response->error()' => sub {
     ok $resp->is_halted, 'response is halted';
 };
 
+subtest 'Throwing an error with a response' => sub {
+    my $resp = Dancer2::Core::Response->new;
+
+    my $err = eval { Dancer2::Core::Error->new(
+        exception   => 'our exception',
+        show_errors => 1
+    )->throw($resp) };
+      
+    isa_ok($err, 'Dancer2::Core::Response', "Error->throw() accepts a response");
+};
+
 subtest 'Error with show_errors: 0' => sub {
     my $err = Dancer2::Core::Error->new(
         exception   => 'our exception',
