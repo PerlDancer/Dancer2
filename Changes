@@ -6,6 +6,8 @@
     * GH #866, #870: Clarify that you cannot forward to a static file, why,
       and two different ways of accomplishing it without forward.
       (Sakshee Vijayvargia)
+    * GH #878: Rework example for optional named matching due to operator
+      precedence. (Andrew Solomon)
 
     [ ENHANCEMENT ]
     * GH #857, #875: When failing to render in Template::Toolkit, make the
