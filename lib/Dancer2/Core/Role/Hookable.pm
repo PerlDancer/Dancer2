@@ -5,6 +5,7 @@ use Moo::Role;
 use Dancer2::Core;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use Safe::Isa;
 
 requires 'supported_hooks';
 
@@ -134,8 +135,8 @@ sub execute_hook {
     croak "Hook '$name' does not exist"
       if !$self->has_hook($name);
 
-    ref($self) eq 'Dancer2::Core::App' &&
-        $self->engine('logger')->core("Entering hook $name");
+    $self->$_isa('Dancer2::Core::App') &&
+      $self->log( core => "Entering hook $name" );
 
     for my $hook ( @{ $self->hooks->{$name} } ) {
         $hook->(@args);
