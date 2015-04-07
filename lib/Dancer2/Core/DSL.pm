@@ -97,10 +97,11 @@ sub dancer_major_version {
     return ( split /\./, dancer_version )[0];
 }
 
-sub debug   { shift->log( debug   => @_ ) }
-sub info    { shift->log( info    => @_ ) }
-sub warning { shift->log( warning => @_ ) }
-sub error   { shift->log( error   => @_ ) }
+sub log     { shift->app->log( @_ ) }
+sub debug   { shift->app->log( debug   => @_ ) }
+sub info    { shift->app->log( info    => @_ ) }
+sub warning { shift->app->log( warning => @_ ) }
+sub error   { shift->app->log( error   => @_ ) }
 
 sub true  {1}
 sub false {0}
@@ -408,8 +409,6 @@ sub to_dumper {
     require Dancer2::Serializer::Dumper;
     Dancer2::Serializer::Dumper::to_dumper(@_);
 }
-
-sub log { shift->app->log(@_) }
 
 1;
 
