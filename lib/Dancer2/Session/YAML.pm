@@ -58,6 +58,7 @@ files in /tmp/dancer-sessions
       session:
         YAML:
           session_dir: "/tmp/dancer-sessions"
+          cookie_duration: 3600    # Default cookie timeout in seconds
 
 =head1 DEPENDENCY
 
