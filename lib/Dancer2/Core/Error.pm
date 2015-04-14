@@ -113,7 +113,7 @@ sub default_error_page {
         title    => $self->title,
         charset  => $self->charset,
         content  => $message,
-        version  => Dancer2->VERSION,
+        version  => $Dancer2::VERSION || 'DUMMY',
         uri_base => $uri_base,
     };
 

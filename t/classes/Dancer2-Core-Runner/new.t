@@ -47,9 +47,11 @@ note 'server'; {
         is( $server->{$attr}, $runner->$attr, "$attr set correctly in Server" );
     }
 
+    my $version = $Dancer2::VERSION || 'DUMMY';
+
     is(
         $server->{'server_software'},
-        "Perl Dancer2 $Dancer2::VERSION",
+        "Perl Dancer2 $version",
         'server_software set correctly in Server',
     );
 }

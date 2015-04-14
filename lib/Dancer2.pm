@@ -13,11 +13,6 @@ use Dancer2::FileUtils;
 
 our $AUTHORITY = 'SUKRIA';
 
-# set version in dist.ini now
-# but we still need a basic version for
-# the tests
-$Dancer2::VERSION ||= '0.159000';
-
 our $runner;
 
 sub runner   {$runner}

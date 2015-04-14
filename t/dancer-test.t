@@ -69,7 +69,8 @@ response_content_unlike $_ => qr/ought/ for @routes;
 response_status_is $_   => 200 for @routes;
 response_status_isnt $_ => 203 for @routes;
 
-response_headers_include $_ => [ Server => "Perl Dancer2 $Dancer2::VERSION" ]
+my $version = $Dancer2::VERSION || 'DUMMY';
+response_headers_include $_ => [ Server => "Perl Dancer2 $version" ]
   for @routes;
 
 ## Check parameters get through ok

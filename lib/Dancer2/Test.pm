@@ -98,6 +98,7 @@ sub _build_request_from_env {
       : ref $_[0] eq 'ARRAY' ? @{ $_[0] }
       :                        ( GET => $_[0], {} );
 
+    my $version = $Dancer2::VERSION || 'DUMMY';
     my $env = {
         %ENV,
         REQUEST_METHOD    => uc($method),
@@ -108,7 +109,7 @@ sub _build_request_from_env {
         SERVER_NAME       => 'localhost',
         SERVER_PORT       => 3000,
         HTTP_HOST         => 'localhost',
-        HTTP_USER_AGENT   => "Dancer2::Test simulator v " . Dancer2->VERSION,
+        HTTP_USER_AGENT   => "Dancer2::Test simulator v " . $version,
     };
 
     if ( defined $options->{params} ) {
@@ -183,6 +184,7 @@ sub _build_request_from_env {
 sub _build_env_from_request {
     my ($request) = @_;
 
+    my $version = $Dancer2::VERSION || 'DUMMY';
     my $env = {
         REQUEST_METHOD    => $request->method,
         PATH_INFO         => $request->path,
@@ -192,7 +194,7 @@ sub _build_env_from_request {
         SERVER_NAME       => 'localhost',
         SERVER_PORT       => 3000,
         HTTP_HOST         => 'localhost',
-        HTTP_USER_AGENT   => "Dancer2::Test simulator v $Dancer2::VERSION",
+        HTTP_USER_AGENT   => "Dancer2::Test simulator v $version",
     };
 
     # TODO

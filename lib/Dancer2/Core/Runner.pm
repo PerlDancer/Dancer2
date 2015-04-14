@@ -76,11 +76,12 @@ has timeout => (
 sub _build_server {
     my $self = shift;
 
+    my $version = $Dancer2::VERSION || 'DUMMY';
     HTTP::Server::PSGI->new(
         host            => $self->host,
         port            => $self->port,
         timeout         => $self->timeout,
-        server_software => "Perl Dancer2 $Dancer2::VERSION",
+        server_software => "Perl Dancer2 $version",
     );
 }
 
@@ -229,7 +230,8 @@ sub print_banner {
     $self->config->{'startup_info'} or return;
 
     # bare minimum
-    print STDERR ">> Dancer2 v$Dancer2::VERSION server $pid listening "
+    my $version = $Dancer2::VERSION || 'DUMMY';
+    print STDERR ">> Dancer2 v$version server $pid listening "
       . 'on http://'
       . $self->host . ':'
       . $self->port . "\n";

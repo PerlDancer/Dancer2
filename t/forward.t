@@ -36,6 +36,8 @@ get '/go_to_post/' => sub {
 my $app = __PACKAGE__->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
+my $version = $Dancer2::VERSION || 'DUMMY';
+
 test_psgi $app, sub {
     my $cb = shift;
     is( $cb->( GET '/' )->code, 200, '[GET /] Correct code' );
@@ -111,7 +113,7 @@ test_psgi $app, sub {
 
         is(
             $res->headers->server,
-            "Perl Dancer2 $Dancer2::VERSION",
+            "Perl Dancer2 $version",
             '[GET /bounce/] Correct Server',
         );
 
@@ -159,7 +161,7 @@ test_psgi $app, sub {
 
         is(
             $res->headers->server,
-            "Perl Dancer2 $Dancer2::VERSION",
+            "Perl Dancer2 $version",
             '[POST /bounce/] Correct Server',
         );
     }
