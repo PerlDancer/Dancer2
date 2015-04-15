@@ -40,7 +40,7 @@ subtest 'halt within routes' => sub {
 
             is(
                 $res->server,
-                "Perl Dancer2 $Dancer2::VERSION",
+                "Perl Dancer2 " . Dancer2->VERSION,
                 '[/halt] Correct Server header',
             );
 

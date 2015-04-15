@@ -16,7 +16,7 @@ $r = Dancer2::Core::Response->new(
 
 is_deeply $r->to_psgi,
   [ 200,
-    [   Server         => "Perl Dancer2 $Dancer2::VERSION",
+    [   Server         => "Perl Dancer2 " . Dancer2->VERSION,
         'Content-Type' => 'text/html',
     ],
     ['foo']

@@ -108,7 +108,7 @@ NOYAML
 
 sub version {
     require Dancer2;
-    return $Dancer2::VERSION;
+    return Dancer2->VERSION;
 }
 
 # skel creation routines

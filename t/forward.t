@@ -111,7 +111,7 @@ test_psgi $app, sub {
 
         is(
             $res->headers->server,
-            "Perl Dancer2 $Dancer2::VERSION",
+            "Perl Dancer2 " . Dancer2->VERSION,
             '[GET /bounce/] Correct Server',
         );
 
@@ -159,7 +159,7 @@ test_psgi $app, sub {
 
         is(
             $res->headers->server,
-            "Perl Dancer2 $Dancer2::VERSION",
+            "Perl Dancer2 " . Dancer2->VERSION,
             '[POST /bounce/] Correct Server',
         );
     }
