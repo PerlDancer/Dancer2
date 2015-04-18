@@ -71,8 +71,8 @@ sub register_plugin {
         }
     }
 
-# create the import method of the caller (the actual plugin) in order to make it
-# imports all the DSL's keyword when it's used.
+    # create the import method of the caller (the actual plugin) in order to
+    # make it imports all the DSL's keyword when it's used.
     my $import = sub {
         my $plugin = shift;
 
@@ -109,7 +109,7 @@ sub register_plugin {
     # The plugin is ready now.
 }
 
-sub plugin_args {@_}
+sub plugin_args { @_ }
 
 sub plugin_setting {
     my $plugin = caller;

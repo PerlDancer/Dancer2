@@ -9,12 +9,25 @@ use Carp 'croak';
 requires 'supported_hooks';
 
 # The hooks registry
-has hooks => (
-    is      => 'ro',
-    isa     => HashRef,
-    builder => '_build_hooks',
-    lazy    => 1,
+#has hooks => (
+#    is      => 'ro',
+#    isa     => HashRef,
+#    builder => '_build_hooks',
+#    lazy    => 1,
+#);
+
+has _hooks => (
+    is => 'ro',
+    isa => HashRef,
+    default => sub { +{} },
 );
+
+sub hooks {
+    my $self = shift;
+    my $hooks = $self->_build_hooks;
+    $hooks = { %$hooks, %{$self->_hooks}};
+    return $hooks;
+}
 
 sub BUILD { }
 
@@ -100,7 +113,7 @@ sub add_hook {
     croak "Unsupported hook '$name'"
       unless $self->has_hook($name);
 
-    push @{ $self->hooks->{$name} }, $code;
+    push @{ $self->_hooks->{$name} }, $code;
 }
 
 # allows the caller to replace the current list of hooks at the given position
@@ -112,7 +125,7 @@ sub replace_hook {
     croak "Hook '$position' must be installed first"
       unless $self->has_hook($position);
 
-    $self->hooks->{$position} = $hooks;
+    $self->_hooks->{$position} = $hooks;
 }
 
 # Boolean flag to tells if the hook is registered or not
