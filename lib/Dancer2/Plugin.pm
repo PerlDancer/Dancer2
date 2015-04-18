@@ -22,7 +22,7 @@ sub register {
 
     $keyword =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
       or croak "You can't use '$keyword', it is an invalid name"
-      . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
+      . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*\$ )";
 
     if (grep { $_ eq $keyword }
         keys %{ Dancer2::Core::DSL->dsl_keywords }
