@@ -13,6 +13,7 @@
       (Sakshee Vijayvargia)
     * GH #878: Rework example for optional named matching due to operator
       precedence. (Andrew Solomon)
+    * GH #844: Document Simple session backend is the default. (Sawyer X)
 
     [ ENHANCEMENT ]
     * GH #857, #875: When failing to render in Template::Toolkit, make the
