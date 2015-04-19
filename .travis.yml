@@ -20,6 +20,7 @@ notifications:
 
 install:
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
+    - cpanm -v Safe
     - cpanm --no-skip-satisfied Class::Method::Modifiers YAML::XS
     - dzil authordeps --missing | cpanm  --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
     - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
