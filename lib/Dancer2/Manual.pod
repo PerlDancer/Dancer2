@@ -754,6 +754,9 @@ The L<Dancer2::Session::Simple> backend implements a very simple in-memory
 session storage. This will be fast and useful for testing, but such sessions
 will not persist between restarts of your app.
 
+B<Note:> The L<Dancer2::Session::Simple> backend is the default. If you do
+not enable sessions explicitly, it will be used implicitly.
+
 You can also use the L<Dancer2::Session::YAML> backend included with
 Dancer2, which stores session data on disc in YAML files (since YAML is a
 nice human-readable format, it makes inspecting the contents of sessions a
