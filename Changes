@@ -18,6 +18,8 @@
     * GH #857, #875: When failing to render in Template::Toolkit, make the
       error reflect it's a TT error, not an internal one.
       (valerycodes)
+    * GH #871: Use Safe.pm instead of eval with Dancer2::Serializer::Dumper.
+      (David Zurborg)
     * GH #880: Reduce and cleanup different logging calls in order to handle
       the stack frames traceback for logging classes. (Russell Jenkins)
 
