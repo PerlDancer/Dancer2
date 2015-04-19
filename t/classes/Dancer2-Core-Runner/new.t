@@ -49,7 +49,7 @@ note 'server'; {
 
     is(
         $server->{'server_software'},
-        "Perl Dancer2 $Dancer2::VERSION",
+        "Perl Dancer2 " . Dancer2->VERSION,
         'server_software set correctly in Server',
     );
 }

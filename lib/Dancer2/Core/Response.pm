@@ -126,7 +126,7 @@ sub to_psgi {
     my ($self) = @_;
 
     Dancer2->runner->config->{'no_server_tokens'}
-        or $self->header( 'Server' => "Perl Dancer2 $Dancer2::VERSION" );
+        or $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
 
     # It is possible to have no content and/or no content type set
     # e.g. if all routes 'pass'. Apply defaults here..

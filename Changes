@@ -2,6 +2,8 @@
 
     [ BUG FIXES ]
     * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
+    * GH #879, #882: Fix version numbering in packaging and tests.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #816, #874 Document session engine changes in migration documentation.
