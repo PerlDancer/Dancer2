@@ -2,7 +2,7 @@
 
     [ BUG FIXES ]
     * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
-    * GH #879, #882: Fix version numbering in packaging and tests.
+    * GH #879, #883: Fix version numbering in packaging and tests.
       (Russell Jenkins)
 
     [ DOCUMENTATION ]
