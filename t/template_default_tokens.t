@@ -30,8 +30,9 @@ my $views =
     };
 }
 
+my $version  = $Dancer2::VERSION || 'DUMMY';
 my $expected = "perl_version: $]
-dancer_version: ${Dancer2::VERSION}
+dancer_version: $version
 settings.foo: in settings
 params.foo: 42
 session.foo in session

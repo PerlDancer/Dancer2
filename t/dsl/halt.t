@@ -37,10 +37,11 @@ subtest 'halt within routes' => sub {
 
         {
             my $res = $cb->( GET '/halt' );
+            my $version = $Dancer2::VERSION || 'DUMMY';
 
             is(
                 $res->server,
-                "Perl Dancer2 $Dancer2::VERSION",
+                "Perl Dancer2 $version",
                 '[/halt] Correct Server header',
             );
 

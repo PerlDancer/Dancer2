@@ -15,6 +15,7 @@ set logger => 'Null';
 # init our test fixture
 my $buffer = {};
 my $app = Dancer2::Core::App->new( name => 'main' );
+my $version = $Dancer2::VERSION || 'DUMMY';
 
 $app->setting( logger      => engine('logger') );
 $app->setting( show_errors => 1 );
@@ -74,7 +75,7 @@ my @tests = (
             200,
             [   'Content-Length' => 4,
                 'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 $version",
             ],
             ["home"]
         ]
@@ -87,7 +88,7 @@ my @tests = (
             200,
             [   'Content-Length' => 12,
                 'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 $version",
             ],
             ["Hello Johnny"]
         ]
@@ -99,7 +100,7 @@ my @tests = (
         expected => [
             204,
             [   'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 $version",
             ],
             []
         ]
@@ -113,7 +114,7 @@ my @tests = (
             [   'Location'       => 'http://perldancer.org',
                 'Content-Length' => '305',
                 'Content-Type'   => 'text/html; charset=utf-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 $version",
             ],
             qr/This item has moved/
         ]

@@ -91,7 +91,7 @@ sub dsl_keywords {
 }
 
 sub dancer_app     { shift->app }
-sub dancer_version { Dancer2->VERSION }
+sub dancer_version { $Dancer2::VERSION || 'DUMMY' }
 
 sub dancer_major_version {
     return ( split /\./, dancer_version )[0];
