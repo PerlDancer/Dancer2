@@ -744,23 +744,16 @@ It's common to want to use sessions to give your web applications state; for
 instance, allowing a user to log in, creating a session, and checking that
 session on subsequent requests.
 
-To make use of sessions, you must first enable the session engine - pick the
-session engine you want to use, then declare it in your config file like
-this:
+By default Dancer 2 has L<Simple|Dancer2::Session::Simple> sessions enabled.
+It implements a very simple in-memory session storage. This will be fast and
+useful for testing, but such sessions will not persist between restarts of
+your app.
 
-    session: Simple
+If you'd like to use a different session engine you must declare it in the
+configuration file.
 
-The L<Dancer2::Session::Simple> backend implements a very simple in-memory
-session storage. This will be fast and useful for testing, but such sessions
-will not persist between restarts of your app.
-
-B<Note:> The L<Dancer2::Session::Simple> backend is the default. If you do
-not enable sessions explicitly, it will be used implicitly.
-
-You can also use the L<Dancer2::Session::YAML> backend included with
-Dancer2, which stores session data on disc in YAML files (since YAML is a
-nice human-readable format, it makes inspecting the contents of sessions a
-breeze):
+For example to use YAML file base sessions you need to add the following
+to your F<config.yml>:
 
     session: YAML
 
@@ -768,12 +761,13 @@ Or, to enable session support from within your code,
 
     set session => 'YAML';
 
-However, controlling settings is best done from your config file.
+(However, controlling settings is best done from your config file.)
 
-'YAML' in the example is the session backend to use; this is shorthand for
-L<Dancer2::Session::YAML>. There are other session backends - for instance
-L<Dancer2::Session::Memcached> - but the YAML backend is simple and easy to
-use.
+The L<Dancer2::Session::YAML> backend implements a file-based YAML session
+storage to help with debugging, but shouldn't be used on production systems.
+
+There are other session backends, such as L<Dancer2::Session::Memcached>,
+which are recommended for production use.
 
 You can then use the L<session|Dancer2/session> keyword to manipulate the
 session:
