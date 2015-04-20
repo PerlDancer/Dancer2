@@ -289,6 +289,11 @@ function with decoded input.
 You no longer need to implement the C<loaded> method. It is simply
 unnecessary.
 
+=head3 Sessions
+
+Now the L<Simple|Dancer2::Session::Simple> session engine is turned on
+by default, unless you specify a different one.
+
 =head2 Configuration
 
 =head3 warnings
