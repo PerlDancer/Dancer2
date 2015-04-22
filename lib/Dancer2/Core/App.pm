@@ -159,7 +159,7 @@ sub _build_logger_engine {
         location        => $self->config_location,
         environment     => $self->environment,
         app_name        => $self->name,
-        postponed_hooks => $self->get_postponed_hooks
+        postponed_hooks => $self->postponed_hooks
     );
 
     exists $config->{log} and $logger->log_level($config->{log});
@@ -188,7 +188,7 @@ sub _build_session_engine {
     return $self->_factory->create(
         session         => $value,
         %{$engine_options},
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger->log(@_) },
     );
@@ -221,7 +221,7 @@ sub _build_template_engine {
     return $self->_factory->create(
         template        => $value,
         %{$engine_attrs},
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger->log(@_) },
     );
@@ -246,7 +246,7 @@ sub _build_serializer_engine {
     return $self->_factory->create(
         serializer      => $value,
         config          => $engine_options,
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger_engine->log(@_) },
     );
