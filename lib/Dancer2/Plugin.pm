@@ -92,6 +92,25 @@ sub register_plugin {
         $caller->dsl->export_symbols_to($caller);
         $caller->dsl->dancer_app->register_plugin( $caller->dsl );
 
+        # add hooks
+        my $current_hooks = [ $caller->dsl->supported_hooks ];
+        my $current_aliases = $caller->dsl->hook_aliases;
+        for my $h ( keys %{ $_hooks->{$plugin} } ) {
+            push @$current_hooks, $h;
+            $current_aliases->{ $_hooks->{$plugin}->{$h} } = $h;
+			# If the hooks atttribute has already been constructed,
+			# add an entry so has_hook() finds these hooks.
+            $caller->dsl->hooks->{$h} = []
+                if ! exists $caller->dsl->hooks->{$h};
+        }
+        my $target = ref $caller->dsl;
+        {
+            no strict 'refs';
+            no warnings 'redefine';
+            *{"${target}::supported_hooks"} = sub {@$current_hooks};
+            *{"${target}::hook_aliases"}    = sub {$current_aliases};
+        }
+
         for my $sub ( @{ $_on_import->{$plugin} } ) {
             $sub->( $caller->dsl );
         }
