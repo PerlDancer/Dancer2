@@ -10,6 +10,9 @@ use Scalar::Util qw();
 # their code and the plugin they come from
 my $_keywords = {};
 
+# singleton for storing all hooks and their aliases
+my $_hooks = {};
+
 # singleton for applying code-blocks at import time
 # so their code gets the callers DSL
 my $_on_import = {};
@@ -122,20 +125,10 @@ sub plugin_setting {
 }
 
 sub register_hook {
-    my $caller = caller;
-    my $plugin = $caller;
-
     my (@hooks) = @_;
 
-    my $current_hooks = [];
-    if ( $plugin->can('supported_hooks') ) {
-        $current_hooks = [ $plugin->supported_hooks ];
-    }
-
-    my $current_aliases = {};
-    if ( $plugin->can('hook_aliases') ) {
-        $current_aliases = $plugin->hook_aliases;
-    }
+    my $caller = caller;
+    my $plugin = $caller;
 
     $plugin =~ s/^Dancer2::Plugin:://;
     $plugin =~ s/::/_/g;
@@ -143,16 +136,7 @@ sub register_hook {
     my $base_name = "plugin." . lc($plugin);
     for my $hook (@hooks) {
         my $hook_name = "${base_name}.$hook";
-
-        push @{$current_hooks}, $hook_name;
-        $current_aliases->{$hook} = $hook_name;
-    }
-
-    {
-        no strict 'refs';
-        no warnings 'redefine';
-        *{"${caller}::supported_hooks"} = sub {@$current_hooks};
-        *{"${caller}::hook_aliases"}    = sub {$current_aliases};
+        $_hooks->{$caller}->{$hook_name} = $hook;
     }
 }
 
