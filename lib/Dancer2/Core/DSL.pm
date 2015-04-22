@@ -11,6 +11,26 @@ use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
 
+sub _add_postponed_plugin_hooks {
+    my ( $self, $postponed_hooks) = @_;
+
+    $postponed_hooks = $postponed_hooks->{'plugin'};
+    return unless defined $postponed_hooks;
+
+    for my $plugin ( keys %{$postponed_hooks} ) {
+        for my $name ( keys %{$postponed_hooks->{$plugin} } ) {
+            my $hook   = $postponed_hooks->{$plugin}{$name}{hook};
+            my $caller = $postponed_hooks->{$plugin}{$name}{caller};
+
+            $self->has_hook($name)
+              or croak "plugin $plugin does not support the hook `$name'. ("
+              . join( ", ", @{$caller} ) . ")";
+
+            $self->add_hook($hook);
+        }
+    }
+}
+
 sub dsl_keywords {
 
     # the flag means : 1 = is global, 0 = is not global. global means can be
