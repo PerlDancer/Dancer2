@@ -866,6 +866,10 @@ sub finish {
     my $self = shift;
     $self->register_route_handlers;
     $self->compile_hooks;
+    @{$self->plugins} &&
+      $self->plugins->[0]->_add_postponed_plugin_hooks(
+        $self->postponed_hooks
+    );
 }
 
 sub init_route_handlers {
