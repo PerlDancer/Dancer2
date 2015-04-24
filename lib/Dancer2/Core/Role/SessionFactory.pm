@@ -12,6 +12,7 @@ use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
 
+sub hook_aliases { +{} }
 sub supported_hooks {
     qw/
       engine.session.before_retrieve

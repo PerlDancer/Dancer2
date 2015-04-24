@@ -10,14 +10,16 @@ use Data::Dumper;
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
-sub supported_hooks {
-    qw/
-      engine.template.before_render
-      engine.template.after_render
-      engine.template.before_layout_render
-      engine.template.after_layout_render
-      /;
+sub hook_aliases {
+    {
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_layout_render   => 'engine.template.before_layout_render',
+        after_layout_render    => 'engine.template.after_layout_render',
+    }
 }
+
+sub supported_hooks { values %{ shift->hook_aliases } }
 
 sub _build_type {'Template'}
 

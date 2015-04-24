@@ -9,6 +9,7 @@ use Data::Dumper;
 
 with 'Dancer2::Core::Role::Engine';
 
+sub hook_aliases { +{} }
 sub supported_hooks {
     qw(
       engine.logger.before

@@ -7,12 +7,14 @@ use Dancer2::Core::Types;
 
 with 'Dancer2::Core::Role::Engine';
 
-sub supported_hooks {
-    qw(
-      engine.serializer.before
-      engine.serializer.after
-    );
+sub hook_aliases {
+    {
+        before_serializer => 'engine.serializer.before',
+        after_serializer  => 'engine.serializer.after',
+    }
 }
+
+sub supported_hooks { values %{ shift->hook_aliases } }
 
 sub _build_type {'Serializer'}
 

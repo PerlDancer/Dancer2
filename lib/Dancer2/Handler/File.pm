@@ -15,12 +15,14 @@ with qw<
     Dancer2::Core::Role::Hookable
 >;
 
-sub supported_hooks {
-    qw(
-      handler.file.before_render
-      handler.file.after_render
-    );
+sub hook_aliases {
+    {
+        before_file_render => 'handler.file.before_render',
+        after_file_render  => 'handler.file.after_render',
+    }
 }
+
+sub supported_hooks { values %{ shift->hook_aliases } }
 
 has mime => (
     is      => 'ro',
