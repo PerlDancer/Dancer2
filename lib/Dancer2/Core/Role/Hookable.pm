@@ -7,7 +7,7 @@ use Dancer2::Core::Types;
 use Carp 'croak';
 use Safe::Isa;
 
-requires 'supported_hooks';
+requires 'supported_hooks', 'hook_aliases';
 
 # The hooks registry
 has hooks => (

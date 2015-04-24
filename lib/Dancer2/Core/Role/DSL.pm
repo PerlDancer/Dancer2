@@ -17,8 +17,6 @@ has keywords => (
     builder => '_build_dsl_keywords',
 );
 
-sub supported_hooks { }
-
 sub _build_dsl_keywords {
     my ($self) = @_;
     $self->can('dsl_keywords')

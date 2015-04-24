@@ -11,6 +11,9 @@ use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
 
+sub hook_aliases { +{} }
+sub supported_hooks { () }
+
 sub _add_postponed_plugin_hooks {
     my ( $self, $postponed_hooks) = @_;
 
