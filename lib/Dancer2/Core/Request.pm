@@ -1,9 +1,7 @@
 package Dancer2::Core::Request;
-
 # ABSTRACT: Interface for accessing incoming requests
 
 use Moo;
-
 use Carp;
 use Encode;
 use HTTP::Body;
