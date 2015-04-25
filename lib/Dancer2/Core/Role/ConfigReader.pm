@@ -215,11 +215,6 @@ sub load_config_file {
     return $config;
 }
 
-sub get_postponed_hooks {
-    my ($self) = @_;
-    return $self->postponed_hooks;
-}
-
 # private
 
 my $_normalizers = {
@@ -315,5 +310,3 @@ Verifies that a key exists in the configuration.
 =head2 load_config_file
 
 Load the configuration files.
-
-=head2 get_postponed_hooks

@@ -161,7 +161,7 @@ sub _build_logger_engine {
         location        => $self->config_location,
         environment     => $self->environment,
         app_name        => $self->name,
-        postponed_hooks => $self->get_postponed_hooks
+        postponed_hooks => $self->postponed_hooks
     );
 
     exists $config->{log} and $logger->log_level($config->{log});
@@ -190,7 +190,7 @@ sub _build_session_engine {
     return $self->_factory->create(
         session         => $value,
         %{$engine_options},
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger->log(@_) },
     );
@@ -223,7 +223,7 @@ sub _build_template_engine {
     return $self->_factory->create(
         template        => $value,
         %{$engine_attrs},
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger->log(@_) },
     );
@@ -248,7 +248,7 @@ sub _build_serializer_engine {
     return $self->_factory->create(
         serializer      => $value,
         config          => $engine_options,
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger_engine->log(@_) },
     );
@@ -622,6 +622,40 @@ sub supported_hooks {
       /;
 }
 
+sub hook_aliases {
+    {
+        before                 => 'core.app.before_request',
+        before_request         => 'core.app.before_request',
+        after                  => 'core.app.after_request',
+        after_request          => 'core.app.after_request',
+        init_error             => 'core.error.init',
+        before_error           => 'core.error.before',
+        after_error            => 'core.error.after',
+        on_route_exception     => 'core.app.route_exception',
+
+        before_file_render         => 'core.app.before_file_render',
+        after_file_render          => 'core.app.after_file_render',
+        before_handler_file_render => 'handler.file.before_render',
+        after_handler_file_render  => 'handler.file.after_render',
+
+
+        # compatibility from Dancer1
+        before_error_render    => 'core.error.before',
+        after_error_render     => 'core.error.after',
+        before_error_init      => 'core.error.init',
+
+        # TODO: call $engine->hook_aliases as needed
+        # But.. currently there are use cases where hook_aliases
+        # are needed before the engines are intiialized :(
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_layout_render   => 'engine.template.before_layout_render',
+        after_layout_render    => 'engine.template.after_layout_render',
+        before_serializer      => 'engine.serializer.before',
+        after_serializer       => 'engine.serializer.after',
+    };
+}
+
 # FIXME not needed anymore, I suppose...
 sub api_version {2}
 
@@ -866,6 +900,10 @@ sub finish {
     my $self = shift;
     $self->register_route_handlers;
     $self->compile_hooks;
+    @{$self->plugins} &&
+      $self->plugins->[0]->_add_postponed_plugin_hooks(
+        $self->postponed_hooks
+    );
 }
 
 sub init_route_handlers {

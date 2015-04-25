@@ -7,7 +7,7 @@ use Dancer2::Core::Types;
 use Carp 'croak';
 use Safe::Isa;
 
-requires 'supported_hooks';
+requires 'supported_hooks', 'hook_aliases';
 
 # The hooks registry
 has hooks => (
@@ -18,36 +18,6 @@ has hooks => (
 );
 
 sub BUILD { }
-
-# this hash contains all known core hooks with their 'human' name
-# classes that consume the role can override this method to provide
-# their own aliases for their own hooks
-sub hook_aliases {
-    {   before                 => 'core.app.before_request',
-        before_request         => 'core.app.before_request',
-        after                  => 'core.app.after_request',
-        after_request          => 'core.app.after_request',
-        before_file_render     => 'core.app.before_file_render',
-        after_file_render      => 'core.app.after_file_render',
-        before_handler_file_render => 'handler.file.before_render',
-        after_handler_file_render  => 'handler.file.after_render',
-        before_template_render => 'engine.template.before_render',
-        after_template_render  => 'engine.template.after_render',
-        before_layout_render   => 'engine.template.before_layout_render',
-        after_layout_render    => 'engine.template.after_layout_render',
-        before_serializer      => 'engine.serializer.before',
-        after_serializer       => 'engine.serializer.after',
-        init_error             => 'core.error.init',
-        before_error           => 'core.error.before',
-        after_error            => 'core.error.after',
-        on_route_exception     => 'core.app.route_exception',
-
-        # compatibility from Dancer1
-        before_error_render    => 'core.error.before',
-        after_error_render     => 'core.error.after',
-        before_error_init      => 'core.error.init',
-    };
-}
 
 # after a hookable object is built, we go over its postponed hooks and register
 # them if any.
@@ -64,7 +34,7 @@ sub _add_postponed_hooks {
     # find the internal name of the hooks, from the caller name
     my $caller = ref($self);
     my ( $dancer, $h_type, $h_name, @rest ) = map {lc} split /::/, $caller;
-    $h_name = $rest[0] if $h_name eq 'Role';
+    $h_name = $rest[0] if $h_name eq 'role';
     if ( $h_type =~ /(template|logger|serializer|session)/ ) {
         $h_name = $h_type;
         $h_type = 'engine';

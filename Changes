@@ -5,6 +5,8 @@
     * GH #879, #883: Fix version numbering in packaging and tests.
       (Russell Jenkins)
     * File serving (send_file) won't call serializer. (Russell Jenkins)
+    * GH #892, #510: Workaround for multiple plugins with hooks.
+      (Russell Jenkins, Alberto Simões)
 
     [ DOCUMENTATION ]
     * GH #816, #874 Document session engine changes in migration documentation.
