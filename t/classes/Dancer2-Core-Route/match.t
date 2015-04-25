@@ -24,22 +24,43 @@ my @tests = (
 
     # prefix tests
     [   [ 'get', '/', sub {33}, '/forum' ],
-        '/forum',
-        [ { splat => [1] }, 33 ]
+        '/forum/',
+        [ {}, 33 ]
     ],
     [   [ 'get', '/', sub {33}, '/forum' ],
         '/forum/',
-        [ { splat => [1] }, 33 ]
+        [ {}, 33 ]
     ],
     [   [ 'get', '/mywebsite', sub {33}, '/forum' ],
         '/forum/mywebsite',
         [ {}, 33 ]
+    ],
+    [   [ 'get', '', sub {'concat'}, '/' ],
+        '/',
+        [ {}, 'concat' ]
+    ],
+
+    # token in prefix tests
+    [   [ 'get', 'name', sub {35}, '/hello/:' ],
+        '/hello/sukria',
+        [ { name => 'sukria' }, 35 ],
+    ],
+
+    [   [ 'get', '/', sub {36}, '/hello/:name' ],
+        '/hello/sukria/',
+        [ { name => 'sukria' }, 36 ],
     ],
 
     # splat test
     [   [ 'get', '/file/*.*', sub {44} ],
         '/file/dist.ini',
         [ { splat => [ 'dist', 'ini' ] }, 44 ]
+    ],
+
+    # splat in prefix
+    [   [ 'get', '', sub {42}, '/forum/*'],
+        '/forum/dancer',
+        [ { splat => [ 'dancer' ] }, 42 ]
     ],
 
     # megasplat test
@@ -68,7 +89,7 @@ my @tests = (
     ],
 );
 
-plan tests => 55;
+plan tests => 71;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;

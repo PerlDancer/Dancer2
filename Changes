@@ -7,6 +7,8 @@
     * File serving (send_file) won't call serializer. (Russell Jenkins)
     * GH #892, #510: Workaround for multiple plugins with hooks.
       (Russell Jenkins, Alberto Simões)
+    * GH #558: Remove "prefix" inconsistency with possibly missing postfixed
+      forward slash. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #816, #874 Document session engine changes in migration documentation.
@@ -20,13 +22,17 @@
 
     [ ENHANCEMENT ]
     * GH #869: Streaming file serving (send_file). (Russell Jenkins)
-    * GH #857, #875: When failing to render in Template::Toolkit, make the
-      error reflect it's a TT error, not an internal one.
-      (valerycodes)
+    * GH #558: "prefix" now supports the path definition spec. (Sawyer X)
+    * GH #817, #845: Route spec under a prefix doesn't need to start with
+      a slash (but must without a prefix).
+      (Sawyer X, Russell Jenkins)
     * GH #871: Use Safe.pm instead of eval with Dancer2::Serializer::Dumper.
       (David Zurborg)
     * GH #880: Reduce and cleanup different logging calls in order to handle
       the stack frames traceback for logging classes. (Russell Jenkins)
+    * GH #857, #875: When failing to render in Template::Toolkit, make the
+      error reflect it's a TT error, not an internal one.
+      (valerycodes)
 
 0.159003  2015-03-23 14:57:15+01:00 Europe/Amsterdam
 
