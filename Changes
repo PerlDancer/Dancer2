@@ -4,6 +4,7 @@
     * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
     * GH #879, #883: Fix version numbering in packaging and tests.
       (Russell Jenkins)
+    * File serving (send_file) won't call serializer. (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #816, #874 Document session engine changes in migration documentation.
@@ -16,6 +17,7 @@
     * GH #844: Document Simple session backend is the default. (Sawyer X)
 
     [ ENHANCEMENT ]
+    * GH #869: Streaming file serving (send_file). (Russell Jenkins)
     * GH #857, #875: When failing to render in Template::Toolkit, make the
       error reflect it's a TT error, not an internal one.
       (valerycodes)
