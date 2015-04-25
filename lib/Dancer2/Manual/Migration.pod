@@ -49,6 +49,11 @@ There is a L<Dancer Advent Calendar|http://advent.perldancer.org> article
 L<< covering the C<to_app> keyword|http://advent.perldancer.org/2014/9 >>
 and its usage.
 
+=head2 Configuration
+
+You specify a different location to the directory used for serving static (public)
+content by setting the C<public_dir> option.
+
 =head2 Apps
 
 1. In L<Dancer2>, each module is a B<separate application> with its own

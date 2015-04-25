@@ -26,6 +26,8 @@ use Dancer2::Core::Hook;
 use Dancer2::Core::Request;
 use Dancer2::Core::Factory;
 
+use Dancer2::Handler::File;
+
 # we have hooks here
 with qw<
     Dancer2::Core::Role::Hookable
@@ -612,6 +614,8 @@ sub supported_hooks {
       core.app.before_request
       core.app.after_request
       core.app.route_exception
+      core.app.before_file_render
+      core.app.after_file_render
       core.error.before
       core.error.after
       core.error.init
@@ -752,46 +756,104 @@ sub send_error {
 
 sub send_file {
     my $self    = shift;
-    my $path    = shift;
+    my $thing   = shift;
     my %options = @_;
 
-    my $env = $self->request->env;
+    my ($content_type, $file_path);
 
-    ( $options{'streaming'} && !$env->{'psgi.streaming'} )
-      and croak "Streaming is not supported on this server.";
+    # are we're given a filehandle? (based on what Plack::Middleware::Lint accepts)
+    my $is_filehandle = Plack::Util::is_real_fh($thing)
+      || ( ref $thing eq 'GLOB' && *{$thing}{IO} && *{$thing}{IO}->can('getline') )
+      || ( Scalar::Util::blessed($thing) && $thing->can('getline') );
+    my ($fh) = ($thing)x!! $is_filehandle;
 
-    ( exists $options{'content_type'} )
-      and $self->response->header(
-        'Content-Type' => $options{content_type} );
+    # if we're given an IO::Scalar object, DTRT (take the scalar ref from it)
+    if (Scalar::Util::blessed($thing) && $thing->isa('IO::Scalar')) {
+        $thing = $thing->sref;
+    }
 
+    # if we're given a SCALAR reference, build a filehandle to it
+    if ( ref $thing eq 'SCALAR' ) {
+        open $fh, "<", $thing;
+    }
+
+    # If we haven't got a filehandle, create one to the requested content
+    if (! $fh) {
+        my $path = $thing;
+        # remove prefix from given path (if not a filehandle)
+        my $prefix = $self->prefix;
+        if ( $prefix && $prefix ne '/' ) {
+            $path =~ s/^\Q$prefix\E//;
+        }
+        # static file dir - either system root or public_dir
+        my $dir = $options{system_path}
+            ? File::Spec->rootdir
+            : $ENV{DANCER_PUBLIC}
+                || $self->config->{public_dir}
+                || path( $self->location, 'public' );
+
+        $file_path = Dancer2::Handler::File->merge_paths( $path, $dir );
+        my $err_response = sub {
+            my $status = shift;
+            $self->response->status($status);
+            $self->response->header( 'Content-Type', 'text/plain' );
+            $self->response->content( Dancer2::Core::HTTP->status_message($status) );
+            $self->with_return->( $self->response );
+        };
+        $err_response->(403) if !defined $file_path;
+        $err_response->(404) if !-f $file_path;
+        $err_response->(403) if !-r $file_path;
+
+        # Read file content as bytes
+        $fh = Dancer2::FileUtils::open_file( "<", $file_path );
+        binmode $fh;
+
+        $content_type = Dancer2->runner->mime_type->for_file($file_path) || 'text/plain';
+        if ( $content_type =~ m!^text/! ) {
+             $content_type .= "; charset=" . ( $self->config->{charset} || "utf-8" );
+        }
+    }
+
+    # Now we are sure we can render the file...
+    $self->execute_hook( 'core.app.before_file_render', $file_path );
+
+    # response content type
+    ( exists $options{'content_type'} ) and $content_type = $options{'content_type'};
+    ( defined $content_type )
+      and $self->response->header('Content-Type' => $content_type );
+
+    # content disposition
     ( exists $options{filename} )
       and $self->response->header( 'Content-Disposition' =>
           "attachment; filename=\"$options{filename}\"" );
 
-    # if we're given a SCALAR reference, we're going to send the data
-    # pretending it's a file (on-the-fly file sending)
-    ref $path eq 'SCALAR' and return $$path;
-
-    my $file_handler = $self->_factory->create(
-        Handler => 'File',
-        app     => $self,
-        postponed_hooks => $self->postponed_hooks,
-        ( public_dir => File::Spec->rootdir )x!! $options{system_path},
-    );
-
-    # List shouldn't be too long, so we use 'grep' instead of 'first'
-    if (my ($handler) = grep { $_->{name} eq 'File' } @{$self->route_handlers}) {
-        for my $h ( keys %{ $handler->{handler}->hooks } ) {
-            my $hooks = $handler->{handler}->hooks->{$h};
-            $file_handler->replace_hook( $h, $hooks );
-        }
+    # use a delayed response unless server does not support streaming
+    my $response;
+    my $env = $self->request->env;
+    if ( $env->{'psgi.streaming'} && ! $options{'streaming'} ) {
+        my $cb = sub {
+            my $responder = $Dancer2::Core::Route::RESPONDER;
+            my $res = $Dancer2::Core::Route::RESPONSE;
+            return $responder->(
+                [ $res->status, $res->headers_to_array, $fh ]
+            );
+        };
+        $response = Dancer2::Core::Response::Delayed->new(
+            cb       => $cb,
+            request  => $Dancer2::Core::Route::REQUEST,
+            response => $Dancer2::Core::Route::RESPONSE,
+        );
+    }
+    else {
+        $response = $self->response;
+        # direct assignment to hash element, avoids around modifier
+        # trying to serialise this this content.
+        $response->{content} = read_glob_content($fh);
+        $response->is_encoded(1);    # bytes are already encoded
     }
 
-    $self->request->set_path_info($path);
-    $file_handler->code( $self->prefix )->( $self ); # slurp file
-    $self->has_with_return and $self->with_return->( $self->response );
-
-    # TODO Streaming support
+    $self->execute_hook( 'core.app.after_file_render', $response );
+    $self->with_return->( $response );
 }
 
 sub BUILD {
