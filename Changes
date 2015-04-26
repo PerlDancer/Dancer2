@@ -22,7 +22,7 @@
 
     [ ENHANCEMENT ]
     * GH #869: Streaming file serving (send_file). (Russell Jenkins)
-    * GH #558: "prefix" now supports the path definition spec. (Sawyer X)
+    * GH #793: "prefix" now supports the path definition spec. (Sawyer X)
     * GH #817, #845: Route spec under a prefix doesn't need to start with
       a slash (but must without a prefix).
       (Sawyer X, Russell Jenkins)
