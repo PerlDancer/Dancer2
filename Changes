@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.160000  2015-04-27 00:12:55+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
     * GH #879, #883: Fix version numbering in packaging and tests.
