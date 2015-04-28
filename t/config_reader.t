@@ -94,7 +94,7 @@ is_deeply $fail->config_files,
 
 like(
     exception { $fail->config },
-    qr{YAML}, 'Configuration file parsing failure',
+    qr{Unable to parse the configuration file}, 'Configuration file parsing failure',
 );
 
 note "config merging";
