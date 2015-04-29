@@ -1,5 +1,52 @@
 {{$NEXT}}
 
+0.160000  2015-04-27 00:12:55+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
+    * GH #879, #883: Fix version numbering in packaging and tests.
+      (Russell Jenkins)
+    * File serving (send_file) won't call serializer. (Russell Jenkins)
+    * GH #892, #510: Workaround for multiple plugins with hooks.
+      (Russell Jenkins, Alberto Simões)
+    * GH #558: Remove "prefix" inconsistency with possibly missing postfixed
+      forward slash. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #816, #874 Document session engine changes in migration documentation.
+      (Chenchen Zhao)
+    * GH #866, #870: Clarify that you cannot forward to a static file, why,
+      and two different ways of accomplishing it without forward.
+      (Sakshee Vijayvargia)
+    * GH #878: Rework example for optional named matching due to operator
+      precedence. (Andrew Solomon)
+    * GH #844: Document Simple session backend is the default. (Sawyer X)
+
+    [ ENHANCEMENT ]
+    * GH #869: Streaming file serving (send_file). (Russell Jenkins)
+    * GH #793: "prefix" now supports the path definition spec. (Sawyer X)
+    * GH #817, #845: Route spec under a prefix doesn't need to start with
+      a slash (but must without a prefix).
+      (Sawyer X, Russell Jenkins)
+    * GH #871: Use Safe.pm instead of eval with Dancer2::Serializer::Dumper.
+      (David Zurborg)
+    * GH #880: Reduce and cleanup different logging calls in order to handle
+      the stack frames traceback for logging classes. (Russell Jenkins)
+    * GH #857, #875: When failing to render in Template::Toolkit, make the
+      error reflect it's a TT error, not an internal one.
+      (valerycodes)
+
+0.159003  2015-03-23 14:57:15+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * Fixed another memory leak with compiled hooks. (Sawyer X)
+    * Fixed a memory leak with conditionally applied static middleware
+      (Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #854, #858: Fix after_template_render hook example. (Adam Weinberger)
+    * GH #861: Improve documentation of 'forward'. (Andy Beverley)
+
 0.159002  2015-03-03 19:21:21+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]

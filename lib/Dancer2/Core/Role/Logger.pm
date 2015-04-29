@@ -9,6 +9,7 @@ use Data::Dumper;
 
 with 'Dancer2::Core::Role::Engine';
 
+sub hook_aliases { +{} }
 sub supported_hooks {
     qw(
       engine.logger.before
@@ -75,7 +76,7 @@ sub format_message {
     $message = Encode::encode( $self->auto_encoding_charset, $message )
       if $self->auto_encoding_charset;
 
-    my @stack = caller(6);
+    my @stack = caller(5);
     my $request = $self->request;
     my $config = $self->config;
 

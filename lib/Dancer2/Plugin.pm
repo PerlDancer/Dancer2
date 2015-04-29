@@ -10,6 +10,9 @@ use Scalar::Util qw();
 # their code and the plugin they come from
 my $_keywords = {};
 
+# singleton for storing all hooks and their aliases
+my $_hooks = {};
+
 # singleton for applying code-blocks at import time
 # so their code gets the callers DSL
 my $_on_import = {};
@@ -22,7 +25,7 @@ sub register {
 
     $keyword =~ /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
       or croak "You can't use '$keyword', it is an invalid name"
-      . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*$ )";
+      . " (it should match ^[a-zA-Z_]+[a-zA-Z0-9_]*\$ )";
 
     if (grep { $_ eq $keyword }
         keys %{ Dancer2::Core::DSL->dsl_keywords }
@@ -89,6 +92,25 @@ sub register_plugin {
         $caller->dsl->export_symbols_to($caller);
         $caller->dsl->dancer_app->register_plugin( $caller->dsl );
 
+        # add hooks
+        my $current_hooks = [ $caller->dsl->supported_hooks ];
+        my $current_aliases = $caller->dsl->hook_aliases;
+        for my $h ( keys %{ $_hooks->{$plugin} } ) {
+            push @$current_hooks, $h;
+            $current_aliases->{ $_hooks->{$plugin}->{$h} } = $h;
+			# If the hooks atttribute has already been constructed,
+			# add an entry so has_hook() finds these hooks.
+            $caller->dsl->hooks->{$h} = []
+                if ! exists $caller->dsl->hooks->{$h};
+        }
+        my $target = ref $caller->dsl;
+        {
+            no strict 'refs';
+            no warnings 'redefine';
+            *{"${target}::supported_hooks"} = sub {@$current_hooks};
+            *{"${target}::hook_aliases"}    = sub {$current_aliases};
+        }
+
         for my $sub ( @{ $_on_import->{$plugin} } ) {
             $sub->( $caller->dsl );
         }
@@ -122,20 +144,10 @@ sub plugin_setting {
 }
 
 sub register_hook {
-    my $caller = caller;
-    my $plugin = $caller;
-
     my (@hooks) = @_;
 
-    my $current_hooks = [];
-    if ( $plugin->can('supported_hooks') ) {
-        $current_hooks = [ $plugin->supported_hooks ];
-    }
-
-    my $current_aliases = {};
-    if ( $plugin->can('hook_aliases') ) {
-        $current_aliases = $plugin->hook_aliases;
-    }
+    my $caller = caller;
+    my $plugin = $caller;
 
     $plugin =~ s/^Dancer2::Plugin:://;
     $plugin =~ s/::/_/g;
@@ -143,16 +155,7 @@ sub register_hook {
     my $base_name = "plugin." . lc($plugin);
     for my $hook (@hooks) {
         my $hook_name = "${base_name}.$hook";
-
-        push @{$current_hooks}, $hook_name;
-        $current_aliases->{$hook} = $hook_name;
-    }
-
-    {
-        no strict 'refs';
-        no warnings 'redefine';
-        *{"${caller}::supported_hooks"} = sub {@$current_hooks};
-        *{"${caller}::hook_aliases"}    = sub {$current_aliases};
+        $_hooks->{$caller}->{$hook_name} = $hook;
     }
 }
 

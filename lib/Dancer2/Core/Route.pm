@@ -175,18 +175,15 @@ sub BUILDARGS {
     my $prefix = $args{prefix};
     my $regexp = $args{regexp};
 
-    # regexp must have a leading /
-    if ( ref($regexp) ne 'Regexp' ) {
-        index( $regexp, '/', 0 ) == 0
-            or die "regexp must begin with /\n";
-    }
-
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
             ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
-            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$} :
             $prefix . $regexp;
+    }
+    elsif ( ref($regexp) ne 'Regexp' ) {
+        # No prefix, so ensure regexp begins with a '/'
+        index( $regexp, '/', 0 ) == 0 or $args{regexp} = "/$regexp";
     }
 
     # init regexp

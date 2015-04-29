@@ -80,7 +80,7 @@ sub _build_server {
         host            => $self->host,
         port            => $self->port,
         timeout         => $self->timeout,
-        server_software => "Perl Dancer2 $Dancer2::VERSION",
+        server_software => "Perl Dancer2 " . Dancer2->VERSION,
     );
 }
 
@@ -229,7 +229,7 @@ sub print_banner {
     $self->config->{'startup_info'} or return;
 
     # bare minimum
-    print STDERR ">> Dancer2 v$Dancer2::VERSION server $pid listening "
+    print STDERR ">> Dancer2 v" . Dancer2->VERSION . " server $pid listening "
       . 'on http://'
       . $self->host . ':'
       . $self->port . "\n";

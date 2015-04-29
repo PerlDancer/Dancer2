@@ -26,6 +26,8 @@ use Dancer2::Core::Hook;
 use Dancer2::Core::Request;
 use Dancer2::Core::Factory;
 
+use Dancer2::Handler::File;
+
 # we have hooks here
 with qw<
     Dancer2::Core::Role::Hookable
@@ -159,7 +161,7 @@ sub _build_logger_engine {
         location        => $self->config_location,
         environment     => $self->environment,
         app_name        => $self->name,
-        postponed_hooks => $self->get_postponed_hooks
+        postponed_hooks => $self->postponed_hooks
     );
 
     exists $config->{log} and $logger->log_level($config->{log});
@@ -188,7 +190,7 @@ sub _build_session_engine {
     return $self->_factory->create(
         session         => $value,
         %{$engine_options},
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger->log(@_) },
     );
@@ -221,7 +223,7 @@ sub _build_template_engine {
     return $self->_factory->create(
         template        => $value,
         %{$engine_attrs},
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger->log(@_) },
     );
@@ -246,7 +248,7 @@ sub _build_serializer_engine {
     return $self->_factory->create(
         serializer      => $value,
         config          => $engine_options,
-        postponed_hooks => $self->get_postponed_hooks,
+        postponed_hooks => $self->postponed_hooks,
 
         log_cb => sub { $weak_self->logger_engine->log(@_) },
     );
@@ -550,12 +552,14 @@ sub _build_default_config {
 sub _init_hooks {
     my $self = shift;
 
- # Hook to flush the session at the end of the request, this way, we're sure we
- # flush only once per request
- #
- # Note: we create a weakened copy $self before closing over the weakened copy
- # to avoid circular memory refs.
+    # Hook to flush the session at the end of the request,
+    # this way, we're sure we flush only once per request
+    #
+    # Note: we create a weakened copy $self
+    # before closing over the weakened copy
+    # to avoid circular memory refs.
     Scalar::Util::weaken(my $app = $self);
+
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
@@ -610,10 +614,46 @@ sub supported_hooks {
       core.app.before_request
       core.app.after_request
       core.app.route_exception
+      core.app.before_file_render
+      core.app.after_file_render
       core.error.before
       core.error.after
       core.error.init
       /;
+}
+
+sub hook_aliases {
+    {
+        before                 => 'core.app.before_request',
+        before_request         => 'core.app.before_request',
+        after                  => 'core.app.after_request',
+        after_request          => 'core.app.after_request',
+        init_error             => 'core.error.init',
+        before_error           => 'core.error.before',
+        after_error            => 'core.error.after',
+        on_route_exception     => 'core.app.route_exception',
+
+        before_file_render         => 'core.app.before_file_render',
+        after_file_render          => 'core.app.after_file_render',
+        before_handler_file_render => 'handler.file.before_render',
+        after_handler_file_render  => 'handler.file.after_render',
+
+
+        # compatibility from Dancer1
+        before_error_render    => 'core.error.before',
+        after_error_render     => 'core.error.after',
+        before_error_init      => 'core.error.init',
+
+        # TODO: call $engine->hook_aliases as needed
+        # But.. currently there are use cases where hook_aliases
+        # are needed before the engines are intiialized :(
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_layout_render   => 'engine.template.before_layout_render',
+        after_layout_render    => 'engine.template.after_layout_render',
+        before_serializer      => 'engine.serializer.before',
+        after_serializer       => 'engine.serializer.after',
+    };
 }
 
 # FIXME not needed anymore, I suppose...
@@ -750,46 +790,104 @@ sub send_error {
 
 sub send_file {
     my $self    = shift;
-    my $path    = shift;
+    my $thing   = shift;
     my %options = @_;
 
-    my $env = $self->request->env;
+    my ($content_type, $file_path);
 
-    ( $options{'streaming'} && !$env->{'psgi.streaming'} )
-      and croak "Streaming is not supported on this server.";
+    # are we're given a filehandle? (based on what Plack::Middleware::Lint accepts)
+    my $is_filehandle = Plack::Util::is_real_fh($thing)
+      || ( ref $thing eq 'GLOB' && *{$thing}{IO} && *{$thing}{IO}->can('getline') )
+      || ( Scalar::Util::blessed($thing) && $thing->can('getline') );
+    my ($fh) = ($thing)x!! $is_filehandle;
 
-    ( exists $options{'content_type'} )
-      and $self->response->header(
-        'Content-Type' => $options{content_type} );
+    # if we're given an IO::Scalar object, DTRT (take the scalar ref from it)
+    if (Scalar::Util::blessed($thing) && $thing->isa('IO::Scalar')) {
+        $thing = $thing->sref;
+    }
 
+    # if we're given a SCALAR reference, build a filehandle to it
+    if ( ref $thing eq 'SCALAR' ) {
+        open $fh, "<", $thing;
+    }
+
+    # If we haven't got a filehandle, create one to the requested content
+    if (! $fh) {
+        my $path = $thing;
+        # remove prefix from given path (if not a filehandle)
+        my $prefix = $self->prefix;
+        if ( $prefix && $prefix ne '/' ) {
+            $path =~ s/^\Q$prefix\E//;
+        }
+        # static file dir - either system root or public_dir
+        my $dir = $options{system_path}
+            ? File::Spec->rootdir
+            : $ENV{DANCER_PUBLIC}
+                || $self->config->{public_dir}
+                || path( $self->location, 'public' );
+
+        $file_path = Dancer2::Handler::File->merge_paths( $path, $dir );
+        my $err_response = sub {
+            my $status = shift;
+            $self->response->status($status);
+            $self->response->header( 'Content-Type', 'text/plain' );
+            $self->response->content( Dancer2::Core::HTTP->status_message($status) );
+            $self->with_return->( $self->response );
+        };
+        $err_response->(403) if !defined $file_path;
+        $err_response->(404) if !-f $file_path;
+        $err_response->(403) if !-r $file_path;
+
+        # Read file content as bytes
+        $fh = Dancer2::FileUtils::open_file( "<", $file_path );
+        binmode $fh;
+
+        $content_type = Dancer2->runner->mime_type->for_file($file_path) || 'text/plain';
+        if ( $content_type =~ m!^text/! ) {
+             $content_type .= "; charset=" . ( $self->config->{charset} || "utf-8" );
+        }
+    }
+
+    # Now we are sure we can render the file...
+    $self->execute_hook( 'core.app.before_file_render', $file_path );
+
+    # response content type
+    ( exists $options{'content_type'} ) and $content_type = $options{'content_type'};
+    ( defined $content_type )
+      and $self->response->header('Content-Type' => $content_type );
+
+    # content disposition
     ( exists $options{filename} )
       and $self->response->header( 'Content-Disposition' =>
           "attachment; filename=\"$options{filename}\"" );
 
-    # if we're given a SCALAR reference, we're going to send the data
-    # pretending it's a file (on-the-fly file sending)
-    ref $path eq 'SCALAR' and return $$path;
-
-    my $file_handler = $self->_factory->create(
-        Handler => 'File',
-        app     => $self,
-        postponed_hooks => $self->postponed_hooks,
-        ( public_dir => File::Spec->rootdir )x!! $options{system_path},
-    );
-
-    # List shouldn't be too long, so we use 'grep' instead of 'first'
-    if (my ($handler) = grep { $_->{name} eq 'File' } @{$self->route_handlers}) {
-        for my $h ( keys %{ $handler->{handler}->hooks } ) {
-            my $hooks = $handler->{handler}->hooks->{$h};
-            $file_handler->replace_hook( $h, $hooks );
-        }
+    # use a delayed response unless server does not support streaming
+    my $response;
+    my $env = $self->request->env;
+    if ( $env->{'psgi.streaming'} && ! $options{'streaming'} ) {
+        my $cb = sub {
+            my $responder = $Dancer2::Core::Route::RESPONDER;
+            my $res = $Dancer2::Core::Route::RESPONSE;
+            return $responder->(
+                [ $res->status, $res->headers_to_array, $fh ]
+            );
+        };
+        $response = Dancer2::Core::Response::Delayed->new(
+            cb       => $cb,
+            request  => $Dancer2::Core::Route::REQUEST,
+            response => $Dancer2::Core::Route::RESPONSE,
+        );
+    }
+    else {
+        $response = $self->response;
+        # direct assignment to hash element, avoids around modifier
+        # trying to serialise this this content.
+        $response->{content} = read_glob_content($fh);
+        $response->is_encoded(1);    # bytes are already encoded
     }
 
-    $self->request->set_path_info($path);
-    $file_handler->code( $self->prefix )->( $self ); # slurp file
-    $self->has_with_return and $self->with_return->( $self->response );
-
-    # TODO Streaming support
+    $self->execute_hook( 'core.app.after_file_render', $response );
+    $self->with_return->( $response );
 }
 
 sub BUILD {
@@ -802,6 +900,10 @@ sub finish {
     my $self = shift;
     $self->register_route_handlers;
     $self->compile_hooks;
+    @{$self->plugins} &&
+      $self->plugins->[0]->_add_postponed_plugin_hooks(
+        $self->postponed_hooks
+    );
 }
 
 sub init_route_handlers {
@@ -840,15 +942,17 @@ sub compile_hooks {
     for my $position ( $self->supported_hooks ) {
         my $compiled_hooks = [];
         for my $hook ( @{ $self->hooks->{$position} } ) {
+            Scalar::Util::weaken( my $app = $self );
             my $compiled = sub {
                 # don't run the filter if halt has been used
-                $self->has_response && $self->response->is_halted
+                $Dancer2::Core::Route::RESPONSE &&
+                $Dancer2::Core::Route::RESPONSE->is_halted
                     and return;
 
                 eval  { $hook->(@_); 1; }
                 or do {
-                    $self->cleanup;
-                    $self->log('error', "Exception caught in '$position' filter: $@");
+                    $app->cleanup;
+                    $app->log('error', "Exception caught in '$position' filter: $@");
                     croak "Exception caught in '$position' filter: $@";
                 };
             };
@@ -1081,14 +1185,16 @@ sub to_app {
     $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
+    # Construct the statis app to avoid a closure over $psgi
+    my $static_content = Plack::Middleware::Static->wrap(
+        $psgi,
+        path => sub { -f path( $self->config->{public_dir}, shift ) },
+        root => $self->config->{public_dir},
+        content_type => sub { $self->mime_type->for_name(shift) },
+    );
     $psgi = Plack::Middleware::Conditional->wrap(
         $psgi,
-        builder => sub { Plack::Middleware::Static->wrap(
-            $psgi,
-            path => sub { -f path( $self->config->{public_dir}, shift ) },
-            root => $self->config->{public_dir},
-            content_type => sub { $self->mime_type->for_name(shift) },
-        ) },
+        builder => sub { $static_content },
         condition => sub { $self->config->{static_handler} },
     );
 
@@ -1419,12 +1525,14 @@ Create a new request which is a clone of the current one, apart
 from the path location, which points instead to the new location.
 This is used internally to chain requests using the forward keyword.
 
-Note that the new location should be a hash reference. Only one key is
-required, the C<to_url>, that should point to the URL that forward
-will use. Optional values are the key C<params> to a hash of
-parameters to be added to the current request parameters, and the key
-C<options> that points to a hash of options about the redirect (for
-instance, C<method> pointing to a new request method).
+This method takes 3 parameters: the url to forward to, followed by an
+optional hashref of parameters added to the current request parameters,
+followed by a hashref of options regarding the redirect, such as
+C<method> to change the request method.
+
+For example:
+
+    forward '/login', { login_failed => 1 }, { method => 'GET' });
 
 =head2 app
 

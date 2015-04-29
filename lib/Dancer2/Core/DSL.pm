@@ -11,6 +11,29 @@ use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
 
+sub hook_aliases { +{} }
+sub supported_hooks { () }
+
+sub _add_postponed_plugin_hooks {
+    my ( $self, $postponed_hooks) = @_;
+
+    $postponed_hooks = $postponed_hooks->{'plugin'};
+    return unless defined $postponed_hooks;
+
+    for my $plugin ( keys %{$postponed_hooks} ) {
+        for my $name ( keys %{$postponed_hooks->{$plugin} } ) {
+            my $hook   = $postponed_hooks->{$plugin}{$name}{hook};
+            my $caller = $postponed_hooks->{$plugin}{$name}{caller};
+
+            $self->has_hook($name)
+              or croak "plugin $plugin does not support the hook `$name'. ("
+              . join( ", ", @{$caller} ) . ")";
+
+            $self->add_hook($hook);
+        }
+    }
+}
+
 sub dsl_keywords {
 
     # the flag means : 1 = is global, 0 = is not global. global means can be
@@ -97,10 +120,11 @@ sub dancer_major_version {
     return ( split /\./, dancer_version )[0];
 }
 
-sub debug   { shift->log( debug   => @_ ) }
-sub info    { shift->log( info    => @_ ) }
-sub warning { shift->log( warning => @_ ) }
-sub error   { shift->log( error   => @_ ) }
+sub log     { shift->app->log( @_ ) }
+sub debug   { shift->app->log( debug   => @_ ) }
+sub info    { shift->app->log( info    => @_ ) }
+sub warning { shift->app->log( warning => @_ ) }
+sub error   { shift->app->log( error   => @_ ) }
 
 sub true  {1}
 sub false {0}
@@ -408,8 +432,6 @@ sub to_dumper {
     require Dancer2::Serializer::Dumper;
     Dancer2::Serializer::Dumper::to_dumper(@_);
 }
-
-sub log { shift->app->log(@_) }
 
 1;
 
