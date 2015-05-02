@@ -31,6 +31,11 @@ sub status {
     $self->response->status;
 }
 
+sub headers {
+    my $self = shift;
+    $self->response->headers;
+}
+
 sub to_psgi {
     my $self = shift;
     return sub {
