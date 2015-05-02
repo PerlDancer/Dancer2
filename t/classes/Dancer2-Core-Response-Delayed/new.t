@@ -65,3 +65,6 @@ my $psgi_res = $del_res->to_psgi();
 is( $test, 0, 'Callback not run yet' );
 $psgi_res->($res_cb);
 is( $test, 1, 'Callback run' );
+
+is $del_res->status => 200, "we can access the response header";
+is $del_res->headers => undef, "we can access the response header";

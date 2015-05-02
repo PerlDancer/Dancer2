@@ -26,6 +26,11 @@ has cb => (
 sub is_halted()  {0}
 sub has_passed() {0}
 
+sub status {
+    my $self = shift;
+    $self->response->status;
+}
+
 sub to_psgi {
     my $self = shift;
     return sub {
