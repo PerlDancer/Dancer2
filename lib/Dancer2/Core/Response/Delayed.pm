@@ -15,6 +15,7 @@ has response => (
     is       => 'ro',
     isa      => InstanceOf['Dancer2::Core::Response'],
     required => 1,
+    handles => [qw/ status headers/],
 );
 
 has cb => (
@@ -25,16 +26,6 @@ has cb => (
 
 sub is_halted()  {0}
 sub has_passed() {0}
-
-sub status {
-    my $self = shift;
-    $self->response->status;
-}
-
-sub headers {
-    my $self = shift;
-    $self->response->headers;
-}
 
 sub to_psgi {
     my $self = shift;
