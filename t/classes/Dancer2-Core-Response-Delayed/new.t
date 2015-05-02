@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 18;
 use Dancer2::Core::Runner;
 use Dancer2::Core::Request;
 use Dancer2::Core::Response;
@@ -65,3 +65,6 @@ my $psgi_res = $del_res->to_psgi();
 is( $test, 0, 'Callback not run yet' );
 $psgi_res->($res_cb);
 is( $test, 1, 'Callback run' );
+
+is $del_res->status => 200, "we can access the response header";
+isa_ok( $del_res->headers, "HTTP::Headers", "Able to retrieve headers");
