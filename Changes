@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENT ]
+    * GH #894, #898: Add status and headers methods to ::Response::Delayed
+      (Yanick Champoux, Charlie Gonzalez)
+
 0.160000  2015-04-27 00:12:55+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
