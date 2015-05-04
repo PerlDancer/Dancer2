@@ -2495,13 +2495,6 @@ Logs a message of C<info> level:
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log
 messages go.
 
-=head2 load
-
-Loads one or more perl scripts in the current application's namespace.
-Syntactic sugar around Perl's C<require>:
-
-    load 'UserActions.pl', 'AdminActions.pl';
-
 =head2 mime
 
 Shortcut to access the instance object of L<Dancer2::Core::MIME>. You should

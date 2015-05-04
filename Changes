@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH #897: Remove docs for unimplemented 'load' keyword (Fayland Lam)
+
     [ ENHANCEMENT ]
     * GH #894, #898: Add status and headers methods to ::Response::Delayed
       (Yanick Champoux, Charlie Gonzalez)
