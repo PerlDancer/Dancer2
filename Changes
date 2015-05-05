@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * GH #893, #895: Catch config parse errors when Config::Any doesn't throw
       them. (Russell Jenkins)
+    * GH #899: Minimum YAML version supported is v0.86 (Shlomi Fish)
 
     [ DOCUMENTATION ]
     * GH #897: Remove docs for unimplemented 'load' keyword (Fayland Lam)
