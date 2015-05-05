@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #893, #895: Catch config parse errors when Config::Any doesn't throw
+      them. (Russell Jenkins)
+
     [ DOCUMENTATION ]
     * GH #897: Remove docs for unimplemented 'load' keyword (Fayland Lam)
 
@@ -337,7 +341,7 @@
 
     [ DOCUMENTATION ]
     * Migration document! (Snigdha Dagar)
-    * GH #667: Fix typo in cookbook pod. (Lindsey Beesley) 
+    * GH #667: Fix typo in cookbook pod. (Lindsey Beesley)
     * GH #649, #670: Document core logger. (simbabque)
     * GH #689: Git guide markdown fixes. (Paul Cochrane)
     * GH #690, #691, #694, #696, #698, #699, #700, #702, #703,
@@ -588,7 +592,7 @@
     * Small POD corrections (Ashvini V)
 
     [ ENHANCEMENTS ]
-    * GH#482: Show the startup banner when the worker starts by default 
+    * GH#482: Show the startup banner when the worker starts by default
       (Alexis Sukrieh).
     * GH#481: Include local lib dir in @INC by defaults (Alexis Sukrieh).
     * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
@@ -729,7 +733,7 @@
     * Prevent duplicate routes from being created (Franck Cuny)
     * Add support for route options (Franck Cuny)
     * Add support for prefix with route defined with regex (Franck Cuny)
-    * Methods to return path of views and layout in the Template role 
+    * Methods to return path of views and layout in the Template role
       (Franck Cuny, Yanick Champoux).
     * GH#31, GH#221: Config merging support (Russell Jenkins)
 
@@ -749,7 +753,7 @@
       (Franck Cuny)
     * GH#210: Don't print startup banner if startup_info is set to 0
       (Maurice Mengel, Franck Cuny)
-    * plugin_setting does not trigger a DEPRECATION warning anymore 
+    * plugin_setting does not trigger a DEPRECATION warning anymore
       (Report by Alberto Simões, fix by Alexis Sukrieh)
     * GH#251: Support for on-the-fly changes of layouts/views (Franck Cuny)
     * GH#302: Avoid double encoding in Handler::File (Russell Jenkins)
@@ -768,14 +772,14 @@
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
     [ BUG FIXES ]
-    * Fix "Internal Sever Error" when sending a file with send_file 
+    * Fix "Internal Sever Error" when sending a file with send_file
       (Dinis Rebolo)
     * Allow the setting of the 'views' directory, like stated in documentation
       (Alexander Karelas)
 
     [ ENHANCEMENTS ]
     * Implement Dancer2::Test file uploads (Steven Humphrey)
-    * Give Dancer2::Test the ability to handle multiselect inputs 
+    * Give Dancer2::Test the ability to handle multiselect inputs
       (Steven Humphrey)
     * Make Cookie objects stringify to their value. (David Precious)
     * New routines for Dancer2::Test to check pod coverage in apps routes
@@ -783,7 +787,7 @@
     * New script dancer2 to bootstrap an application (mokko)
     * Fix tests when running under Windows environments (Russell Jenkins)
     * Serializing modify the response's content type (Yanick Champoux)
-    
+
     [ DOCUMENTATION ]
     * Make introduction more fluid in Dancer2's POD. (mokko)
 
@@ -795,10 +799,10 @@
 
     [ ENHANCEMENTS ]
     * Don't create a session when just checking if a value exists
-      (David Golden) 
-    * Only flush sessions if they are dirty 
       (David Golden)
-    * Allow the default template file extension to be changed. 
+    * Only flush sessions if they are dirty
+      (David Golden)
+    * Allow the default template file extension to be changed.
       (David Precious)
     * Add on_plugin_import function to Dancer2::Plugin (David Golden)
       (Fix for issue #284)
@@ -840,7 +844,7 @@
     [ BUG FIXES ]
     * The engine configuration is now passed down to
       Dancer::Template::Implementation::ForkedTiny (Damien Krotkine).
-    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer" 
+    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer"
       file. (Celogeek)
     * Issues #125 and #126
       Support for configuration bits for session objects, possible to change the
@@ -859,6 +863,6 @@
 1.9999_01
 
     * First DEVELEOPER release of Dancer 2
-      complete rewrite of Dancer with a Moo backend.  
+      complete rewrite of Dancer with a Moo backend.
       (Alexis Sukrieh, David Precious, Damien Krotkine, SawyerX, Yanick Champoux
       and others, plus Matt S. Trout as a reviewer).

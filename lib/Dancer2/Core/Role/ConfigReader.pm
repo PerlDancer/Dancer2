@@ -205,7 +205,7 @@ sub load_config_file {
         my @files = ($file);
         my $tmpconfig =
           Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
-        ( $file, $config ) = %{$tmpconfig};
+        ( $file, $config ) = %{$tmpconfig} if defined $tmpconfig;
     };
     if ( my $err = $@ || ( !$config ) ) {
         croak "Unable to parse the configuration file: $file: $@";
