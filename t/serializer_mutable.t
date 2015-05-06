@@ -7,7 +7,7 @@ use Plack::Test;
 use HTTP::Request::Common;
 use Encode;
 use JSON;
-use YAML;
+use YAML 0.86;
 
 {
     package MyApp;

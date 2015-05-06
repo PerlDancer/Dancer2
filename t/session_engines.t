@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use YAML;
+use YAML 0.86;
 use Plack::Test;
 use HTTP::Cookies;
 use HTTP::Request::Common;

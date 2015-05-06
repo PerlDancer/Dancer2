@@ -4,7 +4,7 @@ package Dancer2::Session::YAML;
 
 use Moo;
 use Dancer2::Core::Types;
-use YAML;
+use YAML 0.86;
 
 has _suffix => (
     is      => 'ro',
