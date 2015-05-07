@@ -245,13 +245,13 @@ run_test();
 if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
     note "Run test without XS_PARSE_QUERY_STRING";
     $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer2::Core::Request::_count                = 0;
+    $Dancer2::Core::Request::_id                   = 0;
     run_test();
 }
 if ($Dancer2::Core::Request::XS_URL_DECODE) {
     note "Run test without XS_URL_DECODE";
     $Dancer2::Core::Request::XS_URL_DECODE = 0;
-    $Dancer2::Core::Request::_count        = 0;
+    $Dancer2::Core::Request::_id           = 0;
     run_test();
 }
 
