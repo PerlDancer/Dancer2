@@ -238,8 +238,6 @@ sub BUILD {
     $self->{_chunk_size}    = 4096;
     $self->{_read_position} = 0;
 
-    $self->_init_request_headers();
-
     $self->{_http_body} =
       HTTP::Body->new( $self->content_type || '', $self->content_length );
     $self->{_http_body}->cleanup(1);
@@ -526,21 +524,6 @@ sub _read {
     else {
         croak "Unknown error reading input: $!";
     }
-}
-
-sub _init_request_headers {
-    my ($self) = @_;
-    my $env = $self->env;
-
-    $self->headers(
-        HTTP::Headers::Fast->new(
-            map {
-                ( my $field = $_ ) =~ s/^HTTPS?_//;
-                ( $field => $env->{$_} );
-              }
-              grep {/^(?:HTTP|CONTENT)/i} keys %$env
-        )
-    );
 }
 
 # Taken gently from Plack::Request, thanks to Plack authors.
