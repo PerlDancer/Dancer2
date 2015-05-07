@@ -1,25 +1,44 @@
 package Dancer2::Core::Request;
 # ABSTRACT: Interface for accessing incoming requests
 
-use Moo;
+use strict;
+use warnings;
+use parent 'Plack::Request';
+
 use Carp;
 use Encode;
 use HTTP::Body;
 use URI;
 use URI::Escape;
 use Class::Load 'try_load_class';
-use Plack::Request;
+use Safe::Isa;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
 use Dancer2::Core::Cookie;
 
-with 'Dancer2::Core::Role::Headers';
+# comes from Dancer2::Core::Role::Headers
+# ("headers" attribute is available in Plack::Request already)
+sub headers_to_array {
+    my $self = shift;
+
+    my $headers = [
+        map {
+            my $k = $_;
+            map {
+                my $v = $_;
+                $v =~ s/^(.+)\r?\n(.*)$/$1\r\n $2/;
+                ( $k => $v )
+            } $self->headers->header($_);
+          } $self->headers->header_field_names
+    ];
+
+    return $headers;
+}
 
 # add an attribute for each HTTP_* variables
 # (HOST is managed manually)
 my @http_env_keys = (qw/
-    accept
     accept_charset
     accept_encoding
     accept_language
@@ -28,41 +47,51 @@ my @http_env_keys = (qw/
     x_requested_with
 /);
 
-foreach my $attr ( @http_env_keys ) {
-    has $attr => (
-        is      => 'ro',
-        isa     => Maybe[Str],
-        lazy    => 1,
-        default => sub { $_[0]->env->{ 'HTTP_' . ( uc $attr ) } },
-    );
-}
+# apparently you can't eval core functions
+sub accept { $_[0]->env->{'HTTP_ACCEPT'} }
+
+eval << "_EVAL" for @http_env_keys; ## no critic
+sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc $_ ) } }
+_EVAL
 
 # check presence of XS module to speedup request
 our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
 our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
-our $_count = 1;
+our $_count = 0;
 
-# then all the native attributes
-has env => (
-    is       => 'ro',
-    isa      => HashRef,
-    required => 1,
-);
+# self->new( env => {}, serializer => $s, is_behind_proxy => 0|1 )
+sub new {
+    my ( $class, @args ) = @_;
 
-has _preq => (
-    is      => 'ro',
-    isa     => InstanceOf['Plack::Request'],
-    lazy    => 1, # make sure it's after env has been verified
-    default => sub { Plack::Request->new( $_[0]->env ) },
-);
+    # even sized list
+    @args % 2 == 0
+        or croak 'Must provide even sized list';
+
+    my %opts = @args;
+    my $env  = $opts{'env'};
+
+    my $self = $class->SUPER::new($env);
+
+    if ( my $s = $opts{'serializer'} ) {
+        $s->$_does('Dancer2::Core::Role::Serializer')
+            or croak 'Serializer provided not a Serializer object';
+
+        $self->{'serializer'} = $s;
+    }
+
+    # additionally supported attributes
+    $self->{'id'}              = ++$_count;
+    $self->{'vars'}            = {};
+    $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
+
+    $self->BUILD;
+
+    return $self;
+}
 
 # a buffer for per-request variables
-has vars => (
-    is      => 'ro',
-    isa     => HashRef,
-    default => sub { {} },
-);
+sub vars { $_[0]->{'vars'} }
 
 sub var {
     my $self = shift;
@@ -71,32 +100,15 @@ sub var {
       : $self->vars->{ $_[0] };
 }
 
-has path => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    default => sub { $_[0]->path_info || '/' },
-);
+# I don't like this. I know send_file uses this and I wonder
+# if we can remove it.
+#   -- Sawyer
+sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
-has path_info => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    writer  => 'set_path_info',
-    default => sub { $_[0]->env->{'PATH_INFO'} },
-);
+# XXX: incompatible with Plack::Request
+sub body { $_[0]->{'body'} || '' }
 
-has body => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub {''},
-);
-
-has id => (
-    is      => 'ro',
-    isa     => Num,
-    default => sub { $_count++ },
-);
+sub id { $_count }
 
 # Private 'read-only' attributes for request params. See the params()
 # method for the public interface.
@@ -105,19 +117,11 @@ has id => (
 # decode byte string to characters before setting; If you know you have
 # decoded (character) params, such as output from a deserializer, you can
 # set these directly in the request object hash to avoid the decode op.
+sub _params { $_[0]->{'_params'} ||= $_[0]->_build_params }
 
-has _params => (
-    is        => 'lazy',
-    isa       => HashRef,
-    builder   => '_build_params',
-    predicate => '_has_params',
-);
+sub _has_params { defined $_[0]->{'_params'} }
 
-has _body_params => (
-    is      => 'ro',
-    isa     => Maybe[HashRef],
-    default => sub {undef},
-);
+sub _body_params { $_[0]->{'_body_params'} }
 
 sub _set_body_params {
     my ( $self, $params ) = @_;
@@ -125,11 +129,7 @@ sub _set_body_params {
     $self->_build_params();
 }
 
-has _query_params => (
-    is      => 'ro',
-    isa     => Maybe[HashRef],
-    default => sub {undef},
-);
+sub _query_params { $_[0]->{'_query_params'} }
 
 sub _set_query_params {
     my ( $self, $params ) = @_;
@@ -137,11 +137,7 @@ sub _set_query_params {
     $self->_build_params();
 }
 
-has _route_params => (
-    is      => 'ro',
-    isa     => HashRef,
-    default => sub {{}},
-);
+sub _route_params { $_[0]->{'_route_params'} ||= {} }
 
 sub _set_route_params {
     my ( $self, $params ) = @_;
@@ -149,39 +145,12 @@ sub _set_route_params {
     $self->_build_params();
 }
 
-has uploads => (
-    is  => 'ro',
-    isa => HashRef,
-);
+# XXX: incompatible with Plack::Request
+sub uploads { $_[0]->{'uploads'} }
 
-has body_is_parsed => (
-    is      => 'ro',
-    isa     => Bool,
-    default => sub {0},
-);
+sub body_is_parsed { $_[0]->{'body_is_parsed'} || 0 }
 
-has is_behind_proxy => (
-    is      => 'ro',
-    isa     => Bool,
-    lazy    => 1,
-    default => sub {0},
-);
-
-sub BUILDARGS {
-    my ( $class, @args ) = @_;
-
-    # regular hash (or empty)
-    @args != 1 and return {@args};
-
-    # we don't know what this is
-    ref $args[0] eq 'HASH' or return {@args};
-
-    # handle what could be a single arg env
-    $args[0]->{'env'} or return { env => $args[0] };
-
-    # everything else
-    return $args[0];
-}
+sub is_behind_proxy { $_[0]->{'is_behind_proxy'} || 0 }
 
 sub host {
     my ($self) = @_;
@@ -200,28 +169,11 @@ sub remote_address        { shift->address }
 sub forwarded_for_address { shift->env->{'HTTP_X_FORWARDED_FOR'} }
 sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
 
-# attributes
-sub address               { $_[0]->_preq->address }
-sub remote_host           { $_[0]->_preq->remote_host }
-sub protocol              { $_[0]->_preq->protocol }
-sub port                  { $_[0]->_preq->port }
-sub method                { $_[0]->_preq->method }
-sub user                  { $_[0]->_preq->user }
-sub request_uri           { $_[0]->_preq->request_uri }
-sub script_name           { $_[0]->_preq->script_name }
-sub content_length        { $_[0]->_preq->content_length }
-sub content_type          { $_[0]->_preq->content_type }
-sub secure                { $_[0]->scheme eq 'https' }
-
-# headers
-sub content_encoding      { $_[0]->_preq->content_encoding }
-sub referer               { $_[0]->_preq->referer }
-sub user_agent            { $_[0]->_preq->user_agent }
-
 # there are two options
 sub forwarded_protocol    {
-    $_[0]->env->{HTTP_X_FORWARDED_PROTO} ||
-    $_[0]->env->{HTTP_X_FORWARDED_PROTOCOL}
+    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
+    $_[0]->env->{'HTTP_X_FORWARDED_PROTO'}    ||
+    $_[0]->env->{'HTTP_FORWARDED_PROTO'}
 }
 
 sub scheme {
@@ -239,17 +191,10 @@ sub scheme {
     return $scheme || $self->env->{'psgi.url_scheme'} || '';
 }
 
-has serializer => (
-    is        => 'ro',
-    isa       => Maybe[ ConsumerOf['Dancer2::Core::Role::Serializer'] ],
-    predicate => 1,
-);
+sub serializer { $_[0]->{'serializer'} }
+sub has_serializer { defined $_[0]->{'serializer'} }
 
-has data => (
-    is      => 'ro',
-    lazy    => 1,
-    default => \&deserialize,
-);
+sub data { $_[0]->{'data'} ||= &deserialize }
 
 sub deserialize {
     my $self = shift;
@@ -290,7 +235,7 @@ sub is_delete { $_[0]->method eq 'DELETE' }
 sub is_patch  { $_[0]->method eq 'PATCH' }
 
 # public interface compat with CGI.pm objects
-sub request_method { method(@_) }
+sub request_method { $_[0]->method }
 sub input_handle { $_[0]->env->{'psgi.input'} }
 
 sub BUILD {
@@ -416,6 +361,7 @@ sub captures { shift->params->{captures} }
 
 sub splat { @{ shift->params->{splat} || [] } }
 
+# XXX: incompatible with Plack::Request
 sub param { shift->params->{ $_[0] } }
 
 sub _decode {
@@ -449,6 +395,7 @@ sub is_ajax {
     return 1;
 }
 
+# XXX incompatible with Plack::Request
 # context-aware accessor for uploads
 sub upload {
     my ( $self, $name ) = @_;
@@ -637,12 +584,8 @@ sub _build_uploads {
     $self->_build_params();
 }
 
-has cookies => (
-    is      => 'ro',
-    isa     => HashRef,
-    lazy    => 1,
-    builder => '_build_cookies',
-);
+# XXX: incompatible with Plack::Request
+sub cookies { $_[0]->{'cookies'} ||= $_[0]->_build_cookies }
 
 sub _build_cookies {
     my $self    = shift;
@@ -674,81 +617,386 @@ __END__
 
 =head1 DESCRIPTION
 
-This class implements a common interface for accessing incoming requests in
-a Dancer2 application.
+An object representing a Dancer2 request. It aims to provide a proper
+interface to anything you might need from a web request.
 
 =head1 SYNOPSIS
 
-In a route handler, the current request object can be accessed by the C<request>
-method, like in the following example:
+In a route handler, the current request object can be accessed by the
+C<request> keyword:
 
     get '/foo' => sub {
         request->params; # request, params parsed as a hash ref
-        request->body; # returns the request body, unparsed
-        request->path; # the path requested by the client
+        request->body;   # returns the request body, unparsed
+        request->path;   # the path requested by the client
         # ...
     };
-
-A route handler should not read the environment by itself, but should instead
-use the current request object.
 
 =head1 Common HTTP request headers
 
 Commonly used client-supplied HTTP request headers are available through
-specific accessors, here are those supported:
+specific accessors:
 
 =over 4
 
 =item C<accept>
 
+HTTP header: C<HTTP_ACCEPT>.
+
 =item C<accept_charset>
+
+HTTP header: C<HTTP_ACCEPT_CHARSET>.
 
 =item C<accept_encoding>
 
+HTTP header: C<HTTP_ACCEPT_ENCODING>.
+
 =item C<accept_language>
 
-=item C<agent> (alias for C<user_agent>)
+HTTP header: C<HTTP_ACCEPT_LANGUAGE>.
+
+=item C<agent>
+
+Alias for C<user_agent>) below.
 
 =item C<connection>
 
+HTTP header: C<HTTP_CONNECTION>.
+
+=item C<content_encoding>
+
+HTTP header: C<HTTP_CONTENT_ENCODING>.
+
+=item C<content_length>
+
+HTTP header: C<HTTP_CONTENT_LENGTH>.
+
+=item C<content_type>
+
+HTTP header: C<HTTP_CONTENT_TYPE>.
+
 =item C<forwarded_for_address>
 
-=item C<forwarded_protocol>
+HTTP header: C<HTTP_X_FORWARDED_FOR>.
 
 =item C<forwarded_host>
 
+HTTP header: C<HTTP_X_FORWARDED_HOST>.
+
+=item C<forwarded_protocol>
+
+One of either C<HTTP_X_FORWARDED_PROTOCOL>, C<HTTP_X_FORWARDED_PROTO>, or
+C<HTTP_FORWARDED_PROTO>.
+
 =item C<host>
+
+Checks whether we are behind a proxy using the C<is_behind_proxy>
+configuration option, and if so returns the first
+C<HTTP_X_FORWARDED_HOST>, since this is a comma seperated list.
+
+If you have not configured that you behind a proxy, it returns HTTP
+header C<HTTP_HOST>.
 
 =item C<keep_alive>
 
-=item C<path_info>
+HTTP header: C<HTTP_KEEP_ALIVE>.
 
 =item C<referer>
 
-=item C<remote_address>
+HTTP header: C<HTTP_REFERER>.
 
 =item C<user_agent>
 
+HTTP header: C<HTTP_USER_AGENT>.
+
 =item C<x_requested_with>
+
+HTTP header: C<HTTP_X_REQUESTED_WITH>.
 
 =back
 
-With the exception of C<host>, these accessors are lookups into the PSGI env
-hash reference.
+=method address
 
-Note that the L<PSGI> specification prefixes client-supplied request headers with
-C<HTTP_>. For example, a C<X-Requested-With> header has the key
-C<HTTP_X_REQUESTED_WITH> in the PSGI env hashref.
+Return the IP address of the client.
 
-=head1 EXTRA SPEED
+=method base
 
-Install URL::Encode::XS and CGI::Deurl::XS for extra speed.
+Returns an absolute URI for the base of the application.  Returns a L<URI>
+object (which stringifies to the URL, as you'd expect).
 
-Dancer2::Core::Request will use it if they detect their presence.
+=method body_parameters
 
-=method env()
+Returns a L<Hash::MultiValue> object representing the POST parameters.
+
+=method body
+
+Return the raw body of the request, unparsed.
+
+If you need to access the body of the request, you have to use this accessor and
+should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
+already did it for you and kept the raw body untouched in there.
+
+=method content
+
+Returns the undecoded byte string POST body.
+
+=method cookies
+
+Returns a reference to a hash containing cookies, where the keys are the names of the
+cookies and values are L<Dancer2::Core::Cookie> objects.
+
+=method data
+
+If the application has a serializer and if the request has serialized
+content, returns the deserialized structure as a hashref.
+
+=method dispatch_path
+
+The part of the C<path> after C<base>. This is the path used
+for dispatching the request to routes.
+
+=method env
 
 Return the current PSGI environment hash reference.
+
+=method header($name)
+
+Return the value of the given header, if present. If the header has multiple
+values, returns an the list of values if called in list context, the first one
+in scalar.
+
+=method headers
+
+Returns an L<HTTP::Headers> object representing the headers.
+
+=method id
+
+The ID of the request. This allows you to trace a specific request in loggers,
+per the string created using C<to_string>.
+
+The ID of the request is essentially the number of requests run in the current
+class.
+
+=method input
+
+Alias to C<input_handle> method below.
+
+=method input_handle
+
+Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
+
+=method is_ajax
+
+Return true if the value of the header C<X-Requested-With> is
+C<XMLHttpRequest>.
+
+=method is_delete
+
+Return true if the method requested by the client is 'DELETE'
+
+=method is_get
+
+Return true if the method requested by the client is 'GET'
+
+=method is_head
+
+Return true if the method requested by the client is 'HEAD'
+
+=method is_post
+
+Return true if the method requested by the client is 'POST'
+
+=method is_put
+
+Return true if the method requested by the client is 'PUT'
+
+=method logger
+
+Returns the C<psgix.logger> code reference, if exists.
+
+=method method
+
+Return the HTTP method used by the client to access the application.
+
+While this method returns the method string as provided by the environment, it's
+better to use one of the following boolean accessors if you want to inspect the
+requested method.
+
+=method new
+
+The constructor of the class, used internally by Dancer2's core to create request
+objects.
+
+It uses the environment hash table given to build the request object:
+
+    Dancer2::Core::Request->new( env => $env );
+
+Two additional parameters for instantiation are C<body_is_parsed> boolean
+(indicating if the request should avoid parsing the body again), and
+C<serializer> which can provide a serializer object to work with when
+reading the request body.
+
+=method param($key)
+
+Calls the C<params> method below and fetches the key provided.
+
+=method params($source)
+
+Called in scalar context, returns a hashref of params, either from the specified
+source (see below for more info on that) or merging all sources.
+
+So, you can use, for instance:
+
+    my $foo = params->{foo}
+
+If called in list context, returns a list of key and value pairs, so you could use:
+
+    my %allparams = params;
+
+=method parameters
+
+Returns a L<Hash::MultiValue> object with merged GET and POST parameters.
+
+=method path
+
+The path requested by the client, normalized. This is effectively
+C<path_info> or a single forward C</>.
+
+=method path_info
+
+The raw requested path. This could be empty. Use C<path> instead.
+
+=method port
+
+Return the port of the server.
+
+=method protocol
+
+Return the protocol (I<HTTP/1.0> or I<HTTP/1.1>) used for the request.
+
+=method query_parameters
+
+Returns a L<Hash::MultiValue> parameters object.
+
+=method query_string
+
+Returns the portion of the request defining the query itself - this is
+what comes after the C<?> in a URI.
+
+=method raw_body
+
+Alias to C<content> method.
+
+=method remote_address
+
+Alias for C<address> method.
+
+=method remote_host
+
+Return the remote host of the client. This only works with web servers configured
+to do a reverse DNS lookup on the client's IP address.
+
+=method request_method
+
+Alias to the C<method> accessor, for backward-compatibility with C<CGI> interface.
+
+=method request_uri
+
+Return the raw, undecoded request URI path.
+
+=method scheme
+
+Return the scheme of the request
+
+=method script_name
+
+Return script_name from the environment.
+
+=method secure
+
+Return true or false, indicating whether the connection is secure - this is
+effectively checking if the scheme is I<HTTPS> or not.
+
+=method serializer
+
+Returns the optional serializer object used to deserialize request parameters.
+
+=method session
+
+Returns the C<psgix.session> hash, if exists.
+
+=method session_options
+
+Returns the C<psgix.session.options> hash, if exists.
+
+=method to_string
+
+Return a string representing the request object (e.g., C<GET /some/path>).
+
+=method upload($name)
+
+Context-aware accessor for uploads. It's a wrapper around an access to the hash
+table provided by C<uploads()>. It looks at the calling context and returns a
+corresponding value.
+
+If you have many file uploads under the same name, and call C<upload('name')> in
+an array context, the accessor will unroll the ARRAY ref for you:
+
+    my @uploads = request->upload('many_uploads'); # OK
+
+Whereas with a manual access to the hash table, you'll end up with one element
+in C<@uploads>, being the arrayref:
+
+    my @uploads = request->uploads->{'many_uploads'};
+    # $uploads[0]: ARRAY(0xXXXXX)
+
+That is why this accessor should be used instead of a manual access to
+C<uploads>.
+
+=method uploads
+
+Returns a reference to a hash containing uploads. Values can be either a
+L<Dancer2::Core::Request::Upload> object, or an arrayref of
+L<Dancer2::Core::Request::Upload>
+objects.
+
+You should probably use the C<upload($name)> accessor instead of manually accessing the
+C<uploads> hash table.
+
+=method uri
+
+An alias to C<request_uri>.
+
+=method uri_base
+
+Same thing as C<base> above, except it removes the last trailing slash in the
+path if it is the only path.
+
+This means that if your base is I<http://myserver/>, C<uri_base> will return
+I<http://myserver> (notice no trailing slash). This is considered very useful
+when using templates to do the following thing:
+
+    <link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
+
+=method uri_for(path, params)
+
+Constructs a URI from the base and the passed path. If params (hashref) is
+supplied, these are added to the query string of the URI.
+
+Thus, with the following base:
+
+    http://localhost:5000/foo
+
+You get the following behavior:
+
+    my $uri = request->uri_for('/bar', { baz => 'baz' });
+    print $uri; # http://localhost:5000/foo/bar?baz=baz
+
+C<uri_for> returns a L<URI> object (which can stringify to the value).
+
+=method user
+
+Return remote user if defined.
 
 =method var
 
@@ -762,201 +1010,15 @@ returns the value of 'some_variable', while
 
 will set it.
 
-=method id()
+=method vars
 
-The ID of the request. This allows you to trace a specific request in loggers,
-per the string created using C<to_string>.
+Access to the internal hash of variables:
 
-The ID of the request is essentially the number of requests run in the current
-class.
+    my $value = $request->vars->{'my_key'};
 
-=method path()
+You want to use C<var> above.
 
-Return the path requested by the client.
-
-=method method()
-
-Return the HTTP method used by the client to access the application.
-
-While this method returns the method string as provided by the environment, it's
-better to use one of the following boolean accessors if you want to inspect the
-requested method.
-
-=method content_type()
-
-Return the content type of the request.
-
-=method content_length()
-
-Return the content length of the request.
-
-=method content_encoding()
-
-Return the content encoding of the request.
-
-=method body()
-
-Return the raw body of the request, unparsed.
-
-If you need to access the body of the request, you have to use this accessor and
-should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
-already did it for you and kept the raw body untouched in there.
-
-=method uploads()
-
-Returns a reference to a hash containing uploads. Values can be either a
-L<Dancer2::Core::Request::Upload> object, or an arrayref of
-L<Dancer2::Core::Request::Upload>
-objects.
-
-You should probably use the C<upload($name)> accessor instead of manually accessing the
-C<uploads> hash table.
-
-=method header($name)
-
-Return the value of the given header, if present. If the header has multiple
-values, returns an the list of values if called in list context, the first one
-in scalar.
-
-
-=method new()
-
-The constructor of the class, used internally by Dancer2's core to create request
-objects.
-
-It uses the environment hash table given to build the request object:
-
-    Dancer2::Core::Request->new(env => \%env);
-
-It also accepts the C<body_is_parsed> boolean flag, if the new request object should
-not parse request body.
-
-=method address()
-
-Return the IP address of the client.
-
-=method remote_host()
-
-Return the remote host of the client. This only works with web servers configured
-to do a reverse DNS lookup on the client's IP address.
-
-=method protocol()
-
-Return the protocol (HTTP/1.0 or HTTP/1.1) used for the request.
-
-=method port()
-
-Return the port of the server.
-
-=method request_uri()
-
-Return the raw, undecoded request URI path.
-
-=method user()
-
-Return remote user if defined.
-
-=method script_name()
-
-Return script_name from the environment.
-
-=method scheme()
-
-Return the scheme of the request
-
-=method serializer()
-
-Returns the optional serializer object used to deserialize request parameters.
-
-=method data()
-
-If the application has a serializer and if the request has serialized
-content, returns the deserialized structure as a hashref.
-
-=method secure()
-
-Return true of false, indicating whether the connection is secure
-
-=method uri()
-
-An alias to request_uri()
-
-=method is_get()
-
-Return true if the method requested by the client is 'GET'
-
-=method is_head()
-
-Return true if the method requested by the client is 'HEAD'
-
-=method is_post()
-
-Return true if the method requested by the client is 'POST'
-
-=method is_put()
-
-Return true if the method requested by the client is 'PUT'
-
-=method is_delete()
-
-Return true if the method requested by the client is 'DELETE'
-
-=method request_method
-
-Alias to the C<method> accessor, for backward-compatibility with C<CGI> interface.
-
-=method input_handle
-
-Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
-
-=method to_string()
-
-Return a string representing the request object (eg: C<"GET /some/path">)
-
-=method base()
-
-Returns an absolute URI for the base of the application.  Returns a L<URI>
-object (which stringifies to the URL, as you'd expect).
-
-=method uri_base()
-
-Same thing as C<base> above, except it removes the last trailing slash in the
-path if it is the only path.
-
-This means that if your base is I<http://myserver/>, C<uri_base> will return
-I<http://myserver> (notice no trailing slash). This is considered very useful
-when using templates to do the following thing:
-
-    <link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
-
-=method dispatch_path()
-
-The part of the C<path> after C<base>. This is the path used
-for dispatching the request to routes.
-
-=method uri_for(path, params)
-
-Constructs a URI from the base and the passed path.  If params (hashref) is
-supplied, these are added to the query string of the uri.  If the base is
-C<http://localhost:5000/foo>, C<< request->uri_for('/bar', { baz => 'baz' }) >>
-would return C<http://localhost:5000/foo/bar?baz=baz>.  Returns a L<URI> object
-(which stringifies to the URL, as you'd expect).
-
-=method params($source)
-
-Called in scalar context, returns a hashref of params, either from the specified
-source (see below for more info on that) or merging all sources.
-
-So, you can use, for instance:
-
-    my $foo = params->{foo}
-
-If called in list context, returns a list of key => value pairs, so you could use:
-
-    my %allparams = params;
-
-
-=head3 Fetching only params from a given source
+=head1 Fetching only params from a given source
 
 If a required source isn't specified, a mixed hashref (or list of key value
 pairs, in list context) will be returned; this will contain params from all
@@ -983,48 +1045,15 @@ returned.
 
 If another value is given for C<$source>, then an exception is triggered.
 
-=method is_ajax()
+=head1 EXTRA SPEED
 
-Return true if the value of the header C<X-Requested-With> is XMLHttpRequest.
+If L<Dancer2::Core::Request> detects the following modules as installed,
+it will use them to speed things up:
 
-=method upload($name)
+=over 4
 
-Context-aware accessor for uploads. It's a wrapper around an access to the hash
-table provided by C<uploads()>. It looks at the calling context and returns a
-corresponding value.
+=item * L<URL::Encode::XS>
 
-If you have many file uploads under the same name, and call C<upload('name')> in
-an array context, the accessor will unroll the ARRAY ref for you:
+=item * L<CGI::Deurl::XS>
 
-    my @uploads = request->upload('many_uploads'); # OK
-
-Whereas with a manual access to the hash table, you'll end up with one element
-in @uploads, being the ARRAY ref:
-
-    my @uploads = request->uploads->{'many_uploads'}; # $uploads[0]: ARRAY(0xXXXXX)
-
-That is why this accessor should be used instead of a manual access to
-C<uploads>.
-
-=method cookies()
-
-Returns a reference to a hash containing cookies, where the keys are the names of the
-cookies and values are L<Dancer2::Core::Cookie> objects.
-
-=cut
-
-
-
-
-
-
-
-
-
-
-
-=head1 SEE ALSO
-
-L<Dancer2>
-
-=cut
+=back

@@ -118,7 +118,10 @@ for my $t (@tests) {
         isa_ok $r, 'Dancer2::Core::Route';
 
         my $request = Dancer2::Core::Request->new(
-            env => {}, method => $route->[0], path => $path
+            env => {
+                PATH_INFO      => $path,
+                REQUEST_METHOD => $route->[0],
+            }
         );
         my $m = $r->match($request);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
@@ -138,10 +141,12 @@ for my $t (@tests) {
 
         # failing request
         my $failing_request = Dancer2::Core::Request->new(
-            env    => {},
-            method => 'get',
-            path   => '/something_that_doesnt_exist',
+            env => {
+                PATH_INFO      => '/something_that_doesnt_exist',
+                REQUEST_METHOD => 'GET',
+            },
         );
+
         $m = $r->match($failing_request);
         is $m, undef, "dont match failing request";
     }
@@ -171,9 +176,10 @@ SKIP: {
     );
 
     my $request = Dancer2::Core::Request->new(
-        env    => {},
-        method => 'get',
-        path   => '/user/delete/234',
+        env => {
+            PATH_INFO      => '/user/delete/234',
+            REQUEST_METHOD => 'GET',
+        },
     );
 
     my $m = $r->match($request);
@@ -203,7 +209,7 @@ SKIP: {
     );
 
     my $m = $route_w_options->match($req);
-    ok !defined $m;
+    ok !defined $m, 'Route did not match';
 
     $req = Dancer2::Core::Request->new(
         path   => '/',
@@ -212,5 +218,5 @@ SKIP: {
     );
 
     $m = $route_w_options->match($req);
-    ok defined $m;
+    ok defined $m, 'Route matched';
 }
