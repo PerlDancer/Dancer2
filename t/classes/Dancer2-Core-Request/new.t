@@ -180,11 +180,6 @@ subtest 'Defaults' => sub {
         my $request = Dancer2::Core::Request->new( env => $env );
         isa_ok( $request, 'Dancer2::Core::Request' );
 
-        ok(
-            $request->DOES('Dancer2::Core::Role::Headers'),
-            'Consumes D2::C::R::Headers',
-        );
-
         can_ok( $request, 'env' );
         isa_ok( $request->env, 'HASH' );
 
@@ -278,15 +273,11 @@ subtest 'Create with single env' => sub {
         'Create with env hash',
     );
 
-    isa_ok(
-        Dancer2::Core::Request->new({ env => {} }),
-        'Dancer2::Core::Request',
-        'Create with env hashref',
-    );
-
     my $request;
     isa_ok(
-        $request = Dancer2::Core::Request->new({ REQUEST_METHOD => 'X' }),
+        $request = Dancer2::Core::Request->new(
+            env => { REQUEST_METHOD => 'X' }
+        ),
         'Dancer2::Core::Request',
         'Create with single argument for env',
     );
@@ -409,7 +400,7 @@ subtest 'Checking request ID' => sub {
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
-        is( $request->id, 10, 'Correct request id' );
+        is( $request->id, 8, 'Correct request id' );
 
         return psgi_ok;
     } );
