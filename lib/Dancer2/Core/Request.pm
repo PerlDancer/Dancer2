@@ -58,7 +58,7 @@ _EVAL
 our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
 our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
 
-our $_count = 0;
+our $_id = 0;
 
 # self->new( env => {}, serializer => $s, is_behind_proxy => 0|1 )
 sub new {
@@ -81,7 +81,7 @@ sub new {
     }
 
     # additionally supported attributes
-    $self->{'id'}              = ++$_count;
+    $self->{'id'}              = ++$_id;
     $self->{'vars'}            = {};
     $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
 
@@ -108,7 +108,7 @@ sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 # XXX: incompatible with Plack::Request
 sub body { $_[0]->{'body'} || '' }
 
-sub id { $_count }
+sub id { $_id }
 
 # Private 'read-only' attributes for request params. See the params()
 # method for the public interface.
