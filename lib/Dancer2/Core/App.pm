@@ -862,9 +862,10 @@ sub send_file {
           "attachment; filename=\"$options{filename}\"" );
 
     # use a delayed response unless server does not support streaming
+    my $use_streaming = exists $options{streaming} ? $options{streaming} : 1;
     my $response;
     my $env = $self->request->env;
-    if ( $env->{'psgi.streaming'} && ! $options{'streaming'} ) {
+    if ( $env->{'psgi.streaming'} && $use_streaming ) {
         my $cb = sub {
             my $responder = $Dancer2::Core::Route::RESPONDER;
             my $res = $Dancer2::Core::Route::RESPONSE;
@@ -882,7 +883,7 @@ sub send_file {
         $response = $self->response;
         # direct assignment to hash element, avoids around modifier
         # trying to serialise this this content.
-        $response->{content} = read_glob_content($fh);
+        $response->{content} = Dancer2::FileUtils::read_glob_content($fh);
         $response->is_encoded(1);    # bytes are already encoded
     }
 

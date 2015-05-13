@@ -7,6 +7,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
 use File::Temp;
+use File::Spec;
 
 {
     package StaticContent;
@@ -44,6 +45,16 @@ use File::Temp;
         close $temp;
         send_file($temp->filename, content_type => 'image/png',
                                    system_path  => 1);
+    };
+
+    get '/no_streaming' => sub {
+        my $file = File::Spec->rel2abs(__FILE__);
+        send_file( $file, system_path => 1, streaming => 0 );
+    };
+
+    get '/options_streaming' => sub {
+        my $file = File::Spec->rel2abs(__FILE__);
+        send_file( $file, system_path => 1, streaming => 1 );
     };
 }
 
@@ -92,10 +103,17 @@ test_psgi $app, sub {
         like( $r->content, qr{package StaticContent}, 'filehandle content' );
     };
 
-};
+    subtest "no streaming" => sub {
+        my $r = $cb->( GET '/no_streaming' ); 
+        is( $r->code, 200, 'send_file set status to 200 (no streaming)');
+        like( $r->content, qr{package StaticContent}, 'no streaming - content' );
+    };
 
-test_psgi $app, sub {
-    my $cb = shift;
+    subtest "options streaming" => sub {
+        my $r = $cb->( GET '/options_streaming' ); 
+        is( $r->code, 200, 'send_file set status to 200 (options streaming)');
+        like( $r->content, qr{package StaticContent}, 'options streaming - content' );
+    };
 
     subtest 'send_file returns correct content type' => sub {
         my $r = $cb->( GET '/check_content_type' );
