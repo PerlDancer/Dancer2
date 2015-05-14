@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.160001  2015-05-14 20:40:10+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #893, #895: Catch config parse errors when Config::Any doesn't throw
       them. (Russell Jenkins)
