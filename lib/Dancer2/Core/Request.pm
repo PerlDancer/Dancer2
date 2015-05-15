@@ -85,7 +85,7 @@ sub new {
     $self->{'vars'}            = {};
     $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
 
-    $self->BUILD;
+    $self->init;
 
     return $self;
 }
@@ -232,7 +232,7 @@ sub is_patch  { $_[0]->method eq 'PATCH' }
 sub request_method { $_[0]->method }
 sub input_handle { $_[0]->env->{'psgi.input'} }
 
-sub BUILD {
+sub init {
     my ($self) = @_;
 
     $self->{_chunk_size}    = 4096;
