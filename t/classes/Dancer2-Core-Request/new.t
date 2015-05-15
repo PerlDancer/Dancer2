@@ -288,8 +288,8 @@ subtest 'Create with single env' => sub {
 subtest 'Serializer' => sub {
     {
         my $request = Dancer2::Core::Request->new( env => {} );
-        can_ok( $request, qw<serializer has_serializer> );
-        ok( ! $request->has_serializer, 'No serializer set' );
+        can_ok( $request, qw<serializer> );
+        ok( ! $request->serializer, 'No serializer set' );
     }
 
     {
@@ -327,7 +327,7 @@ subtest 'Serializer' => sub {
             'Can create request with serializer',
         );
 
-        ok( $request->has_serializer, 'Serializer set' );
+        ok( $request->serializer, 'Serializer set' );
         isa_ok( $request->serializer, 'Serializer' );
     }
 };

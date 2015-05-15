@@ -186,14 +186,14 @@ sub scheme {
 }
 
 sub serializer { $_[0]->{'serializer'} }
-sub has_serializer { defined $_[0]->{'serializer'} }
 
 sub data { $_[0]->{'data'} ||= &deserialize }
 
 sub deserialize {
     my $self = shift;
 
-    return unless $self->has_serializer;
+    my $serializer = $self->serializer
+        or return;
 
     # The latest draft of the RFC does not forbid DELETE to have content,
     # rather the behaviour is undefined. Take the most lenient route and
@@ -207,7 +207,7 @@ sub deserialize {
     $body && length $body > 0
         or return;
 
-    my $data = $self->serializer->deserialize($self->body);
+    my $data = $serializer->deserialize($self->body);
     return if !defined $data;
 
     # Set _body_params directly rather than using the setter. Deserializiation
