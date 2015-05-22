@@ -3,6 +3,7 @@
     [ DOCUMENTATION ]
     * GH #908: Cleanup Dancer references in DBIC section of cookbook
       (Julien Fiegehenn)
+    * GH #910: Misc spelling and grammar fixes (Gregor Herrmann)
 
 0.160001  2015-05-14 20:40:10+02:00 Europe/Amsterdam
 
