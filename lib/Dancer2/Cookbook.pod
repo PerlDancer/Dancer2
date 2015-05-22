@@ -391,19 +391,19 @@ Or you can override them directly in the script (less recommended):
 =head2 Using DBIx::Class
 
 L<DBIx::Class>, also known as DBIC, is one of the many Perl ORM
-(I<Object Relational Mapper>). It is easy to use DBIC in Dancer using the
+(I<Object Relational Mapper>). It is easy to use DBIC in Dancer2 using the
 L<Dancer2::Plugin::DBIC>.
 
 =head3 An example
 
-This example demonstrates a simple Dancer application that allows to search
+This example demonstrates a simple Dancer2 application that allows one to search
 for authors or books. The application is connected to a database, that contains
 authors, and their books. The website will have one single page with a form,
-that allows to query books or authors, and display the results.
+that allows one to query books or authors, and display the results.
 
 =head4 Creating the application
 
-    $ dancer -a bookstore
+    $ dancer2 -a bookstore
 
 To use the Template Toolkit as the template engine, we specify it in the
 congiguration file:
@@ -534,7 +534,7 @@ in your database:
 =item * Use auto-detection
 
 The configuration file needs to be updated to indicate the use of the
-Dancer::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
+Dancer2::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
 to indicate that this schema is connected to the SQLite database we created.
 
     # add in bookstore/config.yml
@@ -586,7 +586,7 @@ usage of DBIX::Class.
 =item * Use home made schema classes
 
 The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes
-using L<Moose>. The schema classes should be put in a place that Dancer
+using L<Moose>. The schema classes should be put in a place that Dancer2
 will find. A good place is in I<bookstore/lib/>.
 
 Once your schema classes are in place, all you need to do is modify I<config.yml>
