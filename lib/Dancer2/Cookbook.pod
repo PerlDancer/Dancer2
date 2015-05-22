@@ -396,10 +396,10 @@ L<Dancer2::Plugin::DBIC>.
 
 =head3 An example
 
-This example demonstrates a simple Dancer2 application that allows to search
+This example demonstrates a simple Dancer2 application that allows one to search
 for authors or books. The application is connected to a database, that contains
 authors, and their books. The website will have one single page with a form,
-that allows to query books or authors, and display the results.
+that allows one to query books or authors, and display the results.
 
 =head4 Creating the application
 
