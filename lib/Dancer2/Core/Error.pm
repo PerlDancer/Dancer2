@@ -104,9 +104,14 @@ sub default_error_page {
     my $uri_base = $self->has_app ?
         $self->app->request->uri_base : '';
 
-    my $message = $self->message;
-    if ( $self->show_errors && $self->exception) {
-        $message .= "\n" . $self->exception;
+    my $message;
+    if ( $self->has_app and $self->app->setting('traces') ) {
+        $message = $self->full_message;
+    } else {
+        $message = $self->message;
+        if ( $self->show_errors and $self->exception) {
+            $message .= "\n" . $self->exception;
+        }
     }
 
     my $opts = {
@@ -320,9 +325,9 @@ sub throw {
 sub backtrace {
     my ($self) = @_;
 
-    my $message = $self->exception ? $self->exception : $self->message;
+    my $message = $self->message;
     $message =
-      qq|<pre class="error">| . _html_encode( $message ) . "</pre>";
+      qq|<pre class="error">| . _html_encode( $message ) . "</pre>" if $message;
 
     if ( $self->exception && !ref($self->exception) ) {
         $message .= qq|<pre class="error">|
