@@ -409,31 +409,20 @@ sub dumper {
 sub environment {
     my ($self) = @_;
 
-    my $request = $self->has_app ? $self->app->request : 'TODO';
-    my $r_env = {};
-    $r_env = $request->env if defined $request;
+    my $stack = $self->get_caller;
+    my $settings = $self->has_app && $self->app->settings;
+    my $session = $self->session && $self->session->data;
+    my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
-    my $env =
-        qq|<div class="title">Environment</div><pre class="content">|
-      . dumper($r_env)
-      . "</pre>";
-    my $settings =
-        qq|<div class="title">Settings</div><pre class="content">|
-      . dumper( $self->app->settings )
-      . "</pre>";
-    my $source =
-        qq|<div class="title">Stack</div><pre class="content">|
-      . $self->get_caller
-      . "</pre>";
-    my $session = "";
+    # Get a sanitised dump of the settings, session and environment
+    $_ = $_ ? dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
 
-    if ( $self->session ) {
-        $session =
-            qq[<div class="title">Session</div><pre class="content">]
-          . dumper( $self->session->data )
-          . "</pre>";
-    }
-    return "$source $settings $session $env";
+    return <<"END_HTML";
+<div class="title">Stack</div><pre class="content">$stack</pre>
+<div class="title">Settings</div><pre class="content">$settings</pre>
+<div class="title">Session</div><pre class="content">$session</pre>
+<div class="title">Environment</div><pre class="content">$env</pre>
+END_HTML
 }
 
 sub get_caller {
