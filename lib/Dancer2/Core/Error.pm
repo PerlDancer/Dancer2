@@ -396,9 +396,12 @@ sub dumper {
 
     #use Data::Dumper;
     my $dd = Data::Dumper->new( [ \%data ] );
-    $dd->Terse(1)->Quotekeys(0)->Indent(1);
-    my $content = $dd->Dump();
-    $content =~ s{(\s*)(\S+)(\s*)=>}{$1<span class="key">$2</span>$3 =&gt;}g;
+    my $hash_separator = '  @@!%,+$$#._(--  '; # Very unlikely string to exist already
+    $dd->Terse(1)->Quotekeys(0)->Indent(1)->Sortkeys(1)->Pair($hash_separator);
+    my $content = _html_encode( $dd->Dump );
+    $content =~ s/^.+//;   # Remove the first line
+    $content =~ s/\n.+$//; # Remove the last line
+    $content =~ s{^(\s*)(.+)\Q$hash_separator}{$1<span class="key">$2</span> =&gt; }gm;
     if ($censored) {
         $content
           .= "\n\nNote: Values of $censored sensitive-looking keys hidden\n";
