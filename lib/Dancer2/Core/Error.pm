@@ -340,7 +340,7 @@ sub backtrace {
     return $message unless ( $file and $line );
 
     # file and line are located, let's read the source Luke!
-    my $fh = open_file( '<', $file ) or return $message;
+    my $fh = eval { open_file( '<', $file ) } or return $message;
     my @lines = <$fh>;
     close $fh;
 
