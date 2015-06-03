@@ -1,6 +1,8 @@
 use strict;
 use warnings;
-use Test::More tests => 14;
+use utf8;
+
+use Test::More tests => 20;
 use Test::Fatal;
 use File::Spec;
 BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
@@ -69,3 +71,18 @@ is( path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
 #slightly tricky paths on different platforms
 is( path( '/', 'b', '/c' ), '/b//c', 'path /,b,/c -> /b//c' );
 is( path( '/', '/b', ), '/b', 'path /, /b -> /b' );
+
+note "escape_filename"; {
+    my $names = [
+        [ undef      => 'undef' ],
+        [ 'abcdef'   => 'abcdef' ],
+        [ 'ab++ef'   => 'ab+2b+2bef' ],
+        [ 'a/../b.txt'   => 'a+2f+2e+2e+2fb+2etxt' ],
+        [ "test\0\0" => 'test+00+00' ],
+        [ 'test☠☠☠'  => 'test+2620+2620+2620' ],
+    ];
+
+    for my $case ( @$names ) {
+      is Dancer2::FileUtils::escape_filename( $case->[0] ), $case->[1];
+    }
+}
