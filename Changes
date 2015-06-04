@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #920: Sanitize session IDs in file-based sessions.
+      (Russell Jenkins, Andrew Beverley)
+
     [ DOCUMENTATION ]
     * GH #908: Cleanup Dancer references in DBIC section of cookbook
       (Julien Fiegehenn)

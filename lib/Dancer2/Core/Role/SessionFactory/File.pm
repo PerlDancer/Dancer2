@@ -6,7 +6,7 @@ with 'Dancer2::Core::Role::SessionFactory';
 
 use Carp 'croak';
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw(path set_file_mode);
+use Dancer2::FileUtils qw(path set_file_mode escape_filename);
 use Fcntl ':flock';
 
 #--------------------------------------------------------------------------#
@@ -61,7 +61,7 @@ sub _sessions {
 
 sub _retrieve {
     my ( $self, $id ) = @_;
-    my $session_file = path( $self->session_dir, $id . $self->_suffix );
+    my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
 
     return unless -f $session_file;
 
@@ -75,7 +75,7 @@ sub _retrieve {
 
 sub _destroy {
     my ( $self, $id ) = @_;
-    my $session_file = path( $self->session_dir, $id . $self->_suffix );
+    my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
     return if !-f $session_file;
 
     unlink $session_file;
@@ -83,7 +83,7 @@ sub _destroy {
 
 sub _flush {
     my ( $self, $id, $data ) = @_;
-    my $session_file = path( $self->session_dir, $id . $self->_suffix );
+    my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
 
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";

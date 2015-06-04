@@ -12,7 +12,7 @@ use Cwd 'realpath';
 use Exporter 'import';
 our @EXPORT_OK = qw(
   dirname open_file path read_file_content read_glob_content
-  path_or_empty set_file_mode normalize_path
+  path_or_empty set_file_mode normalize_path escape_filename
 );
 
 
@@ -85,6 +85,16 @@ sub normalize_path {
     #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
     $path =~ s{^//}{/};
     return $path;
+}
+
+sub escape_filename {
+    my $filename = shift or return;
+
+    # based on escaping used in CHI::Driver. Our use-case is one-way,
+    # so we allow utf8 chars to be escaped, but NEVER do the inverse
+    # operation.
+    $filename =~ s/([^A-Za-z0-9_\=\-\~])/sprintf("+%02x", ord($1))/ge;
+    return $filename;
 }
 
 1;
@@ -198,5 +208,13 @@ assumed that the appropriate PerlIO layers are applied to the file handle.
 Returns the content and B<closes the file handle>.
 
 =func my $norm_path=normalize_path ($path);
+
+=func my $escaped_filename = escape_filename( $filename );
+
+Escapes characters in a filename that may alter a path when concatenated.
+
+  use Dancer2::FileUtils 'escape_filename';
+
+  my $safe = escape_filename( "a/../b.txt" ); # a+2f+2e+2e+2fb+2etxt
 
 =cut
