@@ -592,7 +592,7 @@ sub _init_request_headers {
     my $env = $self->env;
 
     $self->headers(
-        HTTP::Headers->new(
+        HTTP::Headers::Fast->new(
             map {
                 ( my $field = $_ ) =~ s/^HTTPS?_//;
                 ( $field => $env->{$_} );

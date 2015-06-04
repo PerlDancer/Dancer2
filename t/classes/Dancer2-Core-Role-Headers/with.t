@@ -21,7 +21,7 @@ subtest 'Default' => sub {
 subtest 'Set headers with object' => sub {
     plan tests => 4;
 
-    my $headers = HTTP::Headers->new();
+    my $headers = HTTP::Headers::Fast->new();
     isa_ok( $headers, 'HTTP::Headers' );
 
     $headers->header( 'Host' => 'Foo' );
