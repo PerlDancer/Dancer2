@@ -8,11 +8,11 @@ use HTTP::Headers::Fast;
 
 has headers => (
     is     => 'rw',
-    isa    => InstanceOf ['HTTP::Headers::Fast'],
+    isa    => AnyOf[ InstanceOf ['HTTP::Headers::Fast'], InstanceOf ['HTTP::Headers'] ],
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
-        return $value if ref($value) eq 'HTTP::Headers::Fast';
+        return $value if ref($value) =~ m/^HTTP::Headers(?:::Fast)?$/;
         HTTP::Headers::Fast->new( @{$value} );
     },
     default => sub {
