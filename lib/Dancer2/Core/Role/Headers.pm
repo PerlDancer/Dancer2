@@ -5,6 +5,7 @@ package Dancer2::Core::Role::Headers;
 use Moo::Role;
 use Dancer2::Core::Types;
 use HTTP::Headers;
+use Scalar::Util qw(blessed);
 
 has headers => (
     is     => 'rw',
@@ -12,7 +13,7 @@ has headers => (
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
-        return $value if ref($value) eq 'HTTP::Headers';
+        return $value if blessed($value) and $value->isa('HTTP::Headers');
         HTTP::Headers->new( @{$value} );
     },
     default => sub {
