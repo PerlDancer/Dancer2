@@ -5,6 +5,7 @@ package Dancer2::Core::Role::Headers;
 use Moo::Role;
 use Dancer2::Core::Types;
 use HTTP::Headers::Fast;
+use Scalar::Util qw(blessed);
 
 has headers => (
     is     => 'rw',
@@ -12,7 +13,9 @@ has headers => (
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
-        return $value if ref($value) =~ m/^HTTP::Headers(?:::Fast)?$/;
+        # HTTP::Headers::Fast reports that it isa 'HTTP::Headers',
+        # but there is no actual inheritance.
+        return $value if blessed($value) && $value->isa('HTTP::Headers');
         HTTP::Headers::Fast->new( @{$value} );
     },
     default => sub {
