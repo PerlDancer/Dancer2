@@ -4,19 +4,22 @@ package Dancer2::Core::Role::Headers;
 
 use Moo::Role;
 use Dancer2::Core::Types;
-use HTTP::Headers;
+use HTTP::Headers::Fast;
+use Scalar::Util qw(blessed);
 
 has headers => (
     is     => 'rw',
-    isa    => InstanceOf ['HTTP::Headers'],
+    isa    => AnyOf[ InstanceOf ['HTTP::Headers::Fast'], InstanceOf ['HTTP::Headers'] ],
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
-        return $value if ref($value) eq 'HTTP::Headers';
-        HTTP::Headers->new( @{$value} );
+        # HTTP::Headers::Fast reports that it isa 'HTTP::Headers',
+        # but there is no actual inheritance.
+        return $value if blessed($value) && $value->isa('HTTP::Headers');
+        HTTP::Headers::Fast->new( @{$value} );
     },
     default => sub {
-        HTTP::Headers->new();
+        HTTP::Headers::Fast->new();
     },
     handles => [qw<header push_header>],
 );
@@ -52,9 +55,9 @@ L<Dancer2::Core::Response> and L<Dancer2::Core::Request> objects.
 
 =attr headers
 
-The attribute that store the headers in a L<HTTP::Headers> object.
+The attribute that store the headers in a L<HTTP::Headers::Fast> object.
 
-That attribute coerces from ArrayRef and defaults to an empty L<HTTP::Headers>
+That attribute coerces from ArrayRef and defaults to an empty L<HTTP::Headers::Fast>
 instance.
 
 =method header($name)

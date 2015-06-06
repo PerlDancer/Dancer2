@@ -2,6 +2,9 @@ use strict;
 use warnings;
 use Test::More tests => 6;
 
+use HTTP::Headers;
+use HTTP::Headers::Fast;
+
 {
     package Object;
     use Moo;
@@ -19,17 +22,19 @@ subtest 'Default' => sub {
 };
 
 subtest 'Set headers with object' => sub {
-    plan tests => 4;
+    plan tests => 8;
 
-    my $headers = HTTP::Headers->new();
-    isa_ok( $headers, 'HTTP::Headers' );
+    for my $class ( 'HTTP::Headers', 'HTTP::Headers::Fast' ) {
+        my $headers = $class->new();
+        isa_ok( $headers, $class );
 
-    $headers->header( 'Host' => 'Foo' );
+        $headers->header( 'Host' => 'Foo' );
 
-    my $object = Object->new( headers => $headers );
-    isa_ok( $object, 'Object'  );
-    isa_ok( $object->headers, 'HTTP::Headers', 'headers' );
-    is( $object->header('Host'), 'Foo', 'Set headers correctly' );
+        my $object = Object->new( headers => $headers );
+        isa_ok( $object, 'Object'  );
+        isa_ok( $object->headers, $class, 'headers' );
+        is( $object->header('Host'), 'Foo', 'Set headers correctly' );
+    }
 };
 
 subtest 'Set headers with array' => sub {
