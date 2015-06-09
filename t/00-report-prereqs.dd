@@ -1,0 +1,140 @@
+do { my $x = {
+       'build' => {
+                    'requires' => {
+                                    'Module::Build' => '0.3601'
+                                  }
+                  },
+       'configure' => {
+                        'requires' => {
+                                        'ExtUtils::MakeMaker' => '0',
+                                        'File::ShareDir::Install' => '0.06',
+                                        'Module::Build' => '0.3601'
+                                      }
+                      },
+       'develop' => {
+                      'requires' => {
+                                      'Test::CPAN::Meta' => '0',
+                                      'Test::More' => '0',
+                                      'Test::NoTabs' => '0',
+                                      'Test::Pod' => '1.41'
+                                    }
+                    },
+       'runtime' => {
+                      'recommends' => {
+                                        'CGI::Deurl::XS' => '0',
+                                        'Crypt::URandom' => '0',
+                                        'JSON::XS' => '0',
+                                        'Math::Random::ISAAC::XS' => '0',
+                                        'Pod::Simple::Search' => '0',
+                                        'Pod::Simple::SimpleTree' => '0',
+                                        'Scope::Upper' => '0',
+                                        'Test::Builder' => '0',
+                                        'Test::More' => '0',
+                                        'URL::Encode::XS' => '0'
+                                      },
+                      'requires' => {
+                                      'App::Cmd::Setup' => '0',
+                                      'Carp' => '0',
+                                      'Class::Load' => '0',
+                                      'Config::Any' => '0',
+                                      'Cwd' => '0',
+                                      'Data::Dumper' => '0',
+                                      'Digest::SHA' => '0',
+                                      'Encode' => '0',
+                                      'Exporter' => '5.57',
+                                      'Fcntl' => '0',
+                                      'File::Basename' => '0',
+                                      'File::Copy' => '0',
+                                      'File::Find' => '0',
+                                      'File::Path' => '0',
+                                      'File::ShareDir' => '0',
+                                      'File::Spec' => '0',
+                                      'File::Spec::Functions' => '0',
+                                      'File::Temp' => '0.22',
+                                      'HTTP::Body' => '0',
+                                      'HTTP::Date' => '0',
+                                      'HTTP::Headers' => '0',
+                                      'HTTP::Server::PSGI' => '0',
+                                      'HTTP::Tiny' => '0',
+                                      'Hash::Merge::Simple' => '0',
+                                      'IO::File' => '0',
+                                      'Import::Into' => '0',
+                                      'JSON' => '0',
+                                      'List::Util' => '0',
+                                      'MIME::Base64' => '3.13',
+                                      'Module::Runtime' => '0',
+                                      'Moo' => '1.003000',
+                                      'Moo::Role' => '0',
+                                      'MooX::Types::MooseLike' => '0.16',
+                                      'MooX::Types::MooseLike::Base' => '0',
+                                      'POSIX' => '0',
+                                      'Plack' => '1.0029',
+                                      'Plack::Builder' => '0',
+                                      'Plack::MIME' => '0',
+                                      'Plack::Middleware::Conditional' => '0',
+                                      'Plack::Middleware::ContentLength' => '0',
+                                      'Plack::Middleware::FixMissingBodyInRedirect' => '0',
+                                      'Plack::Middleware::Head' => '0',
+                                      'Plack::Middleware::RemoveRedundantBody' => '0',
+                                      'Plack::Middleware::Static' => '0',
+                                      'Plack::Request' => '0',
+                                      'Pod::Simple::Search' => '0',
+                                      'Pod::Simple::SimpleTree' => '0',
+                                      'Return::MultiLevel' => '0',
+                                      'Role::Tiny' => '1.003000',
+                                      'Safe::Isa' => '0',
+                                      'Scalar::Util' => '0',
+                                      'Sub::Quote' => '0',
+                                      'Template' => '0',
+                                      'Template::Tiny' => '0',
+                                      'Test::Builder' => '0',
+                                      'Test::More' => '0.92',
+                                      'Try::Tiny' => '0',
+                                      'URI' => '0',
+                                      'URI::Escape' => '0',
+                                      'YAML' => '0',
+                                      'overload' => '0',
+                                      'parent' => '0',
+                                      'perl' => '5.006',
+                                      'strict' => '0',
+                                      'warnings' => '0'
+                                    },
+                      'suggests' => {
+                                      'Class::Load::XS' => '0',
+                                      'Fcntl' => '0',
+                                      'MIME::Types' => '0',
+                                      'YAML' => '0'
+                                    }
+                    },
+       'test' => {
+                   'recommends' => {
+                                     'CPAN::Meta' => '2.120900'
+                                   },
+                   'requires' => {
+                                   'Capture::Tiny' => '0.12',
+                                   'ExtUtils::MakeMaker' => '0',
+                                   'File::Spec' => '0',
+                                   'File::Temp' => '0.22',
+                                   'FindBin' => '0',
+                                   'HTTP::Body' => '0',
+                                   'HTTP::Cookies' => '0',
+                                   'HTTP::Request' => '0',
+                                   'HTTP::Request::Common' => '0',
+                                   'IO::Handle' => '0',
+                                   'IPC::Open3' => '0',
+                                   'Plack::Response' => '0',
+                                   'Plack::Test' => '0',
+                                   'Test::Fatal' => '0',
+                                   'Test::Memory::Cycle' => '1.04',
+                                   'Test::MockTime' => '0',
+                                   'Test::More' => '0.92',
+                                   'YAML' => '0',
+                                   'lib' => '0',
+                                   'perl' => '5.006',
+                                   'utf8' => '0',
+                                   'vars' => '0'
+                                 }
+                 }
+     };
+  $x;
+ }
