@@ -1,5 +1,5 @@
 package Dancer2::Template::Implementation::ForkedTiny;
-
+$Dancer2::Template::Implementation::ForkedTiny::VERSION = '0.159002';
 # ABSTRACT: Dancer2 own implementation of Template::Tiny
 
 use 5.00503;
@@ -221,9 +221,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
-Dancer2::Template::Implementation::ForkedTiny - Template Toolkit reimplemented in as little code as possible, forked from Template::Tiny
+Dancer2::Template::Implementation::ForkedTiny - Dancer2 own implementation of Template::Tiny
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -297,6 +303,10 @@ of the hash key or method.
 
 Anything beyond the above is currently out of scope.
 
+=head1 NAME
+
+Dancer2::Template::Implementation::ForkedTiny - Template Toolkit reimplemented in as little code as possible, forked from Template::Tiny
+
 =head1 METHODS
 
 =head2 new
@@ -369,5 +379,16 @@ it and/or modify it under the same terms as Perl itself.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

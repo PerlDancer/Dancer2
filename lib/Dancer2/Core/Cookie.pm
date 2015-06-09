@@ -1,6 +1,6 @@
 package Dancer2::Core::Cookie;
 # ABSTRACT: A cookie representing class
-
+$Dancer2::Core::Cookie::VERSION = '0.159002';
 use Moo;
 use URI::Escape;
 use Dancer2::Core::Types;
@@ -96,6 +96,18 @@ has http_only => (
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Cookie - A cookie representing class
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 SYNOPSIS
 
     use Dancer2::Core::Cookie;
@@ -112,17 +124,9 @@ __END__
 
 Dancer2::Core::Cookie provides a HTTP cookie object to work with cookies.
 
-=method my $cookie=Dancer2::Core::Cookie->new(%opts);
+=head1 ATTRIBUTES
 
-Create a new Dancer2::Core::Cookie object.
-
-You can set any attribute described in the I<ATTRIBUTES> section above.
-
-=method my $header=$cookie->to_header();
-
-Creates a proper HTTP cookie header from the content.
-
-=attr value
+=head2 value
 
 The cookie's value.
 
@@ -133,11 +137,11 @@ In list context, returns a list of potentially multiple values; in scalar
 context, returns just the first value.  (So, if you expect a cookie to have
 multiple values, use list context.)
 
-=attr name
+=head2 name
 
 The cookie's name.
 
-=attr expires
+=head2 expires
 
 The cookie's expiration date.  There are several formats.
 
@@ -147,20 +151,20 @@ It also supports a human readable offset from the current time such as "2 hours"
 See the documentation of L<Dancer2::Core::Time> for details of all supported
 formats.
 
-=attr domain
+=head2 domain
 
 The cookie's domain.
 
-=attr path
+=head2 path
 
 The cookie's path.
 
-=attr secure
+=head2 secure
 
 If true, it instructs the client to only serve the cookie over secure
 connections such as https.
 
-=attr http_only
+=head2 http_only
 
 By default, cookies are created with a property, named C<HttpOnly>,
 that can be used for security, forcing the cookie to be used only by
@@ -168,5 +172,28 @@ the server (via HTTP) and not by any JavaScript code.
 
 If your cookie is meant to be used by some JavaScript code, set this
 attribute to 0.
+
+=head1 METHODS
+
+=head2 my $cookie=Dancer2::Core::Cookie->new(%opts);
+
+Create a new Dancer2::Core::Cookie object.
+
+You can set any attribute described in the I<ATTRIBUTES> section above.
+
+=head2 my $header=$cookie->to_header();
+
+Creates a proper HTTP cookie header from the content.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

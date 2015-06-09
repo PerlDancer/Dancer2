@@ -1,6 +1,6 @@
 package Dancer2::FileUtils;
 # ABSTRACT: File utility helpers
-
+$Dancer2::FileUtils::VERSION = '0.159002';
 use strict;
 use warnings;
 
@@ -91,11 +91,17 @@ sub normalize_path {
 
 __END__
 
-=head1 DESCRIPTION
+=pod
 
-Dancer2::FileUtils includes a few file related utilities that Dancer2
-uses internally. Developers may use it instead of writing their own
-file reading subroutines or using additional modules.
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::FileUtils - File utility helpers
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -130,20 +136,24 @@ file reading subroutines or using additional modules.
 
     set_file_mode($fh);
 
-=head1 EXPORT
+=head1 DESCRIPTION
 
-Nothing by default. You can provide a list of subroutines to import.
+Dancer2::FileUtils includes a few file related utilities that Dancer2
+uses internally. Developers may use it instead of writing their own
+file reading subroutines or using additional modules.
 
-=func my $path = path( 'folder', 'folder', 'filename');
+=head1 FUNCTIONS
+
+=head2 my $path = path( 'folder', 'folder', 'filename');
 
 Provides comfortable path resolution, internally using L<File::Spec>. 'path'
 does not verify paths, it just normalizes the path.
 
-=func my $path = path_or_empty('folder, 'folder','filename');
+=head2 my $path = path_or_empty('folder, 'folder','filename');
 
 Like path, but returns '' if path doesn't exist.
 
-=func dirname
+=head2 dirname
 
     use Dancer2::FileUtils 'dirname';
 
@@ -153,7 +163,7 @@ Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
 a path. On most OS, returns all but last level of file path. See
 L<File::Basename> for details.
 
-=func set_file_mode($fh);
+=head2 set_file_mode($fh);
 
     use Dancer2::FileUtils 'set_file_mode';
 
@@ -162,7 +172,7 @@ L<File::Basename> for details.
 Applies charset setting from Dancer2's configuration. Defaults to utf-8 if no
 charset setting.
 
-=func my $fh = open_file('<', $file) or die $message;
+=head2 my $fh = open_file('<', $file) or die $message;
 
     use Dancer2::FileUtils 'open_file';
     my $fh = open_file('<', $file) or die $message;
@@ -171,7 +181,7 @@ Calls open and returns a filehandle. Takes in account the 'charset' setting
 from Dancer2's configuration to open the file in the proper encoding (or
 defaults to utf-8 if setting not present).
 
-=func my $content = read_file_content($file);
+=head2 my $content = read_file_content($file);
 
     use Dancer2::FileUtils 'read_file_content';
 
@@ -184,7 +194,7 @@ if the file could not be opened.
 In array context it returns each line (as defined by $/) as a separate element;
 in scalar context returns the entire contents of the file.
 
-=func my $content = read_glob_content($fh);
+=head2 my $content = read_glob_content($fh);
 
     use Dancer2::FileUtils 'read_glob_content';
 
@@ -197,6 +207,21 @@ Similar to I<read_file_content>, only it accepts a file handle. It is
 assumed that the appropriate PerlIO layers are applied to the file handle.
 Returns the content and B<closes the file handle>.
 
-=func my $norm_path=normalize_path ($path);
+=head2 my $norm_path=normalize_path ($path);
+
+=head1 EXPORT
+
+Nothing by default. You can provide a list of subroutines to import.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

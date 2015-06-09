@@ -1,6 +1,6 @@
 package Dancer2::Template::Tiny;
 # ABSTRACT: Template::Tiny engine for Dancer2
-
+$Dancer2::Template::Tiny::VERSION = '0.159002';
 use Moo;
 use Carp qw/croak/;
 use Dancer2::Core::Types;
@@ -39,6 +39,18 @@ sub render {
 1;
 
 __END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Template::Tiny - Template::Tiny engine for Dancer2
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -79,7 +91,9 @@ Since L<Dancer2> has internal support for a wrapper-like option with the
 C<layout> configuration option, you can have a L<Template::Toolkit>-like WRAPPER
 even though L<Template::Tiny> doesn't really support it.
 
-=method render($template, \%tokens)
+=head1 METHODS
+
+=head2 render($template, \%tokens)
 
 Renders the template.  The first arg is a filename for the template file
 or a reference to a string that contains the template.  The second arg
@@ -90,3 +104,16 @@ L<Template::Toolkit> for rendering.
 
 L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Tiny>,
 L<Dancer2::Template::Implementation::ForkedTiny>.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

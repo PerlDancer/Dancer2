@@ -1,9 +1,19 @@
 package Dancer2::Cookbook;
 # ABSTRACT: Example-driven quick-start to the Dancer2 web framework
+$Dancer2::Cookbook::VERSION = '0.159002';
+__END__
 
 =pod
 
-=encoding utf8
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Cookbook - Example-driven quick-start to the Dancer2 web framework
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 DESCRIPTION
 
@@ -41,7 +51,6 @@ route specification, whose value is made available through C<params>.
 
 Note that you don't need to use the C<strict> and C<warnings> pragmas; they
 are already loaded by Dancer2.
-
 
 =head2 Default Route
 
@@ -337,7 +346,6 @@ Change the configuration of the template to Template Toolkit:
 
 Done! Everything will work fine out of the box, including variables and META
 variables.
-
 
 =head2 Accessing configuration information from a separate script
 
@@ -943,7 +951,6 @@ All that is left now is to render it:
 
      template index => { metrics => $metrics };
 
-
 =head1 NON-STANDARD STEPS
 
 =head2 Turning off warnings
@@ -952,3 +959,16 @@ The C<warnings> pragma is already used when one loads Dancer2. However, if
 you I<really> do not want the C<warnings> pragma (for example, due to an
 undesired warning about use of undef values), add a C<no warnings> pragma to
 the appropriate block in your module or psgi file.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

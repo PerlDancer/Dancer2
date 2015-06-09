@@ -1,6 +1,6 @@
 package Dancer2::Core::Session;
 # ABSTRACT: class to represent any session object
-
+$Dancer2::Core::Session::VERSION = '0.159002';
 use Moo;
 use Dancer2::Core::Types;
 use Dancer2::Core::Time;
@@ -58,6 +58,18 @@ sub delete {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Session - class to represent any session object
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 A session object encapsulates anything related to a specific session: its ID,
@@ -71,7 +83,9 @@ get a new session object is to call the C<create()> method on a session engine
 that implements the SessionFactory role.  This is done automatically by the
 app object if a session engine is defined.
 
-=attr id
+=head1 ATTRIBUTES
+
+=head2 id
 
 The identifier of the session object. Required. By default,
 L<Dancer2::Core::Role::SessionFactory> sets this to a randomly-generated,
@@ -79,11 +93,11 @@ guaranteed-unique string.
 
 This attribute can be modified if your Session implementation requires this.
 
-=attr data
+=head2 data
 
 Contains the data of the session (Hash).
 
-=attr expires
+=head2 expires
 
 Number of seconds for the expiry of the session cookie. Don't add the current
 timestamp to it, will be done automatically.
@@ -95,11 +109,13 @@ For a lifetime of one hour:
 
   expires => 3600
 
-=attr is_dirty
+=head2 is_dirty
 
 Boolean value for whether data in the session has been modified.
 
-=method read
+=head1 METHODS
+
+=head2 read
 
 Reader on the session data
 
@@ -107,7 +123,7 @@ Reader on the session data
 
 Returns C<undef> if the key does not exist in the session.
 
-=method write
+=head2 write
 
 Writer on the session data
 
@@ -115,12 +131,23 @@ Writer on the session data
 
 Sets C<is_dirty> to true. Returns C<$value>.
 
-=method delete
+=head2 delete
 
 Deletes a key from session data
 
   $session->delete('something');
 
 Sets C<is_dirty> to true. Returns the value deleted from the session.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

@@ -1,7 +1,19 @@
 package Dancer2::Tutorial;
 # ABSTRACT: An example to get you dancing
+$Dancer2::Tutorial::VERSION = '0.159002';
+__END__
 
 =pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Tutorial - An example to get you dancing
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 What is Dancer2?
 
@@ -94,7 +106,6 @@ that the expression evaluates to the location of the database file.
 (Note that you may want to look at the L<Dancer2::Plugin::Database> module
 for an easy way to configure and manage database connections for your
 Dancer2 apps, but the above will suffice for this tutorial.)
-
 
 =head1 Our first route handler
 
@@ -257,7 +268,7 @@ more options than just the session engine we want to set.
   set 'template'     => 'template_toolkit';
   set 'logger'       => 'console';
   set 'log'          => 'debug';
-  set 'show_errors'  => 1;
+  set 'show_stacktrace'  => 1;
   set 'startup_info' => 1;
   set 'warnings'     => 1;
 
@@ -468,7 +479,7 @@ Here's the complete 'dancr.pl' script from start to finish.
  set 'template'     => 'template_toolkit';
  set 'logger'       => 'console';
  set 'log'          => 'debug';
- set 'show_errors'  => 1;
+ set 'show_stacktrace'  => 1;
  set 'startup_info' => 1;
  set 'warnings'     => 1;
  set 'username'     => 'admin';
@@ -645,5 +656,16 @@ The names of the contributors may not be used to endorse or promote products
 derived from this software without specific prior written permission.
 
 =back
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

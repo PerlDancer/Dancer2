@@ -1,6 +1,6 @@
 package Dancer2::Core::Dispatcher;
 # ABSTRACT: Class for dispatching request to the appropriate route handler
-
+$Dancer2::Core::Dispatcher::VERSION = '0.159002';
 use Moo;
 
 use Dancer2::Core::Types;
@@ -60,6 +60,18 @@ sub dispatch {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Dispatcher - Class for dispatching request to the appropriate route handler
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 SYNOPSIS
 
     use Dancer2::Core::Dispatcher;
@@ -112,3 +124,16 @@ a variable error and returns an object of L<Dancer2::Core::Error>.
 The C<response_not_found> consumes as input the list of applications and an
 object of type L<Dancer2::Core::App> and returns an object
 L<Dancer2::Core::Error>.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

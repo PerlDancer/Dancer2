@@ -1,5 +1,19 @@
 package Dancer2::Config;
 # ABSTRACT: Configure Dancer2 to suit your needs
+$Dancer2::Config::VERSION = '0.159002';
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Config - Configure Dancer2 to suit your needs
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 DESCRIPTION
 
@@ -191,7 +205,6 @@ have a lot of files being served in the B<public> folder that do not have an
 extension, and are text files, set the C<default_mime_type> to
 C<text/plain>.
 
-
 =head2 File / directory locations
 
 =head3 environment (string)
@@ -240,7 +253,6 @@ Allows you to configure which template engine should be used.  For instance,
 to use Template Toolkit, add the following to C<config.yml>:
 
     template: template_toolkit
-
 
 =head3 layout (string)
 
@@ -308,7 +320,7 @@ to use them.
 Sessions are configured with a corresponding L</Session engine> section, as
 shown below.
 
-=head3 show_errors (boolean)
+=head3 show_stacktrace (boolean)
 
 If set to true, Dancer2 will render a detailed debug screen whenever an
 error is caught. If set to false, Dancer2 will render the default error
@@ -317,7 +329,7 @@ by the C<error_template> setting.
 
 The error screen attempts to sanitise sensitive looking information
 (passwords / card numbers in the request, etc) but you still should not have
-show_errors enabled whilst in production, as there is still a risk of
+show_stacktrace enabled whilst in production, as there is still a risk of
 divulging details.
 
 =head3 error_template (template path)
@@ -565,3 +577,16 @@ If not set, defaults to B<text/html>.
 =head1 SEE ALSO
 
 L<Dancer2>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

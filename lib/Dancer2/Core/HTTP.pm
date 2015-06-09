@@ -1,7 +1,7 @@
 # ABSTRACT: helper for rendering HTTP status codes for Dancer2
 
 package Dancer2::Core::HTTP;
-
+$Dancer2::Core::HTTP::VERSION = '0.159002';
 use strict;
 use warnings;
 
@@ -124,7 +124,21 @@ sub status_message {
 
 __END__
 
-=func status(status_code)
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::HTTP - helper for rendering HTTP status codes for Dancer2
+
+=head1 VERSION
+
+version 0.159002
+
+=head1 FUNCTIONS
+
+=head2 status(status_code)
 
     Dancer2::Core::HTTP->status(200); # returns 200
 
@@ -136,12 +150,23 @@ Returns a HTTP status code.  If given an integer, it will return the value it
 received, else it will try to find the appropriate alias and return the correct
 status.
 
-=func status_message(status_code)
+=head2 status_message(status_code)
 
     Dancer2::Core::HTTP->status_message(200); # returns 'OK'
 
     Dancer2::Core::HTTP->status_message('error'); # returns 'Internal Server Error'
 
 Returns the HTTP status message for the given status code.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

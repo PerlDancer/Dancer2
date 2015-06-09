@@ -1,6 +1,6 @@
 package Dancer2;
 # ABSTRACT: Lightweight yet powerful web application framework
-
+$Dancer2::VERSION = '0.159002';
 use strict;
 use warnings;
 use List::Util  'first';
@@ -107,7 +107,17 @@ sub _set_import_method_to_caller {
 
 __END__
 
+=pod
+
 =encoding UTF-8
+
+=head1 NAME
+
+Dancer2 - Lightweight yet powerful web application framework
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 DESCRIPTION
 
@@ -184,13 +194,9 @@ how to convert a Dancer (1) based application to Dancer2.
 
 =back
 
-=func my $runner=runner();
+=head1 METHODS
 
-Returns the current runner. It is of type L<Dancer2::Core::Runner>.
-
-=cut
-
-=method import;
+=head2 import;
 
 If it doesn't exist already, C<import> creates a new runner, imports strict
 and warnings, loads additional libraries, creates a new Dancer2 app (of type
@@ -205,6 +211,12 @@ things:
     use Dancer2 '!quux'; # Don't import DSL keyword quux
     use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
     use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
+
+=head1 FUNCTIONS
+
+=head2 my $runner=runner();
+
+Returns the current runner. It is of type L<Dancer2::Core::Runner>.
 
 =head1 AUTHORS
 
@@ -282,3 +294,16 @@ things:
     Tom Hukins
     Upasana
     Vincent Bachelier
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

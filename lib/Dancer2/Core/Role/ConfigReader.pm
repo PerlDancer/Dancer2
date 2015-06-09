@@ -1,6 +1,6 @@
 # ABSTRACT: Config role for Dancer2 core objects
 package Dancer2::Core::Role::ConfigReader;
-
+$Dancer2::Core::Role::ConfigReader::VERSION = '0.159002';
 use Moo::Role;
 
 use File::Spec;
@@ -264,6 +264,18 @@ sub _compile_config_entry {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Role::ConfigReader - Config role for Dancer2 core objects
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Provides a C<config> attribute that feeds itself by finding and parsing
@@ -274,29 +286,31 @@ read/write config entries.
 
 =head1 ATTRIBUTES
 
-=attr location
+=head2 location
 
 Absolute path to the directory where the server started.
 
-=attr config_location
+=head2 config_location
 
 Gets the location from the configuration. Same as C<< $object->location >>.
 
-=attr environments_location
+=head2 environments_location
 
 Gets the directory were the environment files are stored.
 
-=attr config
+=head2 config
 
 Returns the whole configuration.
 
-=attr environments
+=head2 environments
 
 Returns the name of the environment.
 
-=attr config_files
+=head2 config_files
 
 List of all the configuration files.
+
+=head1 ATTRIBUTES
 
 =head1 METHODS
 
@@ -317,3 +331,16 @@ Verifies that a key exists in the configuration.
 Load the configuration files.
 
 =head2 get_postponed_hooks
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

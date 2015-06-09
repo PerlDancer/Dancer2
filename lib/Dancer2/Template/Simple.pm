@@ -1,6 +1,6 @@
 package Dancer2::Template::Simple;
 # ABSTRACT: Pure Perl 5 template engine for Dancer2
-
+$Dancer2::Template::Simple::VERSION = '0.159002';
 use Moo;
 use Dancer2::FileUtils 'read_file_content';
 
@@ -144,6 +144,18 @@ sub _interpolate_value {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Template::Simple - Pure Perl 5 template engine for Dancer2
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 SYNOPSIS
 
 To use this engine, you may configure L<Dancer2> via C<config.yaml>:
@@ -162,6 +174,15 @@ template processing.
 If you want to power an application with Dancer2 in production environment, it's
 strongly advised to switch to L<Dancer2::Template::TemplateToolkit>.
 
+=head1 METHODS
+
+=head2 render($template, \%tokens)
+
+Renders the template.  The first arg is a filename for the template file
+or a reference to a string that contains the template.  The second arg
+is a hashref for the tokens that you wish to pass to
+L<Template::Toolkit> for rendering.
+
 =head1 SYNTAX
 
 A template written for C<Dancer2::Template::Simple> should be working just fine
@@ -179,14 +200,20 @@ If B<var1> exists in the tokens hash given, its value will be written there.
 
 =back
 
-=method render($template, \%tokens)
-
-Renders the template.  The first arg is a filename for the template file
-or a reference to a string that contains the template.  The second arg
-is a hashref for the tokens that you wish to pass to
-L<Template::Toolkit> for rendering.
-
 =head1 SEE ALSO
 
 L<Dancer2>, L<Dancer2::Core::Role::Template>,
 L<Dancer2::Template::TemplateToolkit>.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

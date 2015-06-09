@@ -1,6 +1,6 @@
 package Dancer2::Handler::AutoPage;
 # ABSTRACT: Class for handling the AutoPage feature
-
+$Dancer2::Handler::AutoPage::VERSION = '0.159002';
 use Moo;
 use Carp 'croak';
 use Dancer2::Core::Types;
@@ -63,6 +63,16 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Handler::AutoPage - Class for handling the AutoPage feature
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 The AutoPage feature is a Handler (turned off by default) that is
@@ -101,3 +111,16 @@ Default: B<head>, B<get>.
 The regexp (path) we want to match.
 
 Default: B</:page>.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

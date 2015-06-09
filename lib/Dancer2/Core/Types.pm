@@ -1,6 +1,6 @@
 package Dancer2::Core::Types;
 # ABSTRACT: Moo types for Dancer2 core.
-
+$Dancer2::Core::Types::VERSION = '0.159002';
 use strict;
 use warnings;
 use Scalar::Util 'blessed', 'looks_like_number';
@@ -138,6 +138,18 @@ MooX::Types::MooseLike::register_types( $definitions, __PACKAGE__ );
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Types - Moo types for Dancer2 core.
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Type definitions for Moo attributes. These are defined as subroutines.
@@ -180,5 +192,16 @@ and I<OPTIONS>.
 =head1 SEE ALSO
 
 L<MooX::Types::MooseLike> for more available types
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

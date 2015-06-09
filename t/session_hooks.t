@@ -27,7 +27,7 @@ my $test_flags = {};
     use Dancer2;
 
     set(
-        show_errors => 1,
+        show_stacktrace => 1,
         envoriment  => 'production'
     );
 

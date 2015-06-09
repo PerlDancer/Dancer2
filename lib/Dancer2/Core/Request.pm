@@ -1,5 +1,5 @@
 package Dancer2::Core::Request;
-
+$Dancer2::Core::Request::VERSION = '0.159002';
 # ABSTRACT: Interface for accessing incoming requests
 
 use Moo;
@@ -674,10 +674,17 @@ sub _build_cookies {
 
 __END__
 
-=head1 DESCRIPTION
+=pod
 
-This class implements a common interface for accessing incoming requests in
-a Dancer2 application.
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Request - Interface for accessing incoming requests
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -693,6 +700,276 @@ method, like in the following example:
 
 A route handler should not read the environment by itself, but should instead
 use the current request object.
+
+=head1 DESCRIPTION
+
+This class implements a common interface for accessing incoming requests in
+a Dancer2 application.
+
+=head1 METHODS
+
+=head2 env()
+
+Return the current PSGI environment hash reference.
+
+=head2 var
+
+By-name interface to variables stored in this request object.
+
+  my $stored = $request->var('some_variable');
+
+returns the value of 'some_variable', while
+
+  $request->var('some_variable' => 'value');
+
+will set it.
+
+=head2 id()
+
+The ID of the request. This allows you to trace a specific request in loggers,
+per the string created using C<to_string>.
+
+The ID of the request is essentially the number of requests run in the current
+class.
+
+=head2 path()
+
+Return the path requested by the client.
+
+=head2 method()
+
+Return the HTTP method used by the client to access the application.
+
+While this method returns the method string as provided by the environment, it's
+better to use one of the following boolean accessors if you want to inspect the
+requested method.
+
+=head2 content_type()
+
+Return the content type of the request.
+
+=head2 content_length()
+
+Return the content length of the request.
+
+=head2 content_encoding()
+
+Return the content encoding of the request.
+
+=head2 body()
+
+Return the raw body of the request, unparsed.
+
+If you need to access the body of the request, you have to use this accessor and
+should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
+already did it for you and kept the raw body untouched in there.
+
+=head2 uploads()
+
+Returns a reference to a hash containing uploads. Values can be either a
+L<Dancer2::Core::Request::Upload> object, or an arrayref of
+L<Dancer2::Core::Request::Upload>
+objects.
+
+You should probably use the C<upload($name)> accessor instead of manually accessing the
+C<uploads> hash table.
+
+=head2 header($name)
+
+Return the value of the given header, if present. If the header has multiple
+values, returns an the list of values if called in list context, the first one
+in scalar.
+
+=head2 new()
+
+The constructor of the class, used internally by Dancer2's core to create request
+objects.
+
+It uses the environment hash table given to build the request object:
+
+    Dancer2::Core::Request->new(env => \%env);
+
+It also accepts the C<body_is_parsed> boolean flag, if the new request object should
+not parse request body.
+
+=head2 address()
+
+Return the IP address of the client.
+
+=head2 remote_host()
+
+Return the remote host of the client. This only works with web servers configured
+to do a reverse DNS lookup on the client's IP address.
+
+=head2 protocol()
+
+Return the protocol (HTTP/1.0 or HTTP/1.1) used for the request.
+
+=head2 port()
+
+Return the port of the server.
+
+=head2 request_uri()
+
+Return the raw, undecoded request URI path.
+
+=head2 user()
+
+Return remote user if defined.
+
+=head2 script_name()
+
+Return script_name from the environment.
+
+=head2 scheme()
+
+Return the scheme of the request
+
+=head2 serializer()
+
+Returns the optional serializer object used to deserialize request parameters.
+
+=head2 data()
+
+If the application has a serializer and if the request has serialized
+content, returns the deserialized structure as a hashref.
+
+=head2 secure()
+
+Return true of false, indicating whether the connection is secure
+
+=head2 uri()
+
+An alias to request_uri()
+
+=head2 is_get()
+
+Return true if the method requested by the client is 'GET'
+
+=head2 is_head()
+
+Return true if the method requested by the client is 'HEAD'
+
+=head2 is_post()
+
+Return true if the method requested by the client is 'POST'
+
+=head2 is_put()
+
+Return true if the method requested by the client is 'PUT'
+
+=head2 is_delete()
+
+Return true if the method requested by the client is 'DELETE'
+
+=head2 request_method
+
+Alias to the C<method> accessor, for backward-compatibility with C<CGI> interface.
+
+=head2 input_handle
+
+Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
+
+=head2 to_string()
+
+Return a string representing the request object (eg: C<"GET /some/path">)
+
+=head2 base()
+
+Returns an absolute URI for the base of the application.  Returns a L<URI>
+object (which stringifies to the URL, as you'd expect).
+
+=head2 uri_base()
+
+Same thing as C<base> above, except it removes the last trailing slash in the
+path if it is the only path.
+
+This means that if your base is I<http://myserver/>, C<uri_base> will return
+I<http://myserver> (notice no trailing slash). This is considered very useful
+when using templates to do the following thing:
+
+    <link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
+
+=head2 dispatch_path()
+
+The part of the C<path> after C<base>. This is the path used
+for dispatching the request to routes.
+
+=head2 uri_for(path, params)
+
+Constructs a URI from the base and the passed path.  If params (hashref) is
+supplied, these are added to the query string of the uri.  If the base is
+C<http://localhost:5000/foo>, C<< request->uri_for('/bar', { baz => 'baz' }) >>
+would return C<http://localhost:5000/foo/bar?baz=baz>.  Returns a L<URI> object
+(which stringifies to the URL, as you'd expect).
+
+=head2 params($source)
+
+Called in scalar context, returns a hashref of params, either from the specified
+source (see below for more info on that) or merging all sources.
+
+So, you can use, for instance:
+
+    my $foo = params->{foo}
+
+If called in list context, returns a list of key => value pairs, so you could use:
+
+    my %allparams = params;
+
+=head3 Fetching only params from a given source
+
+If a required source isn't specified, a mixed hashref (or list of key value
+pairs, in list context) will be returned; this will contain params from all
+sources (route, query, body).
+
+In practical terms, this means that if the param C<foo> is passed both on the
+querystring and in a POST body, you can only access one of them.
+
+If you want to see only params from a given source, you can say so by passing
+the C<$source> param to C<params()>:
+
+    my %querystring_params = params('query');
+    my %route_params       = params('route');
+    my %post_params        = params('body');
+
+If source equals C<route>, then only params parsed from the route pattern
+are returned.
+
+If source equals C<query>, then only params parsed from the query string are
+returned.
+
+If source equals C<body>, then only params sent in the request body will be
+returned.
+
+If another value is given for C<$source>, then an exception is triggered.
+
+=head2 is_ajax()
+
+Return true if the value of the header C<X-Requested-With> is XMLHttpRequest.
+
+=head2 upload($name)
+
+Context-aware accessor for uploads. It's a wrapper around an access to the hash
+table provided by C<uploads()>. It looks at the calling context and returns a
+corresponding value.
+
+If you have many file uploads under the same name, and call C<upload('name')> in
+an array context, the accessor will unroll the ARRAY ref for you:
+
+    my @uploads = request->upload('many_uploads'); # OK
+
+Whereas with a manual access to the hash table, you'll end up with one element
+in @uploads, being the ARRAY ref:
+
+    my @uploads = request->uploads->{'many_uploads'}; # $uploads[0]: ARRAY(0xXXXXX)
+
+That is why this accessor should be used instead of a manual access to
+C<uploads>.
+
+=head2 cookies()
+
+Returns a reference to a hash containing cookies, where the keys are the names of the
+cookies and values are L<Dancer2::Core::Cookie> objects.
 
 =head1 Common HTTP request headers
 
@@ -748,285 +1025,19 @@ Install URL::Encode::XS and CGI::Deurl::XS for extra speed.
 
 Dancer2::Core::Request will use it if they detect their presence.
 
-=method env()
-
-Return the current PSGI environment hash reference.
-
-=method var
-
-By-name interface to variables stored in this request object.
-
-  my $stored = $request->var('some_variable');
-
-returns the value of 'some_variable', while
-
-  $request->var('some_variable' => 'value');
-
-will set it.
-
-=method id()
-
-The ID of the request. This allows you to trace a specific request in loggers,
-per the string created using C<to_string>.
-
-The ID of the request is essentially the number of requests run in the current
-class.
-
-=method path()
-
-Return the path requested by the client.
-
-=method method()
-
-Return the HTTP method used by the client to access the application.
-
-While this method returns the method string as provided by the environment, it's
-better to use one of the following boolean accessors if you want to inspect the
-requested method.
-
-=method content_type()
-
-Return the content type of the request.
-
-=method content_length()
-
-Return the content length of the request.
-
-=method content_encoding()
-
-Return the content encoding of the request.
-
-=method body()
-
-Return the raw body of the request, unparsed.
-
-If you need to access the body of the request, you have to use this accessor and
-should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
-already did it for you and kept the raw body untouched in there.
-
-=method uploads()
-
-Returns a reference to a hash containing uploads. Values can be either a
-L<Dancer2::Core::Request::Upload> object, or an arrayref of
-L<Dancer2::Core::Request::Upload>
-objects.
-
-You should probably use the C<upload($name)> accessor instead of manually accessing the
-C<uploads> hash table.
-
-=method header($name)
-
-Return the value of the given header, if present. If the header has multiple
-values, returns an the list of values if called in list context, the first one
-in scalar.
-
-
-=method new()
-
-The constructor of the class, used internally by Dancer2's core to create request
-objects.
-
-It uses the environment hash table given to build the request object:
-
-    Dancer2::Core::Request->new(env => \%env);
-
-It also accepts the C<body_is_parsed> boolean flag, if the new request object should
-not parse request body.
-
-=method address()
-
-Return the IP address of the client.
-
-=method remote_host()
-
-Return the remote host of the client. This only works with web servers configured
-to do a reverse DNS lookup on the client's IP address.
-
-=method protocol()
-
-Return the protocol (HTTP/1.0 or HTTP/1.1) used for the request.
-
-=method port()
-
-Return the port of the server.
-
-=method request_uri()
-
-Return the raw, undecoded request URI path.
-
-=method user()
-
-Return remote user if defined.
-
-=method script_name()
-
-Return script_name from the environment.
-
-=method scheme()
-
-Return the scheme of the request
-
-=method serializer()
-
-Returns the optional serializer object used to deserialize request parameters.
-
-=method data()
-
-If the application has a serializer and if the request has serialized
-content, returns the deserialized structure as a hashref.
-
-=method secure()
-
-Return true of false, indicating whether the connection is secure
-
-=method uri()
-
-An alias to request_uri()
-
-=method is_get()
-
-Return true if the method requested by the client is 'GET'
-
-=method is_head()
-
-Return true if the method requested by the client is 'HEAD'
-
-=method is_post()
-
-Return true if the method requested by the client is 'POST'
-
-=method is_put()
-
-Return true if the method requested by the client is 'PUT'
-
-=method is_delete()
-
-Return true if the method requested by the client is 'DELETE'
-
-=method request_method
-
-Alias to the C<method> accessor, for backward-compatibility with C<CGI> interface.
-
-=method input_handle
-
-Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
-
-=method to_string()
-
-Return a string representing the request object (eg: C<"GET /some/path">)
-
-=method base()
-
-Returns an absolute URI for the base of the application.  Returns a L<URI>
-object (which stringifies to the URL, as you'd expect).
-
-=method uri_base()
-
-Same thing as C<base> above, except it removes the last trailing slash in the
-path if it is the only path.
-
-This means that if your base is I<http://myserver/>, C<uri_base> will return
-I<http://myserver> (notice no trailing slash). This is considered very useful
-when using templates to do the following thing:
-
-    <link rel="stylesheet" href="[% request.uri_base %]/css/style.css" />
-
-=method dispatch_path()
-
-The part of the C<path> after C<base>. This is the path used
-for dispatching the request to routes.
-
-=method uri_for(path, params)
-
-Constructs a URI from the base and the passed path.  If params (hashref) is
-supplied, these are added to the query string of the uri.  If the base is
-C<http://localhost:5000/foo>, C<< request->uri_for('/bar', { baz => 'baz' }) >>
-would return C<http://localhost:5000/foo/bar?baz=baz>.  Returns a L<URI> object
-(which stringifies to the URL, as you'd expect).
-
-=method params($source)
-
-Called in scalar context, returns a hashref of params, either from the specified
-source (see below for more info on that) or merging all sources.
-
-So, you can use, for instance:
-
-    my $foo = params->{foo}
-
-If called in list context, returns a list of key => value pairs, so you could use:
-
-    my %allparams = params;
-
-
-=head3 Fetching only params from a given source
-
-If a required source isn't specified, a mixed hashref (or list of key value
-pairs, in list context) will be returned; this will contain params from all
-sources (route, query, body).
-
-In practical terms, this means that if the param C<foo> is passed both on the
-querystring and in a POST body, you can only access one of them.
-
-If you want to see only params from a given source, you can say so by passing
-the C<$source> param to C<params()>:
-
-    my %querystring_params = params('query');
-    my %route_params       = params('route');
-    my %post_params        = params('body');
-
-If source equals C<route>, then only params parsed from the route pattern
-are returned.
-
-If source equals C<query>, then only params parsed from the query string are
-returned.
-
-If source equals C<body>, then only params sent in the request body will be
-returned.
-
-If another value is given for C<$source>, then an exception is triggered.
-
-=method is_ajax()
-
-Return true if the value of the header C<X-Requested-With> is XMLHttpRequest.
-
-=method upload($name)
-
-Context-aware accessor for uploads. It's a wrapper around an access to the hash
-table provided by C<uploads()>. It looks at the calling context and returns a
-corresponding value.
-
-If you have many file uploads under the same name, and call C<upload('name')> in
-an array context, the accessor will unroll the ARRAY ref for you:
-
-    my @uploads = request->upload('many_uploads'); # OK
-
-Whereas with a manual access to the hash table, you'll end up with one element
-in @uploads, being the ARRAY ref:
-
-    my @uploads = request->uploads->{'many_uploads'}; # $uploads[0]: ARRAY(0xXXXXX)
-
-That is why this accessor should be used instead of a manual access to
-C<uploads>.
-
-=method cookies()
-
-Returns a reference to a hash containing cookies, where the keys are the names of the
-cookies and values are L<Dancer2::Core::Cookie> objects.
-
-=cut
-
-
-
-
-
-
-
-
-
-
-
 =head1 SEE ALSO
 
 L<Dancer2>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

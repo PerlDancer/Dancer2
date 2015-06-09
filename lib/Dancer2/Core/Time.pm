@@ -1,6 +1,6 @@
 package Dancer2::Core::Time;
 # ABSTRACT: class to handle common helpers for time manipulations
-
+$Dancer2::Core::Time::VERSION = '0.159002';
 use Moo;
 
 has seconds => (
@@ -124,6 +124,23 @@ sub _parse_duration {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Time - class to handle common helpers for time manipulations
+
+=head1 VERSION
+
+version 0.159002
+
+=head1 SYNOPSIS
+
+    my $time = Dancer2::Core::Time->new( expression => "1h" );
+    $time->seconds; # return 3600
+
 =head1 DESCRIPTION
 
 For consistency, whenever something needs to work with time, it
@@ -134,24 +151,21 @@ human-being, for instance in a configuration file.
 This class provides everything needed to translate any human-understandable
 expression into a number of seconds.
 
-=head1 SYNOPSIS
+=head1 ATTRIBUTES
 
-    my $time = Dancer2::Core::Time->new( expression => "1h" );
-    $time->seconds; # return 3600
-
-=attr seconds
+=head2 seconds
 
 Number of seconds represented by the object. Defaults to 0.
 
-=attr epoch
+=head2 epoch
 
 The current epoch to handle. Defaults to seconds + time.
 
-=attr gmt_string
+=head2 gmt_string
 
 Convert the current value in epoch as a GMT string.
 
-=attr expression
+=head2 expression
 
 Required. A human readable expression representing the number of seconds to provide.
 
@@ -172,5 +186,16 @@ Anything else is used verbatim as the expression of a number of seconds.
 Example:
 
     2 hours, 3 days, 3d, 1 week, 3600, etc...
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

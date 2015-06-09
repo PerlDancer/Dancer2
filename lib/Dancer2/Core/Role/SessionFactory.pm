@@ -1,6 +1,6 @@
 package Dancer2::Core::Role::SessionFactory;
 # ABSTRACT: Role for session factories
-
+$Dancer2::Core::Role::SessionFactory::VERSION = '0.159002';
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
@@ -248,6 +248,18 @@ sub sessions {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Role::SessionFactory - Role for session factories
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Any class that consumes this role will be able to store, create, retrieve and
@@ -256,41 +268,43 @@ destroy session objects.
 The default values for attributes can be overridden in your Dancer2
 configuration. See L<Dancer2::Config/Session-engine>.
 
-=attr cookie_name
+=head1 ATTRIBUTES
+
+=head2 cookie_name
 
 The name of the cookie to create for storing the session key
 
 Defaults to C<dancer.session>
 
-=attr cookie_domain
+=head2 cookie_domain
 
 The domain of the cookie to create for storing the session key.
 Defaults to the empty string and is unused as a result.
 
-=attr cookie_path
+=head2 cookie_path
 
 The path of the cookie to create for storing the session key.
 Defaults to "/".
 
-=attr cookie_duration
+=head2 cookie_duration
 
 Default duration before session cookie expiration.  If set, the
 L<Dancer2::Core::Session> C<expires> attribute will be set to the current time
 plus this duration (expression parsed by L<Dancer2::Core::Time>).
 
-=attr session_duration
+=head2 session_duration
 
 Duration in seconds before sessions should expire, regardless of cookie
 expiration.  If set, then SessionFactories should use this to enforce a limit
 on session validity.
 
-=attr is_secure
+=head2 is_secure
 
 Boolean flag to tell if the session cookie is secure or not.
 
 Default is false.
 
-=attr is_http_only
+=head2 is_http_only
 
 Boolean flag to tell if the session cookie is http only.
 
@@ -300,8 +314,6 @@ Default is true.
 
 Following is the interface provided by this role. When specified the required
 methods to implement are described.
-
-=cut
 
 =head2 create
 
@@ -423,5 +435,16 @@ In your session factory:
 
 You need to do this for every configuration key. The ones that do not have accessors
 defined will just go to the void.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

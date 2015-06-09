@@ -1,6 +1,6 @@
 package Dancer2::Logger::Capture;
 # ABSTRACT: Capture dancer logs
-
+$Dancer2::Logger::Capture::VERSION = '0.159002';
 use Moo;
 use Dancer2::Logger::Capture::Trap;
 
@@ -27,6 +27,18 @@ sub log {
 1;
 
 __END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Logger::Capture - Capture dancer logs
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -56,7 +68,6 @@ A worked-out real-world example:
 
     # each call to read cleans the trap
     is_deeply $trap->read, [];
-
 
 =head1 DESCRIPTION
 
@@ -104,7 +115,9 @@ It's primary purpose is for testing. Here is an example of a test:
 
     done_testing;
 
-=method trapper
+=head1 METHODS
+
+=head2 trapper
 
 Returns the L<Dancer2::Logger::Capture::Trap> object used to capture
 and read logs.
@@ -112,5 +125,16 @@ and read logs.
 =head1 SEE ALSO
 
 L<Dancer2::Core::Role::Logger>, L<Dancer2::Logger::Capture::Trap>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

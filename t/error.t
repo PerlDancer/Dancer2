@@ -116,18 +116,18 @@ subtest 'Response->error()' => sub {
     ok $resp->is_halted, 'response is halted';
 };
 
-subtest 'Error with show_errors: 0' => sub {
+subtest 'Error with show_stacktrace: 0' => sub {
     my $err = Dancer2::Core::Error->new(
         exception   => 'our exception',
-        show_errors => 0
+        show_stacktrace => 0
     )->throw;
     unlike $err->content => qr/our exception/;
 };
 
-subtest 'Error with show_errors: 1' => sub {
+subtest 'Error with show_stacktrace: 1' => sub {
     my $err = Dancer2::Core::Error->new(
         exception   => 'our exception',
-        show_errors => 1
+        show_stacktrace => 1
     )->throw;
     like $err->content => qr/our exception/;
 };
@@ -164,7 +164,7 @@ subtest 'Error with exception object' => sub {
     eval { MyTestException->throw('a test exception object') };
     my $err = Dancer2::Core::Error->new(
         exception   => $@,
-        show_errors => 1,
+        show_stacktrace => 1,
     )->throw;
 
     like $err->content, qr/a test exception object/, 'Error content contains exception message';

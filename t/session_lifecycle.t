@@ -10,7 +10,7 @@ use HTTP::Cookies;
     use Dancer2;
 
     set session     => 'Simple';
-    set show_errors => 1;
+    set show_stacktrace => 1;
 
     get '/no_session_data' => sub {
         return "session not modified";

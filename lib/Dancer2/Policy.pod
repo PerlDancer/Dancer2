@@ -1,6 +1,6 @@
 package Dancer2::Policy;
 # ABSTRACT: Dancer core and community policy and standards of conduct
-
+$Dancer2::Policy::VERSION = '0.159002';
 use strict;
 use warnings;
 
@@ -10,7 +10,15 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Policy - Dancer core and community policy and standards of conduct
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 DESCRIPTION
 
@@ -97,3 +105,15 @@ the Perl language development, provided by B<p5p> (the Perl 5 Porters).
 
 The original inspiration policy document can be read at L<perlpolicy>.
 
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

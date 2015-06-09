@@ -42,7 +42,7 @@ my $SESSION_DIR;
     setting session => 'Simple';
 
     set(
-        show_errors  => 1,
+        show_stacktrace  => 1,
         environment  => 'production',
     );
 }

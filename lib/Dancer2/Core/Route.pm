@@ -1,6 +1,6 @@
 package Dancer2::Core::Route;
 # ABSTRACT: Dancer2's route handler
-
+$Dancer2::Core::Route::VERSION = '0.159002';
 use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
@@ -250,28 +250,44 @@ sub validate_options {
 
 __END__
 
-=attr method
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Route - Dancer2's route handler
+
+=head1 VERSION
+
+version 0.159002
+
+=head1 ATTRIBUTES
+
+=head2 method
 
 The HTTP method of the route (lowercase). Required.
 
-=attr code
+=head2 code
 
 The code reference to execute when the route is ran. Required.
 
-=attr regexp
+=head2 regexp
 
 The regular expression that defines the path of the route.
 Required. Coerce from Dancer2's route I<patterns>.
 
-=attr prefix
+=head2 prefix
 
 The prefix to prepend to the C<regexp>. Optional.
 
-=attr options
+=head2 options
 
 A HashRef of conditions on which the matching will depend. Optional.
 
-=method match
+=head1 METHODS
+
+=head2 match
 
 Try to match the route with a given pair of method/path.
 Returns the hash of matching data if success (captures and values of the route
@@ -279,8 +295,19 @@ against the path) or undef if not.
 
     my $match = $route->match( get => '/hello/sukria' );
 
-=method execute
+=head2 execute
 
 Runs the coderef of the route.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

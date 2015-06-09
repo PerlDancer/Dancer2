@@ -1,6 +1,6 @@
 package Dancer2::Logger::Capture::Trap;
 # ABSTRACT: a place to store captured Dancer2 logs
-
+$Dancer2::Logger::Capture::Trap::VERSION = '0.159002';
 use Moo;
 use Dancer2::Core::Types;
 
@@ -28,7 +28,20 @@ sub read {
 }
 
 1;
+
 __END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Logger::Capture::Trap - a place to store captured Dancer2 logs
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -66,5 +79,16 @@ For example...
 =head1 SEE ALSO
 
 L<Dancer2::Logger::Capture>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

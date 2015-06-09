@@ -1,6 +1,6 @@
 package Dancer2::Test;
 # ABSTRACT: Useful routines for testing Dancer2 apps
-
+$Dancer2::Test::VERSION = '0.159002';
 use strict;
 use warnings;
 
@@ -614,6 +614,18 @@ sub _find_dancer_apps_for_dispatcher {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Test - Useful routines for testing Dancer2 apps
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 SYNOPSIS
 
     use Test::More;
@@ -647,7 +659,9 @@ buggy and unnecessary. L<Plack::Test> is advised instead.
 
 $test_name is always optional.
 
-=func dancer_response ($method, $path, $params, $arg_env);
+=head1 FUNCTIONS
+
+=head2 dancer_response ($method, $path, $params, $arg_env);
 
 Returns a Dancer2::Core::Response object for the given request.
 
@@ -699,14 +713,14 @@ You can also supply a hashref of headers:
 
     headers => { 'Content-Type' => 'text/plain' }
 
-=func response_status_is ($request, $expected, $test_name);
+=head2 response_status_is ($request, $expected, $test_name);
 
 Asserts that Dancer2's response for the given request has a status equal to the
 one given.
 
     response_status_is [GET => '/'], 200, "response for GET / is 200";
 
-=func route_exists([$method, $path], $test_name)
+=head2 route_exists([$method, $path], $test_name)
 
 Asserts that the given request matches a route handler in Dancer2's
 registry. If the route would have returned a 404, the route still exists
@@ -720,7 +734,7 @@ want L<Dancer2::Test/response_status_is> or L<Dancer2::Test/dancer_response>
 
     route_exists [GET => '/'], "GET / is handled";
 
-=func route_doesnt_exist([$method, $path], $test_name)
+=head2 route_doesnt_exist([$method, $path], $test_name)
 
 Asserts that the given request does not match any route handler
 in Dancer2's registry.
@@ -731,28 +745,28 @@ This can be disabled in the configs.
 
     route_doesnt_exist [GET => '/bogus_path'], "GET /bogus_path is not handled";
 
-=func response_status_isnt([$method, $path], $status, $test_name)
+=head2 response_status_isnt([$method, $path], $status, $test_name)
 
 Asserts that the status of Dancer2's response is not equal to the
 one given.
 
     response_status_isnt [GET => '/'], 404, "response for GET / is not a 404";
 
-=func response_content_is([$method, $path], $expected, $test_name)
+=head2 response_content_is([$method, $path], $expected, $test_name)
 
 Asserts that the response content is equal to the C<$expected> string.
 
  response_content_is [GET => '/'], "Hello, World",
         "got expected response content for GET /";
 
-=func response_content_isnt([$method, $path], $not_expected, $test_name)
+=head2 response_content_isnt([$method, $path], $not_expected, $test_name)
 
 Asserts that the response content is not equal to the C<$not_expected> string.
 
     response_content_isnt [GET => '/'], "Hello, World",
         "got expected response content for GET /";
 
-=func response_content_like([$method, $path], $regexp, $test_name)
+=head2 response_content_like([$method, $path], $regexp, $test_name)
 
 Asserts that the response content for the given request matches the regexp
 given.
@@ -760,7 +774,7 @@ given.
     response_content_like [GET => '/'], qr/Hello, World/,
         "response content looks good for GET /";
 
-=func response_content_unlike([$method, $path], $regexp, $test_name)
+=head2 response_content_unlike([$method, $path], $regexp, $test_name)
 
 Asserts that the response content for the given request does not match the regexp
 given.
@@ -768,7 +782,7 @@ given.
     response_content_unlike [GET => '/'], qr/Page not found/,
         "response content looks good for GET /";
 
-=func response_content_is_deeply([$method, $path], $expected_struct, $test_name)
+=head2 response_content_is_deeply([$method, $path], $expected_struct, $test_name)
 
 Similar to response_content_is(), except that if response content and
 $expected_struct are references, it does a deep comparison walking each data
@@ -781,21 +795,21 @@ differing.
         { foo => 42, bar => 24},
         "got expected response structure for GET /complex_struct";
 
-=func response_is_file ($request, $test_name);
+=head2 response_is_file ($request, $test_name);
 
-=func response_headers_are_deeply([$method, $path], $expected, $test_name)
+=head2 response_headers_are_deeply([$method, $path], $expected, $test_name)
 
 Asserts that the response headers data structure equals the one given.
 
     response_headers_are_deeply [GET => '/'], [ 'X-Powered-By' => 'Dancer2 1.150' ];
 
-=func response_headers_include([$method, $path], $expected, $test_name)
+=head2 response_headers_include([$method, $path], $expected, $test_name)
 
 Asserts that the response headers data structure includes some of the defined ones.
 
     response_headers_include [GET => '/'], [ 'Content-Type' => 'text/plain' ];
 
-=func route_pod_coverage()
+=head2 route_pod_coverage()
 
 Returns a structure describing pod coverage in your apps
 
@@ -896,7 +910,7 @@ would return something like:
         }
     }
 
-=func is_pod_covered('is pod covered')
+=head2 is_pod_covered('is pod covered')
 
 Asserts that your apps have pods for all routes
 
@@ -927,7 +941,7 @@ head1, head2,head3,head4, item.
 
     you need to create pods for each one of the routes created there.
 
-=func import
+=head2 import
 
 When Dancer2::Test is imported, it should be passed all the
 applications that are supposed to be tested.
@@ -941,5 +955,16 @@ to test.
     use t::lib::Bar;
 
     use Dancer2::Test apps => ['t::lib::Foo', 't::lib::Bar'];
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

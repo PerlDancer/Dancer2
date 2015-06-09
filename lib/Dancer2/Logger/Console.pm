@@ -1,6 +1,6 @@
 package Dancer2::Logger::Console;
 # ABSTRACT: Console logger
-
+$Dancer2::Logger::Console::VERSION = '0.159002';
 use Moo;
 
 with 'Dancer2::Core::Role::Logger';
@@ -14,10 +14,28 @@ sub log {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Logger::Console - Console logger
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 This is a logging engine that allows you to print debug messages on the
 standard error output.
+
+=head1 METHODS
+
+=head2 log
+
+Writes the log message to the console.
 
 =head1 CONFIGURATION
 
@@ -28,10 +46,19 @@ There is no additional setting available with this engine.
 
 =head1 METHODS
 
-=method log
-
-Writes the log message to the console.
-
 =head1 SEE ALSO
 
 L<Dancer2::Core::Role::Logger>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

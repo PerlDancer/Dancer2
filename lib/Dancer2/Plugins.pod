@@ -1,7 +1,19 @@
 package Dancer2::Plugins;
 # ABSTRACT: Recommended Dancer2 plugins
+$Dancer2::Plugins::VERSION = '0.159002';
+__END__
 
 =pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Plugins - Recommended Dancer2 plugins
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 DESCRIPTION
 
@@ -109,5 +121,16 @@ cookie.
 More plugins are appearing on CPAN all the time - just search for
 C<Dancer2::Plugin> to see what may have been released since this document
 was last updated!
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

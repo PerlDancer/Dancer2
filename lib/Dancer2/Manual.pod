@@ -1,9 +1,19 @@
 # ABSTRACT: A gentle introduction to Dancer2
 package Dancer2::Manual;
+$Dancer2::Manual::VERSION = '0.159002';
+__END__
 
 =pod
 
-=encoding utf8
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Manual - A gentle introduction to Dancer2
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 DESCRIPTION
 
@@ -483,7 +493,7 @@ template engine.
         my $content     = ${$ref_content};
 
         # do something with $content
-        ${$ref_content} = $content;
+        $ref_content = \$content;
     };
 
 =item * C<before_layout_render>
@@ -564,7 +574,6 @@ receives the serialized content as an argument.
   };
 
 =back
-
 
 =head1 HANDLERS
 
@@ -665,7 +674,6 @@ For example, the default config file for any Dancer2 application is as follows:
         public_dir: /path/to/public
       AutoPage: 1
 
-
 =head1 ERRORS
 
 =head2 Default Error Pages
@@ -685,7 +693,7 @@ error page with the HTTP status code 500.
 It's possible either to display the content of the error message or to hide
 it with a generic error page.
 
-This is a choice left to the end-user and can be set with the B<show_errors>
+This is a choice left to the end-user and can be set with the B<show_stacktrace>
 setting.
 
 Note that you can also choose to consider all warnings in your route
@@ -1249,7 +1257,6 @@ template toolkit, your config file will look like this:
         template_toolkit:
           ENCODING: utf8
 
-
 =head1 STATIC FILES
 
 =head2 Static Directory
@@ -1279,7 +1286,6 @@ just do:
     get '/' => sub {
         send_file '/index.html'
     };
-
 
 =head1 FILE UPLOADS
 
@@ -1330,14 +1336,14 @@ file:
     # appdir/environments/development.yml
     log: 'debug'
     startup_info: 1
-    show_errors:  1
+    show_stacktrace:  1
 
 And in a production one:
 
     # appdir/environments/production.yml
     log: 'warning'
     startup_info: 0
-    show_errors:  0
+    show_stacktrace:  0
 
 Please note that you are not limited to writing configuration files in YAML.
 Dancer2 supports any file format that is supported by L<Config::Any>, such
@@ -1513,7 +1519,6 @@ Just call L<debug|Dancer2/debug>, L<info|Dancer2/info>,
 L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
 
     debug "This is a debug message from my app.";
-
 
 =head1 TESTING
 
@@ -2161,7 +2166,6 @@ want to pass the whole config object, it can be done like so:
     use SomeApp with => { %{config()} };
 
 =back
-
 
 =head1 DSL KEYWORDS
 
@@ -2903,7 +2907,6 @@ If you need to fetch the session ID being used for any reason:
 
     my $id = session->id;
 
-
 =head2 splat
 
 Returns the list of captures made from a route handler with a route pattern
@@ -3129,7 +3132,6 @@ versions:
         "i don't want to $$value_for{action} the $$value_for{object} $$value_for{id} !"
     };
 
-
 =head2 var
 
 Provides an accessor for variables shared between hooks and route
@@ -3165,3 +3167,16 @@ Logs a warning message through the current logger engine:
 
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log
 messages go.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

@@ -1,7 +1,7 @@
 # ABSTRACT: Dancer2's Domain Specific Language (DSL)
 
 package Dancer2::Core::DSL;
-
+$Dancer2::Core::DSL::VERSION = '0.159002';
 use Moo;
 use Carp;
 use Class::Load 'load_class';
@@ -415,7 +415,21 @@ sub log { shift->app->log(@_) }
 
 __END__
 
-=func setting
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::DSL - Dancer2's Domain Specific Language (DSL)
+
+=head1 VERSION
+
+version 0.159002
+
+=head1 FUNCTIONS
+
+=head2 setting
 
 Lets you define settings and access them:
     setting('foo' => 42);
@@ -424,7 +438,7 @@ Lets you define settings and access them:
 
 If settings were defined returns number of settings.
 
-=func set ()
+=head2 set ()
 
 alias for L<setting>:
     set('foo' => '42');
@@ -433,5 +447,16 @@ alias for L<setting>:
 =head1 SEE ALSO
 
 L<http://advent.perldancer.org/2010/18>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

@@ -1,6 +1,6 @@
 package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
-
+$Dancer2::Serializer::JSON::VERSION = '0.159002';
 use Moo;
 use JSON ();
 
@@ -45,31 +45,62 @@ sub deserialize {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Serializer::JSON - Serializer for handling JSON data
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 This is a serializer engine that allows you to turn Perl data structures into
 JSON output and vice-versa.
 
-=head1 METHODS
+=head1 ATTRIBUTES
 
-=attr content_type
+=head2 content_type
 
 Returns 'application/json'
 
-=func from_json($content, \%options)
+=head1 METHODS
+
+=head2 serialize($content)
+
+Serializes a Perl data structure into a JSON string.
+
+=head2 deserialize($content)
+
+Deserializes a JSON string into a Perl data structure.
+
+=head1 FUNCTIONS
+
+=head2 from_json($content, \%options)
 
 This is an helper available to transform a JSON data structure to a Perl data structures.
 
-=func to_json($content, \%options)
+=head2 to_json($content, \%options)
 
 This is an helper available to transform a Perl data structure to JSON.
 
 Calling this function will B<not> trigger the serialization's hooks.
 
-=method serialize($content)
+=head1 METHODS
 
-Serializes a Perl data structure into a JSON string.
+=head1 AUTHOR
 
-=method deserialize($content)
+Dancer Core Developers
 
-Deserializes a JSON string into a Perl data structure.
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

@@ -1,6 +1,6 @@
 package Dancer2::Handler::File;
 # ABSTRACT: class for handling file content rendering
-
+$Dancer2::Handler::File::VERSION = '0.159002';
 use Carp 'croak';
 use Moo;
 use HTTP::Date;
@@ -148,3 +148,30 @@ sub merge_paths {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Handler::File - class for handling file content rendering
+
+=head1 VERSION
+
+version 0.159002
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

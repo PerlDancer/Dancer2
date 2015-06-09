@@ -1,6 +1,6 @@
 package Dancer2::Core::Request::Upload;
 # ABSTRACT: Class representing file upload requests
-
+$Dancer2::Core::Request::Upload::VERSION = '0.159002';
 use Moo;
 
 use Carp;
@@ -81,71 +81,97 @@ sub type {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Request::Upload - Class representing file upload requests
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 This class implements a representation of file uploads for Dancer2.
 These objects are accessible within route handlers via the request->uploads
 keyword. See L<Dancer2::Core::Request> for details.
 
+=head1 ATTRIBUTES
 
-=attr filename
+=head2 filename
 
 Filename as sent by client. optional. May not be undef.
 
-=method my $filename=$upload->filename;
-
-Returns the filename (full path) as sent by the client.
-
-=attr tempname
+=head2 tempname
 
 The name of the temporary file the data has been saved to. Optional. May not be undef.
 
-=method my $tempname=$upload->tempname;
+=head2 headers
+
+A hash ref of the headers associated with this upload. optional. is read-write and a HashRef.
+
+=head2 size
+
+The size of the upload, in bytes. Optional.
+
+=head1 METHODS
+
+=head2 my $filename=$upload->filename;
+
+Returns the filename (full path) as sent by the client.
+
+=head2 my $tempname=$upload->tempname;
 
 Returns the name of the temporary file the data has been saved to.
 
 For example, in directory /tmp, and given a random name, with no file extension.
 
-=attr headers
-
-A hash ref of the headers associated with this upload. optional. is read-write and a HashRef.
-
-=method my $href=$upload->headers;
+=head2 my $href=$upload->headers;
 
 Returns a hashRef of the headers associated with this upload.
 
-=attr size
-
-The size of the upload, in bytes. Optional.
-
-=method my $fh=$upload->file_handle;
+=head2 my $fh=$upload->file_handle;
 
 Returns a read-only file handle on the temporary file.
 
-=method $upload->copy_to('/path/to/target')
+=head2 $upload->copy_to('/path/to/target')
 
 Copies the temporary file using File::Copy. Returns true for success,
 false for failure.
 
-=method $upload->link_to('/path/to/target');
+=head2 $upload->link_to('/path/to/target');
 
 Creates a hard link to the temporary file. Returns true for success,
 false for failure.
 
-=method my $content=$upload->content;
+=head2 my $content=$upload->content;
 
 Returns a scalar containing the contents of the temporary file.
 
-=method my $basename=$upload->basename;
+=head2 my $basename=$upload->basename;
 
 Returns basename for "filename".
 
-=method $upload->type
+=head2 $upload->type
 
 Returns the Content-Type of this upload.
 
 =head1 SEE ALSO
 
 L<Dancer2>
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

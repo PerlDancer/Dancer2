@@ -1,6 +1,6 @@
 package Dancer2::Core::Error;
 # ABSTRACT: Class representing fatal errors
-
+$Dancer2::Core::Error::VERSION = '0.159002';
 use Moo;
 use Carp;
 use Dancer2::Core::Types;
@@ -14,14 +14,14 @@ has app => (
     predicate => 'has_app',
 );
 
-has show_errors => (
+has show_stacktrace => (
     is      => 'ro',
     isa     => Bool,
     default => sub {
         my $self = shift;
 
         $self->has_app
-            and return $self->app->setting('show_errors');
+            and return $self->app->setting('show_stacktrace');
     },
 );
 
@@ -105,7 +105,7 @@ sub default_error_page {
         $self->app->request->uri_base : '';
 
     my $message = $self->message;
-    if ( $self->show_errors && $self->exception) {
+    if ( $self->show_stacktrace && $self->exception) {
         $message .= "\n" . $self->exception;
     }
 
@@ -269,8 +269,8 @@ sub _build_content {
         return $content if defined $content;
     }
 
-    # It doesn't make sense to return a static page if show_errors is on
-    if ( !$self->show_errors && (my $content = $self->static_page) ) {
+    # It doesn't make sense to return a static page if show_stacktrace is on
+    if ( !$self->show_stacktrace && (my $content = $self->static_page) ) {
         return $content;
     }
 
@@ -493,6 +493,18 @@ sub _html_encode {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Error - Class representing fatal errors
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 SYNOPSIS
 
     # taken from send_file:
@@ -513,44 +525,47 @@ instead of crashing the application and filling up the logs.
 This is usually used in debugging environments, and it's what Dancer2 uses as
 well under debugging to catch errors and show them on screen.
 
+=head1 ATTRIBUTES
 
-=method my $error=new Dancer2::Core::Error(status    => 404, message => "No such file: `$path'");
+=head2 show_stacktrace
 
-Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES.
+=head2 charset
 
-=method supported_hooks ();
-
-=attr show_errors
-
-=attr charset
-
-=attr type
+=head2 type
 
 The error type.
 
-=attr title
+=head2 title
 
 The title of the error page.
 
 This is only an attribute getter, you'll have to set it at C<new>.
 
-=attr status
+=head2 status
 
 The status that caused the error.
 
 This is only an attribute getter, you'll have to set it at C<new>.
 
-=attr message
+=head2 message
 
 The message of the error page.
 
-=method throw($response)
+=head1 METHODS
+
+=head2 my $error=new Dancer2::Core::Error(status    => 404, message => "No such file: `$path'");
+
+Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES.
+
+=head2 supported_hooks ();
+
+=head2 throw($response)
 
 Populates the content of the response with the error's information.
 If I<$response> is not given, acts on the I<app>
 attribute's response.
 
-=method backtrace
+=head2 backtrace
 
 Create a backtrace of the code where the error is caused.
 
@@ -559,35 +574,48 @@ error message (using the C<message> attribute) and tries to parse it (supporting
 the regular/default Perl warning or error pattern and the L<Devel::SimpleTrace>
 output) and then returns an error-highlighted C<message>.
 
-=method tabulate
+=head2 tabulate
 
 Small subroutine to help output nicer.
+
+=head2 environment
+
+A main function to render environment information: the caller (using
+C<get_caller>), the settings and environment (using C<dumper>) and more.
+
+=head2 get_caller
+
+Creates a stack trace of callers.
+
+=head1 FUNCTIONS
+
+=head2 _censor
+
+An private function that tries to censor out content which should be protected.
+
+C<dumper> calls this method to censor things like passwords and such.
+
+=head2 my $string=_html_encode ($string);
+
+Private function that replaces illegal entities in (X)HTML with their
+escaped representations.
+
+html_encode() doesn't do any UTF black magic.
 
 =head2 dumper
 
 This uses L<Data::Dumper> to create nice content output with a few predefined
 options.
 
-=method environment
+=head1 AUTHOR
 
-A main function to render environment information: the caller (using
-C<get_caller>), the settings and environment (using C<dumper>) and more.
+Dancer Core Developers
 
-=method get_caller
+=head1 COPYRIGHT AND LICENSE
 
-Creates a stack trace of callers.
+This software is copyright (c) 2015 by Alexis Sukrieh.
 
-=func _censor
-
-An private function that tries to censor out content which should be protected.
-
-C<dumper> calls this method to censor things like passwords and such.
-
-=func my $string=_html_encode ($string);
-
-Private function that replaces illegal entities in (X)HTML with their
-escaped representations.
-
-html_encode() doesn't do any UTF black magic.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

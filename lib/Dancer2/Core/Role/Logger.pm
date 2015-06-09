@@ -1,6 +1,6 @@
 package Dancer2::Core::Role::Logger;
 # ABSTRACT: Role for logger engines
-
+$Dancer2::Core::Role::Logger::VERSION = '0.159002';
 use Dancer2::Core::Types;
 
 use Moo::Role;
@@ -186,6 +186,18 @@ sub error {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Role::Logger - Role for logger engines
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Any class that consumes this role will be able to implement to write log messages.
@@ -193,53 +205,17 @@ Any class that consumes this role will be able to implement to write log message
 In order to implement this role, the consumer B<must> implement the C<log>
 method. This method will receives as argument the C<level> and the C<message>.
 
-=head1 CONFIGURATION
+=head1 ATTRIBUTES
 
-The B<logger> configuration variable tells Dancer2 which engine to use.
-
-You can change it either in your config.yml file:
-
-    # logging to console
-    logger: "console"
-
-The log format can also be configured,
-please see L<Dancer2::Core::Role::Logger/"log_format"> for details.
-
-=head1 METHODS
-
-=method core
-
-Log messages as B<core>.
-
-=method debug
-
-Log messages as B<debug>.
-
-=method info
-
-Log messages as B<info>.
-
-=method warning
-
-Log messages as B<warning>.
-
-=method error
-
-Log messages as B<error>.
-
-=method format_message
-
-Provides a common message formatting.
-
-=attr auto_encoding_charset
+=head2 auto_encoding_charset
 
 Charset to use when writing a message.
 
-=attr app_name
+=head2 app_name
 
 Name of the application. Can be used in the message.
 
-=attr log_format
+=head2 log_format
 
 This is a format string (or a preset name) to specify the log format.
 
@@ -305,6 +281,59 @@ header value
 
 =back
 
-=attr log_level
+=head2 log_level
 
 Level to use by default.
+
+=head1 METHODS
+
+=head2 core
+
+Log messages as B<core>.
+
+=head2 debug
+
+Log messages as B<debug>.
+
+=head2 info
+
+Log messages as B<info>.
+
+=head2 warning
+
+Log messages as B<warning>.
+
+=head2 error
+
+Log messages as B<error>.
+
+=head2 format_message
+
+Provides a common message formatting.
+
+=head1 CONFIGURATION
+
+The B<logger> configuration variable tells Dancer2 which engine to use.
+
+You can change it either in your config.yml file:
+
+    # logging to console
+    logger: "console"
+
+The log format can also be configured,
+please see L<Dancer2::Core::Role::Logger/"log_format"> for details.
+
+=head1 METHODS
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

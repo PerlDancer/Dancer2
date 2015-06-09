@@ -1,6 +1,6 @@
 package Dancer2::Logger::File;
 # ABSTRACT: file-based logging engine for Dancer2
-
+$Dancer2::Logger::File::VERSION = '0.159002';
 use Carp 'carp';
 use Moo;
 use Dancer2::Core::Types;
@@ -101,12 +101,30 @@ sub log {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Logger::File - file-based logging engine for Dancer2
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 This is a logging engine that allows you to save your logs to files on disk.
 
 Logs are not automatically rotated.  Use a log rotation tool like
 C<logrotate> in C<copytruncate> mode.
+
+=head1 METHODS
+
+=head2 log($level, $message)
+
+Writes the log message to the file.
 
 =head1 CONFIGURATION
 
@@ -115,8 +133,7 @@ engine in a Dancer2 application.
 
 The follow attributes are supported:
 
-=for :list
-* log_dir -- directory path to hold log files. Defaults to F<logs> in the application directory
+=for :list * log_dir -- directory path to hold log files. Defaults to F<logs> in the application directory
 * file_name -- the name of the log file. Defaults to the environment name with a F<.log> suffix
 
 Here is an example configuration that use this logger and stores logs in F</var/log/myapp>:
@@ -129,9 +146,17 @@ Here is an example configuration that use this logger and stores logs in F</var/
         log_dir: "/var/log/myapp"
         file_name: "myapp.log"
 
-
 =head1 METHODS
 
-=method log($level, $message)
+=head1 AUTHOR
 
-Writes the log message to the file.
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

@@ -1,6 +1,6 @@
 package Dancer2::Core::Role::SessionFactory::File;
 # ABSTRACT: Role for file-based session factories
-
+$Dancer2::Core::Role::SessionFactory::File::VERSION = '0.159002';
 use Moo::Role;
 with 'Dancer2::Core::Role::SessionFactory';
 
@@ -100,6 +100,18 @@ sub _flush {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Role::SessionFactory::File - Role for file-based session factories
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 This is a specialized SessionFactory role for storing session
@@ -110,7 +122,6 @@ serialization and deserialization.
 
 Classes consuming this must satisfy three requirements: C<_suffix>,
 C<_freeze_to_handle> and C<_thaw_from_handle>.
-
 
     package Dancer2::SessionFactory::XYX
 
@@ -143,8 +154,21 @@ C<_freeze_to_handle> and C<_thaw_from_handle>.
 
     1;
 
-=attr session_dir
+=head1 ATTRIBUTES
+
+=head2 session_dir
 
 Where to store the session files.  Defaults to "./sessions".
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

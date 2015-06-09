@@ -1,6 +1,6 @@
 package Dancer2::Core::Runner;
 # ABSTRACT: Top-layer class to start a dancer app
-
+$Dancer2::Core::Runner::VERSION = '0.159002';
 use Moo;
 use Carp 'croak';
 use Dancer2::Core::MIME;
@@ -246,3 +246,30 @@ sub print_banner {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Runner - Top-layer class to start a dancer app
+
+=head1 VERSION
+
+version 0.159002
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

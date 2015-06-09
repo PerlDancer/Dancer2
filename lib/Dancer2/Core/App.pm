@@ -1,6 +1,6 @@
 # ABSTRACT: encapsulation of Dancer2 packages
 package Dancer2::Core::App;
-
+$Dancer2::Core::App::VERSION = '0.159002';
 use Moo;
 use Carp               'croak';
 use Scalar::Util       'blessed';
@@ -550,14 +550,12 @@ sub _build_default_config {
 sub _init_hooks {
     my $self = shift;
 
-    # Hook to flush the session at the end of the request,
-    # this way, we're sure we flush only once per request
-    #
-    # Note: we create a weakened copy $self
-    # before closing over the weakened copy
-    # to avoid circular memory refs.
+ # Hook to flush the session at the end of the request, this way, we're sure we
+ # flush only once per request
+ #
+ # Note: we create a weakened copy $self before closing over the weakened copy
+ # to avoid circular memory refs.
     Scalar::Util::weaken(my $app = $self);
-
     $self->add_hook(
         Dancer2::Core::Hook->new(
             name => 'core.app.after_request',
@@ -842,17 +840,15 @@ sub compile_hooks {
     for my $position ( $self->supported_hooks ) {
         my $compiled_hooks = [];
         for my $hook ( @{ $self->hooks->{$position} } ) {
-            Scalar::Util::weaken( my $app = $self );
             my $compiled = sub {
                 # don't run the filter if halt has been used
-                $Dancer2::Core::Route::RESPONSE &&
-                $Dancer2::Core::Route::RESPONSE->is_halted
+                $self->has_response && $self->response->is_halted
                     and return;
 
                 eval  { $hook->(@_); 1; }
                 or do {
-                    $app->cleanup;
-                    $app->log('error', "Exception caught in '$position' filter: $@");
+                    $self->cleanup;
+                    $self->log('error', "Exception caught in '$position' filter: $@");
                     croak "Exception caught in '$position' filter: $@";
                 };
             };
@@ -1085,16 +1081,14 @@ sub to_app {
     $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
-    # Construct the statis app to avoid a closure over $psgi
-    my $static_content = Plack::Middleware::Static->wrap(
-        $psgi,
-        path => sub { -f path( $self->config->{public_dir}, shift ) },
-        root => $self->config->{public_dir},
-        content_type => sub { $self->mime_type->for_name(shift) },
-    );
     $psgi = Plack::Middleware::Conditional->wrap(
         $psgi,
-        builder => sub { $static_content },
+        builder => sub { Plack::Middleware::Static->wrap(
+            $psgi,
+            path => sub { -f path( $self->config->{public_dir}, shift ) },
+            root => $self->config->{public_dir},
+            content_type => sub { $self->mime_type->for_name(shift) },
+        ) },
         condition => sub { $self->config->{static_handler} },
     );
 
@@ -1319,6 +1313,18 @@ sub response_not_found {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::App - encapsulation of Dancer2 packages
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Everything a package that uses Dancer2 does is encapsulated into a
@@ -1331,35 +1337,71 @@ the hooks that are defined in the calling package.
 Note that with Dancer2, everything that is done within a package is scoped to
 that package, thanks to that encapsulation.
 
-=attr plugins
+=head1 ATTRIBUTES
 
-=attr runner_config
+=head2 plugins
 
-=attr default_config
+=head2 runner_config
 
-=attr with_return
+=head2 default_config
+
+=head2 with_return
 
 Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
 
-=method has_session
-
-Returns true if session engine has been defined and if either a session
-object has been instantiated or if a session cookie was found and not
-subsequently invalidated.
-
-=attr destroyed_session
+=head2 destroyed_session
 
 We cache a destroyed session here; once this is set we must not attempt to
 retrieve the session from the cookie in the request.  If no new session is
 created, this is set (with expiration) as a cookie to force the browser to
 expire the cookie.
 
-=method destroy_session
+=head1 METHODS
+
+=head2 has_session
+
+Returns true if session engine has been defined and if either a session
+object has been instantiated or if a session cookie was found and not
+subsequently invalidated.
+
+=head2 destroy_session
 
 Destroys the current session and ensures any subsequent session is created
 from scratch and not from the request session cookie
 
-=method register_plugin
+=head2 register_plugin
+
+=head2 redirect($destination, $status)
+
+Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
+be made into an absolute URI, relative to the URI in the request.
+
+=head2 halt
+
+Flag the response object as 'halted'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher and after hooks will not be run.
+
+=head2 pass
+
+Flag the response object as 'passed'.
+
+If called during request dispatch, immediatly returns the response
+to the dispatcher.
+
+=head2 forward
+
+Create a new request which is a clone of the current one, apart
+from the path location, which points instead to the new location.
+This is used internally to chain requests using the forward keyword.
+
+Note that the new location should be a hash reference. Only one key is
+required, the C<to_url>, that should point to the URL that forward
+will use. Optional values are the key C<params> to a hash of
+parameters to be added to the current request parameters, and the key
+C<options> that points to a hash of options about the redirect (for
+instance, C<method> pointing to a new request method).
 
 =head2 lexical_prefix
 
@@ -1400,40 +1442,6 @@ Sugar for getting the ordered list of all registered route regexps by method.
 
 Returns an ArrayRef with the results.
 
-=method redirect($destination, $status)
-
-Sets a redirect in the response object.  If $destination is not an absolute URI, then it will
-be made into an absolute URI, relative to the URI in the request.
-
-=method halt
-
-Flag the response object as 'halted'.
-
-If called during request dispatch, immediatly returns the response
-to the dispatcher and after hooks will not be run.
-
-=method pass
-
-Flag the response object as 'passed'.
-
-If called during request dispatch, immediatly returns the response
-to the dispatcher.
-
-=method forward
-
-Create a new request which is a clone of the current one, apart
-from the path location, which points instead to the new location.
-This is used internally to chain requests using the forward keyword.
-
-This method takes 3 parameters: the url to forward to, followed by an
-optional hashref of parameters added to the current request parameters,
-followed by a hashref of options regarding the redirect, such as
-C<method> to change the request method.
-
-For example:
-
-    forward '/login', { login_failed => 1 }, { method => 'GET' });
-
 =head2 app
 
 Returns itself. This is simply available as a shim to help transition from
@@ -1460,3 +1468,15 @@ to make it work.
         my $app        = $WannaBeContext->app; # works
     };
 
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

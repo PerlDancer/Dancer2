@@ -1,7 +1,7 @@
 # ABSTRACT: Role for template engines
 
 package Dancer2::Core::Role::Template;
-
+$Dancer2::Core::Role::Template::VERSION = '0.159002';
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw'path';
 use Carp 'croak';
@@ -213,6 +213,18 @@ sub process {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Role::Template - Role for template engines
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Any class that consumes this role will be able to be used as a template engine
@@ -230,52 +242,69 @@ In order to implement this role, the consumer B<must> implement the method C<ren
 
 =back
 
-=head1 METHODS
+=head1 ATTRIBUTES
 
-=attr name
+=head2 name
 
 The name of the template engine (e.g.: Simple).
 
-=attr charset
+=head2 charset
 
 The charset.  The default value is B<UTF-8>.
 
-=attr default_tmpl_ext
+=head2 default_tmpl_ext
 
 The default file extension.  If not provided, B<tt> is used.
 
-=attr views
+=head2 views
 
 Path to the directory containing the views.
 
-=attr layout
+=head2 layout
 
 Path to the directory containing the layouts.
 
-=attr layout_dir
+=head2 layout_dir
 
 Relative path to the layout directory.
 
 Default: B<layouts>.
 
-=attr engine
+=head2 engine
 
 Contains the engine.
 
-=method view_pathname($view)
+=head1 METHODS
+
+=head2 view_pathname($view)
 
 Returns the full path to the requested view.
 
-=method layout_pathname($layout)
+=head2 layout_pathname($layout)
 
 Returns the full path to the requested layout.
 
-=method render_layout($layout, \%tokens, \$content)
+=head2 render_layout($layout, \%tokens, \$content)
 
 Render the layout with the applied tokens
 
-=method apply_renderer($view, \%tokens)
+=head2 apply_renderer($view, \%tokens)
 
-=method apply_layout($content, \%tokens, \%options)
+=head2 apply_layout($content, \%tokens, \%options)
 
-=method process($view, \%tokens, \%options)
+=head2 process($view, \%tokens, \%options)
+
+=head1 METHODS
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

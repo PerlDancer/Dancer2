@@ -1,6 +1,6 @@
 package Dancer2::Core::Role::Serializer;
 # ABSTRACT: Role for Serializer engines
-
+$Dancer2::Core::Role::Serializer::VERSION = '0.159002';
 use Moo::Role;
 use Try::Tiny;
 use Dancer2::Core::Types;
@@ -81,6 +81,18 @@ sub support_content_type {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::Role::Serializer - Role for Serializer engines
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 Any class that consumes this role will be able to be used as a
@@ -90,15 +102,17 @@ In order to implement this role, the consumer B<must> implement the
 methods C<serialize> and C<deserialize>, and should define
 the C<content_type> attribute value.
 
-=head1 METHODS
+=head1 ATTRIBUTES
 
-=attr content_type
+=head2 content_type
 
 The I<content type> of the object after being serialized. For example,
 a JSON serializer would have a I<application/json> content type
 defined.
 
-=method serialize($content, [\%options])
+=head1 METHODS
+
+=head2 serialize($content, [\%options])
 
 The serialize method need to be implemented by the consumer. It
 receives the serializer class object and a reference to the object to
@@ -111,7 +125,7 @@ serializer.
 The serialize method must return bytes and therefore has to handle any
 encoding.
 
-=method deserialize($content, [\%options])
+=head2 deserialize($content, [\%options])
 
 The inverse method of C<serialize>. Receives the serializer class
 object and a string that should be deserialized. The method should
@@ -123,3 +137,17 @@ serializer.
 The deserialize method receives encoded bytes and must therefore
 handle any decoding required.
 
+=head1 METHODS
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

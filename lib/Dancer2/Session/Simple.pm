@@ -1,6 +1,6 @@
 package Dancer2::Session::Simple;
 # ABSTRACT: in-memory session backend for Dancer2
-
+$Dancer2::Session::Simple::VERSION = '0.159002';
 use Moo;
 use Dancer2::Core::Types;
 use Carp;
@@ -39,6 +39,18 @@ sub _flush {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Session::Simple - in-memory session backend for Dancer2
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 DESCRIPTION
 
 This module implements a very simple session backend, holding all session data
@@ -59,5 +71,16 @@ engine in a Dancer2 application.
 =head1 SEE ALSO
 
 See L<Dancer2::Core::Session> for details about session usage in route handlers.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

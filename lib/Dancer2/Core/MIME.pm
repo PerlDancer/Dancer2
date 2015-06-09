@@ -1,7 +1,7 @@
 # ABSTRACT: Class to ease manipulation of MIME types
 
 package Dancer2::Core::MIME;
-
+$Dancer2::Core::MIME::VERSION = '0.159002';
 use Moo;
 
 use Class::Load 'try_load_class';
@@ -81,6 +81,18 @@ sub for_name {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Core::MIME - Class to ease manipulation of MIME types
+
+=head1 VERSION
+
+version 0.159002
+
 =head1 SYNOPSIS
 
     use Dancer2::Core::MIME;
@@ -150,3 +162,16 @@ This method gets MIME type for a file based on extension.
 
 This method sets the customized MIME name or default MIME type into a content
 type.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

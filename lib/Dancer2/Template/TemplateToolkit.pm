@@ -1,7 +1,7 @@
 # ABSTRACT: Template toolkit engine for Dancer2
 
 package Dancer2::Template::TemplateToolkit;
-
+$Dancer2::Template::TemplateToolkit::VERSION = '0.159002';
 use Moo;
 use Carp qw/croak/;
 use Dancer2::Core::Types;
@@ -43,13 +43,25 @@ sub render {
     my $charset = $self->charset;
     my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
     $self->engine->process( $template, $tokens, \$content, @options )
-      or croak $self->engine->error;
+      or croak "Templating Engine Error, Failed to render template! " . $self->engine->error;
     return $content;
 }
 
 1;
 
 __END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Template::TemplateToolkit - Template toolkit engine for Dancer2
+
+=head1 VERSION
+
+version 0.159002
 
 =head1 SYNOPSIS
 
@@ -67,7 +79,9 @@ setting it manually with C<set>:
 
 This template engine allows you to use L<Template::Toolkit> in L<Dancer2>.
 
-=method render($template, \%tokens)
+=head1 METHODS
+
+=head2 render($template, \%tokens)
 
 Renders the template.  The first arg is a filename for the template file
 or a reference to a string that contains the template.  The second arg
@@ -77,3 +91,16 @@ L<Template::Toolkit> for rendering.
 =head1 SEE ALSO
 
 L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Toolkit>.
+
+=head1 AUTHOR
+
+Dancer Core Developers
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Alexis Sukrieh.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
