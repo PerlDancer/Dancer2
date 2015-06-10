@@ -1,13 +1,18 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Sanitize Changes
+
 0.160003  2015-06-06 11:09:00+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #921, #922: Plack >= 1.0035. (Russell Jenkins, Alberto Simões)
 
 0.160002  2015-06-04 13:03:38+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
     * GH #920: Sanitize session IDs in file-based sessions.
       (Russell Jenkins, Andrew Beverley)
-    * GH #921, #922: Plack >= 1.0035. (Russell Jenkins, Alberto Simões)
 
     [ DOCUMENTATION ]
     * GH #908: Cleanup Dancer references in DBIC section of cookbook
