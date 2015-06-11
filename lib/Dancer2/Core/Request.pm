@@ -186,7 +186,7 @@ sub BUILDARGS {
 sub host {
     my ($self) = @_;
 
-    if ( $self->is_behind_proxy ) {
+    if ( $self->is_behind_proxy and exists $self->env->{HTTP_X_FORWARDED_HOST} ) {
         my @hosts = split /\s*,\s*/, $self->env->{HTTP_X_FORWARDED_HOST}, 2;
         return $hosts[0];
     } else {
