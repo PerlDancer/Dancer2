@@ -440,24 +440,24 @@ subtest 'is_$method (head/post/get/put/delete/patch' => sub {
 };
 
 subtest 'Parameters (body/query/route)' => sub {
-    diag $Dancer2::Core::Request::XS_URL_DECODE ?
+    note $Dancer2::Core::Request::XS_URL_DECODE ?
          'Running test with XS_URL_DECODE'      :
          'Running test without XS_URL_DECODE';
 
-    diag $Dancer2::Core::Request::XS_PARSE_QUERY_STRING ?
+    note $Dancer2::Core::Request::XS_PARSE_QUERY_STRING ?
          'Running test with XS_PARSE_QUERY_STRING'      :
          'Running test without XS_PARSE_QUERY_STRING';
 
     test_all_params;
 
     if ( $Dancer2::Core::Request::XS_PARSE_QUERY_STRING ) {
-        diag 'Running test without XS_PARSE_QUERY_STRING';
+        note 'Running test without XS_PARSE_QUERY_STRING';
         $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
         test_all_params;
     }
 
     if ( $Dancer2::Core::Request::XS_URL_DECODE ) {
-        diag 'Running test without XS_URL_DECODE';
+        note 'Running test without XS_URL_DECODE';
         $Dancer2::Core::Request::XS_URL_DECODE = 0;
         test_all_params;
     }
