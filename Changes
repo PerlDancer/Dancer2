@@ -7,6 +7,9 @@
     [ DOCUMENTATION ]
     * Sanitize Changes
 
+    [ ENHANCEMENT ]
+    * GH:933: use note in tests to produce cleaner non-verbose output (Vernon)
+
 0.160003  2015-06-06 11:09:00+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
