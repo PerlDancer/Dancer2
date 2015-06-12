@@ -187,7 +187,11 @@ sub host {
     my ($self) = @_;
 
     if ( $self->is_behind_proxy ) {
-        my @hosts = split /\s*,\s*/, $self->env->{HTTP_X_FORWARDED_HOST}, 2;
+        my $env_host = $self->env->{HTTP_X_FORWARDED_HOST}
+            or croak "No HTTP_X_FORWARDED_HOST received from proxy. "
+                ."It's possible that either this request or an earlier "
+                ."request by another client were made using HTTP/1.0.";
+        my @hosts = split /\s*,\s*/, $env_host, 2;
         return $hosts[0];
     } else {
         return $self->env->{'HTTP_HOST'};
