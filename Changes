@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #915, #930: Check existance of optional extension headers when
+    behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
+
     [ DOCUMENTATION ]
     * Sanitize Changes
 
