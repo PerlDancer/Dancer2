@@ -238,18 +238,18 @@ sub run_test {
       'params are not touched';
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
-diag "Run test with XS_PARSE_QUERY_STRING"
+note "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
+note "Run test with XS_PARSE_QUERY_STRING"
   if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
 if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
-    diag "Run test without XS_PARSE_QUERY_STRING";
+    note "Run test without XS_PARSE_QUERY_STRING";
     $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
     $Dancer2::Core::Request::_count                = 1;
     run_test();
 }
 if ($Dancer2::Core::Request::XS_URL_DECODE) {
-    diag "Run test without XS_URL_DECODE";
+    note "Run test without XS_URL_DECODE";
     $Dancer2::Core::Request::XS_URL_DECODE = 0;
     $Dancer2::Core::Request::_count        = 1;
     run_test();
