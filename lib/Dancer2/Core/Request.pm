@@ -477,8 +477,11 @@ sub _build_params {
 
     # and merge everything
     $self->{_params} = {
-        %$previous,                %{ $self->_query_params || {} },
-        %{ $self->_route_params }, %{ $self->_body_params  || {} },
+        map +( ref $_ eq 'HASH' ? %{$_} : () ),
+        $previous,
+        $self->_query_params,
+        $self->_route_params,
+        $self->_body_params,
     };
 
 }
