@@ -89,7 +89,7 @@ sub _build_static_page {
 
     my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
 
-    open my $fh, $filename or return;
+    open my $fh, '<', $filename or return;
 
     local $/ = undef;    # slurp time
 
