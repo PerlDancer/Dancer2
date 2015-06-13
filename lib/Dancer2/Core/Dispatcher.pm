@@ -42,7 +42,10 @@ sub dispatch {
             # the app raised a flag saying it couldn't match anything
             # which is different than "I matched and it's a 404"
             delete Dancer2->runner->{'internal_404'}
-                or return $response;
+                or do {
+                    delete Dancer2->runner->{'internal_request'};
+                    return $response;
+                };
         }
 
         # don't run anymore
