@@ -744,7 +744,8 @@ in scalar.
 
 =method headers
 
-Returns an L<HTTP::Headers> object representing the headers.
+Returns either an L<HTTP::Headers> or an L<HTTP::Headers::Fast> object
+representing the headers.
 
 =method id
 
