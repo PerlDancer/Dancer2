@@ -129,13 +129,19 @@ the B<--port> switch.
 =head3 behind_proxy (boolean)
 
 If set to true, Dancer2 will look to C<X-Forwarded-Protocol> and
-C<X-Forwarded-host> when constructing URLs (for example, when using
-C<redirect>). This is useful if your application is behind a proxy.
+C<X-Forwarded-host> when constructing URLs (for example, when using C<redirect>
+or C<host>). This is useful if your application is behind a proxy.
 
-Note that if you are using Apache and want to retrieve the protocol,
-then you will need to manually specify it in your Apache config:
+B<Note>: If either of these are missing, the values of the proxy server will be
+used instead. For example, if the client sends a HTTP/1.0 request to a proxy
+that is hosted locally, then C<host> will return the value "localhost". In a
+similar vein, if the client makes a secure connection to the proxy, but the
+proxy does not pass C<X-Forwarded-Protocol>, then C<base> will return
+"http://...".  For these reasons, it is recommended that the values are
+hard-configured in the proxy if possible. For Apache this would be:
 
     RequestHeader set X_FORWARDED_PROTO "https"
+    RequestHeader set X_FORWARDED_HOST "www.example.com"
 
 =head2 Content type / character set
 
