@@ -6,6 +6,7 @@
 
     [ DOCUMENTATION ]
     * Sanitize Changes
+    * GH #938: Fix POD link to params keyword. (Ludovic Tolhurst-Cleaver)
 
     [ ENHANCEMENT ]
     * GH #933: use note in tests to produce cleaner non-verbose output (Vernon)
