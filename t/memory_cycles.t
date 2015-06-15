@@ -24,7 +24,7 @@ try_load_class('Test::Memory::Cycle')
 my $app = MyApp::Cycles->to_app;
 
 my $runner = Dancer2->runner;
-memory_cycle_ok( $runner, "runner has no memory cycles" );
-memory_cycle_ok( $app, "App has no memory cycles" );
+Test::Memory::Cycle::memory_cycle_ok( $runner, "runner has no memory cycles" );
+Test::Memory::Cycle::memory_cycle_ok( $app, "App has no memory cycles" );
 
 done_testing();
