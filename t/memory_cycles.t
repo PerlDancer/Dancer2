@@ -2,9 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Fatal;
-use Test::Memory::Cycle;
-
+use Class::Load 'try_load_class';
 use Plack::Test;
+
+try_load_class('Test::Memory::Cycle')
+    or plan skip_all => 'Test::Memory::Cycle not present';
 
 {
 
