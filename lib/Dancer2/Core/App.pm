@@ -187,8 +187,10 @@ sub _build_session_engine {
 
     Scalar::Util::weaken( my $weak_self = $self );
 
+    # Note that engine options will replace the default session_dir (if provided).
     return $self->_factory->create(
         session         => $value,
+        session_dir     => path( $self->config->{appdir}, 'sessions' ),
         %{$engine_options},
         postponed_hooks => $self->postponed_hooks,
 
