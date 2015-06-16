@@ -8,12 +8,16 @@ use Class::Load 'try_load_class';
 {
     package App::CBOR; ## no critic
     use Dancer2;
-    set serializer => 'CBOR';
-    post '/' => sub {
-        ::is_deeply( +{ params() }, +{}, 'Empty parameters' );
-        ::is( request->data, 'Foo', 'Correct data using request->data' );
-        return 'ok';
-    };
+
+    # postpone
+    sub setup {
+        set serializer => 'CBOR';
+        post '/' => sub {
+            ::is_deeply( +{ params() }, +{}, 'Empty parameters' );
+            ::is( request->data, 'Foo', 'Correct data using request->data' );
+            return 'ok';
+        };
+    }
 }
 
 subtest 'Testing with CBOR' => sub {
@@ -23,6 +27,7 @@ subtest 'Testing with CBOR' => sub {
     try_load_class('Dancer2::Serializer::CBOR')
         or plan skip_all => 'Dancer2::Serializer::CBOR is needed for this test';
 
+    App::CBOR->setup;
     my $app = Plack::Test->create( App::CBOR->to_app );
     my $res = $app->request(
         POST '/',
