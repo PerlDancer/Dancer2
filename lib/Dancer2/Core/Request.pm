@@ -17,25 +17,6 @@ use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
 use Dancer2::Core::Cookie;
 
-# comes from Dancer2::Core::Role::Headers
-# ("headers" attribute is available in Plack::Request already)
-sub headers_to_array {
-    my $self = shift;
-
-    my $headers = [
-        map {
-            my $k = $_;
-            map {
-                my $v = $_;
-                $v =~ s/^(.+)\r?\n(.*)$/$1\r\n $2/;
-                ( $k => $v )
-            } $self->headers->header($_);
-          } $self->headers->header_field_names
-    ];
-
-    return $headers;
-}
-
 # add an attribute for each HTTP_* variables
 # (HOST is managed manually)
 my @http_env_keys = (qw/
