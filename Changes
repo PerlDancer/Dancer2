@@ -1,12 +1,14 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * GH #915, #930: Check existance of optional extension headers when
+    * GH #915, #930: Check existence of optional extension headers when
     behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
 
     [ DOCUMENTATION ]
     * Sanitize Changes
     * GH #938: Fix POD link to params keyword. (Ludovic Tolhurst-Cleaver)
+    * GH #935: Provide more details and considerations when using
+      behind_proxy. (Andy Beverley)
 
     [ ENHANCEMENT ]
     * GH #933: use note in tests to produce cleaner non-verbose output (Vernon)
