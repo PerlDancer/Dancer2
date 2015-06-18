@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #915, #930: Check existence of optional extension headers when
     behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
+    * GH #926, #940: Set session directory default to $apprdir/session.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * Sanitize Changes
