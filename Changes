@@ -19,6 +19,8 @@
     * GH #933: use note in tests to produce cleaner non-verbose output (Vernon)
     * Remove unnecessary dependencies: build chain should be smaller. (Sawyer X)
     * No need for Module::Build. (Sawyer X)
+    * GH #911: Dancer2 request object is now a subclass of Plack::Request.
+               It's also much faster now. (Sawyer X)
 
 0.160003  2015-06-06 11:09:00+02:00 Europe/Amsterdam
 
