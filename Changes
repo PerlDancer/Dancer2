@@ -7,6 +7,7 @@
       (Russell Jenkins)
     * GH #936, #939: Use the error_template configuration on a 404.
       (Russell Jenkins)
+    * GH #844, #937: Non-hash serialized params do not cause a crash. (Sawyer X)
 
     [ DOCUMENTATION ]
     * Sanitize Changes
