@@ -304,10 +304,17 @@ has name => (
 has request => (
     is        => 'ro',
     isa       => InstanceOf['Dancer2::Core::Request'],
-    writer    => 'set_request',
+    writer    => '_set_request',
     clearer   => 'clear_request',
     predicate => 'has_request',
 );
+
+sub set_request {
+    my ($self, $request) = @_;
+    # populate request in app and all engines
+    $self->_set_request($request);
+    $_->set_request( $request ) for $self->defined_engines;
+}
 
 has response => (
     is        => 'ro',
@@ -1221,7 +1228,6 @@ DISPATCH:
 
         # Add request to app and engines
         $self->set_request($request);
-        $_->set_request( $request ) for $self->defined_engines;
 
         $self->log( core => "looking for $http_method $path_info" );
 

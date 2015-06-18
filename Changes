@@ -5,6 +5,8 @@
     behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
     * GH #926, #940: Set session directory default to $apprdir/session.
       (Russell Jenkins)
+    * GH #936, #939: Use the error_template configuration on a 404.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * Sanitize Changes
