@@ -1398,6 +1398,11 @@ a content like the following:
 
     {"number":100234,"foo":42,"list":["one","two","three"]}
 
+If you send a value which is validated serialized data, but is not in the
+form a key and value pair (such as a serialized string or a JSON array), the
+data will not be available in C<params> but will be available in
+C<< request->data >>.
+
 The following serializers are available, be aware they dynamically depend on
 Perl modules you may not have on your system.
 
