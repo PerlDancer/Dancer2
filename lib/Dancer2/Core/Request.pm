@@ -195,7 +195,7 @@ sub deserialize {
     # returns characters and skipping the decode op in the setter ensures
     # that numerical data "stays" numerical; decoding an SV that is an IV
     # converts that to a PVIV. Some serializers are picky (JSON)..
-    $self->{_body_params} = $data;
+    $self->{_body_params} = ref $data eq 'HASH' ? $data : {};
     $self->_build_params();
 
     return $data;
