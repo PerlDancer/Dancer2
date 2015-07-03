@@ -17,10 +17,6 @@ use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
 
-with qw<
-    Dancer2::Core::Role::Response
->;
-
 has headers => (
     is     => 'rw',
     isa    => AnyOf[ InstanceOf ['HTTP::Headers::Fast'], InstanceOf ['HTTP::Headers'] ],
