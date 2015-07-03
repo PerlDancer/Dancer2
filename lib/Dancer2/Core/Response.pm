@@ -12,6 +12,7 @@ use Dancer2::Core::HTTP;
 
 use HTTP::Headers::Fast;
 use Scalar::Util qw(blessed);
+use Plack::Util;
 
 use overload
   '@{}' => sub { $_[0]->to_psgi },
@@ -35,20 +36,21 @@ has headers => (
 );
 
 sub headers_to_array {
-    my $self = shift;
+    my $self    = shift;
+    my $headers = shift || $self->headers;
 
-    my $headers = [
+    my $headers_arrayref = [
         map {
             my $k = $_;
             map {
                 my $v = $_;
                 $v =~ s/^(.+)\r?\n(.*)$/$1\r\n $2/;
                 ( $k => $v )
-            } $self->headers->header($_);
-          } $self->headers->header_field_names
+            } $headers->header($_);
+          } $headers->header_field_names
     ];
 
-    return $headers;
+    return $headers_arrayref;
 }
 
 # boolean to tell if the route passes or not
@@ -160,11 +162,25 @@ sub to_psgi {
     Dancer2->runner->config->{'no_server_tokens'}
         or $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
 
+    my $headers = $self->headers;
+    my $status  = $self->status;
+
+    Plack::Util::status_with_no_entity_body($status)
+        and return [ $status, $self->headers_to_array($headers), [] ];
+
     # It is possible to have no content and/or no content type set
     # e.g. if all routes 'pass'. Apply defaults here..
+    my $content = defined $self->content ? $self->content : '';
+
+    if ( !$headers->header('Content-Length')    &&
+         !$headers->header('Transfer-Encoding') &&
+         defined( my $content_length = length $content ) ) {
+         $headers->push_header( 'Content-Length' => $content_length );
+    }
+
+    # More defaults
     $self->content_type or $self->content_type($self->default_content_type);
-    $self->content('') if ! defined $self->content;
-    return [ $self->status, $self->headers_to_array, [ $self->content ], ];
+    return [ $status, $self->headers_to_array($headers), [ $content ], ];
 }
 
 # sugar for accessing the content_type header, with mimetype care
@@ -335,6 +351,8 @@ with different values:
 
     $self->push_header( 'X-Wing' => 1, 2, 3 );
 
-=method headers_to_array
+=method headers_to_array($headers)
 
-Convert the C<headers> attribute to an ArrayRef.
+Convert the C<$headers> to a PSGI ArrayRef.
+
+If no C<$headers> are provided, it will use the current response headers.
