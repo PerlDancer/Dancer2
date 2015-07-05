@@ -1384,7 +1384,6 @@ sub _add_content_to_response {
     }
 
     $response->content($content);
-    $response->encode_content;
     return $response;
 }
 
