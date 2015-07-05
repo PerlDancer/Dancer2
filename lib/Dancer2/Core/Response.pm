@@ -119,14 +119,16 @@ has default_content_type => (
 sub encode_content {
     my ($self) = @_;
     return if $self->is_encoded;
+
     # Apply default content type if none set.
-    $self->content_type or $self->content_type($self->default_content_type);
-    return if $self->content_type !~ /^text/;
+    my $ct = $self->content_type ||
+             $self->content_type( $self->default_content_type );
+
+    return if $ct !~ /^text/;
 
     # we don't want to encode an empty string, it will break the output
     $self->content or return;
 
-    my $ct = $self->content_type;
     $self->content_type("$ct; charset=UTF-8")
       if $ct !~ /charset/;
 
@@ -191,6 +193,7 @@ sub content_type {
         my $runner   = Dancer2->runner;
         my $mimetype = $runner->mime_type->name_or_type(shift);
         $self->header( 'Content-Type' => $mimetype );
+        return $mimetype;
     }
     else {
         return $self->header('Content-Type');
