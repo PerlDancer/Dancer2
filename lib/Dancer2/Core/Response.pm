@@ -13,14 +13,19 @@ use Dancer2::Core::HTTP;
 use HTTP::Headers::Fast;
 use Scalar::Util qw(blessed);
 use Plack::Util;
+use Safe::Isa;
+use Sub::Quote ();
 
 use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
 
 has headers => (
-    is     => 'rw',
-    isa    => AnyOf[ InstanceOf ['HTTP::Headers::Fast'], InstanceOf ['HTTP::Headers'] ],
+    is     => 'ro',
+    isa    => Sub::Quote::quote_sub(q{
+        $_[0]->$_DOES('HTTP::Headers') ||
+        $_[0]->$_DOES('HTTP::Headers::Fast')
+    }),
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
@@ -61,7 +66,7 @@ sub pass { shift->has_passed(1) }
 
 has serializer => (
     is  => 'ro',
-    isa => Maybe[ ConsumerOf ['Dancer2::Core::Role::Serializer'] ],
+    isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
 );
 
 has is_encoded => (
