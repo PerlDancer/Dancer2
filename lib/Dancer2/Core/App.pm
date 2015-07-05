@@ -9,7 +9,6 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use File::Spec;
 
-use Plack::Middleware::Conditional;
 use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
 use Plack::Middleware::Static;
@@ -1192,17 +1191,14 @@ sub to_app {
 
     # Static content passes through to app on 404, conditionally applied.
     # Construct the statis app to avoid a closure over $psgi
-    my $static_content = Plack::Middleware::Static->wrap(
-        $psgi,
-        path => sub { -f path( $self->config->{public_dir}, shift ) },
-        root => $self->config->{public_dir},
-        content_type => sub { $self->mime_type->for_name(shift) },
-    );
-    $psgi = Plack::Middleware::Conditional->wrap(
-        $psgi,
-        builder => sub { $static_content },
-        condition => sub { $self->config->{static_handler} },
-    );
+    if ( $self->config->{'static_handler'} ) {
+        $psgi = Plack::Middleware::Static->wrap(
+            $psgi,
+            path => sub { -f path( $self->config->{public_dir}, shift ) },
+            root => $self->config->{public_dir},
+            content_type => sub { $self->mime_type->for_name(shift) },
+        );
+    }
 
     # Apply Head. After static so a HEAD request on static content DWIM.
     $psgi = Plack::Middleware::Head->wrap( $psgi );
