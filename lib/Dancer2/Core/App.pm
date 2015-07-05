@@ -694,7 +694,7 @@ sub register_plugin {
 # This method overrides the default one from Role::ConfigReader
 sub settings {
     my $self = shift;
-    +{ %{ Dancer2->runner->config }, %{ $self->config } };
+    +{ %{ Dancer2::runner()->config }, %{ $self->config } };
 }
 
 sub cleanup {
@@ -775,7 +775,7 @@ sub all_hook_aliases {
 
 sub mime_type {
     my $self   = shift;
-    my $runner = Dancer2->runner;
+    my $runner = Dancer2::runner();
 
     exists $self->config->{default_mime_type}
         ? $runner->mime_type->default( $self->config->{default_mime_type} )
@@ -865,7 +865,7 @@ sub send_file {
         $fh = Dancer2::FileUtils::open_file( "<", $file_path );
         binmode $fh;
 
-        $content_type = Dancer2->runner->mime_type->for_file($file_path) || 'text/plain';
+        $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
              $content_type .= "; charset=" . ( $self->config->{charset} || "utf-8" );
         }
@@ -1226,7 +1226,7 @@ sub dispatch {
     my $self = shift;
     my $env  = shift;
 
-    my $request = Dancer2->runner->{'internal_request'} ||
+    my $request = Dancer2::runner()->{'internal_request'} ||
                   $self->build_request($env);
     my $cname   = $self->session_engine->cookie_name;
 
@@ -1253,7 +1253,7 @@ DISPATCH:
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
-            if ( my $sess = Dancer2->runner->{'internal_sessions'}{$cname} ) {
+            if ( my $sess = Dancer2::runner()->{'internal_sessions'}{$cname} ) {
                 $self->set_session($sess);
             }
 
@@ -1279,16 +1279,16 @@ DISPATCH:
                 $self->clear_response;
 
                 # this is in case we're asked for an old-style dispatching
-                if ( Dancer2->runner->{'internal_dispatch'} ) {
+                if ( Dancer2::runner()->{'internal_dispatch'} ) {
                     # Get the session object from the app before we clean up
                     # the request context, so we can propogate this to the
                     # next dispatch cycle (if required).
                     $self->_has_session
-                        and Dancer2->runner->{'internal_sessions'}{$cname} =
+                        and Dancer2::runner()->{'internal_sessions'}{$cname} =
                             $self->session;
 
-                    Dancer2->runner->{'internal_forward'} = 1;
-                    Dancer2->runner->{'internal_request'} = $response;
+                    Dancer2::runner()->{'internal_forward'} = 1;
+                    Dancer2::runner()->{'internal_request'} = $response;
                     return $self->response_not_found($request);
                 }
 
@@ -1301,7 +1301,7 @@ DISPATCH:
             # halted response, don't process further
             if ( $response->is_halted ) {
                 $self->cleanup;
-                delete Dancer2->runner->{'internal_request'};
+                delete Dancer2::runner()->{'internal_request'};
                 return $response;
             }
 
@@ -1323,7 +1323,7 @@ DISPATCH:
             # it's just a regular response
             $self->execute_hook( 'core.app.after_request', $response );
             $self->cleanup;
-            delete Dancer2->runner->{'internal_request'};
+            delete Dancer2::runner()->{'internal_request'};
 
             return $response;
         }
@@ -1337,9 +1337,9 @@ DISPATCH:
     # so it can try the next Core::App
     # and set the created request so we don't create it again
     # (this is important so we don't ignore the previous body)
-    if ( Dancer2->runner->{'internal_dispatch'} ) {
-        Dancer2->runner->{'internal_404'}     = 1;
-        Dancer2->runner->{'internal_request'} = $request;
+    if ( Dancer2::runner()->{'internal_dispatch'} ) {
+        Dancer2::runner()->{'internal_404'}     = 1;
+        Dancer2::runner()->{'internal_request'} = $request;
     }
 
     # Render 404 response, cleanup, and return the response.
