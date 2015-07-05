@@ -69,7 +69,7 @@ sub _build_error_template {
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
     return $self->status
-      if -f $self->app->engine('template')
+      if -f $self->app->template_engine
           ->view_pathname( $self->status );
 
     return;
@@ -176,7 +176,7 @@ sub _build_serializer {
     my ($self) = @_;
 
     $self->has_app
-        and return $self->app->engine('serializer');
+        and return $self->app->serializer_engine;
 
     return;
 }
