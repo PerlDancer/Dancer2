@@ -384,13 +384,13 @@ sub _build_params {
     my $previous = $self->_has_params ? $self->_params : {};
 
     # now parse environment params...
-    $self->_parse_get_params();
+    my $get_params = $self->_parse_get_params();
 
     # and merge everything
     $self->{_params} = {
         map +( ref $_ eq 'HASH' ? %{$_} : () ),
         $previous,
-        $self->_query_params,
+        $get_params,
         $self->_route_params,
         $self->_body_params,
     };
