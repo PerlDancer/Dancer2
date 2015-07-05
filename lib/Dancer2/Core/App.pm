@@ -1027,7 +1027,7 @@ sub routes_regexps_for {
     my $self   = shift;
     my $method = shift;
 
-    return [ map { $_->regexp } @{ $self->routes->{$method} } ];
+    return [ map $_->regexp, @{ $self->routes->{$method} } ];
 }
 
 sub cookie {

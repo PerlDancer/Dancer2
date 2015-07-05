@@ -350,7 +350,7 @@ sub _decode {
     }
 
     if ( ref($h) eq 'ARRAY' ) {
-        return [ map { _decode($_) } @$h ];
+        return [ map _decode($_), @$h ];
     }
 
     return $h;
@@ -519,22 +519,17 @@ sub _build_uploads {
         my $files = $uploads->{$name};
         $files = ref $files eq 'ARRAY' ? $files : [$files];
 
-        my @uploads;
-        for my $upload ( @{$files} ) {
-            push(
-                @uploads,
-                Dancer2::Core::Request::Upload->new(
-                    headers  => $upload->{headers},
-                    tempname => $upload->{tempname},
-                    size     => $upload->{size},
-                    filename => $upload->{filename},
-                )
-            );
-        }
+        my @uploads = map Dancer2::Core::Request::Upload->new(
+                              headers  => $_->{headers},
+                              tempname => $_->{tempname},
+                              size     => $_->{size},
+                              filename => $_->{filename},
+                      ), @{$files};
+
         $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
 
         # support access to the filename as a normal param
-        my @filenames = map { $_->{filename} } @uploads;
+        my @filenames = map $_->{'filename'}, @uploads;
         $self->{_body_params}{$name} =
           @filenames > 1 ? \@filenames : $filenames[0];
     }
@@ -561,7 +556,7 @@ sub _build_cookies {
         my ( $name, $value ) = split( /\s*=\s*/, $cookie, 2 );
         my @values;
         if ( defined $value and $value ne '' ) {
-            @values = map { uri_unescape($_) } split( /[&;]/, $value );
+            @values = map uri_unescape($_), split( /[&;]/, $value );
         }
         $cookies->{$name} =
           Dancer2::Core::Cookie->new( name => $name, value => \@values );

@@ -33,7 +33,7 @@ sub _add_postponed_hooks {
 
     # find the internal name of the hooks, from the caller name
     my $caller = ref($self);
-    my ( $dancer, $h_type, $h_name, @rest ) = map {lc} split /::/, $caller;
+    my ( $dancer, $h_type, $h_name, @rest ) = map lc, split /::/, $caller;
     $h_name = $rest[0] if $h_name eq 'role';
     if ( $h_type =~ /(template|logger|serializer|session)/ ) {
         $h_name = $h_type;
