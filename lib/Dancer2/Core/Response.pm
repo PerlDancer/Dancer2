@@ -63,9 +63,8 @@ has has_passed => (
 sub pass { shift->has_passed(1) }
 
 has serializer => (
-    is        => 'ro',
-    isa       => Maybe[ ConsumerOf ['Dancer2::Core::Role::Serializer'] ],
-    predicate => 1,
+    is  => 'ro',
+    isa => Maybe[ ConsumerOf ['Dancer2::Core::Role::Serializer'] ],
 );
 
 has is_encoded => (
@@ -102,7 +101,7 @@ around content => sub {
 
     @_ == 2 and return $self->$orig;
 
-    $self->has_serializer
+    $self->serializer
         or return $self->$orig( $self->encode_content($content) );
 
     $content = $self->serialize($content);
@@ -236,12 +235,14 @@ sub error {
 
 sub serialize {
     my ($self, $content) = @_;
-    return unless $self->has_serializer;
 
-    $content = $self->serializer->serialize($content)
+    my $serializer = $self->serializer
         or return;
 
-    $self->content_type($self->serializer->content_type);
+    $content = $serializer->serialize($content)
+        or return;
+
+    $self->content_type( $serializer->content_type );
     return $content;
 }
 
