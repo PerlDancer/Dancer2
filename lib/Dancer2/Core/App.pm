@@ -7,6 +7,7 @@ use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';
 use Return::MultiLevel ();
 use Safe::Isa;
+use Sub::Quote;
 use File::Spec;
 
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -42,7 +43,11 @@ has _factory => (
 
 has logger_engine => (
     is        => 'ro',
-    isa       => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
+    isa       => Sub::Quote::quote_sub(q{
+        $_[0]
+            ? $_[0]->$_DOES('Dancer2::Core::Role::Logger')
+            : 1;
+    }),
     lazy      => 1,
     builder   => '_build_logger_engine',
     predicate => 'has_logger_engine',
@@ -51,7 +56,11 @@ has logger_engine => (
 
 has session_engine => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::SessionFactory']],
+    isa     => Sub::Quote::quote_sub(q{
+        $_[0]
+            ? $_[0]->$_DOES('Dancer2::Core::Role::SessionFactory')
+            : 1;
+    }),
     lazy    => 1,
     builder => '_build_session_engine',
     writer  => 'set_session_engine',
@@ -59,7 +68,11 @@ has session_engine => (
 
 has template_engine => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Template']],
+    isa     => Sub::Quote::quote_sub(q{
+        $_[0]
+            ? $_[0]->$_DOES('Dancer2::Core::Role::Template')
+            : 1;
+    }),
     lazy    => 1,
     builder => '_build_template_engine',
     writer  => 'set_template_engine',
@@ -67,7 +80,11 @@ has template_engine => (
 
 has serializer_engine => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Serializer']],
+    isa     => Sub::Quote::quote_sub(q{
+        $_[0]
+            ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
+            : 1;
+    }),
     lazy    => 1,
     builder => '_build_serializer_engine',
     writer  => 'set_serializer_engine',

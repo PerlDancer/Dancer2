@@ -7,6 +7,7 @@ use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
+use Sub::Quote;
 
 has app => (
     is        => 'ro',
@@ -163,7 +164,11 @@ sub full_message {
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe[ConsumerOf ['Dancer2::Core::Role::Serializer']],
+    isa       => Sub::Quote::quote_sub(q{
+        $_[0]
+            ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
+            : 1;
+    }),
     builder   => '_build_serializer',
 );
 
