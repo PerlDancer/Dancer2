@@ -224,8 +224,8 @@ sub init {
     $self->{_http_body}->cleanup(1);
 
     $self->data;      # Deserialize body
-    $self->_params(); # Decode query and body prams
     $self->_build_uploads();
+    $self->_build_params(); # Decode query and body params
 }
 
 sub to_string {
@@ -388,12 +388,6 @@ sub _build_params {
 
     # now parse environment params...
     $self->_parse_get_params();
-    if ( $self->body_is_parsed ) {
-        $self->{_body_params} ||= {};
-    }
-    else {
-        $self->_parse_post_params();
-    }
 
     # and merge everything
     $self->{_params} = {
@@ -514,6 +508,13 @@ sub _read {
 sub _build_uploads {
     my ($self) = @_;
 
+    if ( $self->body_is_parsed ) {
+        $self->{_body_params} ||= {};
+    }
+    else {
+        $self->_parse_post_params();
+    }
+
     my $uploads = _decode( $self->{_http_body}->upload );
     my %uploads;
 
@@ -542,7 +543,6 @@ sub _build_uploads {
     }
 
     $self->{uploads} = \%uploads;
-    $self->_build_params();
 }
 
 # XXX: incompatible with Plack::Request
