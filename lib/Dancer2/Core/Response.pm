@@ -39,18 +39,15 @@ sub headers_to_array {
     my $self    = shift;
     my $headers = shift || $self->headers;
 
-    my $headers_arrayref = [
-        map {
-            my $k = $_;
-            map {
-                my $v = $_;
-                $v =~ s/^(.+)\r?\n(.*)$/$1\r\n $2/;
-                ( $k => $v )
-            } $headers->header($_);
-          } $headers->header_field_names
-    ];
+    my @hdrs;
+    $headers->scan( sub {
+        my ( $k, $v ) = @_;
+         $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+         $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
+        push @hdrs, $k => $v;
+    });
 
-    return $headers_arrayref;
+    return \@hdrs;
 }
 
 # boolean to tell if the route passes or not
