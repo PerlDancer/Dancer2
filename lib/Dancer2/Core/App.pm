@@ -1395,9 +1395,10 @@ sub _add_content_to_response {
     # The response object has no back references to the content or app
     # Update the default_content_type of the response if any value set in
     # config so it can be applied when the response is encoded/returned.
-    if ( exists $self->config->{content_type}
-      && $self->config->{content_type} ) {
-        $response->default_content_type($self->config->{content_type});
+    my $config = $self->config;
+    if ( exists $config->{content_type}
+      and my $ct = $config->{content_type} ) {
+        $response->default_content_type($ct);
     }
 
     $response->content($content);
