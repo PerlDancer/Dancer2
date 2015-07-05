@@ -27,7 +27,7 @@ sub code {
         my $app    = shift;
         my $prefix = shift;
 
-        my $template = $app->engine('template');
+        my $template = $app->template_engine;
         if ( !defined $template ) {
             $app->response->has_passed(1);
             return;

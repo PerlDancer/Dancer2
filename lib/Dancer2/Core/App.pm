@@ -370,7 +370,7 @@ around _build_config => sub {
 
 sub _build_response {
     my $self   = shift;
-    my $engine = $self->engine('serializer');
+    my $engine = $self->serializer_engine;
 
     return Dancer2::Core::Response->new(
         ( serializer => $engine )x!! $engine
@@ -382,7 +382,7 @@ sub _build_session {
     my $session;
 
     # Find the session engine
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
 
     # find the session cookie if any
     if ( !$self->has_destroyed_session ) {
@@ -406,7 +406,7 @@ sub _build_session {
 sub has_session {
     my $self = shift;
 
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
 
     return $self->_has_session
         || ( $self->cookie( $engine->cookie_name )
@@ -425,7 +425,7 @@ sub destroy_session {
     my $self = shift;
 
     # Find the session engine
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
 
     # Expire session, set the expired cookie and destroy the session
     # Setting the cookie ensures client gets an expired cookie unless
@@ -798,7 +798,7 @@ sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
 
-    my $serializer = $self->engine('serializer');
+    my $serializer = $self->serializer_engine;
     my $err = Dancer2::Core::Error->new(
           message    => $message,
           app        => $self,
@@ -1147,7 +1147,7 @@ sub make_forward_to {
     # If a session object was created during processing of the original request
     # i.e. a session object exists but no cookie existed
     # add a cookie so the dispatcher can assign the session to the appropriate app
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
     $engine && $self->_has_session or return $new_request;
     my $name = $engine->cookie_name;
     exists $new_request->cookies->{$name} and return $new_request;
