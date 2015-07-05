@@ -43,24 +43,15 @@ has _factory => (
 
 has logger_engine => (
     is        => 'ro',
-    isa       => Sub::Quote::quote_sub(q{
-        $_[0]
-            ? $_[0]->$_DOES('Dancer2::Core::Role::Logger')
-            : 1;
-    }),
+    isa       => ConsumerOf['Dancer2::Core::Role::Logger'],
     lazy      => 1,
     builder   => '_build_logger_engine',
-    predicate => 'has_logger_engine',
     writer    => 'set_logger_engine',
 );
 
 has session_engine => (
     is      => 'ro',
-    isa     => Sub::Quote::quote_sub(q{
-        $_[0]
-            ? $_[0]->$_DOES('Dancer2::Core::Role::SessionFactory')
-            : 1;
-    }),
+    isa     => ConsumerOf['Dancer2::Core::Role::SessionFactory'],
     lazy    => 1,
     builder => '_build_session_engine',
     writer  => 'set_session_engine',
@@ -68,11 +59,7 @@ has session_engine => (
 
 has template_engine => (
     is      => 'ro',
-    isa     => Sub::Quote::quote_sub(q{
-        $_[0]
-            ? $_[0]->$_DOES('Dancer2::Core::Role::Template')
-            : 1;
-    }),
+    isa     => ConsumerOf['Dancer2::Core::Role::Template'],
     lazy    => 1,
     builder => '_build_template_engine',
     writer  => 'set_template_engine',
@@ -80,24 +67,23 @@ has template_engine => (
 
 has serializer_engine => (
     is      => 'ro',
-    isa     => Sub::Quote::quote_sub(q{
-        $_[0]
-            ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
-            : 1;
-    }),
+    isa     => ConsumerOf['Dancer2::Core::Role::Serializer'],
     lazy    => 1,
     builder => '_build_serializer_engine',
     writer  => 'set_serializer_engine',
+    predicate => 'has_serializer_engine',
 );
 
 sub defined_engines {
     my $self = shift;
-    return map {
-        my $type   = "${_}_engine";
-        my $engine = $self->$type;
-
-        defined $engine ? $engine : ()
-    } @{ $self->supported_engines };
+    return (
+        $self->template_engine,
+        $self->session_engine,
+        $self->logger_engine,
+        $self->has_serializer_engine
+            ? $self->serializer_engine
+            : (),
+    );
 }
 
 has '+local_triggers' => (
@@ -369,11 +355,11 @@ around _build_config => sub {
 };
 
 sub _build_response {
-    my $self   = shift;
-    my $engine = $self->serializer_engine;
-
+    my $self = shift;
     return Dancer2::Core::Response->new(
-        ( serializer => $engine )x!! $engine
+        $self->has_serializer_engine
+            ? ( serializer => $self->serializer_engine )
+            : (),
     );
 }
 
@@ -798,12 +784,14 @@ sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
 
-    my $serializer = $self->serializer_engine;
     my $err = Dancer2::Core::Error->new(
           message    => $message,
           app        => $self,
         ( status     => $status     )x!! $status,
-        ( serializer => $serializer )x!! $serializer,
+
+        $self->has_serializer_engine
+            ? ( serializer => $self->serializer_engine )
+            : (),
     )->throw;
 
     # Immediately return to dispatch if with_return coderef exists
@@ -1173,6 +1161,20 @@ sub app { shift }
 sub to_app {
     my $self = shift;
 
+    # build engines
+    {
+        for ( qw<logger session template> ) {
+            my $attr = "${_}_engine";
+            $self->$attr;
+        }
+
+        # the serializer engine does not have a default
+        # and is the only engine that can actually not have a value
+        if ( $self->config->{'serializer'} ) {
+            $self->serializer_engine;
+        }
+    }
+
     $self->finish;
 
     my $psgi = sub {
@@ -1352,11 +1354,13 @@ sub build_request {
     my ( $self, $env ) = @_;
 
     # If we have an app, send the serialization engine
-    my $engine  = $self->serializer_engine;
     my $request = Dancer2::Core::Request->new(
           env             => $env,
           is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
-        ( serializer      => $engine )x!! $engine,
+
+          $self->has_serializer_engine
+              ? ( serializer => $self->serializer_engine )
+              : (),
     );
 
     return $request;
