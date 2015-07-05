@@ -1,3 +1,5 @@
+# alias profile='perl -d:NYTProf tools/perf.pl profile && nytprofhtml'
+# alias compare='perl tools/perf.pl compare'
 BEGIN { $INC{'Devel/NYTProf.pm'} && DB::disable_profile() } ## no critic
 use strict;
 use warnings;
