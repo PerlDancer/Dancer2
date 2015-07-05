@@ -8,6 +8,7 @@ use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Sub::Quote;
+use Safe::Isa;
 
 has app => (
     is        => 'ro',
@@ -175,7 +176,7 @@ has serializer => (
 sub _build_serializer {
     my ($self) = @_;
 
-    $self->has_app
+    $self->has_app && $self->app->has_serializer_engine
         and return $self->app->serializer_engine;
 
     return;
