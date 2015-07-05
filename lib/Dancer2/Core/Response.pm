@@ -98,16 +98,16 @@ has content => (
 );
 
 around content => sub {
-    my $orig = shift;
-    my $self = shift;
+    my ( $orig, $self, $content ) = @_;
 
-    if ( @_ && $self->has_serializer ) {
-        my $content = $self->serialize( shift );
-        unshift @_, defined $content ? $content : '';
-        $self->is_encoded(1); # All serializers return byte strings
-    }
+    @_ == 2 and return $self->$orig;
 
-    return $self->$orig(@_);
+    $self->has_serializer
+        or return $self->$orig( $self->encode_content($content) );
+
+    $content = $self->serialize($content);
+    $self->is_encoded(1); # All serializers return byte strings
+    return $self->$orig( defined $content ? $content : '' );
 };
 
 has default_content_type => (
@@ -117,25 +117,24 @@ has default_content_type => (
 );
 
 sub encode_content {
-    my ($self) = @_;
-    return if $self->is_encoded;
+    my ( $self, $content ) = @_;
+
+    return $content if $self->is_encoded;
 
     # Apply default content type if none set.
     my $ct = $self->content_type ||
              $self->content_type( $self->default_content_type );
 
-    return if $ct !~ /^text/;
+    return $content if $ct !~ /^text/;
 
     # we don't want to encode an empty string, it will break the output
-    $self->content or return;
+    $content or return $content;
 
     $self->content_type("$ct; charset=UTF-8")
       if $ct !~ /charset/;
 
     $self->is_encoded(1);
-    my $content = $self->content( Encode::encode( 'UTF-8', $self->content ) );
-
-    return $content;
+    return Encode::encode( 'UTF-8', $content );
 }
 
 sub new_from_plack {

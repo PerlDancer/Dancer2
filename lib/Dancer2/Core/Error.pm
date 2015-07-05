@@ -308,7 +308,6 @@ sub throw {
     $self->response->status( $self->status );
     $self->response->content_type( $self->content_type );
     $self->response->content($message);
-    $self->response->encode_content;
 
     $self->has_app &&
         $self->app->execute_hook('core.error.after', $self->response);
