@@ -107,7 +107,6 @@ sub _body_params { $_[0]->{'_body_params'} }
 sub _set_body_params {
     my ( $self, $params ) = @_;
     $self->{_body_params} = _decode( $params );
-    $self->_build_params();
 }
 
 sub _query_params { $_[0]->{'_query_params'} }
@@ -115,7 +114,6 @@ sub _query_params { $_[0]->{'_query_params'} }
 sub _set_query_params {
     my ( $self, $params ) = @_;
     $self->{_query_params} = _decode( $params );
-    $self->_build_params();
 }
 
 sub _route_params { $_[0]->{'_route_params'} ||= {} }
@@ -196,7 +194,6 @@ sub deserialize {
     # that numerical data "stays" numerical; decoding an SV that is an IV
     # converts that to a PVIV. Some serializers are picky (JSON)..
     $self->{_body_params} = $data;
-    $self->_build_params();
 
     return $data;
 }
