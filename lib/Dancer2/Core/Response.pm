@@ -161,7 +161,7 @@ sub new_from_array {
 sub to_psgi {
     my ($self) = @_;
 
-    Dancer2->runner->config->{'no_server_tokens'}
+    Dancer2::runner()->config->{'no_server_tokens'}
         or $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
 
     my $headers = $self->headers;
@@ -190,7 +190,7 @@ sub content_type {
     my $self = shift;
 
     if ( scalar @_ > 0 ) {
-        my $runner   = Dancer2->runner;
+        my $runner   = Dancer2::runner();
         my $mimetype = $runner->mime_type->name_or_type(shift);
         $self->header( 'Content-Type' => $mimetype );
         return $mimetype;
