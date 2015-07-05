@@ -1226,7 +1226,8 @@ sub dispatch {
     my $self = shift;
     my $env  = shift;
 
-    my $request = Dancer2::runner()->{'internal_request'} ||
+    my $runner  = Dancer2::runner();
+    my $request = $runner->{'internal_request'} ||
                   $self->build_request($env);
     my $cname   = $self->session_engine->cookie_name;
 
@@ -1253,7 +1254,7 @@ DISPATCH:
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
-            if ( my $sess = Dancer2::runner()->{'internal_sessions'}{$cname} ) {
+            if ( my $sess = $runner->{'internal_sessions'}{$cname} ) {
                 $self->set_session($sess);
             }
 
@@ -1279,16 +1280,16 @@ DISPATCH:
                 $self->clear_response;
 
                 # this is in case we're asked for an old-style dispatching
-                if ( Dancer2::runner()->{'internal_dispatch'} ) {
+                if ( $runner->{'internal_dispatch'} ) {
                     # Get the session object from the app before we clean up
                     # the request context, so we can propogate this to the
                     # next dispatch cycle (if required).
                     $self->_has_session
-                        and Dancer2::runner()->{'internal_sessions'}{$cname} =
+                        and $runner->{'internal_sessions'}{$cname} =
                             $self->session;
 
-                    Dancer2::runner()->{'internal_forward'} = 1;
-                    Dancer2::runner()->{'internal_request'} = $response;
+                    $runner->{'internal_forward'} = 1;
+                    $runner->{'internal_request'} = $response;
                     return $self->response_not_found($request);
                 }
 
@@ -1301,7 +1302,7 @@ DISPATCH:
             # halted response, don't process further
             if ( $response->is_halted ) {
                 $self->cleanup;
-                delete Dancer2::runner()->{'internal_request'};
+                delete $runner->{'internal_request'};
                 return $response;
             }
 
@@ -1323,7 +1324,7 @@ DISPATCH:
             # it's just a regular response
             $self->execute_hook( 'core.app.after_request', $response );
             $self->cleanup;
-            delete Dancer2::runner()->{'internal_request'};
+            delete $runner->{'internal_request'};
 
             return $response;
         }
@@ -1332,14 +1333,13 @@ DISPATCH:
         last;
     }
 
-
     # No response! ensure Core::Dispatcher recognizes this failure
     # so it can try the next Core::App
     # and set the created request so we don't create it again
     # (this is important so we don't ignore the previous body)
-    if ( Dancer2::runner()->{'internal_dispatch'} ) {
-        Dancer2::runner()->{'internal_404'}     = 1;
-        Dancer2::runner()->{'internal_request'} = $request;
+    if ( $runner->{'internal_dispatch'} ) {
+        $runner->{'internal_404'}     = 1;
+        $runner->{'internal_request'} = $request;
     }
 
     # Render 404 response, cleanup, and return the response.
