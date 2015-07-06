@@ -74,7 +74,7 @@ sub dancer_response {
         *Dancer2::Core::App::set_request = sub {
             my $self = shift;
             $self->_set_request( $request );
-            $_->set_request( $request ) for $self->defined_engines;
+            $_->set_request( $request ) for @{ $self->defined_engines };
         };
     }
 
