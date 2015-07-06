@@ -222,7 +222,6 @@ sub init {
 
     $self->data;      # Deserialize body
     $self->_build_uploads();
-    $self->_build_params(); # Decode query and body params
 }
 
 sub to_string {
