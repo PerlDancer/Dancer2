@@ -74,17 +74,22 @@ has serializer_engine => (
     predicate => 'has_serializer_engine',
 );
 
-sub defined_engines {
-    my $self = shift;
-    return (
-        $self->template_engine,
-        $self->session_engine,
-        $self->logger_engine,
-        $self->has_serializer_engine
-            ? $self->serializer_engine
-            : (),
-    );
-}
+has defined_engines => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        [
+            $self->template_engine,
+            $self->session_engine,
+            $self->logger_engine,
+            $self->has_serializer_engine
+                ? $self->serializer_engine
+                : (),
+        ];
+    },
+);
 
 has '+local_triggers' => (
     default => sub {
@@ -313,7 +318,7 @@ sub set_request {
     my ($self, $request) = @_;
     # populate request in app and all engines
     $self->_set_request($request);
-    $_->set_request( $request ) for $self->defined_engines;
+    $_->set_request( $request ) for @{ $self->defined_engines };
 }
 
 has response => (
@@ -424,7 +429,7 @@ sub destroy_session {
     # and clear session in app and engines
     $self->set_destroyed_session($session);
     $self->clear_session;
-    $_->clear_session for $self->defined_engines;
+    $_->clear_session for @{ $self->defined_engines };
 
     return;
 }
@@ -432,7 +437,7 @@ sub destroy_session {
 sub setup_session {
     my $self = shift;
 
-    for my $engine ( $self->defined_engines ) {
+    for my $engine ( @{ $self->defined_engines } ) {
         $self->has_session                         ?
             $engine->set_session( $self->session ) :
             $engine->clear_session;
@@ -690,7 +695,7 @@ sub cleanup {
     $self->clear_session;
     $self->clear_destroyed_session;
     # Clear engine attributes
-    for my $engine ( $self->defined_engines ) {
+    for my $engine ( @{ $self->defined_engines } ) {
         $engine->clear_session;
         $engine->clear_request;
     }
@@ -733,7 +738,7 @@ sub template {
 sub hook_candidates {
     my $self = shift;
 
-    my @engines = $self->defined_engines;
+    my @engines = @{ $self->defined_engines };
 
     my @route_handlers;
     for my $handler ( @{ $self->route_handlers } ) {
