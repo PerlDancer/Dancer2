@@ -1,11 +1,12 @@
-# alias profile='perl -d:NYTProf tools/perf.pl profile && nytprofhtml'
-# alias compare='perl tools/perf.pl compare'
+# alias profile='perl -d:NYTProf tools/perf.pl -- --profile && nytprofhtml'
+# alias compare='perl tools/perf.pl -- --compare'
 BEGIN { $INC{'Devel/NYTProf.pm'} && DB::disable_profile() } ## no critic
 use strict;
 use warnings;
 use Plack::Test;
 use HTTP::Request::Common;
 use Dumbbench;
+use Getopt::Long qw<:config no_ignore_case>;
 
 $ENV{'DANCER_ENVIRONMENT'} = 'production';
 $ENV{'PLACK_ENV'} = 'production';
@@ -37,10 +38,34 @@ $app2->({
     PATH_INFO      => '/',
 });
 
-my $command = $ARGV[0]
-    or die "$0 <profile | bench | compare>\n";
+my $test_app1 = Plack::Test->create($app1);
+my $test_app2 = Plack::Test->create($app2);
+my $req = GET '/';
 
-if ( $command eq 'profile' ) {
+sub check_app {
+    my ( $number, $app ) = @_;
+    print STDERR "Checking $app... ";
+
+    my $res = $app->request($req);
+    if ( $res->content == "ok$app" ) {
+        print STDERR "Good!\n";
+    } else {
+        print STDERR "Bad!\n";
+        die "App $app failed, exiting!\n";
+    }
+}
+
+my %opts;
+GetOptions(
+    'profile'   => \$opts{'profile'},
+    'bench'     => \$opts{'bench'},
+    'compare'   => \$opts{'compare'},
+    'speed|s=s' => \$opts{'speed'},
+);
+
+my $max = 1 . '0' x ( $opts{'speed'} || 3 );
+
+if ( $opts{'profile'} ) {
     DB::enable_profile();
     $app2->({
         REQUEST_METHOD => 'GET',
@@ -48,24 +73,20 @@ if ( $command eq 'profile' ) {
     });
     DB::disable_profile();
     DB::finish_profile();
-} elsif ( $command eq 'compare' ) {
+} elsif ( $opts{'compare'} ) {
     my $bench = Dumbbench->new(
         target_rel_precision => 0.005,
         initial_runs         => 20,
     );
 
-    my $test_app1 = Plack::Test->create($app1);
-    my $test_app2 = Plack::Test->create($app2);
-    my $req = GET '/';
-
-    print $test_app1->request($req)->content, "\n";
-    print $test_app2->request($req)->content, "\n";
+    check_app( 1 => $app1 );
+    check_app( 2 => $app2 );
 
     $bench->add_instances(
         Dumbbench::Instance::PerlSub->new(
             name => 'D1',
             code => sub {
-                for ( 1 .. 1e3 ) {
+                for ( 1 .. $max ) {
                     $test_app1->request($req);
                 }
             },
@@ -74,7 +95,7 @@ if ( $command eq 'profile' ) {
         Dumbbench::Instance::PerlSub->new(
             name => 'D2',
             code => sub {
-                for ( 1 .. 1e3 ) {
+                for ( 1 .. $max ) {
                     $test_app2->request($req);
                 }
             },
@@ -83,7 +104,7 @@ if ( $command eq 'profile' ) {
 
     $bench->run;
     $bench->report;
-} elsif ( $command eq 'bench' ) {
+} elsif ( $opts{'bench'} ) {
     my $bench = Dumbbench->new(
         target_rel_precision => 0.005,
         initial_runs         => 20,
@@ -92,13 +113,13 @@ if ( $command eq 'profile' ) {
     my $test_app2 = Plack::Test->create($app2);
     my $req = GET '/';
 
-    print $test_app2->request($req)->content, "\n";
+    check_app( 2 => $app2 );
 
     $bench->add_instances(
         Dumbbench::Instance::PerlSub->new(
             name => 'D2',
             code => sub {
-                for ( 1 .. 1e3 ) {
+                for ( 1 .. $max ) {
                     $test_app2->request($req);
                 }
             },
@@ -108,5 +129,26 @@ if ( $command eq 'profile' ) {
     $bench->run;
     $bench->report;
 } else {
-    die "$0 <profile | bench | compare>\n";
+    print << "_END_HELP";
+$0 -- <-s | --speed 1|2|3|4|5> <profile | bench | compare>
+("--" is required before parameters because D1 parses ARGV)
+
+Commands:
+
+    profile     Profile a single Dancer 2 request
+                (perl -d:NYTProf tools/perf.pl -- --profile)
+                You will need to run `nytprofhtml` manually afterwards
+
+    bench       Benchmark a Dancer 2 request
+                (perl tools/perf.pl -- --bench <--speed 1|2|3|4|5>)
+
+    compare     Compare a Dancer 1 request and a Dancer 2 request
+                (perl tools/perf.pl -- --compare <--speed 1|2|3|4|5>)
+
+Options:
+
+    --speed | -s    How many requests to run for each
+                    (-s 5 == 1e5 == 100,000 times)
+
+_END_HELP
 }
