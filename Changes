@@ -2,12 +2,14 @@
 
     [ BUG FIXES ]
     * GH #915, #930: Check existence of optional extension headers when
-    behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
+      behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
     * GH #926, #940: Set session directory default to $apprdir/session.
       (Russell Jenkins)
     * GH #936, #939: Use the error_template configuration on a 404.
       (Russell Jenkins)
     * GH #844, #937: Non-hash serialized params do not cause a crash. (Sawyer X)
+    * GH #943: Pass @_ to UNIVERSAL's VERSION so it validates version number.
+      (Sawyer X)
 
     [ DOCUMENTATION ]
     * Sanitize Changes
@@ -20,7 +22,7 @@
     * Remove unnecessary dependencies: build chain should be smaller. (Sawyer X)
     * No need for Module::Build. (Sawyer X)
     * GH #911: Dancer2 request object is now a subclass of Plack::Request.
-               It's also much faster now. (Sawyer X)
+      It's also much faster now. (Sawyer X)
 
 0.160003  2015-06-06 11:09:00+02:00 Europe/Amsterdam
 

@@ -13,7 +13,7 @@ use Dancer2::FileUtils;
 
 our $AUTHORITY = 'SUKRIA';
 
-sub VERSION { shift->SUPER::VERSION || '0.000000_000' }
+sub VERSION { shift->SUPER::VERSION(@_) || '0.000000_000' }
 
 our $runner;
 
