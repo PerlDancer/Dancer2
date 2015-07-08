@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #915, #930: Check existence of optional extension headers when
       behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
