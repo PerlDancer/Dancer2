@@ -10,6 +10,7 @@
     * GH #844, #937: Non-hash serialized params do not cause a crash. (Sawyer X)
     * GH #943: Pass @_ to UNIVERSAL's VERSION so it validates version number.
       (Sawyer X)
+    * GH #934: Cleanup internals in the old Dispatcher. (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * Sanitize Changes
