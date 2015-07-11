@@ -107,7 +107,6 @@ sub _body_params { $_[0]->{'_body_params'} }
 sub _set_body_params {
     my ( $self, $params ) = @_;
     $self->{_body_params} = _decode( $params );
-    $self->_build_params();
 }
 
 sub _query_params { $_[0]->{'_query_params'} }
@@ -115,7 +114,6 @@ sub _query_params { $_[0]->{'_query_params'} }
 sub _set_query_params {
     my ( $self, $params ) = @_;
     $self->{_query_params} = _decode( $params );
-    $self->_build_params();
 }
 
 sub _route_params { $_[0]->{'_route_params'} ||= {} }
@@ -196,7 +194,6 @@ sub deserialize {
     # that numerical data "stays" numerical; decoding an SV that is an IV
     # converts that to a PVIV. Some serializers are picky (JSON)..
     $self->{_body_params} = $data;
-    $self->_build_params();
 
     return $data;
 }
@@ -224,7 +221,6 @@ sub init {
     $self->{_http_body}->cleanup(1);
 
     $self->data;      # Deserialize body
-    $self->_params(); # Decode query and body prams
     $self->_build_uploads();
 }
 
@@ -353,7 +349,7 @@ sub _decode {
     }
 
     if ( ref($h) eq 'ARRAY' ) {
-        return [ map { _decode($_) } @$h ];
+        return [ map _decode($_), @$h ];
     }
 
     return $h;
@@ -387,19 +383,13 @@ sub _build_params {
     my $previous = $self->_has_params ? $self->_params : {};
 
     # now parse environment params...
-    $self->_parse_get_params();
-    if ( $self->body_is_parsed ) {
-        $self->{_body_params} ||= {};
-    }
-    else {
-        $self->_parse_post_params();
-    }
+    my $get_params = $self->_parse_get_params();
 
     # and merge everything
     $self->{_params} = {
         map +( ref $_ eq 'HASH' ? %{$_} : () ),
         $previous,
-        $self->_query_params,
+        $get_params,
         $self->_route_params,
         $self->_body_params,
     };
@@ -514,6 +504,13 @@ sub _read {
 sub _build_uploads {
     my ($self) = @_;
 
+    if ( $self->body_is_parsed ) {
+        $self->{_body_params} ||= {};
+    }
+    else {
+        $self->_parse_post_params();
+    }
+
     my $uploads = _decode( $self->{_http_body}->upload );
     my %uploads;
 
@@ -521,28 +518,22 @@ sub _build_uploads {
         my $files = $uploads->{$name};
         $files = ref $files eq 'ARRAY' ? $files : [$files];
 
-        my @uploads;
-        for my $upload ( @{$files} ) {
-            push(
-                @uploads,
-                Dancer2::Core::Request::Upload->new(
-                    headers  => $upload->{headers},
-                    tempname => $upload->{tempname},
-                    size     => $upload->{size},
-                    filename => $upload->{filename},
-                )
-            );
-        }
+        my @uploads = map Dancer2::Core::Request::Upload->new(
+                              headers  => $_->{headers},
+                              tempname => $_->{tempname},
+                              size     => $_->{size},
+                              filename => $_->{filename},
+                      ), @{$files};
+
         $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
 
         # support access to the filename as a normal param
-        my @filenames = map { $_->{filename} } @uploads;
+        my @filenames = map $_->{'filename'}, @uploads;
         $self->{_body_params}{$name} =
           @filenames > 1 ? \@filenames : $filenames[0];
     }
 
     $self->{uploads} = \%uploads;
-    $self->_build_params();
 }
 
 # XXX: incompatible with Plack::Request
@@ -564,7 +555,7 @@ sub _build_cookies {
         my ( $name, $value ) = split( /\s*=\s*/, $cookie, 2 );
         my @values;
         if ( defined $value and $value ne '' ) {
-            @values = map { uri_unescape($_) } split( /[&;]/, $value );
+            @values = map uri_unescape($_), split( /[&;]/, $value );
         }
         $cookies->{$name} =
           Dancer2::Core::Cookie->new( name => $name, value => \@values );

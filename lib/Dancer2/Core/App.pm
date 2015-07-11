@@ -7,13 +7,11 @@ use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';
 use Return::MultiLevel ();
 use Safe::Isa;
+use Sub::Quote;
 use File::Spec;
 
-use Plack::Middleware::Conditional;
-use Plack::Middleware::ContentLength;
 use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
-use Plack::Middleware::RemoveRedundantBody;
 use Plack::Middleware::Static;
 
 use Dancer2::FileUtils 'path';
@@ -45,16 +43,15 @@ has _factory => (
 
 has logger_engine => (
     is        => 'ro',
-    isa       => Maybe[ConsumerOf['Dancer2::Core::Role::Logger']],
+    isa       => ConsumerOf['Dancer2::Core::Role::Logger'],
     lazy      => 1,
     builder   => '_build_logger_engine',
-    predicate => 'has_logger_engine',
     writer    => 'set_logger_engine',
 );
 
 has session_engine => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::SessionFactory']],
+    isa     => ConsumerOf['Dancer2::Core::Role::SessionFactory'],
     lazy    => 1,
     builder => '_build_session_engine',
     writer  => 'set_session_engine',
@@ -62,7 +59,7 @@ has session_engine => (
 
 has template_engine => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Template']],
+    isa     => ConsumerOf['Dancer2::Core::Role::Template'],
     lazy    => 1,
     builder => '_build_template_engine',
     writer  => 'set_template_engine',
@@ -70,21 +67,29 @@ has template_engine => (
 
 has serializer_engine => (
     is      => 'ro',
-    isa     => Maybe[ConsumerOf['Dancer2::Core::Role::Serializer']],
+    isa     => ConsumerOf['Dancer2::Core::Role::Serializer'],
     lazy    => 1,
     builder => '_build_serializer_engine',
     writer  => 'set_serializer_engine',
+    predicate => 'has_serializer_engine',
 );
 
-sub defined_engines {
-    my $self = shift;
-    return map {
-        my $type   = "${_}_engine";
-        my $engine = $self->$type;
-
-        defined $engine ? $engine : ()
-    } @{ $self->supported_engines };
-}
+has defined_engines => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        [
+            $self->template_engine,
+            $self->session_engine,
+            $self->logger_engine,
+            $self->has_serializer_engine
+                ? $self->serializer_engine
+                : (),
+        ];
+    },
+);
 
 has '+local_triggers' => (
     default => sub {
@@ -313,7 +318,7 @@ sub set_request {
     my ($self, $request) = @_;
     # populate request in app and all engines
     $self->_set_request($request);
-    $_->set_request( $request ) for $self->defined_engines;
+    $_->set_request( $request ) for @{ $self->defined_engines };
 }
 
 has response => (
@@ -355,11 +360,11 @@ around _build_config => sub {
 };
 
 sub _build_response {
-    my $self   = shift;
-    my $engine = $self->engine('serializer');
-
+    my $self = shift;
     return Dancer2::Core::Response->new(
-        ( serializer => $engine )x!! $engine
+        $self->has_serializer_engine
+            ? ( serializer => $self->serializer_engine )
+            : (),
     );
 }
 
@@ -368,7 +373,7 @@ sub _build_session {
     my $session;
 
     # Find the session engine
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
 
     # find the session cookie if any
     if ( !$self->has_destroyed_session ) {
@@ -392,7 +397,7 @@ sub _build_session {
 sub has_session {
     my $self = shift;
 
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
 
     return $self->_has_session
         || ( $self->cookie( $engine->cookie_name )
@@ -411,7 +416,7 @@ sub destroy_session {
     my $self = shift;
 
     # Find the session engine
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
 
     # Expire session, set the expired cookie and destroy the session
     # Setting the cookie ensures client gets an expired cookie unless
@@ -424,7 +429,7 @@ sub destroy_session {
     # and clear session in app and engines
     $self->set_destroyed_session($session);
     $self->clear_session;
-    $_->clear_session for $self->defined_engines;
+    $_->clear_session for @{ $self->defined_engines };
 
     return;
 }
@@ -432,7 +437,7 @@ sub destroy_session {
 sub setup_session {
     my $self = shift;
 
-    for my $engine ( $self->defined_engines ) {
+    for my $engine ( @{ $self->defined_engines } ) {
         $self->has_session                         ?
             $engine->set_session( $self->session ) :
             $engine->clear_session;
@@ -680,7 +685,7 @@ sub register_plugin {
 # This method overrides the default one from Role::ConfigReader
 sub settings {
     my $self = shift;
-    +{ %{ Dancer2->runner->config }, %{ $self->config } };
+    +{ %{ Dancer2::runner()->config }, %{ $self->config } };
 }
 
 sub cleanup {
@@ -690,7 +695,7 @@ sub cleanup {
     $self->clear_session;
     $self->clear_destroyed_session;
     # Clear engine attributes
-    for my $engine ( $self->defined_engines ) {
+    for my $engine ( @{ $self->defined_engines } ) {
         $engine->clear_session;
         $engine->clear_request;
     }
@@ -733,7 +738,7 @@ sub template {
 sub hook_candidates {
     my $self = shift;
 
-    my @engines = $self->defined_engines;
+    my @engines = @{ $self->defined_engines };
 
     my @route_handlers;
     for my $handler ( @{ $self->route_handlers } ) {
@@ -761,7 +766,7 @@ sub all_hook_aliases {
 
 sub mime_type {
     my $self   = shift;
-    my $runner = Dancer2->runner;
+    my $runner = Dancer2::runner();
 
     exists $self->config->{default_mime_type}
         ? $runner->mime_type->default( $self->config->{default_mime_type} )
@@ -784,12 +789,14 @@ sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
 
-    my $serializer = $self->engine('serializer');
     my $err = Dancer2::Core::Error->new(
           message    => $message,
           app        => $self,
         ( status     => $status     )x!! $status,
-        ( serializer => $serializer )x!! $serializer,
+
+        $self->has_serializer_engine
+            ? ( serializer => $self->serializer_engine )
+            : (),
     )->throw;
 
     # Immediately return to dispatch if with_return coderef exists
@@ -851,7 +858,7 @@ sub send_file {
         $fh = Dancer2::FileUtils::open_file( "<", $file_path );
         binmode $fh;
 
-        $content_type = Dancer2->runner->mime_type->for_file($file_path) || 'text/plain';
+        $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
              $content_type .= "; charset=" . ( $self->config->{charset} || "utf-8" );
         }
@@ -1030,7 +1037,7 @@ sub routes_regexps_for {
     my $self   = shift;
     my $method = shift;
 
-    return [ map { $_->regexp } @{ $self->routes->{$method} } ];
+    return [ map $_->regexp, @{ $self->routes->{$method} } ];
 }
 
 sub cookie {
@@ -1133,7 +1140,7 @@ sub make_forward_to {
     # If a session object was created during processing of the original request
     # i.e. a session object exists but no cookie existed
     # add a cookie so the dispatcher can assign the session to the appropriate app
-    my $engine = $self->engine('session');
+    my $engine = $self->session_engine;
     $engine && $self->_has_session or return $new_request;
     my $name = $engine->cookie_name;
     exists $new_request->cookies->{$name} and return $new_request;
@@ -1158,6 +1165,20 @@ sub app { shift }
 # DISPATCHER
 sub to_app {
     my $self = shift;
+
+    # build engines
+    {
+        for ( qw<logger session template> ) {
+            my $attr = "${_}_engine";
+            $self->$attr;
+        }
+
+        # the serializer engine does not have a default
+        # and is the only engine that can actually not have a value
+        if ( $self->config->{'serializer'} ) {
+            $self->serializer_engine;
+        }
+    }
 
     $self->finish;
 
@@ -1189,24 +1210,19 @@ sub to_app {
     };
 
     # Wrap with common middleware
-    # RemoveRedundantBody, FixMissingBodyInRedirect, ContentLength
-    $psgi = Plack::Middleware::RemoveRedundantBody->wrap( $psgi );
+    # FixMissingBodyInRedirect
     $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap( $psgi );
-    $psgi = Plack::Middleware::ContentLength->wrap( $psgi );
 
     # Static content passes through to app on 404, conditionally applied.
     # Construct the statis app to avoid a closure over $psgi
-    my $static_content = Plack::Middleware::Static->wrap(
-        $psgi,
-        path => sub { -f path( $self->config->{public_dir}, shift ) },
-        root => $self->config->{public_dir},
-        content_type => sub { $self->mime_type->for_name(shift) },
-    );
-    $psgi = Plack::Middleware::Conditional->wrap(
-        $psgi,
-        builder => sub { $static_content },
-        condition => sub { $self->config->{static_handler} },
-    );
+    if ( $self->config->{'static_handler'} ) {
+        $psgi = Plack::Middleware::Static->wrap(
+            $psgi,
+            path => sub { -f path( $self->config->{public_dir}, shift ) },
+            root => $self->config->{public_dir},
+            content_type => sub { $self->mime_type->for_name(shift) },
+        );
+    }
 
     # Apply Head. After static so a HEAD request on static content DWIM.
     $psgi = Plack::Middleware::Head->wrap( $psgi );
@@ -1217,7 +1233,8 @@ sub dispatch {
     my $self = shift;
     my $env  = shift;
 
-    my $request = Dancer2->runner->{'internal_request'} ||
+    my $runner  = Dancer2::runner();
+    my $request = $runner->{'internal_request'} ||
                   $self->build_request($env);
     my $cname   = $self->session_engine->cookie_name;
 
@@ -1244,7 +1261,7 @@ DISPATCH:
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
-            if ( my $sess = Dancer2->runner->{'internal_sessions'}{$cname} ) {
+            if ( my $sess = $runner->{'internal_sessions'}{$cname} ) {
                 $self->set_session($sess);
             }
 
@@ -1270,16 +1287,16 @@ DISPATCH:
                 $self->clear_response;
 
                 # this is in case we're asked for an old-style dispatching
-                if ( Dancer2->runner->{'internal_dispatch'} ) {
+                if ( $runner->{'internal_dispatch'} ) {
                     # Get the session object from the app before we clean up
                     # the request context, so we can propogate this to the
                     # next dispatch cycle (if required).
                     $self->_has_session
-                        and Dancer2->runner->{'internal_sessions'}{$cname} =
+                        and $runner->{'internal_sessions'}{$cname} =
                             $self->session;
 
-                    Dancer2->runner->{'internal_forward'} = 1;
-                    Dancer2->runner->{'internal_request'} = $response;
+                    $runner->{'internal_forward'} = 1;
+                    $runner->{'internal_request'} = $response;
                     return $self->response_not_found($request);
                 }
 
@@ -1292,7 +1309,7 @@ DISPATCH:
             # halted response, don't process further
             if ( $response->is_halted ) {
                 $self->cleanup;
-                delete Dancer2->runner->{'internal_request'};
+                delete $runner->{'internal_request'};
                 return $response;
             }
 
@@ -1314,7 +1331,7 @@ DISPATCH:
             # it's just a regular response
             $self->execute_hook( 'core.app.after_request', $response );
             $self->cleanup;
-            delete Dancer2->runner->{'internal_request'};
+            delete $runner->{'internal_request'};
 
             return $response;
         }
@@ -1323,14 +1340,13 @@ DISPATCH:
         last;
     }
 
-
     # No response! ensure Core::Dispatcher recognizes this failure
     # so it can try the next Core::App
     # and set the created request so we don't create it again
     # (this is important so we don't ignore the previous body)
-    if ( Dancer2->runner->{'internal_dispatch'} ) {
-        Dancer2->runner->{'internal_404'}     = 1;
-        Dancer2->runner->{'internal_request'} = $request;
+    if ( $runner->{'internal_dispatch'} ) {
+        $runner->{'internal_404'}     = 1;
+        $runner->{'internal_request'} = $request;
     }
 
     # Render 404 response, cleanup, and return the response.
@@ -1343,11 +1359,13 @@ sub build_request {
     my ( $self, $env ) = @_;
 
     # If we have an app, send the serialization engine
-    my $engine  = $self->serializer_engine;
     my $request = Dancer2::Core::Request->new(
           env             => $env,
           is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
-        ( serializer      => $engine )x!! $engine,
+
+          $self->has_serializer_engine
+              ? ( serializer => $self->serializer_engine )
+              : (),
     );
 
     return $request;
@@ -1386,13 +1404,13 @@ sub _add_content_to_response {
     # The response object has no back references to the content or app
     # Update the default_content_type of the response if any value set in
     # config so it can be applied when the response is encoded/returned.
-    if ( exists $self->config->{content_type}
-      && $self->config->{content_type} ) {
-        $response->default_content_type($self->config->{content_type});
+    my $config = $self->config;
+    if ( exists $config->{content_type}
+      and my $ct = $config->{content_type} ) {
+        $response->default_content_type($ct);
     }
 
     $response->content($content);
-    $response->encode_content;
     return $response;
 }
 

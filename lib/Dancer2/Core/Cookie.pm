@@ -12,7 +12,7 @@ sub to_header {
     my $self   = shift;
     my $header = '';
 
-    my $value = join( '&', map { uri_escape($_) } $self->value );
+    my $value = join( '&', map uri_escape($_), $self->value );
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;

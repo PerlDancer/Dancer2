@@ -18,3 +18,4 @@ Dancer2-[0-9]*
 t/sessions
 /.tidyall.d
 /perltidy.LOG
+tools/logs/

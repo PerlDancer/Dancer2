@@ -16,8 +16,9 @@ $r = Dancer2::Core::Response->new(
 
 is_deeply $r->to_psgi,
   [ 200,
-    [   Server         => "Perl Dancer2 " . Dancer2->VERSION,
-        'Content-Type' => 'text/html',
+    [   Server           => "Perl Dancer2 " . Dancer2->VERSION,
+        'Content-Length' => 3,
+        'Content-Type'   => 'text/html',
     ],
     ['foo']
   ];
@@ -46,7 +47,7 @@ is $r->header('X-Foo'), '432, 777';
 $r->header( 'X-Bar' => 234 );
 is $r->header('X-Bar'),      '234';
 
-is scalar( @{ $r->headers_to_array } ), 10;
+is scalar( @{ $r->headers_to_array } ), 12;
 
 # stringify HTTP status
 $r = Dancer2::Core::Response->new( content => "foo", status => "Not Found" );

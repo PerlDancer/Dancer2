@@ -7,6 +7,8 @@ use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
+use Sub::Quote;
+use Safe::Isa;
 
 has app => (
     is        => 'ro',
@@ -68,7 +70,7 @@ sub _build_error_template {
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
     return $self->status
-      if -f $self->app->engine('template')
+      if -f $self->app->template_engine
           ->view_pathname( $self->status );
 
     return;
@@ -163,15 +165,19 @@ sub full_message {
 
 has serializer => (
     is        => 'ro',
-    isa       => Maybe[ConsumerOf ['Dancer2::Core::Role::Serializer']],
+    isa       => Sub::Quote::quote_sub(q{
+        $_[0]
+            ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
+            : 1;
+    }),
     builder   => '_build_serializer',
 );
 
 sub _build_serializer {
     my ($self) = @_;
 
-    $self->has_app
-        and return $self->app->engine('serializer');
+    $self->has_app && $self->app->has_serializer_engine
+        and return $self->app->serializer_engine;
 
     return;
 }
@@ -308,7 +314,6 @@ sub throw {
     $self->response->status( $self->status );
     $self->response->content_type( $self->content_type );
     $self->response->content($message);
-    $self->response->encode_content;
 
     $self->has_app &&
         $self->app->execute_hook('core.error.after', $self->response);

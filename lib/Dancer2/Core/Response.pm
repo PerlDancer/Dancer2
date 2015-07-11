@@ -10,14 +10,51 @@ use Dancer2::Core::Types;
 use Dancer2 ();
 use Dancer2::Core::HTTP;
 
+use HTTP::Headers::Fast;
+use Scalar::Util qw(blessed);
+use Plack::Util;
+use Safe::Isa;
+use Sub::Quote ();
+
 use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
 
-with qw<
-    Dancer2::Core::Role::Response
-    Dancer2::Core::Role::Headers
->;
+has headers => (
+    is     => 'ro',
+    isa    => Sub::Quote::quote_sub(q{
+        $_[0]->$_isa('ARRAY')          ||
+        $_[0]->$_DOES('HTTP::Headers') ||
+        $_[0]->$_DOES('HTTP::Headers::Fast')
+    }),
+    lazy   => 1,
+    coerce => sub {
+        my ($value) = @_;
+        # HTTP::Headers::Fast reports that it isa 'HTTP::Headers',
+        # but there is no actual inheritance.
+        return $value if blessed($value) && $value->isa('HTTP::Headers');
+        HTTP::Headers::Fast->new( @{$value} );
+    },
+    default => sub {
+        HTTP::Headers::Fast->new();
+    },
+    handles => [qw<header push_header>],
+);
+
+sub headers_to_array {
+    my $self    = shift;
+    my $headers = shift || $self->headers;
+
+    my @hdrs;
+    $headers->scan( sub {
+        my ( $k, $v ) = @_;
+         $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+         $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
+        push @hdrs, $k => $v;
+    });
+
+    return \@hdrs;
+}
 
 # boolean to tell if the route passes or not
 has has_passed => (
@@ -29,9 +66,8 @@ has has_passed => (
 sub pass { shift->has_passed(1) }
 
 has serializer => (
-    is        => 'ro',
-    isa       => Maybe[ ConsumerOf ['Dancer2::Core::Role::Serializer'] ],
-    predicate => 1,
+    is  => 'ro',
+    isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
 );
 
 has is_encoded => (
@@ -64,16 +100,16 @@ has content => (
 );
 
 around content => sub {
-    my $orig = shift;
-    my $self = shift;
+    my ( $orig, $self, $content ) = @_;
 
-    if ( @_ && $self->has_serializer ) {
-        my $content = $self->serialize( shift );
-        unshift @_, defined $content ? $content : '';
-        $self->is_encoded(1); # All serializers return byte strings
-    }
+    @_ == 2 and return $self->$orig;
 
-    return $self->$orig(@_);
+    $self->serializer
+        or return $self->$orig( $self->encode_content($content) );
+
+    $content = $self->serialize($content);
+    $self->is_encoded(1); # All serializers return byte strings
+    return $self->$orig( defined $content ? $content : '' );
 };
 
 has default_content_type => (
@@ -83,23 +119,24 @@ has default_content_type => (
 );
 
 sub encode_content {
-    my ($self) = @_;
-    return if $self->is_encoded;
+    my ( $self, $content ) = @_;
+
+    return $content if $self->is_encoded;
+
     # Apply default content type if none set.
-    $self->content_type or $self->content_type($self->default_content_type);
-    return if $self->content_type !~ /^text/;
+    my $ct = $self->content_type ||
+             $self->content_type( $self->default_content_type );
+
+    return $content if $ct !~ /^text/;
 
     # we don't want to encode an empty string, it will break the output
-    $self->content or return;
+    $content or return $content;
 
-    my $ct = $self->content_type;
     $self->content_type("$ct; charset=UTF-8")
       if $ct !~ /charset/;
 
     $self->is_encoded(1);
-    my $content = $self->content( Encode::encode( 'UTF-8', $self->content ) );
-
-    return $content;
+    return Encode::encode( 'UTF-8', $content );
 }
 
 sub new_from_plack {
@@ -125,14 +162,28 @@ sub new_from_array {
 sub to_psgi {
     my ($self) = @_;
 
-    Dancer2->runner->config->{'no_server_tokens'}
+    Dancer2::runner()->config->{'no_server_tokens'}
         or $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
+
+    my $headers = $self->headers;
+    my $status  = $self->status;
+
+    Plack::Util::status_with_no_entity_body($status)
+        and return [ $status, $self->headers_to_array($headers), [] ];
 
     # It is possible to have no content and/or no content type set
     # e.g. if all routes 'pass'. Apply defaults here..
+    my $content = defined $self->content ? $self->content : '';
+
+    if ( !$headers->header('Content-Length')    &&
+         !$headers->header('Transfer-Encoding') &&
+         defined( my $content_length = length $content ) ) {
+         $headers->push_header( 'Content-Length' => $content_length );
+    }
+
+    # More defaults
     $self->content_type or $self->content_type($self->default_content_type);
-    $self->content('') if ! defined $self->content;
-    return [ $self->status, $self->headers_to_array, [ $self->content ], ];
+    return [ $status, $self->headers_to_array($headers), [ $content ], ];
 }
 
 # sugar for accessing the content_type header, with mimetype care
@@ -140,9 +191,10 @@ sub content_type {
     my $self = shift;
 
     if ( scalar @_ > 0 ) {
-        my $runner   = Dancer2->runner;
+        my $runner   = Dancer2::runner();
         my $mimetype = $runner->mime_type->name_or_type(shift);
         $self->header( 'Content-Type' => $mimetype );
+        return $mimetype;
     }
     else {
         return $self->header('Content-Type');
@@ -186,12 +238,14 @@ sub error {
 
 sub serialize {
     my ($self, $content) = @_;
-    return unless $self->has_serializer;
 
-    $content = $self->serializer->serialize($content)
+    my $serializer = $self->serializer
         or return;
 
-    $self->content_type($self->serializer->content_type);
+    $content = $serializer->serialize($content)
+        or return;
+
+    $self->content_type( $serializer->content_type );
     return $content;
 }
 
@@ -279,4 +333,32 @@ it against the response object. Returns the error object.
 Serialize and return $content with the response's serializer.
 set content-type accordingly.
 
-=cut
+=attr headers
+
+The attribute that store the headers in a L<HTTP::Headers::Fast> object.
+
+That attribute coerces from ArrayRef and defaults to an empty L<HTTP::Headers::Fast>
+instance.
+
+=method header($name)
+
+Return the value of the given header, if present. If the header has multiple
+values, returns the list of values if called in list context, the first one
+if in scalar context.
+
+=method push_header
+
+Add the header no matter if it already exists or not.
+
+    $self->push_header( 'X-Wing' => '1' );
+
+It can also be called with multiple values to add many times the same header
+with different values:
+
+    $self->push_header( 'X-Wing' => 1, 2, 3 );
+
+=method headers_to_array($headers)
+
+Convert the C<$headers> to a PSGI ArrayRef.
+
+If no C<$headers> are provided, it will use the current response headers.
