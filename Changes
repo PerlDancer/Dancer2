@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
+      (Sawyer X)
+
 0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
