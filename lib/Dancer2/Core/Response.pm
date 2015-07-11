@@ -224,18 +224,6 @@ sub redirect {
     $self->header( 'Location' => "$destination" );
 }
 
-sub error {
-    my $self = shift;
-
-    my $error = Dancer2::Core::Error->new(
-        response => $self,
-        @_,
-    );
-
-    $error->throw;
-    return $error;
-}
-
 sub serialize {
     my ($self, $content) = @_;
 
@@ -318,13 +306,6 @@ A little sugar for setting or accessing the content_type of the response, via th
 Sets a header in this response to give a redirect to $destination, and sets the
 status to $status.  If $status is omitted, or false, then it defaults to a status of
 302.
-
-=method error( @args )
-
-    $response->error( message => "oops" );
-
-Creates a L<Dancer2::Core::Error> object with the given I<@args> and I<throw()>
-it against the response object. Returns the error object.
 
 =method serialize( $content )
 

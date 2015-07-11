@@ -104,18 +104,6 @@ subtest "send_error with custom stuff" => sub {
     };
 };
 
-subtest 'Response->error()' => sub {
-    my $resp = Dancer2::Core::Response->new;
-
-    isa_ok $resp->error( message => 'oops', status => 418 ),
-      'Dancer2::Core::Error';
-
-    is $resp->status    => 418,        'response code is 418';
-    like $resp->content => qr/oops/,   'response content overriden by error';
-    like $resp->content => qr/teapot/, 'error code title is present';
-    ok $resp->is_halted, 'response is halted';
-};
-
 subtest 'Throwing an error with a response' => sub {
     my $resp = Dancer2::Core::Response->new;
 
