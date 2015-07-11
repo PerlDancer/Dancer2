@@ -135,14 +135,15 @@ sub execute {
 
     my $content = $self->code->( $app, @args );
 
-    # a user might have set the content in the response,
-    # so we ignore the return value and use that content instead
-    # but we only override if there was no object returned
+    # users may set content in the response. If the response has
+    # content, and the returned value from the route code is not
+    # an object (well, reference) we ignore the returned value
+    # and use the existing content in the response instead.
     $RESPONSE->has_content && !ref $content
-        and $content = $RESPONSE->content;
+        and return $app->_prep_response( $RESPONSE );
 
     my $type = blessed($content)
-        or return $app->_add_content_to_response( $RESPONSE, $content );
+        or return $app->_prep_response( $RESPONSE, $content );
 
     # Plack::Response: proper ArrayRef-style response
     $type eq 'Plack::Response'

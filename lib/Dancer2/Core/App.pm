@@ -1379,9 +1379,7 @@ sub _dispatch_route {
     my $response = $self->response;
 
     if ( $response->is_halted ) {
-        return $self->_add_content_to_response(
-            $response, $response->content,
-        );
+        return $self->_prep_response( $response );
     }
 
     $response = eval {
