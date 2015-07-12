@@ -12,7 +12,7 @@ note "HTTP status"; {
         { status => 'bad_request',  expected => 400   },
         { status => 'i_m_a_teapot', expected => 418   },
         { status => 'error',        expected => 500   },
-        { status => 911,            expected => 911   },
+        { status => 911,            expected => undef },
     );
 
     for my $test (@tests) {

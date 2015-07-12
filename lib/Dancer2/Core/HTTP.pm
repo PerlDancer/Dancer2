@@ -5,8 +5,7 @@ package Dancer2::Core::HTTP;
 use strict;
 use warnings;
 
-my $HTTP_CODES = {
-
+my %HTTP_CODES_AS_STR = (
     # informational
     100 => 'Continue',               # only on HTTP 1.1
     101 => 'Switching Protocols',    # only on HTTP 1.1
@@ -90,35 +89,25 @@ my $HTTP_CODES = {
     511 => 'Network Authentication Required',
     598 => 'Network read timeout error',
     599 => 'Network connect timeout error',
-};
+);
 
-for my $code ( keys %$HTTP_CODES ) {
-    my $str_http_code = $HTTP_CODES->{$code};
-    $HTTP_CODES->{$str_http_code} = $code;
+my %HTTP_CODES_AS_NUM = map +(
+    $_ => $_,
+    $HTTP_CODES_AS_STR{$_} => $_,
+    lc( join '_', split /\W/, $HTTP_CODES_AS_STR{$_} ) => $_
+), keys %HTTP_CODES_AS_STR;
 
-    my $alias = lc join '_', split /\W/, $HTTP_CODES->{$code};
-    $HTTP_CODES->{$alias} = $code;
+for ( keys %HTTP_CODES_AS_NUM ) {
+    $HTTP_CODES_AS_STR{$_} =
+        $HTTP_CODES_AS_STR{ $HTTP_CODES_AS_NUM{$_} };
 }
 
-$HTTP_CODES->{error} = $HTTP_CODES->{internal_server_error};
+$HTTP_CODES_AS_NUM{error} = $HTTP_CODES_AS_NUM{internal_server_error};
+$HTTP_CODES_AS_STR{error} = $HTTP_CODES_AS_STR{internal_server_error};
 
-sub status {
-    my ( $class, $status ) = @_;
-    return if ! defined $status;
-    return $status if $status =~ /^\d+$/;
-    if ( exists $HTTP_CODES->{$status} ) {
-        return $HTTP_CODES->{$status};
-    }
-    return;
-}
+sub status { $_[1] && $HTTP_CODES_AS_NUM{ $_[1] } }
 
-sub status_message {
-    my ( $class, $status ) = @_;
-    return if ! defined $status;
-    my $code = $class->status($status);
-    return if ! defined $code || ! exists $HTTP_CODES->{$code};
-    return $HTTP_CODES->{ $code };
-}
+sub status_message { $_[1] && $HTTP_CODES_AS_STR{ $_[1] } }
 
 1;
 
