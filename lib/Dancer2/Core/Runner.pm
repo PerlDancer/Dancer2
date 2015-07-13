@@ -6,7 +6,6 @@ use Carp 'croak';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
-use HTTP::Server::PSGI;
 use Plack::Builder qw();
 
 # Hashref of configurable items for the runner.
@@ -76,6 +75,7 @@ has timeout => (
 sub _build_server {
     my $self = shift;
 
+    require HTTP::Server::PSGI;
     HTTP::Server::PSGI->new(
         host            => $self->host,
         port            => $self->port,
