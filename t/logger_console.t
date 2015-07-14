@@ -19,7 +19,7 @@ for my $level (qw{core debug info warning error}) {
     # this test; however Capture::Tiny adds in several call frames
     # (see below) to capture the output, giving a reasonable caller
     # to test for
-    like $stderr, qr{$level in $file l. 15}, "$level message sent";
+    like $stderr, qr{$level in \Q$file\E l[.] 15}, "$level message sent";
 }
 done_testing;
 

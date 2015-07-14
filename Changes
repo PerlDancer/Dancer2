@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #947, #948: Escape file paths in regex patterns. (A. Sinan Unur)
+
     [ ENHANCEMENTS ]
     * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
       (Sawyer X)
