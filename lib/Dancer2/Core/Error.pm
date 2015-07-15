@@ -106,15 +106,10 @@ sub default_error_page {
     my $uri_base = $self->has_app ?
         $self->app->request->uri_base : '';
 
-    my $message = $self->message;
-    if ( $self->show_errors && $self->exception) {
-        $message .= "\n" . $self->exception;
-    }
-
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
-        content  => $message,
+        content  => $self->show_errors ? $self->full_message : $self->message || 'Wooops, something went wrong',
         version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
@@ -325,14 +320,14 @@ sub throw {
 sub backtrace {
     my ($self) = @_;
 
-    my $message = $self->exception ? $self->exception : $self->message;
-    $message =
-      qq|<pre class="error">| . _html_encode( $message ) . "</pre>";
-
-    if ( $self->exception && !ref($self->exception) ) {
-        $message .= qq|<pre class="error">|
-                 . _html_encode($self->exception) . "</pre>";
+    my $message = $self->message;
+    if ($self->exception) {
+        $message .= "\n" if $message;
+        $message .= $self->exception;
     }
+    $message ||= 'Wooops, something went wrong';
+
+    $message = '<pre class="error">' . _html_encode($message) . '</pre>';
 
     # the default perl warning/error pattern
     my ( $file, $line ) = ( $message =~ /at (\S+) line (\d+)/ );
