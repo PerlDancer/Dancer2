@@ -455,6 +455,8 @@ sub _censor {
     my $censored = 0;
     for my $key ( keys %$hash ) {
         if ( ref $hash->{$key} eq 'HASH' ) {
+            # Take a copy of the data, so we can hide sensitive-looking stuff:
+            $hash->{$key} = { %{ $hash->{$key} } };
             $censored += _censor( $hash->{$key} );
         }
         elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
