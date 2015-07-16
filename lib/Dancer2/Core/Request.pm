@@ -343,7 +343,9 @@ sub _decode {
 
     if ( ref($h) eq 'HASH' ) {
         while ( my ( $k, $v ) = each(%$h) ) {
-            $h->{$k} = _decode($v);
+            my $decK = _decode($k);
+            $h->{$decK} = _decode($v);
+            delete $h->{$k} if $k ne $decK;
         }
         return $h;
     }

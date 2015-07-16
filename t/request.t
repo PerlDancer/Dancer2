@@ -236,6 +236,17 @@ sub run_test {
     is $req->method, 'POST',      'method is changed';
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
+
+    note "testing unicode params";
+    $env = {
+        'REQUEST_METHOD' => 'GET',
+        'REQUEST_URI'    => '/',
+        'PATH_INFO'      => '/',
+        'QUERY_STRING'   => "M%C3%BCller=L%C3%BCdenscheid",
+    };
+    $req = Dancer2::Core::Request->new( env => $env );
+    is_deeply scalar( $req->params ), { "M\N{U+00FC}ller", "L\N{U+00FC}denscheid" },
+      'multi byte unicode chars work in param keys and values';
 }
 
 note "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
