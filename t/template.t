@@ -132,4 +132,35 @@ subtest "modify views - absolute paths" => sub {
     );
 };
 
+{
+    package Baz;
+    use Dancer2;
+
+    set template => 'template_toolkit';
+
+    get '/set_views/**' => sub {
+        my ($view) = splat;
+        set views => join('/', @$view );
+    };
+
+    get '/:file' => sub {
+        template param('file');
+    };
+}
+
+subtest "modify views propogates to TT2 via dynamic INCLUDE_PATH" => sub {
+
+    my $test = Plack::Test->create( Baz->to_app );
+
+    my $res = $test->request( GET '/index' );
+    is $res->code, 200, 'got template from views';
+
+    # Change views - this is an existing test corpus..
+    $test->request( GET '/set_views/t/corpus/pretty' );
+
+    # Get another template that is known to exist in the test corpus
+    $res = $test->request( GET '/505' );
+    is $res->code, 200, 'got template from other view';
+};
+
 done_testing;
