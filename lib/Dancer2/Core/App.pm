@@ -1408,8 +1408,6 @@ sub _prep_response {
 
     # if we were passed any content, set it in the response
     defined $content && $response->content($content);
-    # finally encode the response content.
-    $response->encode_content;
     return $response;
 }
 
