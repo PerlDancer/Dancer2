@@ -6,6 +6,7 @@ use Moo;
 use Carp qw/croak/;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw'path';
+use Scalar::Util qw();
 use Template;
 
 with 'Dancer2::Core::Role::Template';
@@ -29,7 +30,12 @@ sub _build_engine {
     $tt_config{'END_TAG'} = $stop_tag
       if defined $stop_tag && $stop_tag ne '%]';
 
-    $tt_config{'INCLUDE_PATH'} ||= $self->views;
+    Scalar::Util::weaken( my $ttt = $self );
+    my $include_path = $self->config->{include_path};
+    $tt_config{'INCLUDE_PATH'} ||= [
+        ( defined $include_path ? $include_path : () ),
+        sub { [ $ttt->views ] },
+    ];
 
     return Template->new(%tt_config);
 }
