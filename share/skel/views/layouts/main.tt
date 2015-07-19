@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="<% settings.charset %>">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-<title>[% appname %]</title>
-<link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
+  <title>[% appname %]</title>
+  <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
 
 <!-- Grab jQuery from a CDN, fall back to local if necessary -->
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
