@@ -118,10 +118,10 @@ sub default_error_page {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="[% charset %]">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>[% title %]</title>
-<link rel="stylesheet" href="[% uri_base %]/css/error.css" />
-<meta http-equiv="Content-type" content="text/html; charset='[% charset %]'" />
+  <title>[% title %]</title>
+  <link rel="stylesheet" href="[% uri_base %]/css/error.css">
 </head>
 <body>
 <h1>[% title %]</h1>
