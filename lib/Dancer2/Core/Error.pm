@@ -177,11 +177,6 @@ sub _build_serializer {
     return;
 }
 
-has session => (
-    is  => 'ro',
-    isa => ConsumerOf ['Dancer2::Core::Role::Session'],
-);
-
 sub BUILD {
     my ($self) = @_;
 
@@ -414,7 +409,7 @@ sub environment {
 
     my $stack = $self->get_caller;
     my $settings = $self->has_app && $self->app->settings;
-    my $session = $self->session && $self->session->data;
+    my $session = $self->has_app && $self->app->_has_session && $self->app->session->data;
     my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
     # Get a sanitised dump of the settings, session and environment
