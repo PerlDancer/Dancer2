@@ -1379,9 +1379,7 @@ sub _dispatch_route {
     my $response = $self->response;
 
     if ( $response->is_halted ) {
-        return $self->_add_content_to_response(
-            $response, $response->content,
-        );
+        return $self->_prep_response( $response );
     }
 
     $response = eval {
@@ -1396,10 +1394,8 @@ sub _dispatch_route {
     return $response;
 }
 
-sub _add_content_to_response {
+sub _prep_response {
     my ( $self, $response, $content ) = @_;
-
-    defined $content or return $response;
 
     # The response object has no back references to the content or app
     # Update the default_content_type of the response if any value set in
@@ -1410,7 +1406,8 @@ sub _add_content_to_response {
         $response->default_content_type($ct);
     }
 
-    $response->content($content);
+    # if we were passed any content, set it in the response
+    defined $content && $response->content($content);
     return $response;
 }
 

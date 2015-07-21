@@ -2,6 +2,9 @@
 
     [ BUG FIXES ]
     * GH #947, #948: Escape file paths in regex patterns. (A. Sinan Unur)
+    * GH #944: Setting response content in before hook when a serializer
+      is set no longer triggers an error.
+      (Russell Jenkins, Dmitrii Tcyganov)
 
     [ ENHANCEMENTS ]
     * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
