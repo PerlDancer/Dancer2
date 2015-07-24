@@ -103,7 +103,7 @@ sub default_error_page {
 
     require Template::Tiny;
 
-    my $uri_base = $self->has_app ?
+    my $uri_base = $self->has_app && $self->app->has_request ?
         $self->app->request->uri_base : '';
 
     my $opts = {
