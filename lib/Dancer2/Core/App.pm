@@ -1384,12 +1384,7 @@ sub _dispatch_route {
 
     $response = eval {
         $route->execute($self)
-    } or do {
-        my $error = $@;
-        $self->log( error => "Route exception: $error" );
-        $self->execute_hook( 'core.app.route_exception', $self, $error );
-        return $self->response_internal_error($error);
-    };
+    } or return $self->response_internal_error($@);
 
     return $response;
 }
@@ -1414,7 +1409,8 @@ sub _prep_response {
 sub response_internal_error {
     my ( $self, $error ) = @_;
 
-    # warn "got error: $error";
+    $self->log( error => "Route exception: $error" );
+    $self->execute_hook( 'core.app.route_exception', $self, $error );
 
     local $Dancer2::Core::Route::REQUEST  = $self->request;
     local $Dancer2::Core::Route::RESPONSE = $self->response;
