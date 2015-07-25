@@ -39,6 +39,7 @@ is( $called, 1, 'Memory cleaned' );
 # double check stderr
 #  '[App:21992] error @2015-03-03 16:39:07> Exception caught in 'core.app.before_request' filter: Hook error: whoops at t/issues/memleak/die_in_hooks.t line 25.
 #  at lib/Dancer2/Core/App.pm line 848. in (eval 117) l. 1
+#  at ...
 # '
 like(
     $stderr,
@@ -48,8 +49,7 @@ like(
         \QException caught in 'core.app.before_request' filter:\E \s
         \QHook error: whoops\E \s
         [^\n]+ \n \s*       # everything until newline + newline
-        at [^\n]+ \n        # another such line
-        $
+        at [^\n]+ \n        # another such line (there could be more)
     }x,
     'Correct error',
 );
