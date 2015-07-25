@@ -1375,7 +1375,9 @@ sub build_request {
 sub _dispatch_route {
     my ( $self, $route ) = @_;
 
-    $self->execute_hook( 'core.app.before_request', $self );
+    local $@;
+    eval { $self->execute_hook( 'core.app.before_request', $self ); 1; }
+        or return $self->response_internal_error($@);
     my $response = $self->response;
 
     if ( $response->is_halted ) {
