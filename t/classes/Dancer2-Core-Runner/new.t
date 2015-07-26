@@ -196,6 +196,7 @@ note 'Startup info';
     can_ok( $runner, qw<start start_server> );
 
     $runner->config->{'apphandler'} = 'PSGI';
+    $runner->config->{'startup_info'} = 0;
     my $app = $runner->start;
     isa_ok( $app, 'CODE' );
 
