@@ -26,5 +26,8 @@ install:
     - dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
     - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
 
+# We do not need sudo. Setting this allows travis to use (Docker) containers on EC2
+sudo: false
+
 script:
     - dzil test --author --release
