@@ -342,12 +342,7 @@ sub _decode {
     }
 
     if ( ref($h) eq 'HASH' ) {
-        while ( my ( $k, $v ) = each(%$h) ) {
-            my $decK = _decode($k);
-            $h->{$decK} = _decode($v);
-            delete $h->{$k} if $k ne $decK;
-        }
-        return $h;
+        return { map _decode($_), %$h };
     }
 
     if ( ref($h) eq 'ARRAY' ) {
