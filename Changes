@@ -5,6 +5,8 @@
     * GH #944: Setting response content in before hook when a serializer
       is set no longer triggers an error.
       (Russell Jenkins, Dmitrii Tcyganov)
+    * GH #965: Remove non-existant role from Response::Delayed.
+      (Vernon, Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
