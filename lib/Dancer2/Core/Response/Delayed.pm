@@ -3,7 +3,6 @@ package Dancer2::Core::Response::Delayed;
 
 use Moo;
 use MooX::Types::MooseLike::Base qw<CodeRef InstanceOf>;
-with 'Dancer2::Core::Role::Response';
 
 has request => (
     is       => 'ro',
