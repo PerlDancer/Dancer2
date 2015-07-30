@@ -5,17 +5,18 @@ use Moo;
 use JSON ();
 
 with 'Dancer2::Core::Role::Serializer';
+with 'MooX::Singleton';
 
 has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
 sub from_json {
-    my $s = Dancer2::Serializer::JSON->new;
+    my $s = Dancer2::Serializer::JSON->instance;
     $s->deserialize(@_);
 }
 
 sub to_json {
-    my $s = Dancer2::Serializer::JSON->new;
+    my $s = Dancer2::Serializer::JSON->instance;
     $s->serialize(@_);
 }
 
