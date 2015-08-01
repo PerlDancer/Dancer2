@@ -89,7 +89,7 @@ my @tests = (
     ],
 );
 
-plan tests => 71;
+plan tests => 73;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
@@ -219,4 +219,25 @@ SKIP: {
 
     $m = $route_w_options->match($req);
     ok defined $m, 'Route matched';
+
+    $route_w_options = Dancer2::Core::Route->new(
+        method  => 'get',
+        regexp  => '/',
+        code    => sub {'options'},
+        options => {
+            'agent' => 'cURL',
+            'content_type' => 'foo',
+        },
+    );
+
+    $req = Dancer2::Core::Request->new(
+        path   => '/',
+        method => 'get',
+        env    => { 'HTTP_USER_AGENT' => 'cURL' },
+    );
+
+    $m = $route_w_options->match($req);
+    ok !defined $m, 'More options - Route did not match - test 1';
+    $m = $route_w_options->match($req);
+    ok !defined $m, 'More options - Route did not match - test 2';
 }
