@@ -237,9 +237,12 @@ sub _build_regexp_from_string {
 sub validate_options {
     my ( $self, $request ) = @_;
 
-    while ( my ( $option, $value ) = each %{ $self->options } ) {
+    for my $option ( keys %{ $self->options } ) {
         return 0
-          if ( not $request->$option ) || ( $request->$option !~ $value );
+          if (
+            ( not $request->$option )
+            || ( $request->$option !~ $self->options->{ $option } )
+          )
     }
     return 1;
 }
