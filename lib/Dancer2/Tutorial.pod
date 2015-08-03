@@ -18,8 +18,8 @@ that type of traffic to that specific URL.
 
   start;
 
-This example shows a single HTTP verb "GET" followed by the root URL "/" and
-an anonymous subroutine which returns the string C<"Hello World!">  If you
+This example shows a single HTTP verb B<GET> followed by the root URL B</> and
+an anonymous subroutine which returns the string C<Hello World!>  If you
 were to run this example, it would display "Hello World!" when you point
 your browser at L<http://localhost:3000>.
 
@@ -43,7 +43,7 @@ Dancr is a simple "micro" blog which uses the
 L<SQLite|http://www.sqlite.org> database engine for simplicity's sake.
 (You'll need to install sqlite if you don't have it installed already.)
 
-=head1 Required perl modules
+=head1 Required Perl modules
 
 Obviously you need L<Dancer2>.  You also need the L<Template
 Toolkit|Template>, L<File::Slurp>, and L<DBD::SQLite>.  These all can be
@@ -75,14 +75,14 @@ listed below, so don't worry about copying each of these fragments into
 following subroutines in that file:
 
   sub connect_db {
-    my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
-       die $DBI::errstr;
+    my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
+      or die $DBI::errstr;
 
     return $dbh;
   }
 
   sub init_db {
-    my $db = connect_db();
+    my $db     = connect_db();
     my $schema = read_file('./schema.sql');
     $db->do($schema) or die $db->errstr;
   }
@@ -95,26 +95,25 @@ that the expression evaluates to the location of the database file.
 for an easy way to configure and manage database connections for your
 Dancer2 apps, but the above will suffice for this tutorial.)
 
-
 =head1 Our first route handler
 
 Let's tackle our first route handler now, the one for the root URL '/'. This
 is what it looks like:
 
   get '/' => sub {
-    my $db = connect_db();
+    my $db  = connect_db();
     my $sql = 'select id, title, text from entries order by id desc';
     my $sth = $db->prepare($sql) or die $db->errstr;
     $sth->execute or die $sth->errstr;
-    template 'show_entries.tt', {
-       'msg' => get_flash(),
-       'add_entry_url' => uri_for('/add'),
-       'entries' => $sth->fetchall_hashref('id'),
+    template show_entries => {
+       msg           => get_flash(),
+       add_entry_url => uri_for('/add'),
+       entries       => $sth->fetchall_hashref('id'),
     };
   };
 
-As you can see, the handler is created by specifying the HTTP verb 'get',
-the '/' URL to match, and finally, a subroutine to do something once those
+As you can see, the handler is created by specifying the HTTP verb B<GET>,
+the B</> URL to match, and finally, a subroutine to do something once those
 conditions have been satisfied.  Something you might not notice right away
 is the semicolon at the end of the route handler.  Since the subroutine
 is actually a coderef, it requires a semicolon.
@@ -207,7 +206,7 @@ the C</add> route handler which handles a POST operation.
         send_error("Not logged in", 401);
      }
 
-     my $db = connect_db();
+     my $db  = connect_db();
      my $sql = 'insert into entries (title, text) values (?, ?)';
      my $sth = $db->prepare($sql) or die $db->errstr;
      $sth->execute(params->{'title'}, params->{'text'}) or die $sth->errstr;
@@ -277,8 +276,8 @@ perhaps). Dancer2 also doesn't impose any limits on what parameters you can
 set using the C<set> syntax.  For this application we're going to embed our
 single username and password into the application itself:
 
-  set 'username' => 'admin';
-  set 'password' => 'password';
+  set username => 'admin';
+  set password => 'password';
 
 Hopefully no one will ever guess our clever password!  Obviously, you will
 want a more sophisticated user authentication scheme in any sort of
@@ -308,9 +307,7 @@ URL handler for the C</login> route.
     }
 
     # display login form
-    template 'login.tt', {
-      'err' => $err,
-    };
+    template login => { err => $err };
   };
 
 This is the first handler which accepts two different verb types, a GET for
@@ -444,8 +441,8 @@ the values in this one place instead of everywhere you render a template.
   hook before_template => sub {
      my $tokens = shift;
 
-     $tokens->{'css_url'} = request->base . 'css/style.css';
-     $tokens->{'login_url'} = uri_for('/login');
+     $tokens->{'css_url'}    = request->base . 'css/style.css';
+     $tokens->{'login_url'}  = uri_for('/login');
      $tokens->{'logout_url'} = uri_for('/logout');
   };
 
@@ -455,122 +452,647 @@ template parameters have the appropriate values before being rendered.
 
 =head1 Putting it all together
 
-Here's the complete 'dancr.pl' script from start to finish.
+By now we have finished a basic application which allows a user to login,
+add entries, and see them from its main page. Quite a big achievement for
+such a small effort no? Given below is the final F<dancr.pl> script for
+reference.
 
- use Dancer2;
- use DBI;
- use File::Spec;
- use File::Slurp;
- use Template;
+    use Dancer2;
+    use DBI;
+    use File::Spec;
+    use File::Slurp;
+    use Template;
 
- set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
- set 'session'      => 'Simple';
- set 'template'     => 'template_toolkit';
- set 'logger'       => 'console';
- set 'log'          => 'debug';
- set 'show_errors'  => 1;
- set 'startup_info' => 1;
- set 'warnings'     => 1;
- set 'username'     => 'admin';
- set 'password'     => 'password';
- set 'layout'       => 'main';
+    set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'session'      => 'Simple';
+    set 'template'     => 'template_toolkit';
+    set 'logger'       => 'console';
+    set 'log'          => 'debug';
+    set 'show_errors'  => 1;
+    set 'startup_info' => 1;
+    set 'warnings'     => 1;
+    set 'username'     => 'admin';
+    set 'password'     => 'password';
+    set 'layout'       => 'main';
 
- my $flash;
+    my $flash;
 
- sub set_flash {
-     my $message = shift;
+    sub set_flash {
+        my $message = shift;
+        $flash = $message;
+    }
 
-     $flash = $message;
- }
+    sub get_flash {
+        my $msg = $flash;
+        $flash = "";
 
- sub get_flash {
+        return $msg;
+    }
 
-     my $msg = $flash;
-     $flash = "";
+    sub connect_db {
+        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
+            or die $DBI::errstr;
 
-     return $msg;
- }
+        return $dbh;
+    }
 
- sub connect_db {
-     my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
-         die $DBI::errstr;
+    sub init_db {
+        my $db     = connect_db();
+        my $schema = read_file('./schema.sql');
+        $db->do($schema) or die $db->errstr;
+    }
 
-     return $dbh;
- }
+    hook before_template => sub {
+        my $tokens = shift;
 
- sub init_db {
-     my $db = connect_db();
-     my $schema = read_file('./schema.sql');
-     $db->do($schema) or die $db->errstr;
- }
+        $tokens->{'css_url'}    = request->base . 'css/style.css';
+        $tokens->{'login_url'}  = uri_for('/login');
+        $tokens->{'logout_url'} = uri_for('/logout');
+    };
 
- hook before_template => sub {
-     my $tokens = shift;
+    get '/' => sub {
+        my $db  = connect_db();
+        my $sql = 'select id, title, text from entries order by id desc';
+        my $sth = $db->prepare($sql) or die $db->errstr;
+        $sth->execute or die $sth->errstr;
+        template show_entries => {
+            msg           => get_flash(),
+            add_entry_url => uri_for('/add'),
+            entries       => $sth->fetchall_hashref('id'),
+        };
+    };
 
-     $tokens->{'css_url'} = request->base . 'css/style.css';
-     $tokens->{'login_url'} = uri_for('/login');
-     $tokens->{'logout_url'} = uri_for('/logout');
- };
+    post '/add' => sub {
+        if ( not session('logged_in') ) {
+            send_error("Not logged in", 401);
+        }
 
- get '/' => sub {
-     my $db = connect_db();
-     my $sql = 'select id, title, text from entries order by id desc';
-     my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute or die $sth->errstr;
-     template 'show_entries.tt', {
-         'msg' => get_flash(),
-         'add_entry_url' => uri_for('/add'),
-         'entries' => $sth->fetchall_hashref('id'),
-     };
- };
+        my $db  = connect_db();
+        my $sql = 'insert into entries (title, text) values (?, ?)';
+        my $sth = $db->prepare($sql) or die $db->errstr;
+        $sth->execute(params->{'title'}, params->{'text'}) or die $sth->errstr;
 
- post '/add' => sub {
-     if ( not session('logged_in') ) {
-         send_error("Not logged in", 401);
-     }
+        set_flash('New entry posted!');
+        redirect '/';
+    };
 
-     my $db = connect_db();
-     my $sql = 'insert into entries (title, text) values (?, ?)';
-     my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute(params->{'title'}, params->{'text'}) or die $sth->errstr;
+    any ['get', 'post'] => '/login' => sub {
+        my $err;
 
-     set_flash('New entry posted!');
-     redirect '/';
- };
-
- any ['get', 'post'] => '/login' => sub {
-     my $err;
-
-     if ( request->method() eq "POST" ) {
-         # process form input
-         if ( params->{'username'} ne setting('username') ) {
-             $err = "Invalid username";
-         }
-         elsif ( params->{'password'} ne setting('password') ) {
-             $err = "Invalid password";
-         }
-         else {
-             session 'logged_in' => true;
-             set_flash('You are logged in.');
-             return redirect '/';
-         }
+        if ( request->method() eq "POST" ) {
+            # process form input
+            if ( params->{'username'} ne setting('username') ) {
+                $err = "Invalid username";
+            }
+            elsif ( params->{'password'} ne setting('password') ) {
+                $err = "Invalid password";
+            }
+            else {
+                session 'logged_in' => true;
+                set_flash('You are logged in.');
+                return redirect '/';
+            }
     }
 
     # display login form
-    template 'login.tt', {
-        'err' => $err,
+    template login => { err => $err };
+
+    get '/logout' => sub {
+        app->destroy_session;
+        set_flash('You are logged out.');
+        redirect '/';
     };
 
- };
+    init_db();
+    start;
 
- get '/logout' => sub {
-    app->destroy_session;
-    set_flash('You are logged out.');
+=head1 Further Additions
+
+=head2 Update and delete entries
+
+Now that we have the basic structure ready, it is time to equip our micro blog
+with some other common and essential functionalities. To begin with, we add the
+edit and delete buttons,that understandably, let the user edit or delete their
+post.
+
+This means that we will have I<edit> and I<delete> buttons under every post.
+To do this we make some changes in C<show_entries.tt>.
+
+  [% IF entries.size %]
+  <ul class=entries>
+    [% FOREACH id IN entries.keys.nsort %]
+      <li><h2>[% entries.$id.title %]</h2>[% entries.$id.text %]
+      <form action="[% edit_entry_url %]" method=get>
+      <input type=hidden value="[% entries.$id.id %]" name=rowid>
+      <input type=submit value=edit>
+      </form>
+
+      <form action="[% delete_entry_url %]" method=post>
+      <input type=hidden value="[% entries.$id.id %]" name=rowid>
+      <input type=submit value=delete>
+      </form>
+    [% END %]
+  </ul>
+  [% END %]
+
+The above code basically adds two forms below each entry being displayed,
+one to edit it and another to delete it. The user will only see corresponding
+buttons and clicking them will invoke the associated methods. Now, we need to
+define the C<edit_entry_url> and C<delete_entry_url> routes.
+
+First, open F<Dancr.pm> and add the following method.
+
+    any ['get' ,'post'] => '/edit' => sub {
+        my $db  = connect_db();
+        my $sql = "SELECT title, text, username FROM entries WHERE id=?";
+        my @row = $db->selectrow_array($sql,undef,params->{'rowid'});
+
+        template edit => {
+            title_value      => $row[0],
+            text_value       => $row[1],
+            rowid            => params->{'rowid'},
+            update_entry_url => uri_for('/update'),
+        };
+    };
+
+This function just fetches the entry for the database and passes it to
+F<edit.tt> for editing. This is what F<edit.tt> will look like:
+
+    [% IF session.logged_in %]
+        <form action="[% update_entry_url %]" method=post >
+            <dl>
+                <dt>Title:
+                <dd><input type=text size=30 name=title value="[% title_value %]">
+                <dt>Text:
+                <dd><textarea name=text rows=5 cols=40> [% text_value %] </textarea>
+                <dd><input type=submit value=share>
+                <input type=hidden value="[% rowid %]" name=rowid>
+            </dl>
+        </form>
+    [% END %]
+
+So far, we have managed to enable the user to edit a post by directing to an
+edit page that lets the user change the title and text fields. But once these
+edits are, we also need to commit them, or push them into the database. For
+this, we define another route called C</update>:
+
+    post '/update' => sub{
+        my $db  = connect_db();
+        my $sql = 'update entries set title=?, text=? where id=?';
+        my $sth = $db->prepare($sql) or die $db->errstr;
+
+        $sth->execute(
+            params->{'title'},
+            params->{'text'},
+            params->{'rowid'}
+        ) or die $sth->errstr;
+
+        set_flash('Entry updated!');
+        redirect '/';
+    };
+
+Similarly, we define the C</delete> route:
+
+    post '/delete' => sub{
+        my $db  = connect_db();
+        my $sql = 'delete from entries where id=?';
+        my $sth = $db->prepare($sql) or die $db->errstr;
+        $sth->execute(params->{'rowid'}) or die $sth->errstr;
+        set_flash('Entry deleted!');
+        redirect '/';
+    };
+
+Now, the user will be able to edit/delete any of his posts.
+
+=head2 User Logins
+
+Till now, we have only had one user but any respectable forum needs to allow
+other users to register. So let's start working on that functionality now.
+
+=head3 Registration
+
+First, we will need to create another table that will be populated by
+users as they register and create an account with the microblog.
+So we create the table I<users> in C<schema.sql>
+
+    create table if not exists users (
+        userid integer primary key autoincrement,
+        name string not null,
+        username string not null,
+        password string not null,
+        email string not null
+    );
+
+    create table if not exists entries (
+        id integer primary key autoincrement,
+        title string not null,
+        text string not null,
+        username string not null
+    );
+
+Notice how a new column I<username> has been added to the I<entries>
+table to link it to the I<users> table (in real life, you might want to use a
+foreign key to link these two tables but as stated earlier, we are only
+develping a sample application).
+
+To register, a user will have to fill out a form the details of which
+will go into the database. We display this through the C<register.tt>
+template:
+
+    <form action="[% register_url %]" method=post class=register
+      <dl>
+        <dt>Name:
+        <dd><input type=text size=30 name=name>
+        <dt>Username:
+        <dd><input type=text size=30 name=user>
+        <dt>Password:
+        <dd><input type=password size=20 name=pwd>
+        <dt>Email id:
+        <dd><input type=text size=30 name=email>
+        <dd><input type=submit value=register>
+      </dl>
+    </form>
+
+Now, we define the C</register> route which will push the information entered
+by the user into the database.
+
+    any ['get', 'post'] => '/register' => sub {
+        if ( request->method() eq "POST" ) {
+            my $db  = connect_db();
+            my $sql = 'insert into users (name, username, password, email)'
+                    . ' values (?, ?, ?, ?)';
+            my $sth = $db->prepare($sql) or die $db->errstr;
+            $sth->execute(
+                params->{'name'},
+                params->{'user'},
+                params->{'pwd'},
+                params->{'email'},
+            ) or die $sth->errstr;
+
+            set_flash('New user registered');
+            redirect '/login';
+        }
+
+        template 'register';
+    };
+
+The function is largely self-explanatory but if you have any doubts feel free
+to ask on the mailinglist or IRC. Also, in the hook C<before_template>, we
+need to add:
+
+    $tokens->{'register_url'} = uri_for('/register');
+
+But how will the user be directed to this page? We will have
+to make a small addition in the C<main.tt> layout
+
+    [% IF not session.logged_in %]
+         <a href="[% login_url %]">log in</a>
+         <a href="[% register_url %]">Register Now</a>
+    [% ELSE %]
+         <a href="[% logout_url %]">log out</a>
+    [% END %]
+
+=head2 Login
+
+Next thing we need to do is check for validity of username and password while
+logging in. Earlier in the tutorial, for the sake of simplicity, we had
+hardcoded the username and password. Now, we will have to run through the
+database to check for validity.
+
+    any ['get', 'post'] => '/login' => sub {
+        my $err;
+
+        if ( request->method() eq "POST" ) {
+            my $db  = connect_db();
+            my $sql = 'select username,password from users where username=?';
+            my @ans = $db->selectrow_array($sql, undef, params->{'username'});
+            my ($user,$pwd) = @ans;
+            if (params->{'username'} ne $user){
+                $err = 'Invalid username';
+            }
+            elsif(params->{'password'} ne $pwd) {
+                $err = 'Invalid password';
+            }
+            else {
+                session 'logged_in' => true;
+                session 'username' => params->{'username'};
+                set_flash('You are logged in.');
+                return redirect '/';
+            }
+        }
+
+        template login => { err => $err };
+    };
+
+=head2 Authentication
+
+We also need to make edit and delete possible only when the user is logged
+in. For this, we display the edit and delete buttons only for the entries
+that the user has posted.
+
+    [% IF entries.$id.username == uname %]
+        <form action="[% edit_entry_url %]" method=get>
+        <input type=hidden value="[% entries.$id.id %]" name=rowid>
+        <input type=submit value=edit>
+        </form>
+
+        <form action="[% delete_entry_url %]" method=post>
+        <input type=hidden value="[% entries.$id.id %]" name=rowid>
+        <input type=submit value=delete>
+        </form>
+    [% END %]
+
+The I<uname> used above will be sent to the template from the C</> route
+handler.
+
+    template show_entries => {
+        msg              => get_flash(),
+        add_entry_url    => uri_for('/add'),
+        edit_entry_url   => uri_for('/edit'),
+        delete_entry_url => uri_for('/delete'),
+        entries          => $sth->fetchall_hashref('id'),
+        filenames        => $filenames->fetchall_hashref('id'),
+        uname            => session('user')
+    };
+
+We also need to check user credentials on the edit and delete requests.
+for this, we use L<Dancer2::Plugin::Auth::Tiny|https://metacpan.org/pod/Dancer2::Plugin::Auth::Tiny>.
+We have to define what routes needs a login using Auth::Tiny's I<needs> keyword.
+
+    use Dancer2::Plugin::Auth::Tiny;
+
+    get '/' => needs login => sub {...};
+
+    post '/add' => needs login => sub {...};
+
+    any ['get' ,'post'] => '/edit' => needs login => sub {...};
+
+    post '/update' => needs login => sub {...};
+
+    post '/delete' => needs login => sub {...};
+
+    get '/logout' => needs login => sub {...};
+
+Also, there needs to be an additional check on authorization in the edit
+and delete functions.
+In the C</edit> route, we add:
+
+    my $db  = connect_db();
+    my $sql = "SELECT title, text, username FROM entries WHERE id=?";
+    my @row = $db->selectrow_array($sql,undef,params->{'rowid'});
+
+    if ( $row[2] ne session('user')) {
+        set_flash('Unauthorized access');
+        redirect '/';
+    }
+
+In the C</delete> route:
+
+    my $db  = connect_db();
+    my $sql = "SELECT username FROM entries WHERE id=?";
+    my @row = $db->selectrow_array($sql,undef,params->{'rowid'});
+
+    if ( $row[0] ne session('user')) {
+        set_flash('Unauthorized access');
+        redirect '/';
+    }
+
+=head2 Password Hashing
+
+To make our app more reliable and trustworthy, it is important to
+incorporate password hashing. This is done using L<Dancer2::Plugin::Passphrase|https://metacpan.org/pod/Dancer2::Plugin::Passphrase>.
+In the C</register> route:
+
+        if ( request->method() eq "POST" ) {
+            my $db = connect_db();
+            my $password = passphrase( params->{'pwd'} )->generate;
+            my $sql = 'insert into users (name, username, password, email)'
+                    . ' values (?, ?, ?, ?)';
+            my $sth = $db->prepare($sql) or die $db->errstr;
+            $sth->execute(
+                params->{'name'},
+                params->{'user'},
+                $password->rfc2307,
+                params->{'email'},
+            ) or die $sth->errstr;
+
+            set_flash('New user registered');
+            redirect '/login';
+        }
+
+In the C</login> route:
+
+    if (params->{'username'} ne $user){
+        $err = 'Invalid username';
+    }
+    elsif(not passphrase(params->{'password'})->matches($pwd)) {
+        $err = 'Invalid password';
+    }
+    else {
+        session 'user' => params->{'username'};
+        session 'logged_in' => true;
+        set_flash('You are logged in.');
+        return redirect params->{return_url} || '/';
+    }
+
+=head1 Picture Upload
+
+So far, a new entry only contains the title and text fields. A third
+option is to upload a picture. Our form, in C<show_entries.tt> has to
+now have a file upload field as well.
+
+    <form action="[% add_entry_url %]" method="post" class="add-entry" enctype="multipart/form-data">
+        <dl>
+            <dt>Title:
+            <dd><input type=text size=30 name=title>
+            <dt>Text:
+            <dd><textarea name=text rows=5 cols=40></textarea>
+            <dd><input type=file name=file>
+            <dd><input type=submit value=Share>
+        </dl>
+    </form>
+
+We now have to create a third table that will store the names of the
+uploaded files, and the entry id corresponding to which they were posted.
+
+    create table if not exists filenames (
+        id integer primary key,
+        filename string not null
+        );
+
+All static files in Dancer2 go into the C<public/> directory. Thus, we create
+a C<uploadsFolder> inside it, which will store all the files uploaded by users.
+We will have to make the following configuration settings:
+
+    set 'public_dir' => dirname(__FILE__)."/../public";
+    set 'upload_dir' => '/uploadsFolder/';
+
+C<dirname> is a perl function which gives you the absolute path of the
+currently executing perl script (app.pl in our case). This let's us create
+avoid hardcoded paths and keep our app portabl across different systems.
+
+In the C</add> route, we make changes to copy the file uploaded to the
+uploadsFolder and to add the filename to the database:
+
+    my $db  = connect_db();
+    my $upload = request->upload('file');
+    my $fname;
+
+    my $sql = 'insert into entries (title, text, username) values (?, ?, ?)';
+    my $sth = $db->prepare($sql) or die $db->errstr;
+    $sth->execute(
+        params->{'title'},
+        params->{'text'},
+        session('user'),
+    ) or die $sth->errstr;
+
+    if($upload){
+        $fname = setting('upload_dir').$upload->filename;
+        $upload->copy_to(setting('public_dir').$fname);
+
+        $sql = "select id from entries where username=? and title =? and text=?";
+        my @row = $db->selectrow_array(
+            $sql, undef, session('user'), params->{'title'}, params->{'text'}
+        );
+
+        $sql = 'insert into filenames (id, filename) values (?, ?)';
+        $sth = $db->prepare($sql) or die $db->errstr;
+        $sth->execute($row[0], $fname) or die $sth->errstr;
+    }
+    set_flash('New entry posted!');
     redirect '/';
- };
 
- init_db();
- start;
+While deleting an entry, the corresponding filename will also have to be
+deleted and the file deleted from the uploadsFolder. Hence in the
+C</delete> route:
+
+    $sql = "select filename from filenames where id=?";
+    @row = $db->selectrow_array($sql,undef,params->{'rowid'});
+    my $fname = setting('public_dir').$row[0];
+    unlink $fname;
+    $sql = 'delete from entries where id=?';
+    my $sth = $db->prepare($sql) or die $db->errstr;
+    $sth->execute(params->{'rowid'}) or die $sth->errstr;
+    $sql = 'delete from filenames where id=?';
+    $sth = $db->prepare($sql) or die $db->errstr;
+    $sth->execute(params->{'rowid'}) or die $sth->errstr;
+    set_flash('Entry deleted!');
+    redirect '/';
+
+The uploaded image will also have to be displayed. Thus, in the C</> route:
+
+    $sql = 'select id,filename from filenames order by id desc';
+    my $filenames = $db->prepare($sql) or die $db->errstr;
+    $filenames->execute or die $sth->errstr;
+
+    template show_entries => {
+        msg              => get_flash(),
+        add_entry_url    => uri_for('/add'),
+        edit_entry_url   => uri_for('/edit'),
+        delete_entry_url => uri_for('/delete'),
+        entries          => $sth->fetchall_hashref('id'),
+        filenames        => $filenames->fetchall_hashref('id'),
+        uname            => session('user')
+    };
+
+And in the view C<show_entries.tt>
+
+    [% FOREACH id IN entries.keys.nsort %]
+        <li><h2>[% entries.$id.title %]</h2>
+        [% IF filenames.exists(entries.$id.id) %]
+            [% entry_id = entries.$id.id %]
+            <img src=[% filenames.item(entry_id).filename %] />
+        [% END %]
+        [% entries.$id.text %]
+
+Note how we are displaying the picture irrespective of whether the entry has
+an associated picture or not. Can you resolve this bug?
+
+=head2 Blog Feed
+
+Another useful feature for our micro blog would be the blog feed, that would
+show the five latest entries from the database. This is easily done using
+L<Dancer2::Plugin::Feed>.
+
+     use Dancer2::Plugin::Feed
+
+To be able to retrieve the latest entries from the database, we need to be able
+to compare the date and time at which they were posted. Hence, we update
+C<schema.sql> to include the timestamp:
+
+     create table if not exists entries (
+          id integer primary key autoincrement,
+          title string not null,
+          text string not null,
+          author string not null,
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+     );
+
+Now, we need to push the timestamp while adding a post, into the database as
+well.  In the C</add> route:
+
+     my $sql = 'insert into entries (title, text, author, timestamp) values (?, ?, ?, ?)';
+     my $sth = $db->prepare($sql) or die $db->errstr;
+     my $date = strftime('%Y-%m-%d %T',localtime);
+     $sth->execute(params->{'title'}, params->{'text'}, session('user'), $date) or die $sth->errstr;
+
+The C<strftime> function of the L<POSIX> module converts date and time
+information to a string. To be able to use this, we have to add
+
+     use POSIX qw/strftime/;
+
+We also need to write a subroutine that will return the 5 latest posts, in an
+arrayref:
+
+     sub _articles {
+          my $db = connect_db();
+          my $sql = 'SELECT * FROM entries ORDER BY timestamp DESC LIMIT 5';
+          my $sth = $db->prepare($sql) or die $db->errstr;
+          $sth->execute() or die $DBI::errstr;
+          my @ans = ();
+          while(my $article= $sth->fetchrow_hashref()){
+                my  $feed = {};
+                $feed->{title} = $article->{title};
+                $feed->{author} = $article->{username};
+                push @ans, $feed;
+          }
+          retur \@ans;
+     }
+
+Notice how we define another variable feed which basically stores the article
+details in a format expected by C<create_atom_feed>. the C<_articles> method
+just returns an array of these feeds. Finally, we write the C</feed> route:
+
+     get '/feed' => sub {
+          my $feed;
+          my $articles = _articles();
+          $feed = create_atom_feed(
+               title => 'Dancer Blog Feed',
+               entries => $articles,
+          );
+          return $feed;
+     };
+
+The above route generates atom feed. If you want to generate rss feed, you
+simply have to use C<create_rss_feed()> instead.
+
+We still haven't added a link to go to the feed. This just requires a small
+change in the layout C<main.tt>
+
+     [% IF not session.logged_in %]
+          <a href="[% login_url %]">log in</a>
+          <a href="[% register_url %]">Register Now</a>
+     [% ELSE %]
+          <a href="[% logout_url %]">log out</a>
+     [% END %]
+          <a href="[% feed_url %]" style="float:center" >Atom Feed</a>
+
+We also need to add the route to the hook C<before_template>
+
+     $tokens->{'feed_url'} = uri_for('/feed');
+
+Now you can click on the C<ATOM FEED> link and get the latest feeds from your
+forum!
 
 =head1 Advanced route moves
 
@@ -582,10 +1104,10 @@ parameter in your handler for manipulation.
 =head1 Happy dancing!
 
 I hope this effort has been helpful and interesting enough to get you
-exploring Dancer2 on your own. The framework is still under heavy
-development but it's definitely mature enough to use in a production
-project.  Additionally, there are now a lot of great Dancer2 plugins which
-extend and enhance the capabilities of the platform.
+exploring Dancer2 on your own. The framework is still under heavy development
+but it's definitely mature enough to use in a production project.
+Additionally, there are now a lot of great Dancer2 plugins which extend
+and enhance the capabilities of the platform.
 
 Happy dancing!
 
@@ -599,11 +1121,11 @@ L<http://perldancer.org>
 
 =item *
 
-L<http://github.com/PerlDancer/Dancer2>
+L<https://github.com/PerlDancer/Dancer2>
 
 =item *
 
-L<Dancer2::Plugins>
+L<https://metacpan.org/pod/Dancer2>
 
 =back
 
@@ -611,39 +1133,41 @@ L<Dancer2::Plugins>
 
 Copyright (C) 2010 by Mark R. Allen.
 
-This is free software; you can redistribute it and/or modify it under the
-terms of either the Artistic License 2.0 or the GNU Public License version
-2.
+This is free software; you can redistribute it and/or modify it under the terms of either the Artistic License 2.0
+or the GNU Public License version 2.
 
-The CSS stylesheet is copied verbatim from the Flaskr example application
-and is subject to their license:
+The CSS stylesheet is copied verbatim from the Flaskr example application and is subject to their license:
 
-Copyright (c) 2010, 2013 by Armin Ronacher and contributors.
+Copyright (c) 2010 by Armin Ronacher and contributors.
 
 Some rights reserved.
 
-Redistribution and use in source and binary forms of the software as well as
-documentation, with or without modification, are permitted provided that the
-following conditions are met:
+Redistribution and use in source and binary forms of the software as well
+as documentation, with or without modification, are permitted provided
+that the following conditions are met:
 
 =over 4
 
 =item *
 
-Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
+Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
 
 =item *
 
-Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
+Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided
+with the distribution.
 
 =item *
 
-The names of the contributors may not be used to endorse or promote products
-derived from this software without specific prior written permission.
+The names of the contributors may not be used to endorse or
+promote products derived from this software without specific
+prior written permission.
 
 =back
 
-=cut
+=head1 AUTHORS
+
+Dancer Core Developers
