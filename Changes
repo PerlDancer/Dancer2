@@ -14,6 +14,7 @@
     * Only load HTTP::Server::PSGI when asked to start a development
       server not under Plack. (Sawyer X, Mickey Nasriachi)
     * GH #949: Produce cleaner, non-verbose test output (Vernon)
+    * GH #950: Decode characters in param keys (Patrick Zimmermann)
 
 0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
 
