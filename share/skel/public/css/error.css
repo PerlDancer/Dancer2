@@ -41,6 +41,7 @@ pre.content {
     border: 1px solid #aaa;
     border-top: 0;
     margin-bottom: 1em;
+    overflow-x: auto;
 }
 
 div.title {

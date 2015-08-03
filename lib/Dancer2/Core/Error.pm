@@ -106,15 +106,10 @@ sub default_error_page {
     my $uri_base = $self->has_app ?
         $self->app->request->uri_base : '';
 
-    my $message = $self->message;
-    if ( $self->show_errors && $self->exception) {
-        $message .= "\n" . $self->exception;
-    }
-
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
-        content  => $message,
+        content  => $self->show_errors ? $self->full_message : $self->message || 'Wooops, something went wrong',
         version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
@@ -181,11 +176,6 @@ sub _build_serializer {
 
     return;
 }
-
-has session => (
-    is  => 'ro',
-    isa => ConsumerOf ['Dancer2::Core::Role::Session'],
-);
 
 sub BUILD {
     my ($self) = @_;
@@ -325,14 +315,14 @@ sub throw {
 sub backtrace {
     my ($self) = @_;
 
-    my $message = $self->exception ? $self->exception : $self->message;
-    $message =
-      qq|<pre class="error">| . _html_encode( $message ) . "</pre>";
-
-    if ( $self->exception && !ref($self->exception) ) {
-        $message .= qq|<pre class="error">|
-                 . _html_encode($self->exception) . "</pre>";
+    my $message = $self->message;
+    if ($self->exception) {
+        $message .= "\n" if $message;
+        $message .= $self->exception;
     }
+    $message ||= 'Wooops, something went wrong';
+
+    $message = '<pre class="error">' . _html_encode($message) . '</pre>';
 
     # the default perl warning/error pattern
     my ( $file, $line ) = ( $message =~ /at (\S+) line (\d+)/ );
@@ -345,7 +335,7 @@ sub backtrace {
     return $message unless ( $file and $line );
 
     # file and line are located, let's read the source Luke!
-    my $fh = open_file( '<', $file ) or return $message;
+    my $fh = eval { open_file( '<', $file ) } or return $message;
     my @lines = <$fh>;
     close $fh;
 
@@ -401,9 +391,14 @@ sub dumper {
 
     #use Data::Dumper;
     my $dd = Data::Dumper->new( [ \%data ] );
-    $dd->Terse(1)->Quotekeys(0)->Indent(1);
-    my $content = $dd->Dump();
-    $content =~ s{(\s*)(\S+)(\s*)=>}{$1<span class="key">$2</span>$3 =&gt;}g;
+    my $hash_separator = '  @@!%,+$$#._(--  '; # Very unlikely string to exist already
+    my $prefix_padding = '  #+#+@%.,$_-!((  '; # Very unlikely string to exist already
+    $dd->Terse(1)->Quotekeys(0)->Indent(1)->Sortkeys(1)->Pair($hash_separator)->Pad($prefix_padding);
+    my $content = _html_encode( $dd->Dump );
+    $content =~ s/^.+//;   # Remove the first line
+    $content =~ s/\n.+$//; # Remove the last line
+    $content =~ s/^\Q$prefix_padding\E  //gm; # Remove the padding
+    $content =~ s{^(\s*)(.+)\Q$hash_separator}{$1<span class="key">$2</span> =&gt; }gm;
     if ($censored) {
         $content
           .= "\n\nNote: Values of $censored sensitive-looking keys hidden\n";
@@ -414,31 +409,20 @@ sub dumper {
 sub environment {
     my ($self) = @_;
 
-    my $request = $self->has_app ? $self->app->request : 'TODO';
-    my $r_env = {};
-    $r_env = $request->env if defined $request;
+    my $stack = $self->get_caller;
+    my $settings = $self->has_app && $self->app->settings;
+    my $session = $self->has_app && $self->app->_has_session && $self->app->session->data;
+    my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
-    my $env =
-        qq|<div class="title">Environment</div><pre class="content">|
-      . dumper($r_env)
-      . "</pre>";
-    my $settings =
-        qq|<div class="title">Settings</div><pre class="content">|
-      . dumper( $self->app->settings )
-      . "</pre>";
-    my $source =
-        qq|<div class="title">Stack</div><pre class="content">|
-      . $self->get_caller
-      . "</pre>";
-    my $session = "";
+    # Get a sanitised dump of the settings, session and environment
+    $_ = $_ ? dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
 
-    if ( $self->session ) {
-        $session =
-            qq[<div class="title">Session</div><pre class="content">]
-          . dumper( $self->session->data )
-          . "</pre>";
-    }
-    return "$source $settings $session $env";
+    return <<"END_HTML";
+<div class="title">Stack</div><pre class="content">$stack</pre>
+<div class="title">Settings</div><pre class="content">$settings</pre>
+<div class="title">Session</div><pre class="content">$session</pre>
+<div class="title">Environment</div><pre class="content">$env</pre>
+END_HTML
 }
 
 sub get_caller {
@@ -468,6 +452,8 @@ sub _censor {
     my $censored = 0;
     for my $key ( keys %$hash ) {
         if ( ref $hash->{$key} eq 'HASH' ) {
+            # Take a copy of the data, so we can hide sensitive-looking stuff:
+            $hash->{$key} = { %{ $hash->{$key} } };
             $censored += _censor( $hash->{$key} );
         }
         elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {

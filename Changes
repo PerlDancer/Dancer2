@@ -15,6 +15,8 @@
       server not under Plack. (Sawyer X, Mickey Nasriachi)
     * GH #949: Produce cleaner, non-verbose test output (Vernon)
     * GH #950: Decode characters in param keys (Patrick Zimmermann)
+    * GH #914: Include stack trace on default error page when
+      show_errors is true. (Vernon)
 
 0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
 
