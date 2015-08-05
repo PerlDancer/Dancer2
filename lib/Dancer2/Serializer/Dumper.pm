@@ -12,15 +12,9 @@ with 'Dancer2::Core::Role::Serializer';
 has '+content_type' => ( default => sub {'text/x-data-dumper'} );
 
 # helpers
-sub from_dumper {
-    my $s = Dancer2::Serializer::Dumper->new;
-    $s->deserialize(@_);
-}
+sub from_dumper { __PACKAGE__->deserialize(@_) }
 
-sub to_dumper {
-    my $s = Dancer2::Serializer::Dumper->new;
-    $s->serialize(@_);
-}
+sub to_dumper { __PACKAGE__->serialize(@_) }
 
 # class definition
 sub serialize {
