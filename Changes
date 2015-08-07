@@ -7,6 +7,7 @@
       (Russell Jenkins, Dmitrii Tcyganov)
     * GH #965: Remove non-existant role from Response::Delayed.
       (Vernon, Russell Jenkins)
+    * GH #971: Route options matching no longer uses each iterator (Tina Müller)
 
     [ ENHANCEMENTS ]
     * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
