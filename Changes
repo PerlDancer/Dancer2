@@ -9,6 +9,9 @@
       (Vernon, Russell Jenkins)
     * GH #971: Route options matching no longer uses each iterator (Tina Müller)
 
+    [ DOCUMENTATION ]
+    * GH #967: Fix upload example. (Alberto Simões)
+
     [ ENHANCEMENTS ]
     * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
       (Sawyer X)
