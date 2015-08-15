@@ -10,6 +10,7 @@
     * GH #971: Route options matching no longer uses each iterator.
       (Tina Müller)
     * GH #959: Custom error template rendering fixed. (Russell Jenkins)
+    * GH #961: Render custom error templates in before hooks. (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #967: Fix upload example. (Alberto Simões)
