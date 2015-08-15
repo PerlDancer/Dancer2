@@ -14,6 +14,7 @@
 
     [ DOCUMENTATION ]
     * GH #967: Fix upload example. (Alberto Simões)
+    * GH #881: Add cookie timeout example. (Andy Beverley)
 
     [ ENHANCEMENTS ]
     * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
