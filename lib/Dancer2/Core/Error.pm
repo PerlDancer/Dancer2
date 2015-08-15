@@ -260,6 +260,7 @@ sub _build_content {
                 }
             );
         };
+        $@ && $self->app->engine('logger')->log( warning => $@ );
 
         # return rendered content unless there was an error.
         return $content if defined $content;
@@ -281,6 +282,7 @@ sub _build_content {
                 }
             );
         };
+        $@ && $self->app->engine('logger')->log( warning => $@ );
 
         # return rendered content unless there was an error.
         return $content if defined $content;

@@ -1416,6 +1416,9 @@ sub response_internal_error {
 
     # warn "got error: $error";
 
+    local $Dancer2::Core::Route::REQUEST  = $self->request;
+    local $Dancer2::Core::Route::RESPONSE = $self->response;
+
     return Dancer2::Core::Error->new(
         app       => $self,
         status    => 500,
@@ -1427,6 +1430,9 @@ sub response_not_found {
     my ( $self, $request ) = @_;
 
     $self->set_request($request);
+
+    local $Dancer2::Core::Route::REQUEST  = $self->request;
+    local $Dancer2::Core::Route::RESPONSE = $self->response;
 
     my $response = Dancer2::Core::Error->new(
         app    => $self,
