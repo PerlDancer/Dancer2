@@ -7,7 +7,9 @@
       (Russell Jenkins, Dmitrii Tcyganov)
     * GH #965: Remove non-existant role from Response::Delayed.
       (Vernon, Russell Jenkins)
-    * GH #971: Route options matching no longer uses each iterator (Tina Müller)
+    * GH #971: Route options matching no longer uses each iterator.
+      (Tina Müller)
+    * GH #959: Custom error template rendering fixed. (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #967: Fix upload example. (Alberto Simões)
