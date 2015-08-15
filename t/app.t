@@ -11,6 +11,7 @@ use File::Spec;
 
 # our app/dispatcher object
 my $app = Dancer2::Core::App->new( name => 'main', );
+$app->setting( show_errors => 1 ); # enable show errors
 my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 
 # first basic tests
