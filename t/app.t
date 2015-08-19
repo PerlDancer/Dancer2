@@ -160,7 +160,7 @@ my $env = {
 
 like(
     $dispatcher->dispatch($env)->[2][0],
-    qr{Exception caught in 'core.app.before_request' filter: Hook error: Can't locate object method "failure"},
+    qr/Exception caught in &#39;core.app.before_request&#39; filter: Hook error: Can&#39;t locate object method &quot;failure&quot;/,
     'before filter nonexistent method failure',
 );
 
