@@ -11,6 +11,7 @@
       (Tina Müller)
     * GH #959: Custom error template rendering fixed. (Russell Jenkins)
     * GH #961: Render custom error templates in before hooks. (Russell Jenkins)
+    * GH #978: Tests - fix response regex after html_encode (Vernon)
 
     [ DOCUMENTATION ]
     * GH #967: Fix upload example. (Alberto Simões)
