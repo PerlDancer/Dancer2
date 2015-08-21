@@ -1077,7 +1077,7 @@ sub redirect {
 
 sub halt {
    my $self = shift;
-   $self->response->halt;
+   $self->response->halt( @_ );
 
    # Short citcuit any remaining hook/route code
    $self->has_with_return

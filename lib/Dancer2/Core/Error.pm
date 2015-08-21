@@ -310,7 +310,7 @@ sub throw {
     $self->has_app &&
         $self->app->execute_hook('core.error.after', $self->response);
 
-    $self->response->halt(1);
+    $self->response->is_halted(1);
     return $self->response;
 }
 

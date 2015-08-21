@@ -82,7 +82,11 @@ has is_halted => (
     default => sub {0},
 );
 
-sub halt { shift->is_halted(1) }
+sub halt {
+    my ( $self, $content ) = @_;
+    $self->content( $content ) if @_ > 1;
+    $self->is_halted(1);
+}
 
 has status => (
     is      => 'rw',
