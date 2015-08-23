@@ -193,7 +193,7 @@ sub prefix {
       : $app->lexical_prefix(@_);
 }
 
-sub halt { shift->app->halt }
+sub halt { shift->app->halt(@_) }
 
 sub del     { shift->_normalize_route( [qw/delete  /], @_ ) }
 sub get     { shift->_normalize_route( [qw/get head/], @_ ) }

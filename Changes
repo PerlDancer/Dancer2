@@ -26,6 +26,8 @@
     * GH #950: Decode characters in param keys (Patrick Zimmermann)
     * GH #914: Include stack trace on default error page when
       show_errors is true. (Vernon)
+    * GH #980, #981: halt keyword sets response content if provided,
+      as Dancer 1 does. (Achilles Kars)
 
 0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
 
