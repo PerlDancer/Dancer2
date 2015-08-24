@@ -115,12 +115,12 @@ sub default_error_page {
     };
 
     Template::Tiny->new->process( \<<"END_TEMPLATE", $opts, \my $output );
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="[% lang %]">
 <head>
+<meta charset="[% charset %]"> 
 <title>[% title %]</title>
 <link rel="stylesheet" href="[% uri_base %]/css/error.css" />
-<meta http-equiv="Content-type" content="text/html; charset='[% charset %]'" />
 </head>
 <body>
 <h1>[% title %]</h1>
