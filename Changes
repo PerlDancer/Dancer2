@@ -28,6 +28,8 @@
       show_errors is true. (Vernon)
     * GH #980, #981: halt keyword sets response content if provided,
       as Dancer 1 does. (Achilles Kars)
+    * GH #909, #957, #983: HTML5 templates in generated apps and
+      default error template (Gabor Szabo, Kadir, Vernon)
 
 0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
 
