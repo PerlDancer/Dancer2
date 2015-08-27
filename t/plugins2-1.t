@@ -1,8 +1,10 @@
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use poc;
-use Test::More tests => 1;
+use Test::More tests => 6;
 
 use Test::WWW::Mechanize::PSGI;
 
