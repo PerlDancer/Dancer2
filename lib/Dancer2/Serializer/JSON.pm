@@ -8,14 +8,14 @@ with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => sub {'application/json'} );
 
+my $s = Dancer2::Serializer::JSON->new;
+
 # helpers
 sub from_json {
-    my $s = Dancer2::Serializer::JSON->new;
     $s->deserialize(@_);
 }
 
 sub to_json {
-    my $s = Dancer2::Serializer::JSON->new;
     $s->serialize(@_);
 }
 
