@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.161000_01 2015-08-28 15:29:00+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #947, #948: Escape file paths in regex patterns. (A. Sinan Unur)
     * GH #944: Setting response content in before hook when a serializer
