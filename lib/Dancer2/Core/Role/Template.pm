@@ -232,6 +232,43 @@ In order to implement this role, the consumer B<must> implement the method C<ren
 
 =back
 
+Any template receives the following tokens, by default:
+
+=over 4
+
+=item * C<perl_version>
+
+Current version of perl, effectively C<$]>.
+
+=item * C<dancer_version>
+
+Current version of Dancer2, effectively C<<Dancer2->VERSION>>.
+
+=item * C<settings>
+
+A hash of the application configuration.
+
+=item * C<request>
+
+The current request object.
+
+=item * C<params>
+
+A hash reference of all the parameters.
+
+Currently the equivalent of C<< $request->params >>.
+
+=item * C<vars>
+
+The list of request variables, which is what you would get if you
+called the C<vars> keyword.
+
+=item * C<session>
+
+The current session data, if a session exists.
+
+=back
+
 =head1 METHODS
 
 =attr name
