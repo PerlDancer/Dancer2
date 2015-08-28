@@ -66,7 +66,15 @@ sub new {
     $self->{'vars'}            = {};
     $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
 
-    $self->init;
+    # parameters
+    $self->{_chunk_size}       = 4096;
+    $self->{_read_position}    = 0;
+    $self->{_http_body} =
+      HTTP::Body->new( $self->content_type || '', $self->content_length );
+    $self->{_http_body}->cleanup(1);
+
+    $self->data;      # Deserialize body
+    $self->_build_uploads();
 
     return $self;
 }
@@ -209,20 +217,6 @@ sub is_patch  { $_[0]->method eq 'PATCH' }
 # public interface compat with CGI.pm objects
 sub request_method { $_[0]->method }
 sub input_handle { $_[0]->env->{'psgi.input'} }
-
-sub init {
-    my ($self) = @_;
-
-    $self->{_chunk_size}    = 4096;
-    $self->{_read_position} = 0;
-
-    $self->{_http_body} =
-      HTTP::Body->new( $self->content_type || '', $self->content_length );
-    $self->{_http_body}->cleanup(1);
-
-    $self->data;      # Deserialize body
-    $self->_build_uploads();
-}
 
 sub to_string {
     my ($self) = @_;
