@@ -12,6 +12,8 @@
     * GH #959: Custom error template rendering fixed. (Russell Jenkins)
     * GH #961: Render custom error templates in before hooks. (Russell Jenkins)
     * GH #978: Tests - fix response regex after html_encode (Vernon)
+    * GH #972: Exceptions thrown by serializers no longer masked.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #967: Fix upload example. (Alberto Simões)
@@ -31,6 +33,8 @@
       as Dancer 1 does. (Achilles Kars)
     * GH #909, #957, #983: HTML5 templates in generated apps and
       default error template (Gabor Szabo, Kadir, Vernon)
+    * GH #972, #719, #969, #644, #647: Streamline serializer helpers.
+      to_json/from_json now faster. (Russell Jenkins)
 
 0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
 
