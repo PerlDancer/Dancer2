@@ -5,22 +5,15 @@ use Moo;
 use Carp 'croak';
 use Encode;
 use Class::Load 'load_class';
+
 with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => sub {'text/x-yaml'} );
 
 # helpers
-sub from_yaml {
-    my ($yaml) = @_;
-    my $s = Dancer2::Serializer::YAML->new;
-    $s->deserialize($yaml);
-}
+sub from_yaml { __PACKAGE__->deserialize(@_) }
 
-sub to_yaml {
-    my ($data) = @_;
-    my $s = Dancer2::Serializer::YAML->new;
-    $s->serialize($data);
-}
+sub to_yaml { __PACKAGE__->serialize(@_) }
 
 # class definition
 sub BUILD { load_class('YAML') }
