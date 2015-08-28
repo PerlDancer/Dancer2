@@ -2,7 +2,6 @@ package Dancer2::Core::Role::Serializer;
 # ABSTRACT: Role for Serializer engines
 
 use Moo::Role;
-use Try::Tiny;
 use Dancer2::Core::Types;
 use Scalar::Util 'blessed';
 
@@ -44,11 +43,15 @@ around serialize => sub {
     blessed $self && $self->execute_hook( 'engine.serializer.before', $content );
 
     my $data;
-    try {
+    eval {
         $data = $self->$orig( $content, $options );
-        blessed $self && $self->execute_hook( 'engine.serializer.after', $data );
-    } catch {
-        blessed $self && $self->log_cb->( core => "Failed to serialize the request: $_" );
+        blessed $self
+            and $self->execute_hook( 'engine.serializer.after', $data );
+        1;
+    } or do {
+        my $error = $@ || 'Zombie Error';
+        blessed $self
+            and $self->log_cb->( core => "Failed to serialize the request: $error" );
     };
 
     return $data;
@@ -61,10 +64,12 @@ around deserialize => sub {
         or return $content;
 
     my $data;
-    try {
+    eval {
         $data = $self->$orig($content, $options);
-    } catch {
-        $self->log_cb->( core => "Failed to deserialize the request: $_" );
+        1;
+    } or do {
+        my $error = $@ || 'Zombie Error';
+        $self->log_cb->( core => "Failed to deserialize the request: $error" );
     };
 
     return $data;
