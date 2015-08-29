@@ -124,11 +124,6 @@ sub _body_params {
         : _decode( $self->{'_http_body'}->param );
 }
 
-sub _set_body_params {
-    my ( $self, $params ) = @_;
-    $self->{_body_params} = _decode( $params );
-}
-
 sub _query_params { $_[0]->{'_query_params'} }
 
 sub _set_query_params {
