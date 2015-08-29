@@ -1123,7 +1123,7 @@ sub make_forward_to {
 
     $env->{PATH_INFO} = $url;
 
-    my $new_request = Dancer2::Core::Request->new( env => $env, body_is_parsed => 1 );
+    my $new_request = Dancer2::Core::Request->new( env => $env, body_params => {} );
     my $new_params = _merge_params( scalar( $request->params ), $params || {} );
 
     exists $options->{method} and

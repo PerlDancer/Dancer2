@@ -73,6 +73,9 @@ sub new {
       HTTP::Body->new( $self->content_type || '', $self->content_length );
     $self->{_http_body}->cleanup(1);
 
+    $opts{'body_params'}
+        and $self->{'_body_params'} = $opts{'body_params'};
+
     $self->data;      # Deserialize body
     $self->_build_uploads();
 
@@ -116,12 +119,7 @@ sub _body_params {
     # make sure body is parsed
     $self->body;
 
-    # XXX: Do we really need to check body_is_parsed
-    # once the body is set? -- SX
-    $self->{'_body_params'} ||=
-        $self->body_is_parsed
-        ? {}
-        : _decode( $self->{'_http_body'}->param );
+    $self->{'_body_params'} ||= _decode( $self->{'_http_body'}->param );
 }
 
 sub _query_params { $_[0]->{'_query_params'} }
@@ -141,8 +139,6 @@ sub _set_route_params {
 
 # XXX: incompatible with Plack::Request
 sub uploads { $_[0]->{'uploads'} }
-
-sub body_is_parsed { $_[0]->{'body_is_parsed'} || 0 }
 
 sub is_behind_proxy { $_[0]->{'is_behind_proxy'} || 0 }
 
@@ -771,10 +767,21 @@ It uses the environment hash table given to build the request object:
 
     Dancer2::Core::Request->new( env => $env );
 
-Two additional parameters for instantiation are C<body_is_parsed> boolean
-(indicating if the request should avoid parsing the body again), and
-C<serializer> which can provide a serializer object to work with when
-reading the request body.
+There are two additional parameters for instantiation:
+
+=over 4
+
+=item * serializer
+
+A serializer object to work with when reading the request body.
+
+=item * body_params
+
+Provide body parameters.
+
+Used internally when we need to avoid parsing the body again.
+
+=back
 
 =method param($key)
 
