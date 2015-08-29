@@ -44,10 +44,10 @@ my $req = GET '/';
 
 sub check_app {
     my ( $number, $app ) = @_;
-    print STDERR "Checking $app... ";
+    print STDERR "Checking Dancer $number... ";
 
     my $res = $app->request($req);
-    if ( $res->content == "ok$app" ) {
+    if ( $res->content eq "ok$number" ) {
         print STDERR "Good!\n";
     } else {
         print STDERR "Bad!\n";
@@ -79,8 +79,8 @@ if ( $opts{'profile'} ) {
         initial_runs         => 20,
     );
 
-    check_app( 1 => $app1 );
-    check_app( 2 => $app2 );
+    check_app( 1 => $test_app1 );
+    check_app( 2 => $test_app2 );
 
     $bench->add_instances(
         Dumbbench::Instance::PerlSub->new(
@@ -113,7 +113,7 @@ if ( $opts{'profile'} ) {
     my $test_app2 = Plack::Test->create($app2);
     my $req = GET '/';
 
-    check_app( 2 => $app2 );
+    check_app( 2 => $test_app2 );
 
     $bench->add_instances(
         Dumbbench::Instance::PerlSub->new(
