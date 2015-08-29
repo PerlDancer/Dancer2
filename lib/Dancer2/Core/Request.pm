@@ -194,7 +194,7 @@ sub deserialize {
     $body && length $body > 0
         or return;
 
-    my $data = $serializer->deserialize($self->body);
+    my $data = $serializer->deserialize($body);
     return if !defined $data;
 
     # Set _body_params directly rather than using the setter. Deserializiation
