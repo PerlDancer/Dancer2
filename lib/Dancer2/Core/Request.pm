@@ -95,7 +95,7 @@ sub var {
 sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
 # XXX: incompatible with Plack::Request
-sub body { $_[0]->{'body'} || '' }
+sub body { $_[0]->{'body'} || $_[0]->_read_to_end }
 
 sub id { $_id }
 
@@ -189,7 +189,7 @@ sub deserialize {
       unless grep { $self->method eq $_ } qw/ PUT POST PATCH DELETE /;
 
     # try to deserialize
-    my $body = $self->_read_to_end();
+    my $body = $self->body;
 
     $body && length $body > 0
         or return;
@@ -400,7 +400,7 @@ sub _parse_post_params {
     my ($self) = @_;
     return $self->_body_params if defined $self->_body_params;
 
-    my $body = $self->_read_to_end();
+    my $body = $self->body;
     $self->_set_body_params( $self->{_http_body}->param );
 }
 
@@ -453,14 +453,15 @@ sub _read_to_end {
     my $content_length = $self->content_length;
     return unless $self->_has_something_to_read();
 
+    my $body = '';
     if ( $content_length && $content_length > 0 ) {
         while ( my $buffer = $self->_read() ) {
-            $self->{body} .= $buffer;
+            $body .= $buffer;
         }
-        $self->{_http_body}->add( $self->{body} );
+        $self->{_http_body}->add($body);
     }
 
-    return $self->{body};
+    return $body;
 }
 
 sub _has_something_to_read {
