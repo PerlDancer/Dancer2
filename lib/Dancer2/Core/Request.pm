@@ -110,7 +110,19 @@ sub _params { $_[0]->{'_params'} ||= $_[0]->_build_params }
 
 sub _has_params { defined $_[0]->{'_params'} }
 
-sub _body_params { $_[0]->{'_body_params'} }
+sub _body_params {
+    my $self = shift;
+
+    # make sure body is parsed
+    $self->body;
+
+    # XXX: Do we really need to check body_is_parsed
+    # once the body is set? -- SX
+    $self->{'_body_params'} ||=
+        $self->body_is_parsed
+        ? {}
+        : _decode( $self->{'_http_body'}->param );
+}
 
 sub _set_body_params {
     my ( $self, $params ) = @_;
@@ -396,14 +408,6 @@ sub _url_decode {
     return $clean;
 }
 
-sub _parse_post_params {
-    my ($self) = @_;
-    return $self->_body_params if defined $self->_body_params;
-
-    my $body = $self->body;
-    $self->_set_body_params( $self->{_http_body}->param );
-}
-
 sub _parse_get_params {
     my ($self) = @_;
     return $self->_query_params if defined $self->{_query_params};
@@ -496,12 +500,8 @@ sub _read {
 sub _build_uploads {
     my ($self) = @_;
 
-    if ( $self->body_is_parsed ) {
-        $self->{_body_params} ||= {};
-    }
-    else {
-        $self->_parse_post_params();
-    }
+    # build the body and body params
+    my $body_params = $self->_body_params;
 
     my $uploads = _decode( $self->{_http_body}->upload );
     my %uploads;
