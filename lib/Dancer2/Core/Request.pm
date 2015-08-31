@@ -98,7 +98,7 @@ sub var {
 sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
 # XXX: incompatible with Plack::Request
-sub body { $_[0]->{'body'} || $_[0]->_read_to_end }
+sub body { $_[0]->{'body'} ||= $_[0]->_read_to_end }
 
 sub id { $_id }
 
