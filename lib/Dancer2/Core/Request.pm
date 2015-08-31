@@ -12,6 +12,7 @@ use URI;
 use URI::Escape;
 use Class::Load 'try_load_class';
 use Safe::Isa;
+use Hash::MultiValue;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
@@ -76,6 +77,8 @@ sub new {
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
+    # parsing body for HMV first
+    $self->body_parameters;
     $self->data;      # Deserialize body
     $self->_build_uploads();
 
@@ -323,6 +326,72 @@ sub params {
     }
 }
 
+sub query_parameters {
+    my $self = shift;
+    $self->{'query_parameters'} ||= do {
+        if ($XS_PARSE_QUERY_STRING) {
+            my $query = CGI::Deurl::XS::parse_query_string(
+                $self->env->{'QUERY_STRING'}
+            );
+
+            Hash::MultiValue->new(
+                map {;
+                    my $key = $_;
+                    ref $query->{$key} eq 'ARRAY'
+                    ? ( map +( $key => $_ ), @{ $query->{$key} } )
+                    : ( $key => $query->{$key} )
+                } keys %{$query}
+            );
+        } else {
+            # defer to Plack::Request
+            $self->_parse_query;
+        }
+    };
+}
+
+# this will be filled once the route is matched
+sub route_parameters { $_[0]->{'route_parameters'} ||= Hash::MultiValue->new }
+
+sub _set_route_parameters {
+    my ( $self, $params ) = @_;
+    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{$params} );
+}
+
+sub body_parameters {
+    my $self = shift;
+    $self->{'plack.request.body'}
+        and return $self->{'plack.request.body'};
+
+    my $env = $self->env;
+
+    # handle case of serializer
+    if ( my $data = $self->deserialize ) {
+        return Hash::MultiValue->from_mixed(
+            ref $data eq 'HASH' ? %{$data} : ()
+        );
+    }
+
+    $self->_parse_request_body;
+    return $self->env->{'plack.request.body'};
+}
+
+sub parameters {
+    my ( $self, $type ) = @_;
+
+    # handle a specific case
+    if ($type) {
+        my $attr = "${type}_parameters";
+        return $self->$attr;
+    }
+
+    $self->env->{'plack.request.merged'} ||= do {
+        my $query = $self->query_parameters;
+        my $body  = $self->body_parameters;
+        my $route = $self->route_parameters; # not in Plack::Request
+        Hash::MultiValue->new( map $_->flatten, $query, $body, $route );
+    };
+}
+
 sub captures { shift->params->{captures} || {} }
 
 sub splat { @{ shift->params->{splat} || [] } }
@@ -466,7 +535,7 @@ sub _has_something_to_read {
 
 # taken from Miyagawa's Plack::Request::BodyParser
 sub _read {
-    my ( $self, ) = @_;
+    my ( $self ) = @_;
     my $remaining = $self->content_length - $self->{_read_position};
     my $maxlength = $self->{_chunk_size};
 

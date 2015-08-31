@@ -1258,6 +1258,7 @@ DISPATCH:
                 or next ROUTE;
 
             $request->_set_route_params($match);
+            $request->_set_route_parameters($match);
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
