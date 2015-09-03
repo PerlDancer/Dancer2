@@ -164,4 +164,116 @@ subtest 'Route parameters' => sub {
     }
 };
 
+subtest 'Splat and megasplat route parameters' => sub {
+    {
+        package App::Route::Splat; ## no critic
+        use Dancer2;
+        get '/*' => sub {
+            my $params = route_parameters;
+            ::isa_ok(
+                $params,
+                'Hash::MultiValue',
+                'parameters keyword',
+            );
+
+            ::is_deeply(
+                { %{$params} },
+                {},
+                'All route parameters are empty',
+            );
+
+            ::is_deeply(
+                [ splat ],
+                [ 'foo' ],
+                'Got splat values',
+            );
+        };
+
+        get '/*/*' => sub {
+            my $params = route_parameters;
+            ::isa_ok(
+                $params,
+                'Hash::MultiValue',
+                'parameters keyword returns Hash::MultiValue object',
+            );
+
+
+            ::is_deeply(
+                { %{$params} },
+                {},
+                'All route parameters are empty',
+            );
+
+            ::is_deeply(
+                [ splat ],
+                [ qw<foo bar> ],
+                'Got splat values',
+            );
+        };
+
+        # /foo/bar/baz/quux/quuks
+        get '/*/*/*/**' => sub {
+            my $params = route_parameters;
+            ::isa_ok(
+                $params,
+                'Hash::MultiValue',
+                'parameters keyword returns Hash::MultiValue object',
+            );
+
+
+            ::is_deeply(
+                { %{$params} },
+                {},
+                'All route parameters are empty',
+            );
+
+            ::is_deeply(
+                [ splat ],
+                [ qw<foo bar baz>, [ qw<quux quuks> ] ],
+                'Got splat values',
+            );
+        };
+
+        # /foo/bar/baz
+        get '/*/:foo/**' => sub {
+            my $params = route_parameters;
+            ::isa_ok(
+                $params,
+                'Hash::MultiValue',
+                'parameters keyword returns Hash::MultiValue object',
+            );
+
+            ::is( $params->get('foo'), 'bar', 'Correct route parameter' );
+
+            ::is_deeply(
+                [ splat ],
+                [ 'foo', ['baz'] ],
+                'Got splat values',
+            );
+        };
+    }
+
+    my $app = Plack::Test->create( App::Route::Splat->to_app );
+
+    {
+        my $res = $app->request( GET '/foo' );
+        ok( $res->is_success, 'Successful request' );
+    }
+
+    {
+        my $res = $app->request( GET '/foo/bar' );
+        ok( $res->is_success, 'Successful request' );
+    }
+
+    {
+        my $res = $app->request( GET '/foo/bar/baz/quux/quuks' );
+        ok( $res->is_success, 'Successful request' );
+    }
+
+    {
+        my $res = $app->request( GET '/foo/bar/baz/' );
+        ok( $res->is_success, 'Successful request' );
+    }
+};
+
 done_testing();
