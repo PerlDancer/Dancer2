@@ -276,4 +276,77 @@ subtest 'Splat and megasplat route parameters' => sub {
     }
 };
 
+subtest 'Captured route parameters' => sub {
+    {
+        package App::Route::Capture; ## no critic
+        use Dancer2;
+        get qr{^/foo/([^/]+)$} => sub {
+            my $params = route_parameters;
+            ::isa_ok(
+                $params,
+                'Hash::MultiValue',
+                'parameters keyword',
+            );
+
+            ::is_deeply(
+                { %{$params} },
+                {},
+                'All route parameters are empty',
+            );
+
+            ::is_deeply(
+                [ splat ],
+                ['bar'],
+                'Correct splat values',
+            );
+
+            ::is_deeply(
+                captures(),
+                undef,
+                'capture values are empty',
+            );
+        };
+
+        get qr{^/bar/(?<baz>[^/]+)$} => sub {
+            my $params = route_parameters;
+
+            ::isa_ok(
+                $params,
+                'Hash::MultiValue',
+                'parameters keyword',
+            );
+
+            ::is_deeply(
+                { %{$params} },
+                {},
+                'All route parameters are empty',
+            );
+
+            ::is_deeply(
+                [ splat ],
+                [],
+                'splat values are empty',
+            );
+
+            ::is_deeply(
+                captures(),
+                { baz => 'quux' },
+                'Correct capture values',
+            );
+        };
+    }
+
+    my $app = Plack::Test->create( App::Route::Capture->to_app );
+
+    {
+        my $res = $app->request( GET '/foo/bar' );
+        ok( $res->is_success, 'Successful request' );
+    }
+
+    {
+        my $res = $app->request( GET '/bar/quux' );
+        ok( $res->is_success, 'Successful request' );
+    }
+};
+
 done_testing();
