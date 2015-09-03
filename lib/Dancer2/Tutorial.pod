@@ -46,10 +46,10 @@ L<SQLite|http://www.sqlite.org> database engine for simplicity's sake.
 =head1 Required perl modules
 
 Obviously you need L<Dancer2>.  You also need the L<Template
-Toolkit|Template>, L<File::Slurp>, and L<DBD::SQLite>.  These all can be
+Toolkit|Template>, L<File::Slurper>, and L<DBD::SQLite>.  These all can be
 installed using your CPAN client, as in:
 
-  cpan Dancer2 Template File::Slurp DBD::SQLite
+  cpan Dancer2 Template File::Slurper DBD::SQLite
 
 =head1 The database
 
@@ -83,7 +83,7 @@ following subroutines in that file:
 
   sub init_db {
     my $db = connect_db();
-    my $schema = read_file('./schema.sql');
+    my $schema = read_text('./schema.sql');
     $db->do($schema) or die $db->errstr;
   }
 
@@ -460,7 +460,7 @@ Here's the complete 'dancr.pl' script from start to finish.
  use Dancer2;
  use DBI;
  use File::Spec;
- use File::Slurp;
+ use File::Slurper qw/ read_text /;
  use Template;
 
  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
@@ -500,7 +500,7 @@ Here's the complete 'dancr.pl' script from start to finish.
 
  sub init_db {
      my $db = connect_db();
-     my $schema = read_file('./schema.sql');
+     my $schema = read_text('./schema.sql');
      $db->do($schema) or die $db->errstr;
  }
 
