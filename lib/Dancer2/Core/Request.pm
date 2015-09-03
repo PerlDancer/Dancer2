@@ -354,6 +354,9 @@ sub route_parameters { $_[0]->{'route_parameters'} ||= Hash::MultiValue->new }
 
 sub _set_route_parameters {
     my ( $self, $params ) = @_;
+    # remove reserved splat parameter name
+    # you should access splat parameters using splat() keyword
+    delete $params->{'splat'};
     $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{$params} );
 }
 
