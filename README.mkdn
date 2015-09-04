@@ -173,7 +173,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Samit Badle
     Shlomi Fish
     Slava Goltser
-    smashz
+    Nuno Carvalho
     Tom Hukins
     Upasana
     Vincent Bachelier

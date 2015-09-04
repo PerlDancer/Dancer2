@@ -275,7 +275,7 @@ things:
     Samit Badle
     Shlomi Fish
     Slava Goltser
-    smashz
+    Nuno Carvalho
     Tom Hukins
     Upasana
     Vincent Bachelier
