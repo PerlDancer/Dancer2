@@ -27,7 +27,7 @@ sub opt_spec {
             { default => '.' } ],
         [ 'overwrite|o',     'overwrite existing files' ],
         [ 'no-check|x',      'don\'t check latest Dancer2 version (requires internet)' ],
-        [ 'skel|s=s',      'skeleton directory' ],
+        [ 'skel|s=s',        'skeleton directory' ],
     );
 }
 
@@ -49,8 +49,10 @@ sub validate_args {
     -d $path or $self->usage_error("directory '$path' does not exist");
     -w $path or $self->usage_error("directory '$path' is not writeable");
 
-    my $skel_path = $opt->{skel};
-    -d $skel_path or $self->usage_error("skeleton directory '$skel_path' not found");
+    if ($opt->{skel}) {
+        my $skel_path = $opt->{skel};
+        -d $skel_path or $self->usage_error("skeleton directory '$skel_path' not found");
+    }
 
 }
 
@@ -182,7 +184,6 @@ sub _create_manifest {
     my ($files, $dir) = @_;
 
     my $manifest_name = catfile($dir, 'MANIFEST');
-    -e $manifest_name or (warn "skeleton has no MANIFEST file" and return);
     open(my $manifest, '>', $manifest_name) or die $!;
     print $manifest "MANIFEST\n";
 
@@ -202,7 +203,6 @@ sub _add_to_manifest_skip {
     my $dir = shift;
 
     my $filename = catfile($dir, 'MANIFEST.SKIP');
-    -e $filename or (warn "skeleton has no MANIFEST file" and return);
     open my $fh, '>>', $filename or die $!;
     print {$fh} "^$dir-\n";
     close $fh;
