@@ -27,6 +27,7 @@ sub opt_spec {
             { default => '.' } ],
         [ 'overwrite|o',     'overwrite existing files' ],
         [ 'no-check|x',      'don\'t check latest Dancer2 version (requires internet)' ],
+        [ 'skel|s=s',        'skeleton directory' ],
     );
 }
 
@@ -47,6 +48,12 @@ sub validate_args {
     my $path = $opt->{path};
     -d $path or $self->usage_error("directory '$path' does not exist");
     -w $path or $self->usage_error("directory '$path' is not writeable");
+
+    if ($opt->{skel}) {
+        my $skel_path = $opt->{skel};
+        -d $skel_path or $self->usage_error("skeleton directory '$skel_path' not found");
+    }
+
 }
 
 sub execute {
@@ -54,7 +61,7 @@ sub execute {
     $self->_version_check() unless $opt->{'no_check'};
 
     my $dist_dir = $ENV{DANCER2_SHARE_DIR} || dist_dir('Dancer2');
-    my $skel_dir = catdir($dist_dir, 'skel');
+    my $skel_dir = $opt->{skel} || catdir($dist_dir, 'skel');
     -d $skel_dir or die "$skel_dir doesn't exist";
 
     my $app_name = $opt->{application};
