@@ -1,7 +1,11 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Not exactly bug fix, but now captures() always returns hashref.
+      (Sawyer X)
+
     [ ENHANCEMENTS ]
-    * Small speed bump: use eval{} instead of Try::Tiny.
+    * Small speed bump: use eval{} instead of Try::Tiny. (Sawyer X)
 
 0.161000_01 2015-08-28 15:29:00+02:00 Europe/Amsterdam
 
