@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * Not exactly bug fix, but now captures() always returns hashref.
       (Sawyer X)
