@@ -326,7 +326,7 @@ sub params {
     }
 }
 
-sub captures { shift->params->{captures} }
+sub captures { shift->params->{captures} || {} }
 
 sub splat { @{ shift->params->{splat} || [] } }
 
