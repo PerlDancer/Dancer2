@@ -1,9 +1,12 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More;
 use Plack::Test;
 use HTTP::Cookies;
 use HTTP::Request::Common;
+
+eval { require Dancer2::Session::Cookie; 1 }
+  or plan skip_all => 'Dancer2::Session::Cookie probably missing.';
 
 {
     package App;
@@ -49,3 +52,5 @@ subtest 'Retrieving a session' => sub {
     ok( $res->is_success, 'Successful request' );
     is( $res->content, '{"foo":"bar"}', 'Correct response' );
 };
+
+done_testing;
