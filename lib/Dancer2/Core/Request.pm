@@ -342,7 +342,7 @@ sub _decode {
     }
 
     if ( ref($h) eq 'HASH' ) {
-        return { map _decode($_) // undef, %$h };
+        return { map {my $t = _decode($_); $t} (%$h) };
     }
 
     if ( ref($h) eq 'ARRAY' ) {
