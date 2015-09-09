@@ -31,7 +31,7 @@ my $views =
 }
 
 my $version = Dancer2->VERSION;
-my $expected = "perl_version: $]
+my $expected = "perl_version: $^V
 dancer_version: ${version}
 settings.foo: in settings
 params.foo: 42
