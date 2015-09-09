@@ -641,7 +641,7 @@ C<HTTP_FORWARDED_PROTO>.
 
 Checks whether we are behind a proxy using the C<is_behind_proxy>
 configuration option, and if so returns the first
-C<HTTP_X_FORWARDED_HOST>, since this is a comma seperated list.
+C<HTTP_X_FORWARDED_HOST>, since this is a comma separated list.
 
 If you have not configured that you behind a proxy, it returns HTTP
 header C<HTTP_HOST>.
