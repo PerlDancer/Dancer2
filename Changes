@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * dancer2 app now support -s switch to supply an app skeleton
+      (Nuno Carvalho)
+
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
