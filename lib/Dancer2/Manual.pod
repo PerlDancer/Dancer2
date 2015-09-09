@@ -463,7 +463,7 @@ be processed, they are passed the tokens hash which they can alter.
     hook before_template_render => sub {
         my $tokens = shift;
         $tokens->{foo} = 'bar';
-    }
+    };
 
 The tokens hash will then be passed to the template with all the
 modifications performed by the hook. This is a good way to setup some
