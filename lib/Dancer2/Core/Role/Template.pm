@@ -172,7 +172,7 @@ sub _prepare_tokens_options {
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
-    $tokens->{perl_version}   = $];
+    $tokens->{perl_version}   = $^V;
     $tokens->{dancer_version} = Dancer2->VERSION;
 
     $tokens->{settings} = $self->settings;
@@ -238,7 +238,7 @@ Any template receives the following tokens, by default:
 
 =item * C<perl_version>
 
-Current version of perl, effectively C<$]>.
+Current version of perl, effectively C<$^V>.
 
 =item * C<dancer_version>
 
