@@ -3,6 +3,10 @@
     [ ENHANCEMENTS ]
     * dancer2 app now support -s switch to supply an app skeleton
       (Nuno Carvalho)
+    * "perl_version" token in templates now uses $^V, not $]. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #974: Use correct classname. (Sawyer X)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 
