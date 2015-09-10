@@ -2162,7 +2162,7 @@ app, when it C<use>s it.
     package MyApp;
     use Dancer2;
 
-    set session => 'YAML';
+    BEGIN { set session => 'YAML' };
     use Blog with => { session => engine('session') };
 
 In this example, the session engine is passed to the C<Blog> app. That way,
