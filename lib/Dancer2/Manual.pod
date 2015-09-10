@@ -1522,8 +1522,10 @@ message and the caller information (file and line).
 
 =head2 Logging your own messages
 
-Just call L<debug|Dancer2/debug>, L<info|Dancer2/info>,
-L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
+Just call L<debug|https://metacpan.org/pod/Dancer2::Manual#debug>,
+L<info|https://metacpan.org/pod/Dancer2::Manual#info>,
+L<warning|https://metacpan.org/pod/Dancer2::Manual#warning> or
+L<error|https://metacpan.org/pod/Dancer2::Manual#error> with your message:
 
     debug "This is a debug message from my app.";
 
