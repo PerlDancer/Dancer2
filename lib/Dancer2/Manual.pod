@@ -76,7 +76,14 @@ It creates a directory named after the name of the app, along with a
 configuration file, a views directory (where your templates and layouts
 will live), an environments directory (where environment-specific
 settings live), a module containing the actual guts of your application, and
-a script to start it
+a script to start it. A default skeleton is used to bootstrap the new
+application, but you can use the C<-s> option to provide another skeleton.
+For example:
+
+    $ dancer2 -a mywebapp -s ~/mydancerskel
+
+For an example of a skeleton directory check the default one available in
+the C<share/> directory of your Dancer2 distribution.
 
 Because Dancer2 is a L<PSGI> web application framework, you can use the
 C<plackup> tool (provided by L<Plack>) for launching the application:
