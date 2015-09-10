@@ -49,11 +49,10 @@ sub validate_args {
     -d $path or $self->usage_error("directory '$path' does not exist");
     -w $path or $self->usage_error("directory '$path' is not writeable");
 
-    if ($opt->{skel}) {
-        my $skel_path = $opt->{skel};
-        -d $skel_path or $self->usage_error("skeleton directory '$skel_path' not found");
+    if ( my $skel_path = $opt->{skel} ) {
+        -d $skel_path
+            or $self->usage_error("skeleton directory '$skel_path' not found");
     }
-
 }
 
 sub execute {
