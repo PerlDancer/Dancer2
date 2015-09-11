@@ -322,7 +322,7 @@ set the content all at once, if you prefer.
         delayed {
             add_header 'X-Foo' => 'Bar';
 
-            # optionally flush headers
+            # flush headers (in case of streaming)
             flush;
 
             # send content to the user
@@ -341,9 +341,8 @@ set the content all at once, if you prefer.
         };
     };
 
-If you do not flush the response status and the headers manually (using the
-C<flush> keyword), they will be flushed as soon as you set the content for
-the first time using the C<content> keyword.
+If you are streaming (calling C<content> several times), you must call
+C<flush> first. If you're sending only once, you don't need to call C<flush>.
 
 Here is an example of using delayed responses with L<AnyEvent>:
 
@@ -355,7 +354,7 @@ Here is an example of using delayed responses with L<AnyEvent>:
     get '/drums' => sub {
         delayed {
             print "Stretching...\n";
-            flush;
+            flush; # necessary, since we're streaming
 
             $timers{'Snare'} = AE::timer 1, 1, delayed {
                 $timers{'HiHat'} ||= AE::timer 0, 0.5, delayed {
