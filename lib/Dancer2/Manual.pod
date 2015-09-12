@@ -391,6 +391,30 @@ Here is an example of using delayed responses with L<AnyEvent>:
         };
     };
 
+If an error happens during a write operation, a warning will be issued
+to the logger.
+
+You can handle the error yourself by providing an C<on_error> handler:
+
+    get '/' => sub {
+        delayed {
+            flush;
+            content "works";
+
+            # ... user disconnected here ...
+
+            content "fails";
+
+            # ... error triggered ...
+
+            done; # doesn't even get run
+        } on_error => sub {
+            # delayed{} not needed, DSL already available
+            my ($error) = @_;
+            # do something with $error
+        };
+    };
+
 =head2 Action Skipping
 
 An action can choose not to serve the current request and ask Dancer2 to

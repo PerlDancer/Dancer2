@@ -7,7 +7,7 @@ use Carp 'croak';
 use List::Util 'first';
 use Scalar::Util 'blessed';
 
-our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER );
+our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
 has method => (
     is       => 'ro',
