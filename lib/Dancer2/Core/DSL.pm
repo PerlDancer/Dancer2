@@ -55,7 +55,7 @@ sub dsl_keywords {
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
         delayed              => {
-            is_global => 0, prototype => '&',
+            is_global => 0, prototype => '&@',
         },
         dirname              => { is_global => 1 },
         done                 => { is_global => 0 },
@@ -277,7 +277,7 @@ sub headers {
 }
 
 sub content {
-    shift;
+    my $dsl = shift;
 
     # simple synchronous response
     my $responder = $Dancer2::Core::Route::RESPONDER
@@ -285,13 +285,23 @@ sub content {
 
     # flush if wasn't flushed before
     if ( !$Dancer2::Core::Route::WRITER ) {
-        my $response = $Dancer2::Core::Route::RESPONSE;
         $Dancer2::Core::Route::WRITER = $responder->([
-            $response->status, $response->headers_to_array,
+            $Dancer2::Core::Route::RESPONSE->status,
+            $Dancer2::Core::Route::RESPONSE->headers_to_array,
         ]);
     }
 
-    $Dancer2::Core::Route::WRITER->write(@_);
+    eval {
+        $Dancer2::Core::Route::WRITER->write(@_);
+        1;
+    } or do {
+        my $error = $@ || 'Zombie Error';
+        $Dancer2::Core::Route::ERROR_HANDLER
+            ? $Dancer2::Core::Route::ERROR_HANDLER->($error)
+            : $dsl->app->logger_engine->log(
+                warning => "Error in delayed response: $error"
+            );
+    };
 }
 
 sub content_type {
@@ -300,14 +310,20 @@ sub content_type {
 }
 
 sub delayed {
-    my ( $dsl, $cb ) = @_;
+    my ( $dsl, $cb, @args ) = @_;
+
+    @args % 2 == 0
+        or croak 'Arguments to delayed() keyword must be key/value pairs';
 
     # first time, responder doesn't exist yet
+    my %opts = @args;
     $Dancer2::Core::Route::RESPONDER
         or return Dancer2::Core::Response::Delayed->new(
             cb       => $cb,
             request  => $Dancer2::Core::Route::REQUEST,
             response => $Dancer2::Core::Route::RESPONSE,
+
+          ( error_cb => $opts{'on_error'} )x!! $opts{'on_error'},
         );
 
     # we're in an async request process
@@ -315,12 +331,14 @@ sub delayed {
     my $response  = $Dancer2::Core::Route::RESPONSE;
     my $responder = $Dancer2::Core::Route::RESPONDER;
     my $writer    = $Dancer2::Core::Route::WRITER;
+    my $handler   = $Dancer2::Core::Route::ERROR_HANDLER;
 
     return sub {
-        local $Dancer2::Core::Route::REQUEST   = $request;
-        local $Dancer2::Core::Route::RESPONSE  = $response;
-        local $Dancer2::Core::Route::RESPONDER = $responder;
-        local $Dancer2::Core::Route::WRITER    = $writer;
+        local $Dancer2::Core::Route::REQUEST       = $request;
+        local $Dancer2::Core::Route::RESPONSE      = $response;
+        local $Dancer2::Core::Route::RESPONDER     = $responder;
+        local $Dancer2::Core::Route::WRITER        = $writer;
+        local $Dancer2::Core::Route::ERROR_HANDLER = $handler;
 
         $cb->(@_);
     };

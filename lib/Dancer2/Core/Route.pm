@@ -6,7 +6,7 @@ use Dancer2::Core::Types;
 use Carp 'croak';
 use Scalar::Util 'blessed';
 
-our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER );
+our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
 has method => (
     is       => 'ro',
