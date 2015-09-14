@@ -76,7 +76,14 @@ It creates a directory named after the name of the app, along with a
 configuration file, a views directory (where your templates and layouts
 will live), an environments directory (where environment-specific
 settings live), a module containing the actual guts of your application, and
-a script to start it
+a script to start it. A default skeleton is used to bootstrap the new
+application, but you can use the C<-s> option to provide another skeleton.
+For example:
+
+    $ dancer2 -a mywebapp -s ~/mydancerskel
+
+For an example of a skeleton directory check the default one available in
+the C<share/> directory of your Dancer2 distribution.
 
 Because Dancer2 is a L<PSGI> web application framework, you can use the
 C<plackup> tool (provided by L<Plack>) for launching the application:
@@ -463,7 +470,7 @@ be processed, they are passed the tokens hash which they can alter.
     hook before_template_render => sub {
         my $tokens = shift;
         $tokens->{foo} = 'bar';
-    }
+    };
 
 The tokens hash will then be passed to the template with all the
 modifications performed by the hook. This is a good way to setup some
@@ -1515,8 +1522,10 @@ message and the caller information (file and line).
 
 =head2 Logging your own messages
 
-Just call L<debug|Dancer2/debug>, L<info|Dancer2/info>,
-L<warning|Dancer2/warning> or L<error|Dancer2/error> with your message:
+Just call L<debug|https://metacpan.org/pod/Dancer2::Manual#debug>,
+L<info|https://metacpan.org/pod/Dancer2::Manual#info>,
+L<warning|https://metacpan.org/pod/Dancer2::Manual#warning> or
+L<error|https://metacpan.org/pod/Dancer2::Manual#error> with your message:
 
     debug "This is a debug message from my app.";
 
@@ -2155,7 +2164,7 @@ app, when it C<use>s it.
     package MyApp;
     use Dancer2;
 
-    set session => 'YAML';
+    BEGIN { set session => 'YAML' };
     use Blog with => { session => engine('session') };
 
 In this example, the session engine is passed to the C<Blog> app. That way,
