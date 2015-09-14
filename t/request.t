@@ -247,6 +247,22 @@ sub run_test {
     $req = Dancer2::Core::Request->new( env => $env );
     is_deeply scalar( $req->params ), { "M\N{U+00FC}ller", "L\N{U+00FC}denscheid" },
       'multi byte unicode chars work in param keys and values';
+    {
+        note "testing private _decode not to mangle hash";
+        my @warnings;
+        local $SIG{__WARN__} = sub {
+            push @warnings, @_;
+        };
+
+        my $h = { zzz => undef, };
+        for ( 'aaa' .. 'fff' ) {
+            $h->{$_} = $_;
+        }
+
+        my $i = Dancer2::Core::Request::_decode($h);
+        is_deeply( $i, $h, 'hash not mangled' );
+        ok( !@warnings, 'no warnings were issued' );
+    }
 }
 
 note "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
