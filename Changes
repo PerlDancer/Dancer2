@@ -9,6 +9,7 @@
     * GH #974: Use correct classname. (Sawyer X)
     * GH #958: Fix manual example with loading additional routes. (Sawyer X)
     * GH #960: Fix a few links. (Sawyer X)
+    * Document you can install Scope::Upper for greater speed. (Sawyer X)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 
