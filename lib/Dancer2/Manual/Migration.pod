@@ -106,6 +106,8 @@ for details.
 
 =item * L<HTTP::Parser::XS>
 
+=item * L<Scope::Upper>
+
 =back
 
 They would need to be installed separately. This is because L<Dancer2> does
