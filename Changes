@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #996: Fix warning with optional arguments. (Bas Bloemsaat)
+
     [ ENHANCEMENTS ]
     * dancer2 app now support -s switch to supply an app skeleton
       (Nuno Carvalho)
