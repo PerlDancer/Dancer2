@@ -4,6 +4,7 @@
     * dancer2 app now support -s switch to supply an app skeleton
       (Nuno Carvalho)
     * "perl_version" token in templates now uses $^V, not $]. (Sawyer X)
+    * GH #966: Remove Dist::Zilla::Plugin::AutoPrereqs. (Vernon)
 
     [ DOCUMENTATION ]
     * GH #974: Use correct classname. (Sawyer X)
