@@ -20,6 +20,8 @@
     [ BUG FIXES ]
     * Not exactly bug fix, but now captures() always returns hashref.
       (Sawyer X)
+    * GH #931: Using params() keyword, route parameters now override body
+      parameters which override query parameters. (Sawyer X)
 
     [ ENHANCEMENTS ]
     * Small speed bump: use eval{} instead of Try::Tiny. (Sawyer X)

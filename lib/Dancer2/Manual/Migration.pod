@@ -171,6 +171,12 @@ For example:
 would return an error. The correct way to write this would be to use
 C<get '/0'>
 
+=head2 Route parameters
+
+The C<params> keyword which provides merged parameters used to allow body
+parameters to override route parameters. Now route parameters take
+precedence over query parameters and body parameters.
+
 =head2 Tests
 
 Dancer2 recommends the use of L<Plack::Test>.
