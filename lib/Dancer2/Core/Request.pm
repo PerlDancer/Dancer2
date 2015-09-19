@@ -387,8 +387,8 @@ sub _build_params {
         map +( ref $_ eq 'HASH' ? %{$_} : () ),
         $previous,
         $get_params,
-        $self->_route_params,
         $self->_body_params,
+        $self->_route_params,
     };
 
 }
