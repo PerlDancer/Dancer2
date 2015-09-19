@@ -4,6 +4,7 @@ package Dancer2::Core::Route;
 use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use List::Util 'first';
 use Scalar::Util 'blessed';
 
 our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER );
@@ -212,6 +213,12 @@ sub _build_regexp_from_string {
     if ( $string =~ /:/ ) {
         @params = $string =~ /:([^\/\.\?]+)/g;
         if (@params) {
+            first { $_ eq 'splat' } @params
+                and warn q{Named placeholder 'splat' is deprecated};
+
+            first { $_ eq 'captures' } @params
+                and warn q{Named placeholder 'captures' is deprecated};
+
             $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
             $capture = 1;
         }
