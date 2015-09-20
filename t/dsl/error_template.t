@@ -26,6 +26,7 @@ use HTTP::Request::Common;
     package StandardError;
 
     use Dancer2;
+    set show_errors => 1;
 
     get '/no_template' => sub {
         send_error "oopsie", 404;
@@ -70,6 +71,7 @@ subtest "/no_template" => sub {
     is $res->code, 404, 'send_error sets the status to 404';
     like $res->content, qr{<h1>Error 404 - Not Found</h1>},
       'Error message looks good';
+    unlike $res->content, qr{Stack}, 'Error contains no stack trace';
 };
 
 done_testing;
