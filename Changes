@@ -2,6 +2,7 @@
 
     [ BUG FIXES ]
     * GH #996: Fix warning with optional arguments. (Bas Bloemsaat)
+    * GH #1001: Do not trigger an internal error on 404. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * dancer2 app now support -s switch to supply an app skeleton
