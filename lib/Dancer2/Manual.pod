@@ -684,8 +684,9 @@ If such a file exists, it's used to report the error, otherwise, a default
 error page will be rendered on the fly.
 
 Note that in order to provide more informative diagnostics, the default
-error page will override the error-code HTML files when B<show_errors>
-is set to true. For more information see L<Dancer2::Config>.
+error page will override the error-code HTML files for errors with a C<5xx>
+status when B<show_errors> is set to true. For more information see
+L<Dancer2::Config>.
 
 =head2 Execution Errors
 
