@@ -106,10 +106,12 @@ sub default_error_page {
     my $uri_base = $self->has_app && $self->app->has_request ?
         $self->app->request->uri_base : '';
 
+    # GH#1001 stack trace if show_errors is true and this is a 'server' error (5xx)
+    my $show_fullmsg = $self->show_errors && $self->status =~ /^5/;
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
-        content  => $self->show_errors ? $self->full_message : $self->message || 'Wooops, something went wrong',
+        content  => $show_fullmsg ? $self->full_message : $self->message || 'Wooops, something went wrong',
         version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
