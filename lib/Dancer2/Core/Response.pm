@@ -23,6 +23,7 @@ use overload
 has headers => (
     is     => 'ro',
     isa    => Sub::Quote::quote_sub(q{
+        use Safe::Isa;
         $_[0]->$_isa('ARRAY')          ||
         $_[0]->$_DOES('HTTP::Headers') ||
         $_[0]->$_DOES('HTTP::Headers::Fast')

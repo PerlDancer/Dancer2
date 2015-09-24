@@ -8,7 +8,6 @@ use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Sub::Quote;
-use Safe::Isa;
 
 has app => (
     is        => 'ro',
@@ -164,6 +163,7 @@ sub full_message {
 has serializer => (
     is        => 'ro',
     isa       => Sub::Quote::quote_sub(q{
+        use Safe::Isa;
         $_[0]
             ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
             : 1;
