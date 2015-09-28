@@ -84,7 +84,7 @@ This is an alternate plugin basis for Dancer2.
 
 =head3 Inheriting from L<Dancer2::Plugin2>
 
-The plugin must inherit from L<Dancer2::Plugin2>. The base clase provides the plugin with 
+The plugin must inherit from L<Dancer2::Plugin2>. The base class provides the plugin with 
 two attributes: C<app>, which is populated with the Dancer2 app object for which
 the plugin is being initialized for, and C<config> which holds the plugin 
 section of the application configuration.
