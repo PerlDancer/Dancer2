@@ -149,7 +149,7 @@ Or a mix of both styles. We're easy that way:
 
             return $text;
         },
-        add_sad_kitten;
+        'add_sad_kitten';
 
     sub add_sad_kitten {
         ...;
