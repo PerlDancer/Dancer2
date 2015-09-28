@@ -3,10 +3,9 @@ package Dancer2::Plugin::Foo;
 use strict;
 use warnings;
 
-use Moo;
-extends 'Dancer2::Plugin2';
+use Dancer2::Plugin2;
 
-sub keywords { 'truncate_txt' };
+plugin_keywords 'truncate_txt';
 
 has something => (
     is => 'ro',
