@@ -122,6 +122,33 @@ be the plugin object itself.
         add_smileys( "Hi there!" );
     };
 
+=head3 Accessing the plugin configuration
+
+The plugin configuration is available via the C<config()> method.
+
+    sub BUILD {
+        my $plugin = shift;
+
+        if ( $plugin->config->{feeling_polite} ) {
+            $plugin->app->add_hook( Dancer2::Core::Hook->new(
+                name => 'after',
+                code => sub { $_[0]->content( $_[0]->content . " ... please?" ) }
+            ));
+        }
+    }
+
+=head3 Accessing the parent Dancer app
+
+If the plugin is instantiated within a Dancer app, it'll be
+accessible via the method C<app()>.
+
+    sub BUILD {
+        my $plugin = shift;
+
+        $plugin->app->add_route( ... );
+    }
+
+
 =head2 Using the plugin within the app
 
 A plugin is loaded via
