@@ -3,8 +3,7 @@ package Dancer2::Plugin::Bar;
 use strict;
 use warnings;
 
-use Moo;
-extends 'Dancer2::Plugin2';
+use Dancer2::Plugin2;
 
 sub baz { 'bazbazbaz' }
 

@@ -3,8 +3,7 @@ package Dancer2::Plugin::Polite;
 use strict;
 use warnings;
 
-use Moo;
-extends 'Dancer2::Plugin2';
+use Dancer2::Plugin2;
 
 has smiley => (
     is => 'ro',
@@ -13,7 +12,7 @@ has smiley => (
     }
 );
 
-sub keywords { 'add_smileys' }
+plugin_keywords 'add_smileys';
 
 sub BUILD {
     my $plugin = shift;

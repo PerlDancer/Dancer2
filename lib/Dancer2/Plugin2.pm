@@ -11,8 +11,7 @@ The plugin itself:
     use strict;
     use warnings;
 
-    use Moo;
-    extends 'Dancer2::Plugin2';
+    use Dancer2::Plugin2;
 
     has smiley => (
         is => 'ro',
@@ -21,7 +20,7 @@ The plugin itself:
         }
     );
 
-    sub keywords { 'add_smileys' }
+    plugin_keywords 'add_smileys';
 
     sub BUILD {
         my $plugin = shift;
@@ -82,12 +81,16 @@ This is an alternate plugin basis for Dancer2.
 
 =head2 Writing the plugin
 
-=head3 Inheriting from L<Dancer2::Plugin2>
+=head3 C<use Dancer2::Plugin2>
 
-The plugin must inherit from L<Dancer2::Plugin2>. The base class provides the plugin with 
+The plugin must begin with
+
+    use Dancer2::Plugin2;
+
+which will turn the package into a L<Moo> class that inherits from L<Dancer2::Plugin2>. The base class provides the plugin with 
 two attributes: C<app>, which is populated with the Dancer2 app object for which
 the plugin is being initialized for, and C<config> which holds the plugin 
-section of the application configuration.
+section of the application configuration. 
 
 =head3 Modifying the app at building time
 
@@ -102,13 +105,15 @@ it can do so within its C<BUILD()> function.
 
 =head3 Adding keywords
 
-Keywords that the plugin wishes to export to the Dancer2 app must be defined in a 
-C<keywords> function:
+Keywords that the plugin wishes to export to the Dancer2 app must be defined via the C<plugin_keywords> keyword:
 
-    sub keywords { qw/ add_smileys add_sad_kitten  / }
+    plugin_keywords qw/ 
+        add_smileys 
+        add_sad_kitten  
+    /;
 
-Then each of the keyword is written as a function which first argument will
-be the plugin object itself.
+Each of the keyword will resolve to the class method of the same name. When invoked as keyword, it'll be passed
+the plugin object as its first argument.
 
     sub add_smileys {
         my( $plugin, $text ) = @_;
@@ -121,6 +126,34 @@ be the plugin object itself.
     get '/' => sub {
         add_smileys( "Hi there!" );
     };
+
+You can also pass the functions directly to C<plugin_keywords>.
+
+    plugin_keywords 
+        add_smileys => sub { 
+            my( $plugin, $text ) = @_;
+
+            $text =~ s/ (?<= \. ) / $plugin->smiley /xeg;
+
+            return $text;
+        },
+        add_sad_kitten => sub { ... };
+
+Or a mix of both styles. We're easy that way:
+
+    plugin_keywords 
+        add_smileys => sub { 
+            my( $plugin, $text ) = @_;
+
+            $text =~ s/ (?<= \. ) / $plugin->smiley /xeg;
+
+            return $text;
+        },
+        add_sad_kitten;
+
+    sub add_sad_kitten {
+        ...;
+    }
 
 =head3 Accessing the plugin configuration
 
@@ -198,12 +231,20 @@ use Moo;
 
 extends 'Exporter::Tiny';
 
+our @EXPORT = qw/ :plugin  /;
+our @EXPORT_OK = qw/ :app  /;
+
 sub _exporter_expand_tag {
     my( $class, $name, $args, $global ) = @_;
 
-    return unless $name eq 'app';
-
     my $caller = $global->{into};
+
+    if ( $name eq 'plugin' ) {
+        eval "{ package $caller; use Moo; extends 'Dancer2::Plugin2'; our %PluginKeywords; }";
+        return ( [ 'plugin_keywords' => { class => $caller } ] ) x ( $caller =~ /^Dancer2::Plugin/ );
+    }
+
+    return unless $name eq 'app';
 
     die "plugin called with ':app' in a class without app()\n"
         unless $caller->can('app');
@@ -217,13 +258,27 @@ sub _exporter_expand_tag {
 
     return unless $class->can('keywords');
 
-    map { [ $_ =>  {plugin => $plugin}  ] } $class->keywords;
+    map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
 }
 
 sub _exporter_expand_sub {
     my( $plugin, $name, $args, $global ) = @_;
 
-    return $name => sub(@) { $args->{plugin}->$name(@_) };
+    if ( $name eq 'plugin_keywords' ) {
+        my $class = $args->{class};
+        return $name => sub(@) {
+            while( my $name = shift @_ ) {
+                my $sub = ref $_[0] eq 'CODE' 
+                    ? shift @_ 
+                    : eval '\&'.$class."::$name";
+                eval "{ \$${class}::PluginKeywords{'$name'} = \$sub }"; 
+            }
+        }
+    }
+
+    my $p = $args->{plugin};
+    my $sub = $p->keywords->{$name};
+    return $name => sub(@) { $sub->($p,@_) };
 }
 
 
@@ -242,6 +297,19 @@ has config => (
         my $package = ref $self; # TODO
         $package =~ s/Dancer2::Plugin:://;
         $config->{plugins}{$package}
+    },
+);
+
+has keywords => (
+    is => 'ro',
+    default => sub {
+        my $self = shift;
+        my $class = ref $self;
+
+        +{
+            map { eval "\%${class}::PluginKeywords" } 
+                eval "\@${class}::ISA", $class
+        }
     },
 );
 
