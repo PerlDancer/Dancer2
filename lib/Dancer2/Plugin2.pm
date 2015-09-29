@@ -228,8 +228,11 @@ use strict;
 use warnings;
 
 use Moo;
+use MooX::ClassAttribute;
 
 extends 'Exporter::Tiny';
+
+with 'Dancer2::Core::Role::Hookable';
 
 our @EXPORT = qw/ :plugin  /;
 our @EXPORT_OK = qw/ :app  /;
@@ -240,8 +243,14 @@ sub _exporter_expand_tag {
     my $caller = $global->{into};
 
     if ( $name eq 'plugin' ) {
-        eval "{ package $caller; use Moo; extends 'Dancer2::Plugin2'; our %PluginKeywords; }";
-        return ( [ 'plugin_keywords' => { class => $caller } ] ) x ( $caller =~ /^Dancer2::Plugin/ );
+        eval "{ package $caller; use Moo; extends 'Dancer2::Plugin2'; }";
+
+        return () unless $caller =~ /^Dancer2::Plugin/;
+
+        return (
+            [ 'plugin_keywords' => { class => $caller } ],
+            [ 'plugin_hooks'    => { class =>  $caller } ],
+        )
     }
 
     return unless $name eq 'app';
@@ -271,8 +280,15 @@ sub _exporter_expand_sub {
                 my $sub = ref $_[0] eq 'CODE' 
                     ? shift @_ 
                     : eval '\&'.$class."::$name";
-                eval "{ \$${class}::PluginKeywords{'$name'} = \$sub }"; 
+                eval "{ \$plugin->ClassKeywords->{'$name'} = \$sub }"; 
             }
+        }
+    }
+
+    if ( $name eq 'plugin_hooks' ) {
+        my $class = $args->{class};
+        return $name => sub(@) {
+            $class->add_hooks(@_);
         }
     }
 
@@ -300,17 +316,48 @@ has config => (
     },
 );
 
+class_has ClassKeywords => (
+    is => 'ro',
+    default => sub {
+        +{}
+    }
+);
+
 has keywords => (
     is => 'ro',
     default => sub {
         my $self = shift;
-        my $class = ref $self;
-
-        +{
-            map { eval "\%${class}::PluginKeywords" } 
-                eval "\@${class}::ISA", $class
-        }
+        +{ %{$self->ClassKeywords} }
     },
 );
+
+class_has ClassHooks => (
+    is => 'ro',
+    default => sub {
+        [];
+    }
+);
+
+has '+hooks' => (
+    default => sub {
+        my $plugin = shift;
+        my $name = 'plugin.' . lc ref $plugin;
+        $name =~ s/Dancer2::Plugin:://i;
+        $name =~ s/::/_/;
+
+        +{ 
+            map { join( '.', $name, $_ ) => [] }
+                @{ $plugin->ClassHooks }  
+        };
+    },
+);
+
+sub add_hooks {
+    push @{ $_[0]->ClassHooks }, @_;
+}
+
+sub supported_hooks { [] }
+
+sub hook_aliases { +{} }
 
 1;
