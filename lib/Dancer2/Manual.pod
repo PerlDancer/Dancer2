@@ -2148,6 +2148,21 @@ C<appname> tag; e.g.
 The above would add the C<bar> route to the MyApp application. Dancer2 will
 I<not> create an application with the name C<MyApp::Private>.
 
+=item * B<:nopragmas>
+
+By default L<Dancer2> will import three pragmas: L<strict>, L<warnings>,
+and L<utf8>. If you require control over the imported pragmas, you can add
+B<:nopragmas> to the importing flags, in which case Dancer2 will not import
+any pragmas:
+
+    use strict;
+    use warnings;
+    no warnings 'experimental::smartmatch'; # for example...
+    use Dancer2 ':nopragmas'; # do not touch the existing pragmas
+
+This way importing C<Dancer2> does not change the existing pragmas setup
+you have.
+
 =back
 
 When you C<use Dancer2>, you get an C<import> method added into the current
