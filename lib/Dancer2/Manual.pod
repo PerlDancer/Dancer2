@@ -2155,11 +2155,13 @@ and L<utf8>. If you require control over the imported pragmas, you can add
 B<:nopragmas> to the importing flags, in which case Dancer2 will not import
 any pragmas:
 
-    use Dancer2 ':nopragmas';
-    # now add pragmas yourself
     use strict;
     use warnings;
-    no warnings 'experimental::smartmatch'; # for example
+    no warnings 'experimental::smartmatch'; # for example...
+    use Dancer2 ':nopragmas'; # do not touch the existing pragmas
+
+This way importing C<Dancer2> does not change the existing pragmas setup
+you have.
 
 =back
 
