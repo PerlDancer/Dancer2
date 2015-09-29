@@ -2151,9 +2151,9 @@ I<not> create an application with the name C<MyApp::Private>.
 =item * B<:nopragmas>
 
 By default L<Dancer2> will import three pragmas: L<strict>, L<warnings>,
-and L<utf8>. If you would like to have full control over the imported
-pragmas, instead of Dancer2 importing them, you can add B<:nopragmas> to
-the importing flags, in which case Dancer2 will not import any pragmas:
+and L<utf8>. If you require control over the imported pragmas, you can add
+B<:nopragmas> to the importing flags, in which case Dancer2 will not import
+any pragmas:
 
     use Dancer2 ':nopragmas';
     # now add pragmas yourself
