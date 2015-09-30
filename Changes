@@ -16,6 +16,7 @@
     * GH #992: Deprecate creating route named placeholders ":captures"
       and ":splat". (Sawyer X)
     * Bump Moo requirement to 2.000000. (Alberto Simões)
+    * GH #1012: Add :nopragmas import flag. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #974: Use correct classname. (Sawyer X)

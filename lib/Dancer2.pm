@@ -24,12 +24,18 @@ sub import {
     my ( $class,  @args   ) = @_;
     my ( $caller, $script ) = caller;
 
-    $_->import::into($caller) for qw(strict warnings utf8);
-
     my @final_args;
+    my $clean_import;
     foreach my $arg (@args) {
+        # ignore, no longer necessary
+        # in the future these will warn as deprecated
         grep +( $arg eq $_ ), qw<:script :syntax :tests>
             and next;
+
+        if ( $arg eq ':nopragmas' ) {
+            $clean_import++;
+            next;
+        }
 
         if ( substr( $arg, 0, 1 ) eq '!' ) {
             push @final_args, $arg, 1;
@@ -37,6 +43,9 @@ sub import {
             push @final_args, $arg;
         }
     }
+
+    $clean_import
+        or $_->import::into($caller) for qw<strict warnings utf8>;
 
     scalar @final_args % 2
       and die q{parameters must be key/value pairs or '!keyword'};
