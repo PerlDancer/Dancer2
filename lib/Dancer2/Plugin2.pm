@@ -280,7 +280,7 @@ sub _exporter_expand_sub {
                 my $sub = ref $_[0] eq 'CODE' 
                     ? shift @_ 
                     : eval '\&'.$class."::$name";
-                eval "{ \$plugin->ClassKeywords->{'$name'} = \$sub }"; 
+                $plugin->ClassKeywords->{$name} = $sub;
             }
         }
     }
