@@ -12,6 +12,41 @@ __END__
 Dancer has been designed to be flexible, and this flexibility extends to your
 choices when deploying your Dancer app.
 
+=head2 Running stand-alone
+
+To start your application, just run plackup:
+
+    $ plackup bin/app.psgi
+    HTTP::Server::PSGI: Accepting connections at http://0:5000/
+
+Point your browser at it, and away you go!
+
+This option can be useful for small personal web apps or internal apps, but if
+you want to make your app available to the world, it probably won't suit you.
+
+=head2 Auto Reloading with plackup and Shotgun
+
+To edit your files without the need to restart the webserver on each file
+change, simply start your Dancer2 app using L<plackup> and
+L<Plack::Loader::Shotgun>:
+
+    $ plackup -L Shotgun bin/app.psgi
+    HTTP::Server::PSGI: Accepting connections at http://0:5000/
+
+Point your browser at it. Files can now be changed in your favorite editor
+and the browser needs to be refreshed to see the saved changes.
+
+Please note that this is B<not> recommended for production for performance
+reasons. This is the Dancer2 replacement solution of the old Dancer
+experimental C<auto_reload> option.
+
+On Windows, Shotgun loader is known to cause huge memory leaks in a
+fork-emulation layer. If you are aware of this and still want to run the
+loader, please use the following command:
+
+    > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
+    HTTP::Server::PSGI: Accepting connections at http://0:5000/
+
 =head2 Running as a cgi-script (or fast-cgi) under Apache
 
 In providing ultimate flexibility in terms of deployment, your Dancer app can
@@ -83,46 +118,7 @@ To:
 
 	AddHandler fastcgi-script .fcgi
 
-=head2 Auto Reloading with Plack and Shotgun
-
-To edit your files without the need to restart the webserver on each file
-change, simply start your Dancer2 app using L<plackup> and
-L<Plack::Loader::Shotgun>:
-
-    $ plackup -L Shotgun bin/app.psgi
-    HTTP::Server::PSGI: Accepting connections at http://0:5000/
-
-Point your browser at it. Files can now be changed in your favorite editor
-and the browser needs to be refreshed to see the saved changes.
-
-Please note that this is not recommended for production for performance
-reasons. This is the Dancer2 replacement solution of the old Dancer
-experimental C<auto_reload> option.
-
-On Windows, Shotgun loader is known to cause huge memory leaks in a
-fork-emulation layer. If you are aware of this and still want to run the
-loader, please use the following command:
-
-    > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
-    HTTP::Server::PSGI: Accepting connections at http://0:5000/
-
-=head2 Running stand-alone
-
-At the simplest, your Dancer app can run standalone, operating as its own
-webserver using L<HTTP::Server::PSGI>.
-
-Simply fire up your app:
-
-    $ perl bin/app.psgi
-    >> Listening on 0.0.0.0:3000
-    == Entering the dance floor ...
-
-Point your browser at it, and away you go!
-
-This option can be useful for small personal web apps or internal apps, but if
-you want to make your app available to the world, it probably won't suit you.
-
-=head3 Running on Perl webservers with plackup
+=head3 Running on PSGI-based Perl webservers
 
 A number of Perl web servers supporting PSGI are available on cpan:
 
@@ -144,11 +140,11 @@ C<Corona> is a C<Coro> based web server.
 
 =back
 
-To start your application, just run plackup (see L<Plack> and specific servers
-above for all available options):
+Similar to running standalone, use plackup to start your application
+(see L<Plack> and specific servers above for all available options):
 
-   $ plackup bin/app.psgi
-   $ plackup -E deployment -s Starman --workers=10 -p 5001 -a bin/app.psgi
+    $ plackup bin/app.psgi
+    $ plackup -E deployment -s Starman --workers=10 -p 5001 -a bin/app.psgi
 
 As you can see, the scaffolded Perl script for your app can be used as a PSGI
 startup file.
