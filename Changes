@@ -9,6 +9,9 @@
       (Sawyer X)
 
     [ ENHANCEMENTS ]
+    * route_parameters, request_parameters, and body_parameters keywords
+      added, providing Hash::MultiValue objects!
+      (Sawyer X)
     * dancer2 app now support -s switch to supply an app skeleton
       (Nuno Carvalho)
     * "perl_version" token in templates now uses $^V, not $]. (Sawyer X)
