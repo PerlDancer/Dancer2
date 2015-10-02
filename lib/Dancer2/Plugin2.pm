@@ -170,6 +170,55 @@ The plugin configuration is available via the C<config()> method.
         }
     }
 
+=head3 Getting default values from config file
+
+Since initializing a plugin with either a default or a value passed via the configuration file, 
+like
+
+    has smiley => (
+        is => 'ro',
+        default => sub {
+            $_[0]->config->{smiley} || ':-)'
+        }
+    );
+
+C<Dancer2::Plugin2> allows for a C<from_config> key in the attribute definition.
+Its value is the plugin configuration key that will be used to initialize the attribute.
+If it's given the value C<1>, the name of the attribute will be taken as the configuration key.
+Nested hash keys can also be refered to using a dot notation.  
+If the plugin configuration has no value for the given key, the attribute default, if specified, will be honored.
+
+For example:
+
+    # in config.yml
+
+    plugins:
+        Polite:
+            smiley: ':-)'
+            greeting:
+                casual: Hi!
+                formal: How do you do?
+
+
+    # in the plugin
+    
+    has smiley => (             # will be ':-)'
+        is          => 'ro',
+        from_config => 1,
+        default     => sub { ':-(' },
+    );
+
+    has casual_greeting => (    # will be 'Hi!'
+        is          => 'ro',
+        from_config => 'greeting.casual',
+    );
+
+    has apology => (            # will be 'sorry'
+        is          => 'ro',
+        from_config => 'apology',
+        default     => sub { 'sorry' },
+    )
+
 =head3 Accessing the parent Dancer app
 
 If the plugin is instantiated within a Dancer app, it'll be
@@ -229,11 +278,14 @@ This is a (relatively) simple way for a plugin to use another plugin:
 
 =cut
 
+use 5.10.0;
+
 use strict;
 use warnings;
 
 use Moo;
 use MooX::ClassAttribute;
+use List::Util qw/ reduce /;
 
 extends 'Exporter::Tiny';
 
@@ -247,13 +299,28 @@ sub _exporter_expand_tag {
     my $caller = $global->{into};
 
     if ( $name eq 'plugin' ) {
-        eval "{ package $caller; use Moo; extends 'Dancer2::Plugin2'; our \@EXPORT = ( ':app' ); }";
+        eval <<"END";
+            { 
+                package $caller; 
+                use Moo; 
+                extends 'Dancer2::Plugin2'; 
+                our \@EXPORT = ( ':app' ); 
+                our \$_moo_has = $caller->can('has');
+                no strict 'refs';
+                no warnings 'redefine';
+                \*{'$caller'.'::has'} = sub {
+                    \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
+                }
+            }
+END
+        die $@ if $@;
 
         return () unless $caller =~ /^Dancer2::Plugin/;
 
         return (
             [ 'plugin_keywords' => { class => $caller } ],
             [ 'plugin_hooks'    => { class =>  $caller } ],
+            #        [ '_p2_has'  => { class => $caller }],
         )
     }
 
@@ -297,10 +364,31 @@ sub _exporter_expand_sub {
         }
     }
 
+#    if( $name eq '_p2_has' ) {
+    #       return '_p2_has'
+    #}
+
     my $p = $args->{plugin};
     my $sub = $p->keywords->{$name};
     return $name => sub(@) { $sub->($p,@_) };
 }
+
+sub _p2_has {
+    my( $name, %args ) = @_;
+
+    if( my $config_name = delete $args{'from_config'} ) {
+        $args{lazy} = 1;
+        $config_name = $name if $config_name eq '1';
+        my $orig_default = $args{default} || sub{}; 
+        $args{default} = sub {
+            my $plugin = shift;
+            my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
+            return $value // $orig_default->($plugin);
+        }
+    }
+
+    return $name => %args;
+};
 
 
 has app => (
