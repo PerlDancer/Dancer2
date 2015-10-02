@@ -234,8 +234,7 @@ extends 'Exporter::Tiny';
 
 with 'Dancer2::Core::Role::Hookable';
 
-our @EXPORT = qw/ :plugin  /;
-our @EXPORT_OK = qw/ :app  /;
+our @EXPORT = qw/ :plugin /;
 
 sub _exporter_expand_tag {
     my( $class, $name, $args, $global ) = @_;
@@ -243,7 +242,7 @@ sub _exporter_expand_tag {
     my $caller = $global->{into};
 
     if ( $name eq 'plugin' ) {
-        eval "{ package $caller; use Moo; extends 'Dancer2::Plugin2'; }";
+        eval "{ package $caller; use Moo; extends 'Dancer2::Plugin2'; our \@EXPORT = ( ':app' ); }";
 
         return () unless $caller =~ /^Dancer2::Plugin/;
 
@@ -253,14 +252,15 @@ sub _exporter_expand_tag {
         )
     }
 
-    return unless $name eq 'app';
+    return unless $name eq 'app' 
+              and not $global->{noapp} 
+              and $caller->can('app');
 
-    die "plugin called with ':app' in a class without app()\n"
-        unless $caller->can('app');
+    my $app = eval "${caller}::app()" or return;
+
+    return unless $app->can('with_plugins');
 
     ( my $short = $class ) =~ s/Dancer2::Plugin:://;
-
-    my $app = eval "${caller}::app()";
 
     my $plugin = $app->with_plugins( $short );
     $global->{plugin} = $plugin;
