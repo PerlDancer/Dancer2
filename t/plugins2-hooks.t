@@ -10,6 +10,7 @@ use Test::More tests => 6;
 
     plugin_hooks 'foo';
 
+
     sub BUILD {
         my $plugin = shift;
         
