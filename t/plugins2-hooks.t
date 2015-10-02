@@ -29,7 +29,7 @@ use Test::More tests => 6;
 
     use Dancer2;
 
-    use Dancer2::Plugin::FooDetector ':app';
+    use Dancer2::Plugin::FooDetector;
 
     my $hooked = 'nope';
 
