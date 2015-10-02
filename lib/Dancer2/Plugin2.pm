@@ -66,7 +66,7 @@ then to load into the app:
         };
     }
 
-    use Dancer2::Plugin::Polite ':app';
+    use Dancer2::Plugin::Polite;
 
     get '/' => sub {
         add_smileys( 'make me a sandwich.' );
@@ -186,10 +186,15 @@ accessible via the method C<app()>.
 
 A plugin is loaded via
 
-    use Dancer2::Plugin::Polite ':app';
+    use Dancer2::Plugin::Polite;
 
-The C<:app> must be there for the plugin to be tied to the app, and for the 
-keywords to be imported to the namespace.
+The plugin will assume that it's loading within a Dancer module and will 
+automatically register itself against its C<app()> and export its keywords
+to the local namespace. If you don't want this to happen, specify the C<noapp>
+option:
+
+    use Dancer2::Plugin::Polite { noapp => 1 };
+
 
 =head2 Plugins using plugins
 
