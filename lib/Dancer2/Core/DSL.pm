@@ -79,6 +79,9 @@ sub dsl_keywords {
         options              => { is_global => 1 },
         param                => { is_global => 0 },
         params               => { is_global => 0 },
+        query_parameters     => { is_global => 0 },
+        body_parameters      => { is_global => 0 },
+        route_parameters     => { is_global => 0 },
         pass                 => { is_global => 0 },
         patch                => { is_global => 1 },
         path                 => { is_global => 1 },
@@ -369,6 +372,10 @@ sub splat { $Dancer2::Core::Route::REQUEST->splat }
 sub params { shift; $Dancer2::Core::Route::REQUEST->params(@_); }
 
 sub param { shift; $Dancer2::Core::Route::REQUEST->param(@_); }
+
+sub query_parameters { shift; $Dancer2::Core::Route::REQUEST->query_parameters(@_); }
+sub body_parameters  { shift; $Dancer2::Core::Route::REQUEST->body_parameters(@_);  }
+sub route_parameters { shift; $Dancer2::Core::Route::REQUEST->route_parameters(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
