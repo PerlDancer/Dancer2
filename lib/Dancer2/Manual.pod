@@ -334,7 +334,7 @@ set the content all at once, if you prefer.
         delayed {
             add_header 'X-Foo' => 'Bar';
 
-            # optionally flush headers
+            # flush headers (in case of streaming)
             flush;
 
             # send content to the user
@@ -353,9 +353,8 @@ set the content all at once, if you prefer.
         };
     };
 
-If you do not flush the response status and the headers manually (using the
-C<flush> keyword), they will be flushed as soon as you set the content for
-the first time using the C<content> keyword.
+If you are streaming (calling C<content> several times), you must call
+C<flush> first. If you're sending only once, you don't need to call C<flush>.
 
 Here is an example of using delayed responses with L<AnyEvent>:
 
@@ -367,7 +366,7 @@ Here is an example of using delayed responses with L<AnyEvent>:
     get '/drums' => sub {
         delayed {
             print "Stretching...\n";
-            flush;
+            flush; # necessary, since we're streaming
 
             $timers{'Snare'} = AE::timer 1, 1, delayed {
                 $timers{'HiHat'} ||= AE::timer 0, 0.5, delayed {
@@ -389,6 +388,30 @@ Here is an example of using delayed responses with L<AnyEvent>:
                     };
                 }
             };
+        };
+    };
+
+If an error happens during a write operation, a warning will be issued
+to the logger.
+
+You can handle the error yourself by providing an C<on_error> handler:
+
+    get '/' => sub {
+        delayed {
+            flush;
+            content "works";
+
+            # ... user disconnected here ...
+
+            content "fails";
+
+            # ... error triggered ...
+
+            done; # doesn't even get run
+        } on_error => sub {
+            # delayed{} not needed, DSL already available
+            my ($error) = @_;
+            # do something with $error
         };
     };
 

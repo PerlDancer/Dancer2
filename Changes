@@ -12,6 +12,8 @@
     * route_parameters, request_parameters, and body_parameters keywords
       added, providing Hash::MultiValue objects!
       (Sawyer X)
+    * delayed() keyword now has "on_error" option for controlling errors.
+      (Sawyer X)
     * dancer2 app now support -s switch to supply an app skeleton
       (Nuno Carvalho)
     * "perl_version" token in templates now uses $^V, not $]. (Sawyer X)
