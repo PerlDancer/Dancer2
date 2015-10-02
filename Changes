@@ -25,6 +25,8 @@
     * Document you can install Scope::Upper for greater speed. (Sawyer X)
     * GH #1000: Correct POD name for Dancer2::Manual::Deployment.
       (Jason A. Crome)
+    * GH #1017: Fix instructions on running app.psgi. Highlight
+      beginner-friendly application running instructions. (Jason Crome)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 
