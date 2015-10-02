@@ -334,18 +334,6 @@ the symbols defined with C<register> as exported symbols:
 
 Register_plugin returns 1 on success and undef if it fails.
 
-=head3 Deprecation note
-
-Earlier version of Dancer2 needed the keyword <for_version> to indicate for
-which version of Dancer the plugin was written, e.g.
-
-    register_plugin for_versions => [ 2 ];
-
-Today, plugins for Dancer2 are only expected to work for Dancer2 and the
-C<for_versions> keyword is ignored. If you try to load a plugin for Dancer2
-that does not meet the requirements of a Dancer2 plugin, you will get an error
-message.
-
 =method plugin_args
 
 Simple method to retrieve the parameters or arguments passed to a
@@ -420,8 +408,7 @@ the config file as C<after_logout>.
     return $app->redirect( $conf->{after_logout} );
   };
 
-  register_plugin for_versions => [ 2 ] ;
-
+  register_plugin;
   1;
 
 And in your application:
