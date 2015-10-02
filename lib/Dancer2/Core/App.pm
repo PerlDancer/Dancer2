@@ -893,7 +893,7 @@ sub send_file {
         Scalar::Util::weaken( my $weak_self = $self );
 
         $response = Dancer2::Core::Response::Delayed->new(
-            error_cb => sub { $weak_self->logger_engine->log(@_) },
+            error_cb => sub { $weak_self->logger_engine->log( warning => @_ ) },
             cb       => $cb,
             request  => $Dancer2::Core::Route::REQUEST,
             response => $Dancer2::Core::Route::RESPONSE,
