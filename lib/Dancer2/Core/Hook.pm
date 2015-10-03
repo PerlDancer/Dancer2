@@ -1,16 +1,9 @@
-# ABSTRACT: Manipulate hooks with Dancer2
 package Dancer2::Core::Hook;
+# ABSTRACT: Manipulate hooks with Dancer2
+
 use Moo;
 use Dancer2::Core::Types;
 use Carp;
-
-=head1 SYNOPSIS
-
-  # inside a plugin
-  use Dancer2::Hook;
-  Dancer2::Core::Hook->register_hooks_name(qw/before_auth after_auth/);
-
-=cut
 
 has name => (
     is       => 'rw',
@@ -43,6 +36,16 @@ has code => (
         };
     },
 );
+
+1;
+
+__END__
+
+=head1 SYNOPSIS
+
+  # inside a plugin
+  use Dancer2::Cook::Hook;
+  Dancer2::Core::Hook->register_hooks_name(qw/before_auth after_auth/);
 
 =method register_hook ($hook_name, [$properties], $code)
 
@@ -82,5 +85,3 @@ Execute a hooks
 Returns the list of coderef registered for a given position
 
 =cut
-
-1;

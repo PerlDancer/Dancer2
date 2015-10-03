@@ -1,10 +1,9 @@
 package t::lib::PluginWithImport;
-
-#ABSTRACT: a plugin that implement its own import method
+# ABSTRACT: a plugin that implement its own import method
 
 =head1 DESCRIPTION
 
-In order to demonstrate that Dancer2::Plugin won't loose the original 
+In order to demonstrate that Dancer2::Plugin won't loose the original
 import method of the plugin.
 
 =cut
@@ -32,4 +31,3 @@ register dancer_plugin_with_import_keyword => sub {
 register_plugin;
 
 1;
-

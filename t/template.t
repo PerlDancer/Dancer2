@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 use Dancer2::Core::Hook;
+use Plack::Test;
+use HTTP::Request::Common;
 
 use File::Spec;
 use File::Basename 'dirname';
@@ -65,22 +67,44 @@ $tt->add_hook(
     )
 );
 
-my $result = $tt->process( 'index.tt', { var => 42 } );
-is $result, 'layout top
+{
+    package Bar;
+    use Dancer2;
+
+    # set template engine for first app
+    Dancer2->runner->apps->[0]->set_template_engine($tt);
+
+    get '/' => sub { template index => { var => 42 } };
+}
+
+my $app    = Bar->to_app;
+my $space  = " ";
+my $result = "layout top
 var = 42
 before_layout_render = 1
 ---
 [index]
 var = 42
 
-before_layout_render = 
+before_layout_render =$space
 before_template_render = 1
 content added in after_template_render
 content added in before_layout_render
 ---
 layout bottom
 
-content added in after_layout_render';
+content added in after_layout_render";
+
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is(
+        $cb->( GET '/' )->content,
+        $result,
+        '[GET /] Correct content with template hooks',
+    );
+};
+
 
 {
 
@@ -94,13 +118,26 @@ content added in after_layout_render';
     get '/get_views_via_settings' => sub { set 'views' };
 }
 
-use Dancer2::Test apps => ['Foo'];
+$app = Foo->to_app;
+is( ref $app, 'CODE', 'Got app' );
 
-my $r = dancer_response GET => '/default_views';
-is $r->content, '/this/is/our/path';
+test_psgi $app, sub {
+    my $cb = shift;
 
-dancer_response GET => '/set_views_via_settings';
-$r = dancer_response GET => '/get_views_via_settings';
-is $r->content, '/other/path';
+    is(
+        $cb->( GET '/default_views' )->content,
+        '/this/is/our/path',
+        '[GET /default_views] Correct content',
+    );
+
+    # trigger a test via a route
+    $cb->( GET '/set_views_via_settings' );
+
+    is(
+        $cb->( GET '/get_views_via_settings' )->content,
+        '/other/path',
+        '[GET /get_views_via_settings] Correct content',
+    );
+};
 
 done_testing;

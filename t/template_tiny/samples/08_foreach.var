@@ -1,15 +1,15 @@
 $VAR1 = {
-	foo  => 'bar',
-	list => [
-		{
-			name  => 'Adam Kennedy',
-			email => 'adamk@cpan.org',
-			cool  => 1,
-		},
-		{
-			name  => 'Foo',
-			email => 'No Fixed Address',
-			cool  => 0,
-		},
-	],
+    foo  => 'bar',
+    list => [
+        {
+            name  => 'Adam Kennedy',
+            email => 'adamk@cpan.org',
+            cool  => 1,
+        },
+        {
+            name  => 'Foo',
+            email => 'No Fixed Address',
+            cool  => 0,
+        },
+    ],
 };

@@ -2,11 +2,12 @@ use strict;
 use warnings;
 use Test::More;
 
+use Dancer2::Core::App;
 use Dancer2::Core::Request;
 
-diag "If you want extract speed, install URL::Encode::XS"
+diag "If you want extra speed, install URL::Encode::XS"
   if !$Dancer2::Core::Request::XS_URL_DECODE;
-diag "If you want extract speed, install CGI::Deurl::XS"
+diag "If you want extra speed, install CGI::Deurl::XS"
   if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub run_test {
@@ -21,12 +22,13 @@ sub run_test {
         SERVER_PORT          => 5000,
         SERVER_PROTOCOL      => 'HTTP/1.1',
         REMOTE_ADDR          => '127.0.0.1',
-        X_FORWARDED_FOR      => '127.0.0.2',
-        X_FORWARDED_HOST     => 'secure.frontend',
-        X_FORWARDED_PROTOCOL => 'https',
+        HTTP_X_FORWARDED_FOR      => '127.0.0.2',
+        HTTP_X_FORWARDED_HOST     => 'secure.frontend',
+        HTTP_X_FORWARDED_PROTOCOL => 'https',
         REMOTE_HOST          => 'localhost',
         HTTP_USER_AGENT      => 'Mozilla',
         REMOTE_USER          => 'sukria',
+        HTTP_COOKIE          => 'cookie.a=foo=bar; cookie.b=1234abcd; no.value.cookie',
     };
 
     my $req = Dancer2::Core::Request->new( env => $env );
@@ -46,6 +48,7 @@ sub run_test {
     is $req->user,                  'sukria';
     is $req->script_name,           '/foo';
     is $req->scheme,                'http';
+    is $req->referer,               undef;
     ok( !$req->secure );
     is $req->method,         'GET';
     is $req->request_method, 'GET';
@@ -57,12 +60,16 @@ sub run_test {
     ok( !$req->is_head );
 
     is $req->id,        1;
-    is $req->to_string, '[#1] GET /foo/bar/baz';
+    is $req->to_string, '[#1] GET /bar/baz';
 
     note "tests params";
     is_deeply { $req->params }, { foo => 42, bar => [ 12, 13, 14 ] };
 
-    my $forward = $req->make_forward_to('/somewhere');
+    note "tests cookies";
+    is( keys %{ $req->cookies }, 3, "multiple cookies extracted" );
+
+    my $forward = Dancer2::Core::App->new( request => $req )
+                                    ->make_forward_to('/somewhere');
     is $forward->path_info, '/somewhere';
     is $forward->method,    'GET';
     note "tests for uri_for";
@@ -71,9 +78,9 @@ sub run_test {
       'http://localhost:5000/foo/bar?baz=baz';
 
     is $req->uri_for('/bar'), 'http://localhost:5000/foo/bar';
-    ok $req->uri_for('/bar')->isa('URI'), 'uri_for returns a URI';
-    ok $req->uri_for( '/bar', undef, 1 )->isa('URI'),
-      'uri_for returns a URI (with $dont_escape)';
+    is $req->uri_for( '/bar', undef, 1 ),
+       'http://localhost:5000/foo/bar',
+       'uri_for returns a URI (with $dont_escape)';
 
     is $req->request_uri, '/foo/bar/baz';
     is $req->path_info,   '/bar/baz';
@@ -90,46 +97,111 @@ sub run_test {
         is $req->base, 'http://oddhostname:5000/foo';
     }
 
-    {
-        note "testing begind proxy";
-        $req = Dancer2::Core::Request->new(
+    note "testing behind proxy"; {
+        my $req = Dancer2::Core::Request->new(
             env             => $env,
             is_behind_proxy => 1
         );
         is $req->secure, 1;
-        is $req->host,   $env->{X_FORWARDED_HOST};
+        is $req->host,   $env->{HTTP_X_FORWARDED_HOST};
         is $req->scheme, 'https';
     }
 
-    note "testing uri_base";
-    $env = {
-        'psgi.url_scheme' => 'http',
-        REQUEST_METHOD    => 'GET',
-        SCRIPT_NAME       => '/',
-        PATH_INFO         => '/bar/baz',
-        REQUEST_URI       => '/foo/bar/baz',
-        QUERY_STRING      => '',
-        SERVER_NAME       => 'localhost',
-        SERVER_PORT       => 5000,
-        SERVER_PROTOCOL   => 'HTTP/1.1',
-    };
+    note "testing behind proxy when optional headers are not set"; {
+		# local modifications to env:
+        local $env->{HTTP_HOST} = 'oddhostname:5000';
+        delete local $env->{'HTTP_X_FORWARDED_FOR'};
+        delete local $env->{'HTTP_X_FORWARDED_HOST'};
+        delete local $env->{'HTTP_X_FORWARDED_PROTOCOL'};
+        my $req = Dancer2::Core::Request->new(
+            env             => $env,
+            is_behind_proxy => 1
+        );
+        is ! $req->secure, 1;
+        is $req->host,   'oddhostname:5000';
+        is $req->scheme, 'http';
+    }
 
-    $req = Dancer2::Core::Request->new( env => $env );
-    is( $req->uri_base, 'http://localhost:5000',
-        'remove trailing slash if only one',
-    );
+    note "testing path, dispatch_path and uri_base"; {
+        # Base env used for path, dispatch_path and uri_base tests
+        my $base = {
+            'psgi.url_scheme' => 'http',
+            REQUEST_METHOD    => 'GET',
+            QUERY_STRING      => '',
+            SERVER_NAME       => 'localhost',
+            SERVER_PORT       => 5000,
+            SERVER_PROTOCOL   => 'HTTP/1.1',
+        };
 
-    $env->{'SCRIPT_NAME'} = '/foo/';
-    $req = Dancer2::Core::Request->new( env => $env );
-    is( $req->uri_base, 'http://localhost:5000/foo/',
-        'keeping trailing slash if not only',
-    );
+        # PATH_INFO not set
+        my $env = {
+            %$base,
+            SCRIPT_NAME => '/foo',
+            PATH_INFO   => '',
+            REQUEST_URI => '/foo',
+        };
+        my $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/', 'path corrent when empty PATH_INFO' );
+        is( $req->uri_base, 'http://localhost:5000/foo',
+            'uri_base correct when empty PATH_INFO'
+        );
+        is( $req->dispatch_path, '/',
+            'dispatch_path correct when empty PATH_INFO'
+        );
 
-    $env->{'PATH_INFO'}   = '/';
-    $env->{'SCRIPT_NAME'} = '';
-    $req = Dancer2::Core::Request->new( env => $env );
-    is( $req->uri_base, 'http://localhost:5000', );
+        # SCRIPT_NAME not set
+        $env = {
+            %$base,
+            SCRIPT_NAME => '',
+            PATH_INFO   => '/foo',
+            REQUEST_URI => '/foo',
+        };
+        $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/foo', 'path corrent when empty SCRIPT_NAME' );
+        is( $req->uri_base, 'http://localhost:5000',
+            'uri_base handles empty SCRIPT_NAME'
+        );
+        is( $req->dispatch_path, '/foo',
+            'dispatch_path handles empty SCRIPT_NAME'
+        );
 
+        # Both SCRIPT_NAME and PATH_INFO set
+        # PSGI spec does not allow SCRIPT_NAME='/', PATH_INFO='/some/path'
+        $env = {
+            %$base,
+            SCRIPT_NAME => '/foo',
+            PATH_INFO   => '/bar/baz/',
+            REQUEST_URI => '/foo/bar/baz/',
+        };
+        $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/bar/baz/',
+            'path corrent when both PATH_INFO and SCRIPT_NAME set'
+        );
+        is( $req->uri_base, 'http://localhost:5000/foo',
+            'uri_base correct when both PATH_INFO and SCRIPT_NAME set',
+        );
+        is( $req->dispatch_path, '/bar/baz/',
+            'dispatch_path correct when both PATH_INFO and SCRIPT_NAME set'
+        );
+
+        # Neither SCRIPT_NAME or PATH_INFO set
+        $env = {
+            %$base,
+            SCRIPT_NAME => '',
+            PATH_INFO   => '',
+            REQUEST_URI => '/foo/',
+        };
+        $req = Dancer2::Core::Request->new( env => $env );
+        is( $req->path, '/',
+            'path corrent when calculated from REQUEST_URI'
+        );
+        is( $req->uri_base, 'http://localhost:5000',
+            'uri_base correct when calculated from REQUEST_URI',
+        );
+        is( $req->dispatch_path, '/',
+            'dispatch_path correct when calculated from REQUEST_URI'
+        );
+    }
 
     note "testing forward";
     $env = {
@@ -145,34 +217,68 @@ sub run_test {
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are parsed';
 
-    $req = $req->make_forward_to("/new/path");
+    $req = Dancer2::Core::App->new( request => $req )
+                             ->make_forward_to('/new/path');
     is $req->path,   '/new/path', 'path is changed';
     is $req->method, 'GET',       'method is unchanged';
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
 
-    $req = $req->make_forward_to( "/new/path", undef, { method => 'POST' } );
+    $req = Dancer2::Core::App->new( request => $req )
+                             ->make_forward_to(
+                                '/new/path',
+                                undef,
+                                { method => 'POST' },
+                             );
 
     is $req->path,   '/new/path', 'path is changed';
+
     is $req->method, 'POST',      'method is changed';
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
+
+    note "testing unicode params";
+    $env = {
+        'REQUEST_METHOD' => 'GET',
+        'REQUEST_URI'    => '/',
+        'PATH_INFO'      => '/',
+        'QUERY_STRING'   => "M%C3%BCller=L%C3%BCdenscheid",
+    };
+    $req = Dancer2::Core::Request->new( env => $env );
+    is_deeply scalar( $req->params ), { "M\N{U+00FC}ller", "L\N{U+00FC}denscheid" },
+      'multi byte unicode chars work in param keys and values';
+    {
+        note "testing private _decode not to mangle hash";
+        my @warnings;
+        local $SIG{__WARN__} = sub {
+            push @warnings, @_;
+        };
+
+        my $h = { zzz => undef, };
+        for ( 'aaa' .. 'fff' ) {
+            $h->{$_} = $_;
+        }
+
+        my $i = Dancer2::Core::Request::_decode($h);
+        is_deeply( $i, $h, 'hash not mangled' );
+        ok( !@warnings, 'no warnings were issued' );
+    }
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
-diag "Run test with XS_PARSE_QUERY_STRING"
+note "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
+note "Run test with XS_PARSE_QUERY_STRING"
   if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
 if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
-    diag "Run test without XS_PARSE_QUERY_STRING";
+    note "Run test without XS_PARSE_QUERY_STRING";
     $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer2::Core::Request::_count                = 0;
+    $Dancer2::Core::Request::_id                   = 0;
     run_test();
 }
 if ($Dancer2::Core::Request::XS_URL_DECODE) {
-    diag "Run test without XS_URL_DECODE";
+    note "Run test without XS_URL_DECODE";
     $Dancer2::Core::Request::XS_URL_DECODE = 0;
-    $Dancer2::Core::Request::_count        = 0;
+    $Dancer2::Core::Request::_id           = 0;
     run_test();
 }
 

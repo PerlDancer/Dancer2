@@ -1,9 +1,10 @@
+package Dancer2::Core::Role::DSL;
 # ABSTRACT: Role for DSL
 
-package Dancer2::Core::Role::DSL;
 use Moo::Role;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use Scalar::Util qw();
 
 with 'Dancer2::Core::Role::Hookable';
 
@@ -11,48 +12,52 @@ has app => ( is => 'ro', required => 1 );
 
 has keywords => (
     is      => 'rw',
-    isa     => ArrayRef,
+    isa     => HashRef,
     lazy    => 1,
     builder => '_build_dsl_keywords',
 );
-
-sub supported_hooks { }
 
 sub _build_dsl_keywords {
     my ($self) = @_;
     $self->can('dsl_keywords')
       ? $self->dsl_keywords
-      : [];
+      : {};
 }
 
 sub register {
     my ( $self, $keyword, $is_global ) = @_;
+    my $keywords = $self->keywords;
+    my $pkg = ref($self);
+    $pkg =~ s/__WITH__.+$//;
 
-    grep {/^$keyword$/} @{ $self->keywords }
-      and croak "Keyword '$keyword' is not available.";
+    if ( exists $keywords->{$keyword} ) {
+        my $reg_pkg = $keywords->{$keyword}{'pkg'};
+        $reg_pkg =~ s/__WITH__.+$//;
+        $reg_pkg eq $pkg and return;
 
-    push @{ $self->keywords }, [ $keyword, $is_global ];
+        croak "[$pkg] Keyword $keyword already registered by $reg_pkg";
+    }
+
+    $keywords->{$keyword} = { is_global => $is_global, pkg => $pkg };
 }
 
 sub dsl { $_[0] }
-
-sub dsl_keywords_as_list {
-    map { $_->[0] } @{ shift->dsl_keywords() };
-}
 
 # exports new symbol to caller
 sub export_symbols_to {
     my ( $self, $caller, $args ) = @_;
     my $exports = $self->_construct_export_map($args);
 
+    ## no critic
     foreach my $export ( keys %{$exports} ) {
-        no strict 'refs';
+        no strict 'refs'; ## no critic (TestingAndDebugging::ProhibitNoStrict)
         my $existing = *{"${caller}::${export}"}{CODE};
 
         next if defined $existing;
 
         *{"${caller}::${export}"} = $exports->{$export};
     }
+    ## use critic
 
     return keys %{$exports};
 }
@@ -60,39 +65,37 @@ sub export_symbols_to {
 # private
 
 sub _compile_keyword {
-    my ( $self, $keyword, $is_global ) = @_;
+    my ( $self, $keyword, $opts ) = @_;
 
-    my $compiled_code = sub {
-        Dancer2::core_debug( "["
-              . $self->app->name
-              . "] -> $keyword("
-              . join( ', ', map { defined() ? $_ : '<undef>' } @_ )
-              . ")" );
-        $self->$keyword(@_);
-    };
-
-    if ( !$is_global ) {
-        my $code = $compiled_code;
-        $compiled_code = sub {
+    my $code = $opts->{is_global}
+               ? sub { $self->$keyword(@_) }
+               : sub {
             croak "Function '$keyword' must be called from a route handler"
-              unless defined $self->app->context;
-            $code->(@_);
-        };
-    }
+                unless defined $Dancer2::Core::Route::REQUEST;
 
-    return $compiled_code;
+            $self->$keyword(@_)
+        };
+
+    return $self->_apply_prototype($code, $opts);
+}
+
+sub _apply_prototype {
+    my ($self, $code, $opts) = @_;
+
+    # set prototype if one is defined for the keyword. undef => no prototype
+    my $prototype;
+    exists $opts->{'prototype'} and $prototype = $opts->{'prototype'};
+    return Scalar::Util::set_prototype( \&$code, $prototype );
 }
 
 sub _construct_export_map {
     my ( $self, $args ) = @_;
+    my $keywords = $self->keywords;
     my %map;
-    foreach my $keyword ( @{ $self->keywords } ) {
-        my ( $keyword, $is_global ) = @{$keyword};
-
+    foreach my $keyword ( keys %$keywords ) {
         # check if the keyword were excluded from importation
-        $args->{ '!' . $keyword }
-          and next;
-        $map{$keyword} = $self->_compile_keyword( $keyword, $is_global );
+        $args->{ '!' . $keyword } and next;
+        $map{$keyword} = $self->_compile_keyword( $keyword, $keywords->{$keyword} );
     }
     return \%map;
 }

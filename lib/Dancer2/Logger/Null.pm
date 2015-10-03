@@ -1,8 +1,14 @@
+package Dancer2::Logger::Null;
 # ABSTRACT: Blackhole-like silent logging engine for Dancer2
 
-package Dancer2::Logger::Null;
 use Moo;
 with 'Dancer2::Core::Role::Logger';
+
+sub log {1}
+
+1;
+
+__END__
 
 =head1 DESCRIPTION
 
@@ -14,8 +20,3 @@ the log messages instead of displaying them anywhere.
 Discards the message.
 
 =cut
-
-sub log {1}
-
-1;
-

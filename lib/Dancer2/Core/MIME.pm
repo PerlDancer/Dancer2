@@ -2,13 +2,11 @@
 
 package Dancer2::Core::MIME;
 
-use strict;
-use warnings;
-
 use Moo;
+
+use Class::Load 'try_load_class';
+use Plack::MIME;
 use Dancer2::Core::Types;
-use Carp 'croak';
-use MIME::Types;
 
 # Initialise MIME::Types at compile time, to ensure it's done before
 # the fork in a preforking webserver like mod_perl or Starman. Not
@@ -16,18 +14,18 @@ use MIME::Types;
 # as MIME::Types fails to load its mappings from the DATA handle. See
 # t/04_static_file/003_mime_types_reinit.t and GH#136.
 BEGIN {
-    MIME::Types->new( only_complete => 1 );
+    if ( try_load_class('MIME::Types') ) {
+        my $mime_types = MIME::Types->new(only_complete => 1);
+        Plack::MIME->set_fallback(
+            sub {
+                $mime_types->mimeTypeOf($_[0])
+            }
+        );
+    }
 }
 
-has mime_type => (
-    is      => 'ro',
-    isa     => InstanceOf ['MIME::Types'],
-    default => sub { MIME::Types->new( only_complete => 1 ) },
-    lazy    => 1,
-);
-
 has custom_types => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => HashRef,
     default => sub { +{} },
 );
@@ -72,9 +70,10 @@ sub name_or_type {
 
 sub for_name {
     my ( $self, $name ) = @_;
+
     return
          $self->custom_types->{ lc $name }
-      || $self->mime_type->mimeTypeOf( lc $name )
+      || Plack::MIME->mime_type( lc ".$name" )
       || $self->default;
 }
 
@@ -84,31 +83,31 @@ __END__
 
 =head1 SYNOPSIS
 
-	use Dancer2::Core::MIME;
+    use Dancer2::Core::MIME;
 
-	my $mime = Dancer::MIME->new();
+    my $mime = Dancer::MIME->new();
 
-	# get mime type for an alias
-	my $type = $mime->for_name('css');
+    # get mime type for an alias
+    my $type = $mime->for_name('css');
 
-	# set a new mime type
-	my $type = $mime->add_type( foo => 'text/foo' );
+    # set a new mime type
+    my $type = $mime->add_type( foo => 'text/foo' );
 
-	# set a mime type alias
-	my $alias = $mime->add_alias( f => 'foo' );
+    # set a mime type alias
+    my $alias = $mime->add_alias( f => 'foo' );
 
-	# get mime type for a file (based on extension)
-	my $file = $mime->for_file( "foo.bar" );
+    # get mime type for a file (based on extension)
+    my $file = $mime->for_file( "foo.bar" );
 
-	# set the $thing into a content $type.
-	my $type = $mime->name_or_type($thing);
+    # set the $thing into a content $type.
+    my $type = $mime->name_or_type($thing);
 
-	# get current defined default mime type
-	my $type = $mime->default;
+    # get current defined default mime type
+    my $type = $mime->default;
 
-	# set the default mime type using config.yml
-	# or using the set keyword
-	set default_mime_type => 'text/plain';
+    # set the default mime type using config.yml
+    # or using the set keyword
+    set default_mime_type => 'text/plain';
 
 =head1 DESCRIPTION
 
@@ -116,10 +115,6 @@ Dancer::MIME is a thin wrapper around L<MIME::Types> providing helpful methods
 for MIME handling.
 
 =head1 ATTRIBUTES
-
-=head2 mime_type
-
-The mime_type which is found with MIME::Types.
 
 =head2 custom_types
 
@@ -155,4 +150,3 @@ This method gets MIME type for a file based on extension.
 
 This method sets the customized MIME name or default MIME type into a content
 type.
-

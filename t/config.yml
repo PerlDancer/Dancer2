@@ -1,3 +1,6 @@
+log: "info"
+logger: "Note"
+
 plugins:
   "t::lib::FooPlugin":
     plugin: 42

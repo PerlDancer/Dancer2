@@ -14,7 +14,7 @@ plugin in the package name.
 
 =head1 SYNOPSIS
 
-	get_modules_list.pl 
+    get_modules_list.pl
 
 =cut
 
@@ -48,4 +48,3 @@ while ( my $result = $scroller->next ) {
     $plugins{$name} = 1;
 }
 say $_ foreach sort keys %plugins;
-

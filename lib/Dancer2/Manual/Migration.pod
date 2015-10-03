@@ -1,0 +1,498 @@
+package Dancer2::Manual::Migration;
+# ABSTRACT: Migrating from Dancer to Dancer2
+
+use strict;
+use warnings;
+
+1;
+
+__END__
+
+=pod
+
+=head1 Migration from Dancer 1 to Dancer2
+
+This document covers some changes that users will need to be aware of
+while upgrading from L<Dancer> (version 1) to L<Dancer2>.
+
+=head2 Launcher script
+
+The default launcher script F<bin/app.pl> in L<Dancer> looked like this:
+
+    #!/usr/bin/env perl
+    use Dancer;
+    use MyApp;
+    dance;
+
+In L<Dancer2> it is available as F<bin/app.psgi> and looks like this:
+
+    #!/usr/bin/env perl
+
+    use strict;
+    use warnings;
+    use FindBin;
+    use lib "$FindBin::Bin/../lib";
+
+    use MyApp;
+    MyApp->to_app;
+
+So you need to remove the C<use Dancer;> part, replace the C<dance;> command
+by C<< MyApp->to_app; >> (where MyApp is the name of your application), and
+add the following lines:
+
+    use strict;
+    use warnings;
+    use FindBin;
+    use lib "$FindBin::Bin/../lib";
+
+There is a L<Dancer Advent Calendar|http://advent.perldancer.org> article
+L<< covering the C<to_app> keyword|http://advent.perldancer.org/2014/9 >>
+and its usage.
+
+=head2 Configuration
+
+You specify a different location to the directory used for serving static (public)
+content by setting the C<public_dir> option.
+
+=head2 Apps
+
+1. In L<Dancer2>, each module is a B<separate application> with its own
+namespace and variables. You can set the application name in each of your
+L<Dancer2> application modules. Different modules can be tied into the same
+app by setting the application name to the same value.
+
+For example, to set the appname directive explicitly:
+
+C<MyApp>:
+
+    package MyApp;
+    use Dancer2;
+    use MyApp::Admin
+
+    hook before => sub {
+        var db => 'Users';
+    };
+
+    get '/' => sub {...};
+
+    1;
+
+C<MyApp::Admin>:
+
+    package MyApp::Admin;
+    use Dancer2 appname => 'MyApp';
+
+    # use a lexical prefix so we don't override it globally
+    prefix '/admin' => sub {
+        get '/' => sub {...};
+    };
+
+    1;
+
+Without the appname directive, C<MyApp::Admin> would not have access
+to variable C<db>. In fact, when accessing C</admin>, the before hook would
+not be executed.
+
+See L<Dancer2::Cookbook|https://metacpan.org/pod/Dancer2::Cookbook#Using-the-prefix-feature-to-split-your-application>
+for details.
+
+2. The following modules can be used to speed up an app in Dancer2:
+
+=over 4
+
+=item * L<URL::Encode::XS>
+
+=item * L<CGI::Deurl::XS>
+
+=item * L<HTTP::Parser::XS>
+
+=item * L<Scope::Upper>
+
+=back
+
+They would need to be installed separately. This is because L<Dancer2> does
+not incorporate any C code, but it can get C-code compiled as a module.
+Thus, these modules can be used for speed improvement provided:
+
+=over 4
+
+=item * You have access to a C interpreter
+
+=item * You don't need to fatpack your application
+
+=back
+
+=head2 Request
+
+The request object (L<Dancer2::Core::Request>) is now deferring much of
+its code to L<Plack::Request> to be consistent with the known interface
+to L<PSGI> requests.
+
+Currently the following attributes pass directly to L<Plack::Request>:
+
+C<address>, C<remote_host>, C<protocol>, C<port>, C<method>, C<user>,
+C<request_uri>, C<script_name>, C<content_length>, C<content_type>,
+C<content_encoding>, C<referer>, and C<user_agent>.
+
+If previous attributes returned I<undef> for no value beforehand, they
+will return whatever L<Plack::Request> defines now, which just might be
+an empty list.
+
+For example:
+
+    my %data = (
+        referer    => request->referer,
+        user_agent => request->user_agent,
+    );
+
+should be replaced by:
+
+    my %data = (
+        referer    => request->referer    || '',
+        user_agent => request->user_agent || '',
+    );
+
+=head2 Plugins: plugin_setting
+
+C<plugin_setting> returns the configuration of the plugin. It can only be
+called in C<register> or C<on_plugin_import>.
+
+=head2 Routes
+
+L<Dancer2> requires all routes defined via a string to begin with a leading
+slash C</>.
+
+For example:
+
+    get '0' => sub {
+        return "not gonna fly";
+    };
+
+would return an error. The correct way to write this would be to use
+C<get '/0'>
+
+=head2 Route parameters
+
+The C<params> keyword which provides merged parameters used to allow body
+parameters to override route parameters. Now route parameters take
+precedence over query parameters and body parameters.
+
+=head2 Tests
+
+Dancer2 recommends the use of L<Plack::Test>.
+
+For example:
+
+    use strict;
+    use warnings;
+    use Test::More tests => 2;
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    {
+        package App::Test; # or whatever you want to call it
+        get '/' => sub { template 'index' };
+    }
+
+    my $test = Plack::Test->create( App::Test->to_app );
+    my $res  = $test->request( GET '/' );
+
+    ok( $res->is_success, '[GET /] Successful' );
+    like( $res->content, qr{<title>Test2</title>}, 'Correct title' );
+
+Other modules that could be used for testing are:
+
+=over 4
+
+=item * L<Test::TCP>
+
+=item * L<Test::WWW::Mechanize::PSGI>
+
+=back
+
+=head3 Logs
+
+The C<logger_format> in the Logger role (L<Dancer2::Core::Role::Logger>)
+is now C<log_format>.
+
+C<read_logs> can no longer be used, as with L<Dancer2::Test>. Instead,
+L<Dancer2::Logger::Capture> could be used for testing, to capture all
+logs to an object.
+
+For example:
+
+    use strict;
+    use warnings;
+    use Test::More import => ['!pass'];
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    {
+        package App;
+        use Dancer2;
+
+        set log       => 'debug';
+        set logger    => 'capture';
+
+        get '/' => sub {
+            debug 'this is my debug message';
+            return 1;
+        };
+    }
+
+    my $app = Dancer2->psgi_app;
+    is( ref $app, 'CODE', 'Got app' );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        my $res = $cb->( GET '/' );
+        is $res->code, 200;
+
+        my $trap = App->dancer_app->logger_engine->trapper;
+
+        is_deeply $trap->read, [
+            { level => 'debug', message => 'this is my debug message' }
+        ];
+    };
+
+=head2 Exports: Tags
+
+The following tags are not needed in L<Dancer2>:
+
+ use Dancer2 qw(:syntax);
+ use Dancer2 qw(:tests);
+ use Dancer2 qw(:script);
+
+The C<plackup> command should be used instead. It provides a development
+server and reads the configuration options in your command line utilities.
+
+=head2 Engines
+
+=over 4
+
+=item * Engines receive a logging callback
+
+Engines now receive a logging callback named C<log_cb>. Engines can use it
+to log anything in run-time, without having to worry about what logging
+engine is used.
+
+This is provided as a callback because the logger might be changed in
+run-time and we want engines to be able to always reach the current one
+without having a reference back to the core application object.
+
+The logger engine doesn't have the attribute since it is the logger itself.
+
+=item * Engines handle encoding consistently
+
+All engines are now expected to handle encoding on their own. User code
+is expected to be in internal Perl representation.
+
+Therefore, all serializers, for example, should deserialize to the Perl
+representation. Templates, in turn, encode to UTF-8 if requested by the
+user, or by default.
+
+One side-effect of this is that C<from_yaml> will call L<YAML>'s C<Load>
+function with decoded input.
+
+=back
+
+=head3 Serializers
+
+You no longer need to implement the C<loaded> method. It is simply
+unnecessary.
+
+=head3 Sessions
+
+Now the L<Simple|Dancer2::Session::Simple> session engine is turned on
+by default, unless you specify a different one.
+
+=head2 Configuration
+
+=head3 warnings
+
+The C<warnings> configuration option, along with the environment variable
+C<DANCER_WARNINGS>, have been removed and have no effect whatsoever.
+
+They were added when someone requested to be able to load Dancer without
+the L<warnings> pragma, which it adds, just like L<Moose>, L<Moo>, and
+other modules provide.
+
+If you want this to happen now (which you probably shouldn't be doing),
+you can always control it lexically:
+
+    use Dancer2;
+    no warnings;
+
+You can also use Dancer2 within a narrower scope:
+
+    { use Dancer2 }
+    use strict;
+    # warnings are not turned on
+
+However, having L<warnings> turned it is very recommended.
+
+=head3 server_tokens
+
+The configuration C<server_tokens> has been introduced in the reverse (but
+more sensible, and Plack-compatible) form as C<no_server_tokens>.
+
+C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
+
+=head3 engines
+
+If you want to use Template::Toolkit instead of the built-in simple templating
+engine you used to enable the following line in the config.yml file.
+
+    template: "template_toolkit"
+
+That was enough to get started. The start_tag and end_tag it used were the same as in
+the simple template <% and %> respectively.
+
+If you wanted to further customize the Template::Toolkit you could also enable or add
+the following:
+
+    engines:
+      template_toolkit:
+         encoding:  'utf8'
+         start_tag: '[%'
+         end_tag:   '%]'
+
+In Dancer 2 you can also enable Template::Toolkit with the same configuration option:
+
+    template: "template_toolkit"
+
+But the default start_tag and end_tag are now [% and %], so if you used the default in Dancer 1
+now you will have to explicitly change the start_tag and end_tag values.
+The configuration also got an extral level of depth. Under the C<engine> key there is a C<template>
+key and the C<template_toolkit> key comes below that. As in this example:
+
+    engines:
+      template:
+        template_toolkit:
+          start_tag: '<%'
+          end_tag:   '%>'
+
+In a nutshell, if you used to have
+
+    template: "template_toolkit"
+
+You need to replace it with
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          start_tag: '<%'
+          end_tag:   '%>'
+
+=head4 Session engine
+
+The session engine is configured in the C<engine> section.
+
+=over 4
+
+=item * C<session_name> changed to C<cookie_name>.
+
+=item * C<session_domain> changed to C<cookie_domain>.
+
+=item * C<session_expires> changed to C<cookie_duration>.
+
+=item * C<session_secure> changed to C<is_secure>.
+
+=item * C<session_is_http_only> changed to C<is_http_only>.
+
+=back
+
+L<Dancer2> also adds two attributes for session:
+
+=over 4
+
+=item * C<cookie_path>
+The path of the cookie to create for storing the session key. Defaults to "/".
+
+=item * C<session_duration>
+Duration in seconds before sessions should expire, regardless of cookie
+expiration. If set, then SessionFactories should use this to enforce a limit on
+session validity.
+
+=back
+
+See L<Dancer2::Core::Role::SessionFactory> for more detailed documentation
+for these options, or the particular session engine for other supported options.
+
+  session: Simple
+
+  engines:
+     session:
+	   Simple:
+	    cookie_name: dance.set
+        cookie_duration: '24 hours'
+	    is_secure: 1
+        is_http_only: 1
+
+=head2 Keywords
+
+=head3 load
+
+This keyword is no longer required. Dancer2 loads the environment
+automatically and will not reload any other environment when called with
+L<load>. (It's a good thing.)
+
+=head3 param_array
+
+This keyword doesn't exist in Dancer2.
+
+=head3 session
+
+In L<Dancer> a session was created and a cookie was sent just by rendering a page
+using the C<template> function. In L<Dancer2> one needs to actully set a value in
+a session object using the C<session> function in order to create the session
+and send the cookie.
+
+The session keyword has multiple states:
+
+=over 4
+
+=item * No arguments
+
+Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
+object, which has methods for L<read>, L<write>, and L<delete>.
+
+    my $session = session;
+    $session->read($key);
+    $session->write( $key => $value );
+    $session->delete($key);
+
+=item * Single argument (key)
+
+If a single argument is provided, it is treated as the key, and it will retrieve
+the value for it.
+
+    my $value = session $key;
+
+=item * Two arguments (key, value)
+
+If two arguments are provided, they are treated as a key and a value, in which
+case the session will assign the value to the key.
+
+    session $key => $value;
+
+=item * Two arguments (key, undef)
+
+If two arguments are provided, but the second is B<undef>, the key will be
+deleted from the session.
+
+    session $key => undef;
+
+=back
+
+In Dancer 1 it wasn't possible to delete a key, but in Dancer2 we can finally
+delete:
+
+    # these two are equivalent
+    session $key => undef;
+
+    my $session = session;
+    $session->delete($key);
+

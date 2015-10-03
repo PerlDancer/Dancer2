@@ -18,7 +18,7 @@ register foo_wrap_request => sub {
 register foo_route => sub {
     my ($self) = plugin_args(@_);
     $self->get( '/foo', sub {'foo'} );
-};
+} => { is_global => 1, prototype => '$@' };
 
 register p_config => sub {
     my $dsl    = shift;
@@ -31,7 +31,7 @@ sub _retrieve_get_urls {
     my $dsl = shift;
     my ( $route, @urls );
 
-    for my $app ( @{ $dsl->runner->server->apps } ) {
+    for my $app ( @{ $dsl->runner->apps } ) {
         my $routes = $app->routes;
 
         # push the static get routes into an array.

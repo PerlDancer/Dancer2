@@ -1,10 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 12;
+use Plack::Test;
+use HTTP::Request;
 
 use Dancer2;
-use Dancer2::Test;
 
 my %method = (
     get     => 'GET',
@@ -15,12 +16,33 @@ my %method = (
     options => 'OPTIONS',
 );
 
-while ( my ( $method, $http ) = each %method ) {
-    eval "$method '/' => sub { '$method' }";
-    response_content_is [ $http => '/' ], $method, $method;
-}
+my $app = __PACKAGE__->to_app;
+is( ref $app, 'CODE', 'Got app' );
 
-eval "get '/head' => sub {'HEAD'}";
-my $resp = dancer_response( 'HEAD', '/head' );
-is $resp->content, '', 'HEAD';
-is $resp->header('Content-Length'), 4, 'Content-Length for HEAD';
+test_psgi $app, sub {
+    my $cb = shift;
+
+    while ( my ( $method, $http ) = each %method ) {
+        eval "$method '/' => sub { '$method' }";
+        is(
+            $cb->( HTTP::Request->new( $http => '/' ) )->content,
+            $method,
+            "$http /",
+        );
+    }
+
+    eval "get '/head' => sub {'HEAD'}";
+
+    my $res = $cb->( HTTP::Request->new( HEAD => '/head' ) );
+    is( $res->content, '', 'HEAD /' ); # HEAD requests have no content
+    is( $res->headers->content_length, 4, 'Content-Length for HEAD' );
+
+    # Testing invalid HTTP methods.
+    {
+        my $req = HTTP::Request->new( "ILLEGAL" => '/' );
+        my $res = $cb->( $req );
+        ok( !$res->is_success, "Response->is_success is false when using illegal HTTP method" );
+        is( $res->code, 405, "Illegal method should return 405 code" );
+        like( $res->content, qr<Method Not Allowed>, q<Illegal method should have "Method Not Allowed" in the content> );
+    }
+};

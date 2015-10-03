@@ -1,62 +1,62 @@
+package Dancer2::Serializer::YAML;
 # ABSTRACT: Serializer for handling YAML data
 
-package Dancer2::Serializer::YAML;
 use Moo;
 use Carp 'croak';
+use Encode;
+use Class::Load 'load_class';
+
 with 'Dancer2::Core::Role::Serializer';
 
+has '+content_type' => ( default => sub {'text/x-yaml'} );
+
 # helpers
+sub from_yaml { __PACKAGE__->deserialize(@_) }
 
-sub from_yaml {
-    my ($yaml) = @_;
-    my $s = Dancer2::Serializer::YAML->new;
-    $s->deserialize($yaml);
-}
-
-sub to_yaml {
-    my ($data) = @_;
-    my $s = Dancer2::Serializer::YAML->new;
-    $s->serialize($data);
-}
+sub to_yaml { __PACKAGE__->serialize(@_) }
 
 # class definition
-
-sub BUILD { eval "use YAML::Any ()"; croak "Fail to load YAML: $@" if $@ }
-sub loaded {1}
+sub BUILD { load_class('YAML') }
 
 sub serialize {
     my ( $self, $entity ) = @_;
-    YAML::Any::Dump($entity);
+    encode('UTF-8', YAML::Dump($entity));
 }
 
 sub deserialize {
     my ( $self, $content ) = @_;
-    YAML::Any::Load($content);
+    YAML::Load(decode('UTF-8', $content));
 }
 
-sub content_type {'text/x-yaml'}
-
 1;
+
 __END__
-
-=pod
-
-=head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
+This is a serializer engine that allows you to turn Perl data structures into
+YAML output and vice-versa.
+
 =head1 METHODS
 
-=head2 serialize
+=attr content_type
 
-Serialize a data structure to a YAML structure.
+Returns 'text/x-yaml'
 
-=head2 deserialize
+=func fom_yaml($content)
 
-Deserialize a YAML structure to a data structure
+This is an helper available to transform a YAML data structure to a Perl data structures.
 
-=head2 content_type
+=func to_yaml($content)
 
-Return 'text/x-yaml'
+This is an helper available to transform a Perl data structure to YAML.
 
-=cut
+Calling this function will B<not> trigger the serialization's hooks.
+
+=method serialize($content)
+
+Serializes a data structure to a YAML structure.
+
+=method deserialize($content)
+
+Deserializes a YAML structure to a data structure.

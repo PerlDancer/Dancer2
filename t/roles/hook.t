@@ -15,6 +15,7 @@ is $h->code->(), 'BT';
     package Foo;
     use Moo;
     with 'Dancer2::Core::Role::Hookable';
+    sub hook_aliases { +{} }
     sub supported_hooks {'foobar'}
 }
 

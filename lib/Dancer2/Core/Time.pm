@@ -1,38 +1,10 @@
 package Dancer2::Core::Time;
-
-#ABSTRACT: class to handle common helpers for time manipulations
-
-=head1 DESCRIPTION
-
-For consistency, whenever something needs to work with time, it
-needs to be expressed in seconds, with a timestamp. Although it's very
-convenient for the machine and calculations, it's not very handy for a
-human-being, for instance in a configuration file.
-
-This class provides everything needed to translate any human-understandable 
-expression into a number of seconds.
-
-=head1 SYNOPSIS
-
-    my $time = Dancer2::Core::Time->new( expression => "1h" );
-    $time->seconds; # return 3600
-
-=cut
-
-use strict;
-use warnings;
-use Carp 'croak';
+# ABSTRACT: class to handle common helpers for time manipulations
 
 use Moo;
 
-=attr seconds
-
-Number of seconds represented by the object. Defaults to 0.
-
-=cut
-
 has seconds => (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     builder => '_build_seconds',
 );
@@ -41,21 +13,14 @@ sub _build_seconds {
     my ($self) = @_;
     my $seconds = $self->expression;
 
-    $seconds = $self->_parse_duration($seconds)
-      if $seconds !~ /^\d+$/;
+    return $seconds
+        if $seconds =~ /^\d+$/;
 
-    return $seconds;
+    return $self->_parse_duration($seconds)
 }
 
-
-=attr epoch
-
-The current epoch to handle. Defaults to seconds + time.
-
-=cut
-
 has epoch => (
-    is      => 'rw',
+    is      => 'ro',
     lazy    => 1,
     builder => '_build_epoch',
 );
@@ -66,14 +31,8 @@ sub _build_epoch {
     $self->seconds + time;
 }
 
-=attr gmt_string
-
-Convert the current value in epoch as a GMT string.
-
-=cut
-
 has gmt_string => (
-    is      => 'rw',
+    is      => 'ro',
     builder => '_build_gmt_string',
     lazy    => 1,
 );
@@ -95,43 +54,18 @@ sub _build_gmt_string {
       $hour, $min, $sec;
 }
 
-=attr expression
-
-Required. A human readable expression representing the number of seconds to provide.
-
-The format supported is a number followed by an expression. It currently
-understands:
-
-    s second seconds sec secs
-    m minute minutes min mins
-    h hr hour hours
-    d day days
-    w week weeks
-    M month months
-    y year years
-
-Months and years are currently fixed at 30 and 365 days.  This may change.
-Anything else is used verbatim as the expression of a number of seconds.
-
-Example: 
-
-    2 hours, 3 days, 3d, 1 week, 3600, etc...
-
-=cut
-
 has expression => (
-    is       => 'rw',
+    is       => 'ro',
     required => 1,
 );
 
-sub BUILD {
-    my ($self) = @_;
+sub BUILDARGS {
+    my ($class, %args) = @_;
 
-    # if the expression is already a numeric value, assume it's an epoch
-    if ( $self->expression =~ /^\d+$/ ) {
-        $self->epoch( $self->expression );
-        $self->expression('0h');
-    }
+    $args{epoch} = $args{expression}
+        if $args{expression} =~ /^\d+$/;
+
+    return \%args;
 }
 
 # private
@@ -187,3 +121,56 @@ sub _parse_duration {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+For consistency, whenever something needs to work with time, it
+needs to be expressed in seconds, with a timestamp. Although it's very
+convenient for the machine and calculations, it's not very handy for a
+human-being, for instance in a configuration file.
+
+This class provides everything needed to translate any human-understandable
+expression into a number of seconds.
+
+=head1 SYNOPSIS
+
+    my $time = Dancer2::Core::Time->new( expression => "1h" );
+    $time->seconds; # return 3600
+
+=attr seconds
+
+Number of seconds represented by the object. Defaults to 0.
+
+=attr epoch
+
+The current epoch to handle. Defaults to seconds + time.
+
+=attr gmt_string
+
+Convert the current value in epoch as a GMT string.
+
+=attr expression
+
+Required. A human readable expression representing the number of seconds to provide.
+
+The format supported is a number followed by an expression. It currently
+understands:
+
+    s second seconds sec secs
+    m minute minutes min mins
+    h hr hour hours
+    d day days
+    w week weeks
+    M month months
+    y year years
+
+Months and years are currently fixed at 30 and 365 days.  This may change.
+Anything else is used verbatim as the expression of a number of seconds.
+
+Example:
+
+    2 hours, 3 days, 3d, 1 week, 3600, etc...
+
+=cut

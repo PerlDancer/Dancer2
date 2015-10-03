@@ -1,0 +1,122 @@
+package Dancer2::Manual::Testing;
+# ABSTRACT: Writing tests for Dancer2
+
+use strict;
+use warnings;
+
+1;
+
+__END__
+
+=pod
+
+=head1 Basic application testing
+
+Since L<Dancer2> produces PSGI applications, you can easily write tests using
+L<Plack::Test> and provide your Dancer application as the app for testing.
+
+A basic test (which we also scaffold with L<dancer2>) looks like this:
+
+    use strict;
+    use warnings;
+
+    use Test::More tests => 4;
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    use_ok('MyApp');
+
+    # create an application
+    my $app = MyApp->to_app;
+    isa_ok( $app, 'CODE' );
+
+    # create a testing object
+    my $test = Plack::Test->create($app);
+
+    # now you can call requests on it and get responses
+    # requests are of HTTP::Request
+    # responses are of HTTP::Response
+
+    # "GET" from HTTP::Request::Common creates an HTTP::Request object
+    my $response = $test->request( GET '/' );
+
+    # same as:
+    # my $response = $test->request( HTTP::Request->new( GET => '/' ) );
+
+    ok( $response->is_success, 'Successful request' );
+    is( $response->content, 'OK', 'Correct response content' );
+
+Read the documentation for L<HTTP::Request> and L<HTTP::Request::Common> to
+see the different options for sending parameters.
+
+=head1 Cookies
+
+If you don't want to use an entire user agent for this test, you can use
+L<HTTP::Cookies> to store cookies and then retrieve them:
+
+    use strict;
+    use warnings;
+
+    use Test::More tests => 3;
+    use Plack::Test;
+    use HTTP::Request::Common;
+    use HTTP::Cookies;
+
+    use_ok('MyApp');
+
+    my $url  = 'http://localhost';
+    my $jar  = HTTP::Cookies->new();
+    my $test = Plack::Test->create( MyApp->to_app );
+
+    subtest 'Create session' => sub {
+        my $res = $test->request( GET "$url/login" );
+        ok( $res->is_success, 'Successful login' );
+
+        # extract cookies from the response and store in the jar
+        $jar->extract_cookies($res);
+    };
+
+    subtest 'Check session' => sub {
+        my $req = GET "$url/logout";
+
+        # add cookies to the request
+        $jar->add_cookie_header($req);
+
+        my $res = $test->request($req);
+        ok( $res->is_success, 'Successful logout' );
+        like(
+            $res->content,
+            'Successfully logged out',
+            'Got correct log out content',
+        );
+    };
+
+Please note that the request URL must include scheme and host for the call
+to L<HTTP::Cookies/add_cookie_header> to work.
+
+=head1 Plugins
+
+In order to test plugins, you can create an application on the spot, as
+part of the test script code, and use the plugin there.
+
+    use strict;
+    use warnings;
+
+    use Test::More tests => 2;
+    use Plack::Test;
+    use HTTP::Request::Common;
+
+    {
+        package MyTestApp;
+        use Dancer2;
+        use Dancer2::Plugin::MyPlugin;
+
+        get '/' => sub { my_keyword };
+    }
+
+    my $test = Plack::Test->create( MyTestApp->to_app );
+    my $res  = $test->request( GET '/' );
+
+    ok( $res->is_success, 'Successful request' );
+    is( $res->content, 'MyPlugin-MyKeyword', 'Correct content' );
+

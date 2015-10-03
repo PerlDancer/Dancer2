@@ -1,19 +1,29 @@
-use Test::More import => ['!pass'];
 use strict;
 use warnings;
+use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
+    package App;
     use Dancer2;
     get '/foo' => sub {
         return uri_for('/foo');
     };
 }
 
-use Dancer2::Test;
-response_status_is [ GET => '/foo' ], 200;
+my $app = App->to_app;
+is( ref $app, 'CODE', 'Got app' );
 
-response_content_is [ GET => '/foo' ],
-  'http://localhost/foo',
-  "uri_for works as expected";
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is( $cb->( GET '/foo' )->code, 200, '/foo code okay' );
+    is(
+        $cb->( GET '/foo' )->content,
+        'http://localhost/foo',
+        'uri_for works as expected',
+    );
+};
 
 done_testing;

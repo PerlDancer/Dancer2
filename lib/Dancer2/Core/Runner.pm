@@ -1,219 +1,248 @@
-# ABSTRACT: Top-layer class to start a dancer app
 package Dancer2::Core::Runner;
+# ABSTRACT: Top-layer class to start a dancer app
 
 use Moo;
-use Dancer2::Core::Types;
-use Dancer2::Core::MIME;
 use Carp 'croak';
+use Dancer2::Core::MIME;
+use Dancer2::Core::Types;
+use Dancer2::Core::Dispatcher;
+use Plack::Builder qw();
 
-use Dancer2::FileUtils;
-use Dancer2::ModuleLoader;
-use File::Basename;
-use File::Spec;
-
-with 'Dancer2::Core::Role::Config';
-
-=head1 DESCRIPTION
-
-Runs Dancer2 app.
-
-Inherits from L<Dancer2::Core::Role::Config>.
-
-=head2 environment
-
-The environment string. The options, in this order, are:
-
-=over 4
-
-=item * C<DANCER_ENVIRONMENT>
-
-=item * C<PLACK_ENV>
-
-=item * C<development>
-
-=back
-
-=attr postponed_hooks
-
-Postponed hooks will be applied at the end, when the hookable objects are 
-instantiated, not before.
-
-=cut
-
-has postponed_hooks => (
-    is      => 'rw',
+# Hashref of configurable items for the runner.
+# Defaults come from ENV vars. Updated via global triggers
+# from app configs.
+has config => (
+    is      => 'ro',
     isa     => HashRef,
-    default => sub { {} },
-);
-
-=attr caller
-
-The path to the caller script that is starting the app.
-
-This is required in order to determine where the appdir is.
-
-=cut
-
-# the path to the caller script that is starting the app
-# mandatory, because we use that to determine where the appdir is.
-has caller => (
-    is       => 'ro',
-    isa      => Str,
-    required => 1,
-    trigger  => sub {
-        my ( $self, $script ) = @_;
-        $self->_build_location($script);
-    },
-);
-
-=attr server
-
-A read/write attribute to that holds the proper server.
-
-It checks for an object that consumes the L<Dancer2::Core::Role::Server> role.
-
-=cut
-
-has server => (
-    is      => 'rw',
-    isa     => ConsumerOf ['Dancer2::Core::Role::Server'],
     lazy    => 1,
-    builder => '_build_server',
+    builder => '_build_config',
 );
 
-# when the runner is created, it has to init the server instance
-# according to the configuration
-sub _build_server {
-    my $self         = shift;
-    my $server_name  = $self->config->{apphandler};
-    my $server_class = "Dancer2::Core::Server::${server_name}";
-
-    my ( $res, $error ) = Dancer2::ModuleLoader->load($server_class);
-    $res or croak "Unable to load $server_class : $error";
-
-    return $server_class->new(
-        host      => $self->config->{host},
-        port      => $self->config->{port},
-        is_daemon => $self->config->{is_daemon},
-        runner    => $self,
-    );
-}
-
-=attr mime_type
-
-A read/write attribute that holds a L<Dancer2::Core::MIME> object.
-
-=cut
-
+# FIXME: i hate this
 has mime_type => (
-    is      => 'rw',
-    isa     => InstanceOf ["Dancer2::Core::MIME"],
+    is      => 'ro',
+    isa     => InstanceOf ['Dancer2::Core::MIME'],
     default => sub { Dancer2::Core::MIME->new(); },
 );
 
-=method default_config
+has server => (
+    is      => 'ro',
+    isa     => InstanceOf['HTTP::Server::PSGI'],
+    lazy    => 1,
+    builder => '_build_server',
+    handles => ['run'],
+);
 
-It then sets up the default configuration.
+has apps => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
 
-=cut
+has postponed_hooks => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub { +{} },
+);
 
-# our Config role needs a default_config hash
-sub default_config {
+has environment => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
+    default  => sub {
+        $ENV{DANCER_ENVIRONMENT} || $ENV{PLACK_ENV} || 'development'
+    },
+);
+
+has host => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub { $_[0]->config->{'host'} },
+);
+
+has port => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub { $_[0]->config->{'port'} },
+);
+
+has timeout => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub { $_[0]->config->{'timeout'} },
+);
+
+sub _build_server {
+    my $self = shift;
+
+    require HTTP::Server::PSGI;
+    HTTP::Server::PSGI->new(
+        host            => $self->host,
+        port            => $self->port,
+        timeout         => $self->timeout,
+        server_software => "Perl Dancer2 " . Dancer2->VERSION,
+    );
+}
+
+sub _build_config {
+    my $self = shift;
 
     $ENV{PLACK_ENV}
       and $ENV{DANCER_APPHANDLER} = 'PSGI';
 
-    my ($self) = @_;
-    {   apphandler   => ( $ENV{DANCER_APPHANDLER}   || 'Standalone' ),
-        content_type => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
-        charset      => ( $ENV{DANCER_CHARSET}      || '' ),
-        warnings     => ( $ENV{DANCER_WARNINGS}     || 0 ),
-        startup_info => ( $ENV{DANCER_STARTUP_INFO} || 1 ),
-        traces       => ( $ENV{DANCER_TRACES}       || 0 ),
-        logger       => ( $ENV{DANCER_LOGGER}       || 'console' ),
-        host         => ( $ENV{DANCER_SERVER}       || '0.0.0.0' ),
-        port         => ( $ENV{DANCER_PORT}         || '3000' ),
-        is_daemon    => ( $ENV{DANCER_DAEMON}       || 0 ),
-        views        => ( $ENV{DANCER_VIEWS}
-              || path( $self->config_location, 'views' ) ),
-        appdir          => $self->location,
-        import_warnings => 1,
+    return {
+        behind_proxy     => 0,
+        apphandler       => ( $ENV{DANCER_APPHANDLER} || 'Standalone' ),
+        traces           => ( $ENV{DANCER_TRACES}     || 0 ),
+        host             => ( $ENV{DANCER_SERVER}     || '0.0.0.0' ),
+        port             => ( $ENV{DANCER_PORT}       || '3000' ),
+        no_server_tokens => ( defined $ENV{DANCER_NO_SERVER_TOKENS} ?
+                              $ENV{DANCER_NO_SERVER_TOKENS}         :
+                              0 ),
+        startup_info     => ( defined $ENV{DANCER_STARTUP_INFO} ?
+                              $ENV{DANCER_STARTUP_INFO}         :
+                              1 ),
     };
 }
 
+sub BUILD {
+    my $self = shift;
 
+    # Enable traces if set by ENV var.
+    if (my $traces = $self->config->{traces} ) {
+        require Carp;
+        $Carp::Verbose = $traces ? 1 : 0;
+    };
 
-sub _build_location {
-    my ( $self, $script ) = @_;
+    # set the global runner object if one doesn't exist yet
+    # this can happen if you create one without going through Dancer2
+    # which doesn't trigger the import that creates it
+    defined $Dancer2::runner
+        or $Dancer2::runner = $self;
+}
 
-    # default to the dir that contains the script...
-    my $location = Dancer2::FileUtils::dirname($script);
+sub register_application {
+    my $self = shift;
+    my $app  = shift;
 
-    #we try to find bin and lib
-    my $subdir       = $location;
-    my $subdir_found = 0;
+    push @{ $self->apps }, $app;
 
-    #maximum of 10 iterations, to prevent infinite loop
-    for ( 1 .. 10 ) {
+    # add postponed hooks to our psgi app
+    $self->add_postponed_hooks( $app->name, $app->postponed_hooks );
+}
 
-        #try to find libdir and bindir to determine the root of dancer app
-        my $libdir = Dancer2::FileUtils::path( $subdir, 'lib' );
-        my $bindir = Dancer2::FileUtils::path( $subdir, 'bin' );
+sub add_postponed_hooks {
+    my $self  = shift;
+    my $name  = shift;
+    my $hooks = shift;
 
-        #try to find .dancer_app file to determine the root of dancer app
-        my $dancerdir = Dancer2::FileUtils::path( $subdir, '.dancer' );
+    # merge postponed hooks
+    @{ $self->{'postponed_hooks'}{$name} }{ keys %{$hooks} } = values %{$hooks};
+}
 
-        # if one of them is found, keep that
-        if ( ( -d $libdir && -d $bindir ) || ( -f $dancerdir ) ) {
-            $subdir_found = 1;
-            last;
+# decide what to start
+# do we just return a PSGI app
+# or do we actually start a development standalone server?
+sub start {
+    my $self = shift;
+    my $app  = $self->psgi_app;
+
+    # we decide whether we return a PSGI coderef
+    # or spin a local development PSGI server
+    $self->config->{'apphandler'} eq 'PSGI'
+        and return $app;
+
+    # FIXME: this should not include the server tokens
+    # since those are already added to the server itself
+    $self->start_server($app);
+}
+
+sub start_server {
+    my $self = shift;
+    my $app  = shift;
+
+    # does not return
+    $self->print_banner;
+    $self->server->run($app);
+}
+
+sub psgi_app {
+    my ($self, $apps) = @_;
+
+    if ( $apps && @{$apps} ) {
+        my @found_apps = ();
+
+        foreach my $app_req ( @{$apps} ) {
+            if ( ref $app_req eq 'Regexp' ) {
+                # find it in the apps registry
+                push @found_apps,
+                    grep +( $_->name =~ $app_req ), @{ $self->apps };
+            } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
+                # use it directly
+                push @found_apps, $app_req;
+            } elsif ( ! ref $app_req ) {
+                # find it in the apps registry
+                push @found_apps,
+                    grep +( $_->name eq $app_req ), @{ $self->apps };
+            } else {
+                croak "Invalid input to psgi_app: $app_req";
+            }
         }
-        $subdir = Dancer2::FileUtils::path( $subdir, '..' );
-        last if File::Spec->rel2abs($subdir) eq File::Spec->rootdir;
 
+        $apps = \@found_apps;
+    } else {
+        # dispatch over all apps by default
+        $apps = $self->apps;
     }
 
-    $self->location( $subdir_found ? $subdir : $location );
+    my $dispatcher = Dancer2::Core::Dispatcher->new( apps => $apps );
+
+    # initialize psgi_apps
+    # (calls ->finish on the apps and create their PSGI apps)
+    # the dispatcher caches that in the attribute
+    # so ->finish isn't actually called again if you run this method
+    $dispatcher->apps_psgi;
+
+    return sub {
+        my $env = shift;
+
+        # mark it as an old-style dispatching
+        $self->{'internal_dispatch'} = 1;
+
+        my $response = $dispatcher->dispatch($env);
+
+        # unmark it
+        delete $self->{'internal_dispatch'};
+
+        # cleanup
+        delete $self->{'internal_sessions'};
+
+        return $response;
+    };
 }
 
-=method start
+sub print_banner {
+    my $self = shift;
+    my $pid  = $$;
 
-Runs C<finish> (to set everything up) on all of the server's applications. It
-then Sets up the current server and starts it by calling its C<start> method.
+    # we only print the info if we need to
+    $self->config->{'startup_info'} or return;
 
-=cut
+    # bare minimum
+    print STDERR ">> Dancer2 v" . Dancer2->VERSION . " server $pid listening "
+      . 'on http://'
+      . $self->host . ':'
+      . $self->port . "\n";
 
-sub start {
-    my ($self) = @_;
-    my $server = $self->server;
+    # all loaded plugins
+    foreach my $module ( grep { $_ =~ m{^Dancer2/Plugin/} } keys %INC ) {
+        $module =~ s{/}{::}g;     # change / to ::
+        $module =~ s{\.pm$}{};    # remove .pm at the end
+        my $version = $module->VERSION;
 
-    $_->finish for @{ $server->apps };
-
-    # update the server config if needed
-    my $port      = $self->setting('server_port');
-    my $host      = $self->setting('server_host');
-    my $is_daemon = $self->setting('server_is_daemon');
-
-    $server->port($port)           if defined $port;
-    $server->host($host)           if defined $host;
-    $server->is_daemon($is_daemon) if defined $is_daemon;
-    $server->start;
+        defined $version or $version = 'no version number defined';
+        print STDERR ">> $module ($version)\n";
+    }
 }
-
-# Used by 'logger' to get a name from a Runner
-sub name {"runner"}
 
 1;
-
-
-#still exists?
-#=method BUILD
-#
-#The builder initializes the proper server instance (C<Dancer2::Core::Server::*>)
-#and sets the C<server> attribute to it.
-#
-#=method get_environment
-#
-#Returns the environment. Same as C<< $object->environment >>.
-
-

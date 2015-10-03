@@ -1,5 +1,5 @@
 package Dancer2::Plugins;
-# ABSTRACT: Recommended Dancer2 plugins 
+# ABSTRACT: Recommended Dancer2 plugins
 
 =pod
 
@@ -34,19 +34,19 @@ Dancer application.
 
 =item L<Dancer2::Plugin::Cache::CHI>
 
-Provides caching for generated pages and/or arbitrary data.  Uses L<CHI>, so is
-backend-agnostic - caching can be done in memory, to files, using Memcache, in a
-database, or any other method for which there is a L<CHI::Driver> module.
+Provides caching for generated pages and/or arbitrary data.  Uses L<CHI>, so
+is backend-agnostic - caching can be done in memory, to files, using
+Memcache, in a database, or any other method for which there is a
+L<CHI::Driver> module.
 
 =item L<Dancer2::Plugin::Database>
 
-Provides easy database access via DBI, reading the DB connection
-details from your app's config file, and taking care of ensuring the
-connection is still valid and reconnecting if not (useful in
-persistent environments).  Just calling the C<database> keyword gives
-you a connected and working database handle. It also provides some
-helpful keywords to make inserting/updating data as simple as it
-should be.
+Provides easy database access via DBI, reading the DB connection details
+from your app's config file, and taking care of ensuring the connection is
+still valid and reconnecting if not (useful in persistent environments).
+Just calling the C<database> keyword gives you a connected and working
+database handle. It also provides some helpful keywords to make
+inserting/updating data as simple as it should be.
 
 =item L<Dancer2::Plugin::DBIC>
 
@@ -54,15 +54,15 @@ Provides easy acces to DBIx::Class database virtualization.
 
 =item L<Dancer2::Plugin::Deferred>
 
-Provides a method for deferring a one-time message across a
-redirect. It is similar to "flash" messages, but without the race
-conditions that can result from multiple tabs in a browser or from
-AJAX requests.
+Provides a method for deferring a one-time message across a redirect. It is
+similar to "flash" messages, but without the race conditions that can result
+from multiple tabs in a browser or from AJAX requests.
 
 =item L<Dancer2::Plugin::Emailesque>
 
-Provides easy email-sending powered by Email::Send - simply call the C<email>
-keyword.  Email sending settings can be taken from your app's config.
+Provides easy email-sending powered by Email::Send - simply call the
+C<email> keyword.  Email sending settings can be taken from your app's
+config.
 
 =item L<Dancer2::Plugin::Feed>
 
@@ -90,8 +90,8 @@ Plugin to verify pod coverage in our app routes.
 
 =item L<Dancer2::Plugin::Syntax::GetPost>
 
-Provides very simple syntactic sugar to define a handler for GET and
-POST requests.
+Provides very simple syntactic sugar to define a handler for GET and POST
+requests.
 
 =back
 
@@ -101,13 +101,13 @@ POST requests.
 
 =item L<Dancer2::Session::Cookie>
 
-A session factory for Dancer 2 that stores session state within a
-browser cookie.
+A session factory for Dancer2 that stores session state within a browser
+cookie.
 
 =back
 
 More plugins are appearing on CPAN all the time - just search for
-C<Dancer2::Plugin> to see what may have been released since this
-document was last updated!
+C<Dancer2::Plugin> to see what may have been released since this document
+was last updated!
 
 =cut

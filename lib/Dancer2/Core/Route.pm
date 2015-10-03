@@ -1,19 +1,13 @@
-# ABSTRACT: Dancer2's route handler
-
 package Dancer2::Core::Route;
-
-use strict;
-use warnings;
+# ABSTRACT: Dancer2's route handler
 
 use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use List::Util 'first';
+use Scalar::Util 'blessed';
 
-=attr method
-
-The HTTP method of the route (lowercase). Required.
-
-=cut
+our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
 has method => (
     is       => 'ro',
@@ -21,24 +15,11 @@ has method => (
     required => 1,
 );
 
-=attr code
-
-The code reference to execute when the route is ran. Required.
-
-=cut
-
 has code => (
     is       => 'ro',
     required => 1,
     isa      => CodeRef,
 );
-
-=attr regexp
-
-The regular expression that defines the path of the route.
-Required. Coerce from Dancer2's route I<patterns>.
-
-=cut
 
 has regexp => (
     is       => 'ro',
@@ -47,23 +28,11 @@ has regexp => (
 
 has spec_route => ( is => 'ro' );
 
-=attr prefix
-
-The prefix to prepend to the C<regexp>. Optional.
-
-=cut
-
 has prefix => (
     is        => 'ro',
     isa       => Maybe [Dancer2Prefix],
     predicate => 1,
 );
-
-=attr options
-
-A HashRef of conditions on which the matching will depend. Optional.
-
-=cut
 
 has options => (
     is        => 'ro',
@@ -97,9 +66,6 @@ has _should_capture => (
 has _match_data => (
     is      => 'rw',
     isa     => HashRef,
-    trigger => sub {
-        my ( $self, $value ) = @_;
-    },
 );
 
 has _params => (
@@ -108,16 +74,6 @@ has _params => (
     default => sub { [] },
 );
 
-=method match
-
-Try to match the route with a given pair of method/path.
-Returns the hash of matching data if success (captures and values of the route
-against the path) or undef if not.
-
-    my $match = $route->match( get => '/hello/sukria' );
-
-=cut
-
 sub match {
     my ( $self, $request ) = @_;
 
@@ -125,18 +81,7 @@ sub match {
         return unless $self->validate_options($request);
     }
 
-    my %params;
-    my @values = $request->path =~ $self->regexp;
-
-    # the regex comments are how we know if we captured
-    # a splat or a megasplat
-    if ( my @splat_or_megasplat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g )
-    {
-        for (@values) {
-            $_ = [ split '/' => $_ ]
-              if ( shift @splat_or_megasplat ) =~ /megasplat/;
-        }
-    }
+    my @values = $request->dispatch_path =~ $self->regexp;
 
     # if some named captures are found, return captures
     # no warnings is for perl < 5.10
@@ -149,40 +94,79 @@ sub match {
 
     return unless @values;
 
-    # save the route pattern that matched
-    # TODO : as soon as we have proper Dancer2::Internal, we should remove
-    # that, it's just a quick hack for plugins to access the matching
-    # pattern.
-    # NOTE: YOU SHOULD NOT USE THAT, OR IF YOU DO, YOU MUST KNOW
-    # IT WILL MOVE VERY SOON
-    # $request->{_route_pattern} = $self->regexp;
+    # regex comments are how we know if we captured a token,
+    # splat or a megasplat
+    my @token_or_splat = $self->regexp =~ /\(\?#([token|(?:mega)?splat]+)\)/g;
+    if (@token_or_splat) {
+        # our named tokens
+        my @tokens = @{ $self->_params };
 
-    # named tokens
-    my @tokens = @{ $self->_params };
+        my %params;
+        my @splat;
+        for ( my $i = 0; $i < @values; $i++ ) {
+            # Is this value from a token?
+            if ( $token_or_splat[$i] eq 'token' ) {
+                $params{ shift @tokens } = $values[$i];
+                 next;
+            }
 
-    if (@tokens) {
-        for ( my $i = 0; $i < @tokens; $i++ ) {
-            $params{ $tokens[$i] } = $values[$i];
+            # megasplat values are split on '/'
+            if ($token_or_splat[$i] eq 'megasplat') {
+                $values[$i] = [ split '/' => $values[$i] ];
+            }
+            push @splat, $values[$i];
         }
-        return $self->_match_data( \%params );
+        return $self->_match_data( {
+            %params,
+            (splat => \@splat)x!! @splat,
+        });
     }
 
-    elsif ( $self->_should_capture ) {
+    if ( $self->_should_capture ) {
         return $self->_match_data( { splat => \@values } );
     }
 
     return $self->_match_data( {} );
 }
 
-=method execute
-
-Runs the coderef of the route.
-
-=cut
-
 sub execute {
-    my ( $self, @args ) = @_;
-    return $self->code->(@args);
+    my ( $self, $app, @args ) = @_;
+    local $REQUEST  = $app->request;
+    local $RESPONSE = $app->response;
+
+    my $content = $self->code->( $app, @args );
+
+    # users may set content in the response. If the response has
+    # content, and the returned value from the route code is not
+    # an object (well, reference) we ignore the returned value
+    # and use the existing content in the response instead.
+    $RESPONSE->has_content && !ref $content
+        and return $app->_prep_response( $RESPONSE );
+
+    my $type = blessed($content)
+        or return $app->_prep_response( $RESPONSE, $content );
+
+    # Plack::Response: proper ArrayRef-style response
+    $type eq 'Plack::Response'
+        and $RESPONSE = Dancer2::Core::Response->new_from_plack($RESPONSE);
+
+    # CodeRef: raw PSGI response
+    # do we want to allow it and forward it back?
+    # do we want to upgrade it to an asynchronous response?
+    $type eq 'CODE'
+        and die "We do not support returning code references from routes.\n";
+
+    # Dancer2::Core::Response, Dancer2::Core::Response::Delayed:
+    # proper responses
+    $type eq 'Dancer2::Core::Response'
+        and return $RESPONSE;
+
+    $type eq 'Dancer2::Core::Response::Delayed'
+        and return $content;
+
+    # we can't handle arrayref or hashref
+    # because those might be serialized back
+    die "Unrecognized response type from route: $type.\n";
 }
 
 # private subs
@@ -193,18 +177,15 @@ sub BUILDARGS {
     my $prefix = $args{prefix};
     my $regexp = $args{regexp};
 
-    # regexp must have a leading /
-    if ( ref($regexp) ne 'Regexp' ) {
-        index( $regexp, '/', 0 ) == 0
-            or die "regexp must begin with /\n";
-    }
-
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
-            ref($regexp) eq 'Regexp' ? qr{\Q${prefix}\E${regexp}} :
-            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$}      :
+            ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
             $prefix . $regexp;
+    }
+    elsif ( ref($regexp) ne 'Regexp' ) {
+        # No prefix, so ensure regexp begins with a '/'
+        index( $regexp, '/', 0 ) == 0 or $args{regexp} = "/$regexp";
     }
 
     # init regexp
@@ -228,11 +209,17 @@ sub _build_regexp_from_string {
     my $capture = 0;
     my @params;
 
-    # look for route with params (/hello/:foo)
+    # look for route with tokens [aka params] (/hello/:foo)
     if ( $string =~ /:/ ) {
         @params = $string =~ /:([^\/\.\?]+)/g;
         if (@params) {
-            $string =~ s/(:[^\/\.\?]+)/\(\[\^\/\]\+\)/g;
+            first { $_ eq 'splat' } @params
+                and warn q{Named placeholder 'splat' is deprecated};
+
+            first { $_ eq 'captures' } @params
+                and warn q{Named placeholder 'captures' is deprecated};
+
+            $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
             $capture = 1;
         }
     }
@@ -257,11 +244,51 @@ sub _build_regexp_from_string {
 sub validate_options {
     my ( $self, $request ) = @_;
 
-    while ( my ( $option, $value ) = each %{ $self->options } ) {
+    for my $option ( keys %{ $self->options } ) {
         return 0
-          if ( not $request->$option ) || ( $request->$option !~ $value );
+          if (
+            ( not $request->$option )
+            || ( $request->$option !~ $self->options->{ $option } )
+          )
     }
     return 1;
 }
 
 1;
+
+__END__
+
+=attr method
+
+The HTTP method of the route (lowercase). Required.
+
+=attr code
+
+The code reference to execute when the route is ran. Required.
+
+=attr regexp
+
+The regular expression that defines the path of the route.
+Required. Coerce from Dancer2's route I<patterns>.
+
+=attr prefix
+
+The prefix to prepend to the C<regexp>. Optional.
+
+=attr options
+
+A HashRef of conditions on which the matching will depend. Optional.
+
+=method match
+
+Try to match the route with a given pair of method/path.
+Returns the hash of matching data if success (captures and values of the route
+against the path) or undef if not.
+
+    my $match = $route->match( get => '/hello/sukria' );
+
+=method execute
+
+Runs the coderef of the route.
+
+=cut

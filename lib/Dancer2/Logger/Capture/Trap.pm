@@ -1,6 +1,6 @@
+package Dancer2::Logger::Capture::Trap;
 # ABSTRACT: a place to store captured Dancer2 logs
 
-package Dancer2::Logger::Capture::Trap;
 use Moo;
 use Dancer2::Core::Types;
 
@@ -11,8 +11,12 @@ has storage => (
 );
 
 sub store {
-    my ( $self, $level, $message ) = @_;
-    push @{ $self->storage }, { level => $level, message => $message };
+    my ( $self, $level, $message, $fmt_string ) = @_;
+    push @{ $self->storage }, {
+        level     => $level,
+        message   => $message,
+        formatted => $fmt_string,
+    };
 }
 
 sub read {

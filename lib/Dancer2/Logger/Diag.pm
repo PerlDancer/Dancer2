@@ -1,11 +1,20 @@
+package Dancer2::Logger::Diag;
 # ABSTRACT: Test::More diag() logging engine for Dancer2
 
-package Dancer2::Logger::Diag;
 use Moo;
 use Test::More;
+
 with 'Dancer2::Core::Role::Logger';
 
-=head1 SYNOPSIS
+sub log {
+    my ( $self, $level, $message ) = @_;
+
+    Test::More::diag( $self->format_message( $level => $message ) );
+}
+
+1;
+
+__END__
 
 =head1 DESCRIPTION
 
@@ -20,12 +29,3 @@ messages as part of your TAP.
 Use Test::More's diag() to output the log message.
 
 =cut
-
-
-sub log {
-    my ( $self, $level, $message ) = @_;
-
-    Test::More::diag( $self->format_message( $level => $message ) );
-}
-
-1;

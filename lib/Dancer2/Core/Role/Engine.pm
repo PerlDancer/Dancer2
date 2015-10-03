@@ -1,8 +1,36 @@
+package Dancer2::Core::Role::Engine;
 # ABSTRACT: Role for engines
 
-package Dancer2::Core::Role::Engine;
 use Moo::Role;
 use Dancer2::Core::Types;
+
+with 'Dancer2::Core::Role::Hookable';
+
+has session => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::Session'],
+    writer    => 'set_session',
+    clearer   => 'clear_session',
+    predicate => 'has_session',
+);
+
+has config => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub { {} },
+);
+
+has request => (
+    is        => 'ro',
+    isa       => InstanceOf['Dancer2::Core::Request'],
+    writer    => 'set_request',
+    clearer   => 'clear_request',
+    predicate => 'has_request',
+);
+
+1;
+
+__END__
 
 =head1 DESCRIPTION
 
@@ -11,43 +39,8 @@ shared logic for engines.
 
 This role consumes the L<Dancer2::Core::Role::Hookable> role.
 
-=cut
-
-with 'Dancer2::Core::Role::Hookable';
-
-=attr environment 
-
-The value of the current environment
-
-=cut
-
-has environment => ( is => 'ro' );
-
-has location => ( is => 'ro' );
-
-=attr context
-
-A L<Dancer2::Core::Context> object
-
-=cut
-
-has context => (
-    is        => 'rw',
-    isa       => InstanceOf ['Dancer2::Core::Context'],
-    clearer   => 'clear_context',
-    predicate => 1,
-);
-
 =attr config
 
 An HashRef that hosts the configuration bits for the engine.
 
 =cut
-
-has config => (
-    is      => 'rw',
-    isa     => HashRef,
-    default => sub { {} },
-);
-
-1;

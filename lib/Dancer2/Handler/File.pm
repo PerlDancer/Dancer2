@@ -1,6 +1,6 @@
+package Dancer2::Handler::File;
 # ABSTRACT: class for handling file content rendering
 
-package Dancer2::Handler::File;
 use Carp 'croak';
 use Moo;
 use HTTP::Date;
@@ -9,16 +9,20 @@ use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use File::Spec;
 
-with 'Dancer2::Core::Role::Handler';
-with 'Dancer2::Core::Role::StandardResponses';
-with 'Dancer2::Core::Role::Hookable';
+with qw<
+    Dancer2::Core::Role::Handler
+    Dancer2::Core::Role::StandardResponses
+    Dancer2::Core::Role::Hookable
+>;
 
-sub supported_hooks {
-    qw(
-      handler.file.before_render
-      handler.file.after_render
-    );
+sub hook_aliases {
+    {
+        before_file_render => 'handler.file.before_render',
+        after_file_render  => 'handler.file.after_render',
+    }
 }
+
+sub supported_hooks { values %{ shift->hook_aliases } }
 
 has mime => (
     is      => 'ro',
@@ -31,24 +35,22 @@ has encoding => (
     default => sub {'utf-8'},
 );
 
-has public_dir => ( is => 'rw', );
+has public_dir => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_public_dir',
+);
 
 has regexp => (
     is      => 'ro',
     default => sub {'/**'},
 );
 
-sub BUILD {
-    my ($self) = @_;
-
-    if ( !defined $self->public_dir ) {
-        my $public =
-             $self->app->config->{public}
-          || $ENV{DANCER_PUBLIC}
-          || path( $self->app->location, 'public' );
-
-        $self->public_dir($public);
-    }
+sub _build_public_dir {
+    my $self = shift;
+    return $self->app->config->{public_dir}
+        || $ENV{DANCER_PUBLIC}
+        || path( $self->app->location, 'public' );
 }
 
 sub register {
@@ -70,35 +72,32 @@ sub code {
     my ( $self, $prefix ) = @_;
 
     sub {
-        my $ctx  = shift;
-        my $path = $ctx->request->path_info;
+        my $app    = shift;
+        my $prefix = shift;
+        my $path   = $app->request->path_info;
 
         if ( $path =~ /\0/ ) {
-            return $self->response_400($ctx);
+            return $self->standard_response( $app, 400 );
         }
 
         if ( $prefix && $prefix ne '/' ) {
             $path =~ s/^\Q$prefix\E//;
         }
 
-        my @tokens =
-          File::Spec->splitdir( join '',
-            ( File::Spec->splitpath($path) )[ 1, 2 ] );
-        if ( grep $_ eq '..', @tokens ) {
-            return $self->response_403($ctx);
-        }
-
-        my $file_path = path( $self->public_dir, @tokens );
-        $self->execute_hook( 'handler.file.before_render', $file_path );
+        my $file_path = $self->merge_paths( $path, $self->public_dir );
+        return $self->standard_response( $app, 403 ) if !defined $file_path;
 
         if ( !-f $file_path ) {
-            $ctx->response->has_passed(1);
+            $app->response->has_passed(1);
             return;
         }
 
         if ( !-r $file_path ) {
-            return $self->response_403($ctx);
+            return $self->standard_response( $app, 403 );
         }
+
+        # Now we are sure we can render the file...
+        $self->execute_hook( 'handler.file.before_render', $file_path );
 
         # Read file content as bytes
         my $fh = open_file( "<", $file_path );
@@ -113,23 +112,41 @@ sub code {
 
         my @stat = stat $file_path;
 
-        $ctx->response->header('Content-Type')
-          or $ctx->response->header( 'Content-Type', $content_type );
+        $app->response->header('Content-Type')
+          or $app->response->header( 'Content-Type', $content_type );
 
-        $ctx->response->header('Content-Length')
-          or $ctx->response->header( 'Content-Length', $stat[7] );
+        $app->response->header('Content-Length')
+          or $app->response->header( 'Content-Length', $stat[7] );
 
-        $ctx->response->header('Last-Modified')
-          or $ctx->response->header(
+        $app->response->header('Last-Modified')
+          or $app->response->header(
             'Last-Modified',
             HTTP::Date::time2str( $stat[9] )
           );
 
-        $ctx->response->content($content);
-        $ctx->response->is_encoded(1);    # bytes are already encoded
-        $self->execute_hook( 'handler.file.after_render', $ctx->response );
-        return ( $ctx->request->method eq 'GET' ) ? $content : '';
+        $app->response->content($content);
+        $app->response->is_encoded(1);    # bytes are already encoded
+        $self->execute_hook( 'handler.file.after_render', $app->response );
+        return ( $app->request->method eq 'GET' ) ? $content : '';
     };
+}
+
+sub merge_paths {
+    my ( undef, $path, $public_dir ) = @_;
+
+    my ( $volume, $dirs, $file ) = File::Spec->splitpath( $path );
+    my @tokens = File::Spec->splitdir( "$dirs$file" );
+    my $updir = File::Spec->updir;
+    return if grep $_ eq $updir, @tokens;
+
+    my ( $pub_vol, $pub_dirs, $pub_file ) = File::Spec->splitpath( $public_dir );
+    my @pub_tokens = File::Spec->splitdir( "$pub_dirs$pub_file" );
+    return if length $volume and length $pub_vol and $volume ne $pub_vol;
+
+    my @final_vol = ( length $pub_vol ? $pub_vol : length $volume ? $volume : () );
+    my @file_path = ( @final_vol, @pub_tokens, @tokens );
+    my $file_path = path( @file_path );
+    return $file_path;
 }
 
 1;

@@ -2,28 +2,12 @@
 
 package Dancer2::Template::TemplateToolkit;
 
-use strict;
-use warnings;
-use Carp;
 use Moo;
+use Carp qw/croak/;
 use Dancer2::Core::Types;
 use Template;
 
 with 'Dancer2::Core::Role::Template';
-
-=head1 SYNOPSIS
-
-To use this engine, you may configure L<Dancer2> via C<config.yaml>:
-
-    template:   "template_toolkit"
-
-Or you may also change the rendering engine on a per-route basis by
-setting it manually with C<set>:
-
-    # code code code
-    set template => 'template_toolkit';
-
-=cut
 
 has '+engine' => ( isa => InstanceOf ['Template'], );
 
@@ -49,29 +33,48 @@ sub _build_engine {
     return Template->new(%tt_config);
 }
 
-=method render TEMPLATE, TOKENS
+sub render {
+    my ( $self, $template, $tokens ) = @_;
+
+    ( ref $template || -f $template )
+      or croak "Failed to render template: $template is not a regular file or reference";
+
+    my $content = '';
+    my $charset = $self->charset;
+    my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
+    $self->engine->process( $template, $tokens, \$content, @options )
+      or croak 'Failed to render template: ' . $self->engine->error;
+
+    return $content;
+}
+
+1;
+
+__END__
+
+=head1 SYNOPSIS
+
+To use this engine, you may configure L<Dancer2> via C<config.yaml>:
+
+    template:   "template_toolkit"
+
+Or you may also change the rendering engine on a per-route basis by
+setting it manually with C<set>:
+
+    # code code code
+    set template => 'template_toolkit';
+
+=head1 DESCRIPTION
+
+This template engine allows you to use L<Template::Toolkit> in L<Dancer2>.
+
+=method render($template, \%tokens)
 
 Renders the template.  The first arg is a filename for the template file
 or a reference to a string that contains the template.  The second arg
 is a hashref for the tokens that you wish to pass to
 L<Template::Toolkit> for rendering.
 
-=cut
+=head1 SEE ALSO
 
-sub render {
-    my ( $self, $template, $tokens ) = @_;
-
-    if ( !ref $template ) {
-        -f $template
-          or croak "'$template' doesn't exist or not a regular file";
-    }
-
-    my $content = "";
-    my $charset = $self->charset;
-    my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
-    $self->engine->process( $template, $tokens, \$content, @options )
-      or croak $self->engine->error;
-    return $content;
-}
-
-1;
+L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Toolkit>.

@@ -1,5 +1,4 @@
 package Dancer2::Core::Types;
-
 # ABSTRACT: Moo types for Dancer2 core.
 
 use strict;
@@ -12,12 +11,9 @@ use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 
-
-=head1 DESCRIPTION
-
-Type definitions for Moo attributes. These are defined as subroutines. 
-
-=cut
+our %supported_http_methods = map +( $_ => 1 ), qw<
+    GET HEAD POST PUT DELETE OPTIONS PATCH
+>;
 
 my $single_part = qr/
     [A-Za-z]              # must start with letter
@@ -30,43 +26,6 @@ my $namespace = qr/
     (?: (?: \:\: $single_part )+ )? # optional part starting with double colon
     $
 /x;
-
-=head1 MOO TYPES 
-
-=head2 ReadableFilePath($value)
-
-A readable file path.
-
-=head2 WritableFilePath($value)
-
-A writable file path.
-
-=head2 Dancer2Prefix($value)
-
-A proper Dancer2 prefix, which is basically a prefix that starts with a I</>
-character.
-
-=head2 Dancer2AppName($value)
-
-A proper Dancer2 application name.
-
-Currently this only checks for I<\w+>.
-
-=head2 Dancer2Method($value)
-
-An acceptable method supported by Dancer2.
-
-Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
-I<options>.
-
-=head2 Dancer2HTTPMethod($value)
-
-An acceptable HTTP method supported by Dancer2.
-
-Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
-and I<OPTIONS>.
-
-=cut
 
 my $definitions = [
     {   name => 'ReadableFilePath',
@@ -116,7 +75,7 @@ my $definitions = [
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
-            grep {/^$_[0]$/} qw(get head post put delete options patch);
+            grep {/^$_[0]$/} map +( lc ), keys %supported_http_methods
         },
         message =>
           sub { return exception_message( $_[0], 'a Dancer2Method' ) },
@@ -126,7 +85,7 @@ my $definitions = [
         subtype_of => 'Str',
         from       => 'MooX::Types::MooseLike::Base',
         test       => sub {
-            grep {/^$_[0]$/} qw(GET HEAD POST PUT DELETE OPTIONS PATCH);
+            grep {/^$_[0]$/} keys %supported_http_methods
         },
         message =>
           sub { return exception_message( $_[0], 'a Dancer2HTTPMethod' ) },
@@ -177,9 +136,49 @@ MooX::Types::MooseLike::register_types( $definitions, __PACKAGE__ );
 
 1;
 
+__END__
+
+=head1 DESCRIPTION
+
+Type definitions for Moo attributes. These are defined as subroutines.
+
+=head1 MOO TYPES
+
+=head2 ReadableFilePath($value)
+
+A readable file path.
+
+=head2 WritableFilePath($value)
+
+A writable file path.
+
+=head2 Dancer2Prefix($value)
+
+A proper Dancer2 prefix, which is basically a prefix that starts with a I</>
+character.
+
+=head2 Dancer2AppName($value)
+
+A proper Dancer2 application name.
+
+Currently this only checks for I<\w+>.
+
+=head2 Dancer2Method($value)
+
+An acceptable method supported by Dancer2.
+
+Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
+I<options>.
+
+=head2 Dancer2HTTPMethod($value)
+
+An acceptable HTTP method supported by Dancer2.
+
+Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
+and I<OPTIONS>.
+
 =head1 SEE ALSO
 
 L<MooX::Types::MooseLike> for more available types
 
 =cut
-

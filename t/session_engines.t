@@ -1,110 +1,117 @@
 use strict;
 use warnings;
 use Test::More;
-
 use YAML;
-use Test::TCP 1.13;
-use File::Temp 0.22;
-use LWP::UserAgent;
+use Plack::Test;
+use HTTP::Cookies;
+use HTTP::Request::Common;
+
 use File::Spec;
+use File::Basename 'dirname';
 
-my $tempdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
-
-my @clients = qw(one two three);
-my @engines = qw(YAML Simple);
 my $SESSION_DIR;
-
-if ( $ENV{DANCER_TEST_COOKIE} ) {
-    push @engines, "cookie";
-    setting( session_cookie_key => "secret/foo*@!" );
+BEGIN {
+    $SESSION_DIR = File::Spec->catfile( dirname(__FILE__), 'sessions' );
 }
 
-foreach my $engine (@engines) {
+{
+    package App;
+    use Dancer2;
+    my @to_destroy;
 
+    set engines => { session => { YAML => { session_dir => $SESSION_DIR } } };
 
-    note "Testing engine $engine";
-    Test::TCP::test_tcp(
-        client => sub {
-            my $port = shift;
+    hook 'engine.session.before_destroy' => sub {
+        my $session = shift;
+        push @to_destroy, $session;
+    };
 
-            foreach my $client (@clients) {
-                my $ua = LWP::UserAgent->new;
-                $ua->cookie_jar( { file => "$tempdir/.cookies.txt" } );
+    get '/set_session/*' => sub {
+        my ($name) = splat;
+        session name => $name;
+    };
 
-                my $res = $ua->get("http://127.0.0.1:$port/read_session");
-                like $res->content, qr/name=''/,
-                  "empty session for client $client";
+    get '/read_session' => sub {
+        my $name = session('name') || '';
+        "name='$name'";
+    };
 
-                $res = $ua->get("http://127.0.0.1:$port/set_session/$client");
-                ok( $res->is_success, "set_session for client $client" );
+    get '/clear_session' => sub {
+        session name => undef;
+        return exists( session->data->{'name'} ) ? "failed" : "cleared";
+    };
 
-                $res = $ua->get("http://127.0.0.1:$port/read_session");
-                like $res->content, qr/name='$client'/,
-                  "session looks good for client $client";
+    get '/cleanup' => sub {
+        app->destroy_session;
+        return scalar(@to_destroy);
+    };
 
-                $res = $ua->get("http://127.0.0.1:$port/clear_session");
-                like $res->content, qr/cleared/, "deleted session key";
+    setting session => 'Simple';
 
-                $res = $ua->get("http://127.0.0.1:$port/cleanup");
-                ok( $res->is_success, "cleanup done for $client" );
-
-                ok( $res->content, "session hook triggered" );
-
-            }
-
-            File::Temp::cleanup();
-        },
-        server => sub {
-            my $port = shift;
-
-            use Dancer2;
-
-            my @to_destroy;
-
-            hook 'engine.session.before_destroy' => sub {
-                my $session = shift;
-                push @to_destroy, $session;
-            };
-
-            get '/set_session/*' => sub {
-                my ($name) = splat;
-                session name => $name;
-            };
-
-            get '/read_session' => sub {
-                my $name = session('name') || '';
-                "name='$name'";
-            };
-
-            get '/clear_session' => sub {
-                session name => undef;
-                return exists( session->data->{name} ) ? "failed" : "cleared";
-            };
-
-            get '/cleanup' => sub {
-                context->destroy_session;
-                return scalar(@to_destroy);
-            };
-
-            setting appdir => $tempdir;
-            setting(
-                engines => {
-                    session => { $engine => { session_dir => 't/sessions' } }
-                }
-            );
-            setting( session => $engine );
-
-            set(show_errors  => 1,
-                startup_info => 0,
-                environment  => 'production',
-                port         => $port
-            );
-
-            Dancer2->runner->server->port($port);
-            start;
-        },
+    set(
+        show_errors  => 1,
+        environment  => 'production',
     );
 }
+
+my $url  = "http://localhost";
+my $test = Plack::Test->create( App->to_app );
+my $app = Dancer2->runner->apps->[0];
+
+my @clients = qw(one two three);
+
+for my $engine ( qw(YAML Simple) ) {
+    # clear current session engine, and rebuild for the test
+    # This is *really* messy, playing in object hashrefs..
+    delete $app->{session_engine};
+    $app->config->{session} = $engine;
+    $app->session_engine; # trigger a build
+
+    # run the tests for this engine
+    for my $client (@clients) {
+        my $jar = HTTP::Cookies->new;
+
+        subtest "[$engine][$client] Empty session" => sub {
+            my $res = $test->request( GET "$url/read_session" );
+            like $res->content, qr/name=''/,
+              "empty session for client $client";
+            $jar->extract_cookies($res);
+        };
+
+        subtest "[$engine][$client] set_session" => sub {
+            my $req = GET "$url/set_session/$client";
+            $jar->add_cookie_header($req);
+            my $res = $test->request($req);
+            ok( $res->is_success, "set_session for client $client" );
+            $jar->extract_cookies($res);
+        };
+
+        subtest "[$engine][$client] session for client" => sub {
+            my $req = GET "$url/read_session";
+            $jar->add_cookie_header($req);
+            my $res = $test->request($req);
+            like $res->content, qr/name='$client'/,
+              "session looks good for client $client";
+            $jar->extract_cookies($res);
+        };
+
+        subtest "[$engine][$client] delete session" => sub {
+            my $req = GET "$url/clear_session";
+            $jar->add_cookie_header($req);
+            my $res = $test->request($req);
+            like $res->content, qr/cleared/, "deleted session key";
+        };
+
+        subtest "[$engine][$client] cleanup" => sub {
+            my $req = GET "$url/cleanup";
+            $jar->add_cookie_header($req);
+            my $res = $test->request($req);
+            ok( $res->is_success, "cleanup done for $client" );
+            ok( $res->content, "session hook triggered" );
+        };
+    }
+}
+
+
+
 done_testing;
-
-

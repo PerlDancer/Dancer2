@@ -1,12 +1,14 @@
+package Dancer2::Handler::AutoPage;
 # ABSTRACT: Class for handling the AutoPage feature
 
-package Dancer2::Handler::AutoPage;
 use Moo;
 use Carp 'croak';
 use Dancer2::Core::Types;
 
-with 'Dancer2::Core::Role::Handler';
-with 'Dancer2::Core::Role::StandardResponses';
+with qw<
+    Dancer2::Core::Role::Handler
+    Dancer2::Core::Role::StandardResponses
+>;
 
 sub register {
     my ( $self, $app ) = @_;
@@ -22,28 +24,36 @@ sub register {
 
 sub code {
     sub {
-        my $ctx = shift;
+        my $app    = shift;
+        my $prefix = shift;
 
-        my $template = $ctx->app->config->{template};
+        my $template = $app->template_engine;
         if ( !defined $template ) {
-            $ctx->response->has_passed(1);
+            $app->response->has_passed(1);
             return;
         }
 
-        my $page      = $ctx->request->params->{'page'};
-        my $view_path = $template->view($page);
+        my $page       = $app->request->path;
+        my $layout_dir = $template->layout_dir;
+        if ( $page =~ m{^/\Q$layout_dir\E/} ) {
+            $app->response->has_passed(1);
+            return;
+        }
+
+        my $view_path = $template->view_pathname($page);
+
         if ( !-f $view_path ) {
-            $ctx->response->has_passed(1);
+            $app->response->has_passed(1);
             return;
         }
 
-        my $ct = $template->process($page);
-        $ctx->response->header( 'Content-Length', length($ct) );
-        return ( $ctx->request->method eq 'GET' ) ? $ct : '';
+        my $ct = $template->process( $page );
+        $app->response->header( 'Content-Length', length($ct) );
+        return ( $app->request->method eq 'GET' ) ? $ct : '';
     };
 }
 
-sub regexp {'/:page'}
+sub regexp {'/**'}
 
 sub methods {qw(head get)}
 
@@ -55,13 +65,17 @@ __END__
 
 =head1 DESCRIPTION
 
-The AutoPage feature is a Handler (turned on by default) that is responsible
-for serving pages that match an existing template. If a view exists with a name
-that matches the requested path, Dancer2 processes the request using the
-Autopage handler.
+The AutoPage feature is a Handler (turned off by default) that is
+responsible for serving pages that match an existing template. If a
+view exists with a name that matches the requested path, Dancer2
+processes the request using the Autopage handler.
 
-This allows you to easily serve simple pages without having to write a route
-definition for them.
+To turn it add to your config file:
+
+      auto_page: 1
+
+This allows you to easily serve simple pages without having to write a
+route definition for them.
 
 If there's no view with the name request, the route passes, allowing
 other matching routes to be dispatched.
@@ -87,4 +101,3 @@ Default: B<head>, B<get>.
 The regexp (path) we want to match.
 
 Default: B</:page>.
-

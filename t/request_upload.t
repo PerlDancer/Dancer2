@@ -11,9 +11,9 @@ use File::Basename qw/dirname basename/;
 use File::Spec;
 use Encode qw(encode_utf8);
 
-diag "If you want extract speed, install URL::Encode::XS"
+diag "If you want extra speed, install URL::Encode::XS"
   if !$Dancer2::Core::Request::XS_URL_DECODE;
-diag "If you want extract speed, install CGI::Deurl::XS"
+diag "If you want extra speed, install CGI::Deurl::XS"
   if !$Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 
 sub test_path {
@@ -174,18 +174,18 @@ SHOGUN6
     };
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
-diag "Run test with XS_PARSE_QUERY_STRING"
+note "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
+note "Run test with XS_PARSE_QUERY_STRING"
   if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
 if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
-    diag "Run test without XS_PARSE_QUERY_STRING";
+    note "Run test without XS_PARSE_QUERY_STRING";
     $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
     $Dancer2::Core::Request::_count                = 0;
     run_test();
 }
 if ($Dancer2::Core::Request::XS_URL_DECODE) {
-    diag "Run test without XS_URL_DECODE";
+    note "Run test without XS_URL_DECODE";
     $Dancer2::Core::Request::XS_URL_DECODE = 0;
     $Dancer2::Core::Request::_count        = 0;
     run_test();

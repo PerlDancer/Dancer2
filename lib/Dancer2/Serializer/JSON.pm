@@ -1,62 +1,33 @@
+package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
 
-package Dancer2::Serializer::JSON;
 use Moo;
 use JSON ();
+use Scalar::Util 'blessed';
 
 with 'Dancer2::Core::Role::Serializer';
 
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-Turn Perl data structures into JSON output and vice-versa.
-
-=cut
+has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
-sub from_json {
-    my $s = Dancer2::Serializer::JSON->new;
-    $s->deserialize(@_);
-}
+sub from_json { __PACKAGE__-> deserialize(@_) }
 
-sub to_json {
-    my $s = Dancer2::Serializer::JSON->new;
-    $s->serialize(@_);
-}
+sub to_json { __PACKAGE__->serialize(@_) }
 
 # class definition
-sub loaded {1}
-
-=method serialize
-
-Serialize a Perl data structure into a JSON string.
-
-=cut
-
-
 sub serialize {
     my ( $self, $entity, $options ) = @_;
 
-    # Why doesn't $self->config have this?
-    my $config = $self->config;
+    my $config = blessed $self ? $self->config : {};
 
-    if ( $config->{allow_blessed} && !defined $options->{allow_blessed} ) {
-        $options->{allow_blessed} = $config->{allow_blessed};
+    foreach (keys %$config) {
+        $options->{$_} = $config->{$_} unless exists $options->{$_};
     }
-    if ( $config->{convert_blessed} ) {
-        $options->{convert_blessed} = $config->{convert_blessed};
-    }
+
     $options->{utf8} = 1 if !defined $options->{utf8};
 
     JSON::to_json( $entity, $options );
 }
-
-=method deserialize
-
-Deserialize a JSON string into a Perl data structure
-
-=cut
 
 sub deserialize {
     my ( $self, $entity, $options ) = @_;
@@ -65,13 +36,35 @@ sub deserialize {
     JSON::from_json( $entity, $options );
 }
 
-=method content_type
-
-return 'application/json'
-
-=cut
-
-sub content_type {'application/json'}
-
 1;
 
+__END__
+
+=head1 DESCRIPTION
+
+This is a serializer engine that allows you to turn Perl data structures into
+JSON output and vice-versa.
+
+=head1 METHODS
+
+=attr content_type
+
+Returns 'application/json'
+
+=func from_json($content, \%options)
+
+This is an helper available to transform a JSON data structure to a Perl data structures.
+
+=func to_json($content, \%options)
+
+This is an helper available to transform a Perl data structure to JSON.
+
+Calling this function will B<not> trigger the serialization's hooks.
+
+=method serialize($content)
+
+Serializes a Perl data structure into a JSON string.
+
+=method deserialize($content)
+
+Deserializes a JSON string into a Perl data structure.

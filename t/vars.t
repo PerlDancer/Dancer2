@@ -1,10 +1,10 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
-plan tests => 2;
-
-use Dancer2::Test;
+plan tests => 3;
 
 {
     use Dancer2;
@@ -23,5 +23,12 @@ use Dancer2::Test;
     };
 }
 
-response_content_is [ GET => '/bar' ], 'foo';
-response_content_is [ GET => '/baz' ], 'ugh';
+my $app = __PACKAGE__->to_app;
+is( ref $app, 'CODE', 'Got app' );
+
+test_psgi $app, sub {
+    my $cb = shift;
+
+    is( $cb->( GET '/bar' )->content, 'foo', 'foo' );
+    is( $cb->( GET '/baz' )->content, 'ugh', 'ugh' );
+};

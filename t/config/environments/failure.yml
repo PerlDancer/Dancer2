@@ -1,1 +1,3 @@
-not a valid YAML file
+not valid YAML - inconsistent indentation
+foo: 42
+  bar: baz

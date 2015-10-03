@@ -1,29 +1,30 @@
 use strict;
 use warnings;
 use Test::More import => ['!pass'];
+use Plack::Test;
+use HTTP::Request::Common;
 
 use FindBin qw($Bin);
-use lib "$Bin/t/lib";
+use lib "$Bin/lib";
 use Dancer2 dsl => 'MyDancerDSL';
-use Dancer2::Test;
-
 
 envoie '/' => sub {
     request->method;
 };
 
 prend '/' => sub {
+    proto { ::ok('in proto') }; # no sub!
     request->method;
 };
 
-{
-    my $r = dancer_response GET => '/';
-    is $r->content, 'GET';
-}
 
-{
-    my $r = dancer_response POST => '/';
-    is $r->content, 'POST';
-}
+my $test = Plack::Test->create( __PACKAGE__->to_app );
 
-done_testing;
+is( $test->request( GET '/' )->content,
+    'GET', '[GET /] Correct content'
+);
+is( $test->request( POST '/' )->content,
+    'POST', '[POST /] Correct content'
+);
+
+done_testing();

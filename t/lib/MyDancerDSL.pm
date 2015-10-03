@@ -12,12 +12,14 @@ around dsl_keywords => sub {
     my $orig     = shift;
     my $keywords = $orig->(@_);
 
-    push @$keywords, [ gateau => 0 ],    # cookie
-      [ moteur => 1 ],                   # engine
-      [ stop   => 0 ],                   # halt
-      [ prend  => 1 ],                   # post
-      [ envoie => 1 ],                   # post
-      [ entete => 0 ];                   #header
+    $keywords->{gateau} = { is_global => 0 }; # cookie
+    $keywords->{moteur} = { is_global => 1 }; # engine
+    $keywords->{stop}   = { is_global => 0 }; # halt
+    $keywords->{prend}  = { is_global => 1, prototype => '@' };  # get
+    $keywords->{envoie} = { is_global => 1, prototype => '$&' }; # post
+    $keywords->{entete} = { is_global => 0 }; #header
+
+    $keywords->{proto} = { is_global => 1, prototype => '&' }; # prototype
 
     return $keywords;
 };
@@ -28,5 +30,7 @@ sub stop   { goto &Dancer2::Core::DSL::halt }
 sub prend  { goto &Dancer2::Core::DSL::get }
 sub envoie { goto &Dancer2::Core::DSL::post }
 sub entete { goto &Dancer2::Core::DSL::header }
+
+sub proto { $_[1]->() }
 
 1;

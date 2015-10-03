@@ -10,43 +10,26 @@ use Data::Dumper;
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
-=head1 DESCRIPTION
-
-This role provides methods and attributes needed for working with template.
-
-All Dancer's templates engine should consume this role, and they B<need> to
-implement a C<render> method. This method will receive three arguments:
-
-=over 4
-
-=item $self
-
-=item $template
-
-=item $tokens
-
-=back
-
-=cut
-
-sub supported_hooks {
-    qw/
-      engine.template.before_render
-      engine.template.after_render
-      engine.template.before_layout_render
-      engine.template.after_layout_render
-      /;
+sub hook_aliases {
+    {
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_layout_render   => 'engine.template.before_layout_render',
+        after_layout_render    => 'engine.template.after_layout_render',
+    }
 }
+
+sub supported_hooks { values %{ shift->hook_aliases } }
 
 sub _build_type {'Template'}
 
 requires 'render';
 
-=method name
-
-The name of the template engine (e.g.: Simple).
-
-=cut
+has log_cb => (
+    is      => 'ro',
+    isa     => CodeRef,
+    default => sub { sub {1} },
+);
 
 has name => (
     is      => 'ro',
@@ -59,65 +42,47 @@ sub _build_name {
     $name;
 }
 
-
-=method charset
-
-The charset.  The default value is B<UTF-8>.
-
-=cut
-
 has charset => (
     is      => 'ro',
     isa     => Str,
     default => sub {'UTF-8'},
 );
 
-
-=method default_tmpl_ext
-
-The default file extension.  If not provided, B<tt> is used.
-
-=cut
-
 has default_tmpl_ext => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => Str,
     default => sub { shift->config->{extension} || 'tt' },
 );
-
-=method views
-
-Path to the directory containing the views.
-
-=cut
 
 has views => (
     is  => 'rw',
     isa => Maybe [Str],
 );
 
-=method layout
-
-Path to the directory containing the layouts.
-
-=cut
-
 has layout => (
     is  => 'rw',
     isa => Maybe [Str],
 );
-
-=method engine
-
-Contains the engine.
-
-=cut
 
 has engine => (
     is      => 'ro',
     isa     => Object,
     lazy    => 1,
     builder => 1,
+);
+
+has settings => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    default => sub { +{} },
+    writer  => 'set_settings',
+);
+
+has layout_dir => (
+    is      => 'ro',
+    isa     => Str,
+    default => sub {'layouts'},
 );
 
 sub _template_name {
@@ -127,12 +92,6 @@ sub _template_name {
     return $view;
 }
 
-=method view_pathname($view)
-
-Returns the full path to the requested view.
-
-=cut
-
 sub view_pathname {
     my ( $self, $view ) = @_;
 
@@ -140,23 +99,15 @@ sub view_pathname {
     return path( $self->views, $view );
 }
 
-=method layout_pathname($layout)
-
-Returns the full path to the requested layout.
-
-=cut
-
 sub layout_pathname {
     my ( $self, $layout ) = @_;
-    $layout = $self->_template_name($layout);
-    return path( $self->views, 'layouts', $layout );
+
+    return path(
+        $self->views,
+        $self->layout_dir,
+        $self->_template_name($layout),
+    );
 }
-
-=method render_layout($layout, $tokens, \$content)
-
-Render the layout with the applied tokens
-
-=cut
 
 sub render_layout {
     my ( $self, $layout, $tokens, $content ) = @_;
@@ -167,14 +118,10 @@ sub render_layout {
     $self->render( $layout, { %$tokens, content => $content } );
 }
 
-=method apply_renderer($view, $tokens)
-
-=cut
-
 sub apply_renderer {
     my ( $self, $view, $tokens ) = @_;
     $view = $self->view_pathname($view) if !ref $view;
-    $tokens = $self->_prepare_tokens_options($tokens);
+    $tokens = $self->_prepare_tokens_options( $tokens );
 
     $self->execute_hook( 'engine.template.before_render', $tokens );
 
@@ -186,14 +133,10 @@ sub apply_renderer {
     return;
 }
 
-=method apply_layout
-
-=cut
-
 sub apply_layout {
     my ( $self, $content, $tokens, $options ) = @_;
 
-    $tokens = $self->_prepare_tokens_options($tokens);
+    $tokens = $self->_prepare_tokens_options( $tokens );
 
    # If 'layout' was given in the options hashref, use it if it's a true value,
    # or don't use a layout if it was false (0, or undef); if layout wasn't
@@ -202,7 +145,7 @@ sub apply_layout {
     my $layout =
       exists $options->{layout}
       ? ( $options->{layout} ? $options->{layout} : undef )
-      : ( $self->layout || $self->context->app->config->{layout} );
+      : ( $self->layout || $self->config->{layout} );
 
     # that should only be $self->config, but the layout ain't there ???
 
@@ -229,25 +172,19 @@ sub _prepare_tokens_options {
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
-    $tokens->{perl_version}   = $];
+    $tokens->{perl_version}   = $^V;
     $tokens->{dancer_version} = Dancer2->VERSION;
 
-    if ( defined $self->context ) {
-        $tokens->{settings} = $self->context->app->config;
-        $tokens->{request}  = $self->context->request;
-        $tokens->{params}   = $self->context->request->params;
-        $tokens->{vars}     = $self->context->buffer;
+    $tokens->{settings} = $self->settings;
+    $tokens->{request}  = $self->request;
+    $tokens->{params}   = $self->request->params;
+    $tokens->{vars}     = $self->request->vars;
 
-        $tokens->{session} = $self->context->session->data
-          if $self->context->has_session;
-    }
+    $tokens->{session} = $self->session->data
+      if $self->has_session;
 
     return $tokens;
 }
-
-=method process($view, $tokens, $options)
-
-=cut
 
 sub process {
     my ( $self, $view, $tokens, $options ) = @_;
@@ -275,3 +212,109 @@ sub process {
 }
 
 1;
+
+__END__
+
+=head1 DESCRIPTION
+
+Any class that consumes this role will be able to be used as a template engine
+under Dancer2.
+
+In order to implement this role, the consumer B<must> implement the method C<render>. This method will receive three arguments:
+
+=over 4
+
+=item $self
+
+=item $template
+
+=item $tokens
+
+=back
+
+Any template receives the following tokens, by default:
+
+=over 4
+
+=item * C<perl_version>
+
+Current version of perl, effectively C<$^V>.
+
+=item * C<dancer_version>
+
+Current version of Dancer2, effectively C<<Dancer2->VERSION>>.
+
+=item * C<settings>
+
+A hash of the application configuration.
+
+=item * C<request>
+
+The current request object.
+
+=item * C<params>
+
+A hash reference of all the parameters.
+
+Currently the equivalent of C<< $request->params >>.
+
+=item * C<vars>
+
+The list of request variables, which is what you would get if you
+called the C<vars> keyword.
+
+=item * C<session>
+
+The current session data, if a session exists.
+
+=back
+
+=head1 METHODS
+
+=attr name
+
+The name of the template engine (e.g.: Simple).
+
+=attr charset
+
+The charset.  The default value is B<UTF-8>.
+
+=attr default_tmpl_ext
+
+The default file extension.  If not provided, B<tt> is used.
+
+=attr views
+
+Path to the directory containing the views.
+
+=attr layout
+
+Path to the directory containing the layouts.
+
+=attr layout_dir
+
+Relative path to the layout directory.
+
+Default: B<layouts>.
+
+=attr engine
+
+Contains the engine.
+
+=method view_pathname($view)
+
+Returns the full path to the requested view.
+
+=method layout_pathname($layout)
+
+Returns the full path to the requested layout.
+
+=method render_layout($layout, \%tokens, \$content)
+
+Render the layout with the applied tokens
+
+=method apply_renderer($view, \%tokens)
+
+=method apply_layout($content, \%tokens, \%options)
+
+=method process($view, \%tokens, \%options)

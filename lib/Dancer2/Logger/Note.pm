@@ -1,9 +1,20 @@
+package Dancer2::Logger::Note;
 # ABSTRACT: Test::More note() logging engine for Dancer2
 
-package Dancer2::Logger::Note;
 use Moo;
 use Test::More;
+
 with 'Dancer2::Core::Role::Logger';
+
+sub log {
+    my ( $self, $level, $message ) = @_;
+
+    Test::More::note( $self->format_message( $level => $message ) );
+}
+
+1;
+
+__END__
 
 =head1 DESCRIPTION
 
@@ -20,11 +31,3 @@ harness. It will only be visible in the verbose TAP stream." -- Test::More.
 Use Test::More's note() to output the log message.
 
 =cut
-
-sub log {
-    my ( $self, $level, $message ) = @_;
-
-    Test::More::note( $self->format_message( $level => $message ) );
-}
-
-1;

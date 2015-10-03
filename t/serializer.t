@@ -1,26 +1,41 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 5;
+use Dancer2::Serializer::Dumper;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {
-
     package MyApp;
-
     use Dancer2;
-
     set serializer => 'JSON';
-
-    get '/foo' => sub { return { bar => 'baz' } };
+    get '/json'    => sub { +{ bar => 'baz' } };
 }
 
-use Dancer2::Test apps => ['MyApp'];
+my $app = MyApp->to_app;
+is( ref $app, 'CODE', 'Got app' );
 
-my $resp = dancer_response('/foo');
+test_psgi $app, sub {
+    my $cb = shift;
 
-response_status_is $resp => 200;
+    {
+        # Response with implicit call to the serializer
+        my $res = $cb->( GET '/json' );
+        is( $res->code, 200, '[/json] Correct status' );
+        is( $res->content, '{"bar":"baz"}', '[/json] Correct content' );
+        is(
+            $res->headers->content_type,
+            'application/json',
+            '[/json] Correct content-type headers',
+        );
+    }
+};
 
-response_content_is $resp => '{"bar":"baz"}';
+my $serializer = Dancer2::Serializer::Dumper->new();
 
-response_headers_include $resp, [ 'Content-Type' => 'application/json' ];
-
+is(
+    $serializer->content_type,
+    'text/x-data-dumper',
+    'content-type is set correctly',
+);

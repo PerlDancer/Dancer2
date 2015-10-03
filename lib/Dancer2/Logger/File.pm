@@ -1,6 +1,6 @@
+package Dancer2::Logger::File;
 # ABSTRACT: file-based logging engine for Dancer2
 
-package Dancer2::Logger::File;
 use Carp 'carp';
 use Moo;
 use Dancer2::Core::Types;
@@ -12,22 +12,31 @@ use Fcntl qw(:flock SEEK_END);
 use Dancer2::FileUtils qw(open_file);
 use IO::File;
 
-has log_dir => (
-    is      => 'rw',
-    isa     => Str,
-    lazy    => 1,
-    builder => '_build_log_dir',
-    trigger => sub {
-        my ( $self, $dir ) = @_;
-        if ( !-d $dir && !mkdir $dir ) {
-            return carp
-              "Log directory \"$dir\" does not exist and unable to create it.";
-        }
-        return carp "Log directory \"$dir\" is not writable." if !-w $dir;
-    },
+has environment => (
+    is       => 'ro',
+    required => 1,
 );
 
-sub _build_log_dir {File::Spec->catdir( $_[0]->location, 'logs' )}
+has location => (
+    is       => 'ro',
+    required => 1,
+);
+
+has log_dir => (
+    is      => 'rw',
+    isa     => sub {
+        my $dir = shift;
+
+        if ( !-d $dir && !mkdir $dir ) {
+            die "log directory \"$dir\" does not exist and unable to create it.";
+        }
+        if ( !-w $dir ) {
+            die "log directory \"$dir\" is not writable."
+        }
+    },
+    lazy    => 1,
+    builder => '_build_log_dir',
+);
 
 has file_name => (
     is      => 'ro',
@@ -36,23 +45,41 @@ has file_name => (
     lazy    => 1
 );
 
+has log_file => (
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    builder => '_build_log_file',
+);
+
+has fh => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => '_build_fh',
+);
+
+sub _build_log_dir { File::Spec->catdir( $_[0]->location, 'logs' ) }
+
 sub _build_file_name {$_[0]->environment . ".log"}
 
-has log_file => ( is => 'rw', isa => Str );
-has fh       => ( is => 'rw' );
-
-sub BUILD {
+sub _build_log_file {
     my $self = shift;
-    my $logfile = File::Spec->catfile( $self->log_dir, $self->file_name );
+    return File::Spec->catfile( $self->log_dir, $self->file_name );
+}
+
+sub _build_fh {
+    my $self    = shift;
+    my $logfile = $self->log_file;
 
     my $fh;
     unless ( $fh = open_file( '>>', $logfile ) ) {
         carp "unable to create or append to $logfile";
         return;
     }
+
     $fh->autoflush;
-    $self->log_file($logfile);
-    $self->fh($fh);
+
+    return $fh;
 }
 
 sub log {
