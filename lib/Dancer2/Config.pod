@@ -228,8 +228,15 @@ script.
 
 This is the directory, where static files are stored. Any existing file in
 that directory will be served as a static file, before matching any route.
+See also B<static_handler>.
 
 Default: B<< C<$appdir/public> >>.
+
+=head3 static_handler (boolean)
+
+This setting have to be declared and set to true if you modify standard public_dir location.
+
+Default: true if $ENV{DANCER_PUBLIC} is set or public_dir is set to B<< C<$appdir/public> >>.
 
 =head3 views (directory)
 
