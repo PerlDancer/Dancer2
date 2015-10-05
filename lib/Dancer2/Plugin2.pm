@@ -374,8 +374,8 @@ sub _exporter_expand_sub {
             while( my $name = shift @_ ) {
                 my $sub = ref $_[0] eq 'CODE' 
                     ? shift @_ 
-                    : eval '\&'.$class."::$name";
-                $plugin->ClassKeywords->{$name} = $sub;
+                    : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
+                $plugin->ClassKeywords->{$_} = $sub for ref $name ? @$name : $name;
             }
         }
     }
