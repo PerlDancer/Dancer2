@@ -184,9 +184,27 @@ like
 
 C<Dancer2::Plugin2> allows for a C<from_config> key in the attribute definition.
 Its value is the plugin configuration key that will be used to initialize the attribute.
+
 If it's given the value C<1>, the name of the attribute will be taken as the configuration key.
+
 Nested hash keys can also be refered to using a dot notation.  
+
 If the plugin configuration has no value for the given key, the attribute default, if specified, will be honored.
+
+If the key is given a coderef as value, it's considered to be a C<default> value combo:
+
+    has foo => (
+        is => 'ro',
+        from_config => sub { 'my default' },
+    );
+
+
+    # equivalent to
+    has foo => (
+        is => 'ro',
+        from_config => 'foo',
+        default => sub { 'my default' },
+    );
 
 For example:
 
@@ -218,6 +236,11 @@ For example:
         from_config => 'apology',
         default     => sub { 'sorry' },
     )
+
+    has closing => (            # will be 'See ya!'
+        is => 'ro',
+        from_config => sub { 'See ya!' },
+    );
 
 =head3 Accessing the parent Dancer app
 
@@ -378,6 +401,12 @@ sub _p2_has {
 
     if( my $config_name = delete $args{'from_config'} ) {
         $args{lazy} = 1;
+
+        if ( ref $config_name eq 'CODE' ) {
+            $args{default} ||= $config_name;
+            $config_name = 1;
+        }
+
         $config_name = $name if $config_name eq '1';
         my $orig_default = $args{default} || sub{}; 
         $args{default} = sub {
