@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 {
 package Dancer2::Plugin::FromConfig;
@@ -25,7 +25,12 @@ has four => (
     default => sub { 'quatre' },
 );
 
-plugin_keywords qw/ one three four /;
+has five => (
+    is => 'ro',
+    from_config => sub { 'cinq' },
+);
+
+plugin_keywords qw/ one three four five /;
 
 }
 }
@@ -50,6 +55,7 @@ plugin_keywords qw/ one three four /;
     Test::More::is one() => 'un', 'from config';
     Test::More::is three() => 'trois', 'from config, nested';
     Test::More::is four() => 'quatre', 'nothing in config, default value';
+    Test::More::is five() => 'cinq', 'from_config a coderef';
 }
 
 
