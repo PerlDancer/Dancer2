@@ -37,6 +37,8 @@
       (Jason Crome)
     * GH #1002: Correct execute_hook() call in plugins documentation.
       (Jason Crome)
+    * Expand on auto-reloading options using Plack Shotgun loader.
+      (Jason Crome, @girlwithglasses)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 
