@@ -301,8 +301,6 @@ This is a (relatively) simple way for a plugin to use another plugin:
 
 =cut
 
-use 5.10.0;
-
 use strict;
 use warnings;
 
@@ -412,7 +410,7 @@ sub _p2_has {
         $args{default} = sub {
             my $plugin = shift;
             my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
-            return $value // $orig_default->($plugin);
+            return defined $value ? $value: $orig_default->($plugin);
         }
     }
 
