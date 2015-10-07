@@ -39,6 +39,8 @@
       (Jason Crome)
     * Expand on auto-reloading options using Plack Shotgun loader.
       (Jason Crome, @girlwithglasses)
+    * GH #1024: Document the need to define static_handler when changing
+      the public_dir option. (Sébastien Deseille)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 
