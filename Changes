@@ -35,6 +35,8 @@
       beginner-friendly application running instructions. (Jason Crome)
     * GH #920, #1020: Remove deprecated functionality from example plugin.
       (Jason Crome)
+    * GH #1002: Correct execute_hook() call in plugins documentation.
+      (Jason Crome)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 

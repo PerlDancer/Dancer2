@@ -380,12 +380,12 @@ can be executed by the plugin with C<execute_hook>.
 
 Allows a plugin to execute the hooks attached at the given position
 
-    execute_hook 'some_hook';
+    $dsl->execute_hook( 'some_hook' );
 
 Arguments can be passed which will be received by handlers attached to that
 hook:
 
-    execute_hook 'some_hook', $some_args, ... ;
+    $dsl->execute_hook( 'some_hook', @some_args );
 
 The hook must have been registered by the plugin first, with C<register_hook>.
 
