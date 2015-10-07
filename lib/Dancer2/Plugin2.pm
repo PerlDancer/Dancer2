@@ -262,10 +262,10 @@ A plugin is loaded via
 
 The plugin will assume that it's loading within a Dancer module and will 
 automatically register itself against its C<app()> and export its keywords
-to the local namespace. If you don't want this to happen, specify the C<noapp>
-option:
+to the local namespace. If you don't want this to happen, specify that you
+don't want anything imported via empty parentheses when C<use>ing the module:
 
-    use Dancer2::Plugin::Polite { noapp => 1 };
+    use Dancer2::Plugin::Polite ();
 
 
 =head2 Plugins using plugins
@@ -346,7 +346,6 @@ END
     }
 
     return unless $name eq 'app' 
-              and not $global->{noapp} 
               and $caller->can('app');
 
     my $app = eval "${caller}::app()" or return;
