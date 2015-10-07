@@ -1305,6 +1305,10 @@ different location by setting the C<public_dir> option:
 
     set public_dir => path(dirname(__FILE__), 'static');
 
+When you modify default public_dir you have to set C<static_handler> option.
+
+    set static_handler => true;
+
 Note that the public directory name is not included in the URL. A file
 F<./public/css/style.css> is made available as
 L<http://example.com/css/style.css>.
