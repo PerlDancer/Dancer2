@@ -24,21 +24,61 @@ Point your browser at it, and away you go!
 This option can be useful for small personal web apps or internal apps, but if
 you want to make your app available to the world, it probably won't suit you.
 
-=head2 Auto Reloading with plackup and Shotgun
+=head2 Auto Reloading the Application
 
-To edit your files without the need to restart the webserver on each file
-change, simply start your Dancer2 app using L<plackup> and
-L<Plack::Loader::Shotgun>:
+While developing your application, it is often handy to have the server 
+automatically reload your application when changes are made. There are 
+two recommended ways of handling this with Dancer: using C< plackup -r > 
+and L< Plack::Loader::Shotgun >. Both have their advantages and disadvantages 
+(which will be explained below).
+
+Regardless of the method you use, it is B< not > recommended that you 
+automatically reload your applications in a production environment, for 
+reasons of performance, deployment best practices, etc.
+
+For Dancer 1 programmers that used the C< auto_reload > option, please use
+one of these alternatives instead:
+
+=head3 Auto reloading with C< plackup -r >
+
+Plack's built-in reloader will reload your application anytime a file in
+your application's directory (usually, F< /bin >) changes. You will likely
+want to monitor your F< lib/ > directory too, using the C< -R > option:
+
+    $ plackup -r -R lib bin/app.psgi
+
+There is a performance hit associated with this, as Plack will spin off
+a separate process that monitors files in the application and other 
+specified directories. If the timestamp of any files in a watched 
+directory changes, the application is recompiled and reloaded.
+
+See the L< plackup > docs for more information on the C< -r > and C< -R >
+options.
+
+=head3 Auto reloading with plackup and Shotgun
+
+There may be circumstances where Plack's built-in reloader won't work for 
+you, be it for the way it looks for changes, or because there are many 
+directories you need to monitor, or you want to reload the application any 
+time one of the modules in Perl's F< lib/ > path changes. 
+L< Plack::Loader::Shotgun > makes this easy by recompiling the application 
+on every request.
+
+To use Shotgun, specify it using the loader argument to C< plackup (-L) >:
 
     $ plackup -L Shotgun bin/app.psgi
-    HTTP::Server::PSGI: Accepting connections at http://0:5000/
 
-Point your browser at it. Files can now be changed in your favorite editor
-and the browser needs to be refreshed to see the saved changes.
+The Shotgun, while effective, can quickly cause you performance issues, even
+during the development phase of your application. As the number of plugins 
+you use in your application grows, as the number of static resources (images,
+etc.) grows, the more requests your server process needs to handle. Since
+each request recompiles the application, even simple page refreshes can get
+unbearably slow over time. Use with caution.
 
-Please note that this is B<not> recommended for production for performance
-reasons. This is the Dancer2 replacement solution of the old Dancer
-experimental C<auto_reload> option.
+You can bypass Shotgun's auto-reloading of specific modules with the 
+C< -M > switch:
+    
+    $ plackup -L Shotgun -M<MyApp::Foo> -M<MyApp::Bar> bin/app.psgi
 
 On Windows, Shotgun loader is known to cause huge memory leaks in a
 fork-emulation layer. If you are aware of this and still want to run the
@@ -46,6 +86,10 @@ loader, please use the following command:
 
     > set PLACK_SHOTGUN_MEMORY_LEAK=1 && plackup -L Shotgun bin\app.psgi
     HTTP::Server::PSGI: Accepting connections at http://0:5000/
+
+B<Please note: > if you are using Dancer 2's asynchronous capabilities, using
+Shotgun will kill Twiggy. If you need async processing, consider an 
+alternative to Shotgun.
 
 =head2 Running as a cgi-script (or fast-cgi) under Apache
 
