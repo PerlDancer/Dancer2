@@ -52,7 +52,7 @@ and its usage.
 =head2 Configuration
 
 You specify a different location to the directory used for serving static (public)
-content by setting the C<public_dir> option. In that case, you have to set 
+content by setting the C<public_dir> option. In that case, you have to set
 C<static_handler> option also.
 
 =head2 Apps
