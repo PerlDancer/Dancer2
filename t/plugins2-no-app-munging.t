@@ -16,7 +16,7 @@ use Test::More tests => 1;
 
     sub app { fail "shouldn't try to run it" };
 
-    use Dancer2::Plugin::Foo { noapp => 1 }; 
+    use Dancer2::Plugin::Foo (); 
     
 }
 
