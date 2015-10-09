@@ -302,7 +302,7 @@ subtest 'Captured route parameters' => sub {
 
             ::is_deeply(
                 captures(),
-                undef,
+                +{},
                 'capture values are empty',
             );
         };
