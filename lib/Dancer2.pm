@@ -198,22 +198,6 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
 
 =cut
 
-=method import;
-
-If it doesn't exist already, C<import> creates a new runner, imports strict
-and warnings, loads additional libraries, creates a new Dancer2 app (of type
-L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
-
-If any additional argument processing is needed, it will be done at this point.
-
-Import gets called when you use Dancer2. You can specify import options giving
-you control over the keywords that will be imported into your webapp and other
-things:
-
-    use Dancer2 '!quux'; # Don't import DSL keyword quux
-    use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
-    use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
-
 =head1 AUTHORS
 
 =head2 CORE DEVELOPERS
