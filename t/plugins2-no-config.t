@@ -3,12 +3,10 @@ use warnings;
 
 use Test::More tests => 1;
 
-{  
+BEGIN {  
     package Dancer2::Plugin::Foo;
 
     use Dancer2::Plugin2;
-
-    BEGIN {
 
         has bar => (
             is => 'ro',
@@ -22,7 +20,6 @@ use Test::More tests => 1;
 
         plugin_keywords qw/ bar baz /;
 
-    }
 }
 
 {  
