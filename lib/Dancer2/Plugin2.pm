@@ -332,6 +332,20 @@ To get around this nightmare, wrap your plugin definition in a C<BEGIN> block.
         bar();
     }
 
+=head3 You cannot overwrite a locally defined method (bar) with a reader
+
+If you set an object attribute of your plugin to be a keyword as well, you need
+to call C<plugin_keywords> after the attribute definition.
+
+    package Dancer2::Plugin::Foo;
+
+    use Dancer2::Plugin2;
+
+    has bar => (
+        is => 'ro',
+    );
+
+    plugin_keywords 'bar';
 
 =cut
 
