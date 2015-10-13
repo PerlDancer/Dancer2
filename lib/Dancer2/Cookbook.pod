@@ -785,7 +785,7 @@ serialize it for you before returning it to the user.
 =head3 Configuring
 
 In order to configure a serializer, you just need to pick which format
-you want for encoding/decoding (from L<Dancer2::Serializer>) and set it
+you want for encoding/decoding (e.g. L<JSON|Dancer2::Serializer::JSON>) and set it
 up using the C<serializer> configuration keyword.
 
 It is recommended to explicitly add it in the actual code instead of the

@@ -638,11 +638,11 @@ L<Dancer2::Handler::AutoPage> component is used.
 
 =head2 Writing your own
 
-A route handler is a class that consumes the L<Dancer::Core::Role::Handler>
+A route handler is a class that consumes the L<Dancer2::Core::Role::Handler>
 role. The class must implement a set of methods: C<methods>, C<regexp> and
 C<code> which will be used to declare the route.
 
-Let's look at L<Dancer::Handler::AutoPage> for example.
+Let's look at L<Dancer2::Handler::AutoPage> for example.
 
 First, the matching methods are C<get> and C<head>:
 
@@ -962,24 +962,24 @@ Get complete hash stored in session:
 =head2 Writing a session engine
 
 In Dancer 2, a session backend consumes the role
-L<Dancer::Core::Role::SessionFactory>.
+L<Dancer2::Core::Role::SessionFactory>.
 
 The following example using the Reddis session demonstrates how session
 engines are written in Dancer 2.
 
 First thing to do is to create the class for the session engine,
-we'll name it C<Dancer::Session::Redis>:
+we'll name it C<Dancer2::Session::Redis>:
 
-     package Dancer::Session::Redis;
+     package Dancer2::Session::Redis;
      use Moo;
-     with 'Dancer::Core::Role::SessionFactory';
+     with 'Dancer2::Core::Role::SessionFactory';
 
 we want our backend to have a handle over a Redis connection.
 To do that, we'll create an attribute C<redis>
 
      use JSON;
      use Redis;
-     use Dancer::Core::Types; # brings helper for types
+     use Dancer2::Core::Types; # brings helper for types
 
      has redis => (
          is => 'rw',
@@ -1028,11 +1028,11 @@ So retrieving is as easy as doing a get and decoding the JSON string returned:
          my ($self, $session_id) = @_;
          my $json = $self->redis->get($session_id);
          my $hash = from_json( $json );
-         return bless $hash, 'Dancer::Core::Session';
+         return bless $hash, 'Dancer2::Core::Session';
      }
 
 The C<_flush> method is called by Dancer when the session needs to be stored in
-the backend. That is actually a write to Redis. The method receives a C<Dancer::Core::Session>
+the backend. That is actually a write to Redis. The method receives a C<Dancer2::Core::Session>
 object and is supposed to store it.
 
      sub _flush {
@@ -1107,12 +1107,12 @@ the cookie (the session ID).
      }
 
 So the very first time session is called, the object is either retrieved
-from the backend, or a new C<Dancer::Core::Session> is created, and
+from the backend, or a new C<Dancer2::Core::Session> is created, and
 stored in the context.
 Then, a before hook makes sure a cookie dancer.session is added to the headers.
 
      # Hook to add the session cookie in the headers, if a session is defined
-     $self->add_hook(Dancer::Core::Hook->new(
+     $self->add_hook(Dancer2::Core::Hook->new(
          name => 'core.app.before_request',
          code => sub {
              my $context = shift;
@@ -1151,7 +1151,7 @@ To conclude, an C<after> hook is set to call the flush method of the storage bac
      # Hook to flush the session at the end of the request, this way, we're sure we
      # flush only once per request
      $self->add_hook(
-         Dancer::Core::Hook->new(
+         Dancer2::Core::Hook->new(
              name => 'core.app.after_request',
              code => sub {
                  # make sure an engine is defined, if not, nothing to do
