@@ -3,6 +3,7 @@ use Test::More tests => 1;
 
 {
     package App::NoWarnings; ## no critic
+    no warnings 'misc'; # masks earlier declaration
     use Dancer2 ':nopragmas';
 
     local $@ = undef;
