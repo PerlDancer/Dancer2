@@ -29,7 +29,7 @@ you want to make your app available to the world, it probably won't suit you.
 While developing your application, it is often handy to have the server
 automatically reload your application when changes are made. There are
 two recommended ways of handling this with Dancer: using C< plackup -r >
-and L< Plack::Loader::Shotgun >. Both have their advantages and disadvantages
+and L<Plack::Loader::Shotgun>. Both have their advantages and disadvantages
 (which will be explained below).
 
 Regardless of the method you use, it is B< not > recommended that you
@@ -52,7 +52,7 @@ a separate process that monitors files in the application and other
 specified directories. If the timestamp of any files in a watched
 directory changes, the application is recompiled and reloaded.
 
-See the L< plackup > docs for more information on the C< -r > and C< -R >
+See the L<plackup> docs for more information on the C< -r > and C< -R >
 options.
 
 =head3 Auto reloading with plackup and Shotgun
@@ -61,7 +61,7 @@ There may be circumstances where Plack's built-in reloader won't work for
 you, be it for the way it looks for changes, or because there are many
 directories you need to monitor, or you want to reload the application any
 time one of the modules in Perl's F< lib/ > path changes.
-L< Plack::Loader::Shotgun > makes this easy by recompiling the application
+L<Plack::Loader::Shotgun> makes this easy by recompiling the application
 on every request.
 
 To use Shotgun, specify it using the loader argument to C< plackup (-L) >:
