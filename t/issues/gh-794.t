@@ -20,9 +20,8 @@ is(
     'Correct JSON content in POST',
 );
 
-TODO: {
-    local $TODO = 'Return 500 Internal Server Error';
-
-    my $res = $test->request( POST '/', Content => 'invalid' );
-    is( $res->code, 500, 'Failed to decode invalid content' );
-}
+is(
+    $test->request( POST '/', Content => 'invalid' )->code,
+    500,
+    'Failed to decode invalid content',
+);

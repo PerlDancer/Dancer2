@@ -12,6 +12,7 @@ use URI;
 use URI::Escape;
 use Class::Load 'try_load_class';
 use Safe::Isa;
+use Hash::MultiValue;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
@@ -66,7 +67,20 @@ sub new {
     $self->{'vars'}            = {};
     $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
 
-    $self->init;
+    # parameters
+    $self->{_chunk_size}       = 4096;
+    $self->{_read_position}    = 0;
+    $self->{_http_body} =
+      HTTP::Body->new( $self->content_type || '', $self->content_length );
+    $self->{_http_body}->cleanup(1);
+
+    $opts{'body_params'}
+        and $self->{'_body_params'} = $opts{'body_params'};
+
+    # parsing body for HMV first
+    $self->body_parameters;
+    $self->data;      # Deserialize body
+    $self->_build_uploads();
 
     return $self;
 }
@@ -87,7 +101,7 @@ sub var {
 sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
 # XXX: incompatible with Plack::Request
-sub body { $_[0]->{'body'} || '' }
+sub body { $_[0]->{'body'} ||= $_[0]->_read_to_end }
 
 sub id { $_id }
 
@@ -102,11 +116,13 @@ sub _params { $_[0]->{'_params'} ||= $_[0]->_build_params }
 
 sub _has_params { defined $_[0]->{'_params'} }
 
-sub _body_params { $_[0]->{'_body_params'} }
+sub _body_params {
+    my $self = shift;
 
-sub _set_body_params {
-    my ( $self, $params ) = @_;
-    $self->{_body_params} = _decode( $params );
+    # make sure body is parsed
+    $self->body;
+
+    $self->{'_body_params'} ||= _decode( $self->{'_http_body'}->param );
 }
 
 sub _query_params { $_[0]->{'_query_params'} }
@@ -126,8 +142,6 @@ sub _set_route_params {
 
 # XXX: incompatible with Plack::Request
 sub uploads { $_[0]->{'uploads'} }
-
-sub body_is_parsed { $_[0]->{'body_is_parsed'} || 0 }
 
 sub is_behind_proxy { $_[0]->{'is_behind_proxy'} || 0 }
 
@@ -181,12 +195,12 @@ sub deserialize {
       unless grep { $self->method eq $_ } qw/ PUT POST PATCH DELETE /;
 
     # try to deserialize
-    my $body = $self->_read_to_end();
+    my $body = $self->body;
 
     $body && length $body > 0
         or return;
 
-    my $data = $serializer->deserialize($self->body);
+    my $data = $serializer->deserialize($body);
     return if !defined $data;
 
     # Set _body_params directly rather than using the setter. Deserializiation
@@ -209,20 +223,6 @@ sub is_patch  { $_[0]->method eq 'PATCH' }
 # public interface compat with CGI.pm objects
 sub request_method { $_[0]->method }
 sub input_handle { $_[0]->env->{'psgi.input'} }
-
-sub init {
-    my ($self) = @_;
-
-    $self->{_chunk_size}    = 4096;
-    $self->{_read_position} = 0;
-
-    $self->{_http_body} =
-      HTTP::Body->new( $self->content_type || '', $self->content_length );
-    $self->{_http_body}->cleanup(1);
-
-    $self->data;      # Deserialize body
-    $self->_build_uploads();
-}
 
 sub to_string {
     my ($self) = @_;
@@ -326,6 +326,75 @@ sub params {
     }
 }
 
+sub query_parameters {
+    my $self = shift;
+    $self->{'query_parameters'} ||= do {
+        if ($XS_PARSE_QUERY_STRING) {
+            my $query = CGI::Deurl::XS::parse_query_string(
+                $self->env->{'QUERY_STRING'}
+            );
+
+            Hash::MultiValue->new(
+                map {;
+                    my $key = $_;
+                    ref $query->{$key} eq 'ARRAY'
+                    ? ( map +( $key => $_ ), @{ $query->{$key} } )
+                    : ( $key => $query->{$key} )
+                } keys %{$query}
+            );
+        } else {
+            # defer to Plack::Request
+            $self->_parse_query;
+        }
+    };
+}
+
+# this will be filled once the route is matched
+sub route_parameters { $_[0]->{'route_parameters'} ||= Hash::MultiValue->new }
+
+sub _set_route_parameters {
+    my ( $self, $params ) = @_;
+    # remove reserved splat parameter name
+    # you should access splat parameters using splat() keyword
+    delete @{$params}{qw<splat captures>};
+    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{$params} );
+}
+
+sub body_parameters {
+    my $self = shift;
+    $self->{'plack.request.body'}
+        and return $self->{'plack.request.body'};
+
+    my $env = $self->env;
+
+    # handle case of serializer
+    if ( my $data = $self->deserialize ) {
+        return Hash::MultiValue->from_mixed(
+            ref $data eq 'HASH' ? %{$data} : ()
+        );
+    }
+
+    $self->_parse_request_body;
+    return $self->env->{'plack.request.body'};
+}
+
+sub parameters {
+    my ( $self, $type ) = @_;
+
+    # handle a specific case
+    if ($type) {
+        my $attr = "${type}_parameters";
+        return $self->$attr;
+    }
+
+    $self->env->{'plack.request.merged'} ||= do {
+        my $query = $self->query_parameters;
+        my $body  = $self->body_parameters;
+        my $route = $self->route_parameters; # not in Plack::Request
+        Hash::MultiValue->new( map $_->flatten, $query, $body, $route );
+    };
+}
+
 sub captures { shift->params->{captures} || {} }
 
 sub splat { @{ shift->params->{splat} || [] } }
@@ -402,14 +471,6 @@ sub _url_decode {
     return $clean;
 }
 
-sub _parse_post_params {
-    my ($self) = @_;
-    return $self->_body_params if defined $self->_body_params;
-
-    my $body = $self->_read_to_end();
-    $self->_set_body_params( $self->{_http_body}->param );
-}
-
 sub _parse_get_params {
     my ($self) = @_;
     return $self->_query_params if defined $self->{_query_params};
@@ -459,14 +520,15 @@ sub _read_to_end {
     my $content_length = $self->content_length;
     return unless $self->_has_something_to_read();
 
+    my $body = '';
     if ( $content_length && $content_length > 0 ) {
         while ( my $buffer = $self->_read() ) {
-            $self->{body} .= $buffer;
+            $body .= $buffer;
         }
-        $self->{_http_body}->add( $self->{body} );
+        $self->{_http_body}->add($body);
     }
 
-    return $self->{body};
+    return $body;
 }
 
 sub _has_something_to_read {
@@ -476,7 +538,7 @@ sub _has_something_to_read {
 
 # taken from Miyagawa's Plack::Request::BodyParser
 sub _read {
-    my ( $self, ) = @_;
+    my ( $self ) = @_;
     my $remaining = $self->content_length - $self->{_read_position};
     my $maxlength = $self->{_chunk_size};
 
@@ -501,12 +563,8 @@ sub _read {
 sub _build_uploads {
     my ($self) = @_;
 
-    if ( $self->body_is_parsed ) {
-        $self->{_body_params} ||= {};
-    }
-    else {
-        $self->_parse_post_params();
-    }
+    # build the body and body params
+    my $body_params = $self->_body_params;
 
     my $uploads = _decode( $self->{_http_body}->upload );
     my %uploads;
@@ -781,10 +839,21 @@ It uses the environment hash table given to build the request object:
 
     Dancer2::Core::Request->new( env => $env );
 
-Two additional parameters for instantiation are C<body_is_parsed> boolean
-(indicating if the request should avoid parsing the body again), and
-C<serializer> which can provide a serializer object to work with when
-reading the request body.
+There are two additional parameters for instantiation:
+
+=over 4
+
+=item * serializer
+
+A serializer object to work with when reading the request body.
+
+=item * body_params
+
+Provide body parameters.
+
+Used internally when we need to avoid parsing the body again.
+
+=back
 
 =method param($key)
 

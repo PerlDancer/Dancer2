@@ -3,12 +3,18 @@
     [ BUG FIXES ]
     * GH #996: Fix warning with optional arguments. (Bas Bloemsaat)
     * GH #1001: Do not trigger an internal error on 404. (Russell Jenkins)
-    * GH #1008,#976: Hack to quiet warning while plugins 
-    architecture is being rewritten. (Russell Jenkins)
+    * GH #1008,#976: Hack to quiet warning while plugins
+      architecture is being rewritten. (Russell Jenkins)
     * Use Safe::Isa when calling their functions in the respected eval.
       (Sawyer X)
 
     [ ENHANCEMENTS ]
+    * GH #738, #740, #988: route_parameters, request_parameters, and
+      body_parameters keywords added, providing Hash::MultiValue objects!
+      (Sawyer X)
+    * #941, #999: delayed() keyword now has "on_error" option for controlling
+      errors.
+      (Sawyer X)
     * dancer2 app now support -s switch to supply an app skeleton
       (Nuno Carvalho)
     * "perl_version" token in templates now uses $^V, not $]. (Sawyer X)
@@ -16,12 +22,25 @@
     * GH #992: Deprecate creating route named placeholders ":captures"
       and ":splat". (Sawyer X)
     * Bump Moo requirement to 2.000000. (Alberto Simões)
+    * GH #1012: Add :nopragmas import flag. (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #974: Use correct classname. (Sawyer X)
     * GH #958: Fix manual example with loading additional routes. (Sawyer X)
     * GH #960: Fix a few links. (Sawyer X)
     * Document you can install Scope::Upper for greater speed. (Sawyer X)
+    * GH #1000: Correct POD name for Dancer2::Manual::Deployment.
+      (Jason A. Crome)
+    * GH #1017: Fix instructions on running app.psgi. Highlight
+      beginner-friendly application running instructions. (Jason Crome)
+    * GH #920, #1020: Remove deprecated functionality from example plugin.
+      (Jason Crome)
+    * GH #1002: Correct execute_hook() call in plugins documentation.
+      (Jason Crome)
+    * Expand on auto-reloading options using Plack Shotgun loader.
+      (Jason Crome, @girlwithglasses)
+    * GH #1024: Document the need to define static_handler when changing
+      the public_dir option. (Sébastien Deseille)
 
 0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
 

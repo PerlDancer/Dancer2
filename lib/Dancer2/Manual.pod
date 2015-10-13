@@ -178,6 +178,10 @@ merge of the route pattern matches and the request params.
 You can have more details about how params are built and how to access them
 in the L<Dancer2::Core::Request> documentation.
 
+You can also use the various parameters keywords to reach the specific
+parameters you want: C<route_parameters>, C<request_parameters>, and
+C<body_parameters>.
+
 =head3 Declaring Routes
 
 To control what happens when a web request is received by your webapp,
@@ -187,6 +191,8 @@ coderef to execute, which returns the response.
 
     get '/hello/:name' => sub {
         return "Hi there " . params->{name};
+        # or better:
+        return "Hi there " . route_parameters->get('name');
     };
 
 The above route specifies that, for GET requests to C</hello/...>, the code
@@ -199,6 +205,10 @@ parameters; these will be parameters supplied on the query string within
 the path itself (with named placeholders) and, for HTTP POST requests, the
 content of the POST body.
 
+The L<request_parameters|Dancer2::Manual/request_parameters> keyword provides
+a L<Hash::MultiValue> result from the request parameters. It is considered
+much safer and is recommended instead of C<params>.
+
 =head3 Named matching
 
 A route pattern can contain one or more tokens (a word prefixed with ':').
@@ -207,6 +217,8 @@ match will be set in the params hashref.
 
     get '/hello/:name' => sub {
         "Hey ".param('name').", welcome here!";
+        # or
+        "Hey " . request_parameters->get('name') . ", welcome here!";
     };
 
 Tokens can be optional, for example:
@@ -322,7 +334,7 @@ set the content all at once, if you prefer.
         delayed {
             add_header 'X-Foo' => 'Bar';
 
-            # optionally flush headers
+            # flush headers (in case of streaming)
             flush;
 
             # send content to the user
@@ -341,9 +353,8 @@ set the content all at once, if you prefer.
         };
     };
 
-If you do not flush the response status and the headers manually (using the
-C<flush> keyword), they will be flushed as soon as you set the content for
-the first time using the C<content> keyword.
+If you are streaming (calling C<content> several times), you must call
+C<flush> first. If you're sending only once, you don't need to call C<flush>.
 
 Here is an example of using delayed responses with L<AnyEvent>:
 
@@ -355,7 +366,7 @@ Here is an example of using delayed responses with L<AnyEvent>:
     get '/drums' => sub {
         delayed {
             print "Stretching...\n";
-            flush;
+            flush; # necessary, since we're streaming
 
             $timers{'Snare'} = AE::timer 1, 1, delayed {
                 $timers{'HiHat'} ||= AE::timer 0, 0.5, delayed {
@@ -377,6 +388,30 @@ Here is an example of using delayed responses with L<AnyEvent>:
                     };
                 }
             };
+        };
+    };
+
+If an error happens during a write operation, a warning will be issued
+to the logger.
+
+You can handle the error yourself by providing an C<on_error> handler:
+
+    get '/' => sub {
+        delayed {
+            flush;
+            content "works";
+
+            # ... user disconnected here ...
+
+            content "fails";
+
+            # ... error triggered ...
+
+            done; # doesn't even get run
+        } on_error => sub {
+            # delayed{} not needed, DSL already available
+            my ($error) = @_;
+            # do something with $error
         };
     };
 
@@ -895,21 +930,24 @@ keyword, and L<Crypt::SaltedHash> to handle salted hashed passwords (well,
 you wouldn't store your users passwords in the clear, would you?)) follows:
 
     post '/login' => sub {
+        my $user_value = body_parameters->get('user');
+        my $pass_value = body_parameters->get('pass');
+
         my $user = database->quick_select('users',
-            { username => params->{user} }
+            { username => $user_value }
         );
         if (!$user) {
-            warning "Failed login for unrecognised user " . params->{user};
+            warning "Failed login for unrecognised user $user_value";
             redirect '/login?failed=1';
         } else {
-            if (Crypt::SaltedHash->validate($user->{password}, params->{pass}))
+            if (Crypt::SaltedHash->validate($user->{password}, $pass_value))
             {
                 debug "Password correct";
                 # Logged in successfully
                 session user => $user;
-                redirect params->{path} || '/';
+                redirect body_parameters->get('path') || '/';
             } else {
-                debug("Login failed - password incorrect for " . params->{user});
+                debug("Login failed - password incorrect for " . $user_value);
                 redirect '/login?failed=1';
             }
         }
@@ -1157,14 +1195,14 @@ L<Template> module.
 In order to render a view, just call the
 L<template|Dancer2::Manual/template> keyword at the end of the action by
 giving the view name and the HASHREF of tokens to interpolate in the view
-(note that for convenience, the request, session, params and vars are
+(note that for convenience, the request, session, params, and vars are
 automatically accessible in the view, named C<request>, C<session>,
 C<params> and C<vars>) - for example:
 
     hook before => sub { var time => scalar(localtime) };
 
     get '/hello/:name' => sub {
-        my $name = params->{name};
+        my $name = route_parameters->get('name');
         template 'hello.tt', { name => $name };
     };
 
@@ -1267,6 +1305,10 @@ different location by setting the C<public_dir> option:
 
     set public_dir => path(dirname(__FILE__), 'static');
 
+When you modify default public_dir you have to set C<static_handler> option.
+
+    set static_handler => true;
+
 Note that the public directory name is not included in the URL. A file
 F<./public/css/style.css> is made available as
 L<http://example.com/css/style.css>.
@@ -1297,8 +1339,8 @@ keyword:
 
     post '/upload/:file' => sub {
         my $upload_dir = "MyApp/UPLOADS";
-        my $filename   = params->{file};            # route param
-        my $upload     = upload('file_input_name'); # upload object
+        my $filename   = route_parameters->get('file') # route param
+        my $upload     = upload('file_input_name');    # upload object
         $upload->copy_to("$upload_dir/$filename");
     };
 
@@ -2148,6 +2190,21 @@ C<appname> tag; e.g.
 The above would add the C<bar> route to the MyApp application. Dancer2 will
 I<not> create an application with the name C<MyApp::Private>.
 
+=item * B<:nopragmas>
+
+By default L<Dancer2> will import three pragmas: L<strict>, L<warnings>,
+and L<utf8>. If you require control over the imported pragmas, you can add
+B<:nopragmas> to the importing flags, in which case Dancer2 will not import
+any pragmas:
+
+    use strict;
+    use warnings;
+    no warnings 'experimental::smartmatch'; # for example...
+    use Dancer2 ':nopragmas'; # do not touch the existing pragmas
+
+This way importing C<Dancer2> does not change the existing pragmas setup
+you have.
+
 =back
 
 When you C<use Dancer2>, you get an C<import> method added into the current
@@ -2189,11 +2246,11 @@ For example, take the following example:
     use Dancer2;
 
     get '/hello/:name' => sub {
-        my $name = params->{name};
+        my $name = route_parameters->get('name');
     };
     dance;
 
-C<get> and C<params> are keywords provided by Dancer2.
+C<get> and C<route_parameters> are keywords provided by Dancer2.
 
 This document lists all keywords provided by Dancer2. It does not cover
 additional keywords which may be provided by loaded plugins; see the
@@ -2549,6 +2606,10 @@ list context) or a hash reference (in scalar context) to all defined
 parameters. Check C<param> below to access quickly to a single parameter
 value.
 
+We now recommend using one of the specific keywords for parameters
+(C<route_parameters>, C<request_parameters>, and C<body_parameters>)
+instead of C<params> or C<param>.
+
 =head2 param
 
 I<This method should be called from a route handler>.
@@ -2559,6 +2620,42 @@ This method is an accessor to the parameters hash table.
        my $password = param "pass";
        # ...
    }
+
+We now recommend using one of the specific keywords for parameters
+(C<route_parameters>, C<request_parameters>, and C<body_parameters>)
+instead of C<params> or C<param>.
+
+=head2 route_parameters
+
+Returns a L<Hash::MultiValue> object from the route parameters.
+
+    # /hello
+    get '/:foo' => sub {
+        my $foo = route_parameters->get('foo');
+    };
+
+=head2 request_parameters
+
+Returns a L<Hash::MultiValue> object from the request parameters.
+
+    /?foo=hello
+    get '/' => sub {
+        my $name = request_parameters->get('foo');
+    };
+
+    /?name=Alice&name=Bob
+    get '/' => sub {
+        my @names = request_parameters->get_all('name');
+    };
+
+=head2 body_parameters
+
+Returns a L<Hash::MultiValue> object from the body parameters.
+
+    post '/' => sub {
+        my $last_name = body_parameters->get('name');
+        my @all_names = body_parameters->get('name');
+    };
 
 =head2 pass
 

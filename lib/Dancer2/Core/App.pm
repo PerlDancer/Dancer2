@@ -928,7 +928,11 @@ sub send_file {
                 [ $res->status, $res->headers_to_array, $fh ]
             );
         };
+
+        Scalar::Util::weaken( my $weak_self = $self );
+
         $response = Dancer2::Core::Response::Delayed->new(
+            error_cb => sub { $weak_self->logger_engine->log( warning => @_ ) },
             cb       => $cb,
             request  => $Dancer2::Core::Route::REQUEST,
             response => $Dancer2::Core::Route::RESPONSE,
@@ -1164,7 +1168,7 @@ sub make_forward_to {
 
     $env->{PATH_INFO} = $url;
 
-    my $new_request = Dancer2::Core::Request->new( env => $env, body_is_parsed => 1 );
+    my $new_request = Dancer2::Core::Request->new( env => $env, body_params => {} );
     my $new_params = _merge_params( scalar( $request->params ), $params || {} );
 
     exists $options->{method} and
@@ -1299,6 +1303,7 @@ DISPATCH:
                 or next ROUTE;
 
             $request->_set_route_params($match);
+            $request->_set_route_parameters($match);
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
