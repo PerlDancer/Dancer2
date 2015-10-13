@@ -298,6 +298,40 @@ This is a (relatively) simple way for a plugin to use another plugin:
         $text;
     }
 
+=head2 Writing Test Gotchas
+
+=head3 Constructor for Dancer2::Plugin::Foo has been inlined and cannot be updated
+
+You'll usually get this one because you are defining both the plugin and app 
+in your test file, and the runtime creation of Moo's attributes happens after
+the compile-time import voodoo dance.
+
+To get around this nightmare, wrap your plugin definition in a C<BEGIN> block.
+
+
+    BEGIN {  
+        package Dancer2::Plugin::Foo;
+
+        use Dancer2::Plugin2;
+
+            has bar => (
+                is => 'ro',
+                from_config => 1,
+            );
+
+            plugin_keywords qw/ bar /;
+
+    }
+
+    {  
+        package MyApp; 
+
+        use Dancer2;
+        use Dancer2::Plugin::Foo;
+
+        bar();
+    }
+
 
 =cut
 
