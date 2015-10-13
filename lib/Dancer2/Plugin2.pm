@@ -431,7 +431,7 @@ has config => (
         my $config = $self->app->config;
         my $package = ref $self; # TODO
         $package =~ s/Dancer2::Plugin:://;
-        $config->{plugins}{$package}
+        $config->{plugins}{$package} || {};
     },
 );
 
