@@ -1,8 +1,13 @@
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+
+eval { require AnyEvent; 1; }
+    or plan skip_all => 'AnyEvent required for this test';
+
+plan tests => 5;
 
 {
     package App::Content; ## no critic
@@ -64,7 +69,7 @@ my $caught_error;
 {
     package App::ErrorHandler; ## no critic
     use Dancer2;
-    use AnyEvent;
+    require AnyEvent;
     set logger => 'Capture';
     get '/log' => sub {
         delayed {
