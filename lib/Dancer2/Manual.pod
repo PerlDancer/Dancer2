@@ -658,28 +658,35 @@ to C<pass>, letting the dispatching flow to proceed further.
 
     sub code {
         sub {
-            my $ctx = shift;
+            my $app = shift;
 
-            my $template = $ctx->app->config->{template};
-            if (! defined $template) {
-                $ctx->response->has_passed(1);
+            my $template = $app->template_engine;
+            if ( !defined $template ) {
+                $app->response->has_passed(1);
                 return;
             }
 
-            my $page = $ctx->request->params->{'page'};
-            my $view_path = $template->view($page);
-            if (! -f $view_path) {
-                $ctx->response->has_passed(1);
+            my $page       = $app->request->path;
+            my $layout_dir = $template->layout_dir;
+            if ( $page =~ m{^/\Q$layout_dir\E/} ) {
+                $app->response->has_passed(1);
                 return;
             }
 
-            my $ct = $template->process($page);
-            $ctx->response->header('Content-Length', length($ct));
-            return ($ctx->request->method eq 'GET') ? $ct : '';
+            my $view_path = $template->view_pathname($page);
+
+            if ( !-f $view_path ) {
+                $app->response->has_passed(1);
+                return;
+            }
+
+            my $ct = $template->process( $page );
+            $app->response->header( 'Content-Length', length($ct) );
+            return ( $app->request->method eq 'GET' ) ? $ct : '';
         };
     }
 
-The C<code> method passed the L<Dancer::Core::Context> object which provides
+The C<code> method passed the L<Dancer2::Core::App> object which provides
 access to anything needed to process the request.
 
 A C<register> is then implemented to add the route to the registry and if
