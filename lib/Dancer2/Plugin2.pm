@@ -33,7 +33,10 @@ The plugin itself:
         $plugin->app->add_route(
             method => 'get',
             regexp => '/goodbye',
-            code   => sub { 'farewell!' },
+            code   => sub { 
+                my $app = shift;
+                'farewell, ' . $app->request->params->{name};
+            },
         );
 
     }
