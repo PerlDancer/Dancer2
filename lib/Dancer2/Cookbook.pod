@@ -228,7 +228,7 @@ In Dancer2, creating new errors is done by creating a new L<Dancer2::Core::Error
      )
 
 If not given, the status code defaults to a 500, there is no need for a message if
-we feel taciturn, and while the C<$app> (which is a I<Dancer::Core::App>
+we feel taciturn, and while the C<$app> (which is a I<Dancer2::Core::App>
 object holding all the pieces of information related to the current request) is
 needed if we want to take advantage of the templates, we can also do without.
 
@@ -251,7 +251,7 @@ The error object has quite a few ways to generate its content.
 
 First, it can be explicitly given
 
-     my $oopsie = Dancer::Core::Error->new(
+     my $oopsie = Dancer2::Core::Error->new(
          content => '<html><body><h1>OMG</h1></body></html>',
      );
 
@@ -288,7 +288,7 @@ In the cases where more control is required, C<send_error()> is the way to go:
 And if total control is needed:
 
      get '/xmas/wishlist' => sub {
-         Dancer::Core::Error->new(
+         Dancer2::Core::Error->new(
              response => response(),
              status   => 406,
              message  => "nothing but coal for you, I'm afraid",
@@ -785,8 +785,8 @@ serialize it for you before returning it to the user.
 =head3 Configuring
 
 In order to configure a serializer, you just need to pick which format
-you want for encoding/decoding (from L<Dancer2::Serializer>) and set it
-up using the C<serializer> configuration keyword.
+you want for encoding/decoding (e.g. L<JSON|Dancer2::Serializer::JSON>)
+and set it up using the C<serializer> configuration keyword.
 
 It is recommended to explicitly add it in the actual code instead of the
 configuration file so it doesn't apply automatically to every app that

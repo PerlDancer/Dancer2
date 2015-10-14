@@ -85,7 +85,7 @@ __END__
 
     use Dancer2::Core::MIME;
 
-    my $mime = Dancer::MIME->new();
+    my $mime = Dancer2::Core::MIME->new();
 
     # get mime type for an alias
     my $type = $mime->for_name('css');
@@ -111,8 +111,8 @@ __END__
 
 =head1 DESCRIPTION
 
-Dancer::MIME is a thin wrapper around L<MIME::Types> providing helpful methods
-for MIME handling.
+Dancer2::Core::MIME is a thin wrapper around L<MIME::Types> providing helpful
+methods for MIME handling.
 
 =head1 ATTRIBUTES
 
