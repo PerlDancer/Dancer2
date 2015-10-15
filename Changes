@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
+
     [ DOCUMENTATION ]
     * GH: #1030: Fix pod references pointing to Dancer package
       (Mohammad S Anwar, Russell Jenkins)
