@@ -108,7 +108,9 @@ it can do so within its C<BUILD()> function.
 
 =head3 Adding keywords
 
-Keywords that the plugin wishes to export to the Dancer2 app must be defined via the C<plugin_keywords> keyword:
+=head4 Via C<plugin_keywords>
+
+Keywords that the plugin wishes to export to the Dancer2 app can be defined via the C<plugin_keywords> keyword:
 
     plugin_keywords qw/ 
         add_smileys 
@@ -157,6 +159,54 @@ Or a mix of both styles. We're easy that way:
     sub add_sad_kitten {
         ...;
     }
+
+If you want several keywords to be synonyms calling the same 
+function, you can list them in an arrayref. The first 
+function of the list is taken to be the "real" method to
+link to the keywords.
+
+    plugin_keywords [qw/ add_smileys add_happy_face /];
+
+    sub add_smileys { ... }
+
+Calls to C<plugin_keywords> are cumulative.
+
+=head4 Via the C<:PluginKeyword> function attribute
+
+Keywords can also be defined by adding the C<:PluginKeyword> attribute 
+to the function you wish to export.
+
+    sub foo :PluginKeyword { ... }
+
+    sub bar :PluginKeyword( baz quux ) { ... }
+
+    # equivalent to
+
+    sub foo { ... }
+    sub bar { ... }
+
+    plugin_keywords 'foo', [ qw/ baz quux / ] => \&bar;
+
+=head4 For an attribute
+
+You can also turn an attribute of the plugin into a keyword. 
+
+    has foo => (
+        is => 'ro',
+        plugin_keyword => 1,  # keyword will be 'foo'
+    );
+
+    has bar => (
+        is => 'ro',
+        plugin_keyword => 'quux',  # keyword will be 'quux'
+    );
+
+    has baz => (
+        is => 'ro',
+        plugin_keyword => [ 'baz', 'bazz' ],  # keywords will be 'baz' and 'bazz'
+    );
+
+
 
 =head3 Accessing the plugin configuration
 
@@ -376,6 +426,7 @@ sub _exporter_expand_tag {
                 package $caller; 
                 use Moo; 
                 extends 'Dancer2::Plugin2'; 
+
                 our \@EXPORT = ( ':app' ); 
                 our \$_moo_has = $caller->can('has');
                 no strict 'refs';
