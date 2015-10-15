@@ -382,6 +382,12 @@ sub _exporter_expand_tag {
                 no warnings 'redefine';
                 \*{'$caller'.'::has'} = sub {
                     \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
+                };
+
+                use Sub::Attribute;
+
+                sub PluginKeyword :ATTR_SUB {
+                    goto &Dancer2::Plugin2::PluginKeyword;
                 }
             }
 END
@@ -411,6 +417,18 @@ END
     return unless $class->can('keywords');
 
     map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
+}
+
+use Sub::Attribute;
+
+sub PluginKeyword :ATTR_SUB {
+    my( $class, $sym_ref, $code, undef, $args ) = @_;
+    my $func_name = *{$sym_ref}{NAME};
+
+    for my $name ( split ' ', $args || $func_name ) {
+        $class->ClassKeywords->{$name} = $code;
+    }
+
 }
 
 sub _exporter_expand_sub {
@@ -462,6 +480,12 @@ sub _p2_has {
             my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
             return defined $value ? $value: $orig_default->($plugin);
         }
+    }
+
+    if( my $keyword = delete $args{plugin_keyword} ) {
+        $keyword = $name if $keyword == 1;
+        caller->ClassKeywords->{$_} = sub { (shift)->$name(@_) }
+            for ref $keyword ? @$keyword : $keyword;
     }
 
     return $name => %args;
