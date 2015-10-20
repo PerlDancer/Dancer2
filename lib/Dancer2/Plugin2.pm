@@ -7,6 +7,7 @@ use warnings;
 use Moo;
 use MooX::ClassAttribute;
 use List::Util qw/ reduce /;
+use Sub::Attribute;
 
 extends 'Exporter::Tiny';
 
@@ -48,7 +49,6 @@ END
         return (
             [ 'plugin_keywords' => { class => $caller } ],
             [ 'plugin_hooks'    => { class =>  $caller } ],
-            #        [ '_p2_has'  => { class => $caller }],
         )
     }
 
@@ -69,7 +69,6 @@ END
     map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
 }
 
-use Sub::Attribute;
 
 sub PluginKeyword :ATTR_SUB {
     my( $class, $sym_ref, $code, undef, $args ) = @_;
@@ -103,48 +102,13 @@ sub _exporter_expand_sub {
         }
     }
 
-#    if( $name eq '_p2_has' ) {
-    #       return '_p2_has'
-    #}
-
     my $p = $args->{plugin};
     my $sub = $p->keywords->{$name};
     return $name => sub(@) { $sub->($p,@_) };
 }
 
-sub _p2_has {
-    my( $name, %args ) = @_;
-
-    if( my $config_name = delete $args{'from_config'} ) {
-        $args{lazy} = 1;
-
-        if ( ref $config_name eq 'CODE' ) {
-            $args{default} ||= $config_name;
-            $config_name = 1;
-        }
-
-        $config_name = $name if $config_name eq '1';
-        my $orig_default = $args{default} || sub{}; 
-        $args{default} = sub {
-            my $plugin = shift;
-            my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
-            return defined $value ? $value: $orig_default->($plugin);
-        }
-    }
-
-    if( my $keyword = delete $args{plugin_keyword} ) {
-        $keyword = $name if $keyword == 1;
-        caller->ClassKeywords->{$_} = sub { (shift)->$name(@_) }
-            for ref $keyword ? @$keyword : $keyword;
-    }
-
-    return $name => %args;
-};
-
-
 has app => (
-#    isa => Object['Dancer2::Core::App'],
-    is => 'ro',
+    is       => 'ro',
     required => 1,
 );
 
@@ -177,9 +141,7 @@ has keywords => (
 
 class_has ClassHooks => (
     is => 'ro',
-    default => sub {
-        [];
-    }
+    default => sub { [] }
 );
 
 has '+hooks' => (
@@ -200,9 +162,56 @@ sub add_hooks {
     push @{ $_[0]->ClassHooks }, @_;
 }
 
+# both functions are there for D2::Core::Role::Hookable
+# back-compatibility. Aren't used
 sub supported_hooks { [] }
+sub hook_aliases    { +{} }
 
-sub hook_aliases { +{} }
+# our wrapping around Moo::has, done to be able to intercept
+# both 'from_config' and 'plugin_keyword'
+sub _p2_has {
+    _p2_has_from_config( _p2_has_keyword( @_ ) );
+
+};
+
+sub _p2_has_from_config {
+    my( $name, %args ) = @_;
+
+    my $config_name = delete $args{'from_config'} 
+        or return @_;
+
+    $args{lazy} = 1;
+
+    if ( ref $config_name eq 'CODE' ) {
+        $args{default} ||= $config_name;
+        $config_name = 1;
+    }
+
+    $config_name = $name if $config_name eq '1';
+    my $orig_default = $args{default} || sub{}; 
+    $args{default} = sub {
+        my $plugin = shift;
+        my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
+        return defined $value ? $value: $orig_default->($plugin);
+    };
+
+    return $name => %args;
+}
+
+sub _p2_has_keyword {
+    my( $name, %args ) = @_;
+
+    my $keyword = delete $args{plugin_keyword}
+        or return @_;
+
+    $keyword = $name if $keyword eq '1';
+
+    caller->ClassKeywords->{$_} = sub { (shift)->$name(@_) }
+        for ref $keyword ? @$keyword : $keyword;
+
+    return $name => %args;
+}
+
 
 1;
 
