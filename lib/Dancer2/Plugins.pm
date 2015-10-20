@@ -1,7 +1,40 @@
 package Dancer2::Plugins;
-# ABSTRACT: Recommended Dancer2 plugins
+# ABSTRACT: Recommended Dancer2 plugins and plugin loader for your application
+
+use strict;
+use warnings;
+
+sub VERSION { shift->SUPER::VERSION(@_) || '0.000000_000' }
+
+sub import {
+  my $caller = scalar caller;
+  my $self = shift;
+  foreach my $plugin (@_) {
+    my $class = "Dancer2::Plugin::$plugin";
+    eval("package $caller { use $class }");
+    if ($@) {
+      die "Error with $plugin plugin: cannot install $class into $caller\n$@";
+    }
+  }
+}
+
+1;
+
+__END__
 
 =pod
+
+=head1 SYNOPSIS
+
+This module can be used to import plugins at once into your application by a
+single shorthand statement.
+
+    use Dancer2::Plugins qw/
+        Adapter
+        Ajax
+        Auth::Tiny
+        ...
+    /;
 
 =head1 DESCRIPTION
 
