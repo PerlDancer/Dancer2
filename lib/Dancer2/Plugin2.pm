@@ -7,7 +7,7 @@ use warnings;
 use Moo;
 use MooX::ClassAttribute;
 use List::Util qw/ reduce /;
-use Sub::Attribute;
+use Attribute::Handlers;
 
 extends 'Exporter::Tiny';
 
@@ -35,9 +35,9 @@ sub _exporter_expand_tag {
                     \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
                 };
 
-                use Sub::Attribute;
+                use Attribute::Handlers;
 
-                sub PluginKeyword :ATTR_SUB {
+                sub PluginKeyword :ATTR(CODE) {
                     goto &Dancer2::Plugin2::PluginKeyword;
                 }
             }
@@ -69,16 +69,6 @@ END
     map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
 }
 
-
-sub PluginKeyword :ATTR_SUB {
-    my( $class, $sym_ref, $code, undef, $args ) = @_;
-    my $func_name = *{$sym_ref}{NAME};
-
-    for my $name ( split ' ', $args || $func_name ) {
-        $class->ClassKeywords->{$name} = $code;
-    }
-
-}
 
 sub _exporter_expand_sub {
     my( $plugin, $name, $args, $global ) = @_;
@@ -211,6 +201,21 @@ sub _p2_has_keyword {
 
     return $name => %args;
 }
+
+# :PluginKeyword shenanigans
+
+sub PluginKeyword :ATTR(CODE) {
+    my( $class, $sym_ref, $code, undef, $args ) = @_;
+    my $func_name = *{$sym_ref}{NAME};
+    
+    $args = join '', @$args if ref $args eq 'ARRAY';
+
+    for my $name ( split ' ', $args || $func_name ) {
+        $class->ClassKeywords->{$name} = $code;
+    }
+
+}
+
 
 
 1;

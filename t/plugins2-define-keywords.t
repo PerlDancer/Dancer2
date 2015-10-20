@@ -1,30 +1,36 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 1;
+use Test::Deep;
 
 BEGIN {  
     package Dancer2::Plugin::Foo;
 
     use Dancer2::Plugin2;
 
+    push @::expected_keywords, 'foo';
     plugin_keywords foo => sub { ... };
 
+    push @::expected_keywords, 'bar';
     has bar => (
         is => 'ro',
         plugin_keyword => 1,
     );
 
+    push @::expected_keywords, 'baz', 'bazz';
     has baz => (
         is => 'ro',
         plugin_keyword => [ qw/ baz bazz / ],
     );
 
+    push @::expected_keywords, 'biz';
     has boz => (
         is => 'ro',
         plugin_keyword => 'biz',
     );
 
+    push @::expected_keywords, 'quux', 'qiix', 'qox', 'qooox';
     sub quux :PluginKeyword { ... };
     sub qaax :PluginKeyword(qiix) { ... };
     sub qoox :PluginKeyword(qox qooox) { ... };
@@ -33,5 +39,5 @@ BEGIN {
 
 my $plugin = Dancer2::Plugin::Foo->new( app => undef );
 
-ok $plugin->keywords->{$_}, $_ for qw/ foo bar quux baz bazz biz qiix qox qooox /;
-
+cmp_deeply [ keys %{ $plugin->keywords } ], 
+    bag( @::expected_keywords), "all expected keywords";
