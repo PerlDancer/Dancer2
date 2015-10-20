@@ -13,90 +13,6 @@ extends 'Exporter::Tiny';
 
 with 'Dancer2::Core::Role::Hookable';
 
-our @EXPORT = qw/ :plugin /;
-
-sub _exporter_expand_tag {
-    my( $class, $name, $args, $global ) = @_;
-
-    my $caller = $global->{into};
-
-    if ( $name eq 'plugin' ) {
-        eval <<"END";
-            { 
-                package $caller; 
-                use Moo; 
-                extends 'Dancer2::Plugin2'; 
-
-                our \@EXPORT = ( ':app' ); 
-                our \$_moo_has = $caller->can('has');
-                no strict 'refs';
-                no warnings 'redefine';
-                \*{'$caller'.'::has'} = sub {
-                    \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
-                };
-
-                use Attribute::Handlers;
-
-                sub PluginKeyword :ATTR(CODE) {
-                    goto &Dancer2::Plugin2::PluginKeyword;
-                }
-            }
-END
-        die $@ if $@;
-
-        return () unless $caller =~ /^Dancer2::Plugin/;
-
-        return (
-            [ 'plugin_keywords' => { class => $caller } ],
-            [ 'plugin_hooks'    => { class =>  $caller } ],
-        )
-    }
-
-    return unless $name eq 'app' 
-              and $caller->can('app');
-
-    my $app = eval "${caller}::app()" or return;
-
-    return unless $app->can('with_plugins');
-
-    ( my $short = $class ) =~ s/Dancer2::Plugin:://;
-
-    my $plugin = $app->with_plugins( $short );
-    $global->{plugin} = $plugin;
-
-    return unless $class->can('keywords');
-
-    map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
-}
-
-
-sub _exporter_expand_sub {
-    my( $plugin, $name, $args, $global ) = @_;
-
-    if ( $name eq 'plugin_keywords' ) {
-        my $class = $args->{class};
-        return $name => sub(@) {
-            while( my $name = shift @_ ) {
-                my $sub = ref $_[0] eq 'CODE' 
-                    ? shift @_ 
-                    : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
-                $plugin->ClassKeywords->{$_} = $sub for ref $name ? @$name : $name;
-            }
-        }
-    }
-
-    if ( $name eq 'plugin_hooks' ) {
-        my $class = $args->{class};
-        return $name => sub(@) {
-            $class->add_hooks(@_);
-        }
-    }
-
-    my $p = $args->{plugin};
-    my $sub = $p->keywords->{$name};
-    return $name => sub(@) { $sub->($p,@_) };
-}
-
 has app => (
     is       => 'ro',
     required => 1,
@@ -114,20 +30,16 @@ has config => (
     },
 );
 
-class_has ClassKeywords => (
+### KEYWORD STUFF ######################################## 
+
+class_has keywords => (
     is => 'ro',
     default => sub {
         +{}
-    }
-);
-
-has keywords => (
-    is => 'ro',
-    default => sub {
-        my $self = shift;
-        +{ %{$self->ClassKeywords} }
     },
 );
+
+### HOOK STUFF ######################################## 
 
 class_has ClassHooks => (
     is => 'ro',
@@ -156,6 +68,8 @@ sub add_hooks {
 # back-compatibility. Aren't used
 sub supported_hooks { [] }
 sub hook_aliases    { +{} }
+
+### has() STUFF  ######################################## 
 
 # our wrapping around Moo::has, done to be able to intercept
 # both 'from_config' and 'plugin_keyword'
@@ -196,11 +110,13 @@ sub _p2_has_keyword {
 
     $keyword = $name if $keyword eq '1';
 
-    caller->ClassKeywords->{$_} = sub { (shift)->$name(@_) }
+    caller->keywords->{$_} = sub { (shift)->$name(@_) }
         for ref $keyword ? @$keyword : $keyword;
 
     return $name => %args;
 }
+
+### ATTRIBUTE HANDLER STUFF ######################################## 
 
 # :PluginKeyword shenanigans
 
@@ -211,12 +127,122 @@ sub PluginKeyword :ATTR(CODE) {
     $args = join '', @$args if ref $args eq 'ARRAY';
 
     for my $name ( split ' ', $args || $func_name ) {
-        $class->ClassKeywords->{$name} = $code;
+        $class->keywords->{$name} = $code;
     }
 
 }
 
+## EXPORT STUFF ##############################################################
 
+# this @EXPORT will only be taken
+# into account when we do a 'use Dancer2::Plugin2'
+# I.e., it'll only do its magic for the 
+# plugins themselves, not when they are
+# called
+our @EXPORT = qw/ :plugin /;
+
+sub _exporter_expand_tag {
+    my( $class, $name, $args, $global ) = @_;
+
+    my $caller = $global->{into};
+
+    return _exporter_plugin($caller)
+        if $name eq 'plugin';
+
+    return _exporter_app($class,$caller,$global)
+        if $name eq 'app' and $caller->can('app');
+
+    return;
+
+}
+
+# plugin has been called within a D2 app. Modify
+# the app and export keywords
+sub _exporter_app {
+    my( $class, $caller, $global ) = @_;
+
+    my $app = eval "${caller}::app()" or return;
+
+    return unless $app->can('with_plugins');
+
+    ( my $short = $class ) =~ s/Dancer2::Plugin:://;
+
+    my $plugin = $app->with_plugins( $short );
+    $global->{plugin} = $plugin;
+
+    return unless $class->can('keywords');
+
+    map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
+}
+
+# turns the caller namespace into
+# a D2P2 class, with exported keywords
+sub _exporter_plugin {
+    my $caller = shift;
+
+    eval <<"END";
+        { 
+            package $caller; 
+            use Moo; 
+            extends 'Dancer2::Plugin2'; 
+
+            our \@EXPORT = ( ':app' ); 
+            our \$_moo_has = $caller->can('has');
+            no strict 'refs';
+            no warnings 'redefine';
+            \*{'$caller'.'::has'} = sub {
+                \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
+            };
+
+            use Attribute::Handlers;
+
+            sub PluginKeyword :ATTR(CODE) {
+                goto &Dancer2::Plugin2::PluginKeyword;
+            }
+        }
+END
+
+    die $@ if $@;
+
+    return map { [ $_ => { class => $caller } ] } 
+               qw/ plugin_keywords plugin_hooks /;
+}
+
+sub _exporter_expand_sub {
+    my( $plugin, $name, $args, $global ) = @_;
+    my $class = $args->{class};
+
+    return _exported_plugin_keywords($plugin,$class)
+        if $name eq 'plugin_keywords';
+
+    return _exported_plugin_hooks($class) 
+        if $name eq 'plugin_hooks';
+
+    # otherwise, we're exporting a keyword
+
+    my $p = $args->{plugin};
+    my $sub = $p->keywords->{$name};
+    return $name => sub(@) { $sub->($p,@_) };
+}
+
+# define the exported 'plugin_keywords'
+sub _exported_plugin_keywords{
+    my( $plugin, $class ) = @_;
+
+    return plugin_keywords => sub(@) {
+        while( my $name = shift @_ ) {
+            my $sub = ref $_[0] eq 'CODE' 
+                ? shift @_ 
+                : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
+            $plugin->keywords->{$_} = $sub for ref $name ? @$name : $name;
+        }
+    }
+}
+
+sub _exported_plugin_hooks {
+    my $class = shift;
+    return plugin_hooks => sub (@) { $class->add_hooks(@_) }
+}
 
 1;
 
