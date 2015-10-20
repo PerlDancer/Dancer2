@@ -1,6 +1,213 @@
 package Dancer2::Plugin2;
 # ABSTRACT: base class for Dancer2 plugins
 
+use strict;
+use warnings;
+
+use Moo;
+use MooX::ClassAttribute;
+use List::Util qw/ reduce /;
+
+extends 'Exporter::Tiny';
+
+with 'Dancer2::Core::Role::Hookable';
+
+our @EXPORT = qw/ :plugin /;
+
+sub _exporter_expand_tag {
+    my( $class, $name, $args, $global ) = @_;
+
+    my $caller = $global->{into};
+
+    if ( $name eq 'plugin' ) {
+        eval <<"END";
+            { 
+                package $caller; 
+                use Moo; 
+                extends 'Dancer2::Plugin2'; 
+
+                our \@EXPORT = ( ':app' ); 
+                our \$_moo_has = $caller->can('has');
+                no strict 'refs';
+                no warnings 'redefine';
+                \*{'$caller'.'::has'} = sub {
+                    \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
+                };
+
+                use Sub::Attribute;
+
+                sub PluginKeyword :ATTR_SUB {
+                    goto &Dancer2::Plugin2::PluginKeyword;
+                }
+            }
+END
+        die $@ if $@;
+
+        return () unless $caller =~ /^Dancer2::Plugin/;
+
+        return (
+            [ 'plugin_keywords' => { class => $caller } ],
+            [ 'plugin_hooks'    => { class =>  $caller } ],
+            #        [ '_p2_has'  => { class => $caller }],
+        )
+    }
+
+    return unless $name eq 'app' 
+              and $caller->can('app');
+
+    my $app = eval "${caller}::app()" or return;
+
+    return unless $app->can('with_plugins');
+
+    ( my $short = $class ) =~ s/Dancer2::Plugin:://;
+
+    my $plugin = $app->with_plugins( $short );
+    $global->{plugin} = $plugin;
+
+    return unless $class->can('keywords');
+
+    map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
+}
+
+use Sub::Attribute;
+
+sub PluginKeyword :ATTR_SUB {
+    my( $class, $sym_ref, $code, undef, $args ) = @_;
+    my $func_name = *{$sym_ref}{NAME};
+
+    for my $name ( split ' ', $args || $func_name ) {
+        $class->ClassKeywords->{$name} = $code;
+    }
+
+}
+
+sub _exporter_expand_sub {
+    my( $plugin, $name, $args, $global ) = @_;
+
+    if ( $name eq 'plugin_keywords' ) {
+        my $class = $args->{class};
+        return $name => sub(@) {
+            while( my $name = shift @_ ) {
+                my $sub = ref $_[0] eq 'CODE' 
+                    ? shift @_ 
+                    : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
+                $plugin->ClassKeywords->{$_} = $sub for ref $name ? @$name : $name;
+            }
+        }
+    }
+
+    if ( $name eq 'plugin_hooks' ) {
+        my $class = $args->{class};
+        return $name => sub(@) {
+            $class->add_hooks(@_);
+        }
+    }
+
+#    if( $name eq '_p2_has' ) {
+    #       return '_p2_has'
+    #}
+
+    my $p = $args->{plugin};
+    my $sub = $p->keywords->{$name};
+    return $name => sub(@) { $sub->($p,@_) };
+}
+
+sub _p2_has {
+    my( $name, %args ) = @_;
+
+    if( my $config_name = delete $args{'from_config'} ) {
+        $args{lazy} = 1;
+
+        if ( ref $config_name eq 'CODE' ) {
+            $args{default} ||= $config_name;
+            $config_name = 1;
+        }
+
+        $config_name = $name if $config_name eq '1';
+        my $orig_default = $args{default} || sub{}; 
+        $args{default} = sub {
+            my $plugin = shift;
+            my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
+            return defined $value ? $value: $orig_default->($plugin);
+        }
+    }
+
+    if( my $keyword = delete $args{plugin_keyword} ) {
+        $keyword = $name if $keyword == 1;
+        caller->ClassKeywords->{$_} = sub { (shift)->$name(@_) }
+            for ref $keyword ? @$keyword : $keyword;
+    }
+
+    return $name => %args;
+};
+
+
+has app => (
+#    isa => Object['Dancer2::Core::App'],
+    is => 'ro',
+    required => 1,
+);
+
+has config => (
+    is => 'ro',
+    lazy => 1,
+    default => sub { 
+        my $self = shift;
+        my $config = $self->app->config;
+        my $package = ref $self; # TODO
+        $package =~ s/Dancer2::Plugin:://;
+        $config->{plugins}{$package} || {};
+    },
+);
+
+class_has ClassKeywords => (
+    is => 'ro',
+    default => sub {
+        +{}
+    }
+);
+
+has keywords => (
+    is => 'ro',
+    default => sub {
+        my $self = shift;
+        +{ %{$self->ClassKeywords} }
+    },
+);
+
+class_has ClassHooks => (
+    is => 'ro',
+    default => sub {
+        [];
+    }
+);
+
+has '+hooks' => (
+    default => sub {
+        my $plugin = shift;
+        my $name = 'plugin.' . lc ref $plugin;
+        $name =~ s/Dancer2::Plugin:://i;
+        $name =~ s/::/_/;
+
+        +{ 
+            map { join( '.', $name, $_ ) => [] }
+                @{ $plugin->ClassHooks }  
+        };
+    },
+);
+
+sub add_hooks {
+    push @{ $_[0]->ClassHooks }, @_;
+}
+
+sub supported_hooks { [] }
+
+sub hook_aliases { +{} }
+
+1;
+
+__END__
+
 =head1 SYNOPSIS
 
 The plugin itself:
@@ -401,208 +608,3 @@ to call C<plugin_keywords> after the attribute definition.
     plugin_keywords 'bar';
 
 =cut
-
-use strict;
-use warnings;
-
-use Moo;
-use MooX::ClassAttribute;
-use List::Util qw/ reduce /;
-
-extends 'Exporter::Tiny';
-
-with 'Dancer2::Core::Role::Hookable';
-
-our @EXPORT = qw/ :plugin /;
-
-sub _exporter_expand_tag {
-    my( $class, $name, $args, $global ) = @_;
-
-    my $caller = $global->{into};
-
-    if ( $name eq 'plugin' ) {
-        eval <<"END";
-            { 
-                package $caller; 
-                use Moo; 
-                extends 'Dancer2::Plugin2'; 
-
-                our \@EXPORT = ( ':app' ); 
-                our \$_moo_has = $caller->can('has');
-                no strict 'refs';
-                no warnings 'redefine';
-                \*{'$caller'.'::has'} = sub {
-                    \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
-                };
-
-                use Sub::Attribute;
-
-                sub PluginKeyword :ATTR_SUB {
-                    goto &Dancer2::Plugin2::PluginKeyword;
-                }
-            }
-END
-        die $@ if $@;
-
-        return () unless $caller =~ /^Dancer2::Plugin/;
-
-        return (
-            [ 'plugin_keywords' => { class => $caller } ],
-            [ 'plugin_hooks'    => { class =>  $caller } ],
-            #        [ '_p2_has'  => { class => $caller }],
-        )
-    }
-
-    return unless $name eq 'app' 
-              and $caller->can('app');
-
-    my $app = eval "${caller}::app()" or return;
-
-    return unless $app->can('with_plugins');
-
-    ( my $short = $class ) =~ s/Dancer2::Plugin:://;
-
-    my $plugin = $app->with_plugins( $short );
-    $global->{plugin} = $plugin;
-
-    return unless $class->can('keywords');
-
-    map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
-}
-
-use Sub::Attribute;
-
-sub PluginKeyword :ATTR_SUB {
-    my( $class, $sym_ref, $code, undef, $args ) = @_;
-    my $func_name = *{$sym_ref}{NAME};
-
-    for my $name ( split ' ', $args || $func_name ) {
-        $class->ClassKeywords->{$name} = $code;
-    }
-
-}
-
-sub _exporter_expand_sub {
-    my( $plugin, $name, $args, $global ) = @_;
-
-    if ( $name eq 'plugin_keywords' ) {
-        my $class = $args->{class};
-        return $name => sub(@) {
-            while( my $name = shift @_ ) {
-                my $sub = ref $_[0] eq 'CODE' 
-                    ? shift @_ 
-                    : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
-                $plugin->ClassKeywords->{$_} = $sub for ref $name ? @$name : $name;
-            }
-        }
-    }
-
-    if ( $name eq 'plugin_hooks' ) {
-        my $class = $args->{class};
-        return $name => sub(@) {
-            $class->add_hooks(@_);
-        }
-    }
-
-#    if( $name eq '_p2_has' ) {
-    #       return '_p2_has'
-    #}
-
-    my $p = $args->{plugin};
-    my $sub = $p->keywords->{$name};
-    return $name => sub(@) { $sub->($p,@_) };
-}
-
-sub _p2_has {
-    my( $name, %args ) = @_;
-
-    if( my $config_name = delete $args{'from_config'} ) {
-        $args{lazy} = 1;
-
-        if ( ref $config_name eq 'CODE' ) {
-            $args{default} ||= $config_name;
-            $config_name = 1;
-        }
-
-        $config_name = $name if $config_name eq '1';
-        my $orig_default = $args{default} || sub{}; 
-        $args{default} = sub {
-            my $plugin = shift;
-            my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
-            return defined $value ? $value: $orig_default->($plugin);
-        }
-    }
-
-    if( my $keyword = delete $args{plugin_keyword} ) {
-        $keyword = $name if $keyword == 1;
-        caller->ClassKeywords->{$_} = sub { (shift)->$name(@_) }
-            for ref $keyword ? @$keyword : $keyword;
-    }
-
-    return $name => %args;
-};
-
-
-has app => (
-#    isa => Object['Dancer2::Core::App'],
-    is => 'ro',
-    required => 1,
-);
-
-has config => (
-    is => 'ro',
-    lazy => 1,
-    default => sub { 
-        my $self = shift;
-        my $config = $self->app->config;
-        my $package = ref $self; # TODO
-        $package =~ s/Dancer2::Plugin:://;
-        $config->{plugins}{$package} || {};
-    },
-);
-
-class_has ClassKeywords => (
-    is => 'ro',
-    default => sub {
-        +{}
-    }
-);
-
-has keywords => (
-    is => 'ro',
-    default => sub {
-        my $self = shift;
-        +{ %{$self->ClassKeywords} }
-    },
-);
-
-class_has ClassHooks => (
-    is => 'ro',
-    default => sub {
-        [];
-    }
-);
-
-has '+hooks' => (
-    default => sub {
-        my $plugin = shift;
-        my $name = 'plugin.' . lc ref $plugin;
-        $name =~ s/Dancer2::Plugin:://i;
-        $name =~ s/::/_/;
-
-        +{ 
-            map { join( '.', $name, $_ ) => [] }
-                @{ $plugin->ClassHooks }  
-        };
-    },
-);
-
-sub add_hooks {
-    push @{ $_[0]->ClassHooks }, @_;
-}
-
-sub supported_hooks { [] }
-
-sub hook_aliases { +{} }
-
-1;
