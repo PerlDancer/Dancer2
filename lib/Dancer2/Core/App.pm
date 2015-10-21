@@ -1127,6 +1127,11 @@ sub make_forward_to {
 
     $env->{PATH_INFO} = $url;
 
+    # request body fh has been read till end
+    # delete CONTENT_LENGTH in new request (no need to parse body again)
+    # and merge existing params
+    delete $env->{CONTENT_LENGTH};
+
     my $new_request = Dancer2::Core::Request->new( env => $env, body_params => {} );
     my $new_params = _merge_params( scalar( $request->params ), $params || {} );
 
