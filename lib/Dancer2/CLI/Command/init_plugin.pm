@@ -18,7 +18,7 @@ sub execute {
         or $self->usage_error("Must provide a plugin name segment");
     my $class = "Dancer2::Plugin::$plugin";
     load_class($class);
-    $class->init_plugin( @{$args} );
+    $class->init_plugin( $opts, $args );
 }
 
 1;
