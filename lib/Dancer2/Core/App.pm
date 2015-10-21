@@ -1126,6 +1126,7 @@ sub make_forward_to {
     my $env = { %{ $request->env } };
 
     $env->{PATH_INFO} = $url;
+    delete($env->{CONTENT_LENGTH});
 
     my $new_request = Dancer2::Core::Request->new( env => $env, body_params => {} );
     my $new_params = _merge_params( scalar( $request->params ), $params || {} );
