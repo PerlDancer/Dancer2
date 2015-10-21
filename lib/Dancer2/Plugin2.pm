@@ -187,11 +187,10 @@ sub _exporter_plugin {
             extends 'Dancer2::Plugin2'; 
 
             our \@EXPORT = ( ':app' ); 
-            our \$_moo_has = $caller->can('has');
-            no strict 'refs';
-            no warnings 'redefine';
-            \*{'$caller'.'::has'} = sub {
-                \$_moo_has->( Dancer2::Plugin2::_p2_has(\@_) );
+
+            around has => sub {
+                my( \$orig, \@args ) = \@_;
+                \$orig->( Dancer2::Plugin2::_p2_has(\@args) );
             };
 
             use Attribute::Handlers;
