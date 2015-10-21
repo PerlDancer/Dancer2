@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
+      in the Plack::Request object internally.
+
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
     [ DOCUMENTATION ]
