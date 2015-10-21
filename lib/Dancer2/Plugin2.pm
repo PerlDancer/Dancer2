@@ -30,20 +30,11 @@ has config => (
     },
 );
 
-### KEYWORD STUFF ######################################## 
-
 class_has keywords => (
     is => 'ro',
     default => sub {
         +{}
     },
-);
-
-### HOOK STUFF ######################################## 
-
-class_has ClassHooks => (
-    is => 'ro',
-    default => sub { [] }
 );
 
 has '+hooks' => (
@@ -61,7 +52,8 @@ has '+hooks' => (
 );
 
 sub add_hooks {
-    push @{ $_[0]->ClassHooks }, @_;
+    my $class = shift;
+    push @{ $class->ClassHooks }, @_;
 }
 
 # both functions are there for D2::Core::Role::Hookable
@@ -74,15 +66,15 @@ sub hook_aliases    { +{} }
 # our wrapping around Moo::has, done to be able to intercept
 # both 'from_config' and 'plugin_keyword'
 sub _p2_has {
-    _p2_has_from_config( _p2_has_keyword( @_ ) );
-
+    my $class = shift;
+    $class->_p2_has_from_config( $class->_p2_has_keyword( @_ ) );
 };
 
 sub _p2_has_from_config {
-    my( $name, %args ) = @_;
+    my( $class, $name, %args ) = @_;
 
     my $config_name = delete $args{'from_config'} 
-        or return @_;
+        or return ( $name, %args );
 
     $args{lazy} = 1;
 
@@ -103,15 +95,15 @@ sub _p2_has_from_config {
 }
 
 sub _p2_has_keyword {
-    my( $name, %args ) = @_;
+    my( $class, $name, %args ) = @_;
 
-    my $keyword = delete $args{plugin_keyword}
-        or return @_;
+    if( my $keyword = delete $args{plugin_keyword} ) {
 
-    $keyword = $name if $keyword eq '1';
+        $keyword = $name if $keyword eq '1';
 
-    caller->keywords->{$_} = sub { (shift)->$name(@_) }
-        for ref $keyword ? @$keyword : $keyword;
+        $class->keywords->{$_} = sub { (shift)->$name(@_) }
+            for ref $keyword ? @$keyword : $keyword;
+    }
 
     return $name => %args;
 }
@@ -184,13 +176,16 @@ sub _exporter_plugin {
         { 
             package $caller; 
             use Moo; 
+
+            use MooX::ClassAttribute;
+
             extends 'Dancer2::Plugin2'; 
 
             our \@EXPORT = ( ':app' ); 
 
             around has => sub {
                 my( \$orig, \@args ) = \@_;
-                \$orig->( Dancer2::Plugin2::_p2_has(\@args) );
+                \$orig->( ${caller}->_p2_has( \@args) );
             };
 
             use Attribute::Handlers;
@@ -198,6 +193,18 @@ sub _exporter_plugin {
             sub PluginKeyword :ATTR(CODE) {
                 goto &Dancer2::Plugin2::PluginKeyword;
             }
+
+            class_has keywords => (
+                is => 'ro',
+                default => sub {
+                    +{}
+                },
+            );
+
+            class_has ClassHooks => (
+                is => 'ro',
+                default => sub { [] }
+            );
         }
 END
 
@@ -233,7 +240,7 @@ sub _exported_plugin_keywords{
             my $sub = ref $_[0] eq 'CODE' 
                 ? shift @_ 
                 : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
-            $plugin->keywords->{$_} = $sub for ref $name ? @$name : $name;
+            $class->keywords->{$_} = $sub for ref $name ? @$name : $name;
         }
     }
 }
