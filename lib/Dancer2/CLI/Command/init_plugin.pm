@@ -9,7 +9,7 @@ use Class::Load 'load_class';
 sub description { 'Initialize a new plugin' }
 
 sub command_names {
-    qw/plugin_init/;
+    qw/init_plugin/;
 }
 
 sub execute {
