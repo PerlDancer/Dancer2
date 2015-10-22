@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1040: Forward with a post body no longer tries to re-read body
+      filehandle (Bas Bloemsaat)
+
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
       in the Plack::Request object internally.
