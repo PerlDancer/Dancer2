@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #1040: Forward with a post body no longer tries to re-read body
       filehandle (Bas Bloemsaat)
+    * GH #1042: Add Diggest::SHA as explicit prequisite for installs on
+      perl < v5.9.3 (Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
