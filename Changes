@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Update core team members and contributors list (Russell Jenkins)
+
     [ BUG FIXES ]
     * GH #1040: Forward with a post body no longer tries to re-read body
       filehandle (Bas Bloemsaat)
