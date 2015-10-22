@@ -222,6 +222,7 @@ things:
     David Golden
     David Precious
     Franck Cuny
+    Jason A. Crome
     Mickey Nasriachi
     Russell Jenkins
     Sawyer X
