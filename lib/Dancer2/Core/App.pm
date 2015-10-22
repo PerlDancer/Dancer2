@@ -1126,6 +1126,7 @@ sub make_forward_to {
     my $env = { %{ $request->env } };
 
     $env->{PATH_INFO} = $url;
+    delete($env->{CONTENT_LENGTH});
 
     # request body fh has been read till end
     # delete CONTENT_LENGTH in new request (no need to parse body again)
