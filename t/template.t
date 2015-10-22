@@ -77,9 +77,9 @@ $tt->add_hook(
     get '/' => sub { template index => { var => 42 } };
 }
 
-my $app    = Bar->to_app;
-my $space  = " ";
-my $result = "layout top
+subtest 'template hooks' => sub {
+    my $space  = " ";
+    my $result = "layout top
 var = 42
 before_layout_render = 1
 ---
@@ -95,16 +95,10 @@ layout bottom
 
 content added in after_layout_render";
 
-test_psgi $app, sub {
-    my $cb = shift;
-
-    is(
-        $cb->( GET '/' )->content,
-        $result,
-        '[GET /] Correct content with template hooks',
-    );
+    my $test = Plack::Test->create( Bar->to_app );
+    my $res = $test->request( GET '/' );
+    is $res->content, $result, '[GET /] Correct content with template hooks';
 };
-
 
 {
 
@@ -118,26 +112,55 @@ test_psgi $app, sub {
     get '/get_views_via_settings' => sub { set 'views' };
 }
 
-$app = Foo->to_app;
-is( ref $app, 'CODE', 'Got app' );
+subtest "modify views - absolute paths" => sub {
 
-test_psgi $app, sub {
-    my $cb = shift;
+    my $test = Plack::Test->create( Foo->to_app );
 
     is(
-        $cb->( GET '/default_views' )->content,
+        $test->request( GET '/default_views' )->content,
         '/this/is/our/path',
         '[GET /default_views] Correct content',
     );
 
     # trigger a test via a route
-    $cb->( GET '/set_views_via_settings' );
+    $test->request( GET '/set_views_via_settings' );
 
     is(
-        $cb->( GET '/get_views_via_settings' )->content,
+        $test->request( GET '/get_views_via_settings' )->content,
         '/other/path',
         '[GET /get_views_via_settings] Correct content',
     );
+};
+
+{
+    package Baz;
+    use Dancer2;
+
+    set template => 'template_toolkit';
+
+    get '/set_views/**' => sub {
+        my ($view) = splat;
+        set views => join('/', @$view );
+    };
+
+    get '/:file' => sub {
+        template param('file');
+    };
+}
+
+subtest "modify views propogates to TT2 via dynamic INCLUDE_PATH" => sub {
+
+    my $test = Plack::Test->create( Baz->to_app );
+
+    my $res = $test->request( GET '/index' );
+    is $res->code, 200, 'got template from views';
+
+    # Change views - this is an existing test corpus..
+    $test->request( GET '/set_views/t/corpus/pretty' );
+
+    # Get another template that is known to exist in the test corpus
+    $res = $test->request( GET '/505' );
+    is $res->code, 200, 'got template from other view';
 };
 
 done_testing;
