@@ -311,14 +311,22 @@ sub deserialize {
     return $data;
 }
 
-sub secure    { $_[0]->scheme   eq 'https' }
-sub uri       { $_[0]->request_uri }
-sub is_head   { $_[0]->{method} eq 'HEAD' }
-sub is_post   { $_[0]->{method} eq 'POST' }
-sub is_get    { $_[0]->{method} eq 'GET' }
-sub is_put    { $_[0]->{method} eq 'PUT' }
-sub is_delete { $_[0]->{method} eq 'DELETE' }
-sub is_patch  { $_[0]->{method} eq 'PATCH' }
+sub secure     { $_[0]->scheme   eq 'https' }
+sub uri        { $_[0]->request_uri }
+sub is_head    { $_[0]->{method} eq 'HEAD' }
+sub is_post    { $_[0]->{method} eq 'POST' }
+sub is_get     { $_[0]->{method} eq 'GET' }
+sub is_put     { $_[0]->{method} eq 'PUT' }
+sub is_delete  { $_[0]->{method} eq 'DELETE' }
+sub is_patch   { $_[0]->{method} eq 'PATCH' }
+sub is_options { $_[0]->{method} eq 'OPTIONS' }
+sub is_trace   { $_[0]->{method} eq 'TRACE' }
+
+# RFC 7231 HTTP/1.1 Semantics and Content
+#section 4.2.1 Common Method Properties - Safe Methods
+sub method_is_safe {
+    return is_head || is_get || is_options || is_trace;
+};
 
 # public interface compat with CGI.pm objects
 sub request_method { method(@_) }
