@@ -365,8 +365,6 @@ sub body_parameters {
     $self->{'plack.request.body'}
         and return $self->{'plack.request.body'};
 
-    my $env = $self->env;
-
     # handle case of serializer
     if ( my $data = $self->deserialize ) {
         return Hash::MultiValue->from_mixed(
