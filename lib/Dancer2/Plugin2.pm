@@ -39,6 +39,8 @@ class_has keywords => (
 
 has '+hooks' => (
     default => sub {
+        $DB::single = 1;
+        
         my $plugin = shift;
         my $name = 'plugin.' . lc ref $plugin;
         $name =~ s/Dancer2::Plugin:://i;
@@ -603,6 +605,20 @@ This is a (relatively) simple way for a plugin to use another plugin:
 
         $text;
     }
+
+=head2 Hooks
+
+New plugin hooks are declared via C<plugin_hooks>.
+
+    plugin_hooks 'my_hook', 'my_other_hook';
+
+Hooks are prefixed with C<plugin.plugin_name>. So the plugin 
+C<my_hook> coming from the plugin C<Dancer2::Plugin::MyPlugin> will have the hook name
+C<plugin.myplugin.my_hook>.
+
+Hooks are executed within the plugin by calling them via the associated I<app>.
+
+    $plugin->app->execute_hook( 'plugin.myplugin.my_hook' );
 
 =head2 Writing Test Gotchas
 
