@@ -1,25 +1,31 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
-
-use poc;
 use Test::More tests => 6;
+use Plack::Test;
+use HTTP::Request::Common;
 
-use Test::WWW::Mechanize::PSGI;
+use lib 't/lib';
+use poc;
 
- my $mech = Test::WWW::Mechanize::PSGI->new(
-          app =>  poc->to_app
-      );
+my $test = Plack::Test->create( poc->to_app );
 
-$mech->get_ok( '/' );
-$mech->content_like( qr'added by plugin' );
+note "poc root"; {
+    my $res = $test->request( GET '/' );
+    ok $res->is_success;
 
-$mech->content_like( qr/something:1/, 'config parameters are read' );
+    my $content = $res->content;
+    like $content, qr/added by plugin/;
 
-$mech->content_like( qr/Bar loaded/, 'Plugin Bar has been loaded' );
+    like $content, qr/something:1/, 'config parameters are read';
 
-$mech->content_like( qr/bazbazbaz/, 'Foo has a copy of Bar' );
+    like $content, qr/Bar loaded/, 'Plugin Bar has been loaded';
 
-$mech->get( '/truncate' );
-$mech->content_like( qr'helladd' );
+    like $content, qr/bazbazbaz/, 'Foo has a copy of Bar';
+}
+
+note "poc truncate"; {
+    my $res = $test->request( GET '/truncate' );
+    like $res->content, qr'helladd';
+}
+
