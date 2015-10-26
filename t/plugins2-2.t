@@ -1,22 +1,29 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
-
-use poc2;
 use Test::More tests => 6;
+use Plack::Test;
+use HTTP::Request::Common;
 
-use Test::WWW::Mechanize::PSGI;
+use lib 't/lib';
+use poc2;
 
- my $mech = Test::WWW::Mechanize::PSGI->new(
-          app =>  poc2->to_app
-      );
+my $test = Plack::Test->create( poc2->to_app );
 
-$mech->get_ok( '/' );
-$mech->content_like( qr'please' );
-$mech->content_like( qr'8-D' );
+note "poc2 root"; {
+    my $res = $test->request( GET '/' );
+    ok $res->is_success;
 
-$mech->get_ok('/goodbye');
+    my $content = $res->content;
+    like $content, qr/please/;
+    like $content, qr/8-D/;
+}
 
-$mech->content_like( qr/farewell/ );
-$mech->content_like( qr'please' );
+note "pos2 goodbye"; {
+    my $res = $test->request( GET '/goodbye' );
+    ok $res->is_success;
+
+    my $content = $res->content;
+    like $content, qr/farewell/;
+    like $content, qr/please/;
+}

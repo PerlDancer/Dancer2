@@ -2,6 +2,8 @@ use strict;
 use warnings;
 
 use Test::More tests => 6;
+use Plack::Test;
+use HTTP::Request::Common;
 
 {  
     package Dancer2::Plugin::FooDetector;
@@ -48,16 +50,15 @@ use Test::More tests => 6;
 }
 
 
-use Test::WWW::Mechanize::PSGI;
+my $test = Plack::Test->create( PoC->to_app );
 
- my $mech = Test::WWW::Mechanize::PSGI->new(
-          app =>  PoC->to_app
-      );
+ok $test->request( GET '/meh' )->is_success;
+my $res = $test->request( GET '/hooked' );
+ok $res->is_success;
+is $res->content, 'nope';
 
-$mech->get_ok( '/meh' );
-$mech->get_ok( '/hooked' );
-$mech->content_is( 'nope' );
+ok $test->request( GET '/' )->is_success;
+$res = $test->request( GET '/hooked' );
+ok $res->is_success;
+is $res->content, 'hooked';
 
-$mech->get_ok( '/' );
-$mech->get_ok( '/hooked' );
-$mech->content_is( 'hooked' );
