@@ -39,8 +39,6 @@ class_has keywords => (
 
 has '+hooks' => (
     default => sub {
-        $DB::single = 1;
-        
         my $plugin = shift;
         my $name = 'plugin.' . lc ref $plugin;
         $name =~ s/Dancer2::Plugin:://i;
