@@ -155,11 +155,11 @@ sub _exporter_app {
 
     my $app = eval "${caller}::app()" or return;
 
-    return unless $app->can('with_plugins');
+    return unless $app->can('with_plugin');
 
     ( my $short = $class ) =~ s/Dancer2::Plugin:://;
 
-    my $plugin = $app->with_plugins( $short );
+    my $plugin = $app->with_plugin( $short );
     $global->{plugin} = $plugin;
 
     return unless $class->can('keywords');
