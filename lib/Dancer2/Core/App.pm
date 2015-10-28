@@ -9,6 +9,7 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
+use Class::Load        qw/ load_class /;
 
 use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
@@ -37,39 +38,49 @@ sub supported_engines { [ qw<logger serializer session template> ] }
 sub with_plugins {
     my( $self, @plugins ) = @_;
 
-    my @result;
+    return map { $self->_with_plugin($_) } @plugins;
 
-    for my $p ( @plugins ) {
-        if ( ref $p ) {
-            # already loaded?
-            #                                   # TODO probably wrong
-            if( my ( $already ) = grep { ref($p) eq ref $_; } @{ $self->plugins } ) {
-                push @result, $already;
-                if ( refaddr($p) != refaddr($already) ) {
-                    warn "trying to load two different objects for plugin ". ref $p;
-                }
-                next;
-            }
-        } else {
-            $p =~ s/^/Dancer2::Plugin::/;
-            use Class::Load qw/ load_class /;
+}
 
-            # already loaded?
-            if( my ( $already ) = grep {
-                $p eq ref $_; # TODO probably wrong
-            } @{ $self->plugins } ) {
-                push @result, $already;
-            }
+sub _with_plugin {
+    my( $self, $plugin ) = @_;
 
-            $p = load_class($p)->new( app => $self );
+    if ( ref $plugin ) {
+        # passing the plugin as an already-created object
+        
+        # already loaded?
+        if( my ( $already ) = grep { ref($plugin) eq ref $_; } @{ $self->plugins } ) {
+                die "trying to load two different objects for plugin ". ref $plugin
+                    if refaddr($plugin) != refaddr $already ;
+
         }
-        # TODO check if one is already loaded?
-        # TODO ref $p gives the right name?
-        push @result, $p;
-        push @{ $self->plugins }, $p;
+        else {
+            push @{ $self->plugins }, $plugin;
+        }
+
+        return $plugin;
     }
 
-    return wantarray ? @result : $result[0];
+    $plugin =~ s/^/Dancer2::Plugin::/ unless /^Dancer2::Plugin::/;
+
+    # check if it's already there
+    if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {
+        return $already;    
+    }
+
+    push @{ $self->plugins }, 
+         $plugin = load_class($plugin)->new( app => $self );
+
+    return $plugin;
+}
+
+sub with_plugin {
+    my( $self, $plugin ) = @_;
+
+    croak "expected a single argument"
+        unless @_ == 2;
+
+    ( $self->with_plugins($plugin) )[0];
 }
 
 has _factory => (
@@ -1552,6 +1563,30 @@ Allow for setting a lexical prefix
 
 All the route defined within the callback will have a prefix appended to the
 current one.
+
+=method with_plugins( @plugin_names )
+
+Creates instances of the given plugins and tie them to the app. 
+The plugin classes are automatically loaded.
+Returns the newly created plugins.
+
+The plugin names are expected to be without the leading C<Dancer2::Plugin>.
+I.e., use C<Foo> to mean C<Dancer2::Plugin::Foo>.
+
+If a given plugin is already tied to the app, the already-existing
+instance will be used and returned by C<with_plugins> (think of it
+as using a role).
+
+    my @plugins = $app->with_plugins( 'Foo', 'Bar' );
+
+    # now $app uses the plugins Dancer2::Plugin::Foo
+    # and Dancer2::Plugin::Bar
+
+=method with_plugin( $plugin_name )
+
+Just like C<with_plugin>, but for a single plugin.
+
+    my $plugin = $app->with_plugin('Foo');
 
 =head2 add_route
 
