@@ -27,7 +27,7 @@ has bar => (
     is => 'ro',
     lazy => 1,
     default => sub {
-        scalar $_[0]->app->with_plugins( 'Bar' )
+        scalar $_[0]->app->with_plugin( 'Bar' )
     },
     handles => { 'bar_baz' => 'baz' },
 );
