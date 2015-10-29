@@ -7,6 +7,7 @@ use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
+use Devel::StackTrace;
 use Sub::Quote;
 use Module::Runtime 'require_module';
 use Ref::Util qw< is_hashref >;
@@ -233,6 +234,13 @@ has content => (
     builder => '_build_content',
 );
 
+has stack_trace => (
+    is      => 'ro',
+    isa     => InstanceOf['Devel::StackTrace'],
+    lazy    => 1,
+    default => sub { Devel::StackTrace->new(ignore_package => __PACKAGE__) },
+);
+
 sub _build_content {
     my $self = shift;
 
@@ -412,12 +420,33 @@ sub get_caller {
     my ($self) = @_;
     my @stack;
 
-    my $deepness = 0;
-    while ( my ( $package, $file, $line ) = caller( $deepness++ ) ) {
-        push @stack, "$package in $file l. $line";
+    while (my $frame = $self->stack_trace->next_frame) {
+        my $html;
+        unless (@stack) {
+            $html = 'Trace begun at ';
+        } else {
+            if (my $eval = $frame->evaltext) {
+                if ($frame->is_require) {
+                    $html = 'require '.$eval;
+                } else {
+                    $eval =~ s/([\\\'])/\\$1/g;
+                    $html = "eval '$eval'";
+                }
+            } else {
+                $html = $frame->subroutine;
+                $html = 'eval {...}' if $html eq '(eval)';
+            }
+            $html = "<span class=\"key\">$html</span>(";
+            $html .= join ', ', map {
+                my $arg = Data::Dumper->new([$_])->Terse(1)->Indent(0)->Maxdepth(1)->Useqq(1)->Dump;
+                length $arg > 50 ? substr($arg, 0, 48).'...' : $arg;
+            } $frame->args;
+            $html .= ') called at ';
+        }
+        $html .= '<span class="errline">'.$frame->filename.'</span> line <span class="errline">'.$frame->line.'</span>';
+        push @stack, $html;
     }
-
-    return join( "\n", reverse(@stack) );
+    return join "\n", @stack;
 }
 
 # private
