@@ -5,7 +5,6 @@ use strict;
 use warnings;
 
 use Moo;
-use MooX::ClassAttribute;
 use List::Util qw/ reduce /;
 use Attribute::Handlers;
 
@@ -30,12 +29,8 @@ has config => (
     },
 );
 
-class_has keywords => (
-    is => 'ro',
-    default => sub {
-        +{}
-    },
-);
+my $_keywords = {};
+sub keywords { $_keywords }
 
 has '+hooks' => (
     default => sub {
@@ -177,8 +172,6 @@ sub _exporter_plugin {
             package $caller; 
             use Moo; 
 
-            use MooX::ClassAttribute;
-
             extends 'Dancer2::Plugin2'; 
 
             our \@EXPORT = ( ':app' ); 
@@ -194,17 +187,11 @@ sub _exporter_plugin {
                 goto &Dancer2::Plugin2::PluginKeyword;
             }
 
-            class_has keywords => (
-                is => 'ro',
-                default => sub {
-                    +{}
-                },
-            );
+            my \$_keywords = {};
+            sub keywords { \$_keywords }
 
-            class_has ClassHooks => (
-                is => 'ro',
-                default => sub { [] }
-            );
+            my \$_ClassHooks = [];
+            sub ClassHooks { \$_ClassHooks }
         }
 END
 
