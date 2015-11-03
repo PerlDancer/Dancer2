@@ -159,6 +159,9 @@ sub _exporter_app {
 
     return unless $class->can('keywords');
 
+    # deprecated backwards compat: on_plugin_import()
+    $_->($plugin) for @{ $plugin->_DANCER2_IMPORT_TIME_SUBS() };
+
     map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
 }
 
@@ -192,6 +195,20 @@ sub _exporter_plugin {
 
             my \$_ClassHooks = [];
             sub ClassHooks { \$_ClassHooks }
+
+            # deprecated backwards compat
+            sub register_plugin {1}
+
+            sub register {
+                my ( \$keyword, \$sub ) = \@_;
+                \$_keywords->{\$keyword} = \$sub;
+            }
+
+            my \@_DANCER2_IMPORT_TIME_SUBS;
+            sub _DANCER2_IMPORT_TIME_SUBS {\\\@_DANCER2_IMPORT_TIME_SUBS}
+            sub on_plugin_import (&) {
+                push \@_DANCER2_IMPORT_TIME_SUBS, \$_[0];
+            }
         }
 END
 
