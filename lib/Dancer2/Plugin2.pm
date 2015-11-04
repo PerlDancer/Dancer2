@@ -185,6 +185,8 @@ sub _exporter_plugin {
         { 
             package $caller; 
             use Moo; 
+            use Carp ();
+            use Attribute::Handlers;
 
             extends 'Dancer2::Plugin2'; 
 
@@ -194,8 +196,6 @@ sub _exporter_plugin {
                 my( \$orig, \@args ) = \@_;
                 \$orig->( ${caller}->_p2_has( \@args) );
             };
-
-            use Attribute::Handlers;
 
             sub PluginKeyword :ATTR(CODE) {
                 goto &Dancer2::Plugin2::PluginKeyword;
@@ -229,6 +229,20 @@ sub _exporter_plugin {
             }
 
             sub register_hook { goto &plugin_hooks }
+
+            sub dancer_app {
+                Carp::carp "Plugin DSL method 'dancer_app' is deprecated. "
+                         . "Use 'app' instead'.\n";
+
+                \$_[0]->app;
+            }
+
+            sub request {
+                Carp::carp "Plugin DSL method 'request' is deprecated. "
+                         . "Use 'app->request' instead'.\n";
+
+                \$_[0]->app->request;
+            }
         }
 END
 
