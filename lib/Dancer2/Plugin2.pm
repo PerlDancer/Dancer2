@@ -54,7 +54,7 @@ sub add_hooks {
 # both functions are there for D2::Core::Role::Hookable
 # back-compatibility. Aren't used
 sub supported_hooks { [] }
-sub hook_aliases    { +{} }
+sub hook_aliases    { $_[0]->{'hook_aliases'} ||= {} }
 
 ### has() STUFF  ######################################## 
 
@@ -161,6 +161,17 @@ sub _exporter_app {
 
     # deprecated backwards compat: on_plugin_import()
     $_->($plugin) for @{ $plugin->_DANCER2_IMPORT_TIME_SUBS() };
+
+    # add our hooks to the app, so they're recognized
+    # this is for compatibility so you can call execute_hook()
+    # without the fully qualified plugin name
+    # TODO: what if we register the same hook as another plugin?
+    {
+        foreach my $hook ( keys %{ $plugin->hooks } ) {
+            my ( $pure_name ) = $hook =~ /^plugin\.\w+\.(\w+)$/;
+            $plugin->hook_aliases->{$pure_name} = $hook;
+        }
+    }
 
     map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
 }
