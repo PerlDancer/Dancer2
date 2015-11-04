@@ -202,6 +202,13 @@ sub _exporter_plugin {
             sub register {
                 my ( \$keyword, \$sub ) = \@_;
                 \$_keywords->{\$keyword} = \$sub;
+
+                # Exporter::Tiny doesn't seem to generate the subs
+                # in the caller properly, so we have to do it manually
+                {
+                    no strict 'refs';
+                    *{"${caller}::\$keyword"} = \$sub;
+                }
             }
 
             my \@_DANCER2_IMPORT_TIME_SUBS;
