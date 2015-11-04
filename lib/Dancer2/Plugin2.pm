@@ -216,6 +216,8 @@ sub _exporter_plugin {
             sub on_plugin_import (&) {
                 push \@_DANCER2_IMPORT_TIME_SUBS, \$_[0];
             }
+
+            sub register_hook { goto &plugin_hooks }
         }
 END
 
