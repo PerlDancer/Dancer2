@@ -94,6 +94,20 @@ sub has_hook {
     return exists $self->hooks->{$hook_name};
 }
 
+sub execute_plugin_hook {
+    my ( $self, $name, @args ) = @_;
+
+    my $caller = caller;
+
+    $caller =~ s/^Dancer2::Plugin:://
+        or croak "Cannot call plugin hook ($name) from outside plugin";
+
+    my $full_name = 'plugin.' . lc($caller) . ".$name";
+    $full_name =~ s/::/_/g;
+
+    $self->execute_hook( $full_name, @args );
+}
+
 # Execute the hook at the given position
 sub execute_hook {
     my $self = shift;
