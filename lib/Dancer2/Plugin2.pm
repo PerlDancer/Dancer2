@@ -654,7 +654,16 @@ C<plugin.myplugin.my_hook>.
 
 Hooks are executed within the plugin by calling them via the associated I<app>.
 
-    $plugin->app->execute_hook( 'plugin.myplugin.my_hook' );
+    $plugin->app->execute_plugin_hook( 'my_hook' );
+
+You can also call any other hook if you provide the full name using the
+C<execute_hook> method:
+
+    $plugin->app->execute_hook( 'core.app.route_exception' );
+
+Or using their alias:
+
+    $plugin->app->execute_hook( 'on_route_exception' );
 
 =head2 Writing Test Gotchas
 
