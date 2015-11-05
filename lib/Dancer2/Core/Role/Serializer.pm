@@ -37,10 +37,9 @@ has content_type => (
 around serialize => sub {
     my ( $orig, $self, $content, $options ) = @_;
 
-    $content && length $content > 0
-        or return $content;
-
     blessed $self && $self->execute_hook( 'engine.serializer.before', $content );
+
+    $content or return $content;
 
     my $data;
     eval {
@@ -130,4 +129,3 @@ serializer.
 
 The deserialize method receives encoded bytes and must therefore
 handle any decoding required.
-
