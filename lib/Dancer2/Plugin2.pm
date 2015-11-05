@@ -37,7 +37,7 @@ has '+hooks' => (
         my $plugin = shift;
         my $name = 'plugin.' . lc ref $plugin;
         $name =~ s/Dancer2::Plugin:://i;
-        $name =~ s/::/_/;
+        $name =~ s/::/_/g;
 
         +{ 
             map { join( '.', $name, $_ ) => [] }
