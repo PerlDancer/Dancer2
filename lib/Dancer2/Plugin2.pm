@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Moo;
+use Carp;
 use List::Util qw/ reduce /;
 use Attribute::Handlers;
 
@@ -49,6 +50,19 @@ has '+hooks' => (
 sub add_hooks {
     my $class = shift;
     push @{ $class->ClassHooks }, @_;
+}
+
+sub execute_plugin_hook {
+    my ( $self, $name, @args ) = @_;
+    my $plugin_class = ref $self;
+
+    $plugin_class =~ s/^Dancer2::Plugin:://
+        or croak "Cannot call plugin hook ($name) from outside plugin";
+
+    my $full_name = 'plugin.' . lc($plugin_class) . ".$name";
+    $full_name =~ s/::/_/g;
+
+    $self->app->execute_hook( $full_name, @args );
 }
 
 # both functions are there for D2::Core::Role::Hookable
@@ -199,6 +213,10 @@ sub _exporter_plugin {
 
             sub PluginKeyword :ATTR(CODE) {
                 goto &Dancer2::Plugin2::PluginKeyword;
+            }
+
+            sub execute_plugin_hook {
+                goto &Dancer2::Plugin2::execute_plugin_hook;
             }
 
             my \$_keywords = {};
