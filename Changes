@@ -17,6 +17,7 @@
       paths. (Russell Jenkins)
     * GH #1032 #1043: Add .dancer file to new app scaffolding (Jason A. Crome)
     * GH #1045: Small cleanups to Request class (Russell Jenkins)
+    * GH #1033: strict && warnings in Dancer2::CLI (Mohammad S Anwar)
 
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
