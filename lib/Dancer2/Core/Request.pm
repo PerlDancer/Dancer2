@@ -77,9 +77,8 @@ sub new {
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
-    # parsing body for HMV first
+    # parsing body for HMV first (also deserializes body)
     $self->body_parameters;
-    $self->data;      # Deserialize body
     $self->_build_uploads();
 
     return $self;
@@ -364,8 +363,6 @@ sub body_parameters {
     my $self = shift;
     $self->{'plack.request.body'}
         and return $self->{'plack.request.body'};
-
-    my $env = $self->env;
 
     # handle case of serializer
     if ( my $data = $self->deserialize ) {
