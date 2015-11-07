@@ -298,6 +298,7 @@ things:
     Maurice
     Menno Blom
     Michał Wojciechowski
+    Mohammad S Anwar
     mokko
     Nick Patch
     Nick Tonkin
