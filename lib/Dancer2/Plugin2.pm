@@ -176,14 +176,20 @@ sub _exporter_app {
     # deprecated backwards compat: on_plugin_import()
     $_->($plugin) for @{ $plugin->_DANCER2_IMPORT_TIME_SUBS() };
 
-    # add our hooks to the app, so they're recognized
+    # Add our hooks to the app, so they're recognized
     # this is for compatibility so you can call execute_hook()
-    # without the fully qualified plugin name
-    # TODO: what if we register the same hook as another plugin?
-    {
-        foreach my $hook ( keys %{ $plugin->hooks } ) {
-            my ( $pure_name ) = $hook =~ /^plugin\.\w+\.(\w+)$/;
-            $plugin->hook_aliases->{$pure_name} = $hook;
+    # without the fully qualified plugin name.
+    # The reason we need to do this here instead of when adding a
+    # hook is because we need to register in the app, and only now it
+    # exists.
+    # This adds a caveat that two plugins cannot register
+    # the same hook name, but that will be deprecated anyway.
+    {;
+        foreach my $hook ( @{ $plugin->ClassHooks } ) {
+            my $full_name = 'plugin.' . lc($class) . ".$hook";
+            $full_name =~ s/Dancer2::Plugin:://i;
+            $full_name =~ s/::/_/g;
+            $plugin->hook_aliases->{$hook} = $full_name;
         }
     }
 
