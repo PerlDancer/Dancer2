@@ -176,6 +176,13 @@ sub _exporter_app {
     # deprecated backwards compat: on_plugin_import()
     $_->($plugin) for @{ $plugin->_DANCER2_IMPORT_TIME_SUBS() };
 
+    {
+        ## no critic
+        no strict 'refs';
+        *{"${class}::plugin_setting"} = sub { $plugin->config };
+    }
+
+
     # Add our hooks to the app, so they're recognized
     # this is for compatibility so you can call execute_hook()
     # without the fully qualified plugin name.
@@ -266,6 +273,20 @@ sub _exporter_plugin {
                          . "Use 'app->request' instead'.\n";
 
                 \$_[0]->app->request;
+            }
+
+            sub var {
+                Carp::carp "Plugin DSL method 'var' is deprecated. "
+                         . "Use 'request->var' instead'.\n";
+
+                shift->app->request->var(\@_);
+            }
+
+            sub plugin_args {
+                Carp::carp "Plugin DSL method 'plugin_args' is deprecated. "
+                         . "Use '\\\@_' instead'.\n";
+
+                \@_;
             }
         }
 END
