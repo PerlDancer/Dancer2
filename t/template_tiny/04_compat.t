@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
+use t::lib::Tools qw(slurp);
 
 BEGIN {
     $|  = 1;
@@ -61,16 +62,6 @@ foreach my $name (@TEMPLATES) {
     );
     is( $out, $txt, "$name: Output matches expected" );
 }
-
-sub slurp {
-    my $f = shift;
-    local $/ = undef;
-    open( VAR, $f ) or die("open($f): $!");
-    my $buffer = <VAR>;
-    close VAR;
-    return $buffer;
-}
-
 
 ######################################################################
 # Support Classes for object tests
