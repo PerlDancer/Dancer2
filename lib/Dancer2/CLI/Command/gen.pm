@@ -120,6 +120,7 @@ sub version {
 # skel creation routines
 sub _build_file_list {
     my ($from, $to) = @_;
+    $from =~ s{/+$}{};
     my $len = length($from) + 1;
 
     my @result;
