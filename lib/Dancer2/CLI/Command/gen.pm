@@ -167,7 +167,7 @@ sub _copy_templates {
             close $fh;
         }
 
-        if ($from !~ m/\.(ico|jpg|css|js)$/) {
+        if ($from !~ m/\.(ico|jpg|png|css|js)$/) {
             $content = _process_template($content, $vars);
         }
 
