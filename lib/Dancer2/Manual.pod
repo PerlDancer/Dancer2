@@ -2714,6 +2714,14 @@ Returns a L<Hash::MultiValue> object from the body parameters.
         my @all_names = body_parameters->get_all('name');
     };
 
+=head2 request_data
+
+Returns the request's body in data form
+(in case a serializer is set, it will be in deserialized).
+
+This allows us to distinguish between C<body_parameters>, a representation
+of Web parameters (L<Hash::MultiValue>) and other forms of content.
+
 =head2 pass
 
 I<This method should be called from a route handler>.
