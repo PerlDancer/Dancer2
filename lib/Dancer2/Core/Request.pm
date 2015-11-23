@@ -70,8 +70,8 @@ sub new {
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
-    # parsing body for HMV first (also deserializes body)
-    $self->body_parameters;
+    # parsing body, deserialize and construct body_params and HMV body_parameters
+    $self->_parse_request_body;
     $self->_build_uploads();
 
     return $self;
@@ -504,9 +504,27 @@ sub _parse_get_params {
     return $self->_query_params;
 }
 
+sub _parse_request_body {
+    my $self = shift;
+    $self->SUPER::_parse_request_body(@_);
 
+    # GET/HEAD requests do not construct a HTTP::Body object
+    if ( ! exists $self->env->{'plack.request.http.body'} ) {
+        $self->{_body_params} = {};
+        return;
     }
 
+    # HTTP::Body handles decoding the request body for
+    # application/x-www-form-urlencoded and multipart/form-data
+    # anything else we deserialize
+    my $ct = $self->env->{CONTENT_TYPE};
+    unless ( $ct eq 'application/x-www-form-urlencoded' or $ct eq 'multipart/form-data' ) {
+        # handle case of serializer
+        if ( my $data = $self->deserialize ) {
+            $self->env->{'plack.request.body'} = Hash::MultiValue->from_mixed(
+                ref $data eq 'HASH' ? %{$data} : ()
+            );
+        }
     }
 }
 
