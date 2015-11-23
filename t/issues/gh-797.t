@@ -23,11 +23,8 @@ my $test = Plack::Test->create( App->to_app );
 my %headers = ( 'Content-Type' => 'application/what-ever' );
 
 subtest 'Basic response failing' => sub {
-    TODO: {
-        local $TODO = '500 when deserializing bad input';
-        my $res = $test->request( POST '/', { foo => 'bar' }, %headers );
-        is( $res->code, 500, '[POST /] Failed when sending regular params' );
-    }
+    my $res = $test->request( POST '/', { foo => 'bar' }, %headers );
+    is( $res->code, 500, '[POST /] Failed when sending regular params' );
 };
 
 subtest 'Basic response' => sub {

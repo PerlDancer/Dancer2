@@ -1245,6 +1245,12 @@ sub dispatch {
     my $runner  = Dancer2::runner();
     my $request = $runner->{'internal_request'} ||
                   $self->build_request($env);
+    if (
+        $self->has_serializer_engine &&
+        length $request->body && ! defined $request->data
+    ) {
+        return $self->response_internal_error("Failed to deserialize request body")
+    }
     my $cname   = $self->session_engine->cookie_name;
 
 DISPATCH:

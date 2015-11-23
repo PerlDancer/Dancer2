@@ -193,7 +193,9 @@ note 'Check serialization errors'; {
 
         my $errors = $trap->read;
         isa_ok( $errors, 'ARRAY' );
-        is( scalar @{$errors}, 1, 'One error caught' );
+        # first error is the deserialization fail, which causes a
+        # second error message from the 500 response.
+        is( scalar @{$errors}, 2, 'Two errors caught' );
 
         my $msg = $errors->[0];
         delete $msg->{'formatted'};
