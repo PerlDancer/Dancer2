@@ -118,7 +118,8 @@ subtest 'Body parameters with serialized data' => sub {
 
     my $app = Plack::Test->create( App::Body::JSON->to_app );
     my $res = $app->request(
-        POST '/', Content => '{"foo":"bar","bar":["baz","quux"]}'
+        POST '/', 'Content' => '{"foo":"bar","bar":["baz","quux"]}',
+                  'Content-Type' => 'application/json'
     );
     ok( $res->is_success, 'Successful request' );
 };

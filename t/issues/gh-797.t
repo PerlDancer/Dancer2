@@ -20,7 +20,7 @@ use JSON;
 }
 
 my $test = Plack::Test->create( App->to_app );
-my %headers;
+my %headers = ( 'Content-Type' => 'application/what-ever' );
 
 subtest 'Basic response failing' => sub {
     TODO: {

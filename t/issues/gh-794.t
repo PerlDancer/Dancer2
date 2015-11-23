@@ -13,15 +13,16 @@ use HTTP::Request::Common;
 }
 
 my $test = Plack::Test->create( App->to_app );
+my %headers = ( 'Content-Type' => 'application/what-ever' );
 
 is(
-    $test->request( POST '/', Content => '{"foo":42}' )->content,
+    $test->request( POST '/', Content => '{"foo":42}', %headers )->content,
     '{"foo":42}',
     'Correct JSON content in POST',
 );
 
 is(
-    $test->request( POST '/', Content => 'invalid' )->code,
+    $test->request( POST '/', Content => 'invalid', %headers )->code,
     500,
     'Failed to decode invalid content',
 );
