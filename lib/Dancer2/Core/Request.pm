@@ -67,13 +67,6 @@ sub new {
     $self->{'vars'}            = {};
     $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
 
-    # parameters
-    $self->{_chunk_size}       = 4096;
-    $self->{_read_position}    = 0;
-    $self->{_http_body} =
-      HTTP::Body->new( $self->content_type || '', $self->content_length );
-    $self->{_http_body}->cleanup(1);
-
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
@@ -511,48 +504,9 @@ sub _parse_get_params {
     return $self->_query_params;
 }
 
-sub _read_to_end {
-    my ($self) = @_;
 
-    my $content_length = $self->content_length;
-    return unless $self->_has_something_to_read();
-
-    my $body = '';
-    if ( $content_length && $content_length > 0 ) {
-        while ( my $buffer = $self->_read() ) {
-            $body .= $buffer;
-        }
-        $self->{_http_body}->add($body);
     }
 
-    return $body;
-}
-
-sub _has_something_to_read {
-    my ($self) = @_;
-    return 0 unless defined $self->input_handle;
-}
-
-# taken from Miyagawa's Plack::Request::BodyParser
-sub _read {
-    my ( $self ) = @_;
-    my $remaining = $self->content_length - $self->{_read_position};
-    my $maxlength = $self->{_chunk_size};
-
-    return if ( $remaining <= 0 );
-
-    my $readlen = ( $remaining > $maxlength ) ? $maxlength : $remaining;
-    my $buffer;
-    my $rc;
-
-    $rc = $self->input_handle->read( $buffer, $readlen );
-
-    if ( defined $rc ) {
-        $self->{_read_position} += $rc;
-        return $buffer;
-    }
-    else {
-        croak "Unknown error reading input: $!";
     }
 }
 
