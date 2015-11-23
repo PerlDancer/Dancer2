@@ -7,7 +7,6 @@ use parent 'Plack::Request';
 
 use Carp;
 use Encode;
-use HTTP::Body;
 use URI;
 use URI::Escape;
 use Class::Load 'try_load_class';
@@ -92,8 +91,7 @@ sub var {
 #   -- Sawyer
 sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
-# XXX: incompatible with Plack::Request
-sub body { $_[0]->{'body'} ||= $_[0]->_read_to_end }
+sub body { $_[0]->content }
 
 sub id { $_id }
 
@@ -110,11 +108,7 @@ sub _has_params { defined $_[0]->{'_params'} }
 
 sub _body_params {
     my $self = shift;
-
-    # make sure body is parsed
-    $self->body;
-
-    $self->{'_body_params'} ||= _decode( $self->{'_http_body'}->param );
+    $self->{'_body_params'} ||= _decode( $self->env->{'plack.request.http.body'}->param );
 }
 
 sub _query_params { $_[0]->{'_query_params'} }
@@ -352,21 +346,7 @@ sub _set_route_parameters {
     $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{$params} );
 }
 
-sub body_parameters {
-    my $self = shift;
-    $self->{'plack.request.body'}
-        and return $self->{'plack.request.body'};
-
-    # handle case of serializer
-    if ( my $data = $self->deserialize ) {
-        return Hash::MultiValue->from_mixed(
-            ref $data eq 'HASH' ? %{$data} : ()
-        );
-    }
-
-    $self->_parse_request_body;
-    return $self->env->{'plack.request.body'};
-}
+# sub body_parameters inherited from Plack::Request
 
 sub parameters {
     my ( $self, $type ) = @_;
