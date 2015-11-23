@@ -512,29 +512,30 @@ sub _parse_request_body {
 sub _build_uploads {
     my ($self) = @_;
 
-    # build the body and body params
-    my $body_params = $self->_body_params;
-
-    my $uploads = _decode( $self->{_http_body}->upload );
     my %uploads;
 
-    for my $name ( keys %{$uploads} ) {
-        my $files = $uploads->{$name};
-        $files = ref $files eq 'ARRAY' ? $files : [$files];
+    if ( exists $self->env->{'plack.request.http.body'} ) {
 
-        my @uploads = map Dancer2::Core::Request::Upload->new(
-                              headers  => $_->{headers},
-                              tempname => $_->{tempname},
-                              size     => $_->{size},
-                              filename => $_->{filename},
-                      ), @{$files};
+        my $uploads = _decode( $self->env->{'plack.request.http.body'}->upload );
 
-        $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
+        for my $name ( keys %{$uploads} ) {
+            my $files = $uploads->{$name};
+            $files = ref $files eq 'ARRAY' ? $files : [$files];
 
-        # support access to the filename as a normal param
-        my @filenames = map $_->{'filename'}, @uploads;
-        $self->{_body_params}{$name} =
-          @filenames > 1 ? \@filenames : $filenames[0];
+            my @uploads = map Dancer2::Core::Request::Upload->new(
+                                  headers  => $_->{headers},
+                                  tempname => $_->{tempname},
+                                  size     => $_->{size},
+                                  filename => $_->{filename},
+                          ), @{$files};
+
+            $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
+
+            # support access to the filename as a normal param
+            my @filenames = map $_->{'filename'}, @uploads;
+            $self->{_body_params}{$name} =
+              @filenames > 1 ? \@filenames : $filenames[0];
+        }
     }
 
     $self->{uploads} = \%uploads;

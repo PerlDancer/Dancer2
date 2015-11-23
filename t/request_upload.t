@@ -129,7 +129,7 @@ SHOGUN6
         # make sure cleanup is performed when the HTTP::Body object is purged
         my $file = $upload->tempname;
         ok( ( -f $file ), 'temp file exists while HTTP::Body lives' );
-        undef $req->{_http_body};
+        undef $req->env->{'plack.request.http.body'};
       SKIP: {
             skip
               "Win32 can't remove file/link while open, deadlock with HTTP::Body",
