@@ -3,27 +3,22 @@ package Dancer2::Serializer::JSON;
 
 use Moo;
 use JSON ();
+use Scalar::Util 'blessed';
 
 with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
-sub from_json {
-    my $s = Dancer2::Serializer::JSON->new;
-    $s->deserialize(@_);
-}
+sub from_json { __PACKAGE__-> deserialize(@_) }
 
-sub to_json {
-    my $s = Dancer2::Serializer::JSON->new;
-    $s->serialize(@_);
-}
+sub to_json { __PACKAGE__->serialize(@_) }
 
 # class definition
 sub serialize {
     my ( $self, $entity, $options ) = @_;
 
-    my $config = $self->config;
+    my $config = blessed $self ? $self->config : {};
 
     foreach (keys %$config) {
         $options->{$_} = $config->{$_} unless exists $options->{$_};

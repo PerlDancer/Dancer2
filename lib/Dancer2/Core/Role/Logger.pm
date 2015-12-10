@@ -9,6 +9,7 @@ use Data::Dumper;
 
 with 'Dancer2::Core::Role::Engine';
 
+sub hook_aliases { +{} }
 sub supported_hooks {
     qw(
       engine.logger.before
@@ -75,7 +76,7 @@ sub format_message {
     $message = Encode::encode( $self->auto_encoding_charset, $message )
       if $self->auto_encoding_charset;
 
-    my @stack = caller(6);
+    my @stack = caller(5);
     my $request = $self->request;
     my $config = $self->config;
 
@@ -149,12 +150,12 @@ sub format_message {
 sub _serialize {
     my @vars = @_;
 
-    return join q{}, map {
+    return join q{}, map +(
         ref $_
           ? Data::Dumper->new( [$_] )->Terse(1)->Purity(1)->Indent(0)
           ->Sortkeys(1)->Dump()
           : ( defined($_) ? $_ : 'undef' )
-    } @vars;
+    ), @vars;
 }
 
 sub core {

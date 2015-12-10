@@ -34,7 +34,7 @@ The basics:
 
     set logger => "capture";
 
-    my $trap = dancer_app->engine('logger')->trapper;
+    my $trap = dancer_app->logger_engine->trapper;
     my $logs = $trap->read;
 
 A worked-out real-world example:
@@ -47,7 +47,7 @@ A worked-out real-world example:
     warning "Danger!  Warning!";
     debug   "I like pie.";
 
-    my $trap = dancer_app->engine('logger')->trapper;
+    my $trap = dancer_app->logger_engine->trapper;
 
     is_deeply $trap->read, [
         { level => "warning", message => "Danger!  Warning!" },

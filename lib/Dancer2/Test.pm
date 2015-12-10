@@ -73,7 +73,8 @@ sub dancer_response {
         no warnings qw<redefine once>;
         *Dancer2::Core::App::set_request = sub {
             my $self = shift;
-            $self->{'request'} = $request;
+            $self->_set_request( $request );
+            $_->set_request( $request ) for @{ $self->defined_engines };
         };
     }
 
@@ -192,7 +193,7 @@ sub _build_env_from_request {
         SERVER_NAME       => 'localhost',
         SERVER_PORT       => 3000,
         HTTP_HOST         => 'localhost',
-        HTTP_USER_AGENT   => "Dancer2::Test simulator v $Dancer2::VERSION",
+        HTTP_USER_AGENT   => "Dancer2::Test simulator v" . Dancer2->VERSION,
     };
 
     # TODO

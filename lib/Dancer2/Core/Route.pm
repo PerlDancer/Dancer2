@@ -4,9 +4,10 @@ package Dancer2::Core::Route;
 use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
+use List::Util 'first';
 use Scalar::Util 'blessed';
 
-our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER );
+our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
 has method => (
     is       => 'ro',
@@ -135,14 +136,15 @@ sub execute {
 
     my $content = $self->code->( $app, @args );
 
-    # a user might have set the content in the response,
-    # so we ignore the return value and use that content instead
-    # but we only override if there was no object returned
+    # users may set content in the response. If the response has
+    # content, and the returned value from the route code is not
+    # an object (well, reference) we ignore the returned value
+    # and use the existing content in the response instead.
     $RESPONSE->has_content && !ref $content
-        and $content = $RESPONSE->content;
+        and return $app->_prep_response( $RESPONSE );
 
     my $type = blessed($content)
-        or return $app->_add_content_to_response( $RESPONSE, $content );
+        or return $app->_prep_response( $RESPONSE, $content );
 
     # Plack::Response: proper ArrayRef-style response
     $type eq 'Plack::Response'
@@ -175,18 +177,15 @@ sub BUILDARGS {
     my $prefix = $args{prefix};
     my $regexp = $args{regexp};
 
-    # regexp must have a leading /
-    if ( ref($regexp) ne 'Regexp' ) {
-        index( $regexp, '/', 0 ) == 0
-            or die "regexp must begin with /\n";
-    }
-
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
             ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
-            $regexp eq '/'           ? qr{^\Q${prefix}\E/?$} :
             $prefix . $regexp;
+    }
+    elsif ( ref($regexp) ne 'Regexp' ) {
+        # No prefix, so ensure regexp begins with a '/'
+        index( $regexp, '/', 0 ) == 0 or $args{regexp} = "/$regexp";
     }
 
     # init regexp
@@ -214,6 +213,12 @@ sub _build_regexp_from_string {
     if ( $string =~ /:/ ) {
         @params = $string =~ /:([^\/\.\?]+)/g;
         if (@params) {
+            first { $_ eq 'splat' } @params
+                and warn q{Named placeholder 'splat' is deprecated};
+
+            first { $_ eq 'captures' } @params
+                and warn q{Named placeholder 'captures' is deprecated};
+
             $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
             $capture = 1;
         }
@@ -239,9 +244,12 @@ sub _build_regexp_from_string {
 sub validate_options {
     my ( $self, $request ) = @_;
 
-    while ( my ( $option, $value ) = each %{ $self->options } ) {
+    for my $option ( keys %{ $self->options } ) {
         return 0
-          if ( not $request->$option ) || ( $request->$option !~ $value );
+          if (
+            ( not $request->$option )
+            || ( $request->$option !~ $self->options->{ $option } )
+          )
     }
     return 1;
 }

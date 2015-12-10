@@ -180,11 +180,6 @@ subtest 'Defaults' => sub {
         my $request = Dancer2::Core::Request->new( env => $env );
         isa_ok( $request, 'Dancer2::Core::Request' );
 
-        ok(
-            $request->DOES('Dancer2::Core::Role::Headers'),
-            'Consumes D2::C::R::Headers',
-        );
-
         can_ok( $request, 'env' );
         isa_ok( $request->env, 'HASH' );
 
@@ -278,15 +273,11 @@ subtest 'Create with single env' => sub {
         'Create with env hash',
     );
 
-    isa_ok(
-        Dancer2::Core::Request->new({ env => {} }),
-        'Dancer2::Core::Request',
-        'Create with env hashref',
-    );
-
     my $request;
     isa_ok(
-        $request = Dancer2::Core::Request->new({ REQUEST_METHOD => 'X' }),
+        $request = Dancer2::Core::Request->new(
+            env => { REQUEST_METHOD => 'X' }
+        ),
         'Dancer2::Core::Request',
         'Create with single argument for env',
     );
@@ -297,8 +288,8 @@ subtest 'Create with single env' => sub {
 subtest 'Serializer' => sub {
     {
         my $request = Dancer2::Core::Request->new( env => {} );
-        can_ok( $request, qw<serializer has_serializer> );
-        ok( ! $request->has_serializer, 'No serializer set' );
+        can_ok( $request, qw<serializer> );
+        ok( ! $request->serializer, 'No serializer set' );
     }
 
     {
@@ -336,7 +327,7 @@ subtest 'Serializer' => sub {
             'Can create request with serializer',
         );
 
-        ok( $request->has_serializer, 'Serializer set' );
+        ok( $request->serializer, 'Serializer set' );
         isa_ok( $request->serializer, 'Serializer' );
     }
 };
@@ -409,7 +400,7 @@ subtest 'Checking request ID' => sub {
     my $test = Plack::Test->create( sub {
         my $env     = shift;
         my $request = Dancer2::Core::Request->new( env => $env );
-        is( $request->id, 10, 'Correct request id' );
+        is( $request->id, 8, 'Correct request id' );
 
         return psgi_ok;
     } );
@@ -440,24 +431,24 @@ subtest 'is_$method (head/post/get/put/delete/patch' => sub {
 };
 
 subtest 'Parameters (body/query/route)' => sub {
-    diag $Dancer2::Core::Request::XS_URL_DECODE ?
+    note $Dancer2::Core::Request::XS_URL_DECODE ?
          'Running test with XS_URL_DECODE'      :
          'Running test without XS_URL_DECODE';
 
-    diag $Dancer2::Core::Request::XS_PARSE_QUERY_STRING ?
+    note $Dancer2::Core::Request::XS_PARSE_QUERY_STRING ?
          'Running test with XS_PARSE_QUERY_STRING'      :
          'Running test without XS_PARSE_QUERY_STRING';
 
     test_all_params;
 
     if ( $Dancer2::Core::Request::XS_PARSE_QUERY_STRING ) {
-        diag 'Running test without XS_PARSE_QUERY_STRING';
+        note 'Running test without XS_PARSE_QUERY_STRING';
         $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
         test_all_params;
     }
 
     if ( $Dancer2::Core::Request::XS_URL_DECODE ) {
-        diag 'Running test without XS_URL_DECODE';
+        note 'Running test without XS_URL_DECODE';
         $Dancer2::Core::Request::XS_URL_DECODE = 0;
         test_all_params;
     }

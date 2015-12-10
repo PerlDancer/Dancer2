@@ -1,5 +1,229 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Update core team members and contributors list (Russell Jenkins)
+
+    [ BUG FIXES ]
+    * GH #1040: Forward with a post body no longer tries to re-read body
+      filehandle (Bas Bloemsaat)
+    * GH #1042: Add Diggest::SHA as explicit prequisite for installs on
+      perl < v5.9.3 (Russell Jenkins)
+
+    [ ENHANCEMENTS ]
+    * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
+      in the Plack::Request object internally.
+    * GH #951 #1037: Dancer2::Template::TemplateToolkit no longer sets TT2
+      INCLUDE_PATH directive, allowing `views` setting to be non-absolute
+      paths. (Russell Jenkins)
+    * GH #1032 #1043: Add .dancer file to new app scaffolding (Jason A. Crome)
+    * GH #1045: Small cleanups to Request class (Russell Jenkins)
+    * GH #1033: strict && warnings in Dancer2::CLI (Mohammad S Anwar)
+
+0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
+
+    [ DOCUMENTATION ]
+    * GH: #1030: Fix pod references pointing to Dancer package
+      (Mohammad S Anwar, Russell Jenkins)
+
+0.162000_01 2015-10-13 17:05:09+02:00 Europe/Amsterdam (TRIAL RELEASE)
+
+    [ BUG FIXES ]
+    * GH #996: Fix warning with optional arguments. (Bas Bloemsaat)
+    * GH #1001: Do not trigger an internal error on 404. (Russell Jenkins)
+    * GH #1008,#976: Hack to quiet warning while plugins
+      architecture is being rewritten. (Russell Jenkins)
+    * Use Safe::Isa when calling their functions in the respected eval.
+      (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * GH #738, #740, #988: route_parameters, request_parameters, and
+      body_parameters keywords added, providing Hash::MultiValue objects!
+      (Sawyer X)
+    * #941, #999: delayed() keyword now has "on_error" option for controlling
+      errors.
+      (Sawyer X)
+    * dancer2 app now support -s switch to supply an app skeleton
+      (Nuno Carvalho)
+    * "perl_version" token in templates now uses $^V, not $]. (Sawyer X)
+    * GH #966: Remove Dist::Zilla::Plugin::AutoPrereqs. (Vernon)
+    * GH #992: Deprecate creating route named placeholders ":captures"
+      and ":splat". (Sawyer X)
+    * Bump Moo requirement to 2.000000. (Alberto Simões)
+    * GH #1012: Add :nopragmas import flag. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #974: Use correct classname. (Sawyer X)
+    * GH #958: Fix manual example with loading additional routes. (Sawyer X)
+    * GH #960: Fix a few links. (Sawyer X)
+    * Document you can install Scope::Upper for greater speed. (Sawyer X)
+    * GH #1000: Correct POD name for Dancer2::Manual::Deployment.
+      (Jason A. Crome)
+    * GH #1017: Fix instructions on running app.psgi. Highlight
+      beginner-friendly application running instructions. (Jason Crome)
+    * GH #920, #1020: Remove deprecated functionality from example plugin.
+      (Jason Crome)
+    * GH #1002: Correct execute_hook() call in plugins documentation.
+      (Jason Crome)
+    * Expand on auto-reloading options using Plack Shotgun loader.
+      (Jason Crome, @girlwithglasses)
+    * GH #1024: Document the need to define static_handler when changing
+      the public_dir option. (Sébastien Deseille)
+
+0.162000  2015-09-06 13:08:05+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * Not exactly bug fix, but now captures() always returns hashref.
+      (Sawyer X)
+    * GH #931: Using params() keyword, route parameters now override body
+      parameters which override query parameters. (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * Small speed bump: use eval{} instead of Try::Tiny. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * Replace File::Slurp with File::Slurper in tutorial.
+      (Nick Tonkin)
+
+0.161000_01 2015-08-28 15:29:00+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #947, #948: Escape file paths in regex patterns. (A. Sinan Unur)
+    * GH #944: Setting response content in before hook when a serializer
+      is set no longer triggers an error.
+      (Russell Jenkins, Dmitrii Tcyganov)
+    * GH #965: Remove non-existant role from Response::Delayed.
+      (Vernon, Russell Jenkins)
+    * GH #971: Route options matching no longer uses each iterator.
+      (Tina Müller)
+    * GH #959: Custom error template rendering fixed. (Russell Jenkins)
+    * GH #961: Render custom error templates in before hooks. (Russell Jenkins)
+    * GH #978: Tests - fix response regex after html_encode (Vernon)
+    * GH #972: Exceptions thrown by serializers no longer masked.
+      (Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #967: Fix upload example. (Alberto Simões)
+    * GH #881: Add cookie timeout example. (Andy Beverley)
+    * GH #963: Document all available template tokens. (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * Optimize the s*#t out of basic routing. Faster than Dancer 1 now.
+      (Sawyer X)
+    * Only load HTTP::Server::PSGI when asked to start a development
+      server not under Plack. (Sawyer X, Mickey Nasriachi)
+    * GH #949: Produce cleaner, non-verbose test output (Vernon)
+    * GH #950: Decode characters in param keys (Patrick Zimmermann)
+    * GH #914: Include stack trace on default error page when
+      show_errors is true. (Vernon)
+    * GH #980, #981: halt keyword sets response content if provided,
+      as Dancer 1 does. (Achilles Kars)
+    * GH #909, #957, #983: HTML5 templates in generated apps and
+      default error template (Gabor Szabo, Kadir, Vernon)
+    * GH #972, #719, #969, #644, #647: Streamline serializer helpers.
+      to_json/from_json now faster. (Russell Jenkins)
+
+0.161000  2015-07-08 14:57:16+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #915, #930: Check existence of optional extension headers when
+      behind proxy. (Andy Beverley, Pedro Melo, Russell Jenkins)
+    * GH #926, #940: Set session directory default to $apprdir/session.
+      (Russell Jenkins)
+    * GH #936, #939: Use the error_template configuration on a 404.
+      (Russell Jenkins)
+    * GH #844, #937: Non-hash serialized params do not cause a crash. (Sawyer X)
+    * GH #943: Pass @_ to UNIVERSAL's VERSION so it validates version number.
+      (Sawyer X)
+    * GH #934: Cleanup internals in the old Dispatcher. (Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * Sanitize Changes
+    * GH #938: Fix POD link to params keyword. (Ludovic Tolhurst-Cleaver)
+    * GH #935: Provide more details and considerations when using
+      behind_proxy. (Andy Beverley)
+
+    [ ENHANCEMENT ]
+    * GH #933: use note in tests to produce cleaner non-verbose output (Vernon)
+    * Remove unnecessary dependencies: build chain should be smaller. (Sawyer X)
+    * No need for Module::Build. (Sawyer X)
+    * GH #911: Dancer2 request object is now a subclass of Plack::Request.
+      It's also much faster now. (Sawyer X)
+
+0.160003  2015-06-06 11:09:00+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #921, #922: Plack >= 1.0035. (Russell Jenkins, Alberto Simões)
+
+    [ ENHANCEMENT ]
+    * #922: Use HTTP::Headers::Fast in request and response objects
+    (Russell Jenkins)
+
+0.160002  2015-06-04 13:03:38+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #920: Sanitize session IDs in file-based sessions.
+      (Russell Jenkins, Andrew Beverley)
+
+    [ DOCUMENTATION ]
+    * GH #908: Cleanup Dancer references in DBIC section of cookbook
+      (Julien Fiegehenn)
+    * GH #910: Misc spelling and grammar fixes (Gregor Herrmann)
+    * GH #916: Fix test example. (Peter Mottram - @SysPete)
+    * GH #912, #913: Fix documentation on when stacks are printed.
+      (Andrew Solomon)
+
+0.160001  2015-05-14 20:40:10+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #893, #895: Catch config parse errors when Config::Any doesn't throw
+      them. (Russell Jenkins)
+    * GH #899: Minimum YAML version supported is v0.86 (Shlomi Fish)
+    * GH #906: send_file - missing import and fix logic error for streaming
+      by default (Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #897: Remove docs for unimplemented 'load' keyword (Fayland Lam)
+
+    [ ENHANCEMENT ]
+    * GH #894, #898: Add status and headers methods to ::Response::Delayed
+      (Yanick Champoux, Charlie Gonzalez)
+
+0.160000  2015-04-27 00:12:55+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #868: Fix incorrect access name in $error->throw. (cdmalon)
+    * GH #879, #883: Fix version numbering in packaging and tests.
+      (Russell Jenkins)
+    * File serving (send_file) won't call serializer. (Russell Jenkins)
+    * GH #892, #510: Workaround for multiple plugins with hooks.
+      (Russell Jenkins, Alberto Simões)
+    * GH #558: Remove "prefix" inconsistency with possibly missing postfixed
+      forward slash. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #816, #874 Document session engine changes in migration documentation.
+      (Chenchen Zhao)
+    * GH #866, #870: Clarify that you cannot forward to a static file, why,
+      and two different ways of accomplishing it without forward.
+      (Sakshee Vijayvargia)
+    * GH #878: Rework example for optional named matching due to operator
+      precedence. (Andrew Solomon)
+    * GH #844: Document Simple session backend is the default. (Sawyer X)
+
+    [ ENHANCEMENT ]
+    * GH #869: Streaming file serving (send_file). (Russell Jenkins)
+    * GH #793: "prefix" now supports the path definition spec. (Sawyer X)
+    * GH #817, #845: Route spec under a prefix doesn't need to start with
+      a slash (but must without a prefix).
+      (Sawyer X, Russell Jenkins)
+    * GH #871: Use Safe.pm instead of eval with Dancer2::Serializer::Dumper.
+      (David Zurborg)
+    * GH #880: Reduce and cleanup different logging calls in order to handle
+      the stack frames traceback for logging classes. (Russell Jenkins)
+    * GH #857, #875: When failing to render in Template::Toolkit, make the
+      error reflect it's a TT error, not an internal one.
+      (valerycodes)
+
 0.159003  2015-03-23 14:57:15+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
@@ -294,7 +518,7 @@
 
     [ DOCUMENTATION ]
     * Migration document! (Snigdha Dagar)
-    * GH #667: Fix typo in cookbook pod. (Lindsey Beesley) 
+    * GH #667: Fix typo in cookbook pod. (Lindsey Beesley)
     * GH #649, #670: Document core logger. (simbabque)
     * GH #689: Git guide markdown fixes. (Paul Cochrane)
     * GH #690, #691, #694, #696, #698, #699, #700, #702, #703,
@@ -545,7 +769,7 @@
     * Small POD corrections (Ashvini V)
 
     [ ENHANCEMENTS ]
-    * GH#482: Show the startup banner when the worker starts by default 
+    * GH#482: Show the startup banner when the worker starts by default
       (Alexis Sukrieh).
     * GH#481: Include local lib dir in @INC by defaults (Alexis Sukrieh).
     * GH#423: Remove ':tests' from Dancer.pm import (Alberto Simões).
@@ -686,7 +910,7 @@
     * Prevent duplicate routes from being created (Franck Cuny)
     * Add support for route options (Franck Cuny)
     * Add support for prefix with route defined with regex (Franck Cuny)
-    * Methods to return path of views and layout in the Template role 
+    * Methods to return path of views and layout in the Template role
       (Franck Cuny, Yanick Champoux).
     * GH#31, GH#221: Config merging support (Russell Jenkins)
 
@@ -706,7 +930,7 @@
       (Franck Cuny)
     * GH#210: Don't print startup banner if startup_info is set to 0
       (Maurice Mengel, Franck Cuny)
-    * plugin_setting does not trigger a DEPRECATION warning anymore 
+    * plugin_setting does not trigger a DEPRECATION warning anymore
       (Report by Alberto Simões, fix by Alexis Sukrieh)
     * GH#251: Support for on-the-fly changes of layouts/views (Franck Cuny)
     * GH#302: Avoid double encoding in Handler::File (Russell Jenkins)
@@ -725,14 +949,14 @@
 0.04 - 2013-04-22 (Alexis Sukrieh)
 
     [ BUG FIXES ]
-    * Fix "Internal Sever Error" when sending a file with send_file 
+    * Fix "Internal Sever Error" when sending a file with send_file
       (Dinis Rebolo)
     * Allow the setting of the 'views' directory, like stated in documentation
       (Alexander Karelas)
 
     [ ENHANCEMENTS ]
     * Implement Dancer2::Test file uploads (Steven Humphrey)
-    * Give Dancer2::Test the ability to handle multiselect inputs 
+    * Give Dancer2::Test the ability to handle multiselect inputs
       (Steven Humphrey)
     * Make Cookie objects stringify to their value. (David Precious)
     * New routines for Dancer2::Test to check pod coverage in apps routes
@@ -740,7 +964,7 @@
     * New script dancer2 to bootstrap an application (mokko)
     * Fix tests when running under Windows environments (Russell Jenkins)
     * Serializing modify the response's content type (Yanick Champoux)
-    
+
     [ DOCUMENTATION ]
     * Make introduction more fluid in Dancer2's POD. (mokko)
 
@@ -752,10 +976,10 @@
 
     [ ENHANCEMENTS ]
     * Don't create a session when just checking if a value exists
-      (David Golden) 
-    * Only flush sessions if they are dirty 
       (David Golden)
-    * Allow the default template file extension to be changed. 
+    * Only flush sessions if they are dirty
+      (David Golden)
+    * Allow the default template file extension to be changed.
       (David Precious)
     * Add on_plugin_import function to Dancer2::Plugin (David Golden)
       (Fix for issue #284)
@@ -797,7 +1021,7 @@
     [ BUG FIXES ]
     * The engine configuration is now passed down to
       Dancer::Template::Implementation::ForkedTiny (Damien Krotkine).
-    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer" 
+    * Dancer App lookup now try to detect the dir "bin" and "lib" or ".dancer"
       file. (Celogeek)
     * Issues #125 and #126
       Support for configuration bits for session objects, possible to change the
@@ -816,6 +1040,6 @@
 1.9999_01
 
     * First DEVELEOPER release of Dancer 2
-      complete rewrite of Dancer with a Moo backend.  
+      complete rewrite of Dancer with a Moo backend.
       (Alexis Sukrieh, David Precious, Damien Krotkine, SawyerX, Yanick Champoux
       and others, plus Matt S. Trout as a reviewer).

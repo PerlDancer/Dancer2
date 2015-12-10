@@ -49,7 +49,7 @@ note 'server'; {
 
     is(
         $server->{'server_software'},
-        "Perl Dancer2 $Dancer2::VERSION",
+        "Perl Dancer2 " . Dancer2->VERSION,
         'server_software set correctly in Server',
     );
 }
@@ -196,6 +196,7 @@ note 'Startup info';
     can_ok( $runner, qw<start start_server> );
 
     $runner->config->{'apphandler'} = 'PSGI';
+    $runner->config->{'startup_info'} = 0;
     my $app = $runner->start;
     isa_ok( $app, 'CODE' );
 

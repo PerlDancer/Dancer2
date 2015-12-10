@@ -28,8 +28,6 @@ sub _build_engine {
     $tt_config{'END_TAG'} = $stop_tag
       if defined $stop_tag && $stop_tag ne '%]';
 
-    $tt_config{'INCLUDE_PATH'} ||= $self->views;
-
     return Template->new(%tt_config);
 }
 
@@ -37,13 +35,14 @@ sub render {
     my ( $self, $template, $tokens ) = @_;
 
     ( ref $template || -f $template )
-      or croak "$template is not a regular file or reference";
+      or croak "Failed to render template: $template is not a regular file or reference";
 
-    my $content = "";
+    my $content = '';
     my $charset = $self->charset;
     my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
     $self->engine->process( $template, $tokens, \$content, @options )
-      or croak $self->engine->error;
+      or croak 'Failed to render template: ' . $self->engine->error;
+
     return $content;
 }
 

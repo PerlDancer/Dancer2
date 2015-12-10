@@ -228,7 +228,7 @@ In Dancer2, creating new errors is done by creating a new L<Dancer2::Core::Error
      )
 
 If not given, the status code defaults to a 500, there is no need for a message if
-we feel taciturn, and while the C<$app> (which is a I<Dancer::Core::App>
+we feel taciturn, and while the C<$app> (which is a I<Dancer2::Core::App>
 object holding all the pieces of information related to the current request) is
 needed if we want to take advantage of the templates, we can also do without.
 
@@ -251,7 +251,7 @@ The error object has quite a few ways to generate its content.
 
 First, it can be explicitly given
 
-     my $oopsie = Dancer::Core::Error->new(
+     my $oopsie = Dancer2::Core::Error->new(
          content => '<html><body><h1>OMG</h1></body></html>',
      );
 
@@ -288,7 +288,7 @@ In the cases where more control is required, C<send_error()> is the way to go:
 And if total control is needed:
 
      get '/xmas/wishlist' => sub {
-         Dancer::Core::Error->new(
+         Dancer2::Core::Error->new(
              response => response(),
              status   => 406,
              message  => "nothing but coal for you, I'm afraid",
@@ -391,19 +391,19 @@ Or you can override them directly in the script (less recommended):
 =head2 Using DBIx::Class
 
 L<DBIx::Class>, also known as DBIC, is one of the many Perl ORM
-(I<Object Relational Mapper>). It is easy to use DBIC in Dancer using the
+(I<Object Relational Mapper>). It is easy to use DBIC in Dancer2 using the
 L<Dancer2::Plugin::DBIC>.
 
 =head3 An example
 
-This example demonstrates a simple Dancer application that allows to search
+This example demonstrates a simple Dancer2 application that allows one to search
 for authors or books. The application is connected to a database, that contains
 authors, and their books. The website will have one single page with a form,
-that allows to query books or authors, and display the results.
+that allows one to query books or authors, and display the results.
 
 =head4 Creating the application
 
-    $ dancer -a bookstore
+    $ dancer2 -a bookstore
 
 To use the Template Toolkit as the template engine, we specify it in the
 congiguration file:
@@ -534,7 +534,7 @@ in your database:
 =item * Use auto-detection
 
 The configuration file needs to be updated to indicate the use of the
-Dancer::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
+Dancer2::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
 to indicate that this schema is connected to the SQLite database we created.
 
     # add in bookstore/config.yml
@@ -586,7 +586,7 @@ usage of DBIX::Class.
 =item * Use home made schema classes
 
 The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes
-using L<Moose>. The schema classes should be put in a place that Dancer
+using L<Moose>. The schema classes should be put in a place that Dancer2
 will find. A good place is in I<bookstore/lib/>.
 
 Once your schema classes are in place, all you need to do is modify I<config.yml>
@@ -785,8 +785,8 @@ serialize it for you before returning it to the user.
 =head3 Configuring
 
 In order to configure a serializer, you just need to pick which format
-you want for encoding/decoding (from L<Dancer2::Serializer>) and set it
-up using the C<serializer> configuration keyword.
+you want for encoding/decoding (e.g. L<JSON|Dancer2::Serializer::JSON>)
+and set it up using the C<serializer> configuration keyword.
 
 It is recommended to explicitly add it in the actual code instead of the
 configuration file so it doesn't apply automatically to every app that

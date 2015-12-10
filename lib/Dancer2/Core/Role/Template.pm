@@ -6,18 +6,19 @@ use Dancer2::Core::Types;
 use Dancer2::FileUtils qw'path';
 use Carp 'croak';
 
-use Data::Dumper;
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
-sub supported_hooks {
-    qw/
-      engine.template.before_render
-      engine.template.after_render
-      engine.template.before_layout_render
-      engine.template.after_layout_render
-      /;
+sub hook_aliases {
+    {
+        before_template_render => 'engine.template.before_render',
+        after_template_render  => 'engine.template.after_render',
+        before_layout_render   => 'engine.template.before_layout_render',
+        after_layout_render    => 'engine.template.after_layout_render',
+    }
 }
+
+sub supported_hooks { values %{ shift->hook_aliases } }
 
 sub _build_type {'Template'}
 
@@ -170,7 +171,7 @@ sub _prepare_tokens_options {
 
     # these are the default tokens provided for template processing
     $tokens ||= {};
-    $tokens->{perl_version}   = $];
+    $tokens->{perl_version}   = $^V;
     $tokens->{dancer_version} = Dancer2->VERSION;
 
     $tokens->{settings} = $self->settings;
@@ -227,6 +228,43 @@ In order to implement this role, the consumer B<must> implement the method C<ren
 =item $template
 
 =item $tokens
+
+=back
+
+Any template receives the following tokens, by default:
+
+=over 4
+
+=item * C<perl_version>
+
+Current version of perl, effectively C<$^V>.
+
+=item * C<dancer_version>
+
+Current version of Dancer2, effectively C<<Dancer2->VERSION>>.
+
+=item * C<settings>
+
+A hash of the application configuration.
+
+=item * C<request>
+
+The current request object.
+
+=item * C<params>
+
+A hash reference of all the parameters.
+
+Currently the equivalent of C<< $request->params >>.
+
+=item * C<vars>
+
+The list of request variables, which is what you would get if you
+called the C<vars> keyword.
+
+=item * C<session>
+
+The current session data, if a session exists.
 
 =back
 

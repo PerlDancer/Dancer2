@@ -49,7 +49,7 @@ test_psgi $app, sub {
 
     {
         for my $format (keys %$d) {
-            diag("Format: $format");
+            note("Format: $format");
 
             my $s = $d->{$format};
 

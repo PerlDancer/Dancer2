@@ -2,9 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Fatal;
-use Test::Memory::Cycle;
-
+use Class::Load 'try_load_class';
 use Plack::Test;
+
+try_load_class('Test::Memory::Cycle')
+    or plan skip_all => 'Test::Memory::Cycle not present';
 
 {
 
@@ -22,7 +24,7 @@ use Plack::Test;
 my $app = MyApp::Cycles->to_app;
 
 my $runner = Dancer2->runner;
-memory_cycle_ok( $runner, "runner has no memory cycles" );
-memory_cycle_ok( $app, "App has no memory cycles" );
+Test::Memory::Cycle::memory_cycle_ok( $runner, "runner has no memory cycles" );
+Test::Memory::Cycle::memory_cycle_ok( $app, "App has no memory cycles" );
 
 done_testing();

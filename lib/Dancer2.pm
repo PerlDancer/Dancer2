@@ -13,10 +13,7 @@ use Dancer2::FileUtils;
 
 our $AUTHORITY = 'SUKRIA';
 
-# set version in dist.ini now
-# but we still need a basic version for
-# the tests
-$Dancer2::VERSION ||= '0.159000';
+sub VERSION { shift->SUPER::VERSION(@_) || '0.000000_000' }
 
 our $runner;
 
@@ -27,12 +24,18 @@ sub import {
     my ( $class,  @args   ) = @_;
     my ( $caller, $script ) = caller;
 
-    $_->import::into($caller) for qw(strict warnings utf8);
-
     my @final_args;
+    my $clean_import;
     foreach my $arg (@args) {
+        # ignore, no longer necessary
+        # in the future these will warn as deprecated
         grep +( $arg eq $_ ), qw<:script :syntax :tests>
             and next;
+
+        if ( $arg eq ':nopragmas' ) {
+            $clean_import++;
+            next;
+        }
 
         if ( substr( $arg, 0, 1 ) eq '!' ) {
             push @final_args, $arg, 1;
@@ -40,6 +43,9 @@ sub import {
             push @final_args, $arg;
         }
     }
+
+    $clean_import
+        or $_->import::into($caller) for qw<strict warnings utf8>;
 
     scalar @final_args % 2
       and die q{parameters must be key/value pairs or '!keyword'};
@@ -216,6 +222,7 @@ things:
     David Golden
     David Precious
     Franck Cuny
+    Jason A. Crome
     Mickey Nasriachi
     Russell Jenkins
     Sawyer X
@@ -225,28 +232,42 @@ things:
 
 =head2 CONTRIBUTORS
 
+    A. Sinan Unur
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
     Alexandr Ciornii
+    Andrew Beverley
     Andrew Grangaard
     Andrew Inishev
-    andrewsolomon
+    Andrew Solomon
+    Andy Jack
     Ashvini V
     B10m
-    baynes
-    Blabos de Blebe
     Bas Bloemsaat
+    baynes
+    Ben Hutton
+    Blabos de Blebe
     Breno G. de Oliveira
+    cdmalon
     Celogeek
     Cesare Gargano
+    Charlie Gonzalez
+    chenchen000
+    Chi Trinh
     Christian Walde
     Colin Kuskie
     cym0n
     Dale Gallagher
+    Daniel Muey
     David Steinbrunner
+    David Zurborg
+    Davs
     Dinis Rebolo
+    dtcyganov
     Erik Smit
+    Fayland Lam
+    Gabor Szabo
     geistteufel
     Gideon D'souza
     Graham Knop
@@ -254,31 +275,57 @@ things:
     Grzegorz Rożniecki
     Hobbestigrou
     Ivan Bessarabov
+    Ivan Kruglov
+    JaHIY
     Jakob Voss
     James Aitken
-    Jason A. Crome
+    James Raspass
     Javier Rojas
     Jean Stebens
+    Jens Rehsack
     Jonathan Scott Duff
+    Julien Fiegehenn
     Julio Fraire
+    kbeyazli
     Keith Broughton
+    lbeesley
+    Lennart Hengstmengel
+    Ludovic Tolhurst-Cleaver
     Mark A. Stratman
     Mateu X Hunter
     Matt Phillips
     Matt S Trout
     Maurice
+    Menno Blom
     Michał Wojciechowski
+    Mohammad S Anwar
     mokko
+    Nick Patch
+    Nick Tonkin
+    Nikita K
+    Nuno Carvalho
+    Olaf Alders
     Olivier Mengué
     Omar M. Othman
+    pants
+    Patrick Zimmermann
     Pau Amma
+    Paul Cochrane
+    Pedro Bruno
     Pedro Melo
+    Peter Mottram
     Rick Yakubowski
+    sakshee3
     Sam Kington
     Samit Badle
     Shlomi Fish
+    simbabque
     Slava Goltser
     smashz
+    Snigdha
+    Tina Müller
     Tom Hukins
-    Upasana
+    Upasana Shukla
+    Vernon Lyon
+    Vince Willems
     Vincent Bachelier

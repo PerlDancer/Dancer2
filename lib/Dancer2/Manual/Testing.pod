@@ -64,11 +64,12 @@ L<HTTP::Cookies> to store cookies and then retrieve them:
 
     use_ok('MyApp');
 
+    my $url  = 'http://localhost';
     my $jar  = HTTP::Cookies->new();
-    my $test = Plack::Test->create( $app->to_app );
+    my $test = Plack::Test->create( MyApp->to_app );
 
     subtest 'Create session' => sub {
-        my $res = $test->request( GET '/login', ... );
+        my $res = $test->request( GET "$url/login" );
         ok( $res->is_success, 'Successful login' );
 
         # extract cookies from the response and store in the jar
@@ -76,7 +77,7 @@ L<HTTP::Cookies> to store cookies and then retrieve them:
     };
 
     subtest 'Check session' => sub {
-        my $req = GET '/logout';
+        my $req = GET "$url/logout";
 
         # add cookies to the request
         $jar->add_cookie_header($req);
@@ -89,6 +90,9 @@ L<HTTP::Cookies> to store cookies and then retrieve them:
             'Got correct log out content',
         );
     };
+
+Please note that the request URL must include scheme and host for the call
+to L<HTTP::Cookies/add_cookie_header> to work.
 
 =head1 Plugins
 

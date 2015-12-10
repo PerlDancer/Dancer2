@@ -205,7 +205,7 @@ sub load_config_file {
         my @files = ($file);
         my $tmpconfig =
           Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
-        ( $file, $config ) = %{$tmpconfig};
+        ( $file, $config ) = %{$tmpconfig} if defined $tmpconfig;
     };
     if ( my $err = $@ || ( !$config ) ) {
         croak "Unable to parse the configuration file: $file: $@";
@@ -213,11 +213,6 @@ sub load_config_file {
 
     # TODO handle mergeable entries
     return $config;
-}
-
-sub get_postponed_hooks {
-    my ($self) = @_;
-    return $self->postponed_hooks;
 }
 
 # private
@@ -315,5 +310,3 @@ Verifies that a key exists in the configuration.
 =head2 load_config_file
 
 Load the configuration files.
-
-=head2 get_postponed_hooks

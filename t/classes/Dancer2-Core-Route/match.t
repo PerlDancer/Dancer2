@@ -24,22 +24,43 @@ my @tests = (
 
     # prefix tests
     [   [ 'get', '/', sub {33}, '/forum' ],
-        '/forum',
-        [ { splat => [1] }, 33 ]
+        '/forum/',
+        [ {}, 33 ]
     ],
     [   [ 'get', '/', sub {33}, '/forum' ],
         '/forum/',
-        [ { splat => [1] }, 33 ]
+        [ {}, 33 ]
     ],
     [   [ 'get', '/mywebsite', sub {33}, '/forum' ],
         '/forum/mywebsite',
         [ {}, 33 ]
+    ],
+    [   [ 'get', '', sub {'concat'}, '/' ],
+        '/',
+        [ {}, 'concat' ]
+    ],
+
+    # token in prefix tests
+    [   [ 'get', 'name', sub {35}, '/hello/:' ],
+        '/hello/sukria',
+        [ { name => 'sukria' }, 35 ],
+    ],
+
+    [   [ 'get', '/', sub {36}, '/hello/:name' ],
+        '/hello/sukria/',
+        [ { name => 'sukria' }, 36 ],
     ],
 
     # splat test
     [   [ 'get', '/file/*.*', sub {44} ],
         '/file/dist.ini',
         [ { splat => [ 'dist', 'ini' ] }, 44 ]
+    ],
+
+    # splat in prefix
+    [   [ 'get', '', sub {42}, '/forum/*'],
+        '/forum/dancer',
+        [ { splat => [ 'dancer' ] }, 42 ]
     ],
 
     # megasplat test
@@ -68,7 +89,7 @@ my @tests = (
     ],
 );
 
-plan tests => 55;
+plan tests => 73;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
@@ -97,7 +118,10 @@ for my $t (@tests) {
         isa_ok $r, 'Dancer2::Core::Route';
 
         my $request = Dancer2::Core::Request->new(
-            env => {}, method => $route->[0], path => $path
+            env => {
+                PATH_INFO      => $path,
+                REQUEST_METHOD => $route->[0],
+            }
         );
         my $m = $r->match($request);
         is_deeply $m, $expected->[0], "got expected data for '$path'";
@@ -117,10 +141,12 @@ for my $t (@tests) {
 
         # failing request
         my $failing_request = Dancer2::Core::Request->new(
-            env    => {},
-            method => 'get',
-            path   => '/something_that_doesnt_exist',
+            env => {
+                PATH_INFO      => '/something_that_doesnt_exist',
+                REQUEST_METHOD => 'GET',
+            },
         );
+
         $m = $r->match($failing_request);
         is $m, undef, "dont match failing request";
     }
@@ -150,9 +176,10 @@ SKIP: {
     );
 
     my $request = Dancer2::Core::Request->new(
-        env    => {},
-        method => 'get',
-        path   => '/user/delete/234',
+        env => {
+            PATH_INFO      => '/user/delete/234',
+            REQUEST_METHOD => 'GET',
+        },
     );
 
     my $m = $r->match($request);
@@ -167,7 +194,7 @@ SKIP: {
       "named captures work";
 }
 
-{
+note "routes with options"; {
     my $route_w_options = Dancer2::Core::Route->new(
         method  => 'get',
         regexp  => '/',
@@ -182,7 +209,7 @@ SKIP: {
     );
 
     my $m = $route_w_options->match($req);
-    ok !defined $m;
+    ok !defined $m, 'Route did not match';
 
     $req = Dancer2::Core::Request->new(
         path   => '/',
@@ -191,5 +218,27 @@ SKIP: {
     );
 
     $m = $route_w_options->match($req);
-    ok defined $m;
+    ok defined $m, 'Route matched';
+
+    $route_w_options = Dancer2::Core::Route->new(
+        method  => 'get',
+        regexp  => '/',
+        code    => sub {'options'},
+        options => {
+            'agent' => 'cURL',
+            'content_type' => 'foo',
+        },
+    );
+
+    $req = Dancer2::Core::Request->new(
+        path   => '/',
+        method => 'get',
+        env    => { 'HTTP_USER_AGENT' => 'cURL' },
+    );
+
+    # Check match more than once (each iterator wasn't reset, for loop is ok )
+    $m = $route_w_options->match($req);
+    ok !defined $m, 'More options - Route did not match - test 1';
+    $m = $route_w_options->match($req);
+    ok !defined $m, 'More options - Route did not match - test 2';
 }

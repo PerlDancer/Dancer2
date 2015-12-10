@@ -74,7 +74,7 @@ my @tests = (
             200,
             [   'Content-Length' => 4,
                 'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             ["home"]
         ]
@@ -87,7 +87,7 @@ my @tests = (
             200,
             [   'Content-Length' => 12,
                 'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             ["Hello Johnny"]
         ]
@@ -99,7 +99,7 @@ my @tests = (
         expected => [
             204,
             [   'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             []
         ]
@@ -113,7 +113,7 @@ my @tests = (
             [   'Location'       => 'http://perldancer.org',
                 'Content-Length' => '305',
                 'Content-Type'   => 'text/html; charset=utf-8',
-                'Server'         => "Perl Dancer2 $Dancer2::VERSION",
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             qr/This item has moved/
         ]
@@ -204,7 +204,7 @@ foreach my $test (
         expected => [
             500,
             [ 'Content-Length', "Content-Type", 'text/html' ],
-            qr{Internal Server Error.*Can't locate object method "fail" via package "Fail" \(perhaps you forgot to load "Fail"\?\) at t[\\/]dispatcher\.t line \d+.*$}ms
+            qr!Internal Server Error.*Can&#39;t locate object method &quot;fail&quot; via package &quot;Fail&quot; \(perhaps you forgot to load &quot;Fail&quot;\?\) at t[\\/]dispatcher\.t line \d+\.!s
         ]
     }
   )

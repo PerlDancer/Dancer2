@@ -44,7 +44,7 @@ my $tests_flags = {};
         }
     };
 
-    get '/forward' => sub { print STDERR "About to forward!\n";forward '/' };
+    get '/forward' => sub { Test::More::note 'About to forward!'; forward '/' };
 
     get '/redirect' => sub { redirect '/' };
 

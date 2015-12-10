@@ -107,6 +107,21 @@ sub run_test {
         is $req->scheme, 'https';
     }
 
+    note "testing behind proxy when optional headers are not set"; {
+		# local modifications to env:
+        local $env->{HTTP_HOST} = 'oddhostname:5000';
+        delete local $env->{'HTTP_X_FORWARDED_FOR'};
+        delete local $env->{'HTTP_X_FORWARDED_HOST'};
+        delete local $env->{'HTTP_X_FORWARDED_PROTOCOL'};
+        my $req = Dancer2::Core::Request->new(
+            env             => $env,
+            is_behind_proxy => 1
+        );
+        is ! $req->secure, 1;
+        is $req->host,   'oddhostname:5000';
+        is $req->scheme, 'http';
+    }
+
     note "testing path, dispatch_path and uri_base"; {
         # Base env used for path, dispatch_path and uri_base tests
         my $base = {
@@ -221,22 +236,49 @@ sub run_test {
     is $req->method, 'POST',      'method is changed';
     is_deeply scalar( $req->params ), { foo => 'bar', number => 42 },
       'params are not touched';
+
+    note "testing unicode params";
+    $env = {
+        'REQUEST_METHOD' => 'GET',
+        'REQUEST_URI'    => '/',
+        'PATH_INFO'      => '/',
+        'QUERY_STRING'   => "M%C3%BCller=L%C3%BCdenscheid",
+    };
+    $req = Dancer2::Core::Request->new( env => $env );
+    is_deeply scalar( $req->params ), { "M\N{U+00FC}ller", "L\N{U+00FC}denscheid" },
+      'multi byte unicode chars work in param keys and values';
+    {
+        note "testing private _decode not to mangle hash";
+        my @warnings;
+        local $SIG{__WARN__} = sub {
+            push @warnings, @_;
+        };
+
+        my $h = { zzz => undef, };
+        for ( 'aaa' .. 'fff' ) {
+            $h->{$_} = $_;
+        }
+
+        my $i = Dancer2::Core::Request::_decode($h);
+        is_deeply( $i, $h, 'hash not mangled' );
+        ok( !@warnings, 'no warnings were issued' );
+    }
 }
 
-diag "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
-diag "Run test with XS_PARSE_QUERY_STRING"
+note "Run test with XS_URL_DECODE" if $Dancer2::Core::Request::XS_URL_DECODE;
+note "Run test with XS_PARSE_QUERY_STRING"
   if $Dancer2::Core::Request::XS_PARSE_QUERY_STRING;
 run_test();
 if ($Dancer2::Core::Request::XS_PARSE_QUERY_STRING) {
-    diag "Run test without XS_PARSE_QUERY_STRING";
+    note "Run test without XS_PARSE_QUERY_STRING";
     $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = 0;
-    $Dancer2::Core::Request::_count                = 1;
+    $Dancer2::Core::Request::_id                   = 0;
     run_test();
 }
 if ($Dancer2::Core::Request::XS_URL_DECODE) {
-    diag "Run test without XS_URL_DECODE";
+    note "Run test without XS_URL_DECODE";
     $Dancer2::Core::Request::XS_URL_DECODE = 0;
-    $Dancer2::Core::Request::_count        = 1;
+    $Dancer2::Core::Request::_id           = 0;
     run_test();
 }
 

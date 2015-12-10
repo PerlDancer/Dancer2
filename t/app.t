@@ -11,6 +11,7 @@ use File::Spec;
 
 # our app/dispatcher object
 my $app = Dancer2::Core::App->new( name => 'main', );
+$app->setting( show_errors => 1 ); # enable show errors
 my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 
 # first basic tests
@@ -41,7 +42,7 @@ is $app->environment, 'development';
 my $routes_regexps = $app->routes_regexps_for('get');
 is( scalar(@$routes_regexps), 4, "route regexps are OK" );
 
-for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
+for my $path ( '/', '/blog', '/mywebsite/', '/mywebsite/blog', ) {
     my $env = {
         REQUEST_METHOD => 'GET',
         PATH_INFO      => $path
@@ -50,7 +51,7 @@ for my $path ( '/', '/blog', '/mywebsite', '/mywebsite/blog', ) {
     my $expected = {
         '/'               => '/',
         '/blog'           => '/blog',
-        '/mywebsite'      => '/',
+        '/mywebsite/'     => '/',
         '/mywebsite/blog' => '/blog',
     };
 
@@ -71,7 +72,7 @@ $app->lexical_prefix(
         $app->add_route(
             method => 'get',
             regexp => '/',
-            code   => sub {'/foo'}
+            code   => sub {'/foo/'}
         );
 
         $app->add_route(
@@ -116,7 +117,7 @@ $app->lexical_prefix(
 );
 
 for
-  my $path ( '/foo', '/foo/second', '/foo/bar/second', '/root', '/somewhere' )
+  my $path ( '/foo/', '/foo/second', '/foo/bar/second', '/root', '/somewhere' )
 {
     my $env = {
         REQUEST_METHOD => 'GET',
@@ -159,7 +160,7 @@ my $env = {
 
 like(
     $dispatcher->dispatch($env)->[2][0],
-    qr{Exception caught in 'core.app.before_request' filter: Hook error: Can't locate object method "failure"},
+    qr/Exception caught in &#39;core.app.before_request&#39; filter: Hook error: Can&#39;t locate object method &quot;failure&quot;/,
     'before filter nonexistent method failure',
 );
 
@@ -188,8 +189,7 @@ like(
 my $tmpl_engine = $app->engine('template');
 ok $tmpl_engine, "Template engine is defined";
 
-my $serializer_engine = $app->engine('serializer');
-ok !defined $serializer_engine, "Serializer engine is not defined";
+ok !$app->has_serializer_engine, "Serializer engine does not exist";
 
 is_deeply(
     $app->_get_config_for_engine('NonExistent'),

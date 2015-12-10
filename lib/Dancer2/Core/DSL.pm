@@ -11,6 +11,29 @@ use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
 
+sub hook_aliases { +{} }
+sub supported_hooks { () }
+
+sub _add_postponed_plugin_hooks {
+    my ( $self, $postponed_hooks) = @_;
+
+    $postponed_hooks = $postponed_hooks->{'plugin'};
+    return unless defined $postponed_hooks;
+
+    for my $plugin ( keys %{$postponed_hooks} ) {
+        for my $name ( keys %{$postponed_hooks->{$plugin} } ) {
+            my $hook   = $postponed_hooks->{$plugin}{$name}{hook};
+            my $caller = $postponed_hooks->{$plugin}{$name}{caller};
+
+            $self->has_hook($name)
+              or croak "plugin $plugin does not support the hook `$name'. ("
+              . join( ", ", @{$caller} ) . ")";
+
+            $self->add_hook($hook);
+        }
+    }
+}
+
 sub dsl_keywords {
 
     # the flag means : 1 = is global, 0 = is not global. global means can be
@@ -32,7 +55,7 @@ sub dsl_keywords {
         debug                => { is_global => 1 },
         del                  => { is_global => 1 },
         delayed              => {
-            is_global => 0, prototype => '&',
+            is_global => 0, prototype => '&@',
         },
         dirname              => { is_global => 1 },
         done                 => { is_global => 0 },
@@ -56,6 +79,9 @@ sub dsl_keywords {
         options              => { is_global => 1 },
         param                => { is_global => 0 },
         params               => { is_global => 0 },
+        query_parameters     => { is_global => 0 },
+        body_parameters      => { is_global => 0 },
+        route_parameters     => { is_global => 0 },
         pass                 => { is_global => 0 },
         patch                => { is_global => 1 },
         path                 => { is_global => 1 },
@@ -97,10 +123,11 @@ sub dancer_major_version {
     return ( split /\./, dancer_version )[0];
 }
 
-sub debug   { shift->log( debug   => @_ ) }
-sub info    { shift->log( info    => @_ ) }
-sub warning { shift->log( warning => @_ ) }
-sub error   { shift->log( error   => @_ ) }
+sub log     { shift->app->log( @_ ) }
+sub debug   { shift->app->log( debug   => @_ ) }
+sub info    { shift->app->log( info    => @_ ) }
+sub warning { shift->app->log( warning => @_ ) }
+sub error   { shift->app->log( error   => @_ ) }
 
 sub true  {1}
 sub false {0}
@@ -169,7 +196,7 @@ sub prefix {
       : $app->lexical_prefix(@_);
 }
 
-sub halt { shift->app->halt }
+sub halt { shift->app->halt(@_) }
 
 sub del     { shift->_normalize_route( [qw/delete  /], @_ ) }
 sub get     { shift->_normalize_route( [qw/get head/], @_ ) }
@@ -253,7 +280,7 @@ sub headers {
 }
 
 sub content {
-    shift;
+    my $dsl = shift;
 
     # simple synchronous response
     my $responder = $Dancer2::Core::Route::RESPONDER
@@ -261,13 +288,23 @@ sub content {
 
     # flush if wasn't flushed before
     if ( !$Dancer2::Core::Route::WRITER ) {
-        my $response = $Dancer2::Core::Route::RESPONSE;
         $Dancer2::Core::Route::WRITER = $responder->([
-            $response->status, $response->headers_to_array,
+            $Dancer2::Core::Route::RESPONSE->status,
+            $Dancer2::Core::Route::RESPONSE->headers_to_array,
         ]);
     }
 
-    $Dancer2::Core::Route::WRITER->write(@_);
+    eval {
+        $Dancer2::Core::Route::WRITER->write(@_);
+        1;
+    } or do {
+        my $error = $@ || 'Zombie Error';
+        $Dancer2::Core::Route::ERROR_HANDLER
+            ? $Dancer2::Core::Route::ERROR_HANDLER->($error)
+            : $dsl->app->logger_engine->log(
+                warning => "Error in delayed response: $error"
+            );
+    };
 }
 
 sub content_type {
@@ -276,14 +313,20 @@ sub content_type {
 }
 
 sub delayed {
-    my ( $dsl, $cb ) = @_;
+    my ( $dsl, $cb, @args ) = @_;
+
+    @args % 2 == 0
+        or croak 'Arguments to delayed() keyword must be key/value pairs';
 
     # first time, responder doesn't exist yet
+    my %opts = @args;
     $Dancer2::Core::Route::RESPONDER
         or return Dancer2::Core::Response::Delayed->new(
             cb       => $cb,
             request  => $Dancer2::Core::Route::REQUEST,
             response => $Dancer2::Core::Route::RESPONSE,
+
+          ( error_cb => $opts{'on_error'} )x!! $opts{'on_error'},
         );
 
     # we're in an async request process
@@ -291,12 +334,14 @@ sub delayed {
     my $response  = $Dancer2::Core::Route::RESPONSE;
     my $responder = $Dancer2::Core::Route::RESPONDER;
     my $writer    = $Dancer2::Core::Route::WRITER;
+    my $handler   = $Dancer2::Core::Route::ERROR_HANDLER;
 
     return sub {
-        local $Dancer2::Core::Route::REQUEST   = $request;
-        local $Dancer2::Core::Route::RESPONSE  = $response;
-        local $Dancer2::Core::Route::RESPONDER = $responder;
-        local $Dancer2::Core::Route::WRITER    = $writer;
+        local $Dancer2::Core::Route::REQUEST       = $request;
+        local $Dancer2::Core::Route::RESPONSE      = $response;
+        local $Dancer2::Core::Route::RESPONDER     = $responder;
+        local $Dancer2::Core::Route::WRITER        = $writer;
+        local $Dancer2::Core::Route::ERROR_HANDLER = $handler;
 
         $cb->(@_);
     };
@@ -345,6 +390,10 @@ sub splat { $Dancer2::Core::Route::REQUEST->splat }
 sub params { shift; $Dancer2::Core::Route::REQUEST->params(@_); }
 
 sub param { shift; $Dancer2::Core::Route::REQUEST->param(@_); }
+
+sub query_parameters { shift; $Dancer2::Core::Route::REQUEST->query_parameters(@_); }
+sub body_parameters  { shift; $Dancer2::Core::Route::REQUEST->body_parameters(@_);  }
+sub route_parameters { shift; $Dancer2::Core::Route::REQUEST->route_parameters(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
@@ -408,8 +457,6 @@ sub to_dumper {
     require Dancer2::Serializer::Dumper;
     Dancer2::Serializer::Dumper::to_dumper(@_);
 }
-
-sub log { shift->app->log(@_) }
 
 1;
 

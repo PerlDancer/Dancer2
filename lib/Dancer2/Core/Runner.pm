@@ -6,7 +6,6 @@ use Carp 'croak';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
-use HTTP::Server::PSGI;
 use Plack::Builder qw();
 
 # Hashref of configurable items for the runner.
@@ -76,11 +75,12 @@ has timeout => (
 sub _build_server {
     my $self = shift;
 
+    require HTTP::Server::PSGI;
     HTTP::Server::PSGI->new(
         host            => $self->host,
         port            => $self->port,
         timeout         => $self->timeout,
-        server_software => "Perl Dancer2 $Dancer2::VERSION",
+        server_software => "Perl Dancer2 " . Dancer2->VERSION,
     );
 }
 
@@ -229,7 +229,7 @@ sub print_banner {
     $self->config->{'startup_info'} or return;
 
     # bare minimum
-    print STDERR ">> Dancer2 v$Dancer2::VERSION server $pid listening "
+    print STDERR ">> Dancer2 v" . Dancer2->VERSION . " server $pid listening "
       . 'on http://'
       . $self->host . ':'
       . $self->port . "\n";

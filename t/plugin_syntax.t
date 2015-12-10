@@ -100,7 +100,9 @@ subtest 'hooks in plugins' => sub {
     {
         package App3;
         use Dancer2;
+        use t::lib::OnPluginImport;
         use t::lib::Hookee;
+        use t::lib::EmptyPlugin;
 
         hook 'third_hook' => sub {
             var( hook => 'third hook' );
@@ -124,6 +126,10 @@ subtest 'hooks in plugins' => sub {
         get '/hook_returns_stuff' => sub {
             some_keyword(); # executes 'start_hookee'
         };
+
+        get '/on_import' => sub {
+            some_import(); # execute 'plugin_import'
+        }
 
     }
 
@@ -151,6 +157,12 @@ subtest 'hooks in plugins' => sub {
 
         # call the route that has an additional test
         $cb->( GET '/hook_with_var' );
+
+        is (
+            $cb->( GET '/on_import' )->content,
+            Dancer2->VERSION,
+            'hooks added by on_plugin_import dont stop hooks being added later'
+        );
     };
 };
 

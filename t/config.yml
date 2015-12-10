@@ -1,4 +1,5 @@
 log: "info"
+logger: "Note"
 
 plugins:
   "t::lib::FooPlugin":
