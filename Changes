@@ -43,7 +43,7 @@
       (Sawyer X)
 
     [ ENHANCEMENTS ]
-    * GH #738, #740, #988: route_parameters, request_parameters, and
+    * GH #738, #740, #988: route_parameters, query_parameters, and
       body_parameters keywords added, providing Hash::MultiValue objects!
       (Sawyer X)
     * #941, #999: delayed() keyword now has "on_error" option for controlling
