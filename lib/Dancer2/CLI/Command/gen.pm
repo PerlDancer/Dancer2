@@ -127,7 +127,11 @@ sub _build_file_list {
     my $wanted = sub {
         return unless -f;
         my $file = substr($_, $len);
-        return if substr($file, 0, 4) eq '.git';
+
+        # ignore .git and git/*
+        my $is_git = $file =~ m{^\.git(/|$)}
+            and return;
+
         push @result, [ $_, catfile($to, $file) ];
     };
 
