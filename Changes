@@ -43,6 +43,7 @@
       directory.
       (Gabor Szabo)
     * GH #1060: Support more asset file extensions. (Gabor Szabo)
+    * GH #1072: Add request->is_options(). (Theo van Hoesel)
 
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
