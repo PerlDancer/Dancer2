@@ -120,12 +120,14 @@ sub version {
 # skel creation routines
 sub _build_file_list {
     my ($from, $to) = @_;
+    $from =~ s{/+$}{};
     my $len = length($from) + 1;
 
     my @result;
     my $wanted = sub {
         return unless -f;
         my $file = substr($_, $len);
+        return if substr($file, 0, 4) eq '.git';
         push @result, [ $_, catfile($to, $file) ];
     };
 
@@ -165,7 +167,7 @@ sub _copy_templates {
             close $fh;
         }
 
-        if ($from !~ m/\.(ico|jpg|css|js)$/) {
+        if ($from !~ m/\.(ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/) {
             $content = _process_template($content, $vars);
         }
 
