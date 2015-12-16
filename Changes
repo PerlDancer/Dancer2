@@ -17,6 +17,9 @@
     * GH #1062, #1063: Command line interface didn't support
       "-s SKELETON_DIRECTORY" in any order.
       (Nuno Carvalho)
+    * GH #1053: Always call before_serializer hook when serializer is
+      set.
+      (Mickey Nasriachi)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
@@ -28,6 +31,9 @@
       (Jason A. Crome)
     * GH #1045: Small cleanups to Request class. (Russell Jenkins)
     * GH #1033: strict && warnings in Dancer2::CLI. (Mohammad S Anwar)
+    * GH #1053: Allow before_serializer hook to change the content
+      using @_.
+      (Mickey Nasriachi)
 
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
