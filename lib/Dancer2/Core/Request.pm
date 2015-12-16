@@ -211,13 +211,15 @@ sub deserialize {
     return $data;
 }
 
-sub uri       { $_[0]->request_uri }
-sub is_head   { $_[0]->method eq 'HEAD' }
-sub is_post   { $_[0]->method eq 'POST' }
-sub is_get    { $_[0]->method eq 'GET' }
-sub is_put    { $_[0]->method eq 'PUT' }
-sub is_delete { $_[0]->method eq 'DELETE' }
-sub is_patch  { $_[0]->method eq 'PATCH' }
+sub uri        { $_[0]->request_uri }
+
+sub is_head    { $_[0]->method eq 'HEAD' }
+sub is_post    { $_[0]->method eq 'POST' }
+sub is_get     { $_[0]->method eq 'GET' }
+sub is_put     { $_[0]->method eq 'PUT' }
+sub is_delete  { $_[0]->method eq 'DELETE' }
+sub is_patch   { $_[0]->method eq 'PATCH' }
+sub is_options { $_[0]->method eq 'OPTIONS' }
 
 # public interface compat with CGI.pm objects
 sub request_method { $_[0]->method }
@@ -814,6 +816,10 @@ Return true if the method requested by the client is 'POST'
 =method is_put
 
 Return true if the method requested by the client is 'PUT'
+
+=method is_options
+
+Return true if the method requested by the client is 'OPTIONS'
 
 =method logger
 
