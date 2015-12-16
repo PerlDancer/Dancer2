@@ -20,6 +20,8 @@
     * GH #1053: Always call before_serializer hook when serializer is
       set.
       (Mickey Nasriachi)
+    * GH #1034: Correctly use different session cookie name for Dancer2.
+      (Jason A. Crome)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
