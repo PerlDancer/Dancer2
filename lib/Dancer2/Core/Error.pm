@@ -110,7 +110,7 @@ sub default_error_page {
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
-        content  => $show_fullmsg ? $self->full_message : $self->message || 'Wooops, something went wrong',
+        content  => $show_fullmsg ? $self->full_message : _html_encode($self->message) || 'Wooops, something went wrong',
         version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
