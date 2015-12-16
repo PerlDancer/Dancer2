@@ -8,6 +8,8 @@
       filehandle (Bas Bloemsaat)
     * GH #1042: Add Diggest::SHA as explicit prequisite for installs on
       perl < v5.9.3 (Russell Jenkins)
+    * GH #1071, #1070: HTML escape the message in the default error page.
+      (Peter Mottram)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
