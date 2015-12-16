@@ -179,7 +179,7 @@ You can have more details about how params are built and how to access them
 in the L<Dancer2::Core::Request> documentation.
 
 You can also use the various parameters keywords to reach the specific
-parameters you want: C<route_parameters>, C<request_parameters>, and
+parameters you want: C<route_parameters>, C<query_parameters>, and
 C<body_parameters>.
 
 =head3 Declaring Routes
@@ -205,7 +205,7 @@ parameters; these will be parameters supplied on the query string within
 the path itself (with named placeholders) and, for HTTP POST requests, the
 content of the POST body.
 
-The L<request_parameters|Dancer2::Manual/request_parameters> keyword provides
+The L<query_parameters|Dancer2::Manual/query_parameters> keyword provides
 a L<Hash::MultiValue> result from the request parameters. It is considered
 much safer and is recommended instead of C<params>.
 
@@ -218,7 +218,7 @@ match will be set in the params hashref.
     get '/hello/:name' => sub {
         "Hey ".param('name').", welcome here!";
         # or
-        "Hey " . request_parameters->get('name') . ", welcome here!";
+        "Hey " . query_parameters->get('name') . ", welcome here!";
     };
 
 Tokens can be optional, for example:
@@ -2614,7 +2614,7 @@ parameters. Check C<param> below to access quickly to a single parameter
 value.
 
 We now recommend using one of the specific keywords for parameters
-(C<route_parameters>, C<request_parameters>, and C<body_parameters>)
+(C<route_parameters>, C<query_parameters>, and C<body_parameters>)
 instead of C<params> or C<param>.
 
 =head2 param
@@ -2629,7 +2629,7 @@ This method is an accessor to the parameters hash table.
    }
 
 We now recommend using one of the specific keywords for parameters
-(C<route_parameters>, C<request_parameters>, and C<body_parameters>)
+(C<route_parameters>, C<query_parameters>, and C<body_parameters>)
 instead of C<params> or C<param>.
 
 =head2 route_parameters
@@ -2641,18 +2641,18 @@ Returns a L<Hash::MultiValue> object from the route parameters.
         my $foo = route_parameters->get('foo');
     };
 
-=head2 request_parameters
+=head2 query_parameters
 
 Returns a L<Hash::MultiValue> object from the request parameters.
 
     /?foo=hello
     get '/' => sub {
-        my $name = request_parameters->get('foo');
+        my $name = query_parameters->get('foo');
     };
 
     /?name=Alice&name=Bob
     get '/' => sub {
-        my @names = request_parameters->get_all('name');
+        my @names = query_parameters->get_all('name');
     };
 
 =head2 body_parameters
