@@ -1,13 +1,14 @@
 {{$NEXT}}
 
     [ DOCUMENTATION ]
-    * Update core team members and contributors list (Russell Jenkins)
+    * Update core team members and contributors list. (Russell Jenkins)
+    * GH #1066: Fix typo in Cookbook. (gertvanoss)
 
     [ BUG FIXES ]
     * GH #1040: Forward with a post body no longer tries to re-read body
-      filehandle (Bas Bloemsaat)
+      filehandle. (Bas Bloemsaat)
     * GH #1042: Add Diggest::SHA as explicit prequisite for installs on
-      perl < v5.9.3 (Russell Jenkins)
+      perl < v5.9.3. (Russell Jenkins)
     * GH #1071, #1070: HTML escape the message in the default error page.
       (Peter Mottram)
 
@@ -17,9 +18,10 @@
     * GH #951 #1037: Dancer2::Template::TemplateToolkit no longer sets TT2
       INCLUDE_PATH directive, allowing `views` setting to be non-absolute
       paths. (Russell Jenkins)
-    * GH #1032 #1043: Add .dancer file to new app scaffolding (Jason A. Crome)
-    * GH #1045: Small cleanups to Request class (Russell Jenkins)
-    * GH #1033: strict && warnings in Dancer2::CLI (Mohammad S Anwar)
+    * GH #1032 #1043: Add .dancer file to new app scaffolding.
+      (Jason A. Crome)
+    * GH #1045: Small cleanups to Request class. (Russell Jenkins)
+    * GH #1033: strict && warnings in Dancer2::CLI. (Mohammad S Anwar)
 
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
