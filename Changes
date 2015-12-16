@@ -11,6 +11,9 @@
       perl < v5.9.3. (Russell Jenkins)
     * GH #1071, #1070: HTML escape the message in the default error page.
       (Peter Mottram)
+    * GH #1062, #1063: Command line interface didn't support
+      "-s SKELETON_DIRECTORY" in any order.
+      (Nuno Carvalho)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
