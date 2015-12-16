@@ -817,6 +817,10 @@ Return true if the method requested by the client is 'POST'
 
 Return true if the method requested by the client is 'PUT'
 
+=method is_options
+
+Return true if the method requested by the client is 'OPTIONS'
+
 =method logger
 
 Returns the C<psgix.logger> code reference, if exists.
