@@ -17,8 +17,8 @@
     * GH #1062, #1063: Command line interface didn't support
       "-s SKELETON_DIRECTORY" in any order.
       (Nuno Carvalho)
-    * GH #1053: Always call before_serializer hook when serializer is
-      set.
+    * GH #1052, #1053: Always call before_serializer hook when serializer
+      is set.
       (Mickey Nasriachi)
     * GH #1034: Correctly use different session cookie name for Dancer2.
       (Jason A. Crome)
@@ -33,7 +33,7 @@
       (Jason A. Crome)
     * GH #1045: Small cleanups to Request class. (Russell Jenkins)
     * GH #1033: strict && warnings in Dancer2::CLI. (Mohammad S Anwar)
-    * GH #1053: Allow before_serializer hook to change the content
+    * GH #1052, #1053: Allow before_serializer hook to change the content
       using @_.
       (Mickey Nasriachi)
 
