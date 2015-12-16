@@ -107,12 +107,14 @@ has content => (
 around content => sub {
     my ( $orig, $self, $content ) = @_;
 
-    @_ == 2 and return $self->$orig;
+    $self->serializer
+        and $content = $self->serialize($content);
+
+    $content or return $self->$orig;
 
     $self->serializer
         or return $self->$orig( $self->encode_content($content) );
 
-    $content = $self->serialize($content);
     $self->is_encoded(1); # All serializers return byte strings
     return $self->$orig( defined $content ? $content : '' );
 };

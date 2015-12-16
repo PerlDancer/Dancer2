@@ -158,7 +158,7 @@ subtest 'Request hooks' => sub {
 
     is( $tests_flags->{before_request},     1,     "before_request was called" );
     is( $tests_flags->{after_request},      1,     "after_request was called" );
-    is( $tests_flags->{before_serializer},  1, "before_serializer was called" );
+    is( $tests_flags->{before_serializer},  3, "before_serializer was called" );
     is( $tests_flags->{after_serializer},   1, "after_serializer was called" );
     is( $tests_flags->{before_file_render}, undef, "before_file_render undef" );
 
@@ -174,11 +174,6 @@ subtest 'Request hooks' => sub {
     );
 
     note 'Serializer hooks';
-    is(
-        $tests_flags->{before_serializer},
-        $tests_flags->{after_serializer},
-        'before_serializer not called because content was empty',
-    );
 
     $test->request( GET '/forward' );
     is(
@@ -189,7 +184,7 @@ subtest 'Request hooks' => sub {
 
     my $res = $test->request( GET '/json' );
     is( $res->content, '["foo",42,"added_in_hook",1]', 'Response serialized' );
-    is( $tests_flags->{before_serializer}, 3, 'before_serializer was called' );
+    is( $tests_flags->{before_serializer}, 10, 'before_serializer was called' );
     is( $tests_flags->{after_serializer},  3, 'after_serializer was called' );
     is( $tests_flags->{before_file_render}, undef, "before_file_render undef" );
 };
