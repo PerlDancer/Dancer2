@@ -22,6 +22,9 @@
       (Mickey Nasriachi)
     * GH #1034: Correctly use different session cookie name for Dancer2.
       (Jason A. Crome)
+    * GH #1060: Remove trailing slashes when providing skeleton
+      directory.
+      (Gabor Szabo)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
@@ -36,6 +39,10 @@
     * GH #1052, #1053: Allow before_serializer hook to change the content
       using @_.
       (Mickey Nasriachi)
+    * GH #1060: Ignore .git directory when using an external skeleton
+      directory.
+      (Gabor Szabo)
+    * GH #1060: Support more asset file extensions. (Gabor Szabo)
 
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
