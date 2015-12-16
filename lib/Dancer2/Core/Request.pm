@@ -219,7 +219,7 @@ sub is_get     { $_[0]->method eq 'GET' }
 sub is_put     { $_[0]->method eq 'PUT' }
 sub is_delete  { $_[0]->method eq 'DELETE' }
 sub is_patch   { $_[0]->method eq 'PATCH' }
-sub is_options { $_[0]->{method} eq 'OPTIONS' }
+sub is_options { $_[0]->method eq 'OPTIONS' }
 
 # public interface compat with CGI.pm objects
 sub request_method { $_[0]->method }
