@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * Revert session_name change, as this would invalidate all existing
       changes. We will need to rethink this change.
