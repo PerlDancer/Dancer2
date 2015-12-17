@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Revert session_name change, as this would invalidate all existing
+      changes. We will need to rethink this change.
+      (Stefan @racke Hornburg, Sawyer X)
+
 0.164000  2015-12-16 23:42:24+01:00 Europe/Amsterdam
 
     [ DOCUMENTATION ]
