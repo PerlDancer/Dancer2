@@ -18,8 +18,9 @@ sub _build_engine {
         ANYCASE  => 1,
         ABSOLUTE => 1,
         length($charset) ? ( ENCODING => $charset ) : (),
-        %{ $self->config },
+        # %{ $self->config },
     );
+    map { $tt_config{ $_ } = $self->config->{ $_ } } keys %{$self->config};
 
     my $start_tag = $self->config->{'start_tag'};
     my $stop_tag = $self->config->{'stop_tag'} || $self->config->{end_tag};
