@@ -8,7 +8,7 @@ use HTTP::Request::Common;
 {  
     package Dancer2::Plugin::FooDetector;
 
-    use Dancer2::Plugin2;
+    use Dancer2::Plugin;
 
     plugin_hooks 'foo';
 
