@@ -1,4 +1,4 @@
-package t::lib::FooPlugin;
+package Dancer2::Plugin::FooPlugin;
 use Dancer2::Plugin;
 
 on_plugin_import {
