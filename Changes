@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
+
 0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
