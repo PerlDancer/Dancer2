@@ -1,4 +1,4 @@
-package t::lib::DancerPlugin;
+package Dancer2::Plugin::DancerPlugin;
 use strict;
 use warnings;
 

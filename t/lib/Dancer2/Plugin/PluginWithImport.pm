@@ -1,4 +1,4 @@
-package t::lib::PluginWithImport;
+package Dancer2::Plugin::PluginWithImport;
 # ABSTRACT: a plugin that implement its own import method
 
 =head1 DESCRIPTION
@@ -11,18 +11,12 @@ import method of the plugin.
 use strict;
 use warnings;
 
-use Dancer2;
 use Dancer2::Plugin;
 
 my $_stuff = {};
 sub stuff {$_stuff}
 
-no warnings 'redefine';
-
-sub import {
-    my $class = shift;
-    $_stuff->{$class} = 'imported';
-}
+$_stuff->{ __PACKAGE__, } = 'imported';
 
 register dancer_plugin_with_import_keyword => sub {
     'dancer_plugin_with_import_keyword';
