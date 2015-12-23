@@ -1,4 +1,4 @@
-package t::lib::OnPluginImport;
+package Dancer2::Plugin::OnPluginImport;
 use Dancer2::Plugin;
 
 # register keyword

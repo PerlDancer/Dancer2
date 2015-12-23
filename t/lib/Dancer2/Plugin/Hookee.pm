@@ -1,4 +1,4 @@
-package t::lib::Hookee;
+package Dancer2::Plugin::Hookee;
 
 use Dancer2::Plugin;
 

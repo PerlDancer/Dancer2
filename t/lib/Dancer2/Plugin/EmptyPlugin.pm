@@ -1,4 +1,4 @@
-package t::lib::EmptyPlugin;
+package Dancer2::Plugin::EmptyPlugin;
 use Dancer2::Plugin;
 
 # This plugin does nothing.
