@@ -7,7 +7,7 @@ use Test::Deep;
 BEGIN {  
     package Dancer2::Plugin::Foo;
 
-    use Dancer2::Plugin2;
+    use Dancer2::Plugin;
 
     push @::expected_keywords, 'foo';
     plugin_keywords foo => sub { ... };

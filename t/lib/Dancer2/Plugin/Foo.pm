@@ -3,7 +3,7 @@ package Dancer2::Plugin::Foo;
 use strict;
 use warnings;
 
-use Dancer2::Plugin2;
+use Dancer2::Plugin;
 
 plugin_keywords 'truncate_txt';
 

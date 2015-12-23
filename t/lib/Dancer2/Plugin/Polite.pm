@@ -3,7 +3,7 @@ package Dancer2::Plugin::Polite;
 use strict;
 use warnings;
 
-use Dancer2::Plugin2;
+use Dancer2::Plugin;
 
 has smiley => (
     is => 'ro',
