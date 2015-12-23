@@ -6,7 +6,7 @@ use Test::More tests => 1;
 {  
     package Dancer2::Plugin::Foo;
 
-    use Dancer2::Plugin2;
+    use Dancer2::Plugin;
 }
 
 {  

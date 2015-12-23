@@ -7,17 +7,17 @@ use Scalar::Util qw/ refaddr /;
 
 {
     package Dancer2::Plugin::Foo;
-    use Dancer2::Plugin2;
+    use Dancer2::Plugin;
 }
 
 {
     package Dancer2::Plugin::Bar;
-    use Dancer2::Plugin2;
+    use Dancer2::Plugin;
 }
 
 {
     package Dancer2::Plugin::Baz;
-    use Dancer2::Plugin2;
+    use Dancer2::Plugin;
 }
 
 {
@@ -29,7 +29,7 @@ my $app = MyApp::app();
 
 my $plugin = $app->with_plugin('Foo');
 
-isa_ok $plugin => 'Dancer2::Plugin2';
+isa_ok $plugin => 'Dancer2::Plugin';
 
 cmp_deeply $app->plugins => [ 
     isa('Dancer2::Plugin::Foo') 
@@ -47,7 +47,7 @@ cmp_deeply $app->plugins => [
 subtest "adding plugin Bar" => sub {
     my $plugin = $app->with_plugin('Bar');
 
-    isa_ok $plugin => 'Dancer2::Plugin2';
+    isa_ok $plugin => 'Dancer2::Plugin';
 
     cmp_deeply $app->plugins => [ 
         isa('Dancer2::Plugin::Foo'),
