@@ -1,6 +1,6 @@
 BEGIN {
   package Dancer2::Plugin::Plugin1;
-  use Dancer2::Plugin2;
+  use Dancer2::Plugin;
 
     has one => (
       is => 'ro',
@@ -13,7 +13,7 @@ BEGIN {
 
 BEGIN {
   package Dancer2::Plugin::Plugin2;
-  use Dancer2::Plugin2;
+  use Dancer2::Plugin;
 
     has two => (
       is => 'ro',

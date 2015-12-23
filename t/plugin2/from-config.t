@@ -6,7 +6,7 @@ use Test::More tests => 5;
 {
 package Dancer2::Plugin::FromConfig;
 
-use Dancer2::Plugin2;
+use Dancer2::Plugin;
 
 BEGIN {
 has one => (
