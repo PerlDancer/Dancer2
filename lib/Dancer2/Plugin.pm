@@ -250,18 +250,6 @@ sub _exporter_app {
         # but i'm not sure where. seems like AUTOLOAD runs it.
         #$class->can('execute_hook') or
             *{"${class}::execute_hook"}   = sub {
-                my $level = -1;
-                my $plugin_addr;
-                while ( ++$level < 5 ) {
-                    my $cinfo = Carp::caller_info($level);
-                    ($plugin_addr) = $cinfo->{'sub_name'} =~ $REF_ADDR_REGEX;
-
-                    $plugin_addr and last;
-                }
-
-                $plugin_addr
-                    or Carp::croak('Can\'t find originating plugin in first 5 levels');
-
                 # this can also be called by App.pm itself
                 # if the plugin is a
                 # "candidate" for a hook
@@ -297,7 +285,7 @@ sub _exporter_app {
                     return;
                 }
 
-                return $instances{$plugin_addr}{'app'}->execute_hook(@_);
+                return $plugin->app->execute_hook(@_);
         };
     }
 
