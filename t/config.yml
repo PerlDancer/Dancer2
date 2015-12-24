@@ -2,5 +2,5 @@ log: "info"
 logger: "Note"
 
 plugins:
-  "t::lib::FooPlugin":
+  "FooPlugin":
     plugin: 42

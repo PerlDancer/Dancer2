@@ -9,7 +9,8 @@ subtest 'global and route keywords' => sub {
     {
         package App1;
         use Dancer2;
-        use t::lib::FooPlugin;
+        use lib 't/lib';
+        use Dancer2::Plugin::FooPlugin;
 
         sub location {'/tmp'}
 
@@ -60,7 +61,8 @@ subtest 'plugin old syntax' => sub {
     {
         package App2;
         use Dancer2;
-        use t::lib::DancerPlugin;
+        use lib 't/lib';
+        use Dancer2::Plugin::DancerPlugin;
 
         around_get;
     }
@@ -100,9 +102,10 @@ subtest 'hooks in plugins' => sub {
     {
         package App3;
         use Dancer2;
-        use t::lib::OnPluginImport;
-        use t::lib::Hookee;
-        use t::lib::EmptyPlugin;
+        use lib 't/lib';
+        use Dancer2::Plugin::OnPluginImport;
+        use Dancer2::Plugin::Hookee;
+        use Dancer2::Plugin::EmptyPlugin;
 
         hook 'third_hook' => sub {
             var( hook => 'third hook' );
