@@ -672,7 +672,8 @@ sub supported_hooks {
 }
 
 sub hook_aliases {
-    {
+    my $self = shift;
+    $self->{'hook_aliases'} ||= {
         before                 => 'core.app.before_request',
         before_request         => 'core.app.before_request',
         after                  => 'core.app.after_request',
