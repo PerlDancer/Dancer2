@@ -281,8 +281,10 @@ sub _exporter_app {
                     # this is okay because the modifier is there only to
                     # call candidates, like us (this is in fact how and
                     # why we were called)
-                    return $_->( $plugin_self, @args )
+                    $_->( $plugin_self, @args )
                         for @{ $plugin->hooks->{$hook_name} };
+
+                    return;
                 }
 
                 return $instances{$plugin_addr}{'app'}->execute_hook(@_);
