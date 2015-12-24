@@ -370,6 +370,21 @@ sub _exporter_plugin {
 
             sub register_hook { goto &plugin_hooks }
 
+            sub plugin_setting;
+
+            sub plugin_args {
+                Carp::carp "Plugin DSL method 'plugin_args' is deprecated. "
+                         . "Use '\\\@_' instead'.\n";
+
+                \@_;
+            }
+        }
+END
+
+    $no_dsl->{$caller} or eval <<"END"; ## no critic
+        {
+            package $caller;
+
             # FIXME: AUTOLOAD might pick up on this
             sub dancer_app {
                 Carp::carp "Plugin DSL method 'dancer_app' is deprecated. "
@@ -393,15 +408,6 @@ sub _exporter_plugin {
 
                 shift->app->request->var(\@_);
             }
-
-            sub plugin_args {
-                Carp::carp "Plugin DSL method 'plugin_args' is deprecated. "
-                         . "Use '\\\@_' instead'.\n";
-
-                \@_;
-            }
-
-            sub plugin_setting;
 
             # FIXME: AUTOLOAD might pick up on this
             sub hook {
