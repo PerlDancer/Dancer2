@@ -163,7 +163,7 @@ sub _exporter_expand_tag {
 
     my $caller = $global->{into};
 
-    $name eq 'no_dsl' and $no_dsl->{$class} = 1;
+    $name eq 'no_dsl' and $no_dsl->{$caller} = 1;
     # no_dsl check here is for compatibility only
     # it will be removed soon!
     return _exporter_plugin($caller)
