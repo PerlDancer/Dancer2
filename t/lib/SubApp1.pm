@@ -3,7 +3,8 @@ use strict;
 use warnings;
 
 use Dancer2;
-use t::lib::DancerPlugin;
+use lib 't/lib';
+use Dancer2::Plugin::DancerPlugin;
 install_hooks;
 
 get '/subapp1' => sub {
