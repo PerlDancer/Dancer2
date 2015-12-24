@@ -267,9 +267,9 @@ sub _exporter_app {
                 # "candidate" for a hook
                 # See: App.pm "execute_hook" method, "around" modifier
                 if ( ref( $_[0] ) =~ /^Dancer2::Plugin::/ ) {
-                    my $plugin_self = shift @_;
-                    my $hook_name   = shift @_;
-                    # this means it's probably our hook, let's verify
+                    # this means it's probably our hook, we need to verify it
+                    my ( $plugin_self, $hook_name, @args ) = @_;
+
                     my $plugin_class = lc $class;
                     $plugin_class =~ s/^dancer2::plugin:://;
                     $hook_name =~ /^plugin\.$plugin_class/
@@ -281,7 +281,7 @@ sub _exporter_app {
                     # this is okay because the modifier is there only to
                     # call candidates, like us (this is in fact how and
                     # why we were called)
-                    return $_->( $plugin_self, @_ )
+                    return $_->( $plugin_self, @args )
                         for @{ $plugin->hooks->{$hook_name} };
                 }
 
