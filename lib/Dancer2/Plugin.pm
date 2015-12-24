@@ -261,9 +261,11 @@ sub _exporter_app {
 
                 $plugin_addr
                     or Carp::croak('Can\'t find originating plugin in first 5 levels');
+
                 # this can also be called by App.pm itself
                 # if the plugin is a
-                # "candidate" for a hook. App.pm around execute_hook
+                # "candidate" for a hook
+                # See: App.pm "execute_hook" method, "around" modifier
                 if ( ref( $_[0] ) =~ /^Dancer2::Plugin::/ ) {
                     my $plugin_self = shift @_;
                     my $hook_name   = shift @_;
