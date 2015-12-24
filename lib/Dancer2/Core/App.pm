@@ -36,9 +36,8 @@ with qw<
 sub supported_engines { [ qw<logger serializer session template> ] }
 
 sub with_plugins {
-    my( $self, @plugins ) = @_;
-
-    return map { $self->_with_plugin($_) } @plugins;
+    my ( $self, @plugins ) = @_;
+    return map $self->_with_plugin($_), @plugins;
 
 }
 
