@@ -272,6 +272,16 @@ sub _exporter_app {
 
                     my $plugin_class = lc $class;
                     $plugin_class =~ s/^dancer2::plugin:://;
+                    $plugin_class =~ s{::}{_}g;
+
+                    # you're either calling it with the full qualifier or not
+                    # if not, use the execute_plugin_hook instead
+                    if ( $plugin->hooks->{"plugin.$plugin_class.$hook_name"} ) {
+                        Carp::carp("Please use fully qualified hook name or "
+                                 . "the method execute_plugin_hook");
+                        $hook_name = "plugin.$plugin_class.$hook_name";
+                    }
+
                     $hook_name =~ /^plugin\.$plugin_class/
                         or Carp::croak('Unknown plugin called through other plugin');
 
