@@ -10,6 +10,8 @@ use List::Util qw/ reduce /;
 use Attribute::Handlers;
 use Scalar::Util;
 
+our $CUR_PLUGIN;
+
 extends 'Exporter::Tiny';
 
 with 'Dancer2::Core::Role::Hookable';
@@ -240,9 +242,23 @@ sub _exporter_app {
         # create a CODE stub
         no warnings 'redefine';
         *{"${class}::plugin_setting"} = sub {
-            my $cinfo = Carp::caller_info(1);
-            my ($plugin_addr) = $cinfo->{'sub_name'} =~ $REF_ADDR_REGEX;
-            return $instances{$plugin_addr}{'config'}->();
+            my ($plugin_addr) = "$CUR_PLUGIN" =~ $REF_ADDR_REGEX;
+
+            $plugin_addr
+                or Carp::croak('Can\'t find originating plugin');
+
+            # we need to do this because plugins might call "set"
+            # in order to change plugin configuration but it doesn't
+            # change the plugin object, it changes the app object
+            # so we merge them.
+            my $name = ref $CUR_PLUGIN;
+            $name =~ s/^Dancer2::Plugin:://g;
+
+            my $plugin_inst       = $instances{$plugin_addr};
+            my $plugin_config     = $plugin_inst->{'config'}->();
+            my $app_plugin_config = $plugin_inst->{'app'}->config->{'plugins'}{$name};
+
+            return { %{ $plugin_config }, %{ $app_plugin_config } };
         };
 
         # FIXME:
@@ -455,7 +471,11 @@ sub _exporter_expand_sub {
 
     my $p = $args->{plugin};
     my $sub = $p->keywords->{$name};
-    return $name => sub(@) { $sub->($p,@_) };
+    return $name => sub(@) {
+        # localize the plugin so we can get it later
+        local $CUR_PLUGIN = $p;
+        $sub->($p,@_);
+    }
 }
 
 # define the exported 'plugin_keywords'
