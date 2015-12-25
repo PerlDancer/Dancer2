@@ -160,6 +160,7 @@ our @EXPORT = qw/ :plugin /;
 
 # compatibility - it will be removed soon!
 my $no_dsl = {};
+my $exported_app = {};
 sub _exporter_expand_tag {
     my( $class, $name, $args, $global ) = @_;
 
@@ -183,6 +184,7 @@ sub _exporter_expand_tag {
 sub _exporter_app {
     my( $class, $caller, $global ) = @_;
 
+    $exported_app->{$caller} = 1;
     my $app = eval "${caller}::app()" or return; ## no critic
 
     return unless $app->can('with_plugin');
@@ -466,6 +468,9 @@ sub _exporter_expand_sub {
 
     return _exported_plugin_hooks($class)
         if $name eq 'plugin_hooks';
+
+    $exported_app->{ $global->{'into'} }
+        or Carp::croak('Specific subroutines cannot be exported from plugin');
 
     # otherwise, we're exporting a keyword
 
