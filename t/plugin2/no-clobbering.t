@@ -9,17 +9,17 @@ BEGIN {
 
     use Dancer2::Plugin;
 
-    plugin_keywords 'foo', 'bar', 'baz';
+    plugin_keywords 'from_config', 'from_plugin_setting', 'from_indirect';
 
-    sub foo :PluginKeyword {
+    sub from_config :PluginKeyword {
         $_[0]->config->{oops};
     }
 
-    sub bar :PluginKeyword {
+    sub from_plugin_setting :PluginKeyword {
         plugin_setting()->{oops};
     }
 
-    sub baz :PluginKeyword {
+    sub from_indirect :PluginKeyword {
         _indirect();
     }
 
@@ -39,9 +39,9 @@ BEGIN {
 
     use Dancer2::Plugin::Foo;
 
-    is foo() => 'alpha', 'foo';
-    is bar() => 'alpha', 'bar';
-    is baz() => 'alpha', 'baz';
+    is from_config()         => 'alpha', 'alpha from config';
+    is from_plugin_setting() => 'alpha', 'alpha from plugin_setting';
+    is from_indirect()       => 'alpha', 'alpha from indirect';
 
 }
 {
@@ -55,9 +55,9 @@ BEGIN {
 
     use Dancer2::Plugin::Foo;
 
-    is foo() => 'beta', 'foo';
-    is bar() => 'beta', 'bar';
-    is baz() => 'beta', 'baz';
+    is from_config()         => 'beta', 'beta from config';
+    is from_plugin_setting() => 'beta', 'beta from plugin_setting';
+    is from_indirect()       => 'beta', 'beta from indirect';
 }
 
 done_testing();
