@@ -23,7 +23,7 @@ BEGIN {
         _indirect();
     }
 
-    sub indirect {
+    sub _indirect {
         plugin_setting()->{oops};
     }
 }
