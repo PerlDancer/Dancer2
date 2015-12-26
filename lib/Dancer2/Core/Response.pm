@@ -137,7 +137,7 @@ sub encode_content {
     return $content if $ct !~ /^text/;
 
     # we don't want to encode an empty string, it will break the output
-    $content or return $content;
+    length $content or return $content;
 
     $self->content_type("$ct; charset=UTF-8")
       if $ct !~ /charset/;
