@@ -260,7 +260,7 @@ sub _exporter_app {
             my $plugin_config     = $plugin_inst->{'config'}->();
             my $app_plugin_config = $plugin_inst->{'app'}->config->{'plugins'}{$name};
 
-            return { %{ $plugin_config }, %{ $app_plugin_config } };
+            return { %{ $plugin_config || {} }, %{ $app_plugin_config || {} } };
         };
 
         # FIXME:
