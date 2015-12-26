@@ -110,7 +110,7 @@ around content => sub {
     $self->serializer
         and $content = $self->serialize($content);
 
-    $content or return $self->$orig;
+    defined($content) or return $self->$orig;
 
     $self->serializer
         or return $self->$orig( $self->encode_content($content) );
