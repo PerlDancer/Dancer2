@@ -105,18 +105,19 @@ has content => (
 );
 
 around content => sub {
-    my ( $orig, $self, $content ) = @_;
+    my ( $orig, $self ) = ( shift, shift );
 
+    # called as getter?
+    @_ or return $self->$orig;
+
+    # No serializer defined; encode content
     $self->serializer
-        and $content = $self->serialize($content);
+        or return $self->$orig( $self->encode_content(@_) );
 
-    $content or return $self->$orig;
-
-    $self->serializer
-        or return $self->$orig( $self->encode_content($content) );
-
+    # serialize content
+    my $serialized = $self->serialize(@_);
     $self->is_encoded(1); # All serializers return byte strings
-    return $self->$orig( defined $content ? $content : '' );
+    return $self->$orig( defined $serialized ? $serialized : '' );
 };
 
 has default_content_type => (
