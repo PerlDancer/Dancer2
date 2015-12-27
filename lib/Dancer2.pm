@@ -321,7 +321,6 @@ things:
     Shlomi Fish
     simbabque
     Slava Goltser
-    smashz
     Snigdha
     Tina Müller
     Tom Hukins

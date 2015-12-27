@@ -210,7 +210,6 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Shlomi Fish
     simbabque
     Slava Goltser
-    smashz
     Snigdha
     Tina Müller
     Tom Hukins
