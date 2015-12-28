@@ -179,9 +179,12 @@ sub to_psgi {
     Plack::Util::status_with_no_entity_body($status)
         and return [ $status, $self->headers_to_array($headers), [] ];
 
+    my $content = $self->content;
     # It is possible to have no content and/or no content type set
-    # e.g. if all routes 'pass'. Apply defaults here..
-    my $content = defined $self->content ? $self->content : '';
+    # e.g. if all routes 'pass'. Set the default value for the content
+    # (an empty string), allowing serializer hooks to be triggered
+    # as they may change the content..
+    $content = $self->content('') if ! defined $content;
 
     if ( !$headers->header('Content-Length')    &&
          !$headers->header('Transfer-Encoding') &&
