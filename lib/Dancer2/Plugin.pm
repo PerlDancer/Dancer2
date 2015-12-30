@@ -484,6 +484,39 @@ sub _exporter_expand_sub {
     }
 }
 
+# "There's a good reason for this, I swear!"
+#    -- Sawyer X
+# basically, if someone adds a hook to the app directly
+# that needs to access a DSL that needs the current object
+# (such as "plugin_setting"),
+# that objects needs to be available
+# So:
+# we override App's "add_hook" to provide a register a
+# different hook callback, that closes over the plugin when
+# it's available, relocalizes it when the callback runs and
+# after localizing it, calls the originall hook callback
+{
+    ## no critic;
+    no strict 'refs';
+    no warnings 'redefine';
+    my $orig_cb = Dancer2::Core::App->can('add_hook');
+    $orig_cb and *{'Dancer2::Core::App::add_hook'} = sub {
+        my ( $app, $hook ) = @_;
+
+        my $hook_code = $hook->code;
+        my $plugin    = $CUR_PLUGIN;
+
+        $hook->{'code'} = sub {
+            warn "Running crazy compat add_hook wrapper\n";
+            local $CUR_PLUGIN = $plugin;
+            $hook_code->(@_);
+        };
+
+        $orig_cb->(@_);
+    };
+}
+
+
 # define the exported 'plugin_keywords'
 sub _exported_plugin_keywords{
     my( $plugin, $class ) = @_;
