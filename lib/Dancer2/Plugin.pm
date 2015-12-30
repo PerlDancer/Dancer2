@@ -507,7 +507,6 @@ sub _exporter_expand_sub {
         my $plugin    = $CUR_PLUGIN;
 
         $hook->{'code'} = sub {
-            warn "Running crazy compat add_hook wrapper\n";
             local $CUR_PLUGIN = $plugin;
             $hook_code->(@_);
         };
