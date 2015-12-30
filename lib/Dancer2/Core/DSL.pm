@@ -89,10 +89,13 @@ sub dsl_keywords {
         prefix               => { is_global => 1 },
         psgi_app             => { is_global => 1 },
         push_header          => { is_global => 0 },
+        push_response_header => { is_global => 0 },
         put                  => { is_global => 1 },
         redirect             => { is_global => 0 },
         request              => { is_global => 0 },
         response             => { is_global => 0 },
+        response_header      => { is_global => 0 },
+        response_headers     => { is_global => 0 },
         runner               => { is_global => 1 },
         send_error           => { is_global => 0 },
         send_file            => { is_global => 0 },
@@ -265,16 +268,31 @@ sub status {
 }
 
 sub push_header {
+    carp "DEPRECATED: please use the 'push_response_header' keyword instead of 'push_header'";
+    goto &push_response_header;
+}
+
+sub push_response_header {
     shift;
     $Dancer2::Core::Route::RESPONSE->push_header(@_);
 }
 
 sub header {
+    carp "DEPRECATED: please use the 'response_header' keyword instead of 'header'";
+    goto &response_header;
+}
+
+sub response_header {
     shift;
     $Dancer2::Core::Route::RESPONSE->header(@_);
 }
 
 sub headers {
+    carp "DEPRECATED: please use the 'response_headers' keyword instead of 'headers'";
+    goto &response_headers;
+}
+
+sub response_headers {
     shift;
     $Dancer2::Core::Route::RESPONSE->header(@_);
 }
