@@ -447,7 +447,7 @@ END
                 my \$cb = \$self->app->name->can(\$method)
                     or croak("Can't locate method '\$method'");
 
-                Carp::carp "Using DSL in plugins is deprecated (\$method).";
+                #Carp::carp "Using DSL in plugins is deprecated (\$method).";
 
                 \$cb->(\@args);
             }
