@@ -489,12 +489,12 @@ sub _exporter_expand_sub {
 # basically, if someone adds a hook to the app directly
 # that needs to access a DSL that needs the current object
 # (such as "plugin_setting"),
-# that objects needs to be available
+# that object needs to be available
 # So:
 # we override App's "add_hook" to provide a register a
 # different hook callback, that closes over the plugin when
 # it's available, relocalizes it when the callback runs and
-# after localizing it, calls the originall hook callback
+# after localizing it, calls the original hook callback
 {
     ## no critic;
     no strict 'refs';
