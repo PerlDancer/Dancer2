@@ -308,6 +308,7 @@ sub _exporter_app {
     }
 
     # deprecated backwards compat: on_plugin_import()
+    local $CUR_PLUGIN = $plugin;
     $_->($plugin) for @{ $plugin->_DANCER2_IMPORT_TIME_SUBS() };
 
     map { [ $_ =>  {plugin => $plugin}  ] } keys %{ $plugin->keywords };
