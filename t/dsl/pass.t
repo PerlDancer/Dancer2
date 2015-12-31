@@ -12,7 +12,7 @@ subtest 'pass within routes' => sub {
 
         get '/' => sub { 'hello' };
         get '/**' => sub {
-            header 'X-Pass' => 'pass';
+            response_header 'X-Pass' => 'pass';
             pass;
             redirect '/'; # won't get executed as pass returns immediately.
         };
