@@ -93,6 +93,7 @@ sub dsl_keywords {
         put                  => { is_global => 1 },
         redirect             => { is_global => 0 },
         request              => { is_global => 0 },
+        request_header       => { is_global => 0 },
         response             => { is_global => 0 },
         response_header      => { is_global => 0 },
         response_headers     => { is_global => 0 },
@@ -394,6 +395,8 @@ sub context {
 }
 
 sub request { $Dancer2::Core::Route::REQUEST }
+
+sub request_header { shift; $Dancer2::Core::Route::REQUEST->headers->header(@_) }
 
 sub response { $Dancer2::Core::Route::RESPONSE }
 
