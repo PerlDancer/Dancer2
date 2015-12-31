@@ -12,7 +12,7 @@ subtest 'basic redirects' => sub {
 
         get '/'         => sub {'home'};
         get '/bounce'   => sub { redirect '/' };
-        get '/redirect' => sub { header 'X-Foo' => 'foo'; redirect '/'; };
+        get '/redirect' => sub { response_header 'X-Foo' => 'foo'; redirect '/'; };
         get '/redirect_querystring' => sub { redirect '/login?failed=1' };
     }
 
