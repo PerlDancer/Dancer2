@@ -114,7 +114,7 @@ C<_freeze_to_handle> and C<_thaw_from_handle>.
 
     package Dancer2::SessionFactory::XYX
 
-    use Moo;
+    use Moo v2.0.0;
 
     has _suffix => (
         is      => 'ro',

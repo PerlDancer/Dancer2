@@ -1,7 +1,7 @@
 package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
 
-use Moo;
+use Moo v2.0.0;
 use JSON ();
 use Scalar::Util 'blessed';
 

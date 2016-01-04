@@ -2,7 +2,7 @@ package Dancer2::Handler::File;
 # ABSTRACT: class for handling file content rendering
 
 use Carp 'croak';
-use Moo;
+use Moo v2.0.0;
 use HTTP::Date;
 use Dancer2::FileUtils 'path', 'open_file', 'read_glob_content';
 use Dancer2::Core::MIME;

@@ -10,7 +10,7 @@ use Dancer2::Core::Session;
 use Dancer2::Core::Types;
 use Digest::SHA 'sha1';
 use List::Util 'shuffle';
-use MIME::Base64 'encode_base64url';
+use MIME::Base64 v3.130 'encode_base64url';
 
 sub hook_aliases { +{} }
 sub supported_hooks {
@@ -417,7 +417,7 @@ In order to accept and store them, you need to define accessors for them.
 In your session factory:
 
     package Dancer2::Session::Example;
-    use Moo;
+    use Moo v2.0.0;
     with "Dancer2::Core::Role::SessionFactory";
 
     has database_connection => ( is => "ro" );

@@ -2,7 +2,7 @@
 
 package Dancer2::Template::TemplateToolkit;
 
-use Moo;
+use Moo v2.0.0;
 use Carp qw/croak/;
 use Dancer2::Core::Types;
 use Template;

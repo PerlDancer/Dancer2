@@ -2,7 +2,7 @@
 
 package Dancer2::Core::MIME;
 
-use Moo;
+use Moo v2.0.0;
 
 use Class::Load 'try_load_class';
 use Plack::MIME;

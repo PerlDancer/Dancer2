@@ -1,7 +1,7 @@
 package Dancer2::Core::Request::Upload;
 # ABSTRACT: Class representing file upload requests
 
-use Moo;
+use Moo v2.0.0;
 
 use Carp;
 use File::Spec;

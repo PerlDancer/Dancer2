@@ -2,7 +2,7 @@
 
 package Dancer2::Core::DSL;
 
-use Moo;
+use Moo v2.0.0;
 use Carp;
 use Class::Load 'load_class';
 use Dancer2::Core::Hook;

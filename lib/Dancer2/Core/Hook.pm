@@ -1,7 +1,7 @@
 package Dancer2::Core::Hook;
 # ABSTRACT: Manipulate hooks with Dancer2
 
-use Moo;
+use Moo v2.0.0;
 use Dancer2::Core::Types;
 use Carp;
 

@@ -1,7 +1,7 @@
 package Dancer2::Core::Cookie;
 # ABSTRACT: A cookie representing class
 
-use Moo;
+use Moo v2.0.0;
 use URI::Escape;
 use Dancer2::Core::Types;
 use Dancer2::Core::Time;

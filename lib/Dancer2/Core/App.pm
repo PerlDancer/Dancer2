@@ -1,7 +1,7 @@
 # ABSTRACT: encapsulation of Dancer2 packages
 package Dancer2::Core::App;
 
-use Moo;
+use Moo v2.0.0;
 use Carp               'croak';
 use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';

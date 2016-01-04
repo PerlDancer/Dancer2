@@ -1,7 +1,7 @@
 package Dancer2::Logger::Note;
 # ABSTRACT: Test::More note() logging engine for Dancer2
 
-use Moo;
+use Moo v2.0.0;
 use Test::More;
 
 with 'Dancer2::Core::Role::Logger';

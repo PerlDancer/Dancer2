@@ -1,7 +1,7 @@
 package Dancer2::Serializer::Mutable;
 # ABSTRACT: Serialize and deserialize content based on HTTP header
 
-use Moo;
+use Moo v2.0.0;
 use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';

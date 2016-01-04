@@ -1,6 +1,6 @@
 package MyDancerDSL;
 
-use Moo;
+use Moo v2.0.0;
 use Dancer2::Core::Hook;
 use Dancer2::Core::Error;
 use Dancer2::FileUtils;

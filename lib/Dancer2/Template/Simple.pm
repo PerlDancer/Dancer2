@@ -1,7 +1,7 @@
 package Dancer2::Template::Simple;
 # ABSTRACT: Pure Perl 5 template engine for Dancer2
 
-use Moo;
+use Moo v2.0.0;
 use Dancer2::FileUtils 'read_file_content';
 
 with 'Dancer2::Core::Role::Template';

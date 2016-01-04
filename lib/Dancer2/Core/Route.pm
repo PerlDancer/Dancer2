@@ -1,7 +1,7 @@
 package Dancer2::Core::Route;
 # ABSTRACT: Dancer2's route handler
 
-use Moo;
+use Moo v2.0.0;
 use Dancer2::Core::Types;
 use Carp 'croak';
 use List::Util 'first';

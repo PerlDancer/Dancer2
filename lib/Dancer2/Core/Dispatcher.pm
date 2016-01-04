@@ -1,7 +1,7 @@
 package Dancer2::Core::Dispatcher;
 # ABSTRACT: Class for dispatching request to the appropriate route handler
 
-use Moo;
+use Moo v2.0.0;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request;
