@@ -1,7 +1,7 @@
 package Dancer2::Logger::Capture;
 # ABSTRACT: Capture dancer logs
 
-use Moo v2.0.0;
+use Moo;
 use Dancer2::Logger::Capture::Trap;
 
 with 'Dancer2::Core::Role::Logger';

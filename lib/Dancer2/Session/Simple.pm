@@ -1,7 +1,7 @@
 package Dancer2::Session::Simple;
 # ABSTRACT: in-memory session backend for Dancer2
 
-use Moo v2.0.0;
+use Moo;
 use Dancer2::Core::Types;
 use Carp;
 

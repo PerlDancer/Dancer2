@@ -1,7 +1,7 @@
 package Dancer2::Template::Tiny;
 # ABSTRACT: Template::Tiny engine for Dancer2
 
-use Moo v2.0.0;
+use Moo;
 use Carp qw/croak/;
 use Dancer2::Core::Types;
 use Dancer2::Template::Implementation::ForkedTiny;

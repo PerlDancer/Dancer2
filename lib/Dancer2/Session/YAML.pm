@@ -2,9 +2,9 @@ package Dancer2::Session::YAML;
 
 # ABSTRACT: YAML-file-based session backend for Dancer2
 
-use Moo v2.0.0;
+use Moo;
 use Dancer2::Core::Types;
-use YAML v0.980;
+use YAML;
 
 has _suffix => (
     is      => 'ro',

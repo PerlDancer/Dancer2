@@ -1,7 +1,7 @@
 package Dancer2::Core::Factory;
 # ABSTRACT: Instantiate components by type and name
 
-use Moo v2.0.0;
+use Moo;
 use Dancer2::Core;
 use Class::Load 'try_load_class';
 use Carp 'croak';

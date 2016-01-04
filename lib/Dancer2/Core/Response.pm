@@ -2,7 +2,7 @@
 
 package Dancer2::Core::Response;
 
-use Moo v2.0.0;
+use Moo;
 
 use Encode;
 use Dancer2::Core::Types;

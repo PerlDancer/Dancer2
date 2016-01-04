@@ -1,7 +1,7 @@
 package Dancer2::Logger::Capture::Trap;
 # ABSTRACT: a place to store captured Dancer2 logs
 
-use Moo v2.0.0;
+use Moo;
 use Dancer2::Core::Types;
 
 has storage => (

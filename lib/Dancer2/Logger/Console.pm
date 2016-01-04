@@ -1,7 +1,7 @@
 package Dancer2::Logger::Console;
 # ABSTRACT: Console logger
 
-use Moo v2.0.0;
+use Moo;
 
 with 'Dancer2::Core::Role::Logger';
 

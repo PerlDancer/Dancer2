@@ -1,7 +1,7 @@
 package Dancer2::Core::Error;
 # ABSTRACT: Class representing fatal errors
 
-use Moo v2.0.0;
+use Moo;
 use Carp;
 use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;

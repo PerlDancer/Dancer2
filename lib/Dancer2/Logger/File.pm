@@ -2,7 +2,7 @@ package Dancer2::Logger::File;
 # ABSTRACT: file-based logging engine for Dancer2
 
 use Carp 'carp';
-use Moo v2.0.0;
+use Moo;
 use Dancer2::Core::Types;
 
 with 'Dancer2::Core::Role::Logger';

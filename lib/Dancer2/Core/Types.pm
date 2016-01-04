@@ -7,7 +7,7 @@ use Scalar::Util 'blessed', 'looks_like_number';
 use MooX::Types::MooseLike 0.16 'exception_message';
 use MooX::Types::MooseLike::Base qw/:all/;
 
-use Exporter v5.570 'import';
+use Exporter 'import';
 our @EXPORT;
 our @EXPORT_OK;
 

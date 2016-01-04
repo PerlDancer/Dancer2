@@ -1,7 +1,7 @@
 package Dancer2::Core::Time;
 # ABSTRACT: class to handle common helpers for time manipulations
 
-use Moo v2.0.0;
+use Moo;
 
 has seconds => (
     is      => 'ro',

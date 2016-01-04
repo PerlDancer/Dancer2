@@ -2,7 +2,7 @@
 
 package Dancer2::Serializer::Dumper;
 
-use Moo v2.0.0;
+use Moo;
 use Carp 'croak';
 use Data::Dumper;
 use Safe;
