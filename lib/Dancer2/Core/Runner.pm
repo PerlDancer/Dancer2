@@ -6,7 +6,7 @@ use Carp 'croak';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
-use Plack v1.3.500;		# needed only for the version check
+use Plack v1.3.500;      # needed only for the version check
 use Plack::Builder qw();
 
 # Hashref of configurable items for the runner.
