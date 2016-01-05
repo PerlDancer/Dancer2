@@ -299,6 +299,9 @@ has request => (
 
 sub set_request {
     my ($self, $request, $defined_engines) = @_;
+    # typically this is passed in as an optimization within the
+    # dispatch loop but may be called elsewhere
+    $defined_engines ||= $self->defined_engines;
     # populate request in app and all engines
     $self->_set_request($request);
     $_->set_request( $request ) for @{$defined_engines};
