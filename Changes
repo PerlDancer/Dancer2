@@ -12,6 +12,10 @@
     [ DOCUMENTATION ]
     * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
 
+    [ ENHANCEMENTS ]
+    * GH #1074: Add sample session engine config to skeleton app.
+      (Peter Mottram - @SysPete)
+
 0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
