@@ -5,6 +5,9 @@
       engines. (Sawyer X, Menno Blom, Russell Jenkins)
     * GH #1089: Exact macthing of route regex comments for tokens/splats.
       (Sawyer X)
+    * GH #1079, #1082: Allow routes to return '0' as response content,
+      and serializer hooks are called when default response content is
+      to be returned. (Alberto Simões, Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
