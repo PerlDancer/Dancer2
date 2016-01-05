@@ -74,23 +74,6 @@ has serializer_engine => (
     predicate => 'has_serializer_engine',
 );
 
-has defined_engines => (
-    is      => 'ro',
-    isa     => ArrayRef,
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        [
-            $self->template_engine,
-            $self->session_engine,
-            $self->logger_engine,
-            $self->has_serializer_engine
-                ? $self->serializer_engine
-                : (),
-        ];
-    },
-);
-
 has '+local_triggers' => (
     default => sub {
         my $self     = shift;
@@ -315,10 +298,13 @@ has request => (
 );
 
 sub set_request {
-    my ($self, $request) = @_;
+    my ($self, $request, $defined_engines) = @_;
+    # typically this is passed in as an optimization within the
+    # dispatch loop but may be called elsewhere
+    $defined_engines ||= $self->defined_engines;
     # populate request in app and all engines
     $self->_set_request($request);
-    $_->set_request( $request ) for @{ $self->defined_engines };
+    $_->set_request( $request ) for @{$defined_engines};
 }
 
 has response => (
@@ -668,6 +654,18 @@ sub hook_aliases {
         before_serializer      => 'engine.serializer.before',
         after_serializer       => 'engine.serializer.after',
     };
+}
+
+sub defined_engines {
+    my $self = shift;
+    return [
+        $self->template_engine,
+        $self->session_engine,
+        $self->logger_engine,
+        $self->has_serializer_engine
+            ? $self->serializer_engine
+            : (),
+    ];
 }
 
 # FIXME not needed anymore, I suppose...
@@ -1247,13 +1245,15 @@ sub dispatch {
                   $self->build_request($env);
     my $cname   = $self->session_engine->cookie_name;
 
+    my $defined_engines = $self->defined_engines;
+
 DISPATCH:
     while (1) {
         my $http_method = lc $request->method;
         my $path_info   =    $request->path_info;
 
         # Add request to app and engines
-        $self->set_request($request);
+        $self->set_request($request, $defined_engines);
 
         $self->log( core => "looking for $http_method $path_info" );
 
