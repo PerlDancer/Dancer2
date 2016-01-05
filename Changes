@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #1013, #1092: Remove race condition caused by caching available
       engines. (Sawyer X, Menno Blom, Russell Jenkins)
+    * GH #1089: Exact macthing of route regex comments for tokens/splats.
+      (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
