@@ -18,8 +18,9 @@ sub _build_engine {
         ANYCASE  => 1,
         ABSOLUTE => 1,
         length($charset) ? ( ENCODING => $charset ) : (),
-        %{ $self->config },
+        # %{ $self->config },
     );
+    map { $tt_config{ $_ } = $self->config->{ $_ } } keys %{$self->config};
 
     my $start_tag = $self->config->{'start_tag'};
     my $stop_tag = $self->config->{'stop_tag'} || $self->config->{end_tag};
@@ -27,6 +28,8 @@ sub _build_engine {
       if defined $start_tag && $start_tag ne '[%';
     $tt_config{'END_TAG'} = $stop_tag
       if defined $stop_tag && $stop_tag ne '%]';
+
+    $tt_config{'INCLUDE_PATH'} ||= $self->views;
 
     return Template->new(%tt_config);
 }
