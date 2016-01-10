@@ -30,11 +30,6 @@ BEGIN {
         },
         handles => [ 'inside' ],
     );
-
-    sub BUILD {
-        my $plugin = shift;
-        $plugin->config;
-    };
 }
 
 {
@@ -69,10 +64,10 @@ isa_ok( $test_plugin, 'Dancer2::Plugin::TestPlugin' );
 isa_ok( $inside_plugin, 'Dancer2::Plugin::InsidePlugin' );
 
 # test configuration values
-ok ($test_plugin->config->{nein} eq 'ne', 'Test config of TestPlugin.')
-    || diag "Found instead of expected 'ne': ", $test_plugin->config->{nein};
+is $test_plugin->config->{nein} => 'ne', 'Test config of TestPlugin.'
+    or diag "Found instead of expected 'ne': ", $test_plugin->config->{nein};
 
-ok ($inside_plugin->config->{ja} eq 'da', 'Test config of InsidePlugin.')
-    || diag "Found instead of expected 'da': ", $inside_plugin->config->{ja};
+is $inside_plugin->config->{ja} => 'da', 'Test config of InsidePlugin.'
+    or diag "Found instead of expected 'da': ", $inside_plugin->config->{ja};
 
 done_testing;
