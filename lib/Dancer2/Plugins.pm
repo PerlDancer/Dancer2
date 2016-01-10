@@ -11,7 +11,7 @@ sub import {
   my $self = shift;
   foreach my $plugin (@_) {
     my $class = "Dancer2::Plugin::$plugin";
-    eval("package $caller { use $class }");
+    eval("package $caller; use $class");
     if ($@) {
       die "Error with $plugin plugin: cannot install $class into $caller\n$@";
     }
