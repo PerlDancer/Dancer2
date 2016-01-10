@@ -603,7 +603,7 @@ B<Starting the application>:
 Our bookstore lookup application can now be started using the built-in server:
 
     # start the web application
-    bookstore/bin/app.pl
+    plackup bin/app.psgi
 
 =back
 

@@ -36,11 +36,13 @@ my $tests_flags = {};
     get '/' => sub { +{ "ok" => 1 } };
 
     hook 'before_serializer' => sub {
-        my $data = shift;
+        my ($data) = @_;  # don't shift, want to alias..
         if ( ref $data eq 'ARRAY' ) {
             push( @{$data}, ( added_in_hook => 1 ) );
-        } else {
+        } elsif ( ref $data eq 'HASH' ) {
             $data->{'added_in_hook'} = 1;
+        } else {
+            $_[0] = +{ 'added_in_hook' => 1 };
         }
     };
 
@@ -49,6 +51,8 @@ my $tests_flags = {};
     get '/redirect' => sub { redirect '/' };
 
     get '/json' => sub { +[ foo => 42 ] };
+
+    get '/nothing' => sub { return };
 }
 
 {
@@ -174,11 +178,6 @@ subtest 'Request hooks' => sub {
     );
 
     note 'Serializer hooks';
-    is(
-        $tests_flags->{before_serializer},
-        $tests_flags->{after_serializer},
-        'before_serializer not called because content was empty',
-    );
 
     $test->request( GET '/forward' );
     is(
@@ -189,9 +188,14 @@ subtest 'Request hooks' => sub {
 
     my $res = $test->request( GET '/json' );
     is( $res->content, '["foo",42,"added_in_hook",1]', 'Response serialized' );
-    is( $tests_flags->{before_serializer}, 3, 'before_serializer was called' );
-    is( $tests_flags->{after_serializer},  3, 'after_serializer was called' );
+    is( $tests_flags->{before_serializer}, 4, 'before_serializer was called' );
+    is( $tests_flags->{after_serializer},  4, 'after_serializer was called' );
     is( $tests_flags->{before_file_render}, undef, "before_file_render undef" );
+
+    $res = $test->request( GET '/nothing' );
+    is( $res->content, '{"added_in_hook":1}', 'Before hook modified content' );
+    is( $tests_flags->{before_serializer}, 5, 'before_serializer was called with no content' );
+    is( $tests_flags->{after_serializer},  5, 'after_serializer was called after content changes in hook' );
 };
 
 subtest 'file render hooks' => sub {

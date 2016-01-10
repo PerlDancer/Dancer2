@@ -7,7 +7,7 @@ use warnings;
 use Dancer2::CLI;
 
 # backward compatibility
-if (@ARGV && ($ARGV[0] =~ m/^-(a|p|x)/ || $ARGV[0] =~ m/^--(application|path|no-check)/)) {
+if (@ARGV && ($ARGV[0] =~ m/^-(a|p|x|s)/ || $ARGV[0] =~ m/^--(application|path|no-check|skel)/)) {
     # GetOptions and Getopt::Long::Descriptive differently treats
     # cases like '-a=Test'. GetOptions returs 'Test' as value of 'a',
     # while Getopt::Long::Descriptive returns '=Test' as value
@@ -70,6 +70,7 @@ the framework for a new Dancer2 application.
         -o --overwrite       overwrite existing files
         -x --no-check        don't check for the latest version of Dancer2
                              (checking version implies internet connection)
+        -s --skel            skeleton directory
 
 =head3 EXAMPLE
 

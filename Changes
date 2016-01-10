@@ -1,5 +1,75 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1013, #1092: Remove race condition caused by caching available
+      engines. (Sawyer X, Menno Blom, Russell Jenkins)
+    * GH #1089: Exact macthing of route regex comments for tokens/splats.
+      (Sawyer X)
+    * GH #1079, #1082: Allow routes to return '0' as response content,
+      and serializer hooks are called when default response content is
+      to be returned. (Alberto Simões, Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
+
+    [ ENHANCEMENTS ]
+    * GH #1074: Add sample session engine config to skeleton app.
+      (Peter Mottram - @SysPete)
+
+0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * Revert session_name change, as this would invalidate all existing
+      changes. We will need to rethink this change.
+      (Stefan @racke Hornburg, Sawyer X)
+
+0.164000  2015-12-16 23:42:24+01:00 Europe/Amsterdam
+
+    [ DOCUMENTATION ]
+    * Update core team members and contributors list. (Russell Jenkins)
+    * GH #1066: Fix typo in Cookbook. (gertvanoss)
+    * Correct typo. It's "query_parameters", not "request_parameters".
+      Thanks to mst for letting me know and making sure I fix it!
+      (Sawyer X)
+
+    [ BUG FIXES ]
+    * GH #1040: Forward with a post body no longer tries to re-read body
+      filehandle. (Bas Bloemsaat)
+    * GH #1042: Add Diggest::SHA as explicit prequisite for installs on
+      perl < v5.9.3. (Russell Jenkins)
+    * GH #1071, #1070: HTML escape the message in the default error page.
+      (Peter Mottram)
+    * GH #1062, #1063: Command line interface didn't support
+      "-s SKELETON_DIRECTORY" in any order.
+      (Nuno Carvalho)
+    * GH #1052, #1053: Always call before_serializer hook when serializer
+      is set.
+      (Mickey Nasriachi)
+    * GH #1034: Correctly use different session cookie name for Dancer2.
+      (Jason A. Crome)
+    * GH #1060: Remove trailing slashes when providing skeleton
+      directory.
+      (Gabor Szabo)
+
+    [ ENHANCEMENTS ]
+    * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
+      in the Plack::Request object internally.
+    * GH #951 #1037: Dancer2::Template::TemplateToolkit no longer sets TT2
+      INCLUDE_PATH directive, allowing `views` setting to be non-absolute
+      paths. (Russell Jenkins)
+    * GH #1032 #1043: Add .dancer file to new app scaffolding.
+      (Jason A. Crome)
+    * GH #1045: Small cleanups to Request class. (Russell Jenkins)
+    * GH #1033: strict && warnings in Dancer2::CLI. (Mohammad S Anwar)
+    * GH #1052, #1053: Allow before_serializer hook to change the content
+      using @_.
+      (Mickey Nasriachi)
+    * GH #1060: Ignore .git directory when using an external skeleton
+      directory.
+      (Gabor Szabo)
+    * GH #1060: Support more asset file extensions. (Gabor Szabo)
+    * GH #1072: Add request->is_options(). (Theo van Hoesel)
+
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
     [ DOCUMENTATION ]
@@ -17,7 +87,7 @@
       (Sawyer X)
 
     [ ENHANCEMENTS ]
-    * GH #738, #740, #988: route_parameters, request_parameters, and
+    * GH #738, #740, #988: route_parameters, query_parameters, and
       body_parameters keywords added, providing Hash::MultiValue objects!
       (Sawyer X)
     * #941, #999: delayed() keyword now has "on_error" option for controlling

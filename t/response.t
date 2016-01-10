@@ -57,4 +57,9 @@ $r =
   Dancer2::Core::Response->new( content => "foo", status => "not_modified" );
 is $r->status, 304;
 
+# test setting content as "0"
+$r = Dancer2::Core::Response->new( content => "foo" );
+$r->content("0");
+is $r->content, "0";
+
 done_testing;

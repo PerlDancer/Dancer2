@@ -77,9 +77,8 @@ sub new {
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
-    # parsing body for HMV first
+    # parsing body for HMV first (also deserializes body)
     $self->body_parameters;
-    $self->data;      # Deserialize body
     $self->_build_uploads();
 
     return $self;
@@ -212,13 +211,15 @@ sub deserialize {
     return $data;
 }
 
-sub uri       { $_[0]->request_uri }
-sub is_head   { $_[0]->method eq 'HEAD' }
-sub is_post   { $_[0]->method eq 'POST' }
-sub is_get    { $_[0]->method eq 'GET' }
-sub is_put    { $_[0]->method eq 'PUT' }
-sub is_delete { $_[0]->method eq 'DELETE' }
-sub is_patch  { $_[0]->method eq 'PATCH' }
+sub uri        { $_[0]->request_uri }
+
+sub is_head    { $_[0]->method eq 'HEAD' }
+sub is_post    { $_[0]->method eq 'POST' }
+sub is_get     { $_[0]->method eq 'GET' }
+sub is_put     { $_[0]->method eq 'PUT' }
+sub is_delete  { $_[0]->method eq 'DELETE' }
+sub is_patch   { $_[0]->method eq 'PATCH' }
+sub is_options { $_[0]->method eq 'OPTIONS' }
 
 # public interface compat with CGI.pm objects
 sub request_method { $_[0]->method }
@@ -364,8 +365,6 @@ sub body_parameters {
     my $self = shift;
     $self->{'plack.request.body'}
         and return $self->{'plack.request.body'};
-
-    my $env = $self->env;
 
     # handle case of serializer
     if ( my $data = $self->deserialize ) {
@@ -817,6 +816,10 @@ Return true if the method requested by the client is 'POST'
 =method is_put
 
 Return true if the method requested by the client is 'PUT'
+
+=method is_options
+
+Return true if the method requested by the client is 'OPTIONS'
 
 =method logger
 

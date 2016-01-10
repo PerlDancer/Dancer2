@@ -222,6 +222,7 @@ things:
     David Golden
     David Precious
     Franck Cuny
+    Jason A. Crome
     Mickey Nasriachi
     Russell Jenkins
     Sawyer X
@@ -231,28 +232,42 @@ things:
 
 =head2 CONTRIBUTORS
 
+    A. Sinan Unur
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
     Alexandr Ciornii
+    Andrew Beverley
     Andrew Grangaard
     Andrew Inishev
-    andrewsolomon
+    Andrew Solomon
+    Andy Jack
     Ashvini V
     B10m
-    baynes
-    Blabos de Blebe
     Bas Bloemsaat
+    baynes
+    Ben Hutton
+    Blabos de Blebe
     Breno G. de Oliveira
+    cdmalon
     Celogeek
     Cesare Gargano
+    Charlie Gonzalez
+    chenchen000
+    Chi Trinh
     Christian Walde
     Colin Kuskie
     cym0n
     Dale Gallagher
+    Daniel Muey
     David Steinbrunner
+    David Zurborg
+    Davs
     Dinis Rebolo
+    dtcyganov
     Erik Smit
+    Fayland Lam
+    Gabor Szabo
     geistteufel
     Gideon D'souza
     Graham Knop
@@ -260,31 +275,56 @@ things:
     Grzegorz Rożniecki
     Hobbestigrou
     Ivan Bessarabov
+    Ivan Kruglov
+    JaHIY
     Jakob Voss
     James Aitken
-    Jason A. Crome
+    James Raspass
     Javier Rojas
     Jean Stebens
+    Jens Rehsack
     Jonathan Scott Duff
+    Julien Fiegehenn
     Julio Fraire
+    kbeyazli
     Keith Broughton
+    lbeesley
+    Lennart Hengstmengel
+    Ludovic Tolhurst-Cleaver
     Mark A. Stratman
     Mateu X Hunter
     Matt Phillips
     Matt S Trout
     Maurice
+    Menno Blom
     Michał Wojciechowski
+    Mohammad S Anwar
     mokko
+    Nick Patch
+    Nick Tonkin
+    Nikita K
+    Nuno Carvalho
+    Olaf Alders
     Olivier Mengué
     Omar M. Othman
+    pants
+    Patrick Zimmermann
     Pau Amma
+    Paul Cochrane
+    Pedro Bruno
     Pedro Melo
+    Peter Mottram
     Rick Yakubowski
+    sakshee3
     Sam Kington
     Samit Badle
     Shlomi Fish
+    simbabque
     Slava Goltser
-    smashz
+    Snigdha
+    Tina Müller
     Tom Hukins
-    Upasana
+    Upasana Shukla
+    Vernon Lyon
+    Vince Willems
     Vincent Bachelier

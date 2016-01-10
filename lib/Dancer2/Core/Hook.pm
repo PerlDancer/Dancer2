@@ -44,7 +44,7 @@ __END__
 =head1 SYNOPSIS
 
   # inside a plugin
-  use Dancer2::Cook::Hook;
+  use Dancer2::Core::Hook;
   Dancer2::Core::Hook->register_hooks_name(qw/before_auth after_auth/);
 
 =method register_hook ($hook_name, [$properties], $code)

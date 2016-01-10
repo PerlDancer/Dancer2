@@ -28,8 +28,6 @@ sub _build_engine {
     $tt_config{'END_TAG'} = $stop_tag
       if defined $stop_tag && $stop_tag ne '%]';
 
-    $tt_config{'INCLUDE_PATH'} ||= $self->views;
-
     return Template->new(%tt_config);
 }
 

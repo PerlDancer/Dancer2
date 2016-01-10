@@ -96,7 +96,7 @@ sub match {
 
     # regex comments are how we know if we captured a token,
     # splat or a megasplat
-    my @token_or_splat = $self->regexp =~ /\(\?#([token|(?:mega)?splat]+)\)/g;
+    my @token_or_splat = $self->regexp =~ /\(\?#(token|(?:mega)?splat)\)/g;
     if (@token_or_splat) {
         # our named tokens
         my @tokens = @{ $self->_params };

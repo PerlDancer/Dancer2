@@ -6,7 +6,6 @@ use Dancer2::Core::Types;
 use Dancer2::FileUtils qw'path';
 use Carp 'croak';
 
-use Data::Dumper;
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
