@@ -8,6 +8,9 @@
     * GH #1079, #1082: Allow routes to return '0' as response content,
       and serializer hooks are called when default response content is
       to be returned. (Alberto Simões, Russell Jenkins)
+    * GH #1093, 1095: Use a dynamic TT2 INCLUDE_PATH to allow relative
+      views with relative includes; fixing regression introduced by #1037.
+      (Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
