@@ -348,6 +348,7 @@ around _build_config => sub {
 sub _build_response {
     my $self = shift;
     return Dancer2::Core::Response->new(
+        server_tokens => !$self->config->{'no_server_tokens'},
         $self->has_serializer_engine
             ? ( serializer => $self->serializer_engine )
             : (),

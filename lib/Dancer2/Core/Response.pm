@@ -104,6 +104,12 @@ has content => (
     clearer   => 'clear_content',
 );
 
+has server_tokens => (
+    is      => 'ro',
+    isa     => Bool,
+    default => sub {1},
+);
+
 around content => sub {
     my ( $orig, $self ) = ( shift, shift );
 
@@ -170,8 +176,8 @@ sub new_from_array {
 sub to_psgi {
     my ($self) = @_;
 
-    Dancer2::runner()->config->{'no_server_tokens'}
-        or $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
+    $self->server_tokens
+        and $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
 
     my $headers = $self->headers;
     my $status  = $self->status;
