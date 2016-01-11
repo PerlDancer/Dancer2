@@ -25,8 +25,8 @@ has headers => (
     isa    => Sub::Quote::quote_sub(q{
         use Safe::Isa;
         $_[0]->$_isa('ARRAY')          ||
-        $_[0]->$_DOES('HTTP::Headers') ||
-        $_[0]->$_DOES('HTTP::Headers::Fast')
+        $_[0]->$_isa('HTTP::Headers') ||
+        $_[0]->$_isa('HTTP::Headers::Fast')
     }),
     lazy   => 1,
     coerce => sub {
