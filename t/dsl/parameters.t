@@ -306,34 +306,6 @@ subtest 'Captured route parameters' => sub {
                 'capture values are empty',
             );
         };
-
-        get qr{^/bar/(?<baz>[^/]+)$} => sub {
-            my $params = route_parameters;
-
-            ::isa_ok(
-                $params,
-                'Hash::MultiValue',
-                'parameters keyword',
-            );
-
-            ::is_deeply(
-                { %{$params} },
-                {},
-                'All route parameters are empty',
-            );
-
-            ::is_deeply(
-                [ splat ],
-                [],
-                'splat values are empty',
-            );
-
-            ::is_deeply(
-                captures(),
-                { baz => 'quux' },
-                'Correct capture values',
-            );
-        };
     }
 
     my $app = Plack::Test->create( App::Route::Capture->to_app );
@@ -342,11 +314,52 @@ subtest 'Captured route parameters' => sub {
         my $res = $app->request( GET '/foo/bar' );
         ok( $res->is_success, 'Successful request' );
     }
-
-    {
-        my $res = $app->request( GET '/bar/quux' );
-        ok( $res->is_success, 'Successful request' );
-    }
 };
 
+SKIP: {
+    Test::More::skip "named captures not available until 5.10", 1
+      if !$^V or $^V lt v5.10;
+
+    subtest 'Named captured route parameters' => sub {
+        {
+            package App::Route::NamedCapture; ## no critic
+            use Dancer2;
+            my $re = '^/bar/(?<baz>[^/]+)$';
+            get qr{$re} => sub {
+                my $params = route_parameters;
+
+                ::isa_ok(
+                    $params,
+                    'Hash::MultiValue',
+                    'parameters keyword',
+                );
+
+                ::is_deeply(
+                    { %{$params} },
+                    {},
+                    'All route parameters are empty',
+                );
+
+                ::is_deeply(
+                    [ splat ],
+                    [],
+                    'splat values are empty',
+                );
+
+                ::is_deeply(
+                    captures(),
+                    { baz => 'quux' },
+                    'Correct capture values',
+                );
+            };
+        }
+
+        my $app = Plack::Test->create( App::Route::NamedCapture->to_app );
+
+        {
+            my $res = $app->request( GET '/bar/quux' );
+            ok( $res->is_success, 'Successful request' );
+        };
+    };
+};
 done_testing();
