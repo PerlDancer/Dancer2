@@ -108,6 +108,11 @@ sub layout_pathname {
     );
 }
 
+sub pathname_exists {
+    my ( $self, $pathname ) = @_;
+    return -f $pathname;
+}
+
 sub render_layout {
     my ( $self, $layout, $tokens, $content ) = @_;
 
@@ -307,6 +312,14 @@ Returns the full path to the requested view.
 =method layout_pathname($layout)
 
 Returns the full path to the requested layout.
+
+=method pathname_exists($pathname)
+
+Returns true if the requested pathname exists. Can be used for either views
+or layouts:
+
+    $self->pathname_exists( $self->view_pathname( 'some_view' ) );
+    $self->pathname_exists( $self->layout_pathname( 'some_layout' ) );
 
 =method render_layout($layout, \%tokens, \$content)
 

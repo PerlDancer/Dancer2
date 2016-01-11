@@ -42,7 +42,7 @@ sub code {
 
         my $view_path = $template->view_pathname($page);
 
-        if ( !-f $view_path ) {
+        if ( ! $template->pathname_exists( $view_path ) ) {
             $app->response->has_passed(1);
             return;
         }
