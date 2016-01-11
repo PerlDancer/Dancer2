@@ -10,7 +10,7 @@ BEGIN {
     use Dancer2::Plugin;
 
     push @::expected_keywords, 'foo';
-    plugin_keywords foo => sub { ... };
+    plugin_keywords foo => sub { die "unimplemented" };
 
     push @::expected_keywords, 'bar';
     has bar => (
@@ -31,9 +31,9 @@ BEGIN {
     );
 
     push @::expected_keywords, 'quux', 'qiix', 'qox', 'qooox';
-    sub quux :PluginKeyword { ... };
-    sub qaax :PluginKeyword(qiix) { ... };
-    sub qoox :PluginKeyword(qox qooox) { ... };
+    sub quux :PluginKeyword { die "unimplemented" };
+    sub qaax :PluginKeyword(qiix) { die "unimplemented" };
+    sub qoox :PluginKeyword(qox qooox) { die "unimplemented" };
 
 }
 

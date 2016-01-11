@@ -451,6 +451,9 @@ END
 
                 \$cb->(\@args);
             }
+
+            # we don't want AUTOLOAD called for DESTROY
+            sub DESTROY { }
         }
 END
 
