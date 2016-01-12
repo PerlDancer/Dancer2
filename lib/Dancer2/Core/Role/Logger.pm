@@ -58,7 +58,10 @@ my $_levels = {
 has log_level => (
     is  => 'rw',
     isa => sub {
-        grep {/$_[0]/} keys %{$_levels};
+        grep {/$_[0]/} keys %{$_levels}
+          or die "log_level must be one of: ",
+          join(", ",
+            sort { $_levels->{$a} <=> $_levels->{$b} } keys %$_levels);
     },
     default => sub {'debug'},
 );
