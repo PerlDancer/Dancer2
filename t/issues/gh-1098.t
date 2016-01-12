@@ -1,4 +1,4 @@
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::Fatal;
 
 use Dancer2::Core::Error;
@@ -63,3 +63,25 @@ subtest 'Core::Response headers isa tests' => sub {
     "Response->new( headers => JSON->new ) died";
 };
 
+subtest 'Core::Role::Logger log_level isa tests' => sub {
+    plan tests => 1 + 6 + 1;
+
+    {
+        package TestLogger;
+        use Moo;
+        with 'Dancer2::Core::Role::Logger';
+        sub log { }
+    }
+
+    is exception { TestLogger->new }, undef, "Logger->new lived";
+
+    my @levels = qw/core debug info warn warning error/;
+    foreach my $level (@levels) {
+        is exception { TestLogger->new(log_level => $level) }, undef,
+          "Logger->new(log_level => $level) lives";
+    }
+
+    like exception { TestLogger->new(log_level => 'BadLevel') },
+      qr/isa.+failed.+must be one of: core/,
+      "Logger->new(log_level => 'BadLevel') died";
+};
