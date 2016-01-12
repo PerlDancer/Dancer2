@@ -23,18 +23,20 @@ use overload
 has headers => (
     is     => 'ro',
     isa    => Sub::Quote::quote_sub(q{
+        # HTTP::Headers::Fast reports that it isa 'HTTP::Headers',
+        # but there is no actual inheritance.
         use Safe::Isa;
-        $_[0]->$_isa('ARRAY')          ||
-        $_[0]->$_isa('HTTP::Headers') ||
-        $_[0]->$_isa('HTTP::Headers::Fast')
+        $_[0]->$_isa('HTTP::Headers')
+            or die "is not HTTP::Headers or HTTP::Headers::Fast"
     }),
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
         # HTTP::Headers::Fast reports that it isa 'HTTP::Headers',
         # but there is no actual inheritance.
-        return $value if blessed($value) && $value->isa('HTTP::Headers');
-        HTTP::Headers::Fast->new( @{$value} );
+        $value->$_isa('HTTP::Headers')
+          ? $value
+          : HTTP::Headers::Fast->new(@{$value});
     },
     default => sub {
         HTTP::Headers::Fast->new();
