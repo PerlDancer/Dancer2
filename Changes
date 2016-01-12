@@ -18,6 +18,8 @@
     [ ENHANCEMENTS ]
     * GH #1074: Add sample session engine config to skeleton app.
       (Peter Mottram - @SysPete)
+    * GH #1088: Return route objects when defining new routes.
+      (Sawyer X)
 
 0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
 

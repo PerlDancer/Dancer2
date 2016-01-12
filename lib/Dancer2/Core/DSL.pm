@@ -231,7 +231,7 @@ sub _normalize_route {
     # @_ = ( REGEXP, CODE )
     @args{qw/regexp options code/} = @_ == 3 ? @_ : ( $_[0], {}, $_[1] );
 
-    $app->add_route( %args, method => $_ ) for @{$methods};
+    return map $app->add_route( %args, method => $_ ), @{$methods};
 }
 
 #
