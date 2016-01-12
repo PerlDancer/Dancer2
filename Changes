@@ -11,6 +11,8 @@
     * GH #1093, 1095: Use a dynamic TT2 INCLUDE_PATH to allow relative
       views with relative includes; fixing regression introduced by #1037.
       (Russell Jenkins)
+    * GH #1096, #1097: Return compatibility on Perl 5.8.x!
+      (Peter Mottram - @SysPete)
 
     [ DOCUMENTATION ]
     * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
