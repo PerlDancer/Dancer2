@@ -79,8 +79,7 @@ sub normalize_path {
     }x;
 
     $path =~ s{/\./}{/}g;
-    $path =~ s{$seqregex}{}g;
-    $path =~ s{$seqregex}{};
+    while ( $path =~ s{$seqregex}{} ) {}
 
     #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
     $path =~ s{^//}{/};
