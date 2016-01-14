@@ -7,7 +7,6 @@ use warnings;
 use File::Basename ();
 use File::Spec;
 use Carp;
-use Cwd 'realpath';
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
