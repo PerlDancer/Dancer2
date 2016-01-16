@@ -42,6 +42,10 @@ sub code {
 
         my $view_path = $template->view_pathname($page);
 
+        # Remove preceeding slash so that Template::TemplateToolkit
+        # works correctly.
+        s|^/|| for $view_path, $page;
+
         if ( ! $template->pathname_exists( $view_path ) ) {
             $app->response->has_passed(1);
             return;

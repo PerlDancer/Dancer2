@@ -8,6 +8,7 @@ use Dancer2::Core::Types;
 use Dancer2::FileUtils qw'path';
 use Scalar::Util qw();
 use Template;
+use Try::Tiny;
 
 with 'Dancer2::Core::Role::Template';
 
@@ -81,7 +82,7 @@ sub pathname_exists {
         # dies if pathname can not be found via TT2's INCLUDE_PATH search
         $self->engine->service->context->template( $pathname );
         $rc = 1;
-    }
+    };
     return $rc;
 }
 
