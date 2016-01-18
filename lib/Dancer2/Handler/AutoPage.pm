@@ -40,6 +40,8 @@ sub code {
             return;
         }
 
+        # remove leading '/', ensuring paths relative to the view
+        $page =~ s{^/}{};
         my $view_path = $template->view_pathname($page);
 
         if ( ! $template->pathname_exists( $view_path ) ) {
