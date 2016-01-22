@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #1105, #1106, #1108: Autopage + Template Toolkit broke in last
       release. (Kaitlyn Parkhurst @symkat, Russell Jenkins)
