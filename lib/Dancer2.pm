@@ -286,6 +286,7 @@ things:
     Jonathan Scott Duff
     Julien Fiegehenn
     Julio Fraire
+    Kaitlyn Parkhurst (SYMKAT)
     kbeyazli
     Keith Broughton
     lbeesley
