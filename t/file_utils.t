@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 
-use Test::More tests => 20;
+use Test::More tests => 25;
 use Test::Fatal;
 use File::Spec;
 BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
@@ -39,6 +39,11 @@ my $paths = [
    [ '/foo/./bar/'  => '/foo/bar/' ],
    [ '/foo/../bar' => '/bar' ],
    [ '/foo/bar/..'  => '/foo/' ],
+   [ '/a/b/c/d/A/B/C' => '/a/b/c/d/A/B/C' ],
+   [ '/a/b/c/d/../A/B/C' => '/a/b/c/A/B/C' ],
+   [ '/a/b/c/d/../../A/B/C' => '/a/b/A/B/C' ],
+   [ '/a/b/c/d/../../../A/B/C' => '/a/A/B/C' ],
+   [ '/a/b/c/d/../../../../A/B/C' => '/A/B/C' ], 
 ];
 
 for my $case ( @$paths ) {

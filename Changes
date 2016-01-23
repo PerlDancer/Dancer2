@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1102: Handle multiple '..' in file path utilities.
+      (Oleg A. Mamontov, Peter Mottram)
+
 0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
