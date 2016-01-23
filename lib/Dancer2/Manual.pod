@@ -1104,9 +1104,10 @@ the cookie (the session ID).
 
          # if we have a session cookie, try to retrieve the session
          if (defined $session_id) {
-             eval { $session = $engine->retrieve(id => $session_id) };
-             croak "Fail to retrieve session: $@"
-               if $@ && $@ !~ /Unable to retrieve session/;
+             local $@;
+             eval { $session = $engine->retrieve(id => $session_id); 1 };
+               or croak "Fail to retrieve session: $@"
+                 if $@ !~ /Unable to retrieve session/;
          }
 
          # create the session if none retrieved

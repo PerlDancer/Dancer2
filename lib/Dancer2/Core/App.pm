@@ -370,6 +370,7 @@ sub _build_session {
 
         # if we have a session cookie, try to retrieve the session
         if ( defined $session_id ) {
+            local $@;
             eval  { $session = $engine->retrieve( id => $session_id ); 1; }
             or do { $@ and $@ !~ /Unable to retrieve session/
                         and croak "Fail to retrieve session: $@" };
@@ -968,6 +969,7 @@ sub compile_hooks {
                 $Dancer2::Core::Route::RESPONSE->is_halted
                     and return;
 
+                local $@;
                 eval  { $hook->(@_); 1; }
                 or do {
                     $app->cleanup;
@@ -1000,13 +1002,14 @@ sub lexical_prefix {
     # if the new prefix is empty, it's a meaningless prefix, just ignore it
     length $new_prefix and $self->prefix($new_prefix);
 
-    eval { $cb->() };
+    local $@;
+    my $fail = not eval { $cb->(); 1 };
     my $e = $@;
 
     # restore app prefix
     $self->prefix($app_prefix);
 
-    $e and croak "Unable to run the callback for prefix '$prefix': $e";
+    $fail and croak "Unable to run the callback for prefix '$prefix': $e";
 }
 
 sub add_route {
@@ -1203,6 +1206,7 @@ sub to_app {
                 [ "Method Not Allowed\n\n$method is not supported." ]
             ];
 
+        local $@;
         my $response;
         eval {
             $response = $self->dispatch($env)->to_psgi;
@@ -1396,9 +1400,8 @@ sub _dispatch_route {
         return $self->_prep_response( $response );
     }
 
-    $response = eval {
-        $route->execute($self)
-    } or return $self->response_internal_error($@);
+    eval { $response = $route->execute($self); 1 }
+        or return $self->response_internal_error($@);
 
     return $response;
 }

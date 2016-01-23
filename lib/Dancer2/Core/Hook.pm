@@ -29,9 +29,10 @@ has code => (
     coerce   => sub {
         my ($hook) = @_;
         sub {
+            local $@;
             my $res;
-            eval { $res = $hook->(@_) };
-            croak "Hook error: $@" if $@;
+            eval { $res = $hook->(@_); 1 }
+              or croak "Hook error: $@";
             return $res;
         };
     },

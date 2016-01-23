@@ -201,13 +201,15 @@ sub load_config_file {
     my ( $self, $file ) = @_;
     my $config;
 
-    eval {
+    local $@;
+    my $fail = not eval {
         my @files = ($file);
         my $tmpconfig =
           Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
         ( $file, $config ) = %{$tmpconfig} if defined $tmpconfig;
+        1;
     };
-    if ( my $err = $@ || ( !$config ) ) {
+    if ( $fail || ! $config ) {
         croak "Unable to parse the configuration file: $file: $@";
     }
 

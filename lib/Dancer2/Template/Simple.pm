@@ -118,8 +118,8 @@ sub _find_value_from_token_name {
         }
         elsif ( ref($value) ) {
             local $@;
-            eval { $value = $value->$e };
-            $value = "" if $@;
+            eval { $value = $value->$e; 1 }
+              or $value = "";
         }
     }
     return $value;
@@ -129,8 +129,8 @@ sub _interpolate_value {
     my ($value) = @_;
     if ( ref($value) eq 'CODE' ) {
         local $@;
-        eval { $value = $value->() };
-        $value = "" if $@;
+        eval { $value = $value->(); 1 }
+          or $value = "";
     }
     elsif ( ref($value) eq 'ARRAY' ) {
         $value = "@{$value}";

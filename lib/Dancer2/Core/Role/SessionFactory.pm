@@ -94,9 +94,9 @@ sub create {
     $self->execute_hook( 'engine.session.before_create', $session );
 
     # XXX why do we _flush now?  Seems unnecessary -- xdg, 2013-03-03
-    eval { $self->_flush( $session->id, $session->data ) };
-    croak "Unable to create a new session: $@"
-      if $@;
+    local $@;
+    eval { $self->_flush( $session->id, $session->data ); 1 }
+      or croak "Unable to create a new session: $@";
 
     $self->execute_hook( 'engine.session.after_create', $session );
     return $session;
@@ -153,9 +153,10 @@ sub retrieve {
 
     $self->execute_hook( 'engine.session.before_retrieve', $id );
 
-    my $data = eval { $self->_retrieve($id) };
-    croak "Unable to retrieve session with id '$id'"
-      if $@;
+    local $@;
+    my $data;
+    eval { $data = $self->_retrieve($id); 1 }
+      or croak "Unable to retrieve session with id '$id'";
 
     my %args = ( id => $id, );
 
@@ -178,9 +179,9 @@ sub destroy {
     my $id = $params{id};
     $self->execute_hook( 'engine.session.before_destroy', $id );
 
-    eval { $self->_destroy($id) };
-    croak "Unable to destroy session with id '$id': $@"
-      if $@;
+    local $@;
+    eval { $self->_destroy($id); 1 }
+     or croak "Unable to destroy session with id '$id': $@";
 
     $self->execute_hook( 'engine.session.after_destroy', $id );
     return $id;
@@ -193,9 +194,9 @@ sub flush {
     my $session = $params{session};
     $self->execute_hook( 'engine.session.before_flush', $session );
 
-    eval { $self->_flush( $session->id, $session->data ) };
-    croak "Unable to flush session: $@"
-      if $@;
+    local $@;
+    eval { $self->_flush( $session->id, $session->data ); 1 }
+      or croak "Unable to flush session: $@";
 
     $self->execute_hook( 'engine.session.after_flush', $session );
     return $session->id;
