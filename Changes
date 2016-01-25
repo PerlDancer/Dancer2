@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #1102: Handle multiple '..' in file path utilities.
       (Oleg A. Mamontov, Peter Mottram)
+    * GH #1114: Fix missing prereqs as reported by CPANTS.
+      (Mohammad S Anwar)
 
 0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
 
