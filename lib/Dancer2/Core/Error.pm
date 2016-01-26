@@ -256,8 +256,10 @@ sub _build_content {
         # This may well be what caused the initial error, in which
         # case we fall back to static page if any error was thrown.
         # Note: this calls before/after render hooks.
-        my $content = eval {
-            $self->app->template(
+        local $@;
+        my $content;
+        eval {
+            $content = $self->app->template(
                 $self->template,
                 {   title     => $self->title,
                     content   => $self->message,
@@ -265,8 +267,8 @@ sub _build_content {
                     status    => $self->status,
                 }
             );
-        };
-        $@ && $self->app->engine('logger')->log( warning => $@ );
+            1;
+        } or $self->app->engine('logger')->log( warning => $@ );
 
         # return rendered content unless there was an error.
         return $content if defined $content;
@@ -278,8 +280,10 @@ sub _build_content {
     }
 
     if ($self->has_app && $self->app->config->{error_template}) {
-        my $content = eval {
-            $self->app->template(
+        local $@;
+        my $content;
+        eval {
+            $content = $self->app->template(
                 $self->app->config->{error_template},
                 {   title     => $self->title,
                     content   => $self->message,
@@ -287,8 +291,8 @@ sub _build_content {
                     status    => $self->status,
                 }
             );
-        };
-        $@ && $self->app->engine('logger')->log( warning => $@ );
+            1;
+        } or $self->app->engine('logger')->log( warning => $@ );
 
         # return rendered content unless there was an error.
         return $content if defined $content;
@@ -343,7 +347,9 @@ sub backtrace {
     return $message unless ( $file and $line );
 
     # file and line are located, let's read the source Luke!
-    my $fh = eval { open_file( '<', $file ) } or return $message;
+    local $@;
+    my $fh;
+    eval { $fh = open_file( '<', $file ); 1 } or return $message;
     my @lines = <$fh>;
     close $fh;
 
