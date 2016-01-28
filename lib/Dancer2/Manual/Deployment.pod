@@ -97,13 +97,15 @@ You can run your Dancer app from Apache using the following examples:
 
 =head3 As a CGI script
 
-In providing ultimate flexibility in terms of deployment, your Dancer app can
-be run as a simple cgi-script out-of-the-box. No additional web-server
-configuration needed.  Your web server should recognize .cgi files and be able
-to serve Perl scripts.  The Perl module L<Plack::Runner> is required.
+In its simplest form, your Dancer app can be run as a simple CGI script
+out-of-the-box. You will need to enable the Apache mod_cgi or mod_cgid modules
+(C<a2enmod cgi> or C<a2enmod cgid> on Debian-based systems) and mod_rewrite
+(C<a2enmod rewrite>). The Perl module L<Plack::Runner> is required.
 
-Start by adding the following to your apache configuration (httpd.conf or
-sites-available/*site*):
+The following is an example apache configuration. Depending on your Apache
+configuration layout, this should be placed in C<httpd.conf> or
+C<sites-available/*site*>. The configuration options can also be placed in
+C<.htaccess> files if you prefer.
 
     <VirtualHost *:80>
         ServerName www.example.com
@@ -115,58 +117,104 @@ sites-available/*site*):
         ServerAdmin you@example.com
 
         <Directory "/srv/www.example.com/public">
-           AllowOverride None
-           Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-           Order allow,deny
-           Allow from all
-           AddHandler cgi-script .cgi
+            AllowOverride None
+            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+            AddHandler cgi-script .cgi
+            # Apache 2.2
+            Order allow,deny
+            Allow from all
+            # Apache 2.4
+            Require all granted
         </Directory>
 
-         RewriteEngine On
-         RewriteCond %{REQUEST_FILENAME} !-f
-         RewriteRule ^(.*)$ /dispatch.cgi$1 [QSA,L]
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^(.*)$ /dispatch.cgi$1 [QSA,L]
 
-         ErrorLog  /var/log/apache2/www.example.com-error.log
-         CustomLog /var/log/apache2/www.example.com-access_log common
-     </VirtualHost>
-
-Note that when using fast-cgi your rewrite rule should be:
-
-        RewriteRule ^(.*)$ /dispatch.fcgi$1 [QSA,L]
-
-Here, the mod_rewrite magic for Pretty-URLs is directly put in Apache's
-configuration. But if your web server supports C<.htaccess> files, you can
-drop those lines in a C<.htaccess> file.
-
-To check if your server supports mod_rewrite type C<apache2 -l> to list
-modules. To enable C<mod_rewrite> on Debian or Ubuntu, run C<a2enmod rewrite>. Place
-following code in a file called C<.htaccess> in your application's root folder:
-
-    # BEGIN dancer application htaccess
-    RewriteEngine On
-    RewriteCond %{SCRIPT_FILENAME} !-d
-    RewriteCond %{SCRIPT_FILENAME} !-f
-    RewriteRule (.*) /dispatch.cgi$1 [L]
-    # END dancer application htaccess
+        ErrorLog  /var/log/apache2/www.example.com-error.log
+        CustomLog /var/log/apache2/www.example.com-access_log common
+    </VirtualHost>
 
 Now you can access your dancer application URLs as if you were using the
 embedded web server.
 
-    http://localhost/
+    http://www.example.com/
 
-This option is a no-brainer, easy to setup, low maintenance but serves requests
-slower than all other options.
+This option is a no-brainer, easy to setup and low maintenance, but serves
+requests slower than all other options, as each time a request is made to your
+server, Apache will start your application. This might be suitable for a small,
+occasionally-used sites, as the application is not using resources when it is
+not being accessed. For anything more, you probably want to use FastCGI instead
+(see next section).
 
-You can use the same technique to deploy with FastCGI, by just changing the
-lines:
-
-	AddHandler cgi-script .cgi
-
-To:
-
-	AddHandler fastcgi-script .fcgi
+To check what modules your server supports, type C<apache2 -l>.
 
 =head3 As a FastCGI script
+
+This has all the easy-to-setup and low-maintenance advantages of CGI, but is
+much faster for each request, as it keeps a copy of the application running all
+the time.
+
+You will still need to enable C<mod_rewrite>, but will need to use a FastCGI
+module instead of a CGI module. There are 3 available:
+L<mod_fcgid|http://httpd.apache.org/mod_fcgid/>,
+L<mod_fastcgi|http://www.fastcgi.com/> and
+L<mod_proxy_fcgi|https://httpd.apache.org/docs/trunk/mod/mod_proxy_fcgi.html>.
+For this example, we will use mod_fastcgi (C<a2enmod fastcgi> in Debian).
+
+The CGI configuration above now changes as follows (differences highlighted
+with XXX):
+
+    <VirtualHost *:80>
+        ServerName www.example.com
+
+        # /srv/www.example.com is the root of your
+        # dancer application
+        DocumentRoot /srv/www.example.com/public
+
+        ServerAdmin you@example.com
+
+        # XXX Start a FastCGI server to run in the background
+        FastCgiServer /srv/www.example.com/public/dispatch.fcgi
+
+        <Directory "/srv/www.example.com/public">
+            AllowOverride None
+            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+            # XXX Use FastCGI handler instead of CGI
+            AddHandler fastcgi-script .fcgi
+            # Apache 2.2
+            Order allow,deny
+            Allow from all
+            # Apache 2.4
+            Require all granted
+        </Directory>
+
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        # Run FastCGI dispatcher instead of CGI dispatcher
+        RewriteRule ^(.*)$ /dispatch.fcgi$1 [QSA,L]
+
+        ErrorLog  /var/log/apache2/www.example.com-error.log
+        CustomLog /var/log/apache2/www.example.com-access_log common
+    </VirtualHost>
+
+This is the easiest way to get a production server up and running, as there is
+no need to worry about daemonizing your application. Apache manages all that
+for you.
+
+=head4 Reloading your application
+
+You can use C<apache2ctl restart> or C<apache2ctl graceful> to reload your
+application. The latter will be more friendly to your users in a production
+environment. If your application loads relatively quickly, then it should go
+unnoticed.
+
+=head4 Configuration
+
+See L<http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html> for FastCGI
+configuration options. An example configuration:
+
+   FastCgiServer /srv/www.example.com/public/dispatch.fcgi -processes 5 -initial-env DANCER_ENVIRONMENT="production"
 
 =head3 With Plack
 
