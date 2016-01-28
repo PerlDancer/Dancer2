@@ -91,7 +91,11 @@ B<Please note: > if you are using Dancer 2's asynchronous capabilities, using
 Shotgun will kill Twiggy. If you need async processing, consider an
 alternative to Shotgun.
 
-=head2 Running as a cgi-script (or fast-cgi) under Apache
+=head2 Running under Apache
+
+You can run your Dancer app from Apache using the following examples:
+
+=head3 As a CGI script
 
 In providing ultimate flexibility in terms of deployment, your Dancer app can
 be run as a simple cgi-script out-of-the-box. No additional web-server
@@ -161,6 +165,78 @@ lines:
 To:
 
 	AddHandler fastcgi-script .fcgi
+
+=head3 As a FastCGI script
+
+=head3 With Plack
+
+You can run your app from Apache using PSGI (Plack), with a config like the
+following:
+
+    <VirtualHost myapp.example.com>
+        ServerName www.myapp.example.com
+        ServerAlias myapp.example.com
+        DocumentRoot /websites/myapp.example.com
+
+        <Directory /home/myapp/myapp>
+            AllowOverride None
+            Order allow,deny
+            Allow from all
+        </Directory>
+
+        <Location />
+            SetHandler perl-script
+            PerlResponseHandler Plack::Handler::Apache2
+            PerlSetVar psgi_app /websites/myapp.example.com/app.psgi
+        </Location>
+
+        ErrorLog  /websites/myapp.example.com/logs/error_log
+        CustomLog /websites/myapp.example.com/logs/access_log common
+    </VirtualHost>
+
+To set the environment you want to use for your application (production or
+development), you can set it this way:
+
+    <VirtualHost>
+        ...
+        SetEnv DANCER_ENVIRONMENT "production"
+        ...
+    </VirtualHost>
+
+=head3 Running multiple applications under the same virtualhost
+
+If you want to deploy multiple applications under the same C<VirtualHost>
+(using one application per directory, for example) you can use the following
+example Apache configuration.
+
+This example uses the FastCGI dispatcher that comes with Dancer, but you should
+be able to adapt this to use any other way of deployment described in this
+guide. The only purpose of this example is to show how to deploy multiple
+applications under the same base directory/virtualhost.
+
+    <VirtualHost *:80>
+        ServerName localhost
+        DocumentRoot "/path/to/rootdir"
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+
+        <Directory "/path/to/rootdir">
+            AllowOverride None
+            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+            Order allow,deny
+            Allow from all
+            AddHandler fastcgi-script .fcgi
+        </Directory>
+
+        RewriteRule /App1(.*)$ /App1/public/dispatch.fcgi$1 [QSA,L]
+        RewriteRule /App2(.*)$ /App2/public/dispatch.fcgi$1 [QSA,L]
+        ...
+        RewriteRule /AppN(.*)$ /AppN/public/dispatch.fcgi$1 [QSA,L]
+    </VirtualHost>
+
+Of course, if your Apache configuration allows that, you can put the
+RewriteRules in a .htaccess file directly within the application's directory,
+which lets you add a new application without changing the Apache configuration.
 
 =head2 Running on PSGI-based Perl webservers
 
@@ -499,80 +575,6 @@ Then start the haproxy itself:
     $ sudo haproxy -c -f haproxy.conf
     # now really start it..
     $ sudo haproxy -f haproxy.conf
-
-=head2 Running from Apache
-
-You can run your Dancer app from Apache using the following examples:
-
-=head3 Running from Apache with Plack
-
-You can run your app from Apache using PSGI (Plack), with a config like the
-following:
-
-    <VirtualHost myapp.example.com>
-        ServerName www.myapp.example.com
-        ServerAlias myapp.example.com
-        DocumentRoot /websites/myapp.example.com
-
-        <Directory /home/myapp/myapp>
-            AllowOverride None
-            Order allow,deny
-            Allow from all
-        </Directory>
-
-        <Location />
-            SetHandler perl-script
-            PerlResponseHandler Plack::Handler::Apache2
-            PerlSetVar psgi_app /websites/myapp.example.com/app.psgi
-        </Location>
-
-        ErrorLog  /websites/myapp.example.com/logs/error_log
-        CustomLog /websites/myapp.example.com/logs/access_log common
-    </VirtualHost>
-
-To set the environment you want to use for your application (production or
-development), you can set it this way:
-
-    <VirtualHost>
-        ...
-        SetEnv DANCER_ENVIRONMENT "production"
-        ...
-    </VirtualHost>
-
-=head3 Running from Apache under appdir
-
-If you want to deploy multiple applications under the same C<VirtualHost>
-(using one application per directory, for example) you can use the following
-example Apache configuration.
-
-This example uses the FastCGI dispatcher that comes with Dancer, but you should
-be able to adapt this to use any other way of deployment described in this
-guide. The only purpose of this example is to show how to deploy multiple
-applications under the same base directory/virtualhost.
-
-    <VirtualHost *:80>
-        ServerName localhost
-        DocumentRoot "/path/to/rootdir"
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-
-        <Directory "/path/to/rootdir">
-            AllowOverride None
-            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-            Order allow,deny
-            Allow from all
-            AddHandler fastcgi-script .fcgi
-        </Directory>
-
-        RewriteRule /App1(.*)$ /App1/public/dispatch.fcgi$1 [QSA,L]
-        RewriteRule /App2(.*)$ /App2/public/dispatch.fcgi$1 [QSA,L]
-        ...
-        RewriteRule /AppN(.*)$ /AppN/public/dispatch.fcgi$1 [QSA,L]
-    </VirtualHost>
-
-Of course, if your Apache configuration allows that, you can put the
-RewriteRules in a .htaccess file directly within the application's directory,
-which lets you add a new application without changing the Apache configuration.
 
 =head2 Running on lighttpd
 
