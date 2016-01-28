@@ -24,7 +24,7 @@ Point your browser at it, and away you go!
 This option can be useful for small personal web apps or internal apps, but if
 you want to make your app available to the world, it probably won't suit you.
 
-=head2 Auto Reloading the Application
+=head3 Auto Reloading the Application
 
 While developing your application, it is often handy to have the server
 automatically reload your application when changes are made. There are
@@ -39,7 +39,7 @@ reasons of performance, deployment best practices, etc.
 For Dancer 1 programmers that used the C< auto_reload > option, please use
 one of these alternatives instead:
 
-=head3 Auto reloading with C< plackup -r >
+=head4 Auto reloading with C< plackup -r >
 
 Plack's built-in reloader will reload your application anytime a file in
 your application's directory (usually, F< /bin >) changes. You will likely
@@ -55,7 +55,7 @@ directory changes, the application is recompiled and reloaded.
 See the L<plackup> docs for more information on the C< -r > and C< -R >
 options.
 
-=head3 Auto reloading with plackup and Shotgun
+=head4 Auto reloading with plackup and Shotgun
 
 There may be circumstances where Plack's built-in reloader won't work for
 you, be it for the way it looks for changes, or because there are many
@@ -162,7 +162,7 @@ To:
 
 	AddHandler fastcgi-script .fcgi
 
-=head3 Running on PSGI-based Perl webservers
+=head2 Running on PSGI-based Perl webservers
 
 A number of Perl web servers supporting PSGI are available on cpan:
 
@@ -193,7 +193,7 @@ Similar to running standalone, use plackup to start your application
 As you can see, the scaffolded Perl script for your app can be used as a PSGI
 startup file.
 
-=head4 Enabling content compression
+=head3 Enabling content compression
 
 Content compression (gzip, deflate) can be easily enabled via a Plack
 middleware (see L<Plack/Plack::Middleware>): L<Plack::Middleware::Deflater>.
@@ -249,7 +249,7 @@ A basic PSGI service description (usually in C</etc/ubic/service/application>):
 
 Run C<ubic start application> to start the service.
 
-=head3 Using daemontools
+=head4 Using daemontools
 
 daemontools is a collection of tools for managing UNIX services. You can use
 it to easily start/restart/stop services.
@@ -264,7 +264,7 @@ A basic script to start an application: (in C</service/application/run>)
     exec 2>&1 \
     /usr/local/bin/plackup -s Starman -a /path/to/your/application/app.psgi -p 5000
 
-=head3 Running stand-alone behind a proxy / load balancer
+=head2 Running stand-alone behind a proxy / load balancer
 
 Another option would be to run your app stand-alone as described above, but then
 use a proxy or load balancer to accept incoming requests (on the standard port
@@ -272,7 +272,7 @@ use a proxy or load balancer to accept incoming requests (on the standard port
 
 This could be achieved using various software; examples would include:
 
-=head4 Using Apache's mod_proxy
+=head3 Using Apache's mod_proxy
 
 You could set up a C<VirtualHost> for your web app, and proxy all requests through
 to it:
@@ -302,7 +302,7 @@ below is an example.
       Allow from all
     </Proxy>
 
-=head4 Using perlbal
+=head3 Using perlbal
 
 C<Perlbal> is a single-threaded event-based server written in Perl supporting
 HTTP load balancing, web serving, and a mix of the two, available from
@@ -338,7 +338,7 @@ provided with perlbal, but you'll probably want something like:
     SET verify_backend  = on
     ENABLE my_webapp
 
-=head4 Using balance
+=head3 Using balance
 
 C<balance> is a simple load-balancer from Inlab Software, available from
 L<http://www.inlab.de/balance.html>.
@@ -357,7 +357,7 @@ multiple Dancer apps on multiple other machines:
 
     balance -b 10.0.0.1 80 10.0.0.2:3000 10.0.0.3:3000 10.0.0.4:3000
 
-=head4 Using Lighttpd
+=head3 Using Lighttpd
 
 You can use Lighttp's C<mod_proxy>:
 
@@ -372,7 +372,7 @@ You can use Lighttp's C<mod_proxy>:
 This configuration will proxy all request to the B</application> path to the
 path B</> on localhost:3000.
 
-=head4 Using Nginx
+=head3 Using Nginx
 
 with Nginx:
 
@@ -412,7 +412,7 @@ You will need plackup to start a worker listening on a socket :
 A good way to start this is to use C<daemontools> and place this line with
 all environments variables in the "run" file.
 
-=head4 Using HAProxy
+=head3 Using HAProxy
 
 C<HAProxy> is a reliable high-performance TCP/HTTP load balancer written in C available from
 L<http://haproxy.1wt.eu/>.
@@ -574,7 +574,9 @@ Of course, if your Apache configuration allows that, you can put the
 RewriteRules in a .htaccess file directly within the application's directory,
 which lets you add a new application without changing the Apache configuration.
 
-=head2 Running on lighttpd (CGI)
+=head2 Running on lighttpd
+
+=head3 Running on lighttpd (CGI)
 
 To run as a CGI app on lighttpd, just create a soft link to the C<dispatch.cgi>
 script (created when you run C<dancer -a MyApp>) inside your system's C<cgi-bin>
