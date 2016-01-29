@@ -84,7 +84,7 @@ sub with_plugin {
 
 has _factory => (
     is      => 'ro',
-    isa     => Object['Dancer2::Core::Factory'],
+    isa     => InstanceOf['Dancer2::Core::Factory'],
     lazy    => 1,
     default => sub { Dancer2::Core::Factory->new },
 );
