@@ -2,7 +2,7 @@ package Dancer2::Core::Response::Delayed;
 # ABSTRACT: Delayed responses
 
 use Moo;
-use MooX::Types::MooseLike::Base qw<CodeRef InstanceOf>;
+use Dancer2::Core::Types qw<CodeRef InstanceOf>;
 
 has request => (
     is       => 'ro',
