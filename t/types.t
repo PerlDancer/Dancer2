@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 46;
+use Test::More tests => 51;
 use Test::Fatal;
 use Dancer2::Core::Types;
 
@@ -200,3 +200,27 @@ like(
 ok( exception { Dancer2HTTPMethod->(undef) },
     'Dancer2Method does not accept undef value',
 );
+
+use Dancer2::Core::Error;
+use Dancer2::Core::Hook;
+
+ok( exception { Hook->(undef) }, 'Hook does not accept undef value' );
+
+ok(exception { Hook->(Dancer2::Core::Error->new) },
+    'Hook does not Core::Error as value');
+
+is( exception {
+        Hook->(Dancer2::Core::Hook->new(name => 'test', code => sub { }))
+    },
+    undef,
+    'Hook',
+);
+
+is(exception { ReadableFilePath->('t') }, undef, 'ReadableFilePath');
+
+like(
+    exception { ReadableFilePath->('nosuchdirectory') },
+    qr/nosuchdirectory.+did not pass type constraint/,
+    'ReadableFilePath'
+);
+

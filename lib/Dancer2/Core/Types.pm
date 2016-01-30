@@ -6,7 +6,7 @@ use warnings;
 
 use Type::Library -base;
 use Type::Utils -all;
-use Scalar::Util 'blessed';
+use Sub::Quote 'quote_sub';
 
 BEGIN { extends "Types::Standard" };
 
@@ -28,11 +28,11 @@ my $namespace = qr/
 
 
 declare 'ReadableFilePath',
-  where { -e $_ && -r $_ };
+  constraint => quote_sub q{ -e $_ && -r $_ };
 
 
 declare 'WritableFilePath',
-  where { -e $_ && -w $_ };
+  constraint => quote_sub q{ -e $_ && -w $_ };
 
 
 declare 'Dancer2Prefix',
@@ -57,15 +57,11 @@ declare 'Dancer2AppName',
 
 
 declare 'Dancer2Method',
-  as 'Str',
-  where {
-    my $method = $_; grep {/^$method$/} map +(lc), keys %supported_http_methods
-  };
+  as Enum[map +(lc), keys %supported_http_methods];
 
 
 declare 'Dancer2HTTPMethod',
-  as 'Str',
-  where { my $method = $_; grep {/^$method$/} keys %supported_http_methods };
+  as Enum[keys %supported_http_methods];
 
 
 # generate abbreviated class types for core dancer objects
@@ -91,12 +87,7 @@ for my $type (
   )
 {
     declare $type,
-    where {
-        return
-             $_
-          && blessed($_)
-          && ref($_) eq 'Dancer2::Core::' . $type;
-    };
+    as InstanceOf[ 'Dancer2::Core::' . $type ];
 }
 
 # export everything!
