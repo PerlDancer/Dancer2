@@ -66,7 +66,7 @@ sub run_test {
     is_deeply { $req->params }, { foo => 42, bar => [ 12, 13, 14 ] };
 
     note "tests cookies";
-    is( keys %{ $req->cookies }, 3, "multiple cookies extracted" );
+    is( keys %{ $req->cookies }, 2, "multiple cookies extracted" );
 
     my $forward = Dancer2::Core::App->new( request => $req )
                                     ->make_forward_to('/somewhere');
