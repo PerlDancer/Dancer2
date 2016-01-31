@@ -1,6 +1,7 @@
 package Dancer2::Core::Cookie;
 # ABSTRACT: A cookie representing class
 
+use Class::Load 'try_load_class';
 use Moo;
 use URI::Escape;
 use Dancer2::Core::Types;
@@ -8,17 +9,30 @@ use Dancer2::Core::Time;
 use Carp 'croak';
 use overload '""' => \&_get_value;
 
+our $XS_HTTP_COOKIES = try_load_class('HTTP::XSCookies');
+
 sub to_header {
     my $self   = shift;
-    my $header = '';
+    if ($XS_HTTP_COOKIES) {
+        return HTTP::XSCookies::bake_cookie(
+            $self->name,
+            {   value    => join('&', $self->value),
+                path     => $self->path,
+                domain   => $self->domain,
+                expires  => $self->expires,
+                httponly => $self->http_only,
+                secure   => $self->secure,
+            }
+        );
+    }
 
     my $value = join( '&', map uri_escape($_), $self->value );
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
-    push @headers, "path=" . $self->path       if $self->path;
-    push @headers, "expires=" . $self->expires if $self->expires;
-    push @headers, "domain=" . $self->domain   if $self->domain;
+    push @headers, "Path=" . $self->path       if $self->path;
+    push @headers, "Expires=" . $self->expires if $self->expires;
+    push @headers, "Domain=" . $self->domain   if $self->domain;
     push @headers, "Secure"                    if $self->secure;
     push @headers, 'HttpOnly' unless $no_httponly;
 
