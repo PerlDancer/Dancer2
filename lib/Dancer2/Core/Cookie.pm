@@ -1,7 +1,6 @@
 package Dancer2::Core::Cookie;
 # ABSTRACT: A cookie representing class
 
-use Class::Load 'try_load_class';
 use Moo;
 use URI::Escape;
 use Dancer2::Core::Types;
@@ -9,22 +8,43 @@ use Dancer2::Core::Time;
 use Carp 'croak';
 use overload '""' => \&_get_value;
 
-our $XS_HTTP_COOKIES = try_load_class('HTTP::XSCookies');
+BEGIN {
+    my $try_xs =
+        exists($ENV{PERL_HTTP_XSCOOKIES}) ? !!$ENV{PERL_HTTP_XSCOOKIES} :
+        exists($ENV{PERL_ONLY})           ?  !$ENV{PERL_ONLY} :
+        1;
 
-sub to_header {
-    my $self   = shift;
-    if ($XS_HTTP_COOKIES) {
-        return HTTP::XSCookies::bake_cookie(
-            $self->name,
-            {   value    => join('&', $self->value),
-                path     => $self->path,
-                domain   => $self->domain,
-                expires  => $self->expires,
-                httponly => $self->http_only,
-                secure   => $self->secure,
-            }
-        );
+    my $use_xs = 0;
+    $try_xs and eval {
+        require HTTP::XSCookies;
+        $use_xs++;
+    };
+    if ( $use_xs ) {
+        *to_header = \&xs_to_header;
     }
+    else {
+        *to_header = \&pp_to_header;
+    }
+    *_USE_XS = $use_xs ? sub () { !!1 } : sub () { !!0 };
+}
+
+sub xs_to_header {
+    my $self = shift;
+
+    return HTTP::XSCookies::bake_cookie(
+        $self->name,
+        {   value    => join('&', $self->value),
+            path     => $self->path,
+            domain   => $self->domain,
+            expires  => $self->expires,
+            httponly => $self->http_only,
+            secure   => $self->secure,
+        }
+    );
+}
+
+sub pp_to_header {
+    my $self   = shift;
 
     my $value = join( '&', map uri_escape($_), $self->value );
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;

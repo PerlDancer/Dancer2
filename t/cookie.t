@@ -11,7 +11,7 @@ BEGIN {
 use Dancer2::Core::Cookie;
 
 diag "If you want extra speed, install HTTP::XSCookies"
-  if !$Dancer2::Core::Cookie::XS_HTTP_COOKIES;
+  if !Dancer2::Core::Cookie::_USE_XS;
 
 sub run_test {
 
@@ -148,11 +148,12 @@ sub run_test {
     }
 }
 
-note "Run test with XS_HTTP_COOKIES" if $Dancer2::Core::Cookie::XS_HTTP_COOKIES;
+note "Run test with XS_HTTP_COOKIES" if Dancer2::Core::Cookie::_USE_XS;
 run_test();
-if ( $Dancer2::Core::Cookie::XS_HTTP_COOKIES ) {
+if ( Dancer2::Core::Cookie::_USE_XS ) {
     note "Run test without XS_HTTP_COOKIES";
-    $Dancer2::Core::Cookie::XS_HTTP_COOKIES = 0;
+    no warnings 'redefine';
+    *Dancer2::Core::Cookie::to_header = \&Dancer2::Core::Cookie::pp_to_header;
     run_test();
 }
 
