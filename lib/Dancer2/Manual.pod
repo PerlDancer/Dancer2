@@ -99,7 +99,8 @@ View the web application at:
 When Dancer2 is imported to a script, that script becomes a webapp, and at
 this point, all the script has to do is declare a list of B<routes>. A
 route handler is composed by an HTTP method, a path pattern and a code
-block. C<strict> and C<warnings> pragmas are also imported with Dancer2.
+block. C<strict>, C<warnings> and C<utf8> pragmas are also imported with
+Dancer2.
 
 The code block given to the route handler has to return a string which will
 be used as the content to render to the client.
