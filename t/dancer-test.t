@@ -11,7 +11,7 @@ BEGIN {
     $ENV{DANCER_CONFDIR} = File::Spec->catdir(dirname(__FILE__), 'dancer-test');
 }
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 
 use Dancer2;
 use Dancer2::Test;
@@ -125,7 +125,8 @@ is $param_response->content, 'test/' . encode( 'UTF-8', $russian_test ),
 get '/headers' => sub {
     join " : ", request->header('X-Sent-By'), request->cookies->{foo};
 };
-note "extra headers in request"; {
+note "extra headers in request"; 
+sub extra_headers {
     my $sent_by = 'Dancer2::Test';
     my $headers_test = dancer_response( GET => '/headers',
         {
@@ -137,4 +138,15 @@ note "extra headers in request"; {
     );
     is $headers_test->content, "$sent_by : bar",
         "extra headers included in request";
+}
+
+note "Run extra_headers test with XS_HTTP_COOKIES"
+  if $Dancer2::Core::Request::XS_HTTP_COOKIES;
+extra_headers();
+SKIP: {
+    skip "HTTP::XSCookies not installed", 1
+      if !$Dancer2::Core::Request::XS_HTTP_COOKIES;
+    note "Run extra_headers test without XS_HTTP_COOKIES";
+    $Dancer2::Core::Request::XS_HTTP_COOKIES = 0;
+    extra_headers();
 }
