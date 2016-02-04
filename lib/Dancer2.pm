@@ -327,5 +327,6 @@ things:
     Tom Hukins
     Upasana Shukla
     Vernon Lyon
+    Victor Adam
     Vince Willems
     Vincent Bachelier
