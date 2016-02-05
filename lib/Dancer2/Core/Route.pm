@@ -213,8 +213,6 @@ sub _build_regexp_from_string {
                 and warn q{Named placeholder 'captures' is deprecated};
 
             # Convert :name expressions to (?<name>[^/]+) named captures
-            # Convert :name(regexp) expressions to (?<name>regexp) named captures
-            $string =~ s!(:[^\/\.\?\(]+)\((.*?)\)!(?<\1>\2)!g; # This only allows simple regexp that don't contain ')'
             $string =~ s!(:[^\/\.\?]+)!(?<\1>[^/]+)!g;
             $capture = 1;
         }
