@@ -76,6 +76,7 @@ has _params => (
 
 sub match {
     my ( $self, $request ) = @_;
+    my %params;
 
     if ( $self->has_options ) {
         return unless $self->validate_options($request);
@@ -89,27 +90,18 @@ sub match {
         do { no warnings; %+ }
       )
     {
-        return $self->_match_data( { captures => \%captures } );
+        %params = %captures;
+        return $self->_match_data( { %params, (captures => \%captures) } ) unless @values;
     }
 
     return unless @values;
 
     # regex comments are how we know if we captured a token,
     # splat or a megasplat
-    my @token_or_splat = $self->regexp =~ /\(\?#(token|(?:mega)?splat)\)/g;
+    my @token_or_splat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g;
     if (@token_or_splat) {
-        # our named tokens
-        my @tokens = @{ $self->_params };
-
-        my %params;
         my @splat;
         for ( my $i = 0; $i < @values; $i++ ) {
-            # Is this value from a token?
-            if ( $token_or_splat[$i] eq 'token' ) {
-                $params{ shift @tokens } = $values[$i];
-                 next;
-            }
-
             # megasplat values are split on '/'
             if ($token_or_splat[$i] eq 'megasplat') {
                 $values[$i] = [ split '/' => $values[$i] ];
@@ -117,8 +109,9 @@ sub match {
             push @splat, $values[$i];
         }
         return $self->_match_data( {
-            %params,
-            (splat => \@splat)x!! @splat,
+            %params
+            ,(captures => \%params)
+            ,(splat => \@splat)x!! @splat,
         });
     }
 
@@ -219,7 +212,10 @@ sub _build_regexp_from_string {
             first { $_ eq 'captures' } @params
                 and warn q{Named placeholder 'captures' is deprecated};
 
-            $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
+            # Convert :name expressions to (?<name>[^/]+) named captures
+            # Convert :name(regexp) expressions to (?<name>regexp) named captures
+            $string =~ s!(:[^\/\.\?\(]+)\((.*?)\)!(?<\1>\2)!g; # This only allows simple regexp that don't contain ')'
+            $string =~ s!(:[^\/\.\?]+)!(?<\1>[^/]+)!g;
             $capture = 1;
         }
     }
