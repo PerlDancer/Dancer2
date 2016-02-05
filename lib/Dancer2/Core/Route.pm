@@ -76,7 +76,6 @@ has _params => (
 
 sub match {
     my ( $self, $request ) = @_;
-    my %params;
 
     if ( $self->has_options ) {
         return unless $self->validate_options($request);
@@ -84,17 +83,11 @@ sub match {
 
     my @values = $request->dispatch_path =~ $self->regexp;
 
+    return unless @values;
+
     # if some named captures are found, return captures
     # no warnings is for perl < 5.10
-    if (my %captures =
-        do { no warnings; %+ }
-      )
-    {
-        %params = %captures;
-        return $self->_match_data( { %params, (captures => \%captures) } ) unless @values;
-    }
-
-    return unless @values;
+    my %captures = do { no warnings; %+ };
 
     # regex comments are how we know if we captured a token,
     # splat or a megasplat
@@ -109,9 +102,9 @@ sub match {
             push @splat, $values[$i];
         }
         return $self->_match_data( {
-            %params
-            ,(captures => \%params)
-            ,(splat => \@splat)x!! @splat,
+            %captures,
+            (splat => \@splat)x!! @splat,
+            (captures => \%captures)x!! %captures
         });
     }
 
