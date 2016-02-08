@@ -69,6 +69,17 @@ my @tests = (
         [ { splat => [ [ 'some', 'where' ], '42' ] }, 44 ]
     ],
 
+    # Optional megasplat test - with a value...
+    [   [ 'get', '/foo/?**?', sub {46} ],
+        '/foo/bar/baz',
+        [ { splat => [ [ 'bar', 'baz' ] ] }, 46 ],
+    ],
+    # ... and without
+    [   [ 'get', '/foo/?**?', sub {47} ],
+        '/foo',
+        [ { splat => [ [ ] ] }, 47 ],
+    ],
+
     # mixed (mega)splat and tokens
     [   [ 'get', '/some/:id/**/*', sub {55} ],
         '/some/where/to/run/and/hide',
@@ -89,7 +100,8 @@ my @tests = (
     ],
 );
 
-plan tests => 73;
+
+plan tests => 81;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
