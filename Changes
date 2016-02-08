@@ -5,6 +5,8 @@
       (Oleg A. Mamontov, Peter Mottram)
     * GH #1114: Fix missing prereqs as reported by CPANTS.
       (Mohammad S Anwar)
+    * GH #1128: Shh warning if optional megasplat is not present.
+      (David Precious)
 
     [ DOCUMENTATION ]
     * GH #1123: document import of utf8 pragma. (Victor Adam)
