@@ -161,6 +161,14 @@ sub _serialize {
     ), @vars;
 }
 
+around 'log' => sub {
+    my ($orig, $self, @args) = @_;
+
+    $self->execute_hook( 'engine.logger.before', $self, @args );
+    $self->$orig( @args );
+    $self->execute_hook( 'engine.logger.after', $self, @args );
+};
+
 sub core {
     my ( $self, @args ) = @_;
     $self->_should('core') and $self->log( 'core', _serialize(@args) );
