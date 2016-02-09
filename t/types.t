@@ -11,7 +11,7 @@ is( exception { Str->('something') }, undef, 'Str', );
 
 like(
     exception { Str->( { foo => 'something' } ) },
-    qr{Reference.+foo.+something.+did not pass type constraint}, 'Str',
+    qr{Reference.+foo.+something.+did not pass type constraint.+Str}, 'Str',
 );
 
 is( exception { Num->(34) }, undef, 'Num', );
@@ -20,7 +20,7 @@ ok( exception { Num->(undef) }, 'Num does not accept undef value', );
 
 like(
     exception { Num->('not a number') },
-    qr{not a number.+did not pass type constraint},
+    qr{not a number.+did not pass type constraint.+Num},
     'Num fail',
 );
 
@@ -32,7 +32,7 @@ is( exception { Bool->(undef) }, undef, 'Bool does accepts undef value', );
 
 like(
     exception { Bool->('2') },
-    qr{2.+did not pass type constraint},
+    qr{2.+did not pass type constraint.+Bool},
     'Bool fail',
 );
 
@@ -40,7 +40,7 @@ is( exception { RegexpRef->(qr{.*}) }, undef, 'Regexp', );
 
 like(
     exception { RegexpRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint},
+    qr{\Q/.*/\E.+did not pass type constraint.+RegexpRef},
     'Regexp fail',
 );
 
@@ -50,7 +50,7 @@ is( exception { HashRef->( { goo => 'le' } ) }, undef, 'HashRef', );
 
 like(
     exception { HashRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint},
+    qr{\Q/.*/\E.+did not pass type constraint.+HashRef},
     'HashRef fail',
 );
 
@@ -60,7 +60,7 @@ is( exception { ArrayRef->( [ 1, 2, 3, 4 ] ) }, undef, 'ArrayRef', );
 
 like(
     exception { ArrayRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint},
+    qr{\Q/.*/\E.+did not pass type constraint.+ArrayRef},
     'ArrayRef fail',
 );
 
@@ -75,7 +75,7 @@ is( exception {
 
 like(
     exception { CodeRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint},
+    qr{\Q/.*/\E.+did not pass type constraint.+CodeRef},
     'CodeRef fail',
 );
 
@@ -107,14 +107,14 @@ is( exception { Dancer2Prefix->('/foo') }, undef, 'Dancer2Prefix', );
 
 like(
     exception { Dancer2Prefix->('bar/something') },
-    qr{bar/something.+did not pass type constraint},
+    qr{bar/something.+did not pass type constraint.+Dancer2Prefix},
     'Dancer2Prefix fail',
 );
 
 # see Dancer2Prefix definition, undef is a valid value
 like(
     exception { Dancer2Prefix->(undef) },
-    qr/Undef.+did not pass type constraint/,
+    qr/Undef.+did not pass type constraint.+Dancer2Prefix/,
     'Dancer2Prefix does not accept undef value',
 );
 
@@ -181,7 +181,7 @@ is( exception { Dancer2Method->('post') }, undef, 'Dancer2Method', );
 
 like(
     exception { Dancer2Method->('POST') },
-    qr{POST.+did not pass type constrain},
+    qr{POST.+did not pass type constraint.+Dancer2Method},
     'Dancer2Method fail',
 );
 
@@ -193,7 +193,7 @@ is( exception { Dancer2HTTPMethod->('POST') }, undef, 'Dancer2HTTPMethod', );
 
 like(
     exception { Dancer2HTTPMethod->('post') },
-    qr{post.+did not pass type constrain},
+    qr{post.+did not pass type constraint.+Dancer2HTTPMethod},
     'Dancer2HTTPMethod fail',
 );
 
@@ -220,7 +220,7 @@ is(exception { ReadableFilePath->('t') }, undef, 'ReadableFilePath');
 
 like(
     exception { ReadableFilePath->('nosuchdirectory') },
-    qr/nosuchdirectory.+did not pass type constraint/,
+    qr/nosuchdirectory.+did not pass type constraint.+ReadableFilePath/,
     'ReadableFilePath'
 );
 
