@@ -11,6 +11,10 @@
     [ DOCUMENTATION ]
     * GH #1123: document import of utf8 pragma. (Victor Adam)
 
+    [ ENHANCEMENTS ]
+    * GH #1129: engine.logger.* hooks are called around logging a message.
+      (Russell @veryrusty Jenkins)
+
 0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
