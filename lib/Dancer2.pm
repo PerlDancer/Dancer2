@@ -144,7 +144,7 @@ elements:
 =item * F<config.yml> and F<environments>
 
 The main configuration file with some sample configuration to help get
-you started, and a diretory containing additional configuration files
+you started, and a directory containing additional configuration files
 that will be loaded depending on the L<Plack> environment your server
 starts in (B<production> or B<development>).
 
