@@ -942,7 +942,7 @@ This might seem as though it is only useful when calling C<forward> and
 C<pass>, but a better usage of it is setting up scoped variables in
 a B<before> hook.
 
-Assuming our web application is an API in which every reqquest goes
+Assuming our web application is an API in which every request goes
 to the database. This means that connecting to the database is something
 we do in every route. We can use the B<before> in order to connect to
 the database. Then in the route, we can use the handle we created during
