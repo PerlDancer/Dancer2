@@ -9,7 +9,8 @@
       (David Precious)
 
     [ DOCUMENTATION ]
-    * GH #1123: document import of utf8 pragma. (Victor Adam)
+    * GH #1123: Document import of utf8 pragma. (Victor Adam)
+    * GH #1132: Fix spelling mistakes in POD (Gregor Herrmann)
 
     [ ENHANCEMENTS ]
     * GH #1129: engine.logger.* hooks are called around logging a message.
