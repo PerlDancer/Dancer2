@@ -1549,14 +1549,14 @@ be made into an absolute URI, relative to the URI in the request.
 
 Flag the response object as 'halted'.
 
-If called during request dispatch, immediatly returns the response
+If called during request dispatch, immediately returns the response
 to the dispatcher and after hooks will not be run.
 
 =method pass
 
 Flag the response object as 'passed'.
 
-If called during request dispatch, immediatly returns the response
+If called during request dispatch, immediately returns the response
 to the dispatcher.
 
 =method forward
