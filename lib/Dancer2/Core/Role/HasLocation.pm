@@ -9,7 +9,7 @@ use Sub::Quote 'quote_sub';
 
 # the path to the caller script/app
 # Note: to remove any ambiguity between the accessor for the
-# 'caller' attribute and the core function caller(), explictly
+# 'caller' attribute and the core function caller(), explicitly
 # specify we want the function 'CORE::caller' as the default for
 # the attribute.
 has caller => (

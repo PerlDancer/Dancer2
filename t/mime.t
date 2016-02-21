@@ -34,7 +34,7 @@ is $mime->add_alias( xpto => 'SVG' ) => 'image/svg+xml',
   'mime gets correctly lowercased for system types';
 
 is $mime->add_alias( zbr => 'baz' ) => $mime->default,
-  'alias of unkown mime type gets default mime type';
+  'alias of unknown mime type gets default mime type';
 
 is $mime->name_or_type("text/zbr") => "text/zbr",
   'name_or_type does not change if it seems a mime type string';

@@ -48,7 +48,7 @@ subtest 'plugin reserved keywords' => sub {
                 register 'foo_method' => sub {1}
             },
             qr{can't use foo_method, this is a keyword reserved by Foo},
-            "cant register a keyword already registered by another plugin",
+            "can't register a keyword already registered by another plugin",
         );
     }
 };
