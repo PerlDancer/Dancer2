@@ -11,6 +11,7 @@
     [ DOCUMENTATION ]
     * GH #1123: Document import of utf8 pragma. (Victor Adam)
     * GH #1132: Fix spelling mistakes in POD (Gregor Herrmann)
+    * GH #1134: Fix spelling errors detected by codespell (James McCoy)
 
     [ ENHANCEMENTS ]
     * GH #1129: engine.logger.* hooks are called around logging a message.
@@ -725,7 +726,7 @@
     * GH #585, #595: Return 405 Method Not Allowed instead of 500.
       (Omar M. Othman)
     * GH #570, #579: Ensure keywords pass, send_error and send_file
-      exit immediatly when executed. (Russell Jenkins)
+      exit immediately when executed. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * GH #587: Serializer::Mutable alive! (Pedro Bruno)
@@ -813,7 +814,7 @@
       runner is now responsible of including the local ./lib dir if needed.
     * GH#469, 418: Dancer2::Plugin provides a ':no_dsl' flag for modern Plugins
       (Pedro Melo)
-    * GH#485: Keywords 'redirect' and 'forward' exit immediatly when executed in
+    * GH#485: Keywords 'redirect' and 'forward' exit immediately when executed in
       a route/hook. New dependency on Return::MultiLevel (Russell Jenkins).
     * GH#495: Use accessor and predicates instead of direct access.
       Addresses GH#493 too. (Russell Jenkins)
@@ -1052,7 +1053,7 @@
 
     [ PACKAGING ]
     * Remove prereq Digest::SHA (mokko)
-    * Dancer::P::Bcrypt recomends Dancer::P::Passphrase (Blabos de Blebe)
+    * Dancer::P::Bcrypt recommends Dancer::P::Passphrase (Blabos de Blebe)
 
 0.03 - 2013-03-07 (Alexis Sukrieh)
 

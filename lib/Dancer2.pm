@@ -280,6 +280,7 @@ things:
     Jakob Voss
     James Aitken
     James Raspass
+    James McCoy
     Javier Rojas
     Jean Stebens
     Jens Rehsack

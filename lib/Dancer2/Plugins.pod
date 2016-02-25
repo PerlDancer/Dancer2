@@ -50,7 +50,7 @@ inserting/updating data as simple as it should be.
 
 =item L<Dancer2::Plugin::DBIC>
 
-Provides easy acces to DBIx::Class database virtualization.
+Provides easy access to DBIx::Class database virtualization.
 
 =item L<Dancer2::Plugin::Deferred>
 

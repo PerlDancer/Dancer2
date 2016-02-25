@@ -161,7 +161,7 @@ subtest 'hooks in plugins' => sub {
         is (
             $cb->( GET '/on_import' )->content,
             Dancer2->VERSION,
-            'hooks added by on_plugin_import dont stop hooks being added later'
+            'hooks added by on_plugin_import don\'t stop hooks being added later'
         );
     };
 };

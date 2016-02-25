@@ -148,7 +148,7 @@ subtest "modify views - absolute paths" => sub {
     };
 }
 
-subtest "modify views propogates to TT2 via dynamic INCLUDE_PATH" => sub {
+subtest "modify views propagates to TT2 via dynamic INCLUDE_PATH" => sub {
 
     my $test = Plack::Test->create( Baz->to_app );
 

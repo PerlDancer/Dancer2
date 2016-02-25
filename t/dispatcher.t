@@ -225,4 +225,4 @@ foreach my $test (
 }
 
 
-is $was_in_second_filter, 0, "didnt enter the second filter, because of halt";
+is $was_in_second_filter, 0, "didn't enter the second filter, because of halt";

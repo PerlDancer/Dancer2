@@ -163,7 +163,7 @@ for my $t (@tests) {
         );
 
         $m = $r->match($failing_request);
-        is $m, undef, "dont match failing request";
+        is $m, undef, "don't match failing request";
     }
 }
 

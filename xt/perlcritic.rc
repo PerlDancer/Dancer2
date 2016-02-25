@@ -30,7 +30,7 @@ packages = Data::Dumper File::Find FindBin Log::Log4perl Carp
 [-Modules::RequireVersionVar]
 # we want to be able to define short getters
 [-Subroutines::RequireFinalReturn]
-# we cant do @_ mesures with that one
+# we can't do @_ mesures with that one
 [-Subroutines::RequireArgUnpacking]
 # name is a common used name for methods
 # but forbidden by this policy ...

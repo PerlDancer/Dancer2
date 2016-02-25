@@ -51,7 +51,7 @@ sub run_tests {
 
     {
         my $r = $test->request( GET '/non_existent_page' );
-        is( $r->code, 404, 'Autopage doesnt try to render nonexistent pages' );
+        is( $r->code, 404, 'Autopage doesn\'t try to render nonexistent pages' );
     }
 
     {
