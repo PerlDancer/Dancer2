@@ -307,7 +307,6 @@ sub _exporter_app {
         };
     }
 
-    # deprecated backwards compat: on_plugin_import()
     local $CUR_PLUGIN = $plugin;
     $_->($plugin) for @{ $plugin->_DANCER2_IMPORT_TIME_SUBS() };
 
@@ -351,9 +350,9 @@ sub _exporter_plugin {
             my \$_ClassHooks = [];
             sub ClassHooks { \$_ClassHooks }
 
-            # deprecated backwards compat
-            # FIXME should this throw a deprecation notice? probably yes...
-            sub register_plugin {1}
+            # this is important as it'll do the keywords mapping between the
+            # plugin and the app
+            sub register_plugin { Dancer2::Plugin::register_plugin(@_) }
 
             sub register {
                 my ( \$keyword, \$sub ) = \@_;
@@ -439,18 +438,6 @@ END
                     Dancer2::Core::Hook->new( name => shift, code => shift ) );
             }
 
-            our \$AUTOLOAD;
-            sub AUTOLOAD {
-                my ( \$self, \@args ) = \@_;
-                my \$method = \$AUTOLOAD;
-                \$method =~ s/.*:://;
-                my \$cb = \$self->app->name->can(\$method)
-                    or croak("Can't locate method '\$method'");
-
-                #Carp::carp "Using DSL in plugins is deprecated (\$method).";
-
-                \$cb->(\@args);
-            }
         }
 END
 
@@ -458,6 +445,40 @@ END
 
     return map { [ $_ => { class => $caller } ] }
                qw/ plugin_keywords plugin_hooks /;
+}
+
+
+{
+# This has to be called at the end of every plugin package, in order to map the
+# keywords of the associated app to the plugin, so that these keywords can be
+# called from within the plugin code.
+my %mapping;
+sub register_plugin {
+
+    my $plugin_module = caller(1);
+
+    my $_DANCER2_IMPORT_TIME_SUBS = $plugin_module->_DANCER2_IMPORT_TIME_SUBS;
+    unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
+                my $plugin_instance = shift;
+                my $app_name = $plugin_instance->app->name;
+                my @keywords = keys %{$app_name->dsl->dsl_keywords};
+
+                no strict 'refs';
+                foreach my $keyword ( @keywords ) {
+                    my $coderef = $app_name->can($keyword);
+                    $mapping{$app_name}{$keyword} = $coderef;
+                    # if not yet defined, inject the keyword in the plugin
+                    # namespace, but make sure the code will always get the
+                    # coderef from the right associated app, because one plugin
+                    # can be used by multiple apps
+                    $plugin_module->can($keyword)
+                      or *{"${plugin_module}::$keyword"} = sub {
+                          my $app_name = shift()->app->name;
+                          $mapping{$app_name}{$keyword}->(@_);
+                      };
+                }
+            });
+}
 }
 
 sub _exporter_expand_sub {
