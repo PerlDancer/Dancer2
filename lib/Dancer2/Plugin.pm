@@ -448,37 +448,37 @@ END
 }
 
 
-{
-# This has to be called at the end of every plugin package, in order to map the
-# keywords of the associated app to the plugin, so that these keywords can be
-# called from within the plugin code.
-my %mapping;
+# This has to be called for now at the end of every plugin package, in order to
+# map the keywords of the associated app to the plugin, so that these keywords
+# can be called from within the plugin code. This function is deprecated, as
+# it's tied to the old plugin system. It's kept here for backcompat reason, but
+# should go away with the old plugin system.
 sub register_plugin {
 
     my $plugin_module = caller(1);
 
+    # if you ask yourself why we do the injection in the plugin
+    # module namespace every time the plugin is used, and not only
+    # once, it's because it can be used by different app that could
+    # have a different DSL with a different list of keywords.
+
     my $_DANCER2_IMPORT_TIME_SUBS = $plugin_module->_DANCER2_IMPORT_TIME_SUBS;
     unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
-                my $plugin_instance = shift;
-                my $app_name = $plugin_instance->app->name;
-                my @keywords = keys %{$app_name->dsl->dsl_keywords};
-
-                no strict 'refs';
-                foreach my $keyword ( @keywords ) {
-                    my $coderef = $app_name->can($keyword);
-                    $mapping{$app_name}{$keyword} = $coderef;
+                foreach my $keyword ( keys %{$_[0]->app->name->dsl->dsl_keywords} ) {
                     # if not yet defined, inject the keyword in the plugin
                     # namespace, but make sure the code will always get the
                     # coderef from the right associated app, because one plugin
-                    # can be used by multiple apps
+                    # can be used by multiple apps. Note that we remove the
+                    # first parameter (plugin instance) from what we pass to
+                    # the keyword implementation of the App
+                    no strict 'refs';
                     $plugin_module->can($keyword)
                       or *{"${plugin_module}::$keyword"} = sub {
-                          my $app_name = shift()->app->name;
-                          $mapping{$app_name}{$keyword}->(@_);
+                          my $coderef = shift()->app->name->can($keyword);
+                          $coderef->(@_);
                       };
                 }
             });
-}
 }
 
 sub _exporter_expand_sub {
