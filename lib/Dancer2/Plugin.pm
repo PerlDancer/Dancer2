@@ -55,11 +55,9 @@ sub on_plugin_import(&) {
 
 sub register_plugin {
     my $plugin = caller;
-    my $caller = caller(1);
+    # if we can't find the DSL, we cant register the plugin
+    my $caller = _get_dsl() || return;
     my %params = @_;
-
-    # if the caller has no dsl method, we can't register the plugin
-    return if !$caller->can('dsl');
 
     # the plugin consumes the DSL role
     Moo::Role->apply_role_to_package( $plugin, 'Dancer2::Core::Role::DSL' );
