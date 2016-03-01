@@ -19,7 +19,6 @@ my $_on_import = {};
 
 sub register {
     my $plugin = caller;
-    my $caller = caller(1);
     my ( $keyword, $code, $options ) = @_;
     $options ||= { is_global => 1 };
 
