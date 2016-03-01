@@ -134,10 +134,13 @@ sub register_plugin {
 sub plugin_args {@_}
 
 sub plugin_setting {
-    my $plugin = caller;
-    my $dsl    = _get_dsl()
-        or croak 'No DSL object found';
+    my $dsl = shift;
+    unless ($dsl) {
+        $dsl = _get_dsl()
+            or croak 'No DSL object found';
+    }
 
+    my $plugin = caller;
     ( my $plugin_name = $plugin ) =~ s/Dancer2::Plugin:://;
 
     return $dsl->app->config->{'plugins'}->{$plugin_name} ||= {};
@@ -367,6 +370,35 @@ for B<Dancer2::Plugin::Foo::Bar>, use:
   plugins:
     "Foo::Bar":
       key: value
+
+
+=head3 calling plugin_setting
+
+To prevent a "DEPRECATED: $plugin calls 'dsl' instead of '\$dsl->dsl'" warning
+when calling a plugin keyword inside a plugin, you can do:
+
+=over
+
+=item Static config
+
+Wrap your call in a on_plugin_import block
+
+    my $cfg ={};
+    on_plugin_import {
+        $cfg = plugin_setting;
+    };
+
+=item Dynamic config
+
+Give your call the dsl to plugin_setting
+
+    register 'my_keyword' => sub {
+        my $dsl = shift;
+        my $cfg = plugin_setting($dsl);
+        ...
+    }
+
+=back
 
 =method register_hook
 
