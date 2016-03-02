@@ -54,9 +54,23 @@ div.title {
     padding-left: 10px;
 }
 
-pre.content span.nu {
+table.context {
+    border-spacing: 0;
+}
+
+table.context th, table.context td {
+    padding: 0;
+}
+
+table.context th {
     color: #889;
-    margin-right: 10px;
+    font-weight: normal;
+    padding-right: 15px;
+    text-align: right;
+}
+
+.errline {
+    color: red;
 }
 
 pre.error {

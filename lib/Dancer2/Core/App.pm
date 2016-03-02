@@ -9,6 +9,7 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
+use Devel::StackTrace;
 
 use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
@@ -1396,9 +1397,18 @@ sub _dispatch_route {
         return $self->_prep_response( $response );
     }
 
+    my $trace;
     $response = eval {
+        local $SIG{__DIE__} = sub {
+            my $end_trace;
+            $trace = Devel::StackTrace->new(
+                skip_frames => 1,
+                frame_filter => sub { $end_trace = 1 if $_[0]{caller}[0] eq 'Dancer2::Core::Route'; !$end_trace },
+            );
+            die @_;
+        };
         $route->execute($self)
-    } or return $self->response_internal_error($@);
+    } or return $self->response_internal_error($@, $trace);
 
     return $response;
 }
@@ -1421,7 +1431,7 @@ sub _prep_response {
 }
 
 sub response_internal_error {
-    my ( $self, $error ) = @_;
+    my ( $self, $error, $trace ) = @_;
 
     $self->log( error => "Route exception: $error" );
     $self->execute_hook( 'core.app.route_exception', $self, $error );
@@ -1430,9 +1440,10 @@ sub response_internal_error {
     local $Dancer2::Core::Route::RESPONSE = $self->response;
 
     return Dancer2::Core::Error->new(
-        app       => $self,
-        status    => 500,
-        exception => $error,
+        app         => $self,
+        status      => 500,
+        exception   => $error,
+       (stack_trace => $trace)x!! $trace,
     )->throw;
 }
 

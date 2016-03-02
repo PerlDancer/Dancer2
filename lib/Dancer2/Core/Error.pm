@@ -7,6 +7,7 @@ use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
+use Devel::StackTrace;
 use Sub::Quote;
 
 has app => (
@@ -233,6 +234,13 @@ has content => (
     builder => '_build_content',
 );
 
+has stack_trace => (
+    is      => 'ro',
+    isa     => InstanceOf['Devel::StackTrace'],
+    lazy    => 1,
+    default => sub { Devel::StackTrace->new(ignore_package => __PACKAGE__) },
+);
+
 sub _build_content {
     my $self = shift;
 
@@ -330,64 +338,37 @@ sub backtrace {
     }
     $message ||= 'Wooops, something went wrong';
 
-    $message = '<pre class="error">' . _html_encode($message) . '</pre>';
+    my $html = '<pre class="error">' . _html_encode($message) . "</pre>\n";
 
     # the default perl warning/error pattern
-    my ( $file, $line ) = ( $message =~ /at (\S+) line (\d+)/ );
-
+    my ($file, $line) = $message =~ /at (\S+) line (\d+)/;
     # the Devel::SimpleTrace pattern
-    ( $file, $line ) = ( $message =~ /at.*\((\S+):(\d+)\)/ )
-      unless $file and $line;
+    ($file, $line) = $message =~ /at.*\((\S+):(\d+)\)/ unless $file and $line;
 
     # no file/line found, cannot open a file for context
-    return $message unless ( $file and $line );
+    return $html unless $file and $line;
 
     # file and line are located, let's read the source Luke!
-    my $fh = eval { open_file( '<', $file ) } or return $message;
+    my $fh = eval { open_file('<', $file) } or return $html;
     my @lines = <$fh>;
     close $fh;
 
-    my $backtrace = $message;
+    $html .= qq|<div class="title">$file around line $line</div>|;
 
-    $backtrace
-      .= qq|<div class="title">| . "$file around line $line" . "</div>";
+    # get 5 lines of context
+    my $start = $line - 5 > 1 ? $line - 5 : 1;
+    my $stop = $line + 5 < @lines ? $line + 5 : @lines;
 
-    $backtrace .= qq|<pre class="content">|;
+    $html .= qq|<pre class="content"><table class="context">\n|;
+    for my $l ($start .. $stop) {
+        chomp $lines[$l - 1];
 
-    $line--;
-    my $start = ( ( $line - 3 ) >= 0 ) ? ( $line - 3 ) : 0;
-    my $stop =
-      ( ( $line + 3 ) < scalar(@lines) ) ? ( $line + 3 ) : scalar(@lines);
-
-    for ( my $l = $start; $l <= $stop; $l++ ) {
-        chomp $lines[$l];
-
-        if ( $l == $line ) {
-            $backtrace
-              .= qq|<span class="nu">|
-              . tabulate( $l + 1, $stop + 1 )
-              . qq|</span> <span style="color: red;">|
-              . _html_encode( $lines[$l] )
-              . "</span>\n";
-        }
-        else {
-            $backtrace
-              .= qq|<span class="nu">|
-              . tabulate( $l + 1, $stop + 1 )
-              . "</span> "
-              . _html_encode( $lines[$l] ) . "\n";
-        }
+        $html .= $l == $line ? '<tr class="errline">' : '<tr>';
+        $html .= "<th>$l</th><td>" . _html_encode($lines[$l - 1]) . "</td></tr>\n";
     }
-    $backtrace .= "</pre>";
+    $html .= "</table></pre>\n";
 
-    return $backtrace;
-}
-
-sub tabulate {
-    my ( $number, $max ) = @_;
-    my $len = length($max);
-    return $number if length($number) == $len;
-    return " $number";
+    return $html;
 }
 
 sub dumper {
@@ -437,12 +418,33 @@ sub get_caller {
     my ($self) = @_;
     my @stack;
 
-    my $deepness = 0;
-    while ( my ( $package, $file, $line ) = caller( $deepness++ ) ) {
-        push @stack, "$package in $file l. $line";
+    while (my $frame = $self->stack_trace->next_frame) {
+        my $html;
+        unless (@stack) {
+            $html = 'Trace begun at ';
+        } else {
+            if (my $eval = $frame->evaltext) {
+                if ($frame->is_require) {
+                    $html = 'require '.$eval;
+                } else {
+                    $eval =~ s/([\\\'])/\\$1/g;
+                    $html = "eval '$eval'";
+                }
+            } else {
+                $html = $frame->subroutine;
+                $html = 'eval {...}' if $html eq '(eval)';
+            }
+            $html = "<span class=\"key\">$html</span>(";
+            $html .= join ', ', map {
+                my $arg = Data::Dumper->new([$_])->Terse(1)->Indent(0)->Maxdepth(1)->Useqq(1)->Dump;
+                length $arg > 50 ? substr($arg, 0, 48).'...' : $arg;
+            } $frame->args;
+            $html .= ') called at ';
+        }
+        $html .= '<span class="errline">'.$frame->filename.'</span> line <span class="errline">'.$frame->line.'</span>';
+        push @stack, $html;
     }
-
-    return join( "\n", reverse(@stack) );
+    return join "\n", @stack;
 }
 
 # private
