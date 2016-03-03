@@ -390,7 +390,7 @@ sub _exporter_plugin {
 
             sub register_hook { goto &plugin_hooks }
 
-            sub plugin_setting;
+            sub plugin_setting {};
 
             sub plugin_args {
                 Carp::carp "Plugin DSL method 'plugin_args' is deprecated. "
