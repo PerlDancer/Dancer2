@@ -10,18 +10,25 @@ use HTTP::Request::Common;
     use Dancer2;
 
     set auto_page => 1;
-    engine('template')->views('t/views');
-    engine('template')->layout('main');
+    set views     => 't/views';
+    set layout    => 'main';
 }
 
-my $app = AutoPageTest->to_app;
-is( ref $app, 'CODE', 'Got app' );
 
-test_psgi $app, sub {
-    my $cb = shift;
+my @engines = ('tiny');
+eval {require Template; Template->import(); push @engines, 'template_toolkit';};
+
+for my $tt_engine ( @engines ) {
+    # Change template engine and run tests
+    AutoPageTest::set( template => $tt_engine );
+    subtest "autopage with template $tt_engine" => \&run_tests;
+}
+
+sub run_tests {
+    my $test = Plack::Test->create( AutoPageTest->to_app );
 
     {
-        my $r = $cb->( GET '/auto_page' );
+        my $r = $test->request( GET '/auto_page' );
 
         is( $r->code, 200, 'Autopage found the page' );
         like(
@@ -32,7 +39,7 @@ test_psgi $app, sub {
     }
 
     {
-        my $r = $cb->( GET '/folder/page' );
+        my $r = $test->request( GET '/folder/page' );
 
         is( $r->code, 200, 'Autopage found the page under a folder' );
         like(
@@ -43,17 +50,17 @@ test_psgi $app, sub {
     }
 
     {
-        my $r = $cb->( GET '/non_existent_page' );
-        is( $r->code, 404, 'Autopage doesnt try to render nonexistent pages' );
+        my $r = $test->request( GET '/non_existent_page' );
+        is( $r->code, 404, 'Autopage doesn\'t try to render nonexistent pages' );
     }
 
     {
-        my $r = $cb->( GET '/layouts/main');
+        my $r = $test->request( GET '/layouts/main');
         is( $r->code, 404, 'Layouts are not served' );
     }
 
     {
-        my $r = $cb->( GET '/file.txt' );
+        my $r = $test->request( GET '/file.txt' );
         is( $r->code, 200, 'found file on public with autopage' );
         is(
             $r->content,
@@ -67,7 +74,6 @@ test_psgi $app, sub {
             'public served file as correct mime',
         );
     }
-
-};
+}
 
 done_testing;

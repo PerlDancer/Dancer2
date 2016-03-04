@@ -58,7 +58,10 @@ my $_levels = {
 has log_level => (
     is  => 'rw',
     isa => sub {
-        grep {/$_[0]/} keys %{$_levels};
+        grep {/$_[0]/} keys %{$_levels}
+          or die "log_level must be one of: ",
+          join(", ",
+            sort { $_levels->{$a} <=> $_levels->{$b} } keys %$_levels);
     },
     default => sub {'debug'},
 );
@@ -157,6 +160,14 @@ sub _serialize {
           : ( defined($_) ? $_ : 'undef' )
     ), @vars;
 }
+
+around 'log' => sub {
+    my ($orig, $self, @args) = @_;
+
+    $self->execute_hook( 'engine.logger.before', $self, @args );
+    $self->$orig( @args );
+    $self->execute_hook( 'engine.logger.after', $self, @args );
+};
 
 sub core {
     my ( $self, @args ) = @_;

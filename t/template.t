@@ -148,7 +148,7 @@ subtest "modify views - absolute paths" => sub {
     };
 }
 
-subtest "modify views propogates to TT2 via dynamic INCLUDE_PATH" => sub {
+subtest "modify views propagates to TT2 via dynamic INCLUDE_PATH" => sub {
 
     my $test = Plack::Test->create( Baz->to_app );
 
@@ -159,7 +159,7 @@ subtest "modify views propogates to TT2 via dynamic INCLUDE_PATH" => sub {
     $test->request( GET '/set_views/t/corpus/pretty' );
 
     # Get another template that is known to exist in the test corpus
-    $res = $test->request( GET '/505' );
+    $res = $test->request( GET '/relative.tt' );
     is $res->code, 200, 'got template from other view';
 };
 

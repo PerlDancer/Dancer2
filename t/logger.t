@@ -63,6 +63,27 @@ subtest 'log level and capture' => sub {
     is_deeply $trap->read, [];
 };
 
+subtest 'logger enging hooks' => sub {
+    # before hook can change log level or message.
+    hook 'engine.logger.before' => sub {
+        my $logger = shift; # @_ = ( $level, @message_args )
+        $_[0] = 'panic';    # eg. log all messages at the 'panic' level
+    };
+
+    my $str = "Thou shalt not pass";
+    warning $str;
+    my $trap = dancer_app->engine('logger')->trapper;
+    my $msg  = $trap->read;
+    delete $msg->[0]{'formatted'};
+    is_deeply $msg,
+      [
+        {
+            level => "panic",
+            message => $str,
+        },
+    ];
+};
+
 subtest 'logger file' => sub {
     use Dancer2;
     use File::Temp qw/tempdir/;

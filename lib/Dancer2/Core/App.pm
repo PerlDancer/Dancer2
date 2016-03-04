@@ -1019,6 +1019,8 @@ sub add_route {
     my $method = $route->method;
 
     push @{ $self->routes->{$method} }, $route;
+
+    return $route;
 }
 
 sub route_exists {
@@ -1299,7 +1301,7 @@ DISPATCH:
                 # this is in case we're asked for an old-style dispatching
                 if ( $runner->{'internal_dispatch'} ) {
                     # Get the session object from the app before we clean up
-                    # the request context, so we can propogate this to the
+                    # the request context, so we can propagate this to the
                     # next dispatch cycle (if required).
                     $self->_has_session
                         and $runner->{'internal_sessions'}{$cname} =
@@ -1547,14 +1549,14 @@ be made into an absolute URI, relative to the URI in the request.
 
 Flag the response object as 'halted'.
 
-If called during request dispatch, immediatly returns the response
+If called during request dispatch, immediately returns the response
 to the dispatcher and after hooks will not be run.
 
 =method pass
 
 Flag the response object as 'passed'.
 
-If called during request dispatch, immediatly returns the response
+If called during request dispatch, immediately returns the response
 to the dispatcher.
 
 =method forward

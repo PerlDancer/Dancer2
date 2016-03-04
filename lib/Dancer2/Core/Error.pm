@@ -68,9 +68,9 @@ sub _build_error_template {
 
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
+    my $engine = $self->app->template_engine;
     return $self->status
-      if -f $self->app->template_engine
-          ->view_pathname( $self->status );
+      if $engine->pathname_exists( $engine->view_pathname( $self->status ) );
 
     return;
 }
@@ -164,9 +164,12 @@ has serializer => (
     is        => 'ro',
     isa       => Sub::Quote::quote_sub(q{
         use Safe::Isa;
-        $_[0]
-            ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
-            : 1;
+        # Perl5.8 not supported for $_DOES (yet) so use $_can + does
+        if ($_[0]) {
+            $_[0]->$_can('does')
+              && $_[0]->does('Dancer2::Core::Role::Serializer')
+              or die "does not have role Dancer2::Core::Role::Serializer";
+        }
     }),
     builder   => '_build_serializer',
 );

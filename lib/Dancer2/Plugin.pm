@@ -58,7 +58,7 @@ sub register_plugin {
     my $caller = caller(1);
     my %params = @_;
 
-    # if the caller has no dsl method, we cant register the plugin
+    # if the caller has no dsl method, we can't register the plugin
     return if !$caller->can('dsl');
 
     # the plugin consumes the DSL role

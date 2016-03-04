@@ -1,6 +1,31 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1102: Handle multiple '..' in file path utilities.
+      (Oleg A. Mamontov, Peter Mottram)
+    * GH #1114: Fix missing prereqs as reported by CPANTS.
+      (Mohammad S Anwar)
+    * GH #1128: Shh warning if optional megasplat is not present.
+      (David Precious)
+
+    [ DOCUMENTATION ]
+    * GH #1123: Document import of utf8 pragma. (Victor Adam)
+    * GH #1132: Fix spelling mistakes in POD (Gregor Herrmann)
+    * GH #1134: Fix spelling errors detected by codespell (James McCoy)
+
+    [ ENHANCEMENTS ]
+    * GH #1129: engine.logger.* hooks are called around logging a message.
+      (Russell @veryrusty Jenkins)
+
+0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #1105, #1106, #1108: Autopage + Template Toolkit broke in last
+      release. (Kaitlyn Parkhurst @symkat, Russell Jenkins)
+
+0.166000  2016-01-12 19:01:51+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
     * GH #1013, #1092: Remove race condition caused by caching available
       engines. (Sawyer X, Menno Blom, Russell Jenkins)
     * GH #1089: Exact macthing of route regex comments for tokens/splats.
@@ -8,6 +33,11 @@
     * GH #1079, #1082: Allow routes to return '0' as response content,
       and serializer hooks are called when default response content is
       to be returned. (Alberto Simões, Russell Jenkins)
+    * GH #1093, 1095: Use a dynamic TT2 INCLUDE_PATH to allow relative
+      views with relative includes; fixing regression introduced by #1037.
+      (Russell Jenkins)
+    * GH #1096, #1097: Return compatibility on Perl 5.8.x!
+      (Peter Mottram - @SysPete)
 
     [ DOCUMENTATION ]
     * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
@@ -15,6 +45,8 @@
     [ ENHANCEMENTS ]
     * GH #1074: Add sample session engine config to skeleton app.
       (Peter Mottram - @SysPete)
+    * GH #1088: Return route objects when defining new routes.
+      (Sawyer X)
 
 0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
 
@@ -694,7 +726,7 @@
     * GH #585, #595: Return 405 Method Not Allowed instead of 500.
       (Omar M. Othman)
     * GH #570, #579: Ensure keywords pass, send_error and send_file
-      exit immediatly when executed. (Russell Jenkins)
+      exit immediately when executed. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * GH #587: Serializer::Mutable alive! (Pedro Bruno)
@@ -782,7 +814,7 @@
       runner is now responsible of including the local ./lib dir if needed.
     * GH#469, 418: Dancer2::Plugin provides a ':no_dsl' flag for modern Plugins
       (Pedro Melo)
-    * GH#485: Keywords 'redirect' and 'forward' exit immediatly when executed in
+    * GH#485: Keywords 'redirect' and 'forward' exit immediately when executed in
       a route/hook. New dependency on Return::MultiLevel (Russell Jenkins).
     * GH#495: Use accessor and predicates instead of direct access.
       Addresses GH#493 too. (Russell Jenkins)
@@ -1021,7 +1053,7 @@
 
     [ PACKAGING ]
     * Remove prereq Digest::SHA (mokko)
-    * Dancer::P::Bcrypt recomends Dancer::P::Passphrase (Blabos de Blebe)
+    * Dancer::P::Bcrypt recommends Dancer::P::Passphrase (Blabos de Blebe)
 
 0.03 - 2013-03-07 (Alexis Sukrieh)
 

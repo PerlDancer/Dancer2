@@ -280,12 +280,14 @@ things:
     Jakob Voss
     James Aitken
     James Raspass
+    James McCoy
     Javier Rojas
     Jean Stebens
     Jens Rehsack
     Jonathan Scott Duff
     Julien Fiegehenn
     Julio Fraire
+    Kaitlyn Parkhurst (SYMKAT)
     kbeyazli
     Keith Broughton
     lbeesley
@@ -326,5 +328,6 @@ things:
     Tom Hukins
     Upasana Shukla
     Vernon Lyon
+    Victor Adam
     Vince Willems
     Vincent Bachelier

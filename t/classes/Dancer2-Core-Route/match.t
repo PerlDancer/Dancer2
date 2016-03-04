@@ -4,6 +4,7 @@ use Test::More;
 use Test::Fatal;
 use Dancer2::Core::Request;
 use Dancer2::Core::Route;
+use Capture::Tiny 0.12 'capture_stderr';
 
 my @tests = (
     [   [ 'get', '/', sub {11} ], '/', [ {}, 11 ] ],
@@ -69,6 +70,17 @@ my @tests = (
         [ { splat => [ [ 'some', 'where' ], '42' ] }, 44 ]
     ],
 
+    # Optional megasplat test - with a value...
+    [   [ 'get', '/foo/?**?', sub {46} ],
+        '/foo/bar/baz',
+        [ { splat => [ [ 'bar', 'baz' ] ] }, 46 ],
+    ],
+    # ... and without
+    [   [ 'get', '/foo/?**?', sub {47} ],
+        '/foo',
+        [ { splat => [ [ ] ] }, 47 ],
+    ],
+
     # mixed (mega)splat and tokens
     [   [ 'get', '/some/:id/**/*', sub {55} ],
         '/some/where/to/run/and/hide',
@@ -89,7 +101,8 @@ my @tests = (
     ],
 );
 
-plan tests => 73;
+
+plan tests => 100;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
@@ -123,7 +136,9 @@ for my $t (@tests) {
                 REQUEST_METHOD => $route->[0],
             }
         );
-        my $m = $r->match($request);
+        my $m;
+        is( capture_stderr { $m = $r->match($request) }, '',
+            "no warnings generated for $path" );
         is_deeply $m, $expected->[0], "got expected data for '$path'";
 
         {
@@ -148,7 +163,7 @@ for my $t (@tests) {
         );
 
         $m = $r->match($failing_request);
-        is $m, undef, "dont match failing request";
+        is $m, undef, "don't match failing request";
     }
 }
 
