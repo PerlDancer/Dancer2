@@ -185,9 +185,10 @@ sub _exporter_app {
     my( $class, $caller, $global ) = @_;
 
     $exported_app->{$caller} = 1;
-    my $app = eval "${caller}::app()" or return; ## no critic
 
-    return unless $app->can('with_plugin');
+    my $app_func = $caller->can('app') or return;
+    my $app = $app_func->() or return; ## no critic
+    $app->can('with_plugin') or return;
 
     ( my $short = $class ) =~ s/Dancer2::Plugin:://;
 
