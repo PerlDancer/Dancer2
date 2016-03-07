@@ -9,6 +9,7 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
+use Class::Load        qw/ load_class /;
 
 use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
@@ -33,6 +34,53 @@ with qw<
 >;
 
 sub supported_engines { [ qw<logger serializer session template> ] }
+
+sub with_plugins {
+    my ( $self, @plugins ) = @_;
+    return map $self->_with_plugin($_), @plugins;
+
+}
+
+sub _with_plugin {
+    my( $self, $plugin ) = @_;
+
+    if ( ref $plugin ) {
+        # passing the plugin as an already-created object
+        
+        # already loaded?
+        if( my ( $already ) = grep { ref($plugin) eq ref $_; } @{ $self->plugins } ) {
+                die "trying to load two different objects for plugin ". ref $plugin
+                    if refaddr($plugin) != refaddr $already ;
+
+        }
+        else {
+            push @{ $self->plugins }, $plugin;
+        }
+
+        return $plugin;
+    }
+
+    $plugin =~ s/^/Dancer2::Plugin::/ unless /^Dancer2::Plugin::/;
+
+    # check if it's already there
+    if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {
+        return $already;    
+    }
+
+    push @{ $self->plugins }, 
+         $plugin = load_class($plugin)->new( app => $self );
+
+    return $plugin;
+}
+
+sub with_plugin {
+    my( $self, $plugin ) = @_;
+
+    croak "expected a single argument"
+        unless @_ == 2;
+
+    ( $self->with_plugins($plugin) )[0];
+}
 
 has _factory => (
     is      => 'ro',
@@ -271,6 +319,7 @@ has postponed_hooks => (
     default => sub { {} },
 );
 
+# TODO I'd be happier with a HashRef, really
 has plugins => (
     is      => 'rw',
     isa     => ArrayRef,
@@ -623,7 +672,8 @@ sub supported_hooks {
 }
 
 sub hook_aliases {
-    {
+    my $self = shift;
+    $self->{'hook_aliases'} ||= {
         before                 => 'core.app.before_request',
         before_request         => 'core.app.before_request',
         after                  => 'core.app.after_request',
@@ -755,7 +805,7 @@ sub all_hook_aliases {
     my $self = shift;
 
     my $aliases = $self->hook_aliases;
-    for my $plugin ( @{ $self->plugins } ) {
+    for my $plugin ( grep { $_->can('hook_aliases') } @{ $self->plugins } ) {
         $aliases = { %{$aliases}, %{ $plugin->hook_aliases } };
     }
 
@@ -919,10 +969,12 @@ sub finish {
     my $self = shift;
     $self->register_route_handlers;
     $self->compile_hooks;
-    @{$self->plugins} &&
-      $self->plugins->[0]->_add_postponed_plugin_hooks(
-        $self->postponed_hooks
-    );
+
+    @{$self->plugins} 
+        && $self->plugins->[0]->can('_add_postponed_plugin_hooks')
+        && $self->plugins->[0]->_add_postponed_plugin_hooks(
+            $self->postponed_hooks
+        );
 }
 
 sub init_route_handlers {
@@ -1511,6 +1563,30 @@ Allow for setting a lexical prefix
 
 All the route defined within the callback will have a prefix appended to the
 current one.
+
+=method with_plugins( @plugin_names )
+
+Creates instances of the given plugins and tie them to the app. 
+The plugin classes are automatically loaded.
+Returns the newly created plugins.
+
+The plugin names are expected to be without the leading C<Dancer2::Plugin>.
+I.e., use C<Foo> to mean C<Dancer2::Plugin::Foo>.
+
+If a given plugin is already tied to the app, the already-existing
+instance will be used and returned by C<with_plugins> (think of it
+as using a role).
+
+    my @plugins = $app->with_plugins( 'Foo', 'Bar' );
+
+    # now $app uses the plugins Dancer2::Plugin::Foo
+    # and Dancer2::Plugin::Bar
+
+=method with_plugin( $plugin_name )
+
+Just like C<with_plugin>, but for a single plugin.
+
+    my $plugin = $app->with_plugin('Foo');
 
 =head2 add_route
 
