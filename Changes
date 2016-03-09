@@ -7,6 +7,8 @@
       (Mohammad S Anwar)
     * GH #1128: Shh warning if optional megasplat is not present.
       (David Precious)
+    * GH #1139: Fix incorrect Content-Length header added by AutoPage
+      handler (Michael Kröll, Russell Jenkins)
 
     [ DOCUMENTATION ]
     * GH #1123: Document import of utf8 pragma. (Victor Adam)
