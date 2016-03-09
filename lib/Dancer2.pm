@@ -299,6 +299,7 @@ things:
     Matt S Trout
     Maurice
     Menno Blom
+    Michael Kröll
     Michał Wojciechowski
     Mohammad S Anwar
     mokko

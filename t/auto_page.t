@@ -12,6 +12,7 @@ use HTTP::Request::Common;
     set auto_page => 1;
     set views     => 't/views';
     set layout    => 'main';
+    set charset   => 'UTF-8';
 }
 
 
@@ -31,10 +32,29 @@ sub run_tests {
         my $r = $test->request( GET '/auto_page' );
 
         is( $r->code, 200, 'Autopage found the page' );
+        # ö is U+00F6 or c3 b6 when encoded as bytes
         like(
             $r->content,
-            qr/---\nHey! This is Auto Page working/,
+            qr/---\nHey! This is Auto Page w\x{c3}\x{b6}rking/,
             '...with proper content',
+        );
+
+        is(
+            $r->headers->content_type,
+            'text/html',
+            'auto page has correct content type header',
+        );
+
+        is(
+            $r->headers->content_type_charset,
+            'UTF-8',
+            'auto page has correct charset in content type header',
+        );
+
+        is(
+            $r->headers->content_length,
+            98, # auto_page.tt+layouts/main.tt processed. ö has two bytes in UTF-8
+            'auto page has correct content length header',
         );
     }
 
@@ -71,7 +91,7 @@ sub run_tests {
         like(
             $r->headers->content_type,
             qr{text/plain},
-            'public served file as correct mime',
+            'public served file has correct content type header',
         );
     }
 }
