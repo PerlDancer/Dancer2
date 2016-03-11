@@ -49,8 +49,16 @@ sub code {
             return;
         }
 
-        my $ct = $template->process( $page );
-        return ( $app->request->method eq 'GET' ) ? $ct : '';
+        my $ct;
+
+        if ( $app->request->method eq 'GET' ) {
+            $ct = $template->process( $page );
+        }
+        else {
+            $ct = '';
+        }
+
+        return $ct;
     };
 }
 
