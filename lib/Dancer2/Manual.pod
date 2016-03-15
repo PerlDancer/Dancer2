@@ -2813,6 +2813,52 @@ call, for example:
     request->remote_address;  # user's IP address
     request->user_agent;      # User-Agent header value
 
+=head2 send_as
+
+Allows the current route handler to return specific content types to the
+client using either a specified serializer or as html.
+
+Any Dancer2 serializer may be used, serialization classes will be loaded
+as required. Serializer configuration may be added to your apps
+C<engines> configuration. If no serializer can be found or C<html> is
+specified, the content will be returned assuming it is HTML with
+appropriate C<Content-Type> headers and encoded using the apps configured
+C<charset> (or UTF-8).
+
+    set serializer => 'YAML';
+    set template   => 'TemplateToolkit';
+
+    # returns html (not YAML)
+    get '/' => sub { send_as html => template 'welcome.tt' };
+
+    # return json (not YAML)
+    get '/json' => sub {
+        send_as json => [ some => { data => 'structure' } ];
+    };
+
+C<send_as> uses L<send_file> to return the content immediately. You may
+pass any option C<send_file> supports as an extra option. For example:
+
+    # return json with a custom content_type header
+    get '/json' => sub {
+        send_as json => [ some => { data => 'structure' } ],
+                { content_type => 'application/json; charset=UTF-8' },
+    };
+
+B<WARNING:> Issuing a send_as immediately exits the current route, and
+performs the C<send_as>. Thus, any code after a C<send_as> is ignored,
+until the end of the route. Hence, it's not necessary to use C<return>
+with C<send_as>.
+
+    get '/some/route' => sub {
+        if (...) {
+            send_as json => $some_data;
+
+            # this code will be ignored
+            do_stuff();
+        }
+    };
+
 =head2 send_error
 
 Returns a HTTP error. By default the HTTP code returned is 500:
