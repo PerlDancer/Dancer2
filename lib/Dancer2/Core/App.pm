@@ -836,6 +836,33 @@ sub log {
     $logger->$level(@_);
 }
 
+sub send_as {
+    my $self = shift;
+    my ( $type, $data, $options ) = @_;
+    $options ||= {};
+
+	# Try and load the serializer class
+    my $serializer_class = "Dancer2::Serializer::$type";
+
+    my $content;
+    if ( eval { require_module( $serializer_class ); 1; } ) {
+        # load any serializer engine config
+        my $engine_options =
+            $self->_get_config_for_engine( serializer => $type, {} ) || {};
+        my $serializer = $serializer_class->new( config => $engine_options );
+        $content = $serializer->serialize( $data );
+        $options->{content_type} ||= $serializer->content_type;
+    }
+    else {
+        # send as HTML
+        my $charset = $self->config->{charset} || "UTF-8";
+        $content = Encode::encode( $charset, $data );
+        $options->{content_type} ||= 'text/html; charset=' . $charset;
+    }
+
+    $self->send_file( \$content, %$options );
+}
+
 sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
