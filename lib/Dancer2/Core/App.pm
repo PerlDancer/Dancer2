@@ -46,7 +46,7 @@ sub _with_plugin {
 
     if ( ref $plugin ) {
         # passing the plugin as an already-created object
-        
+
         # already loaded?
         if( my ( $already ) = grep { ref($plugin) eq ref $_; } @{ $self->plugins } ) {
                 die "trying to load two different objects for plugin ". ref $plugin
@@ -64,7 +64,7 @@ sub _with_plugin {
 
     # check if it's already there
     if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {
-        return $already;    
+        return $already;
     }
 
     push @{ $self->plugins }, 
@@ -1000,7 +1000,7 @@ sub finish {
     $self->register_route_handlers;
     $self->compile_hooks;
 
-    @{$self->plugins} 
+    @{$self->plugins}
         && $self->plugins->[0]->can('_add_postponed_plugin_hooks')
         && $self->plugins->[0]->_add_postponed_plugin_hooks(
             $self->postponed_hooks
@@ -1598,7 +1598,7 @@ current one.
 
 =method with_plugins( @plugin_names )
 
-Creates instances of the given plugins and tie them to the app. 
+Creates instances of the given plugins and tie them to the app.
 The plugin classes are automatically loaded.
 Returns the newly created plugins.
 
