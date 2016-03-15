@@ -833,6 +833,41 @@ sub log {
     $logger->$level(@_);
 }
 
+sub send_as {
+    my $self = shift;
+    my ( $type, $data, $options ) = @_;
+    $options ||= {};
+
+    # allow lower cased serializer names
+    my $prefix = 'Dancer2::Serializer::';
+    my $serializer_class;
+    for ( uc $type, $type ) {
+        if ( Class::Load::try_load_class( "$prefix$_" ) ) {
+            $serializer_class = "$prefix$_";
+            $type = $_;
+            last;
+        }
+    }
+
+    my $content;
+    if ( $serializer_class ) {
+        # load any serializer engine config
+        my $engine_options =
+            $self->_get_config_for_engine( serializer => $type, {} ) || {};
+        my $serializer = $serializer_class->new( config => $engine_options );
+        $content = $serializer->serialize( $data );
+        $options->{content_type} ||= $serializer->content_type;
+    }
+    else {
+        # send as HTML
+        my $charset = $self->config->{charset} || "UTF-8";
+        $content = Encode::encode( $charset, $data );
+        $options->{content_type} ||= 'text/html; charset=' . $charset;
+    }
+
+    $self->send_file( \$content, %$options );
+}
+
 sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
