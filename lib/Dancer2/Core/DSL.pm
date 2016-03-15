@@ -98,6 +98,7 @@ sub dsl_keywords {
         response_header      => { is_global => 0 },
         response_headers     => { is_global => 0 },
         runner               => { is_global => 1 },
+        send_as              => { is_global => 0 },
         send_error           => { is_global => 0 },
         send_file            => { is_global => 0 },
         session              => { is_global => 0 },
@@ -178,6 +179,8 @@ sub session {
         $session->delete($key);
     }
 }
+
+sub send_as { shift->app->send_as(@_) }
 
 sub send_error { shift->app->send_error(@_) }
 
