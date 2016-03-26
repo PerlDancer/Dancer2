@@ -40,10 +40,10 @@
             <h3>Your application's environment</h3>
 
             <ul>
-                <li>Location: <code>[% appdir %]</code></li>
-                <li>Template engine: <code><% settings.template %></code></li>
-                <li>Logger: <code><% settings.logger %></code></li>
-                <li>Environment: <code><% settings.environment %></code></li>
+                <li>Location: <span class="filepath">[% appdir %]</span></li>
+                <li>Template engine: <span class="app-info"><% settings.template %></span></li>
+                <li>Logger: <span class="app-info"><% settings.logger %></span></li>
+                <li>Environment: <span class="app-info"><% settings.environment %></span></li>
             </ul>
 
           </li>
@@ -68,31 +68,31 @@
                 <tbody>
                 <tr>
                     <td>Perl version</td>
-                    <td><tt><% perl_version %></tt></td>
+                    <td><span class="app-info"><% perl_version %></span></td>
                 </tr>
                 <tr>
                     <td>Dancer2 version</td>
-                    <td><tt><% dancer_version %></tt></td>
+                    <td><span class="app-info"><% dancer_version %></span></td>
                 </tr>
                 <tr>
                     <td>Backend</td>
-                    <td><tt><% settings.apphandler %></tt></td>
+                    <td><span class="app-info"><% settings.apphandler %></span></td>
                 </tr>
                 <tr>
                     <td>Appdir</td>
-                    <td><tt>[% appdir %]</tt></td>
+                    <td><span class="filepath">[% appdir %]</span></td>
                 </tr>
                 <tr>
                     <td>Template engine</td>
-                    <td><tt><% settings.template %></tt></td>
+                    <td><span class="app-info"><% settings.template %></span></td>
                 </tr>
                 <tr>
                     <td>Logger engine</td>
-                    <td><tt><% settings.logger %></tt></td>
+                    <td><span class="app-info"><% settings.logger %></span></td>
                 </tr>
                 <tr>
                     <td>Running environment</td>
-                    <td><tt><% settings.environment %></tt></td>
+                    <td><span class="app-info"><% settings.environment %></span></td>
                 </tr>
                 </tbody>
             </table>
@@ -114,8 +114,8 @@
 
               <p>
               Your application is configured via a global configuration file,
-              <tt>config.yml</tt> and an "environment" configuration file,
-              <tt>environments/development.yml</tt>. Edit those files if you
+              <span class="filepath">config.yml</span> and an "environment" configuration file,
+              <span class="filepath">environments/development.yml</span>. Edit those files if you
               want to change the settings of your application.
               </p>
             </li>
@@ -127,8 +127,8 @@
               The default route that displays this page can be removed,
               it's just here to help you get started. The template used to
               generate this content is located in
-              <code>views/index.tt</code>.
-              You can add some routes to <tt>[% appfile %]</tt>.
+              <span class="filepath">views/index.tt</span>.
+              You can add some routes to <span class="filepath">[% appfile %]</span>.
               </p>
             </li>
 
@@ -137,7 +137,8 @@
 
                 <p>
                 Once you've made your changes, restart your standalone server
-                (bin/app.psgi) and you're ready to test your web application.
+                    <span class="filepath">(bin/app.psgi)</span> and you're ready
+		    to test your web application.
                 </p>
             </li>
 
