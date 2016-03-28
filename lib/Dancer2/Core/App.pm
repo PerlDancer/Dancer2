@@ -46,7 +46,7 @@ sub _with_plugin {
 
     if ( ref $plugin ) {
         # passing the plugin as an already-created object
-        
+
         # already loaded?
         if( my ( $already ) = grep { ref($plugin) eq ref $_; } @{ $self->plugins } ) {
                 die "trying to load two different objects for plugin ". ref $plugin
@@ -64,10 +64,10 @@ sub _with_plugin {
 
     # check if it's already there
     if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {
-        return $already;    
+        return $already;
     }
 
-    push @{ $self->plugins }, 
+    push @{ $self->plugins },
          $plugin = load_class($plugin)->new( app => $self );
 
     return $plugin;
@@ -833,6 +833,41 @@ sub log {
     $logger->$level(@_);
 }
 
+sub send_as {
+    my $self = shift;
+    my ( $type, $data, $options ) = @_;
+    $options ||= {};
+
+    # allow lower cased serializer names
+    my $prefix = 'Dancer2::Serializer::';
+    my $serializer_class;
+    for ( uc $type, $type ) {
+        if ( Class::Load::try_load_class( "$prefix$_" ) ) {
+            $serializer_class = "$prefix$_";
+            $type = $_;
+            last;
+        }
+    }
+
+    my $content;
+    if ( $serializer_class ) {
+        # load any serializer engine config
+        my $engine_options =
+            $self->_get_config_for_engine( serializer => $type, {} ) || {};
+        my $serializer = $serializer_class->new( config => $engine_options );
+        $content = $serializer->serialize( $data );
+        $options->{content_type} ||= $serializer->content_type;
+    }
+    else {
+        # send as HTML
+        my $charset = $self->config->{charset} || "UTF-8";
+        $content = Encode::encode( $charset, $data );
+        $options->{content_type} ||= 'text/html; charset=' . $charset;
+    }
+
+    $self->send_file( \$content, %$options );
+}
+
 sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
@@ -970,7 +1005,7 @@ sub finish {
     $self->register_route_handlers;
     $self->compile_hooks;
 
-    @{$self->plugins} 
+    @{$self->plugins}
         && $self->plugins->[0]->can('_add_postponed_plugin_hooks')
         && $self->plugins->[0]->_add_postponed_plugin_hooks(
             $self->postponed_hooks
@@ -1566,7 +1601,7 @@ current one.
 
 =method with_plugins( @plugin_names )
 
-Creates instances of the given plugins and tie them to the app. 
+Creates instances of the given plugins and tie them to the app.
 The plugin classes are automatically loaded.
 Returns the newly created plugins.
 
