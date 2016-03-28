@@ -9,6 +9,7 @@
       (David Precious)
     * GH #1139: Fix incorrect Content-Length header added by AutoPage
       handler (Michael Kröll, Russell Jenkins)
+    * GH #1144: Change tt tags to span in skel (Jason Lewis)
 
     [ DOCUMENTATION ]
     * GH #1123: Document import of utf8 pragma. (Victor Adam)
