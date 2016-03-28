@@ -281,6 +281,7 @@ things:
     James Aitken
     James Raspass
     James McCoy
+    Jason Lewis
     Javier Rojas
     Jean Stebens
     Jens Rehsack
