@@ -19,6 +19,7 @@
     [ ENHANCEMENTS ]
     * GH #1129: engine.logger.* hooks are called around logging a message.
       (Russell @veryrusty Jenkins)
+    * GH #1146: Cleaner display of error context (Vernon Lyon)
 
 0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
 
