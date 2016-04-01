@@ -12,7 +12,7 @@ subtest 'halt with parameter within routes' => sub {
 
         get '/' => sub { 'hello' };
         get '/halt' => sub {
-            header 'X-Foo' => 'foo';
+            response_header 'X-Foo' => 'foo';
             halt;
         };
         get '/shortcircuit' => sub {

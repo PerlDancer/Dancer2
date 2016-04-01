@@ -333,7 +333,7 @@ set the content all at once, if you prefer.
 
     get '/status' => sub {
         delayed {
-            add_header 'X-Foo' => 'Bar';
+            response_header 'X-Foo' => 'Bar';
 
             # flush headers (in case of streaming)
             flush;
@@ -2532,33 +2532,34 @@ B<WARNING:> Issuing a halt immediately exits the current route, and performs
 the halt. Thus, any code after a halt is ignored, until the end of the route.
 Hence, it's not necessary anymore to use C<return> with halt.
 
-=head2 headers
+=head2 response_headers
 
-Adds custom headers to responses:
+Adds custom headers to response:
 
     get '/send/headers', sub {
-        headers 'X-Foo' => 'bar', 'X-Bar' => 'foo';
+        response_headers 'X-Foo' => 'bar', 'X-Bar' => 'foo';
     }
 
-=head2 header
+=head2 response_header
 
-adds a custom header to response:
+Adds a custom header to response:
 
     get '/send/header', sub {
-        header 'x-my-header' => 'shazam!';
+        response_header 'x-my-header' => 'shazam!';
     }
 
 Note that it will overwrite the old value of the header, if any. To avoid
-that, see L</push_header>.
+that, see L</push_response_header>.
 
-=head2 push_header
+=head2 push_response_header
 
-Do the same as C<header>, but allow for multiple headers with the same name.
+Do the same as C<response_header>, but allow for multiple headers with the same
+name.
 
     get '/send/header', sub {
-        push_header 'x-my-header' => '1';
-        push_header 'x-my-header' => '2';
-        will result in two headers "x-my-header" in the response
+        push_response_header 'x-my-header' => '1';
+        push_response_header 'x-my-header' => '2';
+        # will result in two headers "x-my-header" in the response
     }
 
 =head2 hook
@@ -2812,6 +2813,15 @@ call, for example:
     request->referer;         # value of the HTTP referer header
     request->remote_address;  # user's IP address
     request->user_agent;      # User-Agent header value
+
+=head2 request_header
+
+Returns request header(s).
+
+    get '/get/headers' => sub {
+        my $xfoo = request_header 'X-Foo';
+        ...
+    };
 
 =head2 send_error
 
