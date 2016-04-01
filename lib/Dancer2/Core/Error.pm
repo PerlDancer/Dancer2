@@ -155,7 +155,7 @@ has message => (
 sub full_message {
     my ($self) = @_;
     my $html_output = "<h2>" . $self->type . "</h2>";
-    $html_output .= $self->backtrace;
+    $html_output .= $self->error_context;
     $html_output .= $self->environment;
     return $html_output;
 }
@@ -320,7 +320,7 @@ sub throw {
     return $self->response;
 }
 
-sub backtrace {
+sub error_context {
     my ($self) = @_;
 
     my $message = $self->message;
@@ -522,7 +522,7 @@ Populates the content of the response with the error's information.
 If I<$response> is not given, acts on the I<app>
 attribute's response.
 
-=method backtrace
+=method error_context
 
 Show the surrounding lines of context at the line where the error was thrown.
 
