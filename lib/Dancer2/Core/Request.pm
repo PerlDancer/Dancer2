@@ -363,18 +363,19 @@ sub _set_route_parameters {
 
 sub body_parameters {
     my $self = shift;
-    $self->{'plack.request.body'}
-        and return $self->{'plack.request.body'};
+    $self->env->{'plack.request.body'}
+        and return $self->env->{'plack.request.body'};
 
     # handle case of serializer
     if ( my $data = $self->deserialize ) {
-        return Hash::MultiValue->from_mixed(
+        $self->env->{'plack.request.body'} = Hash::MultiValue->from_mixed(
             ref $data eq 'HASH' ? %{$data} : ()
         );
+        return $self->env->{'plack.request.body'};
     }
 
-    $self->_parse_request_body;
-    return $self->env->{'plack.request.body'};
+    # defer to (the overridden) Plack::Request->body_parameters
+    return $self->SUPER::body_parameters();
 }
 
 sub parameters {
