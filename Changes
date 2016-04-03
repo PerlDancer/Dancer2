@@ -10,6 +10,8 @@
     * GH #1139: Fix incorrect Content-Length header added by AutoPage
       handler (Michael Kröll, Russell Jenkins)
     * GH #1144: Change tt tags to span in skel (Jason Lewis)
+    * GH #1046: "no_server_tokens" configuration option doesn't work.
+      (Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #1123: Document import of utf8 pragma. (Victor Adam)
