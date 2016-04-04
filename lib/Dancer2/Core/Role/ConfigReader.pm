@@ -111,22 +111,20 @@ sub _build_config_files {
     # an undef location means no config files for the caller
     return [] unless defined $location;
 
-    my $running_env = $self->environment;
     my @exts = Config::Any->extensions;
+
     my @files;
-
-    foreach my $ext (@exts) {
-        foreach my $file ( [ $location, "config.$ext" ],
-            [ $self->environments_location, "$running_env.$ext" ] )
-        {
-            my $path = path( @{$file} );
+    for my $config ( [ $location, "config" ], 
+                      [ $self->environments_location, $self->environment ] ) {
+        my ($location, $filename) = @{$config};
+        for my $ext (@exts) {
+            my $path = path( $location, "$filename.$ext" );
             next if !-r $path;
-
             push @files, $path;
+            last;
         }
     }
-
-    return [ sort @files ];
+    return \@files;
 }
 
 sub _build_config {
