@@ -118,7 +118,8 @@ sub _build_config_files {
     my @files;
     my %multiples;
     for my $config ( [ $location, "config" ], 
-                      [ $self->environments_location, $self->environment ] ) {
+                      [ $self->environments_location, $self->environment ],
+                      [ $self->environments_location, "my-" . $self->environment ] ) {
         my ($location, $filename) = @{$config};
         my $found_config = 0;
         for my $ext (@exts) {
