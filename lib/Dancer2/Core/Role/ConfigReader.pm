@@ -114,15 +114,24 @@ sub _build_config_files {
     my @exts = Config::Any->extensions;
 
     my @files;
+    my %multiples;
     for my $config ( [ $location, "config" ], 
                       [ $self->environments_location, $self->environment ] ) {
         my ($location, $filename) = @{$config};
+        my $found_config = 0;
         for my $ext (@exts) {
             my $path = path( $location, "$filename.$ext" );
             next if !-r $path;
-            push @files, $path;
-            last;
+            if ($found_config) {
+                push @{$multiples{$files[-1]}}, $path;
+            } else {
+                push @files, $path;
+                $found_config = 1;
+            }
         }
+    }
+    for my $conf (keys %multiples) {
+        warn "Used config file $conf, but also found and did NOT use these config files: @{$multiples{$conf}}";
     }
     return \@files;
 }
