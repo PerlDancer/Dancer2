@@ -111,7 +111,9 @@ sub _build_config_files {
     # an undef location means no config files for the caller
     return [] unless defined $location;
 
-    my @exts = Config::Any->extensions;
+    my @exts = exists $ENV{DANCER_CONFIGFILE_EXT}
+             ? $ENV{DANCER_CONFIGFILE_EXT}
+             : Config::Any->extensions;
 
     my @files;
     my %multiples;
