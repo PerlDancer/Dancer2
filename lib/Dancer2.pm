@@ -401,13 +401,17 @@ This will create a single application spread across two packages.
 
 =head1 Running an application
 
-There are two ways to run your Dancer2 applications: the old way and the
-new way.
+You should use L<Plack> to run your application, which is
+automatically installed with C<Dancer2>.
 
-The old way (involving the C<dance> keyword) is not recommended (and thus
-not documented here), but it is still available for compatibility's sake.
-Instead we present the preferred way: using L<Plack>, which is
-automatically installed with L<Dancer2>.
+=head2 Do not use the C<dance> keyword!
+
+L<Dancer> and early versions of C<Dancer2> used the C<dance> keyword to 
+run an application. Do B<not> use it to run new applications! The keyword
+still exists for compatibility's sake, but its use is discouraged.
+
+L<This Dancer Advent Calendar article|http://advent.perldancer.org/2014/9>
+explains the problems inherent in the C<dance> keyword in greater detail.
 
 =head2 Development server
 
@@ -1092,7 +1096,8 @@ session. The type is L<Dancer2::Core::Session>.
 
 Note: Dancer comes with a default simple memory-based session engine,
 to help you get started. Once you're ready, you should use a
-production-level session engine.
+production-level session engine, such as L<Dancer2::Session::DBIC>,
+L<Dancer2::Session::Memcached>, or L<Dancer2::Session::Redis>.
 
 =head2 Hooks
 
