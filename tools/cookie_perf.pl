@@ -90,16 +90,16 @@ sub cookiebaker_bake {
     );
 }
 
-my $bench = Dumbbench->new(
+my $crush_bench = Dumbbench->new(
     target_rel_precision => 0.005,
     initial_runs         => 20,
 );
 
 my $max = 100000;
 
-$bench->add_instances(
+$crush_bench->add_instances(
     Dumbbench::Instance::PerlSub->new(
-        name => 'crush Dancer2',
+        name => 'Crush: Dancer2 (via Plack)',
         code => sub {
             for (1 .. $max) {
                 scalar plack_crush($request_cookie);
@@ -108,7 +108,7 @@ $bench->add_instances(
     ),
 
     Dumbbench::Instance::PerlSub->new(
-        name => 'crush HTTP::XSCookies',
+        name => 'Crush: HTTP::XSCookies',
         code => sub {
             for (1 .. $max) {
                 scalar HTTP::XSCookies::crush_cookie($request_cookie);
@@ -117,7 +117,7 @@ $bench->add_instances(
     ),
 
     Dumbbench::Instance::PerlSub->new(
-        name => 'crush Cookie::Baker PP',
+        name => 'Crush: Cookie::Baker (PP)',
         code => sub {
             for (1 .. $max) {
                 scalar Cookie::Baker::pp_crush_cookie($request_cookie);
@@ -126,16 +126,23 @@ $bench->add_instances(
     ),
 
     Dumbbench::Instance::PerlSub->new(
-        name => 'crush Cookie::Baker::XS',
+        name => 'Crush: Cookie::Baker::XS',
         code => sub {
             for (1 .. $max) {
                 scalar Cookie::Baker::XS::crush_cookie($request_cookie);
             }
         },
     ),
+);
 
+my $bake_bench = Dumbbench->new(
+    target_rel_precision => 0.005,
+    initial_runs         => 20,
+);
+
+$bake_bench->add_instances(
     Dumbbench::Instance::PerlSub->new(
-        name => 'bake Dancer2',
+        name => 'Bake: Dancer2',
         code => sub {
             for (1 .. $max) {
                 foreach (@cake) {
@@ -146,7 +153,7 @@ $bench->add_instances(
     ),
 
     Dumbbench::Instance::PerlSub->new(
-        name => 'bake Cookie::Baker::XS',
+        name => 'Bake: Cookie::XSCookies',
         code => sub {
             for (1 .. $max) {
                 foreach (@cake) {
@@ -157,7 +164,7 @@ $bench->add_instances(
     ),
 
     Dumbbench::Instance::PerlSub->new(
-        name => 'bake Cookie::Baker',
+        name => 'Bake: Cookie::Baker',
         code => sub {
             for (1 .. $max) {
                 foreach (@cake) {
@@ -168,5 +175,9 @@ $bench->add_instances(
     ),
 
 );
-$bench->run;
-$bench->report;
+
+$crush_bench->run;
+$crush_bench->report;
+
+$bake_bench->run;
+$bake_bench->report;
