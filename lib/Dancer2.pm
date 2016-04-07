@@ -130,7 +130,8 @@ __END__
 Dancer2 is a lightweight micro web framework for Perl. It is the new
 generation of L<Dancer> and replaces L<Dancer>.
 
-If you are converting a L<Dancer> application to L<Dancer2>, the
+If you are converting a L<Dancer> application to L<Dancer2>, it may
+simply be a matter of changing C<use Dancer> to C<use Dancer2>. The
 L<Dancer2::Manual::Migration> document covers the changes you might
 need to make in your code.
 
