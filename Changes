@@ -18,6 +18,7 @@
     * GH #1123: Document import of utf8 pragma. (Victor Adam)
     * GH #1132: Fix spelling mistakes in POD (Gregor Herrmann)
     * GH #1134: Fix spelling errors detected by codespell (James McCoy)
+    * GH #1153: Fix POD rendering error. (Sawyer X)
 
     [ ENHANCEMENTS ]
     * GH #1129: engine.logger.* hooks are called around logging a message.
