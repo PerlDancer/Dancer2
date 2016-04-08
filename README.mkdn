@@ -169,6 +169,8 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Jakob Voss
     James Aitken
     James Raspass
+    James McCoy
+    Jason Lewis
     Javier Rojas
     Jean Stebens
     Jens Rehsack
@@ -187,6 +189,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Matt S Trout
     Maurice
     Menno Blom
+    Michael Kröll
     Michał Wojciechowski
     Mohammad S Anwar
     mokko
@@ -216,6 +219,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Tom Hukins
     Upasana Shukla
     Vernon Lyon
+    Victor Adam
     Vince Willems
     Vincent Bachelier
 
