@@ -14,6 +14,7 @@
       (Sawyer X)
 
     [ DOCUMENTATION ]
+    * GH #1119: Improve the deployment documentation. (Andrew Beverley)
     * GH #1123: Document import of utf8 pragma. (Victor Adam)
     * GH #1132: Fix spelling mistakes in POD (Gregor Herrmann)
     * GH #1134: Fix spelling errors detected by codespell (James McCoy)
