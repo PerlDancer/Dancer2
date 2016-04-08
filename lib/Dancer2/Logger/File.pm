@@ -141,9 +141,6 @@ Here is an example configuration that use this logger and stores logs in F</var/
         log_dir: "/var/log/myapp"
         file_name: "myapp.log"
 
-
-=head1 METHODS
-
 =method log($level, $message)
 
 Writes the log message to the file.
