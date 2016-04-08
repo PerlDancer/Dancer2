@@ -115,9 +115,21 @@ engine in a Dancer2 application.
 
 The follow attributes are supported:
 
-=for :list
-* log_dir -- directory path to hold log files. Defaults to F<logs> in the application directory
-* file_name -- the name of the log file. Defaults to the environment name with a F<.log> suffix
+=over 4
+
+=item * C<log_dir>
+
+Directory path to hold log files.
+
+Defaults to F<logs> in the application directory
+
+=item * C<file_name>
+
+The name of the log file.
+
+Defaults to the environment name with a F<.log> suffix
+
+=back
 
 Here is an example configuration that use this logger and stores logs in F</var/log/myapp>:
 
@@ -128,9 +140,6 @@ Here is an example configuration that use this logger and stores logs in F</var/
       File:
         log_dir: "/var/log/myapp"
         file_name: "myapp.log"
-
-
-=head1 METHODS
 
 =method log($level, $message)
 
