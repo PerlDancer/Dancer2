@@ -216,8 +216,8 @@ sub _add_to_manifest_skip {
 sub _process_template {
     my ($template, $tokens) = @_;
     my $engine = Dancer2::Template::Simple->new;
-    $engine->{start_tag} = '[%';
-    $engine->{stop_tag} = '%]';
+    $engine->{start_tag} = '[d2%';
+    $engine->{stop_tag} = '%2d]';
     return $engine->render(\$template, $tokens);
 }
 
