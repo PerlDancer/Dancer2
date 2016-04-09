@@ -1,4 +1,4 @@
-[% perl_interpreter %]
+[d2% perl_interpreter %2d]
 BEGIN { $ENV{DANCER_APPHANDLER} = 'PSGI';}
 use Dancer2;
 use FindBin '$RealBin';

@@ -1,4 +1,4 @@
-requires "Dancer2" => "[% dancer_version %]";
+requires "Dancer2" => "[d2% dancer_version %2d]";
 
 recommends "YAML"             => "0";
 recommends "URL::Encode::XS"  => "0";
