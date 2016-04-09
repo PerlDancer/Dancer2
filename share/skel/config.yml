@@ -3,7 +3,7 @@
 # all the settings in this file will be loaded at Dancer's startup.
 
 # Your application's name
-appname: "[% appname %]"
+appname: "[d2% appname %2d]"
 
 # The default layout to use for your application (located in
 # views/layouts/main.tt)

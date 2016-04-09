@@ -40,7 +40,7 @@
             <h3>Your application's environment</h3>
 
             <ul>
-                <li>Location: <span class="filepath">[% appdir %]</span></li>
+                <li>Location: <span class="filepath">[d2% appdir %2d]</span></li>
                 <li>Template engine: <span class="app-info"><% settings.template %></span></li>
                 <li>Logger: <span class="app-info"><% settings.logger %></span></li>
                 <li>Environment: <span class="app-info"><% settings.environment %></span></li>
@@ -80,7 +80,7 @@
                 </tr>
                 <tr>
                     <td>Appdir</td>
-                    <td><span class="filepath">[% appdir %]</span></td>
+                    <td><span class="filepath">[d2% appdir %2d]</span></td>
                 </tr>
                 <tr>
                     <td>Template engine</td>
@@ -128,7 +128,7 @@
               it's just here to help you get started. The template used to
               generate this content is located in
               <span class="filepath">views/index.tt</span>.
-              You can add some routes to <span class="filepath">[% appfile %]</span>.
+              You can add some routes to <span class="filepath">[d2% appfile %2d]</span>.
               </p>
             </li>
 

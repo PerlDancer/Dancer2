@@ -5,5 +5,5 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
-use [% appname %];
-[% appname %]->to_app;
+use [d2% appname %2d];
+[d2% appname %2d]->to_app;
