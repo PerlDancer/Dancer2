@@ -136,6 +136,8 @@ sub _build_config_files {
     for my $conf (keys %multiples) {
         warn "Used config file $conf, but also found and did NOT use these config files: @{$multiples{$conf}}";
     }
+
+    push @files, $ENV{DANCER_ALT_CONFIG}  if exists $ENV{DANCER_ALT_CONFIG};
     return \@files;
 }
 
