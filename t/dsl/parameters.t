@@ -247,7 +247,7 @@ subtest 'Splat and megasplat route parameters' => sub {
 
             ::is_deeply(
                 [ splat ],
-                [ 'foo', ['baz'] ],
+                [ 'foo', ['baz', ''] ],
                 'Got splat values',
             );
         };
