@@ -70,6 +70,16 @@ my @tests = (
         [ { splat => [ [ 'some', 'where' ], '42' ] }, 44 ]
     ],
 
+    # megasplat consistently handles multiple slashes
+    [   [ 'get', '/foo/**', sub {'45a'} ],
+        '/foo/bar///baz',
+        [ { splat => [ [ 'bar', '', '', 'baz' ] ] }, '45a' ]
+    ],
+    [   [ 'get', '/foo/**', sub {'45b'} ],
+        '/foo/bar///',  # empty trailing path segment
+        [ { splat => [ [ 'bar', '', '', '' ] ] }, '45b' ]
+    ],
+
     # Optional megasplat test - with a value...
     [   [ 'get', '/foo/?**?', sub {46} ],
         '/foo/bar/baz',
@@ -102,7 +112,7 @@ my @tests = (
 );
 
 
-plan tests => 100;
+plan tests => 110;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
