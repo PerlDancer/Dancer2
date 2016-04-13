@@ -12,6 +12,13 @@
     * GH #1144: Change tt tags to span in skel (Jason Lewis)
     * GH #1046: "no_server_tokens" configuration option doesn't work.
       (Sawyer X)
+    # GH #1155, #1157: Fix megasplat value spliting when there are empty
+      trailing path segments. (Tatsuhiko Miyagawa, Russell Jenkins)
+      NOTE: Paths matching a megasplat that end with a '/' will now include
+      an empty string as the last value. For the route pattern '/foo/**',
+      the path '/foo/bar', the megasplat gives ['bar'], whereas '/foo/bar/'
+      now gives ['bar','']. Joining the array of megasplat values will now
+      always be the string matched against for the megasplit.
 
     [ DOCUMENTATION ]
     * GH #1119: Improve the deployment documentation. (Andrew Beverley)
