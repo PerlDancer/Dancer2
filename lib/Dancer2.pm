@@ -326,6 +326,7 @@ things:
     simbabque
     Slava Goltser
     Snigdha
+    Tatsuhiko Miyagawa
     Tina Müller
     Tom Hukins
     Upasana Shukla
