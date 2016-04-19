@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.166001
+version 0.166001\_01
 
 # DESCRIPTION
 
@@ -215,6 +215,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     simbabque
     Slava Goltser
     Snigdha
+    Tatsuhiko Miyagawa
     Tina Müller
     Tom Hukins
     Upasana Shukla
