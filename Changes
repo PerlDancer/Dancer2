@@ -4,6 +4,8 @@
     [ BUG FIXES ]
     * GH #1160: Engines receive correct log callback on build
       (Peter Mottram)
+    * GH #1148: Ensure request body parameter parsing is independent of
+      Plack version (Russell Jenkins)
 
 0.166001_01 2016-04-19 21:50:35+02:00 Europe/Amsterdam (TRIAL RELEASE)
 
