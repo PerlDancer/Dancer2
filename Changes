@@ -43,6 +43,14 @@
     * GH #1085: Add consistent keywords for accessing headers;
       'request_header' for request, 'response_header', 'response_headers'
       and 'push_response_header' for response. (Russell @veryrusty Jenkins)
+    * GH #1010: New Dancer2::Plugin architecture, includes support for
+      plugins using other plugins. (Yanick Champoux, Russell Jenkins,
+      Sawyer X, Damien Krotkine, Stefan @racke Hornburg, Peter Mottram)
+      Note: Considerable effort has gone into working with the authors
+      of existing plugins to ensure their plugins are compatible with both
+      the 'old' and the new reworked plugin architecture. Please upgrade
+      your plugins to a recent release.
+      (Special thanks to Peter @SysPete Mottram)
 
 0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
 
