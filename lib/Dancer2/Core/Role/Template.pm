@@ -180,14 +180,16 @@ sub _prepare_tokens_options {
     $tokens->{dancer_version} = Dancer2->VERSION;
     $tokens->{settings}       = $self->settings;
 
+    # no request when template is called as a global keyword
     if ( $self->has_request ) {
         $tokens->{request}  = $self->request;
         $tokens->{params}   = $self->request->params;
         $tokens->{vars}     = $self->request->vars;
-    }
 
-    $tokens->{session} = $self->session->data
-      if $self->has_session;
+        # a session can not exist if there is no request
+        $tokens->{session} = $self->session->data
+          if $self->has_session;
+    }
 
     return $tokens;
 }
