@@ -106,7 +106,7 @@ sub dsl_keywords {
         splat                => { is_global => 0 },
         start                => { is_global => 1 },
         status               => { is_global => 0 },
-        template             => { is_global => 0 },
+        template             => { is_global => 1 },
         to_app               => { is_global => 1 },
         to_dumper            => { is_global => 1 },
         to_json              => { is_global => 1 },
