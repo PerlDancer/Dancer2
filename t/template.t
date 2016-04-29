@@ -75,6 +75,10 @@ $tt->add_hook(
     Dancer2->runner->apps->[0]->set_template_engine($tt);
 
     get '/' => sub { template index => { var => 42 } };
+
+    # Call template as a global keyword
+    my $global= template( index => { var => 21 } );
+    get '/global' => sub { $global };
 }
 
 subtest 'template hooks' => sub {
@@ -98,6 +102,10 @@ content added in after_layout_render";
     my $test = Plack::Test->create( Bar->to_app );
     my $res = $test->request( GET '/' );
     is $res->content, $result, '[GET /] Correct content with template hooks';
+
+    $result =~ s/42/21/g;
+    $res = $test->request( GET '/global' );
+    is $res->content, $result, '[GET /global] Correct content with template hooks';
 };
 
 {
