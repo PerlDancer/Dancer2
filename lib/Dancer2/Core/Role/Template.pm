@@ -178,11 +178,13 @@ sub _prepare_tokens_options {
     $tokens ||= {};
     $tokens->{perl_version}   = $^V;
     $tokens->{dancer_version} = Dancer2->VERSION;
+    $tokens->{settings}       = $self->settings;
 
-    $tokens->{settings} = $self->settings;
-    $tokens->{request}  = $self->request;
-    $tokens->{params}   = $self->request->params;
-    $tokens->{vars}     = $self->request->vars;
+    if ( $self->has_request ) {
+        $tokens->{request}  = $self->request;
+        $tokens->{params}   = $self->request->params;
+        $tokens->{vars}     = $self->request->vars;
+    }
 
     $tokens->{session} = $self->session->data
       if $self->has_session;
