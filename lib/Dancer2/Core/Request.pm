@@ -10,7 +10,6 @@ use Encode;
 use HTTP::Body;
 use URI;
 use URI::Escape;
-use Class::Load 'try_load_class';
 use Safe::Isa;
 use Hash::MultiValue;
 
@@ -37,8 +36,8 @@ sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc $_ ) } }
 _EVAL
 
 # check presence of XS module to speedup request
-our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
-our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
+our $XS_URL_DECODE         = eval { require URL::Encode::XS; 1; };
+our $XS_PARSE_QUERY_STRING = eval { require CGI::Deurl::XS;  1; };
 
 our $_id = 0;
 

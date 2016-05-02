@@ -7,12 +7,11 @@ use Test::Fatal;
 
 use Dancer2::Core::Session;
 use Dancer2::Session::Simple;
-use Class::Load 'try_load_class';
 
 my $ENGINE = Dancer2::Session::Simple->new;
 
-my $CPRNG_AVAIL = try_load_class('Math::Random::ISAAC::XS')
-  && try_load_class('Crypt::URandom');
+my $CPRNG_AVAIL = eval { require Math::Random::ISAAC::XS; 1; }
+  && eval { require Crypt::URandom; 1; };
 
 note $CPRNG_AVAIL
   ? "Crypto strength tokens"

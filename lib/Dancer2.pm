@@ -4,7 +4,7 @@ package Dancer2;
 use strict;
 use warnings;
 use List::Util  'first';
-use Class::Load 'load_class';
+use Module::Runtime 'use_module';
 use Import::Into;
 use Dancer2::Core;
 use Dancer2::Core::App;
@@ -85,7 +85,7 @@ sub import {
     $final_args{dsl} ||= $config_dsl;
 
     # load the DSL, defaulting to Dancer2::Core::DSL
-    load_class( $final_args{dsl} );
+    use_module( $final_args{'dsl'} );
     my $dsl = $final_args{dsl}->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
 }
@@ -103,6 +103,7 @@ sub _set_import_method_to_caller {
     };
 
     {
+        ## no critic
         no strict 'refs';
         no warnings 'redefine';
         *{"${caller}::import"} = $import;

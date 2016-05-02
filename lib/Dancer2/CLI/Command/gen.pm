@@ -13,7 +13,6 @@ use File::Spec::Functions;
 use File::ShareDir 'dist_dir';
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
-use Class::Load 'try_load_class';
 
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
@@ -92,7 +91,7 @@ sub execute {
     _create_manifest($files_to_copy, $app_path);
     _add_to_manifest_skip($app_path);
 
-    if ( ! try_load_class('YAML') ) {
+    if ( ! eval { require YAML; 1; } ) {
         print <<NOYAML;
 *****
 WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly

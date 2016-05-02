@@ -4,11 +4,10 @@ use Test::More;
 use File::Spec;
 use Plack::Test;
 use HTTP::Request::Common;
-use Class::Load 'try_load_class';
 use Capture::Tiny 0.12 'capture_stderr';
 use JSON;
 
-try_load_class('Template')
+eval { require Template; 1; }
     or plan skip_all => 'Template::Toolkit not present';
 
 my $tests_flags = {};

@@ -4,7 +4,7 @@ package Dancer2::Serializer::YAML;
 use Moo;
 use Carp 'croak';
 use Encode;
-use Class::Load 'load_class';
+use Module::Runtime 'use_module';
 
 with 'Dancer2::Core::Role::Serializer';
 
@@ -16,7 +16,7 @@ sub from_yaml { __PACKAGE__->deserialize(@_) }
 sub to_yaml { __PACKAGE__->serialize(@_) }
 
 # class definition
-sub BUILD { load_class('YAML') }
+sub BUILD { use_module('YAML') }
 
 sub serialize {
     my ( $self, $entity ) = @_;
