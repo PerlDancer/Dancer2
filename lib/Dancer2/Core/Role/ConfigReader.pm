@@ -6,7 +6,7 @@ use Moo::Role;
 use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
-use Carp 'croak';
+use Carp qw[ croak confess ];
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
@@ -131,8 +131,8 @@ sub _build_config_files {
 sub _build_config {
     my ($self) = @_;
 
-    my $location = $self->config_location;
-    my $default  = $self->default_config;
+    my $location    = $self->config_location;
+    my $default     = $self->default_config;
 
     my $config = Hash::Merge::Simple->merge(
         $default,
@@ -140,7 +140,25 @@ sub _build_config {
     );
 
     $config = $self->_normalize_config($config);
+
+    if ($config->{require_environment}) {
+        $self->_check_existing_environment_config;
+    }
+
     return $config;
+}
+
+sub _check_existing_environment_config {
+    my ($self) = @_;
+
+    my $config_files = $self->config_files;
+    my $env          = $self->environment;
+    my $env_path     = path($self->environments_location, $self->environment);
+
+    if (not grep { /$env_path/ } @$config_files) {
+        confess "Could not find config file for environment '$env' inside ".
+                $self->environments_location.", but require_environment is set";
+    }
 }
 
 sub _set_config_entries {

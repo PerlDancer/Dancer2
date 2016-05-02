@@ -58,6 +58,17 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
     sub _build_location       {$location}
     sub _build_default_config {$runner->config}
 
+    package Missing;
+    use Moo;
+    with 'Dancer2::Core::Role::ConfigReader';
+
+    sub name {'Missing'}
+
+    sub _build_environment    {'missing'}
+    sub _build_location       {$location}
+    sub _build_default_config {
+        +{ %{$runner->config}, require_environment => 1 }
+    }
 }
 
 my $d = Dev->new();
@@ -116,6 +127,16 @@ is $f->config->{charset},     'utf-8', "normalized UTF-8 to utf-8";
 
 ok( $f->has_setting('charset') );
 ok( !$f->has_setting('foobarbaz') );
+
+note "missing environment with require_environment";
+
+my $missing = Missing->new;
+is $missing->environment, 'missing';
+
+like (
+    exception { $missing->_build_config },
+    qr{Could not find config file for environment 'missing'}
+);
 
 note "default values";
 is $f->setting('apphandler'),   'Standalone';
