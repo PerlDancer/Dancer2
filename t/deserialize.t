@@ -63,7 +63,7 @@ my $app = App->to_app;
 use utf8;
 use JSON;
 use Encode;
-use Class::Load 'load_class';
+use Module::Runtime 'use_module';
 
 note "Verify Serializers decode into characters"; {
     my $utf8 = '∮ E⋅da = Q,  n → ∞, ∑ f(i) = ∏ g(i)';
@@ -73,7 +73,7 @@ note "Verify Serializers decode into characters"; {
 
         for my $type ( qw/Dumper JSON YAML/ ) {
             my $class = "Dancer2::Serializer::$type";
-            load_class($class);
+            use_module($class);
 
             my $serializer = $class->new();
             my $body = $serializer->serialize({utf8 => $utf8});

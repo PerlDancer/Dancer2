@@ -4,7 +4,6 @@ package Dancer2::Core::DSL;
 
 use Moo;
 use Carp;
-use Class::Load 'load_class';
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use Dancer2::Core::Response::Delayed;

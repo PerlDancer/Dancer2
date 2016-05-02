@@ -5,7 +5,6 @@ use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
 use Carp 'croak';
-use Class::Load 'try_load_class';
 use Dancer2::Core::Session;
 use Dancer2::Core::Types;
 use Digest::SHA 'sha1';
@@ -104,8 +103,8 @@ sub create {
 
 {
     my $COUNTER     = 0;
-    my $CPRNG_AVAIL = try_load_class('Math::Random::ISAAC::XS') &&
-                      try_load_class('Crypt::URandom');
+    my $CPRNG_AVAIL = eval { require Math::Random::ISAAC::XS; 1; } &&
+                      eval { require Crypt::URandom; 1; };
 
     # don't initialize until generate_id is called so the ISAAC algorithm
     # is seeded after any pre-forking
