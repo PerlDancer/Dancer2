@@ -85,8 +85,7 @@ sub import {
     $final_args{dsl} ||= $config_dsl;
 
     # load the DSL, defaulting to Dancer2::Core::DSL
-    use_module( $final_args{'dsl'} );
-    my $dsl = $final_args{dsl}->new( app => $app );
+    my $dsl = use_module( $final_args{dsl} )->new( app => $app );
     $dsl->export_symbols_to( $caller, \%final_args );
 }
 
