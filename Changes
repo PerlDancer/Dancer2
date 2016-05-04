@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH #1145, #1164: Replace Class::Load with Module::Runtime
+      (Sawyer X)
+
 0.166001_02 2016-04-29 16:42:54+02:00 Europe/Amsterdam (TRIAL RELEASE)
 
 
