@@ -8,6 +8,7 @@ use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Sub::Quote;
+use Module::Runtime 'require_module';
 
 has app => (
     is        => 'ro',
@@ -100,7 +101,7 @@ sub _build_static_page {
 sub default_error_page {
     my $self = shift;
 
-    require Template::Tiny;
+    require_module('Template::Tiny');
 
     my $uri_base = $self->has_app && $self->app->has_request ?
         $self->app->request->uri_base : '';
