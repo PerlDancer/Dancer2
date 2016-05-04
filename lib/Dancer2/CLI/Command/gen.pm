@@ -13,6 +13,7 @@ use File::Spec::Functions;
 use File::ShareDir 'dist_dir';
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
+use Module::Runtime 'require_module';
 
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
@@ -91,7 +92,7 @@ sub execute {
     _create_manifest($files_to_copy, $app_path);
     _add_to_manifest_skip($app_path);
 
-    if ( ! eval { require YAML; 1; } ) {
+    if ( ! eval { require_module('YAML'); 1; } ) {
         print <<NOYAML;
 *****
 WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly
@@ -112,7 +113,7 @@ NOYAML
 }
 
 sub version {
-    require Dancer2;
+    require_module('Dancer2');
     return Dancer2->VERSION;
 }
 

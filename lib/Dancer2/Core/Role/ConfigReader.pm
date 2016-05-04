@@ -7,6 +7,7 @@ use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
+use Module::Runtime 'require_module';
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
@@ -222,7 +223,7 @@ my $_normalizers = {
         my ($charset) = @_;
         return $charset if !length( $charset || '' );
 
-        require Encode;
+        require_module('Encode');
         my $encoding = Encode::find_encoding($charset);
         croak
           "Charset defined in configuration is wrong : couldn't identify '$charset'"

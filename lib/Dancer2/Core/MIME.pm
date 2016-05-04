@@ -6,6 +6,7 @@ use Moo;
 
 use Plack::MIME;
 use Dancer2::Core::Types;
+use Module::Runtime 'require_module';
 
 # Initialise MIME::Types at compile time, to ensure it's done before
 # the fork in a preforking webserver like mod_perl or Starman. Not
@@ -13,7 +14,7 @@ use Dancer2::Core::Types;
 # as MIME::Types fails to load its mappings from the DATA handle. See
 # t/04_static_file/003_mime_types_reinit.t and GH#136.
 BEGIN {
-    if ( eval { require MIME::Types; 1; } ) {
+    if ( eval { require_module('MIME::Types'); 1; } ) {
         my $mime_types = MIME::Types->new(only_complete => 1);
         Plack::MIME->set_fallback(
             sub {

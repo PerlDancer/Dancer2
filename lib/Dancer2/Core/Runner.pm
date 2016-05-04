@@ -3,6 +3,7 @@ package Dancer2::Core::Runner;
 
 use Moo;
 use Carp 'croak';
+use Module::Runtime 'require_module';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
@@ -75,7 +76,7 @@ has timeout => (
 sub _build_server {
     my $self = shift;
 
-    require HTTP::Server::PSGI;
+    require_module('HTTP::Server::PSGI');
     HTTP::Server::PSGI->new(
         host            => $self->host,
         port            => $self->port,
@@ -110,7 +111,7 @@ sub BUILD {
 
     # Enable traces if set by ENV var.
     if (my $traces = $self->config->{traces} ) {
-        require Carp;
+        require_module('Carp');
         $Carp::Verbose = $traces ? 1 : 0;
     };
 
