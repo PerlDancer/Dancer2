@@ -9,7 +9,7 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
-use Class::Load        qw/ load_class /;
+use Module::Runtime    'use_module';
 
 use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
@@ -68,7 +68,7 @@ sub _with_plugin {
     }
 
     push @{ $self->plugins }, 
-         $plugin = load_class($plugin)->new( app => $self );
+         $plugin = use_module($plugin)->new( app => $self );
 
     return $plugin;
 }

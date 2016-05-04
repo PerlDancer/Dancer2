@@ -3,7 +3,7 @@ package Dancer2::Core::Factory;
 
 use Moo;
 use Dancer2::Core;
-use Class::Load 'try_load_class';
+use Module::Runtime 'use_module';
 use Carp 'croak';
 
 sub create {
@@ -13,8 +13,8 @@ sub create {
     $name = Dancer2::Core::camelize($name);
     my $component_class = "Dancer2::${type}::${name}";
 
-    my ( $ok, $error ) = try_load_class($component_class);
-    $ok or croak "Unable to load class for $type component $name: $error";
+    eval { use_module($component_class); 1; }
+        or croak "Unable to load class for $type component $name: $@";
 
     return $component_class->new(%options);
 }

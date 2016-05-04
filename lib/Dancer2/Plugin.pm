@@ -7,6 +7,7 @@ use warnings;
 use Moo;
 use Carp;
 use List::Util qw/ reduce /;
+use Module::Runtime 'require_module';
 use Attribute::Handlers;
 use Scalar::Util;
 
@@ -317,7 +318,7 @@ sub _exporter_app {
 # a D2P2 class, with exported keywords
 sub _exporter_plugin {
     my $caller = shift;
-    require Dancer2::Core::DSL;
+    require_module('Dancer2::Core::DSL');
     my $keywords_list = join ' ', keys %{ Dancer2::Core::DSL->dsl_keywords };
 
     eval <<"END"; ## no critic

@@ -4,7 +4,7 @@ package Dancer2::Core::DSL;
 
 use Moo;
 use Carp;
-use Class::Load 'load_class';
+use Module::Runtime 'require_module';
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use Dancer2::Core::Response::Delayed;
@@ -448,37 +448,37 @@ sub mime {
 
 sub from_json {
     shift; # remove first element
-    require Dancer2::Serializer::JSON;
+    require_module('Dancer2::Serializer::JSON');
     Dancer2::Serializer::JSON::from_json(@_);
 }
 
 sub to_json {
     shift; # remove first element
-    require Dancer2::Serializer::JSON;
+    require_module('Dancer2::Serializer::JSON');
     Dancer2::Serializer::JSON::to_json(@_);
 }
 
 sub from_yaml {
     shift; # remove first element
-    require Dancer2::Serializer::YAML;
+    require_module('Dancer2::Serializer::YAML');
     Dancer2::Serializer::YAML::from_yaml(@_);
 }
 
 sub to_yaml {
     shift; # remove first element
-    require Dancer2::Serializer::YAML;
+    require_module('Dancer2::Serializer::YAML');
     Dancer2::Serializer::YAML::to_yaml(@_);
 }
 
 sub from_dumper {
     shift; # remove first element
-    require Dancer2::Serializer::Dumper;
+    require_module('Dancer2::Serializer::Dumper');
     Dancer2::Serializer::Dumper::from_dumper(@_);
 }
 
 sub to_dumper {
     shift; # remove first element
-    require Dancer2::Serializer::Dumper;
+    require_module('Dancer2::Serializer::Dumper');
     Dancer2::Serializer::Dumper::to_dumper(@_);
 }
 
