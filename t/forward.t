@@ -6,6 +6,8 @@ use HTTP::Request::Common;
 
 use Dancer2;
 
+set behind_proxy => 1;
+
 get '/' => sub {
     'home:' . join( ',', params );
 };
@@ -24,6 +26,12 @@ post '/simple_post_route/' => sub {
 get '/go_to_post/' => sub {
     return forward '/simple_post_route/', { foo => 'bar' },
       { method => 'post' };
+};
+get '/proxy/' => sub {
+    return uri_for('/');
+};
+get '/forward_with_proxy/' => sub {
+    forward '/proxy/';
 };
 
 # NOT SUPPORTED IN DANCER2
@@ -163,6 +171,12 @@ test_psgi $app, sub {
             '[POST /bounce/] Correct Server',
         );
     }
+
+    is(
+        $cb->( GET '/forward_with_proxy/', 'X-Forwarded-Proto' => 'https' )->content,
+        'https://localhost/',
+        '[GET /forward_with_proxy/] maintained is_behind_proxy',
+    );
 };
 
 done_testing;
