@@ -1200,6 +1200,8 @@ sub make_forward_to {
     $new_request->{_route_params} = $request->{_route_params};
     $new_request->{body}          = $request->body;
     $new_request->{headers}       = $request->headers;
+    # Copy remaining settings
+    $new_request->{is_behind_proxy} = $request->{is_behind_proxy};
 
     # If a session object was created during processing of the original request
     # i.e. a session object exists but no cookie existed

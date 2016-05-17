@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1165, #1167: Copy is_behind_proxy attribute into new request
+      on forward (Russell Jenkins)
+
     [ ENHANCEMENTS ]
     * GH #1145, #1164: Replace Class::Load with Module::Runtime
       (Sawyer X)
