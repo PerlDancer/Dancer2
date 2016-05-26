@@ -147,7 +147,8 @@ occasionally-used sites, as the application is not using resources when it is
 not being accessed. For anything more, you probably want to use FastCGI instead
 (see next section).
 
-To list all currently loaded modules, type C<apachectl -M> (C<apache2ctl -M> on Debian/Ubuntu).
+To list all currently loaded modules, type C<apachectl -M>
+(C<apache2ctl -M> on Debian/Ubuntu).
 
 
 =head3 As a FastCGI script
