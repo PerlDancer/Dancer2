@@ -10,6 +10,10 @@
     * GH #1159, #1163: Make template keyword global
       (Sawyer X, Russell Jenkins)
 
+    [ DOCUMENTATION ]
+    * GH #1158: List both static and shared modules in Apache's deploy
+      instructions. (Varadinsky)
+
 0.166001_02 2016-04-29 16:42:54+02:00 Europe/Amsterdam (TRIAL RELEASE)
 
 
