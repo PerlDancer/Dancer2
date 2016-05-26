@@ -163,15 +163,7 @@ sub full_message {
 
 has serializer => (
     is        => 'ro',
-    isa       => Sub::Quote::quote_sub(q{
-        use Safe::Isa;
-        # Perl5.8 not supported for $_DOES (yet) so use $_can + does
-        if ($_[0]) {
-            $_[0]->$_can('does')
-              && $_[0]->does('Dancer2::Core::Role::Serializer')
-              or die "does not have role Dancer2::Core::Role::Serializer";
-        }
-    }),
+    isa       => Maybe[ConsumerOf['Dancer2::Core::Role::Serializer']],
     builder   => '_build_serializer',
 );
 
