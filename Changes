@@ -2,12 +2,14 @@
 
     [ BUG FIXES ]
     * GH #1165, #1167: Copy is_behind_proxy attribute into new request
-      on forward (Russell Jenkins)
+      on forward. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
+    * GH #1120: Move from MooX::Types::MooseLike to Type::Tiny for
+      performance. (Peter Mottram)
     * GH #1145, #1164: Replace Class::Load with Module::Runtime
       (Sawyer X)
-    * GH #1159, #1163: Make template keyword global
+    * GH #1159, #1163: Make template keyword global.
       (Sawyer X, Russell Jenkins)
 
     [ DOCUMENTATION ]
