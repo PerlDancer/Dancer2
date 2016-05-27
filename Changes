@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1171: Ensure request query parameter parsing is independent of
+      Plack version (Russell Jenkins)
+
 0.166001_03 2016-05-27 13:23:52+02:00 Europe/Amsterdam (TRIAL RELEASE)
 
     [ BUG FIXES ]
