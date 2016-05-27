@@ -345,7 +345,7 @@ sub query_parameters {
             );
         } else {
             # defer to Plack::Request
-            $self->_parse_query;
+            $self->SUPER::query_parameters;
         }
     };
 }
