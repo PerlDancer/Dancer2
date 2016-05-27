@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.166001_03 2016-05-27 13:23:52+02:00 Europe/Amsterdam (TRIAL RELEASE)
+
     [ BUG FIXES ]
     * GH #1165, #1167: Copy is_behind_proxy attribute into new request
       on forward. (Russell Jenkins)
