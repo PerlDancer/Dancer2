@@ -2822,15 +2822,18 @@ Returns request header(s).
     get '/get/headers' => sub {
         my $xfoo = request_header 'X-Foo';
         ...
+    };
+
 =head2 send_as
 
 Allows the current route handler to return specific content types to the
 client using either a specified serializer or as html.
 
-Any Dancer2 serializer may be used, serialization classes will be loaded
-as required. Serializer configuration may be added to your apps
-C<engines> configuration. If no serializer can be found or C<HTML> is
-specified, the content will be returned assuming it is HTML with
+Any Dancer2 serializer may be used. The specified serializer class will
+be loaded if required, or an error generated if the class can not be found.
+Serializer configuration may be added to your apps C<engines> configuration.
+
+If C<HTML> is specified, the content will be returned assuming it is HTML with
 appropriate C<Content-Type> headers and encoded using the apps configured
 C<charset> (or UTF-8).
 
