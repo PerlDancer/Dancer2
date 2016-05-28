@@ -841,25 +841,26 @@ sub send_as {
     my ( $type, $data, $options ) = @_;
     $options ||= {};
 
-	# Try and load the serializer class
-    my $serializer_class = "Dancer2::Serializer::$type";
+    $type or croak "Can not send_as using an undefined type";
 
-    my $content;
-    if ( eval { require_module( $serializer_class ); 1; } ) {
-        # load any serializer engine config
-        my $engine_options =
-            $self->_get_config_for_engine( serializer => $type, {} ) || {};
-        my $serializer = $serializer_class->new( config => $engine_options );
-        $content = $serializer->serialize( $data );
-        $options->{content_type} ||= $serializer->content_type;
-    }
-    else {
-        # send as HTML
+    if ( $type eq 'HTML' ) {
         my $charset = $self->config->{charset} || "UTF-8";
-        $content = Encode::encode( $charset, $data );
+        my $content = Encode::encode( $charset, $data );
         $options->{content_type} ||= 'text/html; charset=' . $charset;
+        $self->send_file( \$content, %$options );     # returns from sub
     }
 
+    # Try and load the serializer class
+    my $serializer_class = "Dancer2::Serializer::$type";
+    eval { require_module( $serializer_class ); 1; } or
+        croak "Unable to load serializer class for $type";
+
+    # load any serializer engine config
+    my $engine_options =
+        $self->_get_config_for_engine( serializer => $type, {} ) || {};
+    my $serializer = $serializer_class->new( config => $engine_options );
+    my $content = $serializer->serialize( $data );
+    $options->{content_type} ||= $serializer->content_type;
     $self->send_file( \$content, %$options );
 }
 
