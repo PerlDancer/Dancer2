@@ -9,6 +9,7 @@ use HTTP::Request::Common;
     package Test::App::SendAs;
     use Dancer2;
 
+    set logger => 'Capture';
     set serializer => 'YAML';
     set template => 'TemplateToolkit';
 
@@ -29,11 +30,14 @@ use HTTP::Request::Common;
         \@params;
     };
 
+    get '/sendas/:type?' => sub {
+        send_as route_parameters->{'type'} => 'test string';
+    };
 }
 
 my $test = Plack::Test->create( Test::App::SendAs->to_app );
 
-note "default serializer"; {
+subtest "default serializer" => sub {
     my $res = $test->request( GET '/yaml/is/useful' );
     is $res->code, '200';
     is $res->content_type, 'text/x-yaml';
@@ -47,33 +51,69 @@ YAML
 
     is $res->content, $expected;
 
-}
+};
 
-note "send_as json"; {
+subtest "send_as json" => sub {
     my $res = $test->request( GET '/json/is/wonderful' );
     is $res->code, '200';
     is $res->content_type, 'application/json';
 
     is $res->content, '["is","wonderful"]';
-}
+};
 
-note "send_as json custom content-type"; {
+subtest "send_as json custom content-type" => sub {
     my $res = $test->request( GET '/json-utf8/is/wonderful' );
     is $res->code, '200';
     is $res->content_type, 'application/json';
     is $res->content_type_charset, 'UTF-8';
 
     is $res->content, '["is","wonderful"]';
-}
+};
 
 
-note "send_as html"; {
+subtest "send_as html" => sub {
     my $res = $test->request( GET '/html' );
     is $res->code, '200';
     is $res->content_type, 'text/html';
     is $res->content_type_charset, 'UTF-8';
 
     is $res->content, '<html></html>';
-}
+};
+
+subtest "send_as error cases" => sub {
+    my $logger = Test::App::SendAs::app->logger_engine;
+
+    {
+        my $res = $test->request( GET '/sendas/' );
+        is $res->code, '500', "send_as dies with no defined type";
+
+        my $logs = $logger->trapper->read;
+        like $logs->[0]->{message},
+             qr!Route exception: Can not send_as using an undefined type!,
+             ".. throws route exception";
+    }
+
+    {
+        my $res = $test->request( GET '/sendas/jSoN' );
+        is $res->code, '500',
+            "send_as dies with incorrectly cased serializer name";
+
+        my $logs = $logger->trapper->read;
+        like $logs->[0]->{message},
+             qr!Route exception: Unable to load serializer class for jSoN!,
+             ".. throws route exception";
+    }
+
+    {
+        my $res = $test->request( GET '/sendas/SomeSerializerThatDoesNotExist' );
+        is $res->code, '500',
+            "send_as dies when called with non-existant serializer";
+
+        my $logs = $logger->trapper->read;
+        like $logs->[0]->{message},
+             qr!Route exception: Unable to load serializer class for SomeSerializerThatDoesNotExist!,
+             ".. throws route exception";
+    }
+};
 
 done_testing();
