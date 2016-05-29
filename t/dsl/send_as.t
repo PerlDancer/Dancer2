@@ -14,7 +14,7 @@ use HTTP::Request::Common;
     set template => 'TemplateToolkit';
 
     get '/html' => sub {
-        send_as HTML => '<html></html>'
+        send_as html => '<html></html>'
     };
 
     get '/json/**' => sub {

@@ -2,7 +2,7 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp               'croak';
+use Carp               qw<croak carp>;
 use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';
 use Return::MultiLevel ();
@@ -843,8 +843,13 @@ sub send_as {
 
     $type or croak "Can not send_as using an undefined type";
 
-    if ( $type eq 'HTML' ) {
-        my $charset = $self->config->{charset} || "UTF-8";
+    if ( lc($type) eq 'html' ) {
+        if ( $type ne 'html' ) {
+            local $Carp::CarpLevel = 2;
+            carp "Please use 'html' as the type for 'send_as', not $type";
+        }
+
+        my $charset = $self->config->{charset} || 'UTF-8';
         my $content = Encode::encode( $charset, $data );
         $options->{content_type} ||= 'text/html; charset=' . $charset;
         $self->send_file( \$content, %$options );     # returns from sub

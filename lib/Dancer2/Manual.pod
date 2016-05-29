@@ -2833,7 +2833,7 @@ Any Dancer2 serializer may be used. The specified serializer class will
 be loaded if required, or an error generated if the class can not be found.
 Serializer configuration may be added to your apps C<engines> configuration.
 
-If C<HTML> is specified, the content will be returned assuming it is HTML with
+If C<html> is specified, the content will be returned assuming it is HTML with
 appropriate C<Content-Type> headers and encoded using the apps configured
 C<charset> (or UTF-8).
 
@@ -2841,7 +2841,7 @@ C<charset> (or UTF-8).
     set template   => 'TemplateToolkit';
 
     # returns html (not YAML)
-    get '/' => sub { send_as HTML => template 'welcome.tt' };
+    get '/' => sub { send_as html => template 'welcome.tt' };
 
     # return json (not YAML)
     get '/json' => sub {
