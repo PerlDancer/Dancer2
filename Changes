@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * Introduce an improved variation of the Dancer2::Plugin::SendAs
+      into core. You can now override the serializer (or lack thereof)
+      at any point in time for a response by calling `send_as`. You
+      can also send the options of `send_file` (like the Content-Type)
+      and the charset for the app is also respected.
+      (Russell @veryrusty Jenkins)
+
 0.166001_04 2016-05-27 14:54:53+02:00 Europe/Amsterdam (TRIAL RELEASE)
 
     [ BUG FIXES ]
