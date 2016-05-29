@@ -2,7 +2,7 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp               'croak';
+use Carp               qw<croak carp>;
 use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';
 use Return::MultiLevel ();
@@ -46,7 +46,7 @@ sub _with_plugin {
 
     if ( ref $plugin ) {
         # passing the plugin as an already-created object
-        
+
         # already loaded?
         if( my ( $already ) = grep { ref($plugin) eq ref $_; } @{ $self->plugins } ) {
                 die "trying to load two different objects for plugin ". ref $plugin
@@ -64,7 +64,7 @@ sub _with_plugin {
 
     # check if it's already there
     if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {
-        return $already;    
+        return $already;
     }
 
     push @{ $self->plugins }, 
@@ -836,6 +836,39 @@ sub log {
     $logger->$level(@_);
 }
 
+sub send_as {
+    my $self = shift;
+    my ( $type, $data, $options ) = @_;
+    $options ||= {};
+
+    $type or croak "Can not send_as using an undefined type";
+
+    if ( lc($type) eq 'html' ) {
+        if ( $type ne 'html' ) {
+            local $Carp::CarpLevel = 2;
+            carp "Please use 'html' as the type for 'send_as', not $type";
+        }
+
+        my $charset = $self->config->{charset} || 'UTF-8';
+        my $content = Encode::encode( $charset, $data );
+        $options->{content_type} ||= 'text/html; charset=' . $charset;
+        $self->send_file( \$content, %$options );     # returns from sub
+    }
+
+    # Try and load the serializer class
+    my $serializer_class = "Dancer2::Serializer::$type";
+    eval { require_module( $serializer_class ); 1; } or
+        croak "Unable to load serializer class for $type";
+
+    # load any serializer engine config
+    my $engine_options =
+        $self->_get_config_for_engine( serializer => $type, {} ) || {};
+    my $serializer = $serializer_class->new( config => $engine_options );
+    my $content = $serializer->serialize( $data );
+    $options->{content_type} ||= $serializer->content_type;
+    $self->send_file( \$content, %$options );
+}
+
 sub send_error {
     my $self = shift;
     my ( $message, $status ) = @_;
@@ -973,7 +1006,7 @@ sub finish {
     $self->register_route_handlers;
     $self->compile_hooks;
 
-    @{$self->plugins} 
+    @{$self->plugins}
         && $self->plugins->[0]->can('_add_postponed_plugin_hooks')
         && $self->plugins->[0]->_add_postponed_plugin_hooks(
             $self->postponed_hooks
@@ -1571,7 +1604,7 @@ current one.
 
 =method with_plugins( @plugin_names )
 
-Creates instances of the given plugins and tie them to the app. 
+Creates instances of the given plugins and tie them to the app.
 The plugin classes are automatically loaded.
 Returns the newly created plugins.
 
