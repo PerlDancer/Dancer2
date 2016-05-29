@@ -29,7 +29,13 @@ subtest 'Core::Error serializer isa tests' => sub {
     "Error->new(serializer => Dancer2::Serializer::JSON->new) lived";
 
     like exception { Dancer2::Core::Error->new(serializer => JSON->new) },
-    qr/requires that the reference does Dancer2::Core::Role::Serializer/,
+    qr/
+    (
+    requires\sthat\sthe\sreference\sdoes\sDancer2::Core::Role::Serializer
+    |
+    did\snot\spass\stype\sconstraint
+    )
+    /x,
     "Error->new(serializer => JSON->new) died";
 };
 
