@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1174: Update plugin tests to stop deprecation warnings
+      (Peter Mottram)
+
     [ ENHANCEMENTS ]
     * Introduce an improved variation of the Dancer2::Plugin::SendAs
       into core. You can now override the serializer (or lack thereof)
