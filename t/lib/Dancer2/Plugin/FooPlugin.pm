@@ -11,12 +11,12 @@ sub _html_sitemap {
 }
 
 register foo_wrap_request => sub {
-    my ($self) = plugin_args(@_);
-    return $self->request;
+    my ($self) = @_;
+    return $self->app->request;
 }, { is_global => 0 };
 
 register foo_route => sub {
-    my ($self) = plugin_args(@_);
+    my ($self) = @_;
     $self->get( '/foo', sub {'foo'} );
 } => { is_global => 1, prototype => '$@' };
 
