@@ -16,11 +16,12 @@ register around_get => sub {
 
 register install_hooks => sub {
     my $dsl = shift;
-    $dsl->hook(
-        'before' => sub {
+    $dsl->app->add_hook( Dancer2::Core::Hook->new(
+        name => 'before',
+        code => sub {
             $dsl->session( before_plugin => ++$counter );
         }
-    );
+    ));
 };
 
 register_plugin;
