@@ -50,7 +50,7 @@ around serialize => sub {
     } or do {
         my $error = $@ || 'Zombie Error';
         blessed $self
-            and $self->log_cb->( core => "Failed to serialize the request: $error" );
+            and $self->log_cb->( core => "Failed to serialize content: $error" );
     };
 
     return $data;
