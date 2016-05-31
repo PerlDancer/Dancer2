@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.200000  2016-05-31 15:05:46+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * GH #1174: Update plugin tests to stop deprecation warnings
       (Peter Mottram)
