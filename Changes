@@ -3,8 +3,8 @@
     [ BUG FIXES ]
     * GH #1174: Update plugin tests to stop deprecation warnings
       (Peter Mottram)
-    * GH #1173: Reword error when serialization fails to be more generic
-      (Russell @veryrusty Jenkins)
+    * GH #1173: Reword error when serialization / deserialization fails
+      to be more generic (Russell @veryrusty Jenkins)
 
     [ ENHANCEMENTS ]
     * Introduce an improved variation of the Dancer2::Plugin::SendAs
