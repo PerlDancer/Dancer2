@@ -115,7 +115,7 @@ subtest 'Unsuccessful' => sub {
         is( $msg->{'level'}, 'core', 'Correct level' );
         like(
             $msg->{'message'},
-            qr{^Failed to deserialize the request: \-bar\-},
+            qr{^Failed to deserialize content: \-bar\-},
             'Correct error message',
         );
     }
