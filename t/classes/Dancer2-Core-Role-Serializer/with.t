@@ -85,7 +85,7 @@ subtest 'Unsuccessful' => sub {
         is( $msg->{'level'}, 'core', 'Correct level' );
         like(
             $msg->{'message'},
-            qr{^Failed to serialize the request: \+foo\+},
+            qr{^Failed to serialize content: \+foo\+},
             'Correct error message',
         );
     }
