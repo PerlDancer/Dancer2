@@ -205,7 +205,7 @@ note 'Check serialization errors'; {
             $msg->{'message'},
             qr{
                 ^
-                \QFailed to deserialize the request: \E
+                \QFailed to deserialize content: \E
                 \Qmalformed number\E
             }x,
             'Correct error message',
