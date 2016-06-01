@@ -1,0 +1,9 @@
+main: 1
+charset: 'UTF-8'
+show_errors: 1
+
+application:
+   feature_1: foo
+   feature_2: bar
+   feature_3: baz
+   feature_4: blat
