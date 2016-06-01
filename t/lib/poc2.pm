@@ -13,14 +13,11 @@ set plugins => {
 };
 }
 
-use Dancer2::Plugin::Polite ':app';
+use PoC::Plugin::Polite ':app';
 
 get '/' => sub {
     add_smileys( 'make me a sandwich.' );
 };
 
 1;
-
-
-
 
