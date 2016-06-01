@@ -2081,87 +2081,8 @@ development), you can set it this way:
 
 =head2 Writing a plugin
 
-=head3 A plugin that does nothing
-
-All that is needed for this is L<Dancer2::Plugin> to provide all the keywords
-needed to write a plugin.
-
-     package Dancer2::Plugin::Kitteh;
-     use Dancer2::Plugin;
-
-     # we do nothing, just like most cats do
-
-     register_plugin;
-
-     1;
-
-=head3 Introducing keywords
-
-New keywords that the application will receive when it uses your plugin need
-to be introduced using the C<register> keyword:
-
-     register meow => sub {
-         my ( $dsl ) = plugin_args(@_);
-         my $app = $dsl->app;
-     };
-
-The keyword receives an object which represents the DSL object the app is
-connected to. It can be used in order to access the Dancer2 core application
-connected to the user's scope.
-
-Whether a keyword is C<app-global>, can also be controlled. It can be called
-from anywhere in an app or only from a route, which means during a request:
-
-     register meow => sub {
-         debug 'Meow!';
-     }, { is_global => 0 };
-
-=head3 Route Decorators
-
-Some plugins generate routes from other routes, which makes them look a little
-bit like route decorators. Take L<Dancer2::Plugin::Auth::Tiny> for example:
-
-     get '/private' => needs login => sub { ... };
-
-This works by taking the route sub as a parameter and creating its own route which calls it.
-
-     package Dancer2::Plugin::OnTuesday;
-     # ABSTRACT: Make sure a route only works on Tuesday
-     use Dancer2::Plugin;
-
-     register on_tuesday => sub {
-         my ( $dsl, $route_sub, @args ) = plugin_args(@_);
-
-         my $day = (localtime)[6];
-         $day == 2 or return pass;
-
-         return $route_sub->( $dsl, @args );
-     };
-
-     register_plugin;
-
-Now the plugin can be used as such:
-
-     package MyApp;
-     use Dancer2;
-     use Dancer2::Plugin::OnTuesday;
-
-     get '/' => on_tuesday => sub { ... };
-
-     # every other day
-     get '/' => sub { ... };
-
-=head3 Reading the configuration
-
-While a user can change the configuration using both the configuration
-file and the C<set> keyword, a single source is needed for all configuration
-options for the plugin.
-This is handled automatically using the C<plugin_setting> keyword:
-
-     register meow => sub {
-         my $dsl = shift;
-         my $vol = plugin_setting->{'volume'} || 3;
-     };
+See L<Dancer2::Plugin/Writing the plugin> for information on how to author
+a new plugin for Dancer2.
 
 =head1 EXPORTS
 
