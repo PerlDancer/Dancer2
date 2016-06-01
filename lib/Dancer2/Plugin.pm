@@ -892,7 +892,7 @@ This is a (relatively) simple way for a plugin to use another plugin:
         default => sub {
             # if the app already has the 'Polite' plugin loaded, it'll return
             # it. If not, it'll load it in the app, and then return it.
-            scalar $_[0]->app->with_plugins( 'Polite' )
+            $_[0]->app->with_plugin( 'Polite' )
         },
         handles => { 'smiley' => 'smiley' },
     );
