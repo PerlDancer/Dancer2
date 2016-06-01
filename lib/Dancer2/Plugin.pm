@@ -38,7 +38,6 @@ my $_keywords = {};
 sub keywords { $_keywords }
 
 my $REF_ADDR_REGEX = qr{
-    Dancer2::Plugin::
     [A-Za-z0-9\:\_]+
     =HASH
     \(
