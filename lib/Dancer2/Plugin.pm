@@ -270,7 +270,7 @@ sub _exporter_app {
                 # if the plugin is a
                 # "candidate" for a hook
                 # See: App.pm "execute_hook" method, "around" modifier
-                if ( ref( $_[0] ) =~ /^Dancer2::Plugin::/ ) {
+                if ( $_[0]->isa('Dancer2::Plugin') ) {
                     # this means it's probably our hook, we need to verify it
                     my ( $plugin_self, $hook_name, @args ) = @_;
 
