@@ -189,9 +189,7 @@ sub _exporter_app {
 
     return unless $app->can('with_plugin');
 
-    ( my $short = $class ) =~ s/Dancer2::Plugin:://;
-
-    my $plugin = $app->with_plugin( $short );
+    my $plugin = $app->with_plugin( "+" . $class );
     $global->{plugin} = $plugin;
 
     return unless $class->can('keywords');
