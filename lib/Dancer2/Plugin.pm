@@ -72,8 +72,9 @@ sub execute_plugin_hook {
     my ( $self, $name, @args ) = @_;
     my $plugin_class = ref $self;
 
-    $plugin_class =~ s/^Dancer2::Plugin:://
+    $self->isa('Dancer2::Plugin')
         or croak "Cannot call plugin hook ($name) from outside plugin";
+    $plugin_class =~ s/^Dancer2::Plugin:://; # short names
 
     my $full_name = 'plugin.' . lc($plugin_class) . ".$name";
     $full_name =~ s/::/_/g;
