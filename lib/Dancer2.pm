@@ -183,6 +183,8 @@ Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
 plugins. Note that although we try to keep this list up to date we
 expect plugin authors to tell us about new modules.
 
+For information on how to author a plugin, see L<Dancer2::Plugin/Writing the plugin>.
+
 =item * Dancer2 Migration guide
 
 L<Dancer2::Manual::Migration> provides the most up-to-date instruction on
