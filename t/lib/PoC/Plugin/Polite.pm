@@ -12,7 +12,15 @@ has polite => (
     handles => [ qw( smiley add_smileys ) ],
 );
 
-plugin_keywords 'add_smileys';
+register_hook 'smileys';
+
+plugin_keywords qw(add_smileys hooked_smileys);
+
+sub hooked_smileys {
+    my ($self, @args) = @_;
+    $self->execute_plugin_hook('smileys');
+    $self->add_smileys(@args);
+};
 
 register_plugin;
 1;
