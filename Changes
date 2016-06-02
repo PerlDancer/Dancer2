@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1175: Plugins are not required to be in the Dancer2::Plugin
+      namespace. (Russell @veryrusty Jenkins)
+
 0.200000  2016-05-31 15:05:46+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
