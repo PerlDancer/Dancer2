@@ -6,6 +6,10 @@
     * GH #1176, #1177: Remove Test::Deep as a test dependency
       (Nuno Carvalho, Peter Mottram)
 
+    [ DOCUMENTATION ]
+    * GH #1178: Update D2::Manual with links to new plugin architecture.
+      (Joel Berger, Jason A. Crome)
+
 0.200000  2016-05-31 15:05:46+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
