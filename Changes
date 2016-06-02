@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #1175: Plugins are not required to be in the Dancer2::Plugin
       namespace. (Russell @veryrusty Jenkins)
+    * GH #1176, #1177: Remove Test::Deep as a test dependency
+      (Nuno Carvalho, Peter Mottram)
 
 0.200000  2016-05-31 15:05:46+02:00 Europe/Amsterdam
 
