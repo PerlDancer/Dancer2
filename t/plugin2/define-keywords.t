@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 use Test::More tests => 1;
-use Test::Deep;
 
 BEGIN {  
     package Dancer2::Plugin::Foo;
@@ -39,5 +38,5 @@ BEGIN {
 
 my $plugin = Dancer2::Plugin::Foo->new( app => undef );
 
-cmp_deeply [ keys %{ $plugin->keywords } ], 
-    bag( @::expected_keywords), "all expected keywords";
+is_deeply [ sort keys %{ $plugin->keywords } ], 
+    [ sort @::expected_keywords ], "all expected keywords";

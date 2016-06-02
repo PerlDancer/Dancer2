@@ -26,7 +26,6 @@ BEGIN {
 }
 
 use Test::More;
-use Test::Deep;
 
 my %tests = (
     'Plugin1' => { keywords => [ 'one' ], hooks => [ 'un' ] },
@@ -50,7 +49,6 @@ subtest app_side => sub {
     use Dancer2::Plugin::Plugin2;
 
     use Test::More;
-    use Test::Deep;
 
     Test::More::is one() => 'uno', 'from plugin1';
     Test::More::is two() => 'dos', 'from plugin2';

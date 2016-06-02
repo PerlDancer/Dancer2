@@ -1,8 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
-use Test::Deep;
+use Test::More tests => 8;
 use Scalar::Util qw/ refaddr /;
 
 {
@@ -31,28 +30,28 @@ my $plugin = $app->with_plugin('Foo');
 
 isa_ok $plugin => 'Dancer2::Plugin';
 
-cmp_deeply $app->plugins => [ 
-    isa('Dancer2::Plugin::Foo') 
-], "app has the plugin";
+cmp_ok @{ $app->plugins }, '==', 1, "app has one plugin";
+cmp_ok ref($app->plugins->[0]), 'eq', 'Dancer2::Plugin::Foo' , "app has plugin Foo";
 
 my $same_plugin =  $app->with_plugin('Foo');
 
 is refaddr $same_plugin => refaddr $plugin,
     "plugin is not redefined";
 
-cmp_deeply $app->plugins => [ 
-    isa('Dancer2::Plugin::Foo') 
-], "still a single plugin";
+cmp_ok @{ $app->plugins }, '==', 1, "app still has one plugin";
+cmp_ok ref($app->plugins->[0]), 'eq', 'Dancer2::Plugin::Foo' , "app has plugin Foo";
 
 subtest "adding plugin Bar" => sub {
     my $plugin = $app->with_plugin('Bar');
 
     isa_ok $plugin => 'Dancer2::Plugin';
 
-    cmp_deeply $app->plugins => [ 
-        isa('Dancer2::Plugin::Foo'),
-        isa('Dancer2::Plugin::Bar') 
-    ], "app has both plugins";
+    cmp_ok @{ $app->plugins }, '==', 2, "app has two plugins";
+
+    cmp_ok ref($app->plugins->[0]), 'eq', 'Dancer2::Plugin::Foo',
+      "app has plugin Foo";
+    cmp_ok ref($app->plugins->[1]), 'eq', 'Dancer2::Plugin::Bar',
+      "app has plugin Bar";
 };
 
 subtest "adding as an object" => sub {
@@ -61,9 +60,12 @@ subtest "adding as an object" => sub {
 
     is refaddr $p => refaddr $plugin, "it's the same";
 
-    cmp_deeply $app->plugins => [ 
-        isa('Dancer2::Plugin::Foo'),
-        isa('Dancer2::Plugin::Bar'),
-        isa('Dancer2::Plugin::Baz') 
-    ], "app has all 3 plugins";
+    cmp_ok @{ $app->plugins }, '==', 3, "app has three plugins";
+
+    cmp_ok ref($app->plugins->[0]), 'eq', 'Dancer2::Plugin::Foo',
+      "app has plugin Foo";
+    cmp_ok ref($app->plugins->[1]), 'eq', 'Dancer2::Plugin::Bar',
+      "app has plugin Bar";
+    cmp_ok ref($app->plugins->[2]), 'eq', 'Dancer2::Plugin::Baz',
+      "app has plugin Baz";
 };
