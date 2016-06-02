@@ -143,7 +143,10 @@ sub _build_config {
 
     my $config = Hash::Merge::Simple->merge(
         $default,
-        map +( $self->load_config_file($_) ), @{ $self->config_files }
+        map {
+            warn "Merging config file $_\n" if $ENV{DANCER_CONFIG_VERBOSE};
+            $self->load_config_file($_) 
+        } @{ $self->config_files }
     );
 
     $config = $self->_normalize_config($config);
