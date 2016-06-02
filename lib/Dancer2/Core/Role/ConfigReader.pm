@@ -126,7 +126,13 @@ sub _build_config_files {
         }
     }
 
-    return [ sort @files ];
+    # Look for *_local.ext files
+    @files = map {
+        (my $l = $_) =~ s/(\w+)(\.\w+)$/${1}_local$2/;
+        $_, (-r $l ? $l : () );
+    } sort @files;
+
+    return \@files;
 }
 
 sub _build_config {
