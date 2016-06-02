@@ -112,8 +112,20 @@ sub _build_config_files {
     return [] unless defined $location;
 
     my $running_env = $self->environment;
-    my @exts = Config::Any->extensions;
+    my @available_exts = Config::Any->extensions;
     my @files;
+
+    my @exts = @available_exts;
+    if (my $ext = $ENV{DANCER_CONFIG_EXT}) {
+        if (grep { $ext eq $_ } @available_exts) {
+            @exts = $ext;
+        } else {
+            warn "DANCER_CONFIG_EXT environment variable set to '$ext' which\n" .
+                 "is not recognized by Config::Any. Looking for config file\n" .
+                 "using default list of extensions:\n" .
+                 "\t@available_exts\n";
+        }
+    }
 
     foreach my $ext (@exts) {
         foreach my $file ( [ $location, "config.$ext" ],
