@@ -119,6 +119,8 @@ sub _build_config_files {
     if (my $ext = $ENV{DANCER_CONFIG_EXT}) {
         if (grep { $ext eq $_ } @available_exts) {
             @exts = $ext;
+            warn "Only looking for configs ending in '$ext'\n" 
+                if $ENV{DANCER_CONFIG_VERBOSE};
         } else {
             warn "DANCER_CONFIG_EXT environment variable set to '$ext' which\n" .
                  "is not recognized by Config::Any. Looking for config file\n" .
