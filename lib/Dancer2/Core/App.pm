@@ -60,7 +60,11 @@ sub _with_plugin {
         return $plugin;
     }
 
-    $plugin =~ s/^/Dancer2::Plugin::/ unless /^Dancer2::Plugin::/;
+    # short plugin names get Dancer2::Plugin:: prefix
+    # plugin names starting with a '+' are full package names
+    if ( $plugin !~ s/^\+// ) {
+        $plugin =~ s/^/Dancer2::Plugin::/ unless /^Dancer2::Plugin::/;
+    }
 
     # check if it's already there
     if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {

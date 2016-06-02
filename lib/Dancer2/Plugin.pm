@@ -38,7 +38,6 @@ my $_keywords = {};
 sub keywords { $_keywords }
 
 my $REF_ADDR_REGEX = qr{
-    Dancer2::Plugin::
     [A-Za-z0-9\:\_]+
     =HASH
     \(
@@ -73,8 +72,9 @@ sub execute_plugin_hook {
     my ( $self, $name, @args ) = @_;
     my $plugin_class = ref $self;
 
-    $plugin_class =~ s/^Dancer2::Plugin:://
+    $self->isa('Dancer2::Plugin')
         or croak "Cannot call plugin hook ($name) from outside plugin";
+    $plugin_class =~ s/^Dancer2::Plugin:://; # short names
 
     my $full_name = 'plugin.' . lc($plugin_class) . ".$name";
     $full_name =~ s/::/_/g;
@@ -190,9 +190,7 @@ sub _exporter_app {
 
     return unless $app->can('with_plugin');
 
-    ( my $short = $class ) =~ s/Dancer2::Plugin:://;
-
-    my $plugin = $app->with_plugin( $short );
+    my $plugin = $app->with_plugin( "+" . $class );
     $global->{plugin} = $plugin;
 
     return unless $class->can('keywords');
@@ -273,7 +271,7 @@ sub _exporter_app {
                 # if the plugin is a
                 # "candidate" for a hook
                 # See: App.pm "execute_hook" method, "around" modifier
-                if ( ref( $_[0] ) =~ /^Dancer2::Plugin::/ ) {
+                if ( $_[0]->isa('Dancer2::Plugin') ) {
                     # this means it's probably our hook, we need to verify it
                     my ( $plugin_self, $hook_name, @args ) = @_;
 
@@ -895,7 +893,7 @@ This is a (relatively) simple way for a plugin to use another plugin:
         default => sub {
             # if the app already has the 'Polite' plugin loaded, it'll return
             # it. If not, it'll load it in the app, and then return it.
-            scalar $_[0]->app->with_plugins( 'Polite' )
+            $_[0]->app->with_plugin( 'Polite' )
         },
         handles => { 'smiley' => 'smiley' },
     );
