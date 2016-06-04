@@ -10,6 +10,9 @@
     * GH #1178: Update D2::Manual with links to new plugin architecture.
       (Joel Berger, Jason A. Crome)
 
+    [ ENHANCEMENTS ]
+    * GH #1018: Additional plugin hook tests (Ruben Amortegui)
+
 0.200000  2016-05-31 15:05:46+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]
