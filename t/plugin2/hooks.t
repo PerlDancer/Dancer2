@@ -1,11 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 3;
 use Plack::Test;
 use HTTP::Request::Common;
 
-{  
+{
     package Dancer2::Plugin::FooDetector;
 
     use Dancer2::Plugin;
@@ -15,8 +15,8 @@ use HTTP::Request::Common;
 
     sub BUILD {
         my $plugin = shift;
-        
-        $plugin->app->add_hook( 
+
+        $plugin->app->add_hook(
             Dancer2::Core::Hook->new(
                 name => 'after',
                 code => sub {
@@ -35,30 +35,48 @@ use HTTP::Request::Common;
     use Dancer2::Plugin::FooDetector;
 
     my $hooked = 'nope';
+    my $counter = 0;
 
-    hook 'plugin.foodetector.foo' => sub { 
+    hook 'plugin.foodetector.foo' => sub {
+        $counter++;
         $hooked = 'hooked';
     };
 
-    get '/' => sub { 
+    get '/' => sub {
         "saying foo triggers the hook"
     };
 
     get 'meh' => sub { 'meh' };
 
     get '/hooked' => sub { $hooked };
+    get '/counter' => sub { $counter };
 }
 
 
 my $test = Plack::Test->create( PoC->to_app );
 
-ok $test->request( GET '/meh' )->is_success;
-my $res = $test->request( GET '/hooked' );
-ok $res->is_success;
-is $res->content, 'nope';
+subtest 'initial state' => sub {
+    ok $test->request( GET '/meh' )->is_success;
+    my $res = $test->request( GET '/hooked' );
+    ok $res->is_success;
+    is $res->content, 'nope';
+    is $test->request( GET '/counter' )->content, '0';
+};
 
-ok $test->request( GET '/' )->is_success;
-$res = $test->request( GET '/hooked' );
-ok $res->is_success;
-is $res->content, 'hooked';
+subtest 'trigger hook' => sub {
+    ok $test->request( GET '/' )->is_success;
+    my $res = $test->request( GET '/hooked' );
+    ok $res->is_success;
+    is $res->content, 'hooked';
+    is $test->request( GET '/counter' )->content, '1';
+};
+
+# GH #1018 - ensure hooks are called the correct number of times
+subtest 'execute hook counting' => sub {
+    ok $test->request( GET '/' )->is_success;
+    my $res = $test->request( GET '/hooked' );
+    ok $res->is_success;
+    is $res->content, 'hooked';
+    is $test->request( GET '/counter' )->content, '2';
+};
 
