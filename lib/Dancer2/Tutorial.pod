@@ -334,8 +334,8 @@ down to the C<template> directive and display the F<login.tt> template:
 This is even simpler than our F<show_entries.tt> template - but wait -
 there's a C<login_url> template parameter and we're only passing in the
 C<err> parameter. Where's the missing parameter?  It's being generated and
-sent to the template in a C<before_template> directive - we'll come back to
-that in a moment or two.
+sent to the template in a C<before_template_render> directive - we'll come back
+to that in a moment or two.
 
 So the user fills out the F<login.tt> template and submits it back to the
 C</login> route handler.  We now check the user input against our
@@ -364,7 +364,7 @@ again.
 
 We still have a missing puzzle piece or two.  First, how can we use Dancer2
 to serve our CSS stylesheet? Second, where are flash messages displayed?
-Third, what about the C<before_template> directive?
+Third, what about the C<before_template_render> directive?
 
 =head2 Serving static files
 
@@ -430,18 +430,18 @@ can also see where the content from the specific route handlers is inserted
 
 But what about all those other C<*_url> template parameters?
 
-=head2 Using C<before_template>
+=head2 Using C<before_template_render>
 
 Dancer2 has a way to manipulate the template parameters before they're
-passed to the engine for processing. It's C<before_template>.  Using this
-directive, you can generate and set the URIs for the C</login> and
+passed to the engine for processing. It's C<before_template_render>. Using
+this directive, you can generate and set the URIs for the C</login> and
 C</logout> route handlers and the URI for the stylesheet. This is handy for
 situations like this where there are values which are re-used consistently
 across all (or most) templates.  This cuts down on code-duplication and
 makes your app easier to maintain over time since you only need to update
 the values in this one place instead of everywhere you render a template.
 
-  hook before_template => sub {
+  hook before_template_render => sub {
      my $tokens = shift;
 
      $tokens->{'css_url'} = request->base . 'css/style.css';
@@ -504,7 +504,7 @@ Here's the complete 'dancr.pl' script from start to finish.
      $db->do($schema) or die $db->errstr;
  }
 
- hook before_template => sub {
+ hook before_template_render => sub {
      my $tokens = shift;
 
      $tokens->{'css_url'} = request->base . 'css/style.css';
