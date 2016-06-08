@@ -320,6 +320,7 @@ things:
     Pedro Bruno
     Pedro Melo
     Peter Mottram
+    Philippe Bricout
     Rick Yakubowski
     Ruben Amortegui
     sakshee3

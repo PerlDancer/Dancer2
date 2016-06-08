@@ -9,6 +9,8 @@
     [ DOCUMENTATION ]
     * GH #1178: Update D2::Manual with links to new plugin architecture.
       (Joel Berger, Jason A. Crome)
+    * GH #1184: Use 'before_template_render' rather than the special case
+      'before_template' in D2::Manual and D2::Tutorial (Philippe Bricout)
 
     [ ENHANCEMENTS ]
     * GH #1018: Additional plugin hook tests (Ruben Amortegui)
