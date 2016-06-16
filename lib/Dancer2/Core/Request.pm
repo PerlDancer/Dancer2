@@ -32,8 +32,9 @@ my @http_env_keys = (qw/
 # apparently you can't eval core functions
 sub accept { $_[0]->env->{'HTTP_ACCEPT'} }
 
-eval << "_EVAL" for @http_env_keys; ## no critic
-sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc $_ ) } }
+eval << "_EVAL" or die $@ for @http_env_keys; ## no critic
+sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc "$_" ) } }
+1;
 _EVAL
 
 # check presence of XS module to speedup request
