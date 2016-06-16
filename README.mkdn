@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.200000
+version 0.200001
 
 # DESCRIPTION
 
@@ -71,6 +71,8 @@ complete outline on where to go for help.
     Refer to [Dancer2::Plugins](https://metacpan.org/pod/Dancer2::Plugins) for a partial list of available Dancer2
     plugins. Note that although we try to keep this list up to date we
     expect plugin authors to tell us about new modules.
+
+    For information on how to author a plugin, see ["Writing the plugin" in Dancer2::Plugin](https://metacpan.org/pod/Dancer2::Plugin#Writing-the-plugin).
 
 - Dancer2 Migration guide
 
@@ -207,7 +209,9 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Pedro Bruno
     Pedro Melo
     Peter Mottram
+    Philippe Bricout
     Rick Yakubowski
+    Ruben Amortegui
     sakshee3
     Sam Kington
     Samit Badle
@@ -223,6 +227,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Victor Adam
     Vince Willems
     Vincent Bachelier
+    Joel Berger
 
 # AUTHOR
 
