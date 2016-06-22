@@ -1224,7 +1224,11 @@ sub make_forward_to {
     # and merge existing params
     delete $env->{CONTENT_LENGTH};
 
-    my $new_request = Dancer2::Core::Request->new( env => $env, body_params => {} );
+    my $new_request = Dancer2::Core::Request->new(
+        env         => $env,
+        body_params => {},
+    );
+
     my $new_params = _merge_params( scalar( $request->params ), $params || {} );
 
     exists $options->{method} and
@@ -1237,6 +1241,7 @@ sub make_forward_to {
     $new_request->{_route_params} = $request->{_route_params};
     $new_request->{body}          = $request->body;
     $new_request->{headers}       = $request->headers;
+
     # Copy remaining settings
     $new_request->{is_behind_proxy} = $request->{is_behind_proxy};
 
