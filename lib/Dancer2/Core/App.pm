@@ -1244,6 +1244,7 @@ sub make_forward_to {
 
     # Copy remaining settings
     $new_request->{is_behind_proxy} = $request->{is_behind_proxy};
+    $new_request->{vars}            = $request->{vars};
 
     # If a session object was created during processing of the original request
     # i.e. a session object exists but no cookie existed
