@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.200002  2016-06-22 16:39:13+02:00 Europe/Amsterdam
+
     [ BUG FIXES ]
     * Using `var` with a `forward`ed request now works.
       (Sawyer X, Jason Crome)
