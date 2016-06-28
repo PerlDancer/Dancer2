@@ -799,7 +799,7 @@ Its value is the plugin configuration key that will be used to initialize the at
 
 If it's given the value C<1>, the name of the attribute will be taken as the configuration key.
 
-Nested hash keys can also be refered to using a dot notation.
+Nested hash keys can also be referred to using a dot notation.
 
 If the plugin configuration has no value for the given key, the attribute default, if specified, will be honored.
 
