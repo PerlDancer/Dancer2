@@ -4,6 +4,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
 use HTTP::Cookies;
+use lib 't/lib';
 
 {
     package App;
@@ -47,7 +48,7 @@ my $url  = 'http://localhost';
 my $test = Plack::Test->create( App->to_app );
 my $app = Dancer2->runner->apps->[0];
 
-for my $engine (qw(YAML Simple)) {
+for my $engine (qw(YAML Simple SimpleNoChangeId)) {
 
     # clear current session engine, and rebuild for the test
     # This is *really* messy, playing in object hashrefs..
