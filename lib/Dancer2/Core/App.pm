@@ -487,18 +487,19 @@ sub setup_session {
 sub change_session_id {
     my $self = shift;
 
-    my $session;
+    my $session = $self->session;
 
     # Find the session engine
     my $engine = $self->session_engine;
 
     if ($engine->can('_change_id')) {
-        $engine->change_id;
+
+        # session engine can change session ID
+        $engine->change_id( session => $session );
     }
     else {
 
         # grab data, destroy session and store data again
-        $session = $self->session;
         my %data = %{$session->data};
 
         # destroy existing session
