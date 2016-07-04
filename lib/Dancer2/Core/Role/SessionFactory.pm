@@ -21,6 +21,9 @@ sub supported_hooks {
       engine.session.before_create
       engine.session.after_create
 
+      engine.session.before_change_id
+      engine.session.after_change_id
+
       engine.session.before_destroy
       engine.session.after_destroy
 
@@ -169,6 +172,25 @@ sub retrieve {
 
     $self->execute_hook( 'engine.session.after_retrieve', $session );
     return $session;
+}
+
+# XXX eventually we could perhaps require '_change_id'?
+
+sub change_id {
+    my ( $self, %params ) = @_;
+    my $session = $params{session};
+    my $old_id  = $session->id;
+
+    $self->execute_hook( 'engine.session.before_change_id', $old_id );
+
+    my $new_id = $self->generate_id;
+    $session->id( $new_id );
+
+    eval { $self->_change_id( $old_id, $new_id ) };
+    croak "Unable to change session id for session with id $old_id: $@"
+      if $@;
+
+    $self->execute_hook( 'engine.session.after_change_id', $new_id );
 }
 
 requires '_destroy';
