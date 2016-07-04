@@ -487,6 +487,8 @@ sub setup_session {
 sub change_session_id {
     my $self = shift;
 
+    my $session;
+
     # Find the session engine
     my $engine = $self->session_engine;
 
@@ -496,7 +498,7 @@ sub change_session_id {
     else {
 
         # grab data, destroy session and store data again
-        my $session = $self->session;
+        $session = $self->session;
         my %data = %{$session->data};
 
         # destroy existing session
@@ -513,6 +515,8 @@ sub change_session_id {
         # clear out destroyed session - no longer relevant
         $self->clear_destroyed_session;
     }
+
+    return $session->id;
 }
 
 has prefix => (

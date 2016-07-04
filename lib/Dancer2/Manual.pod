@@ -872,6 +872,12 @@ quickly and easily within your config file, for example:
 If the directory you specify does not exist, Dancer2 will attempt to create
 it for you.
 
+=head3 Changing session ID
+
+If you wish to change the session ID (for example on privilege level change):
+
+    my $new_session_id = app->change_session_id
+
 =head3 Destroying a session
 
 When you're done with your session, you can destroy it:
