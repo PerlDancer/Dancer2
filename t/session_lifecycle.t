@@ -27,10 +27,7 @@ use HTTP::Cookies;
     };
 
     get '/change_session_id' => sub {
-        my $sid1 = session->id;
         app->change_session_id;
-        my $sid2 = session->id;
-        return "changed from $sid1 to $sid2";
     };
 
     get '/destroy_session' => sub {
@@ -125,6 +122,7 @@ subtest 'Change session ID' => sub {
     # extract SID
     $jar->scan( sub { $sid2 = $_[2] } );
     isnt $sid2, $sid1, "New session has different ID";
+    is $res->content, $sid2, "new session ID returned";
 };
 
 subtest 'Read value back after change_session_id' => sub {
