@@ -484,6 +484,37 @@ sub setup_session {
     }
 }
 
+sub change_session_id {
+    my $self = shift;
+
+    # Find the session engine
+    my $engine = $self->session_engine;
+
+    if ($engine->can('_change_id')) {
+        $engine->change_id;
+    }
+    else {
+
+        # grab data, destroy session and store data again
+        my $session = $self->session;
+        my %data = %{$session->data};
+
+        # destroy existing session
+        $self->destroy_session;
+
+        # get new session
+        $session = $self->session;
+
+        # write data from old session into new one
+        while (my ($key, $value) = each %data ) {
+            $session->write($key => $value);
+        }
+
+        # clear out destroyed session - no longer relevant
+        $self->clear_destroyed_session;
+    }
+}
+
 has prefix => (
     is        => 'rw',
     isa       => Maybe [Dancer2Prefix],
