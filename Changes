@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * PR1198: Session::YAML should not accept bad session cookie value 
+      from client (Peter Mottram)
 
     [ ENHANCEMENTS ]
 

@@ -63,7 +63,7 @@ sub _retrieve {
     my ( $self, $id ) = @_;
     my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
 
-    return unless -f $session_file;
+    croak "Invalid session ID: $id" unless -f $session_file;
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_SH or die "Can't lock file '$session_file': $!\n";
