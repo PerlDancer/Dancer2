@@ -1,13 +1,18 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * PR1198: Session::YAML should not accept bad session cookie value 
+    * PR #1198: Session::YAML should not accept bad session cookie value 
       from client (Peter Mottram)
+    * Require minimum version of YAML of 0.86 (to satisfy GH #899) and a 
+      maximum version of YAML 1.15. YAML 1.16 causes test failures as
+      reported by CPAN Testers.
 
     [ ENHANCEMENTS ]
+    * Require minimum version of ExtUtils::MakeMaker of 7.1101 to support 
+      a range of prereq version numbers (rjbs, Jason Crome, Sawyer X)
 
     [ DOCUMENTATION ]
-    * Spelling correction (Gregor Herrmann)
+    * GH #1193: Spelling correction (Gregor Herrmann)
 
 0.200002  2016-06-22 16:39:13+02:00 Europe/Amsterdam
 
