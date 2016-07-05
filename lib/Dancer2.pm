@@ -287,6 +287,7 @@ things:
     Javier Rojas
     Jean Stebens
     Jens Rehsack
+    Joel Berger
     Jonathan Scott Duff
     Julien Fiegehenn
     Julio Fraire
@@ -321,6 +322,7 @@ things:
     Pedro Melo
     Peter Mottram
     Philippe Bricout
+    Ricardo Signes
     Rick Yakubowski
     Ruben Amortegui
     sakshee3
@@ -338,4 +340,3 @@ things:
     Victor Adam
     Vince Willems
     Vincent Bachelier
-    Joel Berger
