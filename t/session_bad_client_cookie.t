@@ -6,7 +6,6 @@ use Plack::Test;
 use HTTP::Request::Common;
 use HTTP::Cookies;
 
-my $config;
 {
 
     package App;
@@ -22,7 +21,6 @@ my $config;
     set session     => 'Simple';
     set show_errors => 1;
 
-    $config = config->{session};
     get '/set_session/*' => sub {
         my ($name) = splat;
         session name => $name;
