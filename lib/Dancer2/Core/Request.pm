@@ -698,7 +698,7 @@ C<HTTP_FORWARDED_PROTO>.
 
 =item C<host>
 
-Checks whether we are behind a proxy using the C<is_behind_proxy>
+Checks whether we are behind a proxy using the C<behind_proxy>
 configuration option, and if so returns the first
 C<HTTP_X_FORWARDED_HOST>, since this is a comma separated list.
 
