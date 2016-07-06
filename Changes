@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH #1188: Add error message to open_file (exercism-1)
+
     [ DOCUMENTATION ]
     * Fix typo of config option in Pod. (Nuno Carvalho)
     * Fix POD syntax error. (Nuno Carvalho)
