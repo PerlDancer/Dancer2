@@ -37,7 +37,9 @@ sub _build_engine {
         sub { [ $ttt->views ] },
     ];
 
-    return Template->new(%tt_config);
+    my $tt = Template->new(%tt_config);
+    $Template::Stash::PRIVATE = undef if $self->config->{show_private_variables};
+    return $tt;
 }
 
 sub render {
@@ -99,9 +101,29 @@ setting it manually with C<set>:
     # code code code
     set template => 'template_toolkit';
 
+Most configuration variables available when creating a new instance of a
+L<Template>::Toolkit object can be declared inside the template toolkit
+section on the engines configuration (see your config.yml file):
+
+  engines:
+    template:
+      template_toolkit:
+        start_tag: '<%'
+        end_tag:   '%>'
+
+In addition to the standard configuration variables, the option C<show_private_variables>
+is also available. Template::Toolkit, by default, do not render private variables
+(the ones starting with an underscore). If in your project it gets easier to disable
+this feature than changing variable names, add this option to your configuration.
+
+        show_private_variables: true
+
+B<Warning:> Given the way Template::Toolkit implements this option, different Dancer2
+applications running within the same interpreter will share this option!
+
 =head1 DESCRIPTION
 
-This template engine allows you to use L<Template::Toolkit> in L<Dancer2>.
+This template engine allows you to use L<Template>::Toolkit in L<Dancer2>.
 
 =method render($template, \%tokens)
 
