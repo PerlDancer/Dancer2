@@ -366,6 +366,16 @@ found, triggers an exception.
 The method C<_retrieve> must be implemented.  It must take C<$id> as a single
 argument and must return a hash reference of session data.
 
+=head2 change_id
+
+Changes the session ID of the corresponding session.
+    
+    MySessionFactory->change_id(session => $session_object);
+
+The method C<_change_id> must be implemented. It must take C<$old_id> and
+C<$new_id> as arguments and change the ID from the old one to the new one
+in the underlying session storage.
+
 =head2 destroy
 
 Purges the session object that matches the ID given. Returns the ID of the
