@@ -394,9 +394,13 @@ A basic script to start an application: (in C</service/application/run>)
 
 Another option would be to run your app stand-alone as described above, but then
 use a proxy or load balancer to accept incoming requests (on the standard port
-80, say) and feed them to your Dancer app.
+80, say) and feed them to your Dancer app. Also, in this case you might want
+to look at the C<behind_proxy> configuration option, to make sure that all the
+URLs are constructed properly.
 
-This could be achieved using various software; examples would include:
+    behind_proxy: 1
+
+This setup can be achieved using various software; examples would include:
 
 =head3 Using Apache's mod_proxy
 
