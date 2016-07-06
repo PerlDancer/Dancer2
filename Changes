@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH #1188: Add error message to open_file (exercism-1)
+
     [ DOCUMENTATION ]
     * GH #1194, #1189: Behind proxy details fixed (Nuno Carvalho)
 
