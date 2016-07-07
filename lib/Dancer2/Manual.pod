@@ -923,7 +923,7 @@ place it in a directory called C<views/>:
             <!-- Put the original path requested into a hidden
                        field so it's sent back in the POST and can be
                        used to redirect to the right page after login -->
-            <input type='hidden' name='path' value='[% path %]'/>
+            <input type='hidden' name='path' value='<% path %>'/>
 
             <input type='submit' value='Login' />
         </form>
