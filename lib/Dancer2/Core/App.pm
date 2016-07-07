@@ -499,6 +499,25 @@ sub change_session_id {
     }
     else {
 
+        # Method order is important in here...
+        #
+        # On session build if there is no destroyed session then the session
+        # builder tries to recreate the session using the existing session
+        # cookie. We really don't want to do that in this case so it is
+        # important to create the new session before the
+        # clear_destroyed_session method is called.
+        #
+        # This sucks.
+        #
+        # Sawyer suggested:
+        #
+        # What if you take the session cookie logic out of that attribute into
+        # another attribute and clear that attribute?
+        # That would force the session rebuilt to rebuilt the attribute and
+        # get a different cookie value, no?
+        #
+        # TODO: think about this some more.
+
         # grab data, destroy session and store data again
         my %data = %{$session->data};
 
