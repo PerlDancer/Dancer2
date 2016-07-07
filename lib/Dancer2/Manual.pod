@@ -2846,7 +2846,7 @@ with C<send_file>.
 
 C<send_file> will use PSGI streaming if the server supports it (most, if
 not all, do). You can explicitly disable streaming by passing
-C<streaming => 0> as an option to C<send_file>.
+C<streaming =E<gt> 0> as an option to C<send_file>.
 
     get '/download/:file' => sub {
         send_file( params->{file}, streaming => 0 );
