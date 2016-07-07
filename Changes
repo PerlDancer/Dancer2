@@ -5,6 +5,8 @@
 
     [ ENHANCEMENTS ]
     * GH #1188: Add error message to open_file (exercism-1)
+    * Support showing private variables in templates under
+      Template::Toolkit. (Alberto Simões)
 
     [ DOCUMENTATION ]
     * Fix typo of config option in Pod. (Nuno Carvalho)
