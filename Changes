@@ -2,6 +2,7 @@
 
     [ DOCUMENTATION ]
     * Fix typo of config option in Pod. (Nuno Carvalho)
+    * Fix POD syntax error. (Nuno Carvalho)
 
 0.200003  2016-07-05 14:34:34-05:00 America/Chicago
 
