@@ -511,9 +511,10 @@ sub change_session_id {
         # get new session
         $session = $self->session;
 
-        # write data from old session into new one
+        # write data from old session into new
+        # Some engines add session id to data so skip id.
         while (my ($key, $value) = each %data ) {
-            $session->write($key => $value);
+            $session->write($key => $value) unless $key eq 'id';
         }
     }
 
