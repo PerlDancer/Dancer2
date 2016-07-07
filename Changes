@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * Remove session test data from builds. (Peter Mottram)
+
     [ ENHANCEMENTS ]
     * GH #1188: Add error message to open_file (exercism-1)
 
