@@ -505,6 +505,9 @@ sub change_session_id {
         # destroy existing session
         $self->destroy_session;
 
+        # clear out destroyed session - no longer relevant
+        $self->clear_destroyed_session;
+
         # get new session
         $session = $self->session;
 
@@ -512,9 +515,6 @@ sub change_session_id {
         while (my ($key, $value) = each %data ) {
             $session->write($key => $value);
         }
-
-        # clear out destroyed session - no longer relevant
-        $self->clear_destroyed_session;
     }
 
     return $session->id;
