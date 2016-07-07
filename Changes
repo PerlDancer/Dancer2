@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Fix typo of config option in Pod. (Nuno Carvalho)
+
 0.200003  2016-07-05 14:34:34-05:00 America/Chicago
 
     [ BUG FIXES ]
