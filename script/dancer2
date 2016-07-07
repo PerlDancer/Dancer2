@@ -37,6 +37,57 @@ dancer2 <command> [options...]
 Dancer2 is the new generation lightweight web-framework for Perl.
 This tool provides nice, easily-extendable CLI interface for it.
 
+=head2 Documentation Index
+
+Documentation on Dancer2 is split into several manpages. Below is a
+complete outline on where to go for help.
+
+=over 4
+
+=item * Dancer2 Tutorial
+
+If you are new to the Dancer approach, you should start by reading
+our L<Dancer2::Tutorial>.
+
+=item * Dancer2 Manual
+
+L<Dancer2::Manual> is the reference for Dancer2. Here you will find
+information on the concepts of Dancer2 application development and
+a comprehensive reference to the Dancer2 domain specific
+language.
+
+=item * Dancer2 Keywords
+
+The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
+
+=item * Dancer2 Deployment
+
+For configuration examples of different deployment solutions involving
+Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
+
+=item * Dancer2 Cookbook
+
+Specific examples of code for real-life problems and some 'tricks' for
+applications in Dancer can be found in L<Dancer2::Cookbook>
+
+=item * Dancer2 Config
+
+For configuration file details refer to L<Dancer2::Config>. It is a
+complete list of all configuration options.
+
+=item * Dancer2 Plugins
+
+Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
+plugins. Note that although we try to keep this list up to date we
+expect plugin authors to tell us about new modules.
+
+=item * Dancer2 Migration guide
+
+L<Dancer2::Manual::Migration> provides the most up-to-date instruction on
+how to convert a Dancer (1) based application to Dancer2.
+
+=back
+
 =head1 COMMANDS
 
 =over
