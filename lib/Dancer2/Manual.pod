@@ -1193,7 +1193,7 @@ You can change this location by changing the setting 'views'. For instance
 if your templates are located in the 'templates' directory, do the
 following:
 
-    set views => path(dirname(__FILE__), 'templates');
+    set views => path( app->location , 'templates' );
 
 By default, the internal template engine L<Dancer2::Template::Simple> is
 used, but you may want to upgrade to L<Template
@@ -1313,7 +1313,7 @@ template toolkit, your config file will look like this:
 Static files are served from the F<./public> directory. You can specify a
 different location by setting the C<public_dir> option:
 
-    set public_dir => path(dirname(__FILE__), 'static');
+    set public_dir => path( app->location , 'static' );
 
 When you modify default public_dir you have to set C<static_handler> option.
 
