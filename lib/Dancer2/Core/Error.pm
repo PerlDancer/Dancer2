@@ -9,6 +9,7 @@ use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Sub::Quote;
 use Module::Runtime 'require_module';
+use Scalar::Util 'reftype';
 
 has app => (
     is        => 'ro',
@@ -425,17 +426,24 @@ sub _censor {
 
     my $censored = 0;
     for my $key ( keys %$hash ) {
-        if ( ref $hash->{$key} eq 'HASH' ) {
+        if (
+            (ref $hash->{$key} eq 'HASH')
+                or
+            ((reftype($hash->{$key}) || '') eq 'HASH')
+        ) {
             # Take a copy of the data, so we can hide sensitive-looking stuff:
             $hash->{$key} = { %{ $hash->{$key} } };
             $censored += _censor( $hash->{$key} );
         }
-        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
+        elsif (
+            ($key =~ /(pass|card?num|pan|secret)/i )
+                or
+            ( defined($hash->{$key}) and $hash->{$key} =~ /(pass|card?num|pan|secret)=/i )
+        ) {
             $hash->{$key} = "Hidden (looks potentially sensitive)";
             $censored++;
         }
     }
-
     return $censored;
 }
 
