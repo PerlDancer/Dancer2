@@ -85,6 +85,10 @@ For example:
 For an example of a skeleton directory check the default one available in
 the C<share/> directory of your Dancer2 distribution.
 
+(In what follows we will refer to the directory in which you have created your
+Dancer2 application -- I<e.g.,> what C<mywebapp> was above -- as the
+C<appdir>.)
+
 Because Dancer2 is a L<PSGI> web application framework, you can use the
 C<plackup> tool (provided by L<Plack>) for launching the application:
 
@@ -1186,8 +1190,8 @@ to render templates.
 
 =head2 Views
 
-It's possible to render the action's content with a template, this is called
-a view. The C<appdir/views> directory is the place where views are located.
+In Dancer2, a file which holds a template is called a I<view>.  Views are
+located in the C<appdir/views> directory.
 
 You can change this location by changing the setting 'views'. For instance
 if your templates are located in the 'templates' directory, do the
