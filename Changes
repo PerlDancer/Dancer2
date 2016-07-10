@@ -13,6 +13,8 @@
     * Fix POD syntax error. (Nuno Carvalho)
     * Fix Manual error. (James E Keenan)
     * Move documentation index to dancer2. (Alan Berndt)
+    * GH #1209: Clean up examples for 'set views' and 'set public_dir'
+      in Dancer2::Manual (James E Keenan)
 
 0.200003  2016-07-05 14:34:34-05:00 America/Chicago
 
