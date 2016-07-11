@@ -1,36 +1,28 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * PR #1198: Session::YAML should not accept bad session cookie value 
+      from client (Peter Mottram)
+    * Require minimum version of YAML of 0.86 (to satisfy GH #899) and a 
+      maximum version of YAML 1.15. YAML 1.16 causes test failures as
+      reported by CPAN Testers.
     * Remove session test data from builds. (Peter Mottram)
 
     [ ENHANCEMENTS ]
+    * Require minimum version of ExtUtils::MakeMaker of 7.1101 to support 
+      a range of prereq version numbers (rjbs, Jason Crome, Sawyer X)
     * GH #1188: Add error message to open_file (exercism-1)
     * Support showing private variables in templates under
       Template::Toolkit. (Alberto Simões)
 
     [ DOCUMENTATION ]
+    * GH #1193: Spelling correction (Gregor Herrmann)
     * Fix typo of config option in Pod. (Nuno Carvalho)
     * Fix POD syntax error. (Nuno Carvalho)
     * Fix Manual error. (James E Keenan)
     * Move documentation index to dancer2. (Alan Berndt)
     * GH #1209: Clean up examples for 'set views' and 'set public_dir'
       in Dancer2::Manual (James E Keenan)
-
-0.200003  2016-07-05 14:34:34-05:00 America/Chicago
-
-    [ BUG FIXES ]
-    * PR #1198: Session::YAML should not accept bad session cookie value 
-      from client (Peter Mottram)
-    * Require minimum version of YAML of 0.86 (to satisfy GH #899) and a 
-      maximum version of YAML 1.15. YAML 1.16 causes test failures as
-      reported by CPAN Testers.
-
-    [ ENHANCEMENTS ]
-    * Require minimum version of ExtUtils::MakeMaker of 7.1101 to support 
-      a range of prereq version numbers (rjbs, Jason Crome, Sawyer X)
-
-    [ DOCUMENTATION ]
-    * GH #1193: Spelling correction (Gregor Herrmann)
 
 0.200002  2016-06-22 16:39:13+02:00 Europe/Amsterdam
 
