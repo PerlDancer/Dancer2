@@ -2,7 +2,7 @@ package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
 
 use Moo;
-use JSON ();
+use JSON::MaybeXS ();
 use Scalar::Util 'blessed';
 
 with 'Dancer2::Core::Role::Serializer';
@@ -10,7 +10,7 @@ with 'Dancer2::Core::Role::Serializer';
 has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
-sub from_json { __PACKAGE__-> deserialize(@_) }
+sub from_json { __PACKAGE__->deserialize(@_) }
 
 sub to_json { __PACKAGE__->serialize(@_) }
 
@@ -25,15 +25,14 @@ sub serialize {
     }
 
     $options->{utf8} = 1 if !defined $options->{utf8};
-
-    JSON::to_json( $entity, $options );
+    JSON::MaybeXS->new($options)->encode($entity);
 }
 
 sub deserialize {
     my ( $self, $entity, $options ) = @_;
 
     $options->{utf8} = 1 if !defined $options->{utf8};
-    JSON::from_json( $entity, $options );
+    JSON::MaybeXS->new($options)->decode($entity);
 }
 
 1;
