@@ -79,24 +79,6 @@ complete outline on where to go for help.
     [Dancer2::Manual::Migration](https://metacpan.org/pod/Dancer2::Manual::Migration) provides the most up-to-date instruction on
     how to convert a Dancer (1) based application to Dancer2.
 
-# METHODS
-
-## import;
-
-If it doesn't exist already, `import` creates a new runner, imports strict
-and warnings, loads additional libraries, creates a new Dancer2 app (of type
-[Dancer2::Core::App](https://metacpan.org/pod/Dancer2::Core::App)) and exports the DSL symbols to the caller.
-
-If any additional argument processing is needed, it will be done at this point.
-
-Import gets called when you use Dancer2. You can specify import options giving
-you control over the keywords that will be imported into your webapp and other
-things:
-
-    use Dancer2 '!quux'; # Don't import DSL keyword quux
-    use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
-    use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
-
 # FUNCTIONS
 
 ## my $runner=runner();
