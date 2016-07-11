@@ -219,7 +219,7 @@ match will be set in the params hashref.
     get '/hello/:name' => sub {
         "Hey ".param('name').", welcome here!";
         # or
-        "Hey " . query_parameters->get('name') . ", welcome here!";
+        "Hey " . route_parameters->get('name') . ", welcome here!";
     };
 
 Tokens can be optional, for example:
