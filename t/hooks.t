@@ -5,7 +5,7 @@ use File::Spec;
 use Plack::Test;
 use HTTP::Request::Common;
 use Capture::Tiny 0.12 'capture_stderr';
-use JSON;
+use JSON::MaybeXS;
 
 eval { require Template; 1; }
     or plan skip_all => 'Template::Toolkit not present';
