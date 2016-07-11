@@ -5,7 +5,7 @@ use Dancer2::Core::Error;
 use Dancer2::Core::Response;
 use Dancer2::Serializer::JSON;
 use HTTP::Headers::Fast;
-use JSON;
+use JSON::MaybeXS;
 
 subtest 'Core::Error serializer isa tests' => sub {
     plan tests => 5;

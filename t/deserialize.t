@@ -61,7 +61,7 @@ subtest 'PUT request with parameters' => sub {
 
 my $app = App->to_app;
 use utf8;
-use JSON;
+use JSON::MaybeXS;
 use Encode;
 use Module::Runtime 'use_module';
 

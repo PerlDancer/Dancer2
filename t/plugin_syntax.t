@@ -3,7 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
-use JSON;
+use JSON::MaybeXS;
 
 subtest 'global and route keywords' => sub {
     {

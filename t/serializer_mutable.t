@@ -6,7 +6,7 @@ use Dancer2::Serializer::Mutable;
 use Plack::Test;
 use HTTP::Request::Common;
 use Encode;
-use JSON;
+use JSON::MaybeXS;
 use YAML;
 
 {
@@ -42,7 +42,7 @@ test_psgi $app, sub {
             },
         json    => {
                 types       => [ qw(text/x-json application/json) ],
-                value       => JSON::to_json({ bar => 'baz' }),
+                value       => JSON::MaybeXS::to_json({ bar => 'baz' }),
                 last_val    => '{"bar":"baz"}',
             },
     };

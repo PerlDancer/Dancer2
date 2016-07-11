@@ -3,7 +3,7 @@ use warnings;
 use Test::More tests=>1;
 use Plack::Test;
 use HTTP::Request::Common;
-use JSON;
+use JSON::MaybeXS;
 
 {
 
