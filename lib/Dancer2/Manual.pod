@@ -202,8 +202,8 @@ block provided should be executed.
 =head3 Retrieving request parameters
 
 The L<params|Dancer2::Manual/params> keyword returns a hashref of request
-parameters; these will be parameters supplied on the query string within
-the path itself (with named placeholders) and, for HTTP POST requests, the
+parameters; these will be parameters supplied a) on the query string, b) within
+the path itself (with named placeholders) and c), for HTTP POST requests, the
 content of the POST body.
 
 The L<query_parameters|Dancer2::Manual/query_parameters> keyword provides

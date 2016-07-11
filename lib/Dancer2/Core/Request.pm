@@ -877,9 +877,15 @@ If called in list context, returns a list of key and value pairs, so you could u
 
     my %allparams = params;
 
+Parameters are merged in the following order: query, body, route - i.e. route
+parameters have the highest priority.
+
 =method parameters
 
 Returns a L<Hash::MultiValue> object with merged GET and POST parameters.
+
+Parameters are merged in the following order: query, body, route - i.e. route
+parameters have the highest priority.
 
 =method path
 
