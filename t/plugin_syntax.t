@@ -45,7 +45,7 @@ subtest 'global and route keywords' => sub {
 
         is(
             $cb->( GET '/plugin_setting' )->content,
-            encode_json( { plugin => "42" } ),
+            encode_json( { plugin => 42 } ),
             'plugin_setting returned the expected config'
         );
 
