@@ -191,9 +191,9 @@ method(s) it is valid for, the path it matches (e.g. C</foo/bar>), and a
 coderef to execute, which returns the response.
 
     get '/hello/:name' => sub {
+          return "Hi there " . route_parameters->get('name');
+        # or, in Dancer1 style:
         return "Hi there " . params->{name};
-        # or better:
-        return "Hi there " . route_parameters->get('name');
     };
 
 The above route specifies that, for GET requests to C</hello/...>, the code
@@ -206,20 +206,23 @@ parameters; these will be parameters supplied a) on the query string, b) within
 the path itself (with named placeholders) and c), for HTTP POST requests, the
 content of the POST body.
 
-The L<query_parameters|Dancer2::Manual/query_parameters> keyword provides
-a L<Hash::MultiValue> result from the request parameters. It is considered
-much safer and is recommended instead of C<params>.
+The L<query_parameters|Dancer2::Manual/query_parameters>,
+L<route_parameters|Dancer2::Manual/route_parameters>, and
+L<body_parameters|Dancer2::Manual/body_parameters> keywords provide
+a L<Hash::MultiValue> result from the three different parameters.
+We recommend you use these instead of C<params>, and consider them much safer
+(see L<Dancer2::Manual/params> for details).
 
 =head3 Named matching
 
 A route pattern can contain one or more tokens (a word prefixed with ':').
 Each token found in a route pattern is used as a named-pattern match. Any
-match will be set in the params hashref.
+match will be set in the route parameters.
 
     get '/hello/:name' => sub {
-        "Hey ".param('name').", welcome here!";
-        # or
         "Hey " . route_parameters->get('name') . ", welcome here!";
+        # or
+        "Hey " . param('name') . ", welcome here!";
     };
 
 Tokens can be optional, for example:
