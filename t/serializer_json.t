@@ -48,7 +48,7 @@ my @tests = (
 my $app = MyApp->to_app;
 
 for my $test (@tests) {
-    my $expected = JSON::MaybeXS::to_json( $test->{entity}, $test->{options} );
+    my $expected = JSON::MaybeXS->new($test->{options})->encode($test->{entity});
 
     # Helpers pass options
     my $actual =

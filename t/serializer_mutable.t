@@ -42,7 +42,7 @@ test_psgi $app, sub {
             },
         json    => {
                 types       => [ qw(text/x-json application/json) ],
-                value       => JSON::MaybeXS::to_json({ bar => 'baz' }),
+                value       => JSON::MaybeXS::encode_json({ bar => 'baz' }),
                 last_val    => '{"bar":"baz"}',
             },
     };
