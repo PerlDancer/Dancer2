@@ -44,8 +44,8 @@ subtest 'global and route keywords' => sub {
         );
 
         is(
-            $cb->( GET '/plugin_setting' )->content,
-            encode_json( { plugin => 42 } ),
+            _normalize($cb->( GET '/plugin_setting' )->content),
+            _normalize(encode_json( { plugin => '42' } )),
             'plugin_setting returned the expected config'
         );
 
@@ -169,5 +169,15 @@ subtest 'hooks in plugins' => sub {
     };
 };
 
+sub _normalize {
+  my ($json) = @_;
+
+  my $data = decode_json($json);
+  foreach (keys %$data) {
+    $data->{$_} = $data->{$_} * 1 if ($data->{$_} =~ m/^\d+$/);
+  }
+
+  return encode_json($data);
+}
 
 done_testing;
