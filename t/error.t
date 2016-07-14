@@ -9,7 +9,7 @@ use Dancer2::Core::Response;
 use Dancer2::Core::Request;
 use Dancer2::Core::Error;
 
-use JSON (); # Error serialization
+use JSON::MaybeXS qw/JSON/; # Error serialization
 
 my $env = {
     'psgi.url_scheme' => 'http',

@@ -61,7 +61,7 @@ subtest 'PUT request with parameters' => sub {
 
 my $app = App->to_app;
 use utf8;
-use JSON;
+use JSON::MaybeXS;
 use Encode;
 use Module::Runtime 'use_module';
 
@@ -132,7 +132,7 @@ note "Decoding of mixed route and deserialized body params"; {
         my @req_params = (
             "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
             'Content-Type' => 'application/json',
-            Content        => JSON::to_json({ population => 592393 }),
+            Content        => JSON::MaybeXS::encode_json({ population => 592393 }),
         );
 
         my $r = $cb->( POST @req_params );
@@ -159,7 +159,7 @@ note "Deserialze any body content that is allowed or undefined"; {
                 $method,
                 "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
                 [ 'Content-Type' => 'application/json' ],
-                JSON::to_json({ population => 592393 }),
+                JSON::MaybeXS::encode_json({ population => 592393 }),
             );
             my $response = $cb->($request);
             my $content  = Encode::decode( 'UTF-8', $response->content );
