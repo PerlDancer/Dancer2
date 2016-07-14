@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use JSON::MaybeXS;
 
 use Dancer2::Serializer::JSON;
 
@@ -47,7 +48,7 @@ my @tests = (
 my $app = MyApp->to_app;
 
 for my $test (@tests) {
-    my $expected = JSON::to_json( $test->{entity}, $test->{options} );
+    my $expected = JSON::MaybeXS->new($test->{options})->encode($test->{entity});
 
     # Helpers pass options
     my $actual =
