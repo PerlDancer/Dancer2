@@ -3,6 +3,8 @@
     [ BUG FIXES ]
 
     [ ENHANCEMENTS ]
+    * GH #900: Switch from to_json to encode/encode_json (Nuno Ramos Carvalho)
+    * GH #1196: Move serializer from JSON to JSON::MaybeXS (Nuno Ramos Carvalho)
 
     [ DOCUMENTATION ]
     * PR #1213: Clarify params merging docs and related examples
