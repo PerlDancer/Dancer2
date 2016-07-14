@@ -246,6 +246,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     cym0n
     Dale Gallagher
     Daniel Muey
+    Daniel Perrett
     David Steinbrunner
     David Zurborg
     Davs

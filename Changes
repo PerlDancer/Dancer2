@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+
+    [ ENHANCEMENTS ]
+
+    [ DOCUMENTATION ]
+    * PR #1213: Clarify params merging docs and related examples
+      (Daniel Perrett)
+
 0.200003  2016-07-11 17:17:57+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]

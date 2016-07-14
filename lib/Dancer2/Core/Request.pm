@@ -877,9 +877,54 @@ If called in list context, returns a list of key and value pairs, so you could u
 
     my %allparams = params;
 
+Parameters are merged in the following order: query, body, route - i.e. route
+parameters have the highest priority:
+
+    POST /hello/Ruth?name=Quentin
+
+    name=Bobbie
+
+    post '/hello/:name' => sub {
+        return "Hello, " . route_parameters->get('name') . "!"; # returns Ruth
+        return "Hello, " . query_parameters->get('name') . "!"; # returns Quentin
+        return "Hello, " . body_parameters->get('name') . "!";  # returns Bobbie
+        return "Hello, " . param('name') . "!";                 # returns Ruth
+    };
+
+The L</query_parameters>, L</route_parameters>, and L</body_parameters> keywords
+provide a L<Hash::MultiValue> result from the three different parameters.
+We recommend using these rather than C<params>, because of the potential for
+unintentional behaviour - consider the following request and route handler:
+
+    POST /artist/104/new-song
+
+    name=Careless Dancing
+
+    post '/artist/:id/new-song' => sub {
+      find_artist(param('id'))->create_song(params);
+      # oops! we just passed id into create_song,
+      # but we probably only intended to pass name
+      find_artist(param('id'))->create_song(body_parameters);
+    };
+
+    POST /artist/104/join-band
+
+    id=4
+    name=Dancing Misfits
+
+    post '/artist/:id/new-song' => sub {
+      find_artist(param('id'))->join_band(params);
+      # oops! we just passed an id of 104 into join_band,
+      # but we probably should have passed an id of 4
+    };
+
 =method parameters
 
 Returns a L<Hash::MultiValue> object with merged GET and POST parameters.
+
+Parameters are merged in the following order: query, body, route - i.e. route
+parameters have the highest priority - see L</params> for how this works, and
+associated risks and alternatives.
 
 =method path
 
