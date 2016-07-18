@@ -59,7 +59,7 @@ sub execute {
     my ($self, $opt, $args) = @_;
     $self->_version_check() unless $opt->{'no_check'};
 
-    my $dist_dir = $ENV{DANCER2_SHARE_DIR} || dist_dir('Dancer2');
+    my $dist_dir = dist_dir('Dancer2');
     my $skel_dir = $opt->{skel} || catdir($dist_dir, 'skel');
     -d $skel_dir or die "$skel_dir doesn't exist";
 
