@@ -5,6 +5,7 @@
     [ ENHANCEMENTS ]
     * GH #900: Switch from to_json to encode/encode_json (Nuno Ramos Carvalho)
     * GH #1196: Move serializer from JSON to JSON::MaybeXS (Nuno Ramos Carvalho)
+    * GH #1215: Remove unused DANCER2_SHARE_DIR env variable (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * PR #1213: Clarify params merging docs and related examples
