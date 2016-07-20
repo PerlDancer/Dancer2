@@ -865,6 +865,29 @@ For example:
         from_config => sub { 'See ya!' },
     );
 
+=head3 Config becomes immutable
+
+The plugin's C<config> attribute is loaded lazily on the first call to
+C<config>. After this first call C<config> becomes immutable so you cannot
+do the following in a test:
+
+    use Dancer2;
+    use Dancer2::Plugin::FooBar;
+
+    set plugins => {
+        FooBar => {
+            wibble => 1,  # this is OK
+        },
+    };
+
+    flibble(45);          # plugin keyword called which causes config read
+    
+    set plugins => {
+        FooBar => {
+            wibble => 0,  # this will NOT change plugin config
+        },
+    };
+
 =head3 Accessing the parent Dancer app
 
 If the plugin is instantiated within a Dancer app, it'll be
