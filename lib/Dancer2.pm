@@ -210,6 +210,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Franck Cuny
     Jason A. Crome
     Mickey Nasriachi
+    Peter Mottram (SysPete)
     Russell Jenkins
     Sawyer X
     Stefan Hornburg (Racke)
@@ -305,7 +306,6 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Paul Cochrane
     Pedro Bruno
     Pedro Melo
-    Peter Mottram
     Philippe Bricout
     Ricardo Signes
     Rick Yakubowski
