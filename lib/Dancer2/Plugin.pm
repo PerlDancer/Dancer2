@@ -463,7 +463,17 @@ sub register_plugin {
 
     my $_DANCER2_IMPORT_TIME_SUBS = $plugin_module->_DANCER2_IMPORT_TIME_SUBS;
     unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
-                foreach my $keyword ( keys %{$_[0]->app->name->dsl->dsl_keywords} ) {
+                my $app_dsl_cb;
+                ## no critic qw(ControlStructures::ProhibitCStyleForLoops)
+                for ( my $i = 0; my $caller = caller($i); $i++ ) {
+                    $app_dsl_cb = $caller->can('dsl')
+                        and last;
+                }
+
+                $app_dsl_cb
+                    or croak('Could not find Dancer2 app');
+
+                foreach my $keyword ( keys %{ $app_dsl_cb->()->dsl_keywords} ) {
                     # if not yet defined, inject the keyword in the plugin
                     # namespace, but make sure the code will always get the
                     # coderef from the right associated app, because one plugin
