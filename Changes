@@ -15,6 +15,9 @@
     * Add Peter Mottram (@SysPete) to list of core developers. (Russell Jenkins)
     * PR #1208: Introduce appdir before it's used; simplify description of what
       a view is (James E Keenan)
+    * GH #1218: By request, remove David Golden from list of core developers. 
+      Created "emeritus" section to honor the contributions of former core 
+      developers. Thanks, xdg!
 
 0.200003  2016-07-11 17:17:57+02:00 Europe/Amsterdam
 
