@@ -410,12 +410,10 @@ sub _decode {
     if ( !ref($h) && !utf8::is_utf8($h) ) {
         return decode( 'UTF-8', $h );
     }
-
-    if ( ref($h) eq 'HASH' ) {
+    elsif ( ref($h) eq 'HASH' ) {
         return { map {my $t = _decode($_); $t} (%$h) };
     }
-
-    if ( ref($h) eq 'ARRAY' ) {
+    elsif ( ref($h) eq 'ARRAY' ) {
         return [ map _decode($_), @$h ];
     }
 
