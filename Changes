@@ -13,6 +13,8 @@
     * PR #1213: Clarify params merging docs and related examples
       (Daniel Perrett)
     * Add Peter Mottram (@SysPete) to list of core developers. (Russell Jenkins)
+    * PR #1208: Introduce appdir before it's used; simplify description of what
+      a view is (James E Keenan)
 
 0.200003  2016-07-11 17:17:57+02:00 Europe/Amsterdam
 
