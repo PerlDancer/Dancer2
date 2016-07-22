@@ -205,7 +205,6 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Alberto Simões
     Alexis Sukrieh
     Damien Krotkine
-    David Golden
     David Precious
     Franck Cuny
     Jason A. Crome
@@ -216,6 +215,10 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Stefan Hornburg (Racke)
     Steven Humphrey
     Yanick Champoux
+
+=head2 CORE DEVELOPERS EMERITUS
+
+    David Golden
 
 =head2 CONTRIBUTORS
 
