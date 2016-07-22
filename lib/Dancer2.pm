@@ -287,6 +287,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Lennart Hengstmengel
     Ludovic Tolhurst-Cleaver
     Mark A. Stratman
+    Masaaki Saito
     Mateu X Hunter
     Matt Phillips
     Matt S Trout

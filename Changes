@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * GH #1216: Make DSL work in edge-case of plugins calling DSL before the
       app class loaded Dancer2. (Sawyer X)
+    * GH #1210: Show proper module/line number in log output (Masaaki Saito)
 
     [ ENHANCEMENTS ]
     * GH #900: Switch from to_json to encode/encode_json (Nuno Ramos Carvalho)
