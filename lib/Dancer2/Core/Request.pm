@@ -416,6 +416,9 @@ sub _decode {
     elsif ( ref($h) eq 'ARRAY' ) {
         return [ map _decode($_), @$h ];
     }
+    elsif ( ref($h) eq 'Hash::MultiValue' ) {
+        return Hash::MultiValue->from_mixed(_decode($h->as_hashref_mixed));
+    }
 
     return $h;
 }
