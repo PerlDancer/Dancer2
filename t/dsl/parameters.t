@@ -3,13 +3,13 @@ use warnings;
 use utf8;
 use Test::More;
 use Plack::Test;
+use Encode 'encode_utf8';
 use HTTP::Request::Common;
 
 subtest 'Query parameters' => sub {
     {
         package App::Basic; ## no critic
         use Dancer2;
-        use Encode 'encode_utf8';
         get '/' => sub {
             my $params = query_parameters;
             ::isa_ok(
@@ -33,8 +33,8 @@ subtest 'Query parameters' => sub {
 
             ::is(
                 $params->get('baz'),
-                encode_utf8('הלו'),
-                'HMV interface returns decoded values',
+                'הלו',
+                'HMV interface returns encoded values',
             );
 
             ::is(
@@ -75,12 +75,25 @@ subtest 'Body parameters' => sub {
                 ['baz', 'quux'],
                 'Got multi value from multi key',
             );
+
+            ::is(
+                $params->get('baz'),
+                'הלו',
+                'HMV interface returns encoded values',
+            );
+
+            ::is(
+                params->{'baz'},
+                'הלו',
+                'Regular interface returns encoded values'
+            );
         };
     }
 
     my $app = Plack::Test->create( App::Body->to_app );
     my $res = $app->request(
-        POST '/', Content => [ foo => 'bar', bar => 'baz', bar => 'quux' ]
+        POST '/',
+        Content => [foo => 'bar', bar => 'baz', bar => 'quux', baz => 'הלו']
     );
     ok( $res->is_success, 'Successful request' );
 };
@@ -112,13 +125,26 @@ subtest 'Body parameters with serialized data' => sub {
                 'Got multi value from multi key',
             );
 
+            ::is(
+                $params->get('baz'),
+                'הלו',
+                'HMV interface returns encoded values',
+            );
+
+            ::is(
+                params->{'baz'},
+                'הלו',
+                'Regular interface returns encoded values'
+            );
+
             return { ok => 1 };
         };
     }
 
     my $app = Plack::Test->create( App::Body::JSON->to_app );
+    my $baz = encode_utf8('הלו');
     my $res = $app->request(
-        POST '/', Content => '{"foo":"bar","bar":["baz","quux"]}'
+        POST '/', Content => qq{{"foo":"bar","bar":["baz","quux"],"baz":"$baz"}}
     );
     ok( $res->is_success, 'Successful request' );
 };
@@ -147,7 +173,12 @@ subtest 'Route parameters' => sub {
             );
 
             ::is( $params->get('name'), 'foo', 'Got first value' );
-            ::is( $params->get('value'), 'bar', 'Got second value' );
+            ::is( $params->get('value'), 'הלו', 'Got second value' );
+            ::is(
+                params->{'value'},
+                'הלו',
+                'Regular interface returns encoded values'
+            );
         };
     }
 
@@ -159,7 +190,7 @@ subtest 'Route parameters' => sub {
     }
 
     {
-        my $res = $app->request( GET '/foo/bar' );
+        my $res = $app->request( GET '/foo/הלו' );
         ok( $res->is_success, 'Successful request' );
     }
 };
