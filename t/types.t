@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 51;
+use Test::More tests => 46;
 use Test::Fatal;
 use Dancer2::Core::Types;
 
@@ -11,7 +11,7 @@ is( exception { Str->('something') }, undef, 'Str', );
 
 like(
     exception { Str->( { foo => 'something' } ) },
-    qr{Reference.+foo.+something.+did not pass type constraint.+Str}, 'Str',
+    qr{HASH\(\w+\) is not a string}, 'Str',
 );
 
 is( exception { Num->(34) }, undef, 'Num', );
@@ -20,7 +20,7 @@ ok( exception { Num->(undef) }, 'Num does not accept undef value', );
 
 like(
     exception { Num->('not a number') },
-    qr{not a number.+did not pass type constraint.+Num},
+    qr{(?i:not a number is not a Number)},
     'Num fail',
 );
 
@@ -30,17 +30,13 @@ is( exception { Bool->(0) }, undef, 'Bool false value', );
 
 is( exception { Bool->(undef) }, undef, 'Bool does accepts undef value', );
 
-like(
-    exception { Bool->('2') },
-    qr{2.+did not pass type constraint.+Bool},
-    'Bool fail',
-);
+like( exception { Bool->('2') }, qr{2 is not a Boolean}, 'Bool fail', );
 
 is( exception { RegexpRef->(qr{.*}) }, undef, 'Regexp', );
 
 like(
     exception { RegexpRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint.+RegexpRef},
+    qr{\Q/.*/\E is not a RegexpRef},
     'Regexp fail',
 );
 
@@ -50,7 +46,7 @@ is( exception { HashRef->( { goo => 'le' } ) }, undef, 'HashRef', );
 
 like(
     exception { HashRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint.+HashRef},
+    qr{\Q/.*/\E is not a HashRef},
     'HashRef fail',
 );
 
@@ -60,7 +56,7 @@ is( exception { ArrayRef->( [ 1, 2, 3, 4 ] ) }, undef, 'ArrayRef', );
 
 like(
     exception { ArrayRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint.+ArrayRef},
+    qr{\Q/.*/\E is not an ArrayRef},
     'ArrayRef fail',
 );
 
@@ -75,7 +71,7 @@ is( exception {
 
 like(
     exception { CodeRef->('/.*/') },
-    qr{\Q/.*/\E.+did not pass type constraint.+CodeRef},
+    qr{\Q/.*/\E is not a CodeRef},
     'CodeRef fail',
 );
 
@@ -85,7 +81,7 @@ ok( exception { CodeRef->(undef) }, 'CodeRef does not accept undef value', );
 
     package InstanceChecker::zad7;
     use Moo;
-    use Dancer2::Core::Types qw/InstanceOf/;
+    use Dancer2::Core::Types;
     has foo => ( is => 'ro', isa => InstanceOf ['Foo'] );
 }
 
@@ -95,7 +91,7 @@ is( exception { InstanceChecker::zad7->new( foo => bless {}, 'Foo' ) },
 
 like(
     exception { InstanceChecker::zad7->new( foo => bless {}, 'Bar' ) },
-    qr{Reference bless.+Bar.+not isa Foo},
+    qr{Bar=HASH\(\w+\) is not an instance of the class: Foo},
     'InstanceOf fail',
 );
 
@@ -107,14 +103,14 @@ is( exception { Dancer2Prefix->('/foo') }, undef, 'Dancer2Prefix', );
 
 like(
     exception { Dancer2Prefix->('bar/something') },
-    qr{bar/something.+did not pass type constraint.+Dancer2Prefix},
+    qr{bar/something is not a Dancer2Prefix},
     'Dancer2Prefix fail',
 );
 
 # see Dancer2Prefix definition, undef is a valid value
 like(
     exception { Dancer2Prefix->(undef) },
-    qr/Undef.+did not pass type constraint.+Dancer2Prefix/,
+    qr/undef is not a Dancer2Prefix/,
     'Dancer2Prefix does not accept undef value',
 );
 
@@ -181,7 +177,7 @@ is( exception { Dancer2Method->('post') }, undef, 'Dancer2Method', );
 
 like(
     exception { Dancer2Method->('POST') },
-    qr{POST.+did not pass type constraint.+Dancer2Method},
+    qr{POST is not a Dancer2Method},
     'Dancer2Method fail',
 );
 
@@ -193,34 +189,10 @@ is( exception { Dancer2HTTPMethod->('POST') }, undef, 'Dancer2HTTPMethod', );
 
 like(
     exception { Dancer2HTTPMethod->('post') },
-    qr{post.+did not pass type constraint.+Dancer2HTTPMethod},
+    qr{post is not a Dancer2HTTPMethod},
     'Dancer2HTTPMethod fail',
 );
 
 ok( exception { Dancer2HTTPMethod->(undef) },
     'Dancer2Method does not accept undef value',
 );
-
-use Dancer2::Core::Error;
-use Dancer2::Core::Hook;
-
-ok( exception { Hook->(undef) }, 'Hook does not accept undef value' );
-
-ok(exception { Hook->(Dancer2::Core::Error->new) },
-    'Hook does not Core::Error as value');
-
-is( exception {
-        Hook->(Dancer2::Core::Hook->new(name => 'test', code => sub { }))
-    },
-    undef,
-    'Hook',
-);
-
-is(exception { ReadableFilePath->('t') }, undef, 'ReadableFilePath');
-
-like(
-    exception { ReadableFilePath->('nosuchdirectory') },
-    qr/nosuchdirectory.+did not pass type constraint.+ReadableFilePath/,
-    'ReadableFilePath'
-);
-
