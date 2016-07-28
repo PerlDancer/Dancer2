@@ -123,8 +123,6 @@ for my $type (
               && blessed( $_[0] )
               && ref( $_[0] ) eq 'Dancer2::Core::' . $type;
         },
-        message =>
-          sub {"The value `$_[0]' does not pass the constraint check."},
         inflate => 0,
     };
 }
