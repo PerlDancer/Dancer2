@@ -19,6 +19,7 @@ with 'Dancer2::Core::Role::Hookable';
 
 has app => (
     is       => 'ro',
+    weak_ref => 1,
     required => 1,
 );
 
