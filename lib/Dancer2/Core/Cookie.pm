@@ -8,17 +8,51 @@ use Dancer2::Core::Time;
 use Carp 'croak';
 use overload '""' => \&_get_value;
 
-sub to_header {
+BEGIN {
+    my $try_xs =
+        exists($ENV{PERL_HTTP_XSCOOKIES}) ? !!$ENV{PERL_HTTP_XSCOOKIES} :
+        exists($ENV{PERL_ONLY})           ?  !$ENV{PERL_ONLY} :
+        1;
+
+    my $use_xs = 0;
+    $try_xs and eval {
+        require HTTP::XSCookies;
+        $use_xs++;
+    };
+    if ( $use_xs ) {
+        *to_header = \&xs_to_header;
+    }
+    else {
+        *to_header = \&pp_to_header;
+    }
+    *_USE_XS = $use_xs ? sub () { !!1 } : sub () { !!0 };
+}
+
+sub xs_to_header {
+    my $self = shift;
+
+    return HTTP::XSCookies::bake_cookie(
+        $self->name,
+        {   value    => join('&', $self->value),
+            path     => $self->path,
+            domain   => $self->domain,
+            expires  => $self->expires,
+            httponly => $self->http_only,
+            secure   => $self->secure,
+        }
+    );
+}
+
+sub pp_to_header {
     my $self   = shift;
-    my $header = '';
 
     my $value = join( '&', map uri_escape($_), $self->value );
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
-    push @headers, "path=" . $self->path       if $self->path;
-    push @headers, "expires=" . $self->expires if $self->expires;
-    push @headers, "domain=" . $self->domain   if $self->domain;
+    push @headers, "Path=" . $self->path       if $self->path;
+    push @headers, "Expires=" . $self->expires if $self->expires;
+    push @headers, "Domain=" . $self->domain   if $self->domain;
     push @headers, "Secure"                    if $self->secure;
     push @headers, 'HttpOnly' unless $no_httponly;
 
