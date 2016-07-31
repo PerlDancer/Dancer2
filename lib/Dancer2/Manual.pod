@@ -1837,7 +1837,6 @@ Add a requirement using the L<cpanfile> format:
      recommends 'URL::Encode::XS' => 0;
      recommends 'CGI::Deurl::XS' => 0;
      recommends 'HTTP::Parser::XS' => 0;
-     recommends 'Type::Tiny::XS' => 0;
 
 Ask carton to set it up:
 

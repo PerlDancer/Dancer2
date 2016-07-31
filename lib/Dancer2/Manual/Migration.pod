@@ -109,8 +109,6 @@ for details.
 
 =item * L<Scope::Upper>
 
-=item * L<Type::Tiny::XS>
-
 =back
 
 They would need to be installed separately. This is because L<Dancer2> does
