@@ -37,40 +37,41 @@ Dancer2 and prereqs into C<~/perl5>.)
 
 Create a web application using the dancer script:
 
-    $ dancer2 -a mywebapp && cd mywebapp
-    + mywebapp
-    + mywebapp/Makefile.PL
-    + mywebapp/config.yml
-    + mywebapp/cpanfile
-    + mywebapp/MANIFEST.SKIP
-    + mywebapp/environments
-    + mywebapp/environments/development.yml
-    + mywebapp/environments/production.yml
-    + mywebapp/bin
-    + mywebapp/bin/app.pl
-    + mywebapp/public
-    + mywebapp/public/dispatch.fcgi
-    + mywebapp/public/dispatch.cgi
-    + mywebapp/public/500.html
-    + mywebapp/public/404.html
-    + mywebapp/public/favicon.ico
-    + mywebapp/public/javascripts
-    + mywebapp/public/javascripts/jquery.js
-    + mywebapp/public/images
-    + mywebapp/public/images/perldancer-bg.jpg
-    + mywebapp/public/images/perldancer.jpg
-    + mywebapp/public/css
-    + mywebapp/public/css/error.css
-    + mywebapp/public/css/style.css
-    + mywebapp/views
-    + mywebapp/views/index.tt
-    + mywebapp/views/layouts
-    + mywebapp/views/layouts/main.tt
-    + mywebapp/lib
-    + mywebapp/lib/mywebapp.pm
-    + mywebapp/t
-    + mywebapp/t/001_base.t
-    + mywebapp/t/002_index_route.t
+    $ dancer2 -a MyApp && cd MyApp
+    + MyApp
+    + MyApp/config.yml
+    + MyApp/Makefile.PL
+    + MyApp/MANIFEST.SKIP
+    + MyApp/.dancer
+    + MyApp/cpanfile
+    + MyApp/bin
+    + MyApp/bin/app.psgi
+    + MyApp/environments
+    + MyApp/environments/development.yml
+    + MyApp/environments/production.yml
+    + MyApp/lib
+    + MyApp/lib/MyApp.pm
+    + MyApp/public
+    + MyApp/public/favicon.ico
+    + MyApp/public/500.html
+    + MyApp/public/dispatch.cgi
+    + MyApp/public/404.html
+    + MyApp/public/dispatch.fcgi
+    + MyApp/public/css
+    + MyApp/public/css/error.css
+    + MyApp/public/css/style.css
+    + MyApp/public/images
+    + MyApp/public/images/perldancer.jpg
+    + MyApp/public/images/perldancer-bg.jpg
+    + MyApp/public/javascripts
+    + MyApp/public/javascripts/jquery.js
+    + MyApp/t
+    + MyApp/t/001_base.t
+    + MyApp/t/002_index_route.t
+    + MyApp/views
+    + MyApp/views/index.tt
+    + MyApp/views/layouts
+    + MyApp/views/layouts/main.tt
 
 It creates a directory named after the name of the app, along with a
 configuration file, a views directory (where your templates and layouts
@@ -80,13 +81,13 @@ a script to start it. A default skeleton is used to bootstrap the new
 application, but you can use the C<-s> option to provide another skeleton.
 For example:
 
-    $ dancer2 -a mywebapp -s ~/mydancerskel
+    $ dancer2 -a MyApp -s ~/mydancerskel
 
 For an example of a skeleton directory check the default one available in
 the C<share/> directory of your Dancer2 distribution.
 
 (In what follows we will refer to the directory in which you have created your
-Dancer2 application -- I<e.g.,> what C<mywebapp> was above -- as the
+Dancer2 application -- I<e.g.,> what C<MyApp> was above -- as the
 C<appdir>.)
 
 Because Dancer2 is a L<PSGI> web application framework, you can use the
@@ -1930,7 +1931,7 @@ L<Plack::Builder> as such:
 
     # in app.psgi or any other handler
     use Dancer2;
-    use MyWebApp;
+    use MyApp;
     use Plack::Builder;
 
     builder {
@@ -1958,7 +1959,7 @@ L<Plack::Builder> which uses L<Plack::App::URLMap>:
 
     # in your app.psgi or any other handler
     use Dancer2;
-    use MyWebApp;
+    use MyApp;
     use Plack::Builder;
 
     my $special_handler = sub { ... };
@@ -2011,7 +2012,7 @@ install L<Plack::Middleware::Deflater>, then in the handler (usually
 F<app.psgi>) edit it to use L<Plack::Builder>, as described above:
 
     use Dancer2;
-    use MyWebApp;
+    use MyApp;
     use Plack::Builder;
 
     builder {
