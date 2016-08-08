@@ -352,7 +352,7 @@ sub _exporter_plugin {
 
             # this is important as it'll do the keywords mapping between the
             # plugin and the app
-            sub register_plugin { Dancer2::Plugin::register_plugin(@_) }
+            sub register_plugin { Dancer2::Plugin::register_plugin(\@_) }
 
             sub register {
                 my ( \$keyword, \$sub ) = \@_;
