@@ -481,6 +481,10 @@ sub register_plugin {
                 my $app_dsl_cb = _find_consumer();
                 my $dsl        = $app_dsl_cb->();
 
+                {
+                    no strict 'refs';
+                    *{"${plugin_module}::dsl"} = sub {$dsl};
+                }
 
                 foreach my $keyword ( keys %{ $dsl->dsl_keywords} ) {
                     # if not yet defined, inject the keyword in the plugin
