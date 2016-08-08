@@ -487,6 +487,7 @@ sub register_plugin {
 
                 {
                     no strict 'refs';
+                    no warnings 'redefine';
                     *{"${plugin_module}::dsl"} = sub {$dsl};
                 }
 
