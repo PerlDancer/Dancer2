@@ -447,6 +447,20 @@ END
                qw/ plugin_keywords plugin_hooks /;
 }
 
+sub _find_consumer {
+    my $class;
+
+    ## no critic qw(ControlStructures::ProhibitCStyleForLoops)
+    for ( my $i = 1; my $caller = caller($i); $i++ ) {
+        $class = $caller->can('dsl')
+            and last;
+    }
+
+    $class
+        or croak('Could not find Dancer2 app');
+
+    return $class;
+};
 
 # This has to be called for now at the end of every plugin package, in order to
 # map the keywords of the associated app to the plugin, so that these keywords
@@ -464,17 +478,11 @@ sub register_plugin {
 
     my $_DANCER2_IMPORT_TIME_SUBS = $plugin_module->_DANCER2_IMPORT_TIME_SUBS;
     unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
-                my $app_dsl_cb;
-                ## no critic qw(ControlStructures::ProhibitCStyleForLoops)
-                for ( my $i = 0; my $caller = caller($i); $i++ ) {
-                    $app_dsl_cb = $caller->can('dsl')
-                        and last;
-                }
+                my $app_dsl_cb = _find_consumer();
+                my $dsl        = $app_dsl_cb->();
 
-                $app_dsl_cb
-                    or croak('Could not find Dancer2 app');
 
-                foreach my $keyword ( keys %{ $app_dsl_cb->()->dsl_keywords} ) {
+                foreach my $keyword ( keys %{ $dsl->dsl_keywords} ) {
                     # if not yet defined, inject the keyword in the plugin
                     # namespace, but make sure the code will always get the
                     # coderef from the right associated app, because one plugin
