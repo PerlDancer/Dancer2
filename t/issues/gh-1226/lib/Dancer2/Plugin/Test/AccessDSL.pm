@@ -51,6 +51,4 @@ sub change_response_status {
     );
 }
 
-register_plugin();
-
 1;

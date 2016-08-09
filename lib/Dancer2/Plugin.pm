@@ -443,6 +443,15 @@ END
 
     die $@ if $@;
 
+    my $app_dsl_cb = _find_consumer();
+    my $dsl        = $app_dsl_cb->();
+
+    {
+        no strict 'refs';
+        no warnings 'redefine';
+        *{"${caller}::dsl"} = sub {$dsl};
+    }
+
     return map { [ $_ => { class => $caller } ] }
                qw/ plugin_keywords plugin_hooks /;
 }
@@ -480,12 +489,6 @@ sub register_plugin {
     unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
                 my $app_dsl_cb = _find_consumer();
                 my $dsl        = $app_dsl_cb->();
-
-                {
-                    no strict 'refs';
-                    no warnings 'redefine';
-                    *{"${plugin_module}::dsl"} = sub {$dsl};
-                }
 
                 foreach my $keyword ( keys %{ $dsl->dsl_keywords} ) {
                     # if not yet defined, inject the keyword in the plugin
