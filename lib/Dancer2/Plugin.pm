@@ -139,7 +139,7 @@ sub _p2_has_keyword {
 
 # :PluginKeyword shenanigans
 
-sub PluginKeyword :ATTR(CODE) {
+sub PluginKeyword :ATTR(CODE,BEGIN) {
     my( $class, $sym_ref, $code, undef, $args ) = @_;
     my $func_name = *{$sym_ref}{NAME};
 
@@ -336,7 +336,7 @@ sub _exporter_plugin {
                 \$orig->( ${caller}->_p2_has( \@args) );
             };
 
-            sub PluginKeyword :ATTR(CODE) {
+            sub PluginKeyword :ATTR(CODE,BEGIN) {
                 goto &Dancer2::Plugin::PluginKeyword;
             }
 
