@@ -192,7 +192,7 @@ sub _exporter_app {
     # Otherwise you can only import from a plugin to an app,
     # but with this, you can import to anything
     # that has a DSL with an app, which translates to "also plugins"
-    my $app = eval "${caller}::app()" || $caller->dsl->app
+    my $app = eval("${caller}::app()") || eval { $caller->dsl->app }
         or return; ## no critic
 
     return unless $app->can('with_plugin');
