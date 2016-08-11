@@ -141,6 +141,10 @@ sub _p2_has_keyword {
 
 sub PluginKeyword :ATTR(CODE,BEGIN) {
     my( $class, $sym_ref, $code, undef, $args ) = @_;
+
+    # importing at BEGIN stage doesn't work with 5.10 :-(
+    return unless ref $sym_ref;
+
     my $func_name = *{$sym_ref}{NAME};
 
     $args = join '', @$args if ref $args eq 'ARRAY';
@@ -743,8 +747,11 @@ Calls to C<plugin_keywords> are cumulative.
 
 =head4 Via the C<:PluginKeyword> function attribute
 
-Keywords can also be defined by adding the C<:PluginKeyword> attribute
+For perl 5.12 and higher, keywords can also be defined by adding the C<:PluginKeyword> attribute
 to the function you wish to export.
+
+For Perl 5.10, the export triggered by the sub attribute comes too late in the 
+game, and the keywords won't be exported in the application namespace. 
 
     sub foo :PluginKeyword { ... }
 

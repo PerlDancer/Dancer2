@@ -3,7 +3,11 @@ use warnings;
 
 use lib 't/lib';
 
-use Test::More tests => 2;
+use Test::More;
+
+plan skip_all => 'Perl >=5.12 required' if $] < 5.012;
+
+plan tests => 2;
 
 use Dancer2;
 use Dancer2::Plugin::DefineKeywords;
