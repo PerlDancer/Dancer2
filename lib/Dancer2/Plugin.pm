@@ -447,10 +447,38 @@ END
 
     die $@ if $@;
 
+    my $app_dsl_cb = _find_consumer();
+
+    if ( $app_dsl_cb ) {
+        my $dsl = $app_dsl_cb->();
+
+        {
+            no strict 'refs';
+            no warnings 'redefine';
+            *{"${caller}::dsl"} = sub {$dsl};
+        }
+    }
+
     return map { [ $_ => { class => $caller } ] }
                qw/ plugin_keywords plugin_hooks /;
 }
 
+sub _find_consumer {
+    my $class;
+
+    ## no critic qw(ControlStructures::ProhibitCStyleForLoops)
+    for ( my $i = 1; my $caller = caller($i); $i++ ) {
+        $class = $caller->can('dsl')
+            and last;
+    }
+
+    # If you use a Dancer2 plugin outside a Dancer App, this fails.
+    # It also breaks a bunch of the tests. -- SX
+    #$class
+    #    or croak('Could not find Dancer2 app');
+
+    return $class;
+};
 
 # This has to be called for now at the end of every plugin package, in order to
 # map the keywords of the associated app to the plugin, so that these keywords
@@ -468,17 +496,17 @@ sub register_plugin {
 
     my $_DANCER2_IMPORT_TIME_SUBS = $plugin_module->_DANCER2_IMPORT_TIME_SUBS;
     unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
-                my $app_dsl_cb;
-                ## no critic qw(ControlStructures::ProhibitCStyleForLoops)
-                for ( my $i = 0; my $caller = caller($i); $i++ ) {
-                    $app_dsl_cb = $caller->can('dsl')
-                        and last;
-                }
+                my $app_dsl_cb = _find_consumer();
 
+                # Here we want to verify that "register_plugin" compat keyword
+                # was in fact only called from an app.
                 $app_dsl_cb
-                    or croak('Could not find Dancer2 app');
+                      or Carp::croak(
+                        'I could not find a Dancer App for this plugin');
 
-                foreach my $keyword ( keys %{ $app_dsl_cb->()->dsl_keywords} ) {
+                my $dsl = $app_dsl_cb->();
+
+                foreach my $keyword ( keys %{ $dsl->dsl_keywords} ) {
                     # if not yet defined, inject the keyword in the plugin
                     # namespace, but make sure the code will always get the
                     # coderef from the right associated app, because one plugin
