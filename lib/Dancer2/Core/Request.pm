@@ -12,7 +12,7 @@ use URI;
 use URI::Escape;
 use Safe::Isa;
 use Hash::MultiValue;
-use Module::Runtime 'require_module';
+use Class::Load 'try_load_class';
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
@@ -38,8 +38,9 @@ sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc "$_" ) } }
 _EVAL
 
 # check presence of XS module to speedup request
-our $XS_URL_DECODE         = eval { require_module('URL::Encode::XS'); 1; };
-our $XS_PARSE_QUERY_STRING = eval { require_module('CGI::Deurl::XS');  1; };
+our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
+our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
+our $XS_HTTP_COOKIES       = try_load_class('HTTP::XSCookies');
 
 our $_id = 0;
 
@@ -601,19 +602,20 @@ sub _build_cookies {
     my $http_cookie = $self->header('Cookie');
     return $cookies unless defined $http_cookie; # nothing to do
 
-    foreach my $cookie ( split( /[,;]\s/, $http_cookie ) ) {
+    if ( $XS_HTTP_COOKIES ) {
+        $cookies = HTTP::XSCookies::crush_cookie($http_cookie);
+    }
+    else {
+        # handle via Plack::Request
+        $cookies = $self->SUPER::cookies();
+    }
 
-        # here, we don't want more than the 2 first elements
-        # a cookie string can contains something like:
-        # cookie_name="foo=bar"
-        # we want `cookie_name' as the value and `foo=bar' as the value
-        my ( $name, $value ) = split( /\s*=\s*/, $cookie, 2 );
-        my @values;
-        if ( defined $value and $value ne '' ) {
-            @values = map uri_unescape($_), split( /[&;]/, $value );
-        }
-        $cookies->{$name} =
-          Dancer2::Core::Cookie->new( name => $name, value => \@values );
+    # convert to objects
+    while (my ($name, $value) = each %{$cookies}) {
+        $cookies->{$name} = Dancer2::Core::Cookie->new(
+            name  => $name,
+            value => [split(/[&;]/, $value)]
+        );
     }
     return $cookies;
 }

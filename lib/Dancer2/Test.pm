@@ -139,6 +139,9 @@ sub _build_request_from_env {
         for my $header ( @{ $options->{headers} } ) {
             my ( $name, $value ) = @{$header};
             $request->header( $name => $value );
+            if ( $name =~ /^cookie$/i ) {
+                $env->{HTTP_COOKIE} = $value;
+            }
         }
     }
 

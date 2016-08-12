@@ -9,6 +9,8 @@
 
     [ ENHANCEMENTS ]
     * PR #1223: Add YAML::XS to Recommends (Peter Mottram)
+    * PR #1117: If installed, use HTTP::XSCookies and all cookie operations 
+      will be faster (Peter Mottram)
 
     [ DOCUMENTATION ]
     * PR #1151: Note that config is immutable after first read (Peter Mottram)
