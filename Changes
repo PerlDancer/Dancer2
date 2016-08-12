@@ -11,6 +11,7 @@
     * PR #1223: Add YAML::XS to Recommends (Peter Mottram)
 
     [ DOCUMENTATION ]
+    PR #1151: Note that config is immutable after first read (Peter Mottram)
 
 0.201000  2016-07-22 08:26:18-05:00 America/Chicago
 
