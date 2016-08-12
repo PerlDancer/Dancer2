@@ -5,10 +5,13 @@
     * GH #1180, #1220: Revert (most of) GH #1120. Change back to using
       MooX::Types::MooseLike until issues around Type::Tiny are resolved.
       Peter (@SysPete) Mottram
+    * GH #1192: Decode body|query|request_parameters (Peter Mottram)
+
+    [ ENHANCEMENTS ]
+
+    [ DOCUMENTATION ]
 
 0.201000  2016-07-22 08:26:18-05:00 America/Chicago
-
-0.200004  2016-07-21 23:39:23-05:00 America/Chicago
 
     [ BUG FIXES ]
     * GH #1216: Make DSL work in edge-case of plugins calling DSL before the

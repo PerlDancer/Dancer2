@@ -332,9 +332,9 @@ sub query_parameters {
     my $self = shift;
     $self->{'query_parameters'} ||= do {
         if ($XS_PARSE_QUERY_STRING) {
-            my $query = CGI::Deurl::XS::parse_query_string(
+            my $query = _decode(CGI::Deurl::XS::parse_query_string(
                 $self->env->{'QUERY_STRING'}
-            );
+            ));
 
             Hash::MultiValue->new(
                 map {;
@@ -346,7 +346,7 @@ sub query_parameters {
             );
         } else {
             # defer to Plack::Request
-            $self->SUPER::query_parameters;
+            _decode($self->SUPER::query_parameters);
         }
     };
 }
@@ -359,24 +359,22 @@ sub _set_route_parameters {
     # remove reserved splat parameter name
     # you should access splat parameters using splat() keyword
     delete @{$params}{qw<splat captures>};
-    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{$params} );
+    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{_decode($params)} );
 }
 
 sub body_parameters {
     my $self = shift;
-    $self->env->{'plack.request.body'}
-        and return $self->env->{'plack.request.body'};
-
-    # handle case of serializer
-    if ( my $data = $self->deserialize ) {
-        $self->env->{'plack.request.body'} = Hash::MultiValue->from_mixed(
-            ref $data eq 'HASH' ? %{$data} : ()
-        );
-        return $self->env->{'plack.request.body'};
-    }
-
-    # defer to (the overridden) Plack::Request->body_parameters
-    return $self->SUPER::body_parameters();
+    $self->env->{'plack.request.body'} ||= do {
+        if (my $data = $self->deserialize) {
+            # handle case of serializer
+            Hash::MultiValue->from_mixed(
+                ref $data eq 'HASH' ? %{_decode($data)} : ());
+        }
+        else {
+            # defer to (the overridden) Plack::Request->body_parameters
+            _decode($self->SUPER::body_parameters());
+        }
+    };
 }
 
 sub parameters {
@@ -410,13 +408,14 @@ sub _decode {
     if ( !ref($h) && !utf8::is_utf8($h) ) {
         return decode( 'UTF-8', $h );
     }
-
-    if ( ref($h) eq 'HASH' ) {
+    elsif ( ref($h) eq 'HASH' ) {
         return { map {my $t = _decode($_); $t} (%$h) };
     }
-
-    if ( ref($h) eq 'ARRAY' ) {
+    elsif ( ref($h) eq 'ARRAY' ) {
         return [ map _decode($_), @$h ];
+    }
+    elsif ( ref($h) eq 'Hash::MultiValue' ) {
+        return Hash::MultiValue->from_mixed(_decode($h->as_hashref_mixed));
     }
 
     return $h;
