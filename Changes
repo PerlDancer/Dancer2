@@ -8,6 +8,7 @@
     * GH #1192: Decode body|query|request_parameters (Peter Mottram)
 
     [ ENHANCEMENTS ]
+    * PR #1223: Add YAML::XS to Recommends (Peter Mottram)
 
     [ DOCUMENTATION ]
 
