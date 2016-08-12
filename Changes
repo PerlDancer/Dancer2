@@ -8,6 +8,8 @@
     * GH #1192: Decode body|query|request_parameters (Peter Mottram)
     * GH #1224: Plugins defined with :PluginKeyword attribute are now 
       exported. (Yanick Champoux)
+    * GH #1226: Plugins can now call the DSL of the app via $self->dsl
+      (Sawyer X)
 
     [ ENHANCEMENTS ]
     * PR #1223: Add YAML::XS to Recommends (Peter Mottram)
