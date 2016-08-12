@@ -6,6 +6,8 @@
       MooX::Types::MooseLike until issues around Type::Tiny are resolved.
       Peter (@SysPete) Mottram
     * GH #1192: Decode body|query|request_parameters (Peter Mottram)
+    * GH #1224: Plugins defined with :PluginKeyword attribute are now 
+      exported. (Yanick Champoux)
 
     [ ENHANCEMENTS ]
     * PR #1223: Add YAML::XS to Recommends (Peter Mottram)

@@ -1,42 +1,28 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1;
+use lib 't/lib';
 
-BEGIN {  
-    package Dancer2::Plugin::Foo;
+use Test::More;
 
-    use Dancer2::Plugin;
+plan skip_all => 'Perl >=5.12 required' if $] < 5.012;
 
-    push @::expected_keywords, 'foo';
-    plugin_keywords foo => sub { die "unimplemented" };
+plan tests => 2;
 
-    push @::expected_keywords, 'bar';
-    has bar => (
-        is => 'ro',
-        plugin_keyword => 1,
-    );
+use Dancer2;
+use Dancer2::Plugin::DefineKeywords;
 
-    push @::expected_keywords, 'baz', 'bazz';
-    has baz => (
-        is => 'ro',
-        plugin_keyword => [ qw/ baz bazz / ],
-    );
+my $plugin = Dancer2::Plugin::DefineKeywords->new( app => undef );
 
-    push @::expected_keywords, 'biz';
-    has boz => (
-        is => 'ro',
-        plugin_keyword => 'biz',
-    );
+subtest "keywords are registered" => sub {
+    for my $keyword ( @::expected_keywords ) {
+        ok( ( scalar grep { $_ eq $keyword  } keys %{ $plugin->keywords } ), $keyword );
+    }
+};
 
-    push @::expected_keywords, 'quux', 'qiix', 'qox', 'qooox';
-    sub quux :PluginKeyword { die "unimplemented" };
-    sub qaax :PluginKeyword(qiix) { die "unimplemented" };
-    sub qoox :PluginKeyword(qox qooox) { die "unimplemented" };
+subtest "keywords are recognized" => sub {
+    is foo() => 'foo', 'foo';
+    is bar() => 'bar', 'bar';
+    is quux() => 'quux', 'quux';
+};
 
-}
-
-my $plugin = Dancer2::Plugin::Foo->new( app => undef );
-
-is_deeply [ sort keys %{ $plugin->keywords } ], 
-    [ sort @::expected_keywords ], "all expected keywords";
