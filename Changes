@@ -16,6 +16,8 @@
     * PR #1117: If installed, use HTTP::XSCookies and all cookie operations 
       will be faster (Peter Mottram)
     * PR #1228: Allow register_plugin() to pass @_ properly (Sawyer X)
+    * PR #1231: Plugins can now call the syntax of plugins they loaded 
+      (Sawyer X)
 
     [ DOCUMENTATION ]
     * PR #1151: Note that config is immutable after first read (Peter Mottram)

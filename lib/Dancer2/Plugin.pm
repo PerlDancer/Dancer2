@@ -191,7 +191,13 @@ sub _exporter_app {
     my( $class, $caller, $global ) = @_;
 
     $exported_app->{$caller} = 1;
-    my $app = eval "${caller}::app()" or return; ## no critic
+
+    # The check for ->dsl->app is to handle plugins as well.
+    # Otherwise you can only import from a plugin to an app,
+    # but with this, you can import to anything
+    # that has a DSL with an app, which translates to "also plugins"
+    my $app = eval("${caller}::app()") || eval { $caller->dsl->app }
+        or return; ## no critic
 
     return unless $app->can('with_plugin');
 
@@ -934,6 +940,12 @@ accessible via the method C<app()>.
         $plugin->app->add_route( ... );
     }
 
+To use Dancer's DSL in your plugin:
+
+    $self->dsl->debug( “Hi! I’m logging from your plugin!” );
+
+
+See L<Dancer2::Manual/"DSL KEYWORDS"> for a full list of Dancer2 DSL.
 
 =head2 Using the plugin within the app
 
@@ -951,33 +963,20 @@ don't want anything imported via empty parentheses when C<use>ing the module:
 
 =head2 Plugins using plugins
 
-This is a (relatively) simple way for a plugin to use another plugin:
-
+It's easy to use plugins from within a plugin:
 
     package Dancer2::Plugin::SourPuss;
+    
+    use Dancer2::Plugin; 
+    use Dancer2::Plugin::Polite; 
+    
+    sub my_keyword { my $smiley = smiley(); } 
 
-    has polite => (
-        is => 'ro',
-        lazy => 1,
-        default => sub {
-            # if the app already has the 'Polite' plugin loaded, it'll return
-            # it. If not, it'll load it in the app, and then return it.
-            $_[0]->app->with_plugin( 'Polite' )
-        },
-        handles => { 'smiley' => 'smiley' },
-    );
+    1;
 
-    sub keywords { qw/ killjoy / }
-
-    sub killjoy {
-        my( $plugin, $text ) = @_;
-
-        my $smiley = $plugin->smiley;
-
-        $text =~ s/ $smiley />:-(/xg;
-
-        $text;
-    }
+This does not export C<smiley()> into your application - it is only available
+from within your plugin. However, from the example above, you can wrap 
+DSL from other plugins and make it available from your plugin.
 
 =head2 Hooks
 
@@ -1001,6 +1000,9 @@ C<execute_hook> method:
 Or using their alias:
 
     $plugin->app->execute_hook( 'on_route_exception' );
+
+B<Note:> If your plugin consumes a plugin that declares any hooks, those hooks 
+are added to your application, even though DSL is not.
 
 =head2 Writing Test Gotchas
 
