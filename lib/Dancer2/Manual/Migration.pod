@@ -496,3 +496,8 @@ delete:
 
     my $session = session;
     $session->delete($key);
+
+You can retrieve the whole session hash with the C<data> method:
+
+    $session->data;
+        
