@@ -447,7 +447,7 @@ This keyword doesn't exist in Dancer2.
 =head3 session
 
 In L<Dancer> a session was created and a cookie was sent just by rendering a page
-using the C<template> function. In L<Dancer2> one needs to actully set a value in
+using the C<template> function. In L<Dancer2> one needs to actually set a value in
 a session object using the C<session> function in order to create the session
 and send the cookie.
 
