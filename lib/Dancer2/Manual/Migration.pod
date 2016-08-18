@@ -107,6 +107,8 @@ for details.
 
 =item * L<HTTP::Parser::XS>
 
+=item * L<HTTP::XSCookies>
+
 =item * L<Scope::Upper>
 
 =back
