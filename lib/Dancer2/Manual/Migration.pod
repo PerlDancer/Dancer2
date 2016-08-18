@@ -107,7 +107,7 @@ for details.
 
 =item * L<HTTP::Parser::XS>
 
-=item * L<MooX::TypeTiny>
+=item * L<HTTP::XSCookies>
 
 =item * L<Scope::Upper>
 
