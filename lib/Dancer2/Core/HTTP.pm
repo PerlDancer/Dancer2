@@ -5,6 +5,8 @@ package Dancer2::Core::HTTP;
 use strict;
 use warnings;
 
+use List::Util qw/ pairmap pairgrep /;
+
 my $HTTP_CODES = {
 
     # informational
@@ -92,13 +94,11 @@ my $HTTP_CODES = {
     599 => 'Network connect timeout error',
 };
 
-for my $code ( keys %$HTTP_CODES ) {
-    my $str_http_code = $HTTP_CODES->{$code};
-    $HTTP_CODES->{$str_http_code} = $code;
-
-    my $alias = lc join '_', split /\W/, $HTTP_CODES->{$code};
-    $HTTP_CODES->{$alias} = $code;
-}
+$HTTP_CODES = {
+    %$HTTP_CODES,
+    ( reverse %$HTTP_CODES ),
+    pairmap { join( '_', split /\W/, lc $a ) => $b } reverse %$HTTP_CODES
+};
 
 $HTTP_CODES->{error} = $HTTP_CODES->{internal_server_error};
 
@@ -119,6 +119,17 @@ sub status_message {
     return if ! defined $code || ! exists $HTTP_CODES->{$code};
     return $HTTP_CODES->{ $code };
 }
+
+sub status_mapping {
+    pairgrep { $b =~ /^\d+$/ and $a !~ /_/ } %$HTTP_CODES;
+}
+
+sub code_mapping {
+    my @result = reverse status_mapping();
+    return @result;
+}
+
+sub all_mappings { %$HTTP_CODES }
 
 1;
 
@@ -143,5 +154,27 @@ status.
     Dancer2::Core::HTTP->status_message('error'); # returns 'Internal Server Error'
 
 Returns the HTTP status message for the given status code.
+
+=func status_mapping()
+
+    my %table = Dancer2::Core::HTTP->status_mapping;
+    # returns ( 'Ok' => 200, 'Created' => 201, ... )
+
+Returns the full table of status -> code mappings.
+
+=func code_mapping()
+
+    my %table = Dancer2::Core::HTTP->code_mapping;
+    # returns ( 200 => 'Ok', 201 => 'Created', ... )
+
+Returns the full table of code -> status mappings.
+
+=func all_mappings()
+
+    my %table = Dancer2::Core::HTTP->all_mappings;
+    # returns ( 418 => 'I'm a teapot', "I'm a teapot' => 418, 'i_m_a_teapot' => 418 )
+
+Returns the code-to-status, status-to-code and underscore-groomed status-to-code mappings
+all mashed up in a single table. Mostly for internal uses.
 
 =cut
