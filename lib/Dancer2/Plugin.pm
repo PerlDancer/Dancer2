@@ -5,11 +5,11 @@ use strict;
 use warnings;
 
 use Moo;
-use Carp;
+use Carp ();
 use List::Util qw/ reduce /;
 use Module::Runtime 'require_module';
 use Attribute::Handlers;
-use Scalar::Util;
+use Scalar::Util ();
 
 our $CUR_PLUGIN;
 
@@ -74,7 +74,7 @@ sub execute_plugin_hook {
     my $plugin_class = ref $self;
 
     $self->isa('Dancer2::Plugin')
-        or croak "Cannot call plugin hook ($name) from outside plugin";
+        or Carp::croak("Cannot call plugin hook ($name) from outside plugin");
     $plugin_class =~ s/^Dancer2::Plugin:://; # short names
 
     my $full_name = 'plugin.' . lc($plugin_class) . ".$name";
