@@ -7,8 +7,10 @@
 
     [ ENHANCEMENTS ]
     * GH #1195: Add change_session_id() method - both as a good security 
-      practice and to comply with other established security standards
+      practice and to comply with other established security standards.
       (Peter Mottram)
+    * GH #1234: Add convenience functions to access Dancer's HTTP_CODES
+      table. (Yanick Champoux)
 
     [ DOCUMENTATION ]
     * Fix Typo (Stefan Hornburg - Racke)
