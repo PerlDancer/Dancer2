@@ -79,7 +79,8 @@ sub new {
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
-    # parsing body for HMV first (also deserializes body)
+    # Deserialize/parse body for HMV
+    $self->data;
     $self->body_parameters;
     $self->_build_uploads();
 
@@ -209,6 +210,11 @@ sub deserialize {
     # that numerical data "stays" numerical; decoding an SV that is an IV
     # converts that to a PVIV. Some serializers are picky (JSON)..
     $self->{_body_params} = $data;
+
+    # Set body parameters (HMV)
+    # Not happy with fiddling with Plack::Request internals -- veryrusty Aug 2016.
+    $self->env->{'plack.request.body'} =
+        Hash::MultiValue->from_mixed( ref $data eq 'HASH' ? %$data : () );
 
     return $data;
 }
@@ -365,17 +371,8 @@ sub _set_route_parameters {
 
 sub body_parameters {
     my $self = shift;
-    $self->env->{'plack.request.body'} ||= do {
-        if (my $data = $self->deserialize) {
-            # handle case of serializer
-            Hash::MultiValue->from_mixed(
-                ref $data eq 'HASH' ? %{_decode($data)} : ());
-        }
-        else {
-            # defer to (the overridden) Plack::Request->body_parameters
-            _decode($self->SUPER::body_parameters());
-        }
-    };
+    # defer to (the overridden) Plack::Request->body_parameters
+    $self->env->{'plack.request.body'} ||= _decode($self->SUPER::body_parameters());
 }
 
 sub parameters {
