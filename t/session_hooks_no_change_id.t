@@ -4,6 +4,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Cookies;
 use HTTP::Request::Common;
+use lib 't/lib';
 
 my @hooks_to_test = qw(
   engine.session.before_retrieve
@@ -34,7 +35,7 @@ my $test_flags = {};
         envoriment  => 'production'
     );
 
-    setting( session => 'Simple' );
+    setting( session => 'SimpleNoChangeId' );
 
     for my $hook (@hooks_to_test) {
         hook $hook => sub {
@@ -157,14 +158,18 @@ subtest 'verify hooks for change session id' => sub {
     is $test_flags->{'engine.session.before_retrieve'}, 2, "session.before_retrieve called";
     is $test_flags->{'engine.session.after_retrieve'}, 2, "session.after_retrieve called";
 
-    is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
-    is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
-    is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush not called";
-    is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush not called";
-    is $test_flags->{'engine.session.before_change_id'}, 1, "session.before_change_id called";
-    is $test_flags->{'engine.session.after_change_id'}, 1, "session.after_change_id called";
-    is $test_flags->{'engine.session.before_destroy'}, undef, "session.before_destroy not called";
-    is $test_flags->{'engine.session.after_destroy'}, undef, "session.after_destroy not called";
+    # and a new session is created since this engine doesn't have _change_id
+    is $test_flags->{'engine.session.before_create'}, 2, "session.before_create not called";
+    is $test_flags->{'engine.session.after_create'}, 2, "session.after_create not called";
+    # flushed as well
+    is $test_flags->{'engine.session.before_flush'}, 2, "session.before_flush not called";
+    is $test_flags->{'engine.session.after_flush'}, 2, "session.after_flush not called";
+    # these should never be called
+    is $test_flags->{'engine.session.before_change_id'}, undef, "session.before_change_id not called";
+    is $test_flags->{'engine.session.after_change_id'}, undef, "session.after_change_id not called";
+    # and the old session was destroyed
+    is $test_flags->{'engine.session.before_destroy'}, 1, "session.before_destroy not called";
+    is $test_flags->{'engine.session.after_destroy'}, 1, "session.after_destroy not called";
 };
 
 subtest destroy_session => sub {
@@ -175,16 +180,16 @@ subtest destroy_session => sub {
 };
 
 subtest 'verify session destroy hooks' => sub {
-    is $test_flags->{'engine.session.before_destroy'}, 1, "session.before_destroy called";
-    is $test_flags->{'engine.session.after_destroy'}, 1, "session.after_destroy called";
+    is $test_flags->{'engine.session.before_destroy'}, 2, "session.before_destroy called";
+    is $test_flags->{'engine.session.after_destroy'}, 2, "session.after_destroy called";
     #not sure if before and after retrieve should be called when the session is destroyed. But this happens.
     is $test_flags->{'engine.session.before_retrieve'}, 3, "session.before_retrieve called";
     is $test_flags->{'engine.session.after_retrieve'}, 3, "session.after_retrieve called";
 
-    is $test_flags->{'engine.session.before_create'}, 1, "session.before_create not called";
-    is $test_flags->{'engine.session.after_create'}, 1, "session.after_create not called";
-    is $test_flags->{'engine.session.before_flush'}, 1, "session.before_flush not called";
-    is $test_flags->{'engine.session.after_flush'}, 1, "session.after_flush not called";
+    is $test_flags->{'engine.session.before_create'}, 2, "session.before_create not called";
+    is $test_flags->{'engine.session.after_create'}, 2, "session.after_create not called";
+    is $test_flags->{'engine.session.before_flush'}, 2, "session.before_flush not called";
+    is $test_flags->{'engine.session.after_flush'}, 2, "session.after_flush not called";
 };
 
 done_testing;

@@ -6,6 +6,9 @@
       decode deserialized data. (Russell Jenkins - @veryrusty)
 
     [ ENHANCEMENTS ]
+    * GH #1195: Add change_session_id() method - both as a good security 
+      practice and to comply with other established security standards
+      (Peter Mottram)
 
     [ DOCUMENTATION ]
     * Fix Typo (Stefan Hornburg - Racke)

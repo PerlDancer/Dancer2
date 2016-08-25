@@ -21,6 +21,9 @@ sub supported_hooks {
       engine.session.before_create
       engine.session.after_create
 
+      engine.session.before_change_id
+      engine.session.after_change_id
+
       engine.session.before_destroy
       engine.session.after_destroy
 
@@ -169,6 +172,25 @@ sub retrieve {
 
     $self->execute_hook( 'engine.session.after_retrieve', $session );
     return $session;
+}
+
+# XXX eventually we could perhaps require '_change_id'?
+
+sub change_id {
+    my ( $self, %params ) = @_;
+    my $session = $params{session};
+    my $old_id  = $session->id;
+
+    $self->execute_hook( 'engine.session.before_change_id', $old_id );
+
+    my $new_id = $self->generate_id;
+    $session->id( $new_id );
+
+    eval { $self->_change_id( $old_id, $new_id ) };
+    croak "Unable to change session id for session with id $old_id: $@"
+      if $@;
+
+    $self->execute_hook( 'engine.session.after_change_id', $new_id );
 }
 
 requires '_destroy';
@@ -343,6 +365,16 @@ found, triggers an exception.
 
 The method C<_retrieve> must be implemented.  It must take C<$id> as a single
 argument and must return a hash reference of session data.
+
+=head2 change_id
+
+Changes the session ID of the corresponding session.
+    
+    MySessionFactory->change_id(session => $session_object);
+
+The method C<_change_id> must be implemented. It must take C<$old_id> and
+C<$new_id> as arguments and change the ID from the old one to the new one
+in the underlying session storage.
 
 =head2 destroy
 

@@ -484,6 +484,62 @@ sub setup_session {
     }
 }
 
+sub change_session_id {
+    my $self = shift;
+
+    my $session = $self->session;
+
+    # Find the session engine
+    my $engine = $self->session_engine;
+
+    if ($engine->can('_change_id')) {
+
+        # session engine can change session ID
+        $engine->change_id( session => $session );
+    }
+    else {
+
+        # Method order is important in here...
+        #
+        # On session build if there is no destroyed session then the session
+        # builder tries to recreate the session using the existing session
+        # cookie. We really don't want to do that in this case so it is
+        # important to create the new session before the
+        # clear_destroyed_session method is called.
+        #
+        # This sucks.
+        #
+        # Sawyer suggested:
+        #
+        # What if you take the session cookie logic out of that attribute into
+        # another attribute and clear that attribute?
+        # That would force the session rebuilt to rebuilt the attribute and
+        # get a different cookie value, no?
+        #
+        # TODO: think about this some more.
+
+        # grab data, destroy session and store data again
+        my %data = %{$session->data};
+
+        # destroy existing session
+        $self->destroy_session;
+
+        # get new session
+        $session = $self->session;
+
+        # write data from old session into new
+        # Some engines add session id to data so skip id.
+        while (my ($key, $value) = each %data ) {
+            $session->write($key => $value) unless $key eq 'id';
+        }
+
+        # clear out destroyed session - no longer relevant
+        $self->clear_destroyed_session;
+    }
+
+    return $session->id;
+}
+
 has prefix => (
     is        => 'rw',
     isa       => Maybe [Dancer2Prefix],
