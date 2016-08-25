@@ -1,6 +1,10 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1232: Force deserialization of body data even when an existing 
+      Plack::Request object has already parsed request body. Don't double
+      decode deserialized data. (Russell Jenkins - @veryrusty)
+
     [ ENHANCEMENTS ]
 
     [ DOCUMENTATION ]
