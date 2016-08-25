@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    [ ENHANCEMENTS ]
+
+    [ DOCUMENTATION ]
+    * Fix Typo (Stefan Hornburg - Racke)
+    * Document $session->data (Stefan Hornburg - Racke)
+    
 0.202000  2016-08-13 13:50:30-05:00 America/Chicago
 
     [ BUG FIXES ]
