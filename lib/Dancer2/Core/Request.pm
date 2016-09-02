@@ -214,7 +214,7 @@ sub deserialize {
     # Set body parameters (HMV)
     # Not happy with fiddling with Plack::Request internals -- veryrusty Aug 2016.
     $self->env->{'plack.request.body'} =
-        Hash::MultiValue->from_mixed( ref $data eq 'HASH' ? %$data : () );
+        Hash::MultiValue->new( ref $data eq 'HASH' ? %$data : () );
 
     return $data;
 }
