@@ -29,9 +29,9 @@ my $HTTP_CODES = {
     # redirections
     301 => 'Moved Permanently',
     302 => 'Found',
-    303 => '303 See Other',          # only on HTTP 1.1
+    303 => 'See Other',          # only on HTTP 1.1
     304 => 'Not Modified',
-    305 => '305 Use Proxy',          # only on HTTP 1.1
+    305 => 'Use Proxy',          # only on HTTP 1.1
     306 => 'Switch Proxy',
     307 => 'Temporary Redirect',     # only on HTTP 1.1
     # 308 => 'Permanent Redirect'    # approved as experimental RFC
