@@ -7,6 +7,8 @@ use Plack::Test;
 use HTTP::Request::Common;
 use Dumbbench;
 use Getopt::Long qw<:config no_ignore_case>;
+use HTTP::XSHeaders;
+use HTTP::XSCookies;
 
 $ENV{'DANCER_ENVIRONMENT'} = 'production';
 $ENV{'PLACK_ENV'} = 'production';
@@ -70,7 +72,7 @@ if ( $opts{'profile'} ) {
     $app2->({
         REQUEST_METHOD => 'GET',
         PATH_INFO      => '/',
-    });
+    }) for 1 .. 50;
     DB::disable_profile();
     DB::finish_profile();
 } elsif ( $opts{'compare'} ) {
