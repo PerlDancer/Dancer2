@@ -4,7 +4,7 @@ package Dancer2::Core::Route;
 use Moo;
 use Dancer2::Core::Types;
 use Carp 'croak';
-use List::Util 'first';
+use List::Util 'first', 'reduce';
 use Scalar::Util 'blessed';
 
 our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
@@ -19,6 +19,14 @@ has code => (
     is       => 'ro',
     required => 1,
     isa      => CodeRef,
+    coerce   => sub {
+        my $code = shift;
+        if ( ref $code eq 'ARRAY' ) {
+            my @functions = @$code;
+            $code = sub { reduce { ref $a eq 'CODE' ? $a->($b) : $a } @functions };
+        }
+        $code;
+    },
 );
 
 has regexp => (
