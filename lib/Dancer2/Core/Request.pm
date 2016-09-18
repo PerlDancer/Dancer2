@@ -616,6 +616,58 @@ sub _build_cookies {
     return $cookies;
 }
 
+# poor man's clone
+sub _shallow_clone {
+    my ($self, $params, $options) = @_;
+
+    # shallow clone $env; we don't want to alter the existing one
+    # in $self, then merge any overridden values
+    my $env = { %{ $self->env }, %{ $options || {} } };
+
+    # request body fh has been read till end
+    # delete CONTENT_LENGTH in new request (no need to parse body again)
+    # and merge existing params
+    delete $env->{CONTENT_LENGTH};
+
+    my $new_request = __PACKAGE__->new(
+        env         => $env,
+        body_params => {},
+    );
+
+    # Clone and merge query params
+    my $new_params = $self->params;
+    $new_request->{_query_params} = { %{ $self->{_query_params} || {} } };
+    $new_request->env->{'plack.request.query'} = $env->{'plack.request.query'}
+        ? $env->{'plack.request.query'}->clone
+        : Hash::MultiValue->new({});
+    for my $key ( keys %{ $params || {} } ) {
+        my $value = $params->{$key};
+        $new_params->{$key} = $value;
+        $new_request->{_query_params}->{$key} = $value;
+        $new_request->query_parameters->add( $key =>  $value );
+    }
+
+    # Copy params (these are already decoded)
+    $new_request->{_params}       = $new_params;
+    $new_request->{_body_params}  = $self->{_body_params};
+    $new_request->{_route_params} = $self->{_route_params};
+    $new_request->{body}          = $self->body;
+    $new_request->{headers}       = $self->headers;
+
+    # Copy remaining settings
+    $new_request->{is_behind_proxy} = $self->{is_behind_proxy};
+    $new_request->{vars}            = $self->{vars};
+
+    # Clone any existing cached body params. (GH#1116)
+    $new_request->env->{'plack.request.body'} = $env->{'plack.request.body'}->clone
+        if exists $env->{'plack.request.body'};
+
+    # reset parameter caching inside Plack::Request
+    delete $new_request->env->{'plack.request.merged'};
+
+    return $new_request;
+}
+
 1;
 
 __END__
