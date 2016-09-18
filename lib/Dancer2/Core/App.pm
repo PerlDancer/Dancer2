@@ -1288,46 +1288,18 @@ sub forward {
 
 # Create a new request which is a clone of the current one, apart
 # from the path location, which points instead to the new location
-# TODO this could be written in a more clean manner with a clone mechanism
 sub make_forward_to {
     my $self    = shift;
     my $url     = shift;
     my $params  = shift;
     my $options = shift;
 
-    my $request = $self->request;
-
-    # we clone the env to make sure we don't alter the existing one in $self
-    my $env = { %{ $request->env } };
-
-    $env->{PATH_INFO} = $url;
-
-    # request body fh has been read till end
-    # delete CONTENT_LENGTH in new request (no need to parse body again)
-    # and merge existing params
-    delete $env->{CONTENT_LENGTH};
-
-    my $new_request = Dancer2::Core::Request->new(
-        env         => $env,
-        body_params => {},
-    );
-
-    my $new_params = _merge_params( scalar( $request->params ), $params || {} );
-
+    my $overrides = { PATH_INFO => $url };
     exists $options->{method} and
-        $new_request->env->{'REQUEST_METHOD'} = $options->{method};
+        $overrides->{REQUEST_METHOD} = $options->{method};
 
-    # Copy params (these are already decoded)
-    $new_request->{_params}       = $new_params;
-    $new_request->{_body_params}  = $request->{_body_params};
-    $new_request->{_query_params} = $request->{_query_params};
-    $new_request->{_route_params} = $request->{_route_params};
-    $new_request->{body}          = $request->body;
-    $new_request->{headers}       = $request->headers;
-
-    # Copy remaining settings
-    $new_request->{is_behind_proxy} = $request->{is_behind_proxy};
-    $new_request->{vars}            = $request->{vars};
+    # "clone" the existing request
+    my $new_request = $self->request->_shallow_clone( $params, $overrides );
 
     # If a session object was created during processing of the original request
     # i.e. a session object exists but no cookie existed
@@ -1340,16 +1312,6 @@ sub make_forward_to {
         Dancer2::Core::Cookie->new( name => $name, value => $self->session->id );
 
     return $new_request;
-}
-
-sub _merge_params {
-    my $params = shift;
-    my $to_add = shift;
-
-    for my $key ( keys %$to_add ) {
-        $params->{$key} = $to_add->{$key};
-    }
-    return $params;
 }
 
 sub app { shift }
