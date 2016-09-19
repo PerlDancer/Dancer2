@@ -37,6 +37,16 @@ sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc "$_" ) } }
 1;
 _EVAL
 
+eval {
+    require Unicode::UTF8;
+    no warnings qw<redefine once>;
+    *__decode = sub { Unicode::UTF8::decode_utf8($_[0]) };
+    1;
+} or do {
+    no warnings qw<redefine once>;
+    *__decode = sub { decode( 'UTF-8', $_[0] ) };
+};
+
 # check presence of XS module to speedup request
 our $XS_URL_DECODE         = eval { require_module('URL::Encode::XS'); 1; };
 our $XS_PARSE_QUERY_STRING = eval { require_module('CGI::Deurl::XS');  1; };
@@ -392,7 +402,7 @@ sub _decode {
     return if not defined $h;
 
     if ( !is_ref($h) && !utf8::is_utf8($h) ) {
-        return decode( 'UTF-8', $h );
+        return __decode($h);
     }
     elsif ( ref($h) eq 'Hash::MultiValue' ) {
         return Hash::MultiValue->from_mixed(_decode($h->as_hashref_mixed));
