@@ -523,7 +523,10 @@ sub register_plugin {
                     $plugin_module->can($keyword)
                       or *{"${plugin_module}::$keyword"} = sub {
                         $_[0]
-                          ? do { my $cc = shift()->app->name->can($keyword); $cc->(@_) }
+                          ? do {
+                            my $cb = shift()->app->name->can($keyword);
+                            $cb->(@_);
+                          }
                           : $app_dsl_cb->(@_);
                       };
                 }
