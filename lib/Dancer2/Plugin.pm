@@ -522,8 +522,9 @@ sub register_plugin {
                     no strict 'refs';
                     $plugin_module->can($keyword)
                       or *{"${plugin_module}::$keyword"} = sub {
-                          my $coderef = shift()->app->name->can($keyword);
-                          $coderef->(@_);
+                        $_[0]
+                          ? do { my $cc = shift()->app->name->can($keyword); $cc->(@_) }
+                          : $app_dsl_cb->(@_);
                       };
                 }
             });
