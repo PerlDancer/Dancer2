@@ -8,7 +8,7 @@ use Module::Runtime    'is_module_name';
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
-use Module::Runtime    'use_module';
+use Module::Runtime    qw< require_module use_module >;
 use List::Util         ();
 use Ref::Util          qw< is_ref is_globref is_scalarref >;
 
