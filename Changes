@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
+      (Sawyer X)
+
     [ BUG FIXES ]
     * GH #1235: Clean up descriptions for HTTP codes 303 and 305.
       (Yanick Champoux)
