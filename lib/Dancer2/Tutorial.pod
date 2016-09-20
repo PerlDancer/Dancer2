@@ -607,13 +607,7 @@ L<Dancer2::Plugins>
 
 =back
 
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2010 by Mark R. Allen.
-
-This is free software; you can redistribute it and/or modify it under the
-terms of either the Artistic License 2.0 or the GNU Public License version
-2.
+=head1 CSS COPYRIGHT AND LICENSE
 
 The CSS stylesheet is copied verbatim from the Flaskr example application
 and is subject to their license:
