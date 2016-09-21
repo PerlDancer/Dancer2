@@ -24,8 +24,9 @@ template: "simple"
 # engines:
 #   template:
 #     template_toolkit:
-#       start_tag: '<%'
-#       end_tag:   '%>'
+#       START_TAG: '<%'
+#       END_TAG:   '%>'
+#       ANYCASE:   1
 
 # session engine
 #
