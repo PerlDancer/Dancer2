@@ -3,6 +3,7 @@
     [ DOCUMENTATION ]
     * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
       (Sawyer X)
+    * Simplify upload example. (Alberto Simões, Sawyer X)
 
     [ BUG FIXES ]
     * GH #1235: Clean up descriptions for HTTP codes 303 and 305.

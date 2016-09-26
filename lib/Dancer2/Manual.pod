@@ -1361,11 +1361,10 @@ Files are uploaded in Dancer2 using the class L<Dancer2::Core::Request::Upload>.
 The objects are accessible within the route handlers using the C<upload>
 keyword:
 
-    post '/upload/:file' => sub {
+    post '/upload' => sub {
         my $upload_dir = "MyApp/UPLOADS";
-        my $filename   = route_parameters->get('file') # route param
         my $upload     = upload('file_input_name');    # upload object
-        $upload->copy_to("$upload_dir/$filename");
+        $upload->copy_to('Uploads/');
     };
 
 =head1 CONFIGURATION
