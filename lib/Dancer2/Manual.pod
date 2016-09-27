@@ -2599,7 +2599,7 @@ Returns a L<Hash::MultiValue> object from the body parameters.
 
     post '/' => sub {
         my $last_name = body_parameters->get('name');
-        my @all_names = body_parameters->get('name');
+        my @all_names = body_parameters->get_all('name');
     };
 
 =head2 pass
