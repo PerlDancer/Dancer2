@@ -83,33 +83,18 @@ sub match {
 
     my @values = $request->dispatch_path =~ $self->regexp;
 
+    return unless @values;
+
     # if some named captures are found, return captures
     # no warnings is for perl < 5.10
-    if (my %captures =
-        do { no warnings; %+ }
-      )
-    {
-        return $self->_match_data( { captures => \%captures } );
-    }
-
-    return unless @values;
+    my %captures = do { no warnings; %+ };
 
     # regex comments are how we know if we captured a token,
     # splat or a megasplat
-    my @token_or_splat = $self->regexp =~ /\(\?#(token|(?:mega)?splat)\)/g;
+    my @token_or_splat = $self->regexp =~ /\(\?#((?:mega)?splat)\)/g;
     if (@token_or_splat) {
-        # our named tokens
-        my @tokens = @{ $self->_params };
-
-        my %params;
         my @splat;
         for ( my $i = 0; $i < @values; $i++ ) {
-            # Is this value from a token?
-            if ( $token_or_splat[$i] eq 'token' ) {
-                $params{ shift @tokens } = $values[$i];
-                 next;
-            }
-
             # megasplat values are split on '/'
             if ($token_or_splat[$i] eq 'megasplat') {
                 $values[$i] = [
@@ -119,8 +104,9 @@ sub match {
             push @splat, $values[$i];
         }
         return $self->_match_data( {
-            %params,
+            %captures,
             (splat => \@splat)x!! @splat,
+            (captures => \%captures)x!! %captures
         });
     }
 
@@ -221,7 +207,8 @@ sub _build_regexp_from_string {
             first { $_ eq 'captures' } @params
                 and warn q{Named placeholder 'captures' is deprecated};
 
-            $string =~ s!(:[^\/\.\?]+)!(?#token)([^/]+)!g;
+            # Convert :name expressions to (?<name>[^/]+) named captures
+            $string =~ s!:([^\/\.\?]+)!(?<$1>[^/]+)!g;
             $capture = 1;
         }
     }
