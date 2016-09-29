@@ -14,6 +14,9 @@
     [ BUG FIXES ]
     * GH #1237: Specify minimum version of List::Util required for pair*
       functionals. (Russell @veryrusty Jenkins)
+    * GH #1240: JSON body deserialization should use HMV->new since
+      HMV->from_mixed does horrible things to first-level hash reference
+      values. (Peter Mottram - SysPete)
 
     [ ENHANCEMENTS ]
     * PR #1242: Replace Class::Load with Module::Runtime (Russell 
