@@ -106,6 +106,12 @@ sub _build_config {
     };
 }
 
+sub set_siteroot {
+    my $self = shift;
+    my $siteroot = shift;
+    $self->config->{'siteroot'} = $siteroot;
+}
+
 sub BUILD {
     my $self = shift;
 

@@ -105,9 +105,9 @@ sub _build_default_config { +{} }
 sub _build_environment { 'development' }
 
 sub _build_config_files {
-    my ($self) = @_;
+    my ($self, $forced_location) = @_;
 
-    my $location = $self->config_location;
+    my $location = $forced_location || $self->config_location;
     # an undef location means no config files for the caller
     return [] unless defined $location;
 
@@ -125,8 +125,23 @@ sub _build_config_files {
             push @files, $path;
         }
     }
-
-    return [ sort @files ];
+    if(@files)
+    {
+        return [ sort @files ];
+    }
+    else
+    {
+        #If no file is found in the app config path, search will be repeated under the siteroot.
+        #This fallback will not be activated if a forced_location is provided (to avoid loop)
+        if(! $forced_location && Dancer2->runner->config->{'siteroot'})
+        {
+            return $self->_build_config_files(Dancer2->runner->config->{'siteroot'});
+        }
+        else
+        {
+            return [ sort @files ]; #Dumb answer, @files is still empty
+        }
+    }
 }
 
 sub _build_config {
