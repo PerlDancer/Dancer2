@@ -3,7 +3,7 @@ package Dancer2::Core::Role::HasLocation;
 
 use Moo::Role;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils;
+use Dancer2::FileUtils ();
 use File::Spec;
 use Sub::Quote 'quote_sub';
 
