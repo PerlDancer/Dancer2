@@ -7,7 +7,7 @@ use Carp;
 use Module::Runtime 'require_module';
 use Ref::Util qw< is_arrayref >;
 use Dancer2::Core::Hook;
-use Dancer2::FileUtils;
+use Dancer2::FileUtils ();
 use Dancer2::Core::Response::Delayed;
 
 with 'Dancer2::Core::Role::DSL';
