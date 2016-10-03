@@ -478,13 +478,51 @@ in your C<config.yml> file. Dancer2 will not respect this. Instead, invoke
 middleware in your C<app.psgi> as demonstrated in
 L<Dancer2::Manual::Deployment>.
 
-=head2 Keywords
-
 =head3 Parameters
 
 We've provided new parameter keywords, described in L<Dancer2::Manual>,
 meant to replace all uses of C<param> or C<params>: C<route_parameters>,
 C<query_parameters>, and C<body_parameters>.
+
+=head3 Calling Keywords Explicitly
+
+In Dancer1, keywords could be imported individually into a package:
+
+    package MyApp;
+    use Dancer qw< get post params session >;
+
+    get '/foo' { ... };
+
+Keywords could be called explicitly:
+
+    package MyApp;
+    use Dancer qw< get post params session >;
+    use List::Util qw< any >;
+
+    Dancer::any sub { ... };
+
+Dancer2's DSL is implemented differently, and neither of these are possible
+directly. If you need this ability, you can write a package which provides
+this as follows:
+
+    package MyApp::DSL;
+    use Dancer2 appname => 'MyApp';
+
+    use Exporter qw< import >;
+
+    our @EXPORT = qw< get post ... >
+
+Then in other packages:
+
+    package MyApp;
+
+    use MyApp::DSL qw< get post >;
+
+    MyApp::DSL::any sub { ... };
+
+=head3 appdir
+
+This keyword does not exist in Dancer2.
 
 =head3 load
 
