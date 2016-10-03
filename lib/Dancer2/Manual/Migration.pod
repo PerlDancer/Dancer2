@@ -434,6 +434,13 @@ for these options, or the particular session engine for other supported options.
 	    is_secure: 1
         is_http_only: 1
 
+=head3 Plack Middleware
+
+In Dancer1 you could set up Plack Middleware using a C<plack_middlewares> key
+in your C<config.yml> file. Dancer2 will not respect this. Instead, invoke
+middleware in your C<app.psgi> as demonstrated in
+L<Dancer2::Manual::Deployment>.
+
 =head2 Keywords
 
 =head3 load
