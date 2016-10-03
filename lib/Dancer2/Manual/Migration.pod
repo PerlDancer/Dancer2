@@ -526,3 +526,14 @@ You can retrieve the whole session hash with the C<data> method:
 
     $session->data;
 
+To destroy a session, instead of writing:
+
+    session->destroy
+
+In Dancer2, we write:
+
+    app->destroy_session if app->has_session
+
+If you make changes to the session in an C<after> hook, your changes will
+not be written to storage, because writing sessions to storage also takes
+place in an (earlier) C<after> hook.
