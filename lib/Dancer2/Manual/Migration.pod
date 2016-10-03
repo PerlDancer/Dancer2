@@ -306,6 +306,26 @@ function with decoded input.
 
 =back
 
+=head3 Templating engine changes
+
+Whereas in Dancer1 it was acceptable to write:
+
+    template '/foo/bar'
+
+In Dancer2, the leading slash is not permitted:
+
+    template 'foo/bar'
+
+Whereas in Dancer1, template engines have the methods:
+
+    $template_engine->view('foo.tt')
+    $template_engine->view_exists('foo.tt')
+
+In Dancer2, you should instead write:
+
+    $template_engine->view_pathname('foo.tt')
+    $template_engine->pathname_exists($full_path)
+
 =head3 Serializers
 
 You no longer need to implement the C<loaded> method. It is simply
