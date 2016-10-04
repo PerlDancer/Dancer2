@@ -70,7 +70,6 @@ my $HTTP_CODES = {
     449 => 'Retry With',
     450 => 'Blocked by Windows Parental Controls',
     451 => 'Unavailable For Legal Reasons',
-    451 => 'Redirect',
     494 => 'Request Header Too Large',
     495 => 'Cert Error',
     496 => 'No Cert',
