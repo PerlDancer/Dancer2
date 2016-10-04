@@ -8,6 +8,8 @@
     [ BUG FIXES ]
     * GH #1235: Clean up descriptions for HTTP codes 303 and 305.
       (Yanick Champoux)
+    * Remove duplicate (and errornous) 451 error message.
+      (Sawyer X)
 
 0.203001  2016-09-03 20:59:47-05:00 America/Chicago
 
