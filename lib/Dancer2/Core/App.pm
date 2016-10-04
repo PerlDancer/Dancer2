@@ -27,6 +27,12 @@ use Dancer2::Core::Factory;
 
 use Dancer2::Handler::File;
 
+our $EVAL_SHIM = sub {
+    my $code = shift;
+    $code->(@_);
+};
+
+
 # we have hooks here
 with qw<
     Dancer2::Core::Role::Hookable
@@ -424,9 +430,20 @@ sub _build_session {
 
         # if we have a session cookie, try to retrieve the session
         if ( defined $session_id ) {
-            eval  { $session = $engine->retrieve( id => $session_id ); 1; }
-            or do { $@ and $@ !~ /Unable to retrieve session/
-                        and croak "Fail to retrieve session: $@" };
+            eval  {
+                $EVAL_SHIM->(sub {
+                    $session = $engine->retrieve( id => $session_id );
+                });
+                1;
+            }
+            or do {
+                my $err = $@ || "Zombie Error";
+                if ( $err !~ /Unable to retrieve session/ ) {
+                    croak "Failed to retrieve session: $err"
+                } else {
+                    # XXX we throw away the error entirely? Why?
+                }
+            };
         }
     }
 
@@ -917,8 +934,15 @@ sub send_as {
 
     # Try and load the serializer class
     my $serializer_class = "Dancer2::Serializer::$type";
-    eval { require_module( $serializer_class ); 1; } or
-        croak "Unable to load serializer class for $type";
+    eval {
+        $EVAL_SHIM->(sub {
+            require_module( $serializer_class );
+        });
+        1;
+    } or do {
+        my $err = $@ || "Zombie Error";
+        croak "Unable to load serializer class for $type: $err";
+    };
 
     # load any serializer engine config
     my $engine_options =
@@ -1116,11 +1140,12 @@ sub compile_hooks {
                 $Dancer2::Core::Route::RESPONSE->is_halted
                     and return;
 
-                eval  { $hook->(@_); 1; }
+                eval  { $EVAL_SHIM->($hook,@_); 1; }
                 or do {
+                    my $err = $@ || "Zombie Error";
                     $app->cleanup;
-                    $app->log('error', "Exception caught in '$position' filter: $@");
-                    croak "Exception caught in '$position' filter: $@";
+                    $app->log('error', "Exception caught in '$position' filter: $err");
+                    croak "Exception caught in '$position' filter: $err";
                 };
             };
 
@@ -1148,13 +1173,14 @@ sub lexical_prefix {
     # if the new prefix is empty, it's a meaningless prefix, just ignore it
     length $new_prefix and $self->prefix($new_prefix);
 
-    eval { $cb->() };
-    my $e = $@;
+    my $err;
+    my $ok= eval { $EVAL_SHIM->($cb); 1 }
+            or do { $err = $@ || "Zombie Error"; };
 
     # restore app prefix
     $self->prefix($app_prefix);
 
-    $e and croak "Unable to run the callback for prefix '$prefix': $e";
+    $ok or croak "Unable to run the callback for prefix '$prefix': $err";
 }
 
 sub add_route {
@@ -1361,13 +1387,14 @@ sub to_app {
 
         my $response;
         eval {
-            $response = $self->dispatch($env)->to_psgi;
+            $EVAL_SHIM->(sub{ $response = $self->dispatch($env)->to_psgi });
             1;
         } or do {
+            my $err = $@ || "Zombie Error";
             return [
                 500,
                 [ 'Content-Type' => 'text/plain' ],
-                [ "Internal Server Error\n\n$@"  ],
+                [ "Internal Server Error\n\n$err"  ],
             ];
         };
 
@@ -1544,17 +1571,28 @@ sub _dispatch_route {
     my ( $self, $route ) = @_;
 
     local $@;
-    eval { $self->execute_hook( 'core.app.before_request', $self ); 1; }
-        or return $self->response_internal_error($@);
+    eval {
+        $EVAL_SHIM->(sub {
+            $self->execute_hook( 'core.app.before_request', $self );
+        });
+        1;
+    } or do {
+        my $err = $@ || "Zombie Error";
+        return $self->response_internal_error($err);
+    };
     my $response = $self->response;
 
     if ( $response->is_halted ) {
         return $self->_prep_response( $response );
     }
 
-    $response = eval {
-        $route->execute($self)
-    } or return $self->response_internal_error($@);
+    eval {
+        $EVAL_SHIM->(sub{ $response = $route->execute($self) });
+        1;
+    } or do {
+        my $err = $@ || "Zombie Error";
+        return $self->response_internal_error($err);
+    };
 
     return $response;
 }
@@ -1780,3 +1818,31 @@ to make it work.
         my $app        = $WannaBeContext->app; # works
     };
 
+=head2 C< $SIG{__DIE__} > Compatibility via C< $Dancer2::Core::App::EVAL_SHIM >
+
+If an installation wishes to use C< $SIG{__DIE__} > hooks to enhance
+their error handling then it may be required to ensure that certain
+bookkeeping code is executed within every C<eval BLOCK> that Dancer2
+performs. This can be accomplished by overriding the global variable
+C<$Dancer2::Core::App::EVAL_SHIM> with a subroutine which does whatever
+logic is required.
+
+This routine must perform the equivalent of the following subroutine:
+
+    our $EVAL_SHIM = sub {
+        my $code = shift;
+        return $code->(@_);
+    };
+
+An example of overriding this sub might be as follows:
+
+    $Dancer2::Core::App::EVAL_SHIM = sub {
+        my $code = shift;
+        local $IGNORE_EVAL_COUNTER = $IGNORE_EVAL_COUNTER + 1;
+        return $code->(@_);
+    };
+
+B<Note:> that this is a GLOBAL setting, which must be set up before
+any form of dispatch or use of Dancer2.
+
+=cut
