@@ -572,7 +572,7 @@ sub _exporter_expand_sub {
     $orig_cb and *{'Dancer2::Core::App::add_hook'} = sub {
         my ( $app, $hook ) = @_;
 
-        my $hook_code = $hook->code;
+        my $hook_code = Scalar::Util::blessed($hook) ? $hook->code : $hook->{code};
         my $plugin    = $CUR_PLUGIN;
 
         $hook->{'code'} = sub {
