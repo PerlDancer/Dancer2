@@ -477,7 +477,7 @@ In Dancer1, keywords could be imported individually into a package:
 
     get '/foo' { ... };
 
-Keywords could be called explicitly:
+Any keywords you did't export could be called explicitly:
 
     package MyApp;
     use Dancer qw< get post params session >;
@@ -485,9 +485,11 @@ Keywords could be called explicitly:
 
     Dancer::any sub { ... };
 
-Dancer2's DSL is implemented differently, and neither of these are possible
-directly. If you need this ability, you can write a package which provides
-this as follows:
+Dancer2's DSL is implemented differently. Keywords only exist in the namespace
+of the package which C<use>s Dancer2, i.e. there is no C<Dancer2::any>, only
+e.g. C<MyApp::any>.
+
+If you only want individual keywords, you can write a shim as follows:
 
     package MyApp::DSL;
     use Dancer2 appname => 'MyApp';
