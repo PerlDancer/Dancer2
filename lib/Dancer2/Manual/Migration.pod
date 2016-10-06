@@ -308,13 +308,16 @@ function with decoded input.
 
 =head3 Templating engine changes
 
-Whereas in Dancer1 it was acceptable to write:
-
-    template '/foo/bar'
-
-In Dancer2, the leading slash is not permitted:
+Whereas in Dancer1, the following were equivalent for Template::Toolkit:
 
     template 'foo/bar'
+    template '/foo/bar'
+
+In Dancer2, when using L<Dancer2::Template::TemplateToolkit>, the version with
+the leading slash will try to locate C</foo/bar> relative to your filesystem
+root, not relative to your Dancer application directory.
+
+The L<Dancer2::Template::Simple> engine is unchanged in this respect.
 
 Whereas in Dancer1, template engines have the methods:
 
@@ -325,6 +328,8 @@ In Dancer2, you should instead write:
 
     $template_engine->view_pathname('foo.tt')
     $template_engine->pathname_exists($full_path)
+
+You may not need these unless you are writing a templating engine.
 
 =head3 Serializers
 
