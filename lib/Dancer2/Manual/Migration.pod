@@ -508,7 +508,8 @@ Then in other packages:
 
 =head3 appdir
 
-This keyword does not exist in Dancer2.
+This keyword does not exist in Dancer2. However, the same information can be
+found in C<< config->{'appdir'} >>.
 
 =head3 load
 
