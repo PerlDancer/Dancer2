@@ -7,6 +7,8 @@
 
     [ BUG FIXES ]
     * GH #1255: Fix hook overriding in plugin. (Yves Orton)
+    * GH #1191: Named capture prior to dispatch breaks dispatch.
+      (Yves Orton)
     * GH #1235: Clean up descriptions for HTTP codes 303 and 305.
       (Yanick Champoux)
     * Remove duplicate (and errornous) 451 error message.

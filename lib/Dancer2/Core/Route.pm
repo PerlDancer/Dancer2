@@ -83,16 +83,17 @@ sub match {
 
     my @values = $request->dispatch_path =~ $self->regexp;
 
+    return unless @values;
+
     # if some named captures are found, return captures
     # no warnings is for perl < 5.10
+    # - Note no @values implies no named captures
     if (my %captures =
         do { no warnings; %+ }
       )
     {
         return $self->_match_data( { captures => \%captures } );
     }
-
-    return unless @values;
 
     # regex comments are how we know if we captured a token,
     # splat or a megasplat
