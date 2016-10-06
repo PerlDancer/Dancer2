@@ -479,8 +479,8 @@ for these options, or the particular session engine for other supported options.
 =head3 Plack Middleware
 
 In Dancer1 you could set up Plack Middleware using a C<plack_middlewares> key
-in your C<config.yml> file. Dancer2 will not respect this. Instead, invoke
-middleware in your C<app.psgi> as demonstrated in
+in your C<config.yml> file. Under Dancer2 you will instead need to invoke
+middleware using L<Plack::Builder>, as demonstrated in
 L<Dancer2::Manual::Deployment>.
 
 =head3 Parameters
