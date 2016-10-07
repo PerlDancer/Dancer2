@@ -14,6 +14,13 @@
     * Remove duplicate (and errornous) 451 error message.
       (Sawyer X)
 
+    [ ENHANCEMENTS ]
+    * You can now provide a $EVAL_SHIM to Dancer2::Core::App in order
+      to have custom code run on eval{} calls. One example of this
+      is to handle proper counting of stack frames when you want to
+      unwind/unroll the stack for custom error reporting.
+      (Yves Orton)
+
 0.203001  2016-09-03 20:59:47-05:00 America/Chicago
 
     [ BUG FIXES ]
