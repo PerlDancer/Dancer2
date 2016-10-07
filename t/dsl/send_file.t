@@ -36,7 +36,7 @@ use File::Spec;
 
     get '/filehandle' => sub {
         open my $fh, "<:raw", __FILE__;
-        send_file( $fh, content_type => 'text/plain' );
+        send_file( $fh, content_type => 'text/plain', charset => 'utf-8' );
     };
 
     get '/check_content_type' => sub {
@@ -100,6 +100,8 @@ test_psgi $app, sub {
         my $r = $cb->( GET '/filehandle' );
 
         is( $r->code, 200, 'send_file set status to 200 (filehandle)');
+        is( $r->content_type, 'text/plain', 'expected content_type');
+        is( $r->content_type_charset, 'UTF-8', 'expected charset');
         like( $r->content, qr{package StaticContent}, 'filehandle content' );
     };
 
