@@ -2880,6 +2880,11 @@ like this:
 
     send_file(params->{file}, content_type => 'png');
 
+The encoding of the file or filehandle may be specified by passing both
+the C<content_type> and C<charset> options. For example:
+
+    send_file($fh, content_type => 'text/csv', charset => 'utf-8' );
+
 For files outside your B<public> folder, you can use the C<system_path>
 switch. Just bear in mind that its use needs caution as it can be dangerous.
 
@@ -2898,7 +2903,7 @@ Content-Disposition header, to hint the browser about the filename it should
 use.
 
    send_file( \$data, content_type => 'image/png'
-                             filename     => 'onion.png' );
+                      filename     => 'onion.png' );
 
 
 =head2 set
