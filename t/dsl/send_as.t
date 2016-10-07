@@ -22,7 +22,7 @@ use HTTP::Request::Common;
     };
 
     get '/json-utf8/**' => sub {
-        send_as JSON => splat, { content_type => 'application/json; charset=utf-8' };
+        send_as JSON => splat, { content_type => 'application/json', charset => 'utf-8' };
     };
 
     get '/yaml/**' => sub {
