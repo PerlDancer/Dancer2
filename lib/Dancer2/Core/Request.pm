@@ -383,7 +383,8 @@ sub parameters {
         return $self->$attr;
     }
 
-    $self->env->{'plack.request.merged'} ||= do {
+    # merge together the *decoded* parameters
+    $self->{'merged_parameters'} ||= do {
         my $query = $self->query_parameters;
         my $body  = $self->body_parameters;
         my $route = $self->route_parameters; # not in Plack::Request
@@ -637,14 +638,12 @@ sub _shallow_clone {
     # Clone and merge query params
     my $new_params = $self->params;
     $new_request->{_query_params} = { %{ $self->{_query_params} || {} } };
-    $new_request->env->{'plack.request.query'} = $env->{'plack.request.query'}
-        ? $env->{'plack.request.query'}->clone
-        : Hash::MultiValue->new({});
+    $new_request->{query_parameters} = $self->query_parameters->clone;
     for my $key ( keys %{ $params || {} } ) {
         my $value = $params->{$key};
         $new_params->{$key} = $value;
         $new_request->{_query_params}->{$key} = $value;
-        $new_request->query_parameters->add( $key =>  $value );
+        $new_request->{query_parameters}->add( $key => $value );
     }
 
     # Copy params (these are already decoded)
@@ -658,12 +657,11 @@ sub _shallow_clone {
     $new_request->{is_behind_proxy} = $self->{is_behind_proxy};
     $new_request->{vars}            = $self->{vars};
 
-    # Clone any existing cached body params. (GH#1116)
-    $new_request->env->{'plack.request.body'} = $env->{'plack.request.body'}->clone
-        if exists $env->{'plack.request.body'};
+    # Clone any existing decoded & cached body params. (GH#1116 GH#1269)
+    $new_request->{'body_parameters'} = $self->body_parameters->clone;
 
-    # reset parameter caching inside Plack::Request
-    delete $new_request->env->{'plack.request.merged'};
+    # Delete merged HMV parameters, allowing them to be reconstructed on first use.
+    delete $new_request->{'merged_parameters'};
 
     return $new_request;
 }
