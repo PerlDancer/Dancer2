@@ -926,9 +926,9 @@ sub send_as {
             carp "Please use 'html' as the type for 'send_as', not $type";
         }
 
-        my $charset = $self->config->{charset} || 'UTF-8';
-        my $content = Encode::encode( $charset, $data );
-        $options->{content_type} ||= 'text/html; charset=' . $charset;
+        $options->{charset} = $self->config->{charset} || 'UTF-8';
+        my $content = Encode::encode( $options->{charset}, $data );
+        $options->{content_type} ||= 'text/html';
         $self->send_file( \$content, %$options );     # returns from sub
     }
 
@@ -977,7 +977,7 @@ sub send_file {
     my $thing   = shift;
     my %options = @_;
 
-    my ($content_type, $file_path);
+    my ($content_type, $charset, $file_path);
 
     # are we're given a filehandle? (based on what Plack::Middleware::Lint accepts)
     my $is_filehandle = Plack::Util::is_real_fh($thing)
@@ -1025,18 +1025,19 @@ sub send_file {
         # Read file content as bytes
         $fh = Dancer2::FileUtils::open_file( "<", $file_path );
         binmode $fh;
-
         $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
-             $content_type .= "; charset=" . ( $self->config->{charset} || "utf-8" );
+            $charset = $self->config->{charset} || "utf-8";
         }
     }
 
     # Now we are sure we can render the file...
     $self->execute_hook( 'core.app.before_file_render', $file_path );
 
-    # response content type
+    # response content type and charset
     ( exists $options{'content_type'} ) and $content_type = $options{'content_type'};
+    ( exists $options{'charset'} ) and $charset = $options{'charset'};
+    $content_type .= "; charset=$charset" if $content_type and $charset;
     ( defined $content_type )
       and $self->response->header('Content-Type' => $content_type );
 

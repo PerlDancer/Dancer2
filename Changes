@@ -17,6 +17,8 @@
       (Yves Orton)
     * Added a cpanfile to allow installing local dependencies with 
       carton. (Mickey Nasriachi)
+    * GH #1260: Specify optional charset to send_file and send_as
+      (Russell @veryrusty Jenkins)
 
     [ DOCUMENTATION ]
     * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
