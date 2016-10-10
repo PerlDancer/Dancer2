@@ -111,22 +111,34 @@ sub _build_config_files {
     # an undef location means no config files for the caller
     return [] unless defined $location;
 
-    my $running_env = $self->environment;
-    my @exts = Config::Any->extensions;
+    my @exts = exists $ENV{DANCER_CONFIGFILE_EXT}
+             ? $ENV{DANCER_CONFIGFILE_EXT}
+             : Config::Any->extensions;
+
     my @files;
-
-    foreach my $ext (@exts) {
-        foreach my $file ( [ $location, "config.$ext" ],
-            [ $self->environments_location, "$running_env.$ext" ] )
-        {
-            my $path = path( @{$file} );
+    my %multiples;
+    for my $config ( [ $location, "config" ], 
+                      [ $self->environments_location, $self->environment ],
+                      [ $self->environments_location, "my-" . $self->environment ] ) {
+        my ($location, $filename) = @{$config};
+        my $found_config = 0;
+        for my $ext (@exts) {
+            my $path = path( $location, "$filename.$ext" );
             next if !-r $path;
-
-            push @files, $path;
+            if ($found_config) {
+                push @{$multiples{$files[-1]}}, $path;
+            } else {
+                push @files, $path;
+                $found_config = 1;
+            }
         }
     }
+    for my $conf (keys %multiples) {
+        warn "Used config file $conf, but also found and did NOT use these config files: @{$multiples{$conf}}";
+    }
 
-    return [ sort @files ];
+    push @files, $ENV{DANCER_ALT_CONFIG}  if exists $ENV{DANCER_ALT_CONFIG};
+    return \@files;
 }
 
 sub _build_config {
