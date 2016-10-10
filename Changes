@@ -1,10 +1,5 @@
 {{$NEXT}}
 
-    [ DOCUMENTATION ]
-    * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
-      (Sawyer X)
-    * Simplify upload example. (Alberto Simões, Sawyer X)
-
     [ BUG FIXES ]
     * GH #1255: Fix hook overriding in plugin. (Yves Orton)
     * GH #1191: Named capture prior to dispatch breaks dispatch.
@@ -20,6 +15,13 @@
       is to handle proper counting of stack frames when you want to
       unwind/unroll the stack for custom error reporting.
       (Yves Orton)
+    * Added a cpanfile to allow installing local dependencies with 
+      carton. (Mickey Nasriachi)
+
+    [ DOCUMENTATION ]
+    * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
+      (Sawyer X)
+    * Simplify upload example. (Alberto Simões, Sawyer X)
 
 0.203001  2016-09-03 20:59:47-05:00 America/Chicago
 
