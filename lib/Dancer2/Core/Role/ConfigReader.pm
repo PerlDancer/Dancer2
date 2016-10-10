@@ -112,8 +112,22 @@ sub _build_config_files {
     return [] unless defined $location;
 
     my $running_env = $self->environment;
-    my @exts = Config::Any->extensions;
+    my @available_exts = Config::Any->extensions;
     my @files;
+
+    my @exts = @available_exts;
+    if (my $ext = $ENV{DANCER_CONFIG_EXT}) {
+        if (grep { $ext eq $_ } @available_exts) {
+            @exts = $ext;
+            warn "Only looking for configs ending in '$ext'\n" 
+                if $ENV{DANCER_CONFIG_VERBOSE};
+        } else {
+            warn "DANCER_CONFIG_EXT environment variable set to '$ext' which\n" .
+                 "is not recognized by Config::Any. Looking for config file\n" .
+                 "using default list of extensions:\n" .
+                 "\t@available_exts\n";
+        }
+    }
 
     foreach my $ext (@exts) {
         foreach my $file ( [ $location, "config.$ext" ],
@@ -126,7 +140,13 @@ sub _build_config_files {
         }
     }
 
-    return [ sort @files ];
+    # Look for *_local.ext files
+    @files = map {
+        (my $l = $_) =~ s/(\w+)(\.\w+)$/${1}_local$2/;
+        $_, (-r $l ? $l : () );
+    } sort @files;
+
+    return \@files;
 }
 
 sub _build_config {
@@ -137,7 +157,10 @@ sub _build_config {
 
     my $config = Hash::Merge::Simple->merge(
         $default,
-        map +( $self->load_config_file($_) ), @{ $self->config_files }
+        map {
+            warn "Merging config file $_\n" if $ENV{DANCER_CONFIG_VERBOSE};
+            $self->load_config_file($_) 
+        } @{ $self->config_files }
     );
 
     $config = $self->_normalize_config($config);

@@ -11,6 +11,7 @@ use File::Temp;
 
 my $runner = Dancer2::Core::Runner->new();
 my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
+my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
 {
 
@@ -56,6 +57,16 @@ my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 
     sub _build_environment    {'merging'}
     sub _build_location       {$location}
+    sub _build_default_config {$runner->config}
+
+    package LocalConfig;
+    use Moo;
+    with 'Dancer2::Core::Role::ConfigReader';
+
+    sub name {'LocalConfig'}
+
+    sub _build_environment    {'lconfig'}
+    sub _build_location       {$location2}
     sub _build_default_config {$runner->config}
 
 }
@@ -107,6 +118,31 @@ is_deeply $m->config->{application},
     another_setting => 'baz',
   },
   "full merging of configuration hashes";
+
+{
+    my $l = LocalConfig->new;
+
+    is_deeply $l->config_files,
+      [ path( $location2, 'config.yml' ),
+        path( $location2, 'config_local.yml' ),
+        path( $location2, 'environments', 'lconfig.yml' ),
+        path( $location2, 'environments', 'lconfig_local.yml' ),
+      ],
+      "config_files() with local config works";
+
+    is_deeply $l->config->{application},
+      { feature_1 => 'foo',
+        feature_2 => 'alpha',
+        feature_3 => 'replacement',
+        feature_4 => 'blat',
+        feature_5 => 'beta',
+        feature_6 => 'bar',
+        feature_7 => 'baz',
+        feature_8 => 'goober',
+      },
+      "full merging of local configuration hashes";
+
+}
 
 note "config parsing";
 
