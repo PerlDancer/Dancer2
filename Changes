@@ -19,6 +19,8 @@
       carton. (Mickey Nasriachi)
     * GH #1260: Specify optional charset to send_file and send_as
       (Russell @veryrusty Jenkins)
+    * PR #1162: Change skeleton template tags so skeletons can generate
+      applications that use Template Toolkit default tags (Jason Lewis)
 
     [ DOCUMENTATION ]
     * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
