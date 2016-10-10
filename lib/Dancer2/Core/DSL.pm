@@ -241,11 +241,22 @@ sub _normalize_route {
     my $methods = shift;
     my %args;
 
-    # Options are optional, deduce their presence from arg length.
-    # @_ = ( REGEXP, OPTIONS, CODE )
-    # or
-    # @_ = ( REGEXP, CODE )
-    @args{qw/regexp options code/} = @_ == 3 ? @_ : ( $_[0], {}, $_[1] );
+    # Options are optional, try to deduce their presence from arg length.
+    if ( @_ == 4 ) {
+        # @_ = ( NAME, REGEXP, OPTIONS, CODE )
+        @args{qw<name regexp options code>} = @_;
+    } elsif ( @_ == 2 ) {
+        # @_ = ( REGEXP, CODE )
+        @args{qw<regexp options code>} = ( $_[0], {}, $_[1] );
+    } elsif ( @_ == 3 ) {
+        # @_ = ( REGEXP, OPTIONS, CODE )
+        # @_ = ( NAME, REGEXP, CODE )
+        if (ref $_[1] eq 'HASH') {
+            @args{qw<regexp options code>} = @_;
+        } else {
+            @args{qw<name regexp code>} = @_;
+        }
+    }
 
     return map $app->add_route( %args, method => $_ ), @{$methods};
 }
