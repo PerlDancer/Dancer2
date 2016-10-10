@@ -15,6 +15,8 @@
       is to handle proper counting of stack frames when you want to
       unwind/unroll the stack for custom error reporting.
       (Yves Orton)
+    * Added a cpanfile to allow installing local dependencies with 
+      carton. (Mickey Nasriachi)
 
     [ DOCUMENTATION ]
     * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
