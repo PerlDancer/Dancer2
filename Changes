@@ -21,6 +21,8 @@
       (Russell @veryrusty Jenkins)
     * PR #1162: Change skeleton template tags so skeletons can generate
       applications that use Template Toolkit default tags (Jason Lewis)
+    * GH #1149: Fix config loading inconsistencies, support local config
+      files in addition to standard Dancer conf files (Jonathan Scott Duff)
 
     [ DOCUMENTATION ]
     * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
