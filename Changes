@@ -27,6 +27,8 @@
       files in addition to standard Dancer conf files (Jonathan Scott Duff)
     * PR #1269: Stash decoded body_parameters separately from those 
       in Plack::Request (Russell @veryrusty Jenkins)
+    * GH #1253: Static middleware should send 304 Not Modified to enable
+      intermediate level caching. (Russell @veryrusty Jenkins)
 
     [ DOCUMENTATION ]
     * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
