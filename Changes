@@ -8,6 +8,8 @@
       (Yanick Champoux)
     * Remove duplicate (and errornous) 451 error message.
       (Sawyer X)
+    * GH #1116, #1245: Ensure cached Hash::MultiValue parameters are cloned
+      into the new request. (Russell @veryrusty Jenkins)
 
     [ ENHANCEMENTS ]
     * You can now provide a $EVAL_SHIM to Dancer2::Core::App in order
