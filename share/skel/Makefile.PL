@@ -8,9 +8,9 @@ my $eumm_version = $ExtUtils::MakeMaker::VERSION;
 $eumm_version =~ s/_//;
 
 WriteMakefile(
-    NAME                => '[% appname %]',
+    NAME                => '[d2% appname %2d]',
     AUTHOR              => q{YOUR NAME <youremail@example.com>},
-    VERSION_FROM        => '[% appfile %]',
+    VERSION_FROM        => '[d2% appfile %2d]',
     ABSTRACT            => 'YOUR APPLICATION ABSTRACT',
     ($eumm_version >= 6.3001
       ? ('LICENSE'=> 'perl')
@@ -19,8 +19,8 @@ WriteMakefile(
     PREREQ_PM => {
         'Test::More' => 0,
         'YAML'       => 0,
-        'Dancer2'     => [% dancer_version %],
+        'Dancer2'     => [d2% dancer_version %2d],
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => '[% cleanfiles %]-*' },
+    clean               => { FILES => '[d2% cleanfiles %2d]-*' },
 );
