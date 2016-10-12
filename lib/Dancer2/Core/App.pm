@@ -11,6 +11,7 @@ use Sub::Quote;
 use File::Spec;
 use Module::Runtime    'use_module';
 use List::Util         ();
+use Ref::Util          qw< is_ref is_globref is_scalarref >;
 
 use Plack::App::File;
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -53,7 +54,7 @@ sub with_plugins {
 sub _with_plugin {
     my( $self, $plugin ) = @_;
 
-    if ( ref $plugin ) {
+    if ( is_ref($plugin) ) {
         # passing the plugin as an already-created object
 
         # already loaded?
@@ -80,7 +81,7 @@ sub _with_plugin {
         return $already;
     }
 
-    push @{ $self->plugins }, 
+    push @{ $self->plugins },
          $plugin = use_module($plugin)->new( app => $self );
 
     return $plugin;
@@ -167,7 +168,7 @@ has '+local_triggers' => (
                 my $value  = shift;
                 my $config = shift;
 
-                ref $value and return $value;
+                is_ref($value) and return $value;
 
                 my $build_method    = "_build_${engine}_engine";
                 my $setter_method   = "set_${engine}_engine";
@@ -192,7 +193,7 @@ sub _build_logger_engine {
     defined $config or $config = $self->config;
     defined $value  or $value  = $config->{logger};
 
-    ref $value and return $value;
+    is_ref($value) and return $value;
 
     # XXX This is needed for the tests that create an app without
     # a runner.
@@ -226,7 +227,7 @@ sub _build_session_engine {
     defined $config or $config = $self->config;
     defined $value  or $value  = $config->{'session'} || 'simple';
 
-    ref $value and return $value;
+    is_ref($value) and return $value;
 
     is_module_name($value)
         or croak "Cannot load session engine '$value': illegal module name";
@@ -256,7 +257,7 @@ sub _build_template_engine {
     defined $value  or $value  = $config->{'template'};
 
     defined $value or return;
-    ref $value    and return $value;
+    is_ref($value) and return $value;
 
     is_module_name($value)
         or croak "Cannot load template engine '$value': illegal module name";
@@ -289,7 +290,7 @@ sub _build_serializer_engine {
     defined $value  or $value  = $config->{serializer};
 
     defined $value or return;
-    ref $value    and return $value;
+    is_ref($value) and return $value;
 
     my $engine_options =
         $self->_get_config_for_engine( serializer => $value, $config );
@@ -1002,7 +1003,7 @@ sub send_file {
 
     # are we're given a filehandle? (based on what Plack::Middleware::Lint accepts)
     my $is_filehandle = Plack::Util::is_real_fh($thing)
-      || ( ref $thing eq 'GLOB' && *{$thing}{IO} && *{$thing}{IO}->can('getline') )
+      || ( is_globref($thing) && *{$thing}{IO} && *{$thing}{IO}->can('getline') )
       || ( Scalar::Util::blessed($thing) && $thing->can('getline') );
     my ($fh) = ($thing)x!! $is_filehandle;
 
@@ -1012,7 +1013,7 @@ sub send_file {
     }
 
     # if we're given a SCALAR reference, build a filehandle to it
-    if ( ref $thing eq 'SCALAR' ) {
+    if ( is_scalarref($thing) ) {
         ## no critic qw(InputOutput::RequireCheckedOpen)
         open $fh, "<", $thing;
     }
@@ -1136,7 +1137,7 @@ sub init_route_handlers {
     my $handlers_config = $self->config->{route_handlers};
     for my $handler_data ( @{$handlers_config} ) {
         my ($handler_name, $config) = @{$handler_data};
-        $config = {} if !ref($config);
+        $config = {} if !is_ref($config);
 
         my $handler = $self->_factory->create(
             Handler         => $handler_name,

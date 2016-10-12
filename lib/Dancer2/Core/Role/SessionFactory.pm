@@ -11,6 +11,7 @@ use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
 use Module::Runtime 'require_module';
+use Ref::Util qw< is_ref is_arrayref is_hashref >;
 
 sub hook_aliases { +{} }
 sub supported_hooks {
@@ -163,7 +164,7 @@ sub retrieve {
     my %args = ( id => $id, );
 
     $args{data} = $data
-      if $data and ref $data eq 'HASH';
+      if $data and is_hashref($data);
 
     $args{expires} = $self->cookie_duration
       if $self->has_cookie_duration;
@@ -235,7 +236,7 @@ sub cookie {
     my ( $self, %params ) = @_;
     my $session = $params{session};
     croak "cookie() requires a valid 'session' parameter"
-      unless ref($session) && $session->isa("Dancer2::Core::Session");
+      unless is_ref($session) && $session->isa("Dancer2::Core::Session");
 
     my %cookie = (
         value     => $session->id,
@@ -262,7 +263,7 @@ sub sessions {
     my $sessions = $self->_sessions;
 
     croak "_sessions() should return an array ref"
-      if ref($sessions) ne ref( [] );
+      unless is_arrayref($sessions);
 
     return $sessions;
 }

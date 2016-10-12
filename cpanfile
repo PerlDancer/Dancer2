@@ -31,6 +31,7 @@ requires 'Plack', '1.0035';
 requires 'Plack::Middleware::FixMissingBodyInRedirect';
 requires 'Plack::Middleware::RemoveRedundantBody';
 requires 'POSIX';
+requires 'Ref::Util';
 requires 'Return::MultiLevel';
 requires 'Role::Tiny', '2.000000';
 requires 'Safe::Isa';
