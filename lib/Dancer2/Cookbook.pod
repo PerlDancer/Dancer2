@@ -120,7 +120,7 @@ to generate a graph and expects to get its data, which is in the form
 of wordcount from an AJAX call.
 
 For the graph, we need the url I</data> to return a JSON representation
-of the wordcount data. Dancer infact has a C<to_json()> function that takes
+of the wordcount data. Dancer infact has a C<encode_json()> function that takes
 care of the JSON encapsulation.
 
      get '/data' => sub {
@@ -164,7 +164,7 @@ care of the JSON encapsulation.
 
          };
 
-         to_json( \@json );
+         encode_json( \@json );
      };
 
 For more serious AJAX interaction, there's also L<Dancer2::Plugin::Ajax>
