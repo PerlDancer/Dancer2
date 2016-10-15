@@ -12,8 +12,8 @@ use HTTP::Request::Common;
 
         my %test = (foo => 'bar');
 
-        ::is( encode_json(\%test), '{foo: "bar"}', 'encode_json works' );
-        ::is( decode_json(encode_json(\%test)), \%test, 'decode_json works' );
+        ::is( encode_json(\%test), '{"foo":"bar"}', 'encode_json works' );
+        ::is_deeply( decode_json(encode_json(\%test)), \%test, 'decode_json works' );
     };
 }
 
