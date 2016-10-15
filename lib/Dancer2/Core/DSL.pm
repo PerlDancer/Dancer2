@@ -53,6 +53,7 @@ sub dsl_keywords {
         dancer_version       => { is_global => 1 },
         dancer_major_version => { is_global => 1 },
         debug                => { is_global => 1 },
+        decode_json          => { is_global => 1 },
         del                  => { is_global => 1 },
         delayed              => {
             is_global => 0, prototype => '&@',
@@ -60,6 +61,7 @@ sub dsl_keywords {
         dirname              => { is_global => 1 },
         done                 => { is_global => 0 },
         dsl                  => { is_global => 1 },
+        encode_json          => { is_global => 1 },
         engine               => { is_global => 1 },
         error                => { is_global => 1 },
         false                => { is_global => 1 },
@@ -459,6 +461,18 @@ sub to_json {
     shift; # remove first element
     require_module('Dancer2::Serializer::JSON');
     Dancer2::Serializer::JSON::to_json(@_);
+}
+
+sub decode_json {
+    shift; # remove first element
+    require_module('Dancer2::Serializer::JSON');
+    Dancer2::Serializer::JSON::decode_json(@_);
+}
+
+sub encode_json {
+    shift; # remove first element
+    require_module('Dancer2::Serializer::JSON');
+    Dancer2::Serializer::JSON::encode_json(@_);
 }
 
 sub from_yaml {

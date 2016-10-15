@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    * GH #1262: Add 'encode_json' and 'decode_json' DSL, which are
+      recommended instead of 'to_json' and 'from_json'.
+      (Dennis @episodeiv lichtenthäler)
+
+    [ DOCUMENTATION ]
+    * Fix some typos.(Dennis @episodeiv lichtenthäler)
+
 0.204000  2016-10-10 20:56:51-05:00 America/Chicago
 
     [ BUG FIXES ]

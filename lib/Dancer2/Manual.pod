@@ -1061,7 +1061,7 @@ object and is supposed to store it.
 
      sub _flush {
          my ($self, $session) = @_;
-         my $json = to_json( { %{ $session } } );
+         my $json = encode_json( { %{ $session } } );
          $self->redis->set($session->id, $json);
      }
 
@@ -2321,11 +2321,21 @@ Logs a message of debug level:
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log
 messages go.
 
+=head2 decode_json ($string)
+
+Deserializes a JSON structure from an UTF-8 binary string.
+
 =head2 dirname
 
 Returns the dirname of the path given:
 
     my $dir = dirname($some_path);
+
+=head2 encode_json ($structure)
+
+Serializes a structure to a UTF-8 binary JSON string.
+
+Calling this function will B<not> trigger the serialization's hooks.
 
 =head2 engine
 
@@ -2422,11 +2432,11 @@ the method of your request. Use with caution.
 
 Deserializes a Data::Dumper structure.
 
-=head2 from_json ($structure, \%options)
+=head2 from_json ($string, \%options)
 
-Deserializes a JSON structure. Can receive optional arguments. Those
-arguments are valid L<JSON> arguments to change the behaviour of the default
-C<JSON::from_json> function.
+Deserializes a JSON structure from a string. You should probably use
+C<decode_json> which expects a UTF-8 encoded binary string and
+handles decoding it for you.
 
 =head2 from_yaml ($structure)
 
@@ -3102,11 +3112,8 @@ Calling this function will B<not> trigger the serialization's hooks.
 
 =head2 to_json ($structure, \%options)
 
-Serializes a structure to JSON. Can receive optional arguments. Those
-arguments are valid L<JSON> arguments to change the behaviour of the default
-C<JSON::to_json> function.
-
-Calling this function will B<not> trigger the serialization's hooks.
+Serializes a structure to JSON. You should probably use C<encode_json> instead
+which handles encoding the result for you.
 
 =head2 to_yaml ($structure)
 
