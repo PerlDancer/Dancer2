@@ -14,6 +14,18 @@ sub from_json { __PACKAGE__->deserialize(@_) }
 
 sub to_json { __PACKAGE__->serialize(@_) }
 
+sub decode_json {
+    my ( $entity ) = @_;
+
+    JSON::MaybeXS::decode_json($entity);
+}
+
+sub encode_json {
+    my ( $entity ) = @_;
+
+    JSON::MaybeXS::encode_json($entity);
+}
+
 # class definition
 sub serialize {
     my ( $self, $entity, $options ) = @_;
