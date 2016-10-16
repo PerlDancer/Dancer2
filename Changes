@@ -4,6 +4,7 @@
     * Restore 5.8 support (fix test which required captures).
       (Russell @veryrusty Jenkins)
 
+    [ ENHANCEMENTS ]
     * GH #1262: Add 'encode_json' and 'decode_json' DSL, which are
       recommended instead of 'to_json' and 'from_json'.
       (Dennis @episodeiv lichtenthäler)
