@@ -70,7 +70,6 @@ test_requires 'Test::EOL';
 test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
-test_requires 'Test::Perl::Critic';
 
 author_requires 'AnyEvent';
 author_requires 'CBOR::XS';
@@ -79,5 +78,6 @@ author_requires 'Dist::Zilla::Plugin::Test::UnusedVars';
 author_requires 'Perl::Tidy';
 author_requires 'Test::Memory::Cycle';
 author_requires 'Test::MockTime';
+author_requires 'Test::Perl::Critic';
 author_requires 'Test::Whitespaces';
 author_requires 'YAML::XS';
