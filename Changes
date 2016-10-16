@@ -11,6 +11,8 @@
 
     [ DOCUMENTATION ]
     * Fix some typos.(Dennis @episodeiv lichtenthäler)
+    * GH #1031: Remove D2::Core::Context remnants from docs.
+      (Sawyer X)
 
 0.204000  2016-10-10 20:56:51-05:00 America/Chicago
 
