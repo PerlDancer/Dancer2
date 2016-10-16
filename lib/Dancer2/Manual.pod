@@ -1086,108 +1086,19 @@ The session engine is now ready.
 
 =head3 The Session keyword
 
-When Dancer 2 executes a route handler to process a request, it creates a
-L<Dancer::Core::Context> object. This context is passed to all the
-components of Dancer that can play with it, to build the response. For instance,
-a before hook will receive that context object.
+Dancer2 maintains two session layers.
 
-The session handle for the current client, is thus found in the context. Thus,
-the builder only has to look if the client has a dancer.session cookie, and if
-so, try to retrieve the session from the storage engine, with the value of
-the cookie (the session ID).
+The first layer, L<Dancer2::Core::Session> provides a session object
+which represents the current session. You can read from it as many
+times as you want, and write to it as many times as you want.
 
-     has session => (
-         is      => 'rw',
-         isa     => Session,
-         lazy    => 1,
-         builder => '_build_session',
-     );
-
-     sub _build_session {
-         my ($self) = @_;
-         my $session;
-
-         # Find the session engine
-         my $engine = $self->app->setting('session');
-         croak "No session engine defined, cannot use session."
-           if ! defined $engine;
-
-         # find the session cookie if any
-         my $session_id;
-         my $session_cookie = $self->cookie('dancer.session');
-         if (defined $session_cookie) {
-             $session_id = $session_cookie->value;
-         }
-
-         # if we have a session cookie, try to retrieve the session
-         if (defined $session_id) {
-             eval { $session = $engine->retrieve(id => $session_id) };
-             croak "Fail to retrieve session: $@"
-               if $@ && $@ !~ /Unable to retrieve session/;
-         }
-
-         # create the session if none retrieved
-         return $session ||= $engine->create();
-     }
-
-So the very first time session is called, the object is either retrieved
-from the backend, or a new C<Dancer2::Core::Session> is created, and
-stored in the context.
-Then, a before hook makes sure a cookie dancer.session is added to the headers.
-
-     # Hook to add the session cookie in the headers, if a session is defined
-     $self->add_hook(Dancer2::Core::Hook->new(
-         name => 'core.app.before_request',
-         code => sub {
-             my $context = shift;
-
-             # make sure an engine is defined, if not, nothing to do
-             my $engine = $self->setting('session');
-             return if ! defined $engine;
-
-             # push the session in the headers
-             $context->response->push_header('Set-Cookie',
-                 $context->session->cookie->to_header);
-         }
-     ));
-
-At this time, the user's code comes into play, using the session keyword
-
-     sub session {
-         my ($self, $key, $value) = @_;
-
-         my $session = $self->context->session;
-         croak "No session available, a session engine needs to be set"
-             if ! defined $session;
-
-         # return the session object if no key
-         return $session if @_ == 1;
-
-         # read if a key is provided
-         return $session->read($key) if @_ == 2;
-
-         # write to the session
-         $session->write($key => $value);
-     }
-
-To conclude, an C<after> hook is set to call the flush method of the storage backend.
-
-     # Hook to flush the session at the end of the request, this way, we're sure we
-     # flush only once per request
-     $self->add_hook(
-         Dancer2::Core::Hook->new(
-             name => 'core.app.after_request',
-             code => sub {
-                 # make sure an engine is defined, if not, nothing to do
-                 my $engine = $self->setting('session');
-                 return if ! defined $engine;
-                 return if ! defined $self->context;
-                 $engine->flush(session => $self->context->session);
-             },
-         )
-     );
-
-The code for this can be found on L<Github|https://github.com/sukria/Dancer-Session-Redis/blob/master/lib/Dancer/Session/Redis.pm>
+The second layer is the session engine (L<Dancer2::Session::Simple>
+is one example), which is used in order to implement the reading and
+writing from the actual storage. This is read only once, when a request
+comes in (using a cookie whose value is C<dancer.session> by default).
+At the end of a request, all the data you've written will be flushed
+to the engine itself, which will do the actual write to the storage
+(whether it's in a hash in memory, in Memcache, or in a database).
 
 =head1 TEMPLATES
 
