@@ -14,6 +14,10 @@
     * GH #1031: Remove D2::Core::Context remnants from docs.
       (Sawyer X)
 
+    [ PACKAGING ]
+    * GH #1273: Do not require Test::Perl::Critic to install.
+      (Dennis lichtenthäler)
+
 0.204000  2016-10-10 20:56:51-05:00 America/Chicago
 
     [ BUG FIXES ]
