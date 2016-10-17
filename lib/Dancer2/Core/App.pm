@@ -71,7 +71,7 @@ sub _with_plugin {
     # short plugin names get Dancer2::Plugin:: prefix
     # plugin names starting with a '+' are full package names
     if ( $plugin !~ s/^\+// ) {
-        $plugin =~ s/^/Dancer2::Plugin::/ unless /^Dancer2::Plugin::/;
+        $plugin =~ s/^(?!Dancer2::Plugin::)/Dancer2::Plugin::/;
     }
 
     # check if it's already there
