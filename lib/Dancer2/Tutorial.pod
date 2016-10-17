@@ -210,7 +210,10 @@ the C</add> route handler which handles a POST operation.
      my $db = connect_db();
      my $sql = 'insert into entries (title, text) values (?, ?)';
      my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute(params->{'title'}, params->{'text'}) or die $sth->errstr;
+     $sth->execute(
+         body_parameters->get('title'), 
+         body_parameters->get('text')
+     ) or die $sth->errstr;
 
      set_flash('New entry posted!');
      redirect '/';
@@ -227,7 +230,7 @@ a blatant plug here for always, always using parameterized INSERTs in your
 application SQL statements.  It's the only way to be sure your application
 won't be vulnerable to SQL injection. (See L<http://www.bobby-tables.com>
 for correct INSERT examples in multiple languages.) Here we're using the
-C<params> convenience method to pull in the parameters in the current HTTP
+C<body_parameters> convenience method to pull in the parameters in the current HTTP
 request. (You can see the 'title' and 'text' form parameters in the
 F<show_entries.tt> template above.) Those values are inserted into the
 database, then we set a flash message for the user and redirect her back to
@@ -294,10 +297,10 @@ URL handler for the C</login> route.
 
      if ( request->method() eq "POST" ) {
        # process form input
-       if ( params->{'username'} ne setting('username') ) {
+       if ( body_parameters->get('username') ne setting('username') ) {
          $err = "Invalid username";
        }
-       elsif ( params->{'password'} ne setting('password') ) {
+       elsif ( body_parameters->get('password') ne setting('password') ) {
          $err = "Invalid password";
        }
        else {
@@ -532,7 +535,10 @@ Here's the complete 'dancr.pl' script from start to finish.
      my $db = connect_db();
      my $sql = 'insert into entries (title, text) values (?, ?)';
      my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute(params->{'title'}, params->{'text'}) or die $sth->errstr;
+     $sth->execute(
+         body_parameters->get('title'), 
+         body_parameters->get('text')
+     ) or die $sth->errstr;
 
      set_flash('New entry posted!');
      redirect '/';
@@ -543,10 +549,10 @@ Here's the complete 'dancr.pl' script from start to finish.
 
      if ( request->method() eq "POST" ) {
          # process form input
-         if ( params->{'username'} ne setting('username') ) {
+         if ( body_parameters->get('username') ne setting('username') ) {
              $err = "Invalid username";
          }
-         elsif ( params->{'password'} ne setting('password') ) {
+         elsif ( body_parameters->('password') ne setting('password') ) {
              $err = "Invalid password";
          }
          else {
