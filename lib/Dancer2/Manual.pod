@@ -1116,8 +1116,7 @@ In order to render a view, just call the
 L<template|Dancer2::Manual/template> keyword at the end of the action by
 giving the view name and the HASHREF of tokens to interpolate in the view
 (note that for convenience, the request, session, route_parameters, body_parameters, query_parameters, and vars are
-automatically accessible in the view, named C<request>, C<session>,
-C<route_parameters>, C<body_parameters>, C<query_parameters>, and C<vars>) - for example:
+automatically accessible in the view, named C<request>, C<session>, C<params>, and C<vars>) - for example:
 
     hook before => sub { var time => scalar(localtime) };
 
@@ -2457,6 +2456,19 @@ list context) or a hash reference (in scalar context) to all defined
 parameters. Check C<param> below to access quickly to a single parameter
 value.
 
+    post '/login' => sub {
+        // get all parameters as a single hash
+        my %all_parameters = params;
+
+        // request all parmameters from a specific source: body, query, route
+        my %body_parameters  = params('body');
+        my %route_parameters = params('route');
+        my %query_parameters = params('query');
+
+        // any $source that is not body, query, or route generates an exception
+        params('fake_source'); // Unknown source params "fake_source"
+    };
+
 We now recommend using one of the specific keywords for parameters
 (C<route_parameters>, C<query_parameters>, and C<body_parameters>)
 instead of C<params> or C<param>.
@@ -2470,7 +2482,7 @@ This method is an accessor to the parameters hash table.
        my $username = param "user";
        my $password = param "pass";
        # ...
-   }
+   };
 
 We now recommend using one of the specific keywords for parameters
 (C<route_parameters>, C<query_parameters>, and C<body_parameters>)
