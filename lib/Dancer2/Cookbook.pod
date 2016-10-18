@@ -70,7 +70,7 @@ Then you can set up the template like so:
 For simple "static" pages you can simply enable the C<auto_page> config
 setting; this means you don't need to declare a route handler for those
 pages; if a request is for C</foo/bar>, Dancer2 will check for a matching
-view (e.g. C</foo/bar.tt> and render it with the default layout, if
+view (e.g. C</foo/bar.tt>) and render it with the default layout, if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
