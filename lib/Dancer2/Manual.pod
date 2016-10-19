@@ -1115,8 +1115,9 @@ L<Template> module.
 In order to render a view, just call the
 L<template|Dancer2::Manual/template> keyword at the end of the action by
 giving the view name and the HASHREF of tokens to interpolate in the view
-(note that for convenience, the request, session, route_parameters, body_parameters, query_parameters, and vars are
-automatically accessible in the view, named C<request>, C<session>, C<params>, and C<vars>) - for example:
+(note that for convenience, the request, session, params and vars are
+automatically accessible in the view, named C<request>, C<session>, C<params>,
+and C<vars>) - for example:
 
     hook before => sub { var time => scalar(localtime) };
 
