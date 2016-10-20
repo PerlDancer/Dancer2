@@ -338,6 +338,7 @@ Change the configuration of the template to Template Toolkit:
 Done! Everything will work fine out of the box, including variables and META
 variables.
 
+However, disabling the internal layout it will also disable the hooks C<before_layout_render> and C<after_layout_render>.
 
 =head2 Accessing configuration information from a separate script
 
