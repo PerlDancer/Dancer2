@@ -178,15 +178,12 @@ requests.
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the C<params> keyword, which returns a hashref. This hashref is a
-merge of the route pattern matches and the request params.
+through the specific C<route_parameters>, C<query_parameters>, and 
+C<body_parameters> keywords, which return a L<Hash::MultiValue> object. 
+This hashref is a merge of the route pattern matches and the request params.
 
 You can have more details about how params are built and how to access them
 in the L<Dancer2::Core::Request> documentation.
-
-You can also use the various parameters keywords to reach the specific
-parameters you want: C<route_parameters>, C<query_parameters>, and
-C<body_parameters>.
 
 =head3 Declaring Routes
 
@@ -196,9 +193,7 @@ method(s) it is valid for, the path it matches (e.g. C</foo/bar>), and a
 coderef to execute, which returns the response.
 
     get '/hello/:name' => sub {
-          return "Hi there " . route_parameters->get('name');
-        # or, in Dancer1 style:
-        return "Hi there " . params->{name};
+        return "Hi there " . route_parameters->get('name');
     };
 
 The above route specifies that, for GET requests to C</hello/...>, the code
@@ -206,17 +201,10 @@ block provided should be executed.
 
 =head3 Retrieving request parameters
 
-The L<params|Dancer2::Manual/params> keyword returns a hashref of request
-parameters; these will be parameters supplied a) on the query string, b) within
-the path itself (with named placeholders) and c), for HTTP POST requests, the
-content of the POST body.
-
 The L<query_parameters|Dancer2::Manual/query_parameters>,
 L<route_parameters|Dancer2::Manual/route_parameters>, and
 L<body_parameters|Dancer2::Manual/body_parameters> keywords provide
 a L<Hash::MultiValue> result from the three different parameters.
-We recommend you use these instead of C<params>, and consider them much safer
-(see L<Dancer2::Manual/params> for details).
 
 =head3 Named matching
 
@@ -226,15 +214,13 @@ match will be set in the route parameters.
 
     get '/hello/:name' => sub {
         "Hey " . route_parameters->get('name') . ", welcome here!";
-        # or
-        "Hey " . param('name') . ", welcome here!";
     };
 
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
         "Hello there, " .
-          (defined param('name') ? param('name') : "whoever you are!");
+          (defined route_parameters->get('name') ? route_parameters->get('name') : "whoever you are!");
     };
 
 =head3 Wildcard Matching
@@ -265,7 +251,7 @@ A route can combine named (token) matching and wildcard matching.
 This is useful when chaining actions:
 
     get '/team/:team/**' => sub {
-        var team => param('team');
+        var team => route_parameters->get('team');
         pass;
     };
 
@@ -432,12 +418,12 @@ process the request with the next matching route.
 This is done with the B<pass> keyword, like in the following example
 
     get '/say/:word' => sub {
-        return pass if (params->{word} =~ /^\d+$/);
-        "I say a word: ".params->{word};
+        return pass if (route_parameters->get('word') =~ /^\d+$/);
+        "I say a word: " . route_parameters->get('word');
     };
 
     get '/say/:number' => sub {
-        "I say a number: ".params->{number};
+        "I say a number: " . route_parameters->get('number');
     };
 
 =head1 HOOKS
@@ -906,15 +892,15 @@ This can easily be handled using a before hook to check their session:
 
     get '/login' => sub {
         # Display a login page; the original URL they requested is available as
-        # param('requested_path'), so could be put in a hidden field in the form
-        template 'login', { path => param('requested_path') };
+        # query_parameters->get('requested_path'), so could be put in a hidden field in the form
+        template 'login', { path => query_parameters->get('requested_path') };
     };
 
     post '/login' => sub {
         # Validate the username and password they supplied
-        if (param('user') eq 'bob' && param('pass') eq 'letmein') {
-            session user => param('user');
-            redirect param('path') || '/';
+        if (body_parameters->get('user') eq 'bob' && body_parameters->get('pass') eq 'letmein') {
+            session user => body_parameters->get('user');
+            redirect body_parameters->get('path') || '/';
         } else {
             redirect '/login?failed=1';
         }
@@ -1130,9 +1116,9 @@ L<Template> module.
 In order to render a view, just call the
 L<template|Dancer2::Manual/template> keyword at the end of the action by
 giving the view name and the HASHREF of tokens to interpolate in the view
-(note that for convenience, the request, session, params, and vars are
-automatically accessible in the view, named C<request>, C<session>,
-C<params> and C<vars>) - for example:
+(note that for convenience, the request, session, params and vars are
+automatically accessible in the view, named C<request>, C<session>, C<params>,
+and C<vars>) - for example:
 
     hook before => sub { var time => scalar(localtime) };
 
@@ -1591,7 +1577,7 @@ Assuming we have a different app that has two states we want to test:
      set serializer => 'JSON';
 
      get '/' => sub {
-         my $user = param('user');
+         my $user = route_parameters->get('user');
 
          $user and return { user => $user };
 
@@ -2198,7 +2184,7 @@ Sets the B<content-type> rendered, for the current route handler:
     get '/cat/:txtfile' => sub {
         content_type 'text/plain';
 
-        # here we can dump the contents of param('txtfile')
+        # here we can dump the contents of route_parameters->get('txtfile')
     };
 
 You can use abbreviations for content types. For instance:
@@ -2206,7 +2192,7 @@ You can use abbreviations for content types. For instance:
     get '/svg/:id' => sub {
         content_type 'svg';
 
-        # here we can dump the image with id param('id')
+        # here we can dump the image with id route_parameters->get('id')
     };
 
 Note that if you want to change the default content-type for every route,
@@ -2285,7 +2271,7 @@ It effectively lets you chain routes together in a clean manner.
         # you'll have to implement this next sub yourself :)
         change_the_main_database_to_demo();
 
-        forward "/articles/" . params->{article_id};
+        forward "/articles/" . route_parameters->get('article_id');
     };
 
 In the above example, the users that reach I</demo/articles/30> will
@@ -2315,7 +2301,7 @@ route. It's not necessary to use C<return> with C<forward> anymore.
 
     get '/foo/:article_id' => sub {
         if ($condition) {
-            forward "/articles/" . params->{article_id};
+            forward "/articles/" . route_parameters->get('article_id');
             # The following code WILL NOT BE executed
             do_stuff();
         }
@@ -2472,6 +2458,19 @@ list context) or a hash reference (in scalar context) to all defined
 parameters. Check C<param> below to access quickly to a single parameter
 value.
 
+    post '/login' => sub {
+        // get all parameters as a single hash
+        my %all_parameters = params;
+
+        // request all parmameters from a specific source: body, query, route
+        my %body_parameters  = params('body');
+        my %route_parameters = params('route');
+        my %query_parameters = params('query');
+
+        // any $source that is not body, query, or route generates an exception
+        params('fake_source'); // Unknown source params "fake_source"
+    };
+
 We now recommend using one of the specific keywords for parameters
 (C<route_parameters>, C<query_parameters>, and C<body_parameters>)
 instead of C<params> or C<param>.
@@ -2485,7 +2484,7 @@ This method is an accessor to the parameters hash table.
        my $username = param "user";
        my $password = param "pass";
        # ...
-   }
+   };
 
 We now recommend using one of the specific keywords for parameters
 (C<route_parameters>, C<query_parameters>, and C<body_parameters>)
@@ -2655,7 +2654,7 @@ Hence, it's not necessary anymore to use C<return> with C<redirect>.
 You can also force Dancer to return a specific 300-ish HTTP response code:
 
     get '/old/:resource', sub {
-        redirect '/new/'.params->{resource}, 301;
+        redirect '/new/' . route_parameters->get('resource'), 301;
     };
 
 =head2 request
@@ -2759,7 +2758,7 @@ of the file must be relative to the B<public> directory unless you use the
 C<system_path> option (see below).
 
     get '/download/:file' => sub {
-        return send_file(params->{file});
+        return send_file(route_parameters->get('file'));
     }
 
 B<WARNING:> Issuing a C<send_file> immediately exits the current route, and
@@ -2782,7 +2781,7 @@ not all, do). You can explicitly disable streaming by passing
 C<streaming =E<gt> 0> as an option to C<send_file>.
 
     get '/download/:file' => sub {
-        send_file( params->{file}, streaming => 0 );
+        send_file( route_parameters->get('file'), streaming => 0 );
     }
 
 
@@ -2793,13 +2792,13 @@ If your filename does not have an extension, you are passing in a filehandle,
 or you need to force a specific mime type, you can pass it to C<send_file>
 as follows:
 
-    send_file(params->{file}, content_type => 'image/png');
+    send_file(route_parameters->get('file'), content_type => 'image/png');
     send_file($fh, content_type => 'image/png');
 
 Also, you can use your aliases or file extension names on C<content_type>,
 like this:
 
-    send_file(params->{file}, content_type => 'png');
+    send_file(route_parameters->get('file'), content_type => 'png');
 
 The encoding of the file or filehandle may be specified by passing both
 the C<content_type> and C<charset> options. For example:
@@ -2936,7 +2935,7 @@ Changes the status code provided by an action. By default, an action will
 produce an C<HTTP 200 OK> status code, meaning everything is OK:
 
     get '/download/:file' => {
-        if (! -f params->{file}) {
+        if (! -f route_parameters->get('file')) {
             status 'not_found';
             return "File does not exist, unable to download";
         }
@@ -2978,7 +2977,7 @@ also use it to perform other templating tasks, e.g. generating emails:
                 to      => 'someone@example.com',
                 from    => 'foo@example.com',
                 subject => 'Hello there',
-                msg     => template('emails/foo', { name => params->{name} }),
+                msg     => template('emails/foo', { name => body_parameters->get('name') }),
             };
 
             return template 'message_sent';
@@ -3011,7 +3010,7 @@ Or to request a specific layout, of course:
     };
 
 Some tokens are automatically added to your template (C<perl_version>,
-C<dancer_version>, C<settings>, C<request>, C<params>, C<vars> and, if you
+C<dancer_version>, C<settings>, C<request>, C<query_parameters>, C<body_parameters>, C<route_parameters>, C<vars> and, if you
 have sessions enabled, C<session>). Check L<Dancer2::Core::Role::Template>
 for further details.
 
@@ -3065,10 +3064,10 @@ C<request> object:
     };
 
 Note that you can also access the filename of the upload received via the
-C<params> keyword:
+C<body_parameters> keyword:
 
     post '/some/route' => sub {
-        # params->{'files_input'} is the filename of the file uploaded
+        # body_parameters->get('files_input') is the filename of the file uploaded
     };
 
 See L<Dancer2::Core::Request::Upload> for details about the interface provided.

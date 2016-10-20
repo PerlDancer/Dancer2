@@ -24,7 +24,7 @@ start with, let's make an incredibly simple "Hello World" example:
     use Dancer2;
 
     get '/hello/:name' => sub {
-        return "Why, hello there " . params->{name};
+        return "Why, hello there " . route_parameters->get('name');
     };
 
     dance;
@@ -37,7 +37,7 @@ request:
     Why, hello there Bob
 
 and it will say hello. The C<:name> part is a named parameter within the
-route specification, whose value is made available through C<params>.
+route specification, whose value is made available through C<route_parameters>.
 
 Note that you don't need to use the C<strict> and C<warnings> pragmas; they
 are already loaded by Dancer2.
@@ -273,7 +273,7 @@ The simplest way to use errors in routes is:
 
      get '/xmas/gift/:gift' => sub {
          die "sorry, we're all out of ponies\n"
-             if param('gift') eq 'pony';
+             if route_parameters->get('gift') eq 'pony';
      };
 
 The die will be intercepted by Dancer, converted into an error (status
@@ -461,7 +461,7 @@ A simple route, to be added in the I<bookstore.pm> module:
 
     # add in bookstore/lib/bookstore.pm
     get '/search' => sub {
-        my $query   = params->{'query'};
+        my $query   = query_parameters->get('query');
         my @results = ();
 
         if ( length $query ) {
@@ -636,9 +636,9 @@ login information and creating a session.
      };
 
      post '/login' => sub {
-         my $username  = param('username');
-         my $password  = param('password');
-         my $redir_url = param('redirect_url') || '/login';
+         my $username  = query_parameters->get('username');
+         my $password  = query_parameters->get('password');
+         my $redir_url = query_parameters->get('redirect_url') || '/login';
 
          $username eq 'john' && $password eq 'correcthorsebatterystaple'
              or redirect $redir_url;
@@ -682,8 +682,10 @@ Assuming we have the original user-creation form submitting a username and passw
      use Dancer2;
      use Dancer2::Plugin::Passphrase;
      post '/register' => sub {
-         my $username = param('username');
-         my $password = passphrase( param('password') )->generate;
+         my $username = query_parameters->get('username');
+         my $password = passphrase( 
+             query_parameters->get('password') 
+         )->generate;
 
          # $password is now a hashed password object
          save_user_in_db( $username, $password->rfc2307 );
@@ -694,13 +696,13 @@ Assuming we have the original user-creation form submitting a username and passw
 We can now add the B<POST> method for verifying that username and password:
 
      post '/login' => sub {
-         my $username   = param('username');
-         my $password   = param('password');
+         my $username   = query_parameters->get('username');
+         my $password   = query_parameters->get('password');
          my $saved_pass = fetch_password_from_db($username);
 
          if ( passphrase($password)->matches($saved_pass) ) {
              session user => $username;
-             redirect param('return_url') || '/';
+             redirect query_parameters->get('return_url') || '/';
          }
 
          # let's render instead of redirect...
@@ -740,7 +742,7 @@ requests will be automatically deserialized.
     get '/hello/:name' => sub {
         # this structure will be returned to the client as
         # {"name":"$name"}
-        return {name => params->{name}};
+        return { name => query_parameters->get('name') };
     };
 
 It's possible to let the client choose which serializer to use. For
@@ -812,11 +814,11 @@ into JSON. No other code is necessary.
 We also now receive requests in JSON:
 
      post '/:entity/:id' => sub {
-         my $entity = param('entity');
-         my $id     = param('id');
+         my $entity = route_parameters->get('entity');
+         my $id     = route_parameters->get('id');
 
          # input which was sent serialized
-         my $user = param('user');
+         my $user = body_parameters->get('user');
 
          ...
      };
