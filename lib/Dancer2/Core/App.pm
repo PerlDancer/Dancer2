@@ -1587,8 +1587,8 @@ sub _prep_response {
 sub response_internal_error {
     my ( $self, $error ) = @_;
 
-    $self->log( error => "Route exception: $error" );
     $self->execute_hook( 'core.app.route_exception', $self, $error );
+    $self->log( error => "Route exception: $error" );
 
     local $Dancer2::Core::Route::REQUEST  = $self->request;
     local $Dancer2::Core::Route::RESPONSE = $self->response;
