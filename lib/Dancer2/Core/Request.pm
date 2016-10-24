@@ -278,15 +278,6 @@ sub dispatch_path {
 
     my $path = $self->path;
 
-    # Want $self->base->path, without needing the URI object,
-    # and trim any trailing '/'.
-    my $base = '';
-    $base .= $self->script_name if defined $self->script_name;
-    $base =~ s|/+$||;
-
-    # Remove base from front of path.
-    $path =~ s|^(\Q$base\E)?||;
-    $path =~ s|^/+|/|;
     # PSGI spec notes that '' should be considered '/'
     $path = '/' if $path eq '';
     return $path;
