@@ -520,7 +520,7 @@ sub _read_to_end {
 
     my $body = '';
     if ( $content_length && $content_length > 0 ) {
-        while ( my $buffer = $self->_read() ) {
+        while ( length ( my $buffer = $self->_read() ) ) {
             $body .= $buffer;
         }
         $self->{_http_body}->add($body);
