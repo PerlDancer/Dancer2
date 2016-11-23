@@ -348,8 +348,9 @@ sub _exporter_plugin {
             our \@EXPORT = ( ':app' );
 
             around has => sub {
-                my( \$orig, \@args ) = \@_;
-                \$orig->( ${caller}->_p2_has( \@args) );
+                my( \$orig, \$name, \@args ) = \@_;
+                \$orig->( ${caller}->_p2_has( \$_, \@args) )
+                    for ref \$name ? @\$name : \$name;
             };
 
             sub PluginKeyword :ATTR(CODE,BEGIN) {
