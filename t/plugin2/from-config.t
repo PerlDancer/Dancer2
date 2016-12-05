@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 {
 package Dancer2::Plugin::FromConfig;
@@ -43,6 +43,15 @@ has [qw(seven eight)] => (
     plugin_keyword => 1,
 );
 
+eval {
+    has [qw(nine ten)] => (
+        is => 'ro',
+        from_config => 1,
+        plugin_keyword => ['nine', 'ten'],
+    );
+};
+our $plugin_keyword_exception = $@;
+
 plugin_keywords qw/ one three four five /;
 
 }
@@ -74,6 +83,9 @@ plugin_keywords qw/ one three four five /;
     Test::More::is six() => 'AH!', 'from_config a coderef, no override';
     Test::More::is seven() => 'sept', 'from_config, defined two fields at once #1';
     Test::More::is eight() => 'huit', 'from_config, defined two fields at once #2';
+    Test::More::ok $Dancer2::Plugin::FromConfig::plugin_keyword_exception,
+        "defining two fields simultaneously with multiple plugin_keyword values"
+        . " is disallowed";
 }
 
 
