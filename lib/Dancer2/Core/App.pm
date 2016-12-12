@@ -9,7 +9,7 @@ use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
-use Module::Runtime    'use_module';
+use Module::Runtime    qw<require_module use_module>;
 
 use Plack::App::File;
 use Plack::Middleware::FixMissingBodyInRedirect;
