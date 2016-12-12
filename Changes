@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * You can now call '$self->find_plugin(...)' within a plugin
+      in order to find a plugin, in order to use its DSL in your
+      custom plugin. (Sawyer X)
+
     [ DOCUMENTATION ]
     * GH #1282: Typo in Cookbook. (Kurt Edmiston)
 
