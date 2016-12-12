@@ -83,6 +83,11 @@ sub execute_plugin_hook {
     $self->app->execute_hook( $full_name, @args );
 }
 
+sub find_plugin {
+    my ( $self, $name ) = @_;
+    return $self->app->find_plugin($name);
+}
+
 # both functions are there for D2::Core::Role::Hookable
 # back-compatibility. Aren't used
 sub supported_hooks { [] }

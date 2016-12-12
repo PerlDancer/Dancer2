@@ -30,7 +30,7 @@ use HTTP::Request::Common;
                 my $self = shift;
                 ::isa_ok( $self, 'Dancer2::Plugin::Bar' );
 
-                my $foo = $self->app->find_plugin('Dancer2::Plugin::Foo')
+                my $foo = $self->find_plugin('Dancer2::Plugin::Foo')
                     or Carp::croak('Cannot find Dancer2::Plugin::Foo');
 
                 ::isa_ok( $foo, 'Dancer2::Plugin::Foo' );
