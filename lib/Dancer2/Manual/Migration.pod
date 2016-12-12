@@ -178,6 +178,10 @@ The C<params> keyword which provides merged parameters used to allow body
 parameters to override route parameters. Now route parameters take
 precedence over query parameters and body parameters.
 
+We have introduced C<route_parameters> to retrieve parameter values from
+the route matching. Please refer to L<Dancer2::Manual> for more
+information.
+
 =head2 Tests
 
 Dancer2 recommends the use of L<Plack::Test>.
@@ -310,6 +314,17 @@ by default, unless you specify a different one.
 
 =head2 Configuration
 
+=head3 C<public_dir>
+
+You cannot set the public directory with C<setting> now. Instead you
+will need to call C<config>:
+
+    # before
+    setting( 'public_dir', 'new_path/' );
+
+    # after
+    config->{'public_dir'} = 'new_path';
+
 =head3 warnings
 
 The C<warnings> configuration option, along with the environment variable
@@ -434,6 +449,12 @@ for these options, or the particular session engine for other supported options.
 
 =head2 Keywords
 
+=head3 Parameters
+
+We've provided new parameter keywords, described in L<Dancer2::Manual>,
+meant to replace all uses of C<param> or C<params>: C<route_parameters>,
+C<query_parameters>, and C<body_parameters>.
+
 =head3 load
 
 This keyword is no longer required. Dancer2 loads the environment
@@ -500,4 +521,3 @@ delete:
 You can retrieve the whole session hash with the C<data> method:
 
     $session->data;
-        
