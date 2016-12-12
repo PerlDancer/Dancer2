@@ -10,6 +10,7 @@ use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
 use Module::Runtime    'use_module';
+use List::Util         ();
 
 use Plack::App::File;
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -470,6 +471,13 @@ has destroyed_session => (
     writer    => 'set_destroyed_session',
     clearer   => 'clear_destroyed_session',
 );
+
+sub find_plugin {
+    my ( $self, $name ) = @_;
+    my $plugin = List::Util::first { ref($_) eq $name } @{ $self->plugins };
+    $plugin or return;
+    return $plugin;
+}
 
 sub destroy_session {
     my $self = shift;
