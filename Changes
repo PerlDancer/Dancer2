@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #975: Fix "public_dir" configuration to work, just like
+      DANCER_PUBLIC. (Sawyer X)
+
     [ ENHANCEMENTS ]
     * You can now call '$self->find_plugin(...)' within a plugin
       in order to find a plugin, in order to use its DSL in your
