@@ -668,7 +668,6 @@ sub _build_default_config {
         environment    => $self->environment,
         appdir         => $self->location,
         public_dir     => $public,
-        static_handler => ( -d $public ),
         template       => 'Tiny',
         route_handlers => [
             [
@@ -1090,6 +1089,11 @@ sub BUILD {
 
 sub finish {
     my $self = shift;
+
+    # normalize some values that require calculations
+    defined $self->config->{'static_handler'}
+        or $self->config->{'static_handler'} = -d $self->config->{'public_dir'};
+
     $self->register_route_handlers;
     $self->compile_hooks;
 
