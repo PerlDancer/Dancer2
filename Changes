@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #975: Fix "public_dir" configuration to work, just like
+      DANCER_PUBLIC. (Sawyer X)
+
     [ DOCUMENTATION ]
     * GH #1282: Typo in Cookbook. (Kurt Edmiston)
     * GH #1214: Update Migration document. (Sawyer X)
