@@ -949,7 +949,6 @@ To use Dancer's DSL in your plugin:
 
     $self->dsl->debug( “Hi! I’m logging from your plugin!” );
 
-
 See L<Dancer2::Manual/"DSL KEYWORDS"> for a full list of Dancer2 DSL.
 
 =head2 Using the plugin within the app
@@ -964,7 +963,6 @@ to the local namespace. If you don't want this to happen, specify that you
 don't want anything imported via empty parentheses when C<use>ing the module:
 
     use Dancer2::Plugin::Polite ();
-
 
 =head2 Plugins using plugins
 
@@ -982,6 +980,27 @@ It's easy to use plugins from within a plugin:
 This does not export C<smiley()> into your application - it is only available
 from within your plugin. However, from the example above, you can wrap 
 DSL from other plugins and make it available from your plugin.
+
+=head2 Utilizing other plugins
+
+You can use the C<find_plugin> to locate other plugins loaded by the user,
+in order to use them, or their information, directly:
+
+    # MyApp.pm
+    use Dancer2;
+    use Dancer2::Plugin::Foo;
+    use Dancer2::Plugin::Bar;
+
+    # Dancer2::Plugin::Bar;
+    ...
+
+    sub my_keyword {
+        my $self = shift;
+        my $foo  = $self->find_plugin('Dancer2::Plugin::Foo')
+            or $self->dsl->send_error('Could not find Foo');
+
+        return $foo->foo_keyword(...);
+    }
 
 =head2 Hooks
 
