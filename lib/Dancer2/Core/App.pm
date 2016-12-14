@@ -4,13 +4,14 @@ package Dancer2::Core::App;
 use Moo;
 use Carp               qw<croak carp>;
 use Scalar::Util       'blessed';
+use List::Util         ();
 use Module::Runtime    'is_module_name';
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
 use Module::Runtime    qw< require_module use_module >;
 use List::Util         ();
-use Ref::Util          qw< is_ref is_globref is_scalarref >;
+use Ref::Util          qw< is_ref is_arrayref is_globref is_scalarref is_regexpref >;
 
 use Plack::App::File;
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -606,6 +607,12 @@ has routes => (
             options => [],
         };
     },
+);
+
+has 'route_names' => (
+    'is'      => 'rw',
+    'isa'     => HashRef,
+    'default' => sub { {} },
 );
 
 # add_hook will add the hook to the first "hook candidate" it finds that support
@@ -1244,8 +1251,15 @@ sub add_route {
     );
 
     my $method = $route->method;
-
     push @{ $self->routes->{$method} }, $route;
+
+    if ( $method ne 'head' && $route->has_name() ) {
+        my $name = $route->name;
+        $self->route_names->{$name}
+           and die "Route with this name ($name) already exists";
+
+        $self->route_names->{$name} = $route;
+    }
 
     return $route;
 }
@@ -1597,11 +1611,13 @@ DISPATCH:
 
 sub build_request {
     my ( $self, $env ) = @_;
+    Scalar::Util::weaken( my $weak_self = $self );
 
     # If we have an app, send the serialization engine
     my $request = Dancer2::Core::Request->new(
           env             => $env,
           is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
+          uri_for_route   => sub { shift; $weak_self->uri_for_route(@_) },
 
           $self->has_serializer_engine
               ? ( serializer => $self->serializer_engine )
@@ -1692,6 +1708,63 @@ sub response_not_found {
     $self->cleanup;
 
     return $response;
+}
+
+sub uri_for_route {
+    my ( $self, $route_name, $route_params, $query_params, $dont_escape ) = @_;
+    my $route = $self->route_names->{$route_name}
+        or die "Cannot find route named '$route_name'";
+
+    my $string = $route->spec_route;
+    is_regexpref($string)
+        and die "uri_for_route() does not support regexp route paths";
+
+    # Convert splat only to the general purpose structure
+    if ( is_arrayref($route_params) ) {
+        $route_params = { 'splat' => $route_params };
+    }
+
+    # The regexes are taken and altered from:
+    # Dancer2::Core::Route::_build_regexp_from_string.
+
+    # Replace :foo with arg (route parameters)
+    # Not a fan of all this regex play to handle typed parameter -- SX
+    my @params = $string =~ m{:([^/.\?]+)}xmsg;
+
+    foreach my $param (@params) {
+        $param =~ s{^([^\[]+).*}{$1}xms;
+        my $value = $route_params->{$param}
+            or die "Route $route_name uses the parameter '${param}', which was not provided";
+
+        $string =~ s!\Q:$param\E(\[[^\]]+\])?!$value!xmsg;
+    }
+
+    # TODO: Can we cut this down by replacing on the spot?
+    #       I think that will be tricky because we first need all **, then *
+
+    $string =~ s!\Q**\E!(?#megasplat)!g;
+    $string =~ s!\*!(?#splat)!g;
+
+    # TODO: Can we cut this down?
+    my @token_or_splat =
+          $string  =~ /\(\?#((?:mega)?splat)\)/g;
+
+    my $splat_params = $route_params->{'splat'};
+    if ($splat_params && @token_or_splat) {
+        $#{$splat_params} == $#token_or_splat
+            or die 'Mismatch in amount of splat args and splat elements';
+
+        for ( my $i = 0; $i < @{$splat_params}; $i++ ) {
+            if ( is_arrayref($splat_params->[$i]) ){
+                my $megasplat = join '/', @{ $splat_params->[$i] };
+                $string =~ s{\Q(?#megasplat)\E}{$megasplat};
+            } else {
+                $string =~ s{\Q(?#splat)\E}{$splat_params->[$i]};
+            }
+        }
+    }
+
+    return $self->request->uri_for( $string, $query_params, $dont_escape );
 }
 
 1;

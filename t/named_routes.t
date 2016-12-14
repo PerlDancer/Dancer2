@@ -24,7 +24,7 @@ use HTTP::Request::Common;
     };
 
     # Name, Regexp, Options, Code
-    get 'base_regex', qr{^/r$} => { 'user_agent' => 'XX' }, sub {
+    get 'base_regex', qr{^/r$}, {}, sub {
         'Base Regex';
     };
 
@@ -35,7 +35,7 @@ use HTTP::Request::Common;
 
 my $test = Plack::Test->create( MyApp->to_app );
 
-subtest 'Named route' => sub {
+subtest 'Named static route' => sub {
     plan 'tests' => 2;
 
     my $response = $test->request( GET '/view' );
@@ -51,7 +51,7 @@ subtest 'Named regex route' => sub {
     is( $response->content, 'View Regex', 'Regex route with name' );
 };
 
-subtest 'Named route with options' => sub {
+subtest 'Named static route with options' => sub {
     plan 'tests' => 2;
 
     my $response = $test->request( GET '/', 'User-Agent' => 'XX' );
@@ -74,19 +74,16 @@ subtest 'Route objects' => sub {
     my @apps = @{ Dancer2::runner->apps };
     is( scalar @apps, 1, 'Only one app exists' );
 
-    my @routes = @{ $apps[0]->routes->{'get'} };
-    is( scalar @routes, 7, 'Five routes registered' );
+    my %routes = %{ $apps[0]->route_names() };
+    is( scalar keys %routes, 4, 'Four named routes registered' );
 
     is_deeply(
-        [ map $_->name, @routes ],
+        [ sort keys %routes ],
         [
-            'view_static',
-            'view_regex',
-            'base_static',
             'base_regex',
-            0, # /ignore1 (0) + HEAD (Plack::Middleware::Head) (1)
-            2, # /ignore2 (2) + HEAD (Plack::Middleware::Head) (3)
-            4, # /ignore3 (4) + HEAD (Plack::Middleware::Head) (5)
+            'base_static',
+            'view_regex',
+            'view_static',
         ],
         'All the right route names',
     );

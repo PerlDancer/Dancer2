@@ -15,9 +15,9 @@ our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 my $count = 0;
 
 has name => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub { $count++ },
+    is        => 'ro',
+    isa       => Str,
+    predicate => 'has_name',
 );
 
 has method => (

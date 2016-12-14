@@ -213,6 +213,13 @@ coderef to execute, which returns the response.
 The above route specifies that, for GET requests to C</hello/...>, the code
 block provided should be executed.
 
+
+You can also provide routes with a name:
+
+    get 'hi_to' => '/hello/:name' => sub {...};
+
+See C<uri_for_route> on how this can be used.
+
 =head3 Retrieving request parameters
 
 The L<query_parameters|Dancer2::Manual/query_parameters>,
