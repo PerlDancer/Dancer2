@@ -182,7 +182,7 @@ sub scheme {
 
 sub serializer { $_[0]->{'serializer'} }
 
-sub data { $_[0]->{'data'} ||= &deserialize }
+sub data { $_[0]->{'data'} ||= $_[0]->deserialize() }
 
 sub deserialize {
     my $self = shift;
