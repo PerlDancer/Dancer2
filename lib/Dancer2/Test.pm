@@ -70,6 +70,7 @@ sub dancer_response {
 
     # override the set_request so it actually sets our request instead
     {
+        ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
         no warnings qw<redefine once>;
         *Dancer2::Core::App::set_request = sub {
             my $self = shift;

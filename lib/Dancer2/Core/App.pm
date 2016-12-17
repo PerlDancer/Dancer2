@@ -994,6 +994,7 @@ sub send_file {
 
     # if we're given a SCALAR reference, build a filehandle to it
     if ( ref $thing eq 'SCALAR' ) {
+        ## no critic qw(InputOutput::RequireCheckedOpen)
         open $fh, "<", $thing;
     }
 
