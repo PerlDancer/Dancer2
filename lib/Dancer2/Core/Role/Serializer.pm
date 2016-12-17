@@ -79,7 +79,7 @@ sub support_content_type {
     my ( $self, $ct ) = @_;
     return unless $ct;
 
-    my @toks = split ';', $ct;
+    my @toks = split /;/, $ct;
     $ct = lc( $toks[0] );
     return $ct eq $self->content_type;
 }

@@ -114,7 +114,7 @@ sub _p2_has_from_config {
     my $orig_default = $args{default} || sub{};
     $args{default} = sub {
         my $plugin = shift;
-        my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
+        my $value = reduce { eval { $a->{$b} } } $plugin->config, split /\./, $config_name;
         return defined $value ? $value: $orig_default->($plugin);
     };
 
