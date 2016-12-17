@@ -127,7 +127,7 @@ sub format_message {
 
         my $cb = $chars_mapping->{$char};
         if ( !$cb ) {
-            Carp::carp "\%$char not supported.";
+            Carp::carp "%$char not supported.";
             return "-";
         }
         $cb->($char);

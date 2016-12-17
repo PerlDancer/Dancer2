@@ -114,7 +114,7 @@ sub match {
             # megasplat values are split on '/'
             if ($token_or_splat[$i] eq 'megasplat') {
                 $values[$i] = [
-                    defined $values[$i] ? split( '/' , $values[$i], -1 ) : ()
+                    defined $values[$i] ? split( m{/} , $values[$i], -1 ) : ()
                 ];
             }
             push @splat, $values[$i];

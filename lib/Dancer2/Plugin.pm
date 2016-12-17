@@ -114,7 +114,7 @@ sub _p2_has_from_config {
     my $orig_default = $args{default} || sub{};
     $args{default} = sub {
         my $plugin = shift;
-        my $value = reduce { eval { $a->{$b} } } $plugin->config, split '\.', $config_name;
+        my $value = reduce { eval { $a->{$b} } } $plugin->config, split /\./, $config_name;
         return defined $value ? $value: $orig_default->($plugin);
     };
 
@@ -196,7 +196,7 @@ sub _exporter_app {
     # Otherwise you can only import from a plugin to an app,
     # but with this, you can import to anything
     # that has a DSL with an app, which translates to "also plugins"
-    my $app = eval("${caller}::app()") || eval { $caller->dsl->app }
+    my $app = eval("${caller}::app()") || eval { $caller->dsl->app } ## no critic qw(BuiltinFunctions::ProhibitStringyEval)
         or return; ## no critic
 
     return unless $app->can('with_plugin');
@@ -459,6 +459,7 @@ END
         my $dsl = $app_dsl_cb->();
 
         {
+            ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
             no strict 'refs';
             no warnings 'redefine';
             *{"${caller}::dsl"} = sub {$dsl};

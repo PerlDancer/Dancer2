@@ -93,7 +93,7 @@ sub execute {
     _add_to_manifest_skip($app_path);
 
     if ( ! eval { require_module('YAML'); 1; } ) {
-        print <<NOYAML;
+        print <<'NOYAML';
 *****
 WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly
 recommended; in particular, the scaffolded Dancer app being created will not be

@@ -3,10 +3,10 @@
 package Dancer2::Template::TemplateToolkit;
 
 use Moo;
-use Carp qw/croak/;
+use Carp qw<croak>;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw'path';
-use Scalar::Util qw();
+use Dancer2::FileUtils qw<path>;
+use Scalar::Util ();
 use Template;
 
 with 'Dancer2::Core::Role::Template';

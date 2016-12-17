@@ -3,7 +3,7 @@
 package Dancer2::Core::Role::Template;
 
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw'path';
+use Dancer2::FileUtils 'path';
 use Carp 'croak';
 
 use Moo::Role;
