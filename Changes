@@ -13,6 +13,8 @@
     * GH #1282: Typo in Cookbook. (Kurt Edmiston)
     * GH #1214: Update Migration document. (Sawyer X)
     * GH #1286: Clarify hook behavior when disabling layout (biafra)
+    * GH #1280: Update documentation to use specific parameter 
+                keywords (Hunter McMillen)
 
 0.204001  2016-10-17 08:29:00-05:00 America/Chicago
 

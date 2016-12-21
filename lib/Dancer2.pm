@@ -267,6 +267,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Gregor Herrmann
     Grzegorz Rożniecki
     Hobbestigrou
+    Hunter McMillen
     Ivan Bessarabov
     Ivan Kruglov
     JaHIY
