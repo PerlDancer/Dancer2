@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.204001
+version 0.204002
 
 # DESCRIPTION
 
@@ -124,6 +124,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Bas Bloemsaat
     baynes
     Ben Hutton
+    biafra
     Blabos de Blebe
     Breno G. de Oliveira
     cdmalon
@@ -153,6 +154,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Gregor Herrmann
     Grzegorz Rożniecki
     Hobbestigrou
+    Hunter McMillen
     Ivan Bessarabov
     Ivan Kruglov
     JaHIY
