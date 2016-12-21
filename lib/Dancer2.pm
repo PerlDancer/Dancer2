@@ -237,6 +237,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Bas Bloemsaat
     baynes
     Ben Hutton
+    biafra
     Blabos de Blebe
     Breno G. de Oliveira
     cdmalon
