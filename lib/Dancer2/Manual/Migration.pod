@@ -521,3 +521,4 @@ delete:
 You can retrieve the whole session hash with the C<data> method:
 
     $session->data;
+
