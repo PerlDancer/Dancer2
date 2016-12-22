@@ -1,4 +1,5 @@
 requires 'App::Cmd::Setup';
+requires 'Attribute::Handlers';
 requires 'Carp';
 requires 'Config::Any';
 requires 'Digest::SHA';
@@ -11,6 +12,7 @@ requires 'File::Find';
 requires 'File::Path';
 requires 'File::ShareDir';
 requires 'File::Spec';
+requires 'File::Temp';
 requires 'Hash::Merge::Simple';
 requires 'Hash::MultiValue';
 requires 'HTTP::Body';
@@ -33,7 +35,11 @@ requires 'POSIX';
 requires 'Return::MultiLevel';
 requires 'Role::Tiny', '2.000000';
 requires 'Safe::Isa';
+requires 'Sub::Quote';
+requires 'Template';
 requires 'Template::Tiny';
+requires 'Test::Builder';
+requires 'Test::More';
 requires 'URI::Escape';
 
 # Minimum version of YAML is needed due to:
