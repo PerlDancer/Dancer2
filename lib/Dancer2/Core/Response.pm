@@ -305,7 +305,7 @@ if nothing was specified
 Encodes the stored content according to the stored L<content_type>.  If the content_type
 is a text format C<^text>, then no encoding will take place.
 
-Interally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
+Internally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
 
 If it encodes the content, then it will return the encoded content.  In all other
 cases it returns C<false>.
