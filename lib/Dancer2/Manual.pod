@@ -410,6 +410,39 @@ You can handle the error yourself by providing an C<on_error> handler:
         };
     };
 
+Here is an example that asynchronously streams the contents of a CSV file:
+
+    use Dancer2;
+    use Text::CSV_XS  qw< csv >;
+    use Path::Tiny    qw< path >;
+    use JSON::MaybeXS qw< encode_json >;
+    # Create CSV parser
+    my $csv = Text::CSV_XS->new({
+        binary    => 1,
+        auto_diag => 1,
+    });
+    get '/' => sub {
+        # delayed response:
+        delayed {
+            # streaming content
+            flush;
+            # Read each row and stream it in JSON
+            my $fh = path('filename.csv')->openr_utf8;
+            while ( my $row = $csv->getline($fh) ) {
+                content encode_json $row;
+            }
+            # close user connection
+            done;
+        } on_error => sub {
+            my ($error) = @_;
+            warning 'Failed to stream to user: ' . request->remote_address;
+        };
+    };
+
+B<NOTE:> If you just want to send a file's contents asynchronously,
+use C<send_file($filename)> instead of C<delayed>, as it will
+automatically take advantage of any asynchronous capability.
+
 =head2 Action Skipping
 
 An action can choose not to serve the current request and ask Dancer2 to
