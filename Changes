@@ -17,6 +17,8 @@
     * GH #1286: Clarify hook behavior when disabling layout (biafra)
     * GH #1280: Update documentation to use specific parameter 
                 keywords (Hunter McMillen)
+    * Add another example of the delayed asynchronous mechanism
+      (Ed @mohawk2 J., Sawyer X)
 
 0.204001  2016-10-17 08:29:00-05:00 America/Chicago
 
