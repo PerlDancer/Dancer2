@@ -1957,18 +1957,6 @@ Start by creating a simple app.psgi file:
         mount '/forum' => OurForum->to_app;
     };
 
-If you want use redirect from a mounted package to root uri it's helpful to use
-C<Dancer2::Plugin::RootURIFor> with this plugin it's possible like the following
-sample:
-
-    package OurWiki;
-    use Dancer;
-    use Dancer2::Plugin::RootURIFor;
-
-    get '/:some_path' => sub {
-        redirect root_uri_for('/');
-    }
-
 and now use L<Starman>
 
     plackup -a app.psgi -s Starman
