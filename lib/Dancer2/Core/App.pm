@@ -955,7 +955,7 @@ sub send_as {
 
     # load any serializer engine config
     my $engine_options =
-        $self->_get_config_for_engine( serializer => $type, {} ) || {};
+        $self->_get_config_for_engine( serializer => $type, $self->config ) || {};
     my $serializer = $serializer_class->new( config => $engine_options );
     my $content = $serializer->serialize( $data );
     $options->{content_type} ||= $serializer->content_type;
