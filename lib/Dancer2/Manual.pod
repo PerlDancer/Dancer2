@@ -219,8 +219,8 @@ match will be set in the route parameters.
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        "Hello there, " .
-          (defined route_parameters->get('name') ? route_parameters->get('name') : "whoever you are!");
+        my $name = route_parameters->get('name') //= 'Whoever you are';
+        "Hello there, $name";
     };
 
 =head3 Wildcard Matching
@@ -451,7 +451,7 @@ process the request with the next matching route.
 This is done with the B<pass> keyword, like in the following example
 
     get '/say/:word' => sub {
-        return pass if (route_parameters->get('word') =~ /^\d+$/);
+        pass if route_parameters->get('word') =~ /^\d+$/;
         "I say a word: " . route_parameters->get('word');
     };
 
