@@ -5,6 +5,8 @@
       using correct case for 'include_path', 'stop_tag', 'end_tag',
       and 'start_tag', removing ANYCASE option.
       (Klaus Ita)
+    * GH #1291: Document 'change_session_id' in Dancer2::Core::App.
+      (Peter SysPete Mottram)
 
 0.204002  2016-12-21 15:40:02-06:00 America/Chicago
 
