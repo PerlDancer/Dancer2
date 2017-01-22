@@ -1671,6 +1671,12 @@ retrieve the session from the cookie in the request.  If no new session is
 created, this is set (with expiration) as a cookie to force the browser to
 expire the cookie.
 
+=method change_session_id
+
+Changes the session ID used by the current session. This should be used on
+any change of privilege level, for example on login. Returns the new session
+ID.
+
 =method destroy_session
 
 Destroys the current session and ensures any subsequent session is created
