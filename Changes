@@ -13,6 +13,7 @@
     [ DOCUMENTATION ]
     * Add another example of the delayed asynchronous mechanism
       (Ed @mohawk2 J., Sawyer X)
+    * Fix typo in Dancer2::Core::Response (Gregorr Herrmann)
 
 0.204002  2016-12-21 15:40:02-06:00 America/Chicago
 
