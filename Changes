@@ -1,6 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1299: Fix missing CPANTS prereqs (Mohammad S. Anwar)
 
     [ ENHANCEMENTS ]
     * GH #1249: Improve consistency with Template::Toolkit,
