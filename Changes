@@ -10,6 +10,8 @@
       (Klaus Ita)
     * GH #1291: Document 'change_session_id' in Dancer2::Core::App.
       (Peter SysPete Mottram)
+    * Call route exception hook before logging an error, allowing devs to
+      raise their own errors bedore D2 logging takes over. (Andy Beverley)
 
     [ DOCUMENTATION ]
     * Add another example of the delayed asynchronous mechanism
