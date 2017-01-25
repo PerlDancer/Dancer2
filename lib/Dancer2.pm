@@ -1,9 +1,10 @@
 package Dancer2;
+
 # ABSTRACT: Lightweight yet powerful web application framework
 
 use strict;
 use warnings;
-use List::Util  'first';
+use List::Util 'first';
 use Module::Runtime 'use_module';
 use Import::Into;
 use Dancer2::Core;
@@ -21,31 +22,34 @@ sub runner   {$runner}
 sub psgi_app { shift->runner->psgi_app(@_) }
 
 sub import {
-    my ( $class,  @args   ) = @_;
-    my ( $caller, $script ) = caller;
+    my ($class,  @args)   = @_;
+    my ($caller, $script) = caller;
 
     my @final_args;
     my $clean_import;
     foreach my $arg (@args) {
+
         # ignore, no longer necessary
         # in the future these will warn as deprecated
-        grep +( $arg eq $_ ), qw<:script :syntax :tests>
-            and next;
+        grep +($arg eq $_), qw<:script :syntax :tests>
+          and next;
 
-        if ( $arg eq ':nopragmas' ) {
+        if ($arg eq ':nopragmas') {
             $clean_import++;
             next;
         }
 
-        if ( substr( $arg, 0, 1 ) eq '!' ) {
+        if (substr($arg, 0, 1) eq '!') {
             push @final_args, $arg, 1;
-        } else {
+        }
+        else {
             push @final_args, $arg;
         }
     }
 
     $clean_import
-        or $_->import::into($caller) for qw<strict warnings utf8>;
+      or $_->import::into($caller)
+      for qw<strict warnings utf8>;
 
     scalar @final_args % 2
       and die q{parameters must be key/value pairs or '!keyword'};
@@ -56,16 +60,17 @@ sub import {
     $appname ||= $caller;
 
     # never instantiated the runner, should do it now
-    if ( not defined $runner ) {
+    if (not defined $runner) {
         $runner = Dancer2::Core::Runner->new();
     }
 
     # Search through registered apps, creating a new app object
     # if we do not find one with the same name.
     my $app;
-    ($app) = first { $_->name eq $appname } @{ $runner->apps };
+    ($app) = first { $_->name eq $appname } @{$runner->apps};
 
-    if ( ! $app ) {
+    if (!$app) {
+
         # populating with the server's postponed hooks in advance
         $app = Dancer2::Core::App->new(
             name            => $appname,
@@ -85,19 +90,19 @@ sub import {
     $final_args{dsl} ||= $config_dsl;
 
     # load the DSL, defaulting to Dancer2::Core::DSL
-    my $dsl = use_module( $final_args{dsl} )->new( app => $app );
-    $dsl->export_symbols_to( $caller, \%final_args );
+    my $dsl = use_module($final_args{dsl})->new(app => $app);
+    $dsl->export_symbols_to($caller, \%final_args);
 }
 
 sub _set_import_method_to_caller {
     my ($caller) = @_;
 
     my $import = sub {
-        my ( $self, %options ) = @_;
+        my ($self, %options) = @_;
 
         my $with = $options{with};
-        for my $key ( keys %$with ) {
-            $self->dancer_app->setting( $key => $with->{$key} );
+        for my $key (keys %$with) {
+            $self->dancer_app->setting($key => $with->{$key});
         }
     };
 
@@ -289,6 +294,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     lbeesley
     Lennart Hengstmengel
     Ludovic Tolhurst-Cleaver
+    Mario Zieschang
     Mark A. Stratman
     Masaaki Saito
     Mateu X Hunter
@@ -333,4 +339,3 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Vince Willems
     Vincent Bachelier
     Yves Orton
-

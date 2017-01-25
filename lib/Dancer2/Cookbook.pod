@@ -877,6 +877,18 @@ Then those will be mounted together for a single app:
          mount '/api' => MyApp::API->to_app;
      };
 
+If you want use redirect from a mounted package to the application's root
+URI, L<Dancer2::Plugin::RootURIFor> makes this possible:
+
+    package OurWiki;
+    use Dancer;
+    use Dancer2::Plugin::RootURIFor;
+
+    get '/:some_path' => sub {
+        redirect root_uri_for('/');
+    }
+
+
 =head3 An example: Writing API interfaces
 
 This example demonstrates an app that makes a request to a weather
