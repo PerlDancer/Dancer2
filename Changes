@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ ENHANCEMENTS ]
+    * GH #1283: Skeleton now provides an example of setting the appdir.
+      (Jason Lewis)
+
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 
     [ BUG FIXES ]
