@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1307: Fix breakage of Template::Toolkit, caused by
+      previous release. (Peter SysPete Mottram)
+
 0.204003  2017-01-25 15:21:40-06:00 America/Chicago
 
     [ BUG FIXES ]
