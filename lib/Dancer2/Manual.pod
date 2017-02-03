@@ -3111,14 +3111,26 @@ Returns a fully-qualified URI for the given path:
 
     get '/' => sub {
         redirect uri_for('/path');
-        # can be something like: http://localhost:3000/path
+        # can be something like: http://localhost:5000/path
     };
 
-Querystring parameters can be provided by passing a hashref as a second param,
-and URL-encoding of the parameters can be disabled, if desired, via a third parameter:
+Query string parameters can be provided by passing a hashref as a second param:
 
-    uri_for('/path', { foo => 'bar none' }, 1);
-    # would return e.g. http://localhost:3000/path?foo=bar
+
+    uri_for('/path', { foo => 'bar' });
+    # would return e.g. http://localhost:5000/path?foo=bar
+
+By default, the parameters will be URL encoded:
+
+    uri_for('/path', { foo => 'hope;faith' });
+    # would return http://localhost:5000/path?foo=hope%3Bfaith
+
+If desired (for example, if you've already encoded your query
+parameters and you want to prevent double encoding) you can disable
+URL encoding via a third parameter:
+
+    uri_for('/path', { foo => 'qux%3Dquo' }, 1);
+    # would return http://localhost:5000/path?foo=qux%3Dquo
 
 =head2 captures
 
