@@ -187,8 +187,8 @@ requests.
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the specific C<route_parameters|/route_parameters>, 
-C<query_parameters|/query_parameters>, and  C<body_parameters|/body_parameters>
+through the specific L<route_parameters|/route_parameters>, 
+L<query_parameters|/query_parameters>, and  L<body_parameters|/body_parameters>
 keywords, which return a L<Hash::MultiValue> object. 
 This hashref is a merge of the route pattern matches and the request params.
 
