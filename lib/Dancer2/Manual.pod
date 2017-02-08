@@ -2448,6 +2448,8 @@ Adds a hook at some position. For example :
 There can be multiple hooks assigned to a given position, and each will be
 executed in order.
 
+See the L<HOOKS|/HOOKS> section for a list of available hooks.
+
 =head2 info
 
 Logs a message of C<info> level:
