@@ -462,9 +462,10 @@ This is done with the B<pass> keyword, like in the following example
 =head1 HOOKS
 
 Hooks are code references (or anonymous subroutines) that are triggered at
-specific moments during the resolution of a request.
+specific moments during the resolution of a request.  They are set up using the
+L<hook|/hook> keyword.
 
-Many of them are supported by the core but plugins and engines can also
+Many of them are provided by Dancer2's core, but plugins and engines can also
 define their own.
 
 =over 4
@@ -475,7 +476,7 @@ C<before> hooks are evaluated before each request within the context of the
 request and receives as argument the app (a L<Dancer2::Core::App> object).
 
 It's possible to define variables which will be accessible in the action
-blocks with the keyword C<var>.
+blocks with the L<var keyword|/var>.
 
     hook before => sub {
         var note => 'Hi there';
