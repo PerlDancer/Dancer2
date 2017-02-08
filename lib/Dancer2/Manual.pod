@@ -20,7 +20,8 @@ way, easily.
 
 =head1 INSTALL
 
-Installation of Dancer2 is simple:
+Installation of Dancer2 is simple, using your favourite method to install from
+CPAN, e.g.:
 
     perl -MCPAN -e 'install Dancer2'
 
@@ -32,6 +33,14 @@ least on Unix-like systems:
 
 (If you don't have root access, omit the 'sudo', and cpanminus will install
 Dancer2 and prereqs into C<~/perl5>.)
+
+Dancer2 is also available as a package from the package repository of several
+distributions, for example on Debian/Ubuntu you should be able to just:
+
+    apt-get install libdancer2-perl
+
+Do be aware, though, that distribution-packaged versions sometimes lag behind
+the most recent version on CPAN.
 
 =head1 BOOTSTRAPPING A NEW APP
 
