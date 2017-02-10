@@ -39,6 +39,7 @@ sub xs_to_header {
             expires  => $self->expires,
             httponly => $self->http_only,
             secure   => $self->secure,
+            samesite => $self->same_site,
         }
     );
 }
@@ -50,10 +51,11 @@ sub pp_to_header {
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
-    push @headers, "Path=" . $self->path       if $self->path;
-    push @headers, "Expires=" . $self->expires if $self->expires;
-    push @headers, "Domain=" . $self->domain   if $self->domain;
-    push @headers, "Secure"                    if $self->secure;
+    push @headers, "Path=" . $self->path          if $self->path;
+    push @headers, "Expires=" . $self->expires    if $self->expires;
+    push @headers, "Domain=" . $self->domain      if $self->domain;
+    push @headers, "SameSite=" . $self->same_site if $self->same_site;
+    push @headers, "Secure"                       if $self->secure;
     push @headers, 'HttpOnly' unless $no_httponly;
 
     return join '; ', @headers;
@@ -124,6 +126,12 @@ has http_only => (
     isa      => Bool,
     required => 0,
     default  => sub {0},
+);
+
+has same_site => (
+    is       => 'rw',
+    isa      => Enum[qw[Strict Lax]],
+    required => 0,
 );
 
 1;
@@ -202,5 +210,10 @@ the server (via HTTP) and not by any JavaScript code.
 
 If your cookie is meant to be used by some JavaScript code, set this
 attribute to 0.
+
+=attr same_site
+
+Whether the cookie ought not to be sent along with cross-site requests,
+an enum of either "Strict" or "Lax", default is unset.
 
 =cut
