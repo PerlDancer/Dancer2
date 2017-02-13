@@ -3,6 +3,9 @@
     [ ENHANCEMENTS ]
     * GH #1283: Skeleton now provides an example of setting the appdir.
       (Jason Lewis)
+    * GH #1315: Adjust dist.ini to set "build_requires" for
+      ExtUtils::MakeMaker.
+      (Atoomic)
 
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 
