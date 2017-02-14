@@ -54,7 +54,7 @@ recommends 'CGI::Deurl::XS';
 recommends 'Class::XSAccessor';
 recommends 'Cpanel::JSON::XS';
 recommends 'Crypt::URandom';
-recommends 'HTTP::XSCookies', '0.000005';
+recommends 'HTTP::XSCookies', '0.000007';
 recommends 'HTTP::XSHeaders';
 recommends 'Math::Random::ISAAC::XS';
 recommends 'Pod::Simple::Search';

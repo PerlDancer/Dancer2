@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use Test::Fatal;
 use Test::More;
 
 BEGIN {
@@ -69,6 +70,8 @@ sub run_test {
     is $cookie->http_only(0) => 0;
     ok !$cookie->http_only;
 
+    like exception { $cookie->same_site('foo') },
+        qr/foo is not any of the possible values: Strict, Lax!/;
 
     note "expiration strings";
 
@@ -137,6 +140,20 @@ sub run_test {
                 value => 'foo',
             },
             expected => "bar=foo; Path=/",
+        },
+        {   cookie => {
+                name      => 'same-site',
+                value     => 'strict',
+                same_site => 'Strict',
+            },
+            expected => 'same-site=strict; Path=/; SameSite=Strict',
+        },
+        {   cookie => {
+                name      => 'same-site',
+                value     => 'lax',
+                same_site => 'Lax',
+            },
+            expected => 'same-site=lax; Path=/; SameSite=Lax',
         },
     );
 
