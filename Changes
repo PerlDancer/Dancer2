@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ ENHANCEMENTS ]
+    * Add support for the SameSite cookie attribute.
+      (James Raspass)
     * GH #1283: Skeleton now provides an example of setting the appdir.
       (Jason Lewis)
     * GH #1315: Adjust dist.ini to set "build_requires" for
