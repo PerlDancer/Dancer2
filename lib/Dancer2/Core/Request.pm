@@ -274,22 +274,8 @@ sub uri_base {
 }
 
 sub dispatch_path {
-    my $self = shift;
-
-    my $path = $self->path;
-
-    # Want $self->base->path, without needing the URI object,
-    # and trim any trailing '/'.
-    my $base = '';
-    $base .= $self->script_name if defined $self->script_name;
-    $base =~ s|/+$||;
-
-    # Remove base from front of path.
-    $path =~ s|^(\Q$base\E)?||;
-    $path =~ s|^/+|/|;
-    # PSGI spec notes that '' should be considered '/'
-    $path = '/' if $path eq '';
-    return $path;
+    warn q{request->dispatch_path is deprecated};
+    return shift->path;
 }
 
 sub uri_for {
@@ -807,8 +793,7 @@ content, returns the deserialized structure as a hashref.
 
 =method dispatch_path
 
-The part of the C<path> after C<base>. This is the path used
-for dispatching the request to routes.
+Alias for L<path>. Deprecated.
 
 =method env
 
