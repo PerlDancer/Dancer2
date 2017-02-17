@@ -122,8 +122,8 @@ sub run_test {
         is $req->scheme, 'http';
     }
 
-    note "testing path, dispatch_path and uri_base"; {
-        # Base env used for path, dispatch_path and uri_base tests
+    note "testing path and uri_base"; {
+        # Base env used for path and uri_base tests
         my $base = {
             'psgi.url_scheme' => 'http',
             REQUEST_METHOD    => 'GET',
@@ -145,9 +145,6 @@ sub run_test {
         is( $req->uri_base, 'http://localhost:5000/foo',
             'uri_base correct when empty PATH_INFO'
         );
-        is( $req->dispatch_path, '/',
-            'dispatch_path correct when empty PATH_INFO'
-        );
 
         # SCRIPT_NAME not set
         $env = {
@@ -160,9 +157,6 @@ sub run_test {
         is( $req->path, '/foo', 'path corrent when empty SCRIPT_NAME' );
         is( $req->uri_base, 'http://localhost:5000',
             'uri_base handles empty SCRIPT_NAME'
-        );
-        is( $req->dispatch_path, '/foo',
-            'dispatch_path handles empty SCRIPT_NAME'
         );
 
         # Both SCRIPT_NAME and PATH_INFO set
@@ -180,9 +174,6 @@ sub run_test {
         is( $req->uri_base, 'http://localhost:5000/foo',
             'uri_base correct when both PATH_INFO and SCRIPT_NAME set',
         );
-        is( $req->dispatch_path, '/bar/baz/',
-            'dispatch_path correct when both PATH_INFO and SCRIPT_NAME set'
-        );
 
         # Neither SCRIPT_NAME or PATH_INFO set
         $env = {
@@ -197,9 +188,6 @@ sub run_test {
         );
         is( $req->uri_base, 'http://localhost:5000',
             'uri_base correct when calculated from REQUEST_URI',
-        );
-        is( $req->dispatch_path, '/',
-            'dispatch_path correct when calculated from REQUEST_URI'
         );
     }
 

@@ -59,7 +59,7 @@ subtest 'halt with parameter in before hook' => sub {
         use Dancer2;
 
         hook before => sub {
-            halt('I was halted') if request->dispatch_path eq '/shortcircuit';
+            halt('I was halted') if request->path eq '/shortcircuit';
         };
 
     }

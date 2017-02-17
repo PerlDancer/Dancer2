@@ -11,7 +11,7 @@ use HTTP::Request::Common;
     set serializer => 'JSON';
 
     hook before => sub {
-        return if request->dispatch_path eq '/content';
+        return if request->path eq '/content';
         response->content({ foo => 'bar' });
         response->halt;
     };
