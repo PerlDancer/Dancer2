@@ -81,7 +81,7 @@ sub match {
         return unless $self->validate_options($request);
     }
 
-    my @values = $request->dispatch_path =~ $self->regexp;
+    my @values = $request->path =~ $self->regexp;
 
     return unless @values;
 
