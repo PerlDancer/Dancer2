@@ -3,7 +3,6 @@ package Dancer2::ConfigReader::Config::Any;
 
 use Moo;
 
-use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
@@ -12,7 +11,7 @@ use Module::Runtime 'require_module';
 use Dancer2::Core::Factory;
 use Dancer2::Core;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils 'path';
+use Path::Tiny qw< path >;
 
 with 'Dancer2::Core::Role::ConfigReader';
 
@@ -73,11 +72,11 @@ sub _build_config_files {
         [ $self->environments_location, $running_env ] )
     {
         foreach my $ext (@exts) {
-            my $path = path( $file->[0], $file->[1] . ".$ext" );
+            my $path = Path::Tiny::path( $file->[0], $file->[1] . ".$ext" )->stringify;
             next if !-r $path;
 
             # Look for *_local.ext files
-            my $local = path( $file->[0], $file->[1] . "_local.$ext" );
+            my $local = Path::Tiny::path( $file->[0], $file->[1] . "_local.$ext" );
             push @files, $path, ( -r $local ? $local : () );
         }
     }
