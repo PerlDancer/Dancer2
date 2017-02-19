@@ -1097,7 +1097,14 @@ sub send_file {
         $response = $self->response;
         # direct assignment to hash element, avoids around modifier
         # trying to serialise this this content.
-        $response->{content} = Dancer2::FileUtils::read_glob_content($fh);
+
+        # optimized slurp
+        {
+            ## no critic qw(Variables::RequireInitializationForLocalVars)
+            local $/;
+            $response->{'content'} = <$fh>;
+        }
+
         $response->is_encoded(1);    # bytes are already encoded
     }
 
