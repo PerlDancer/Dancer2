@@ -851,13 +851,13 @@ API and then displays it dynamically in a web page.
 
 Other than L<Dancer2> for defining routes, we will use L<HTTP::Tiny>
 to make the weather API request, L<JSON> to decode it from JSON format,
-and finally L<File::Spec> to provide a fully-qualified path to our
+and finally L<Path::Tiny> to provide a fully-qualified path to our
 template engine.
 
      use JSON;
      use Dancer2;
      use HTTP::Tiny;
-     use File::Spec;
+     use Path::Tiny;
 
 =head4 Configuration
 
@@ -867,16 +867,16 @@ to I<views> directory in our current directory. Since we want to put our
 template in our current directory, we will configure that. However,
 I<Template::Toolkit> does not want us to provide a relative path without
 configuring it to allow it. This is a security issue. So, we're using
-L<File::Spec> to create a full path to where we are.
+L<Path::Tiny> to create a full path to where we are.
 
 We also unset the default layout, so Dancer won't try to wrap our template
 with another one. This is a feature in Dancer to allow you to wrap your
 templates with a layout when your templating system doesn't support it. Since
 we're not using a layout here, we don't need it.
 
-     set template => 'template_toolkit';       # set template engine
-     set layout   => undef;                    # disable layout
-     set views    => File::Spec->rel2abs('.'); # full path to views
+     set template => 'template_toolkit';        # set template engine
+     set layout   => undef;                     # disable layout
+     set views    => Path::Tiny->cwd->absolute; # full path to views
 
 Now, we define our URL:
 
