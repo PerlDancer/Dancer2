@@ -4,12 +4,11 @@ package Dancer2::Core::Request::Upload;
 use Moo;
 
 use Carp;
-use File::Spec;
+use Path::Tiny ();
 use File::Copy ();
 use Module::Runtime 'require_module';
 
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw(open_file);
 
 has filename => (
     is  => 'ro',
@@ -34,8 +33,7 @@ has size => (
 sub file_handle {
     my ($self) = @_;
     return $self->{_fh} if defined $self->{_fh};
-    my $fh = open_file( '<', $self->tempname );
-    $self->{_fh} = $fh;
+    $self->{_fh} = Path::Tiny::path( $self->tempname )->openr_raw;
 }
 
 sub copy_to {
