@@ -3,7 +3,7 @@
 package Dancer2::Core::Role::Template;
 
 use Dancer2::Core::Types;
-use Dancer2::FileUtils 'path';
+use Path::Tiny ();
 use Carp 'croak';
 use Ref::Util qw< is_ref >;
 
@@ -99,22 +99,22 @@ sub view_pathname {
     my ( $self, $view ) = @_;
 
     $view = $self->_template_name($view);
-    return path( $self->views, $view );
+    return Path::Tiny::path( $self->views, $view )->stringify;
 }
 
 sub layout_pathname {
     my ( $self, $layout ) = @_;
 
-    return path(
+    return Path::Tiny::path(
         $self->views,
         $self->layout_dir,
         $self->_template_name($layout),
-    );
+    )->stringify;
 }
 
 sub pathname_exists {
     my ( $self, $pathname ) = @_;
-    return -f $pathname;
+    return Path::Tiny::path($pathname)->is_file;
 }
 
 sub render_layout {
