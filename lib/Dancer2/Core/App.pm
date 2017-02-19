@@ -18,7 +18,6 @@ use Plack::Middleware::Head;
 use Plack::Middleware::Conditional;
 use Plack::Middleware::ConditionalGET;
 
-use Dancer2::FileUtils 'path';
 use Dancer2::Core;
 use Dancer2::Core::Cookie;
 use Dancer2::Core::Error;
@@ -1409,7 +1408,15 @@ sub to_app {
         # when the file exists. Otherwise the request passes into our app.
         $psgi = Plack::Middleware::Conditional->wrap(
             $psgi,
-            condition => sub { -f path( $self->config->{public_dir}, shift->{PATH_INFO} ) },
+            condition => sub {
+                my $env = shift;
+                Path::Tiny::path(
+                    $self->config->{'public_dir'},
+                    defined $env->{'PATH_INFO'} && length $env->{'PATH_INFO'}
+                    ? ($env->{'PATH_INFO'})
+                    : (),
+                )->is_file;
+              },
             builder   => sub { Plack::Middleware::ConditionalGET->wrap( $static_app ) },
         );
     }
