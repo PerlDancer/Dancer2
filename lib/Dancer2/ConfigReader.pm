@@ -46,8 +46,19 @@ has environments_location => (
     isa     => Str,
     lazy    => 1,
     default => sub {
-        $ENV{DANCER_ENVDIR}
-          || File::Spec->catdir( $_[0]->config_location, 'environments' );
+        # short circuit
+        defined $ENV{'DANCER_ENVDIR'}
+            and return $ENV{'DANCER_ENVDIR'};
+
+        my $self = shift;
+
+        foreach my $maybe_path ( $self->config_location, $self->location ) {
+            my $path = Path::Tiny::path($maybe_path, 'environments');
+            $path->exists && $path->is_dir
+              and return $path->stringify;
+        }
+
+        return '';
     },
 );
 
