@@ -5,6 +5,7 @@ use Moo;
 
 use Carp;
 use File::Spec;
+use File::Copy ();
 use Module::Runtime 'require_module';
 
 use Dancer2::Core::Types;
@@ -39,7 +40,6 @@ sub file_handle {
 
 sub copy_to {
     my ( $self, $target ) = @_;
-    require_module('File::Copy');
     File::Copy::copy( $self->tempname, $target );
 }
 
