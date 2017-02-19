@@ -4,6 +4,7 @@ package Dancer2::Template::Simple;
 use Moo;
 use Dancer2::FileUtils 'read_file_content';
 use Ref::Util qw<is_arrayref is_coderef is_plain_hashref>;
+use Path::Tiny ();
 
 with 'Dancer2::Core::Role::Template';
 
@@ -27,10 +28,19 @@ sub BUILD {
 
 sub render {
     my ( $self, $template, $tokens ) = @_;
-    my $content;
 
-    $content = read_file_content($template);
-    $content = $self->parse_branches( $content, $tokens );
+    my $content;
+    if ( ref $template eq 'SCALAR' ) {
+        open my $fh, '<:encoding(UTF-8)', $template
+            or die "Cannot open in-memory content: $!\n";
+        ## no critic qw(Variables::RequireInitializationForLocalVars)
+        local $/;
+        $content = <$fh>;
+    } else {
+        $content = Path::Tiny::path($template)->slurp_utf8;
+    }
+
+    $content = $self->parse_branches($content, $tokens);
 
     return $content;
 }
