@@ -33,9 +33,8 @@ sub path_or_empty {
 sub dirname { File::Basename::dirname(@_) }
 
 sub set_file_mode {
-    my ( $fh, $charset ) = @_;
-    $charset = 'utf-8' if !defined $charset;
-    return $fh if $charset eq '';
+    my $fh      = shift;
+    my $charset = 'UTF-8';
     binmode $fh, ":encoding($charset)";
     return $fh;
 }
