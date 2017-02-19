@@ -38,7 +38,7 @@ my $basedir = dirname( File::Spec->rel2abs(__FILE__) );
 note 'With lib/ and bin/:'; {
     my $app = App->new(
         caller => File::Spec->catfile(
-            $basedir, qw<FakeDancerDir fake inner dir fakescript.pl>
+            $basedir, qw<FakeDancerDir lib fake inner dir fakescript.pl>
         )
     );
 

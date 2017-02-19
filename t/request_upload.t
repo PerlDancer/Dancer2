@@ -151,23 +151,23 @@ SHOGUN6
             {
                 no strict 'refs';
                 $upload_file_coderef =
-                  *{"Dancer2::Core::Request::Upload::open_file"}{CODE};
+                  *{"Dancer2::Core::Request::Upload::file_handle"}{CODE};
                 no warnings 'redefine';
-                *{"Dancer2::Core::Request::Upload::open_file"} = sub {
+                *{"Dancer2::Core::Request::Upload::file_handle"} = sub {
                     croak "Can't open mocked-tempfile using mode '<'";
                 };
             }
             $upload->{_fh} = undef;
             like(
                 exception { $upload->file_handle },
-                qr{Can't open.* using mode '<'},
+                qr{Can't open mocked-tempfile using mode '<'},
             );
 
             # unmock open_file
             {
                 no strict 'refs';
                 no warnings 'redefine';
-                *{"Dancer2::Core::Request::Upload::open_file"} =
+                *{"Dancer2::Core::Request::Upload::file_handle"} =
                   $upload_file_coderef;
             }
         }
