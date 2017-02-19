@@ -1,6 +1,7 @@
 package Dancer2::Core::Role::HasLocation;
 # ABSTRACT: Role for application location "guessing"
 
+use Carp ();
 use Moo::Role;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils ();
