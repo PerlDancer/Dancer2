@@ -6,8 +6,8 @@ use Dancer2;
 use Dancer2::Core::App;
 use Dancer2::Core::Dispatcher;
 use Dancer2::Core::Hook;
-use Dancer2::FileUtils;
 use File::Spec;
+use Path::Tiny qw< path >;
 
 # our app/dispatcher object
 my $app = Dancer2::Core::App->new( name => 'main', );
@@ -208,8 +208,8 @@ is_deeply(
 );
 
 is(
-    File::Spec->canonpath( $app->caller ),
-    File::Spec->catfile(t => 'app.t'),
+    path( $app->caller )->canonpath,
+    path( qw< t app.t > ),
     'Correct caller for app',
 );
 

@@ -6,7 +6,7 @@ use Carp;
 use Dancer2::Core::Types;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
-use Dancer2::FileUtils qw/path open_file/;
+use Path::Tiny ();
 use Sub::Quote;
 use Module::Runtime 'require_module';
 use Ref::Util qw< is_hashref >;
@@ -343,9 +343,8 @@ sub backtrace {
     return $html unless $file and $line;
 
     # file and line are located, let's read the source Luke!
-    my $fh = eval { open_file('<', $file) } or return $html;
-    my @lines = <$fh>;
-    close $fh;
+    my @lines;
+    eval { @lines = Path::Tiny::path($file)->lines_utf8; 1; } or return $html;
 
     $html .= qq|<div class="title">$file around line $line</div>|;
 
