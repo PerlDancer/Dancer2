@@ -104,7 +104,7 @@ sub _flush {
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     seek $fh, 0, 0 or die "Can't seek in file '$session_file': $!\n";
     truncate $fh, 0 or die "Can't truncate file '$session_file': $!\n";
-    set_file_mode($fh);
+    binmode $fh, ':encoding(UTF-8)';
     $self->_freeze_to_handle( $fh, $data );
     close $fh or die "Can't close '$session_file': $!\n";
 
