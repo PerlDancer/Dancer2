@@ -2401,6 +2401,12 @@ Returns the dirname of the path given:
 
     my $dir = dirname($some_path);
 
+This can be replaced by using L<Path::Tiny> directly, which is what this DSL
+will effectively do:
+
+    use Path::Tiny qw< path >;
+    my $dir = path($some_path)->parent->stringify;
+
 =head2 encode_json ($structure)
 
 Serializes a structure to a UTF-8 binary JSON string.
@@ -2760,6 +2766,12 @@ operating system:
 
 It also normalizes (cleans) the path aesthetically. It does not verify whether
 the path exists, though.
+
+This can also be done cleanly using L<Path::Tiny>, which is what this will
+effectively do:
+
+    use Path::Tiny qw< path >;
+    path($0)->sibling( qw< lib File.pm > );
 
 =head2 post
 

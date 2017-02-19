@@ -192,10 +192,10 @@ installed on your machine.
 =head3 Required Perl modules
 
 Obviously you need L<Dancer2> installed. You'll also need the
-L<Template Toolkit|Template>, L<File::Slurper>, and L<DBD::SQLite> modules.
+L<Template Toolkit|Template>, L<Path::Tiny>, and L<DBD::SQLite> modules.
 These all can be installed using your CPAN client with the following command:
 
-    cpan Template File::Slurper DBD::SQLite
+  cpan Template Path::Tiny DBD::SQLite
 
 =head2 The database code
 
@@ -232,7 +232,7 @@ with the tutorial.)
 
     sub init_db {
         my $db     = connect_db();
-        my $schema = read_text('./schema.sql');
+        my $schema = path('schema.sql')->slurp_utf8;
         $db->do($schema)
             or die $db->errstr;
     }
@@ -431,7 +431,7 @@ session handler and initialize a session manager. To do that, we add some
 configuration directives toward the top of our 'dancr.pl' file.  But there are
 more options than just the session engine we want to set.
 
-    set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'database'     => Path::Tiny->tempdir->child('dancr.db');
     set 'session'      => 'Simple';
     set 'template'     => 'template_toolkit';
     set 'logger'       => 'console';
@@ -677,11 +677,10 @@ Here's the complete 'dancr.pl' script from start to finish.
 
     use Dancer2;
     use DBI;
-    use File::Spec;
-    use File::Slurper qw/ read_text /;
+    use Path::Tiny qw< path tempdir >;
     use Template;
 
-    set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'database'     => tempdir->child('dancr.db');
     set 'session'      => 'Simple';
     set 'template'     => 'template_toolkit';
     set 'logger'       => 'console';
@@ -715,7 +714,7 @@ Here's the complete 'dancr.pl' script from start to finish.
 
     sub init_db {
         my $db     = connect_db();
-        my $schema = read_text('./schema.sql');
+        my $schema = path('schema.sql')->slurp_utf8;
         $db->do($schema)
             or die $db->errstr;
     }
