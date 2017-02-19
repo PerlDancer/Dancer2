@@ -27,7 +27,7 @@ sub hexe {
 
 like(
     exception { Dancer2::FileUtils::open_file( '<', '/slfkjsdlkfjsdlf' ) },
-    qr{/slfkjsdlkfjsdlf' using mode '<': \w+},
+    qr/^Error open.+No such file or directory/,
     'Failure opening nonexistent file',
 );
 
