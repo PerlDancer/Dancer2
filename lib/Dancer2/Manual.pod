@@ -2734,7 +2734,7 @@ C<charset> (or UTF-8).
         send_as JSON => [ some => { data => 'structure' } ];
     };
 
-C<send_as> uses L<send_file> to return the content immediately. You may
+C<send_as> uses L</send_file> to return the content immediately. You may
 pass any option C<send_file> supports as an extra option. For example:
 
     # return json with a custom content_type header
