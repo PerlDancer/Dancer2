@@ -31,9 +31,12 @@ BEGIN {
 sub xs_to_header {
     my $self = shift;
 
+    # HTTP::XSCookies can't handle multi-value cookies.
+    return $self->pp_to_header(@_) if @{[ $self->value ]} > 1;
+
     return HTTP::XSCookies::bake_cookie(
         $self->name,
-        {   value    => join('&', $self->value),
+        {   value    => $self->value,
             path     => $self->path,
             domain   => $self->domain,
             expires  => $self->expires,
