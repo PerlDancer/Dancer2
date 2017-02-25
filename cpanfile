@@ -26,7 +26,6 @@ requires 'MIME::Base64', '3.13'; # 3.13 has the URL safe variants
 requires 'Module::Runtime';
 requires 'Moo', '2.000000';
 requires 'Moo::Role';
-requires 'MooX::Types::MooseLike';
 requires 'parent';
 requires 'Plack', '1.0035';
 requires 'Plack::Middleware::FixMissingBodyInRedirect';
@@ -40,6 +39,7 @@ requires 'Template';
 requires 'Template::Tiny';
 requires 'Test::Builder';
 requires 'Test::More';
+requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
 
 # Minimum version of YAML is needed due to:
@@ -57,9 +57,11 @@ recommends 'Crypt::URandom';
 recommends 'HTTP::XSCookies', '0.000007';
 recommends 'HTTP::XSHeaders';
 recommends 'Math::Random::ISAAC::XS';
+recommends 'MooX::TypeTiny';
 recommends 'Pod::Simple::Search';
 recommends 'Pod::Simple::SimpleTree';
 recommends 'Scope::Upper';
+recommends 'Type::Tiny::XS';
 recommends 'URL::Encode::XS';
 recommends 'YAML::XS';
 
