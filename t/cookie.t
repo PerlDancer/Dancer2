@@ -72,7 +72,7 @@ sub run_test {
     ok !$cookie->http_only;
 
     like exception { $cookie->same_site('foo') },
-        qr/foo is not any of the possible values: Strict, Lax!/;
+        qr/Value "foo" did not pass type constraint "Enum\["Strict","Lax"\]/;
 
     note "expiration strings";
 
