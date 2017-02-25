@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * Fix broken link to send_file.
+      (Fabrice Gabolde)
+
     [ ENHANCEMENTS ]
     * Add support for the SameSite cookie attribute.
       (James Raspass)
