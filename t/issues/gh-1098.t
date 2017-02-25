@@ -13,7 +13,7 @@ subtest 'Core::Error serializer isa tests' => sub {
     is exception { Dancer2::Core::Error->new }, undef, "Error->new lived";
 
     like exception { Dancer2::Core::Error->new(show_errors => []) },
-    qr/is not a Boolean/,
+    qr/Reference \Q[]\E did not pass type constraint "Bool"/i,
       "Error->new(show_errors => []) died";
 
     is exception {
@@ -28,9 +28,13 @@ subtest 'Core::Error serializer isa tests' => sub {
     undef,
     "Error->new(serializer => Dancer2::Serializer::JSON->new) lived";
 
-    like exception { Dancer2::Core::Error->new(serializer => JSON->new) },
-    qr/is not a consumer of roles/,
-    "Error->new(serializer => JSON->new) died";
+    like exception { Dancer2::Core::Error->new(serializer => JSON->new) }, qr/
+    (
+    requires\sthat\sthe\sreference\sdoes\sDancer2::Core::Role::Serializer
+    |
+    did\snot\spass\stype\sconstraint
+    )
+    /x, "Error->new(serializer => JSON->new) died";
 };
 
 subtest 'Core::Response headers isa tests' => sub {
@@ -83,6 +87,6 @@ subtest 'Core::Role::Logger log_level isa tests' => sub {
     }
 
     like exception { TestLogger->new(log_level => 'BadLevel') },
-      qr/BadLevel is not any of the possible values:/,
+    qr/Value "BadLevel" did not pass type constraint "Enum/,
       "Logger->new(log_level => 'BadLevel') died";
 };
