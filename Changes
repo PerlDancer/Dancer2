@@ -1,8 +1,8 @@
 {{$NEXT}}
 
-    [ DOCUMENTATION ]
-    * Fix broken link to send_file.
-      (Fabrice Gabolde)
+    [ FIX BUGS ]
+    * Support multi-value cookies when using HTTP::XSCookies.
+      (James Raspass)
 
     [ ENHANCEMENTS ]
     * Add support for the SameSite cookie attribute.
@@ -12,6 +12,10 @@
     * GH #1315: Adjust dist.ini to set "build_requires" for
       ExtUtils::MakeMaker.
       (Atoomic)
+
+    [ DOCUMENTATION ]
+    * Fix broken link to send_file.
+      (Fabrice Gabolde)
 
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 

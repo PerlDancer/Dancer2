@@ -10,6 +10,7 @@ BEGIN {
 }
 
 use Dancer2::Core::Cookie;
+use Dancer2::Core::Request;
 
 diag "If you want extra speed, install HTTP::XSCookies"
   if !Dancer2::Core::Cookie::_USE_XS;
@@ -163,6 +164,16 @@ sub run_test {
         my @a = split /; /, $c->to_header;
         is join("; ", shift @a, sort @a), $cook->{expected};
     }
+
+    note 'multi-value';
+
+    my $c = Dancer2::Core::Cookie->new( name => 'foo', value => [qw/bar baz/] );
+
+    is $c->to_header, 'foo=bar&baz; Path=/';
+
+    my $r = Dancer2::Core::Request->new( env => { HTTP_COOKIE => 'foo=bar&baz' } );
+
+    is_deeply [ $r->cookies->{foo}->value ], [qw/bar baz/];
 }
 
 note "Run test with XS_HTTP_COOKIES" if Dancer2::Core::Cookie::_USE_XS;
