@@ -132,7 +132,7 @@ if ( $opts{'profile'} ) {
     $bench->report;
 } else {
     print << "_END_HELP";
-$0 -- <-s | --speed 1|2|3|4|5> <profile | bench | compare>
+$0 -- <-s | --speed 1|2|3|4|5> <--profile | --bench | --compare>
 ("--" is required before parameters because D1 parses ARGV)
 
 Commands:
