@@ -1093,7 +1093,7 @@ sub send_file {
                 || $self->config->{public_dir}
                 || Path::Tiny::path( $self->location, 'public' )->stringify;
 
-        $file_path = Dancer2::Handler::File->merge_paths( $path, $dir );
+        $file_path = Path::Tiny::path( $dir, $path )->stringify;
         my $err_response = sub {
             my $status = shift;
             $self->response->status($status);
