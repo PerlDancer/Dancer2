@@ -107,7 +107,11 @@ for details.
 
 =item * L<HTTP::Parser::XS>
 
+=item * L<MooX::TypeTiny>
+
 =item * L<Scope::Upper>
+
+=item * L<Type::Tiny::XS>
 
 =back
 

@@ -1,15 +1,13 @@
 package Dancer2::Core::Types;
-# ABSTRACT: Moo types for Dancer2 core.
+# ABSTRACT: Type::Tiny types for Dancer2 core.
 
 use strict;
 use warnings;
-use Scalar::Util 'blessed', 'looks_like_number';
-use MooX::Types::MooseLike 0.16 'exception_message';
-use MooX::Types::MooseLike::Base qw/:all/;
+use Type::Library -base;
+use Type::Utils -all;
+use Sub::Quote 'quote_sub';
 
-use Exporter 'import';
-our @EXPORT;
-our @EXPORT_OK;
+BEGIN { extends "Types::Standard" };
 
 our %supported_http_methods = map +( $_ => 1 ), qw<
     GET HEAD POST PUT DELETE OPTIONS PATCH
@@ -27,71 +25,27 @@ my $namespace = qr/
     $
 /x;
 
-my $definitions = [
-    {   name => 'ReadableFilePath',
-        test => sub { -e $_[0] && -r $_[0] },
-        message =>
-          sub { return exception_message( $_[0], 'ReadableFilePath' ) },
-        inflate => 0,
-    },
-    {   name => 'WritableFilePath',
-        test => sub { -e $_[0] && -w $_[0] },
-        message =>
-          sub { return exception_message( $_[0], 'WritableFilePath' ) },
-        inflate => 0,
-    },
+declare 'ReadableFilePath', constraint => quote_sub q{ -e $_ && -r $_ };
 
-    # Dancer2-specific types
-    {   name       => 'Dancer2Prefix',
-        subtype_of => 'Str',
-        from       => 'MooX::Types::MooseLike::Base',
-        test       => sub {
+declare 'WritableFilePath', constraint => quote_sub q{ -e $_ && -w $_ };
 
-            # a prefix must start with the char '/'
-            # index is much faster than =~ /^\//
-            index( $_[0], '/' ) == 0;
-        },
-        message =>
-          sub { return exception_message( $_[0], 'a Dancer2Prefix' ) },
-        inflate => 0,
-    },
-    {   name       => 'Dancer2AppName',
-        subtype_of => 'Str',
-        from       => 'MooX::Types::MooseLike::Base',
-        test       => sub {
+declare 'Dancer2Prefix', as 'Str', where {
+    # a prefix must start with the char '/'
+    # index is much faster than =~ /^\//
+    index($_, '/') == 0
+};
 
-            # TODO need a real check of valid app names
-            $_[0] =~ $namespace;
-        },
-        message => sub {
-            return exception_message(
-                ($_[0] && length( $_[0] )) ? $_[0] : 'Empty string',
-                'a Dancer2AppName'
-            );
-        },
-        inflate => 0,
-    },
-    {   name       => 'Dancer2Method',
-        subtype_of => 'Str',
-        from       => 'MooX::Types::MooseLike::Base',
-        test       => sub {
-            grep {/^$_[0]$/} map +( lc ), keys %supported_http_methods
-        },
-        message =>
-          sub { return exception_message( $_[0], 'a Dancer2Method' ) },
-        inflate => 0,
-    },
-    {   name       => 'Dancer2HTTPMethod',
-        subtype_of => 'Str',
-        from       => 'MooX::Types::MooseLike::Base',
-        test       => sub {
-            grep {/^$_[0]$/} keys %supported_http_methods
-        },
-        message =>
-          sub { return exception_message( $_[0], 'a Dancer2HTTPMethod' ) },
-        inflate => 0,
-    },
-];
+declare 'Dancer2AppName', as 'Str', where {
+    # TODO need a real check of valid app names
+    $_ =~ $namespace;
+}, message {
+    sprintf("%s is not a Dancer2AppName",
+        ($_ && length($_)) ? $_ : 'Empty string')
+};
+
+declare 'Dancer2Method', as Enum [map +(lc), keys %supported_http_methods];
+
+declare 'Dancer2HTTPMethod', as Enum [keys %supported_http_methods];
 
 # generate abbreviated class types for core dancer objects
 for my $type (
@@ -115,22 +69,12 @@ for my $type (
     /
   )
 {
-    push @$definitions, {
-        name => $type,
-        test => sub {
-            return
-                 $_[0]
-              && blessed( $_[0] )
-              && ref( $_[0] ) eq 'Dancer2::Core::' . $type;
-        },
-        inflate => 0,
-    };
+    declare $type,
+    as InstanceOf[ 'Dancer2::Core::' . $type ];
 }
 
-MooX::Types::MooseLike::register_types( $definitions, __PACKAGE__ );
-
 # Export everything by default.
-@EXPORT = ( @MooX::Types::MooseLike::Base::EXPORT_OK, @EXPORT_OK );
+our @EXPORT = __PACKAGE__->type_names;
 
 1;
 
@@ -138,7 +82,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Type definitions for Moo attributes. These are defined as subroutines.
+L<Type::Tiny> definitions for Moo attributes. These are defined as subroutines.
 
 =head1 MOO TYPES
 
@@ -177,6 +121,6 @@ and I<OPTIONS>.
 
 =head1 SEE ALSO
 
-L<MooX::Types::MooseLike> for more available types
+<Types::Standard> for more available types
 
 =cut
