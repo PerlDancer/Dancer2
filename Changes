@@ -18,6 +18,8 @@
       (Fabrice Gabolde)
     * Typo and link fixes.
       (Breno G. de Oliveira - @garu)
+    * Document query string parameters in uri_for.
+      (Michael J South)
 
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 
