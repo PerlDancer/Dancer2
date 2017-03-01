@@ -289,7 +289,7 @@ sub dispatch_path {
     $path =~ s|^/+|/|;
     # PSGI spec notes that '' should be considered '/'
     $path = '/' if $path eq '';
-    return $path;
+    return Encode::decode('utf8', $path);
 }
 
 sub uri_for {
