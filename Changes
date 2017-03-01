@@ -5,6 +5,8 @@
       (James Raspass)
 
     [ ENHANCEMENTS ]
+    * Speed up by using Type::Tiny, again.
+      (Pete SysPete Mottram)
     * Add support for the SameSite cookie attribute.
       (James Raspass)
     * GH #1283: Skeleton now provides an example of setting the appdir.
