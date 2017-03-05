@@ -164,6 +164,24 @@ Dancer2:
      $ dzil test --no-author
 
 
+### Running your modified version
+
+If you have any version of Dancer2 installed on your system you will likely
+run into problems when you try and run the "Dancer2" binary due to the wrong
+lib's being used.
+The following command should resolve that.
+```bash
+perl -Ilib script/dancer2 gen -s share/skel --overwrite --path /tmp/d2app -a MyApp::App
+```
+- It assumes we are in the git repo root dir
+- `-Ilib` - tells perl to include the lib dir in it's search path
+- in this case we run "gen" and
+  - `-s share/skel`     - specify the use of the local copy of the skel dir
+  - `--overwrite`       - we want to overwrite the generated scaffold project
+  - `--path /tmp/d2app` - the dir to write the generated scaffold project dir to
+  - `-a MyApp::App`     - the name of the app project we want to generate
+
+
 ### Patch Submission (Github workflow)
 
 The Dancer2 development team uses GitHub to collaborate.  We greatly
