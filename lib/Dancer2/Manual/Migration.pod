@@ -107,7 +107,7 @@ for details.
 
 =item * L<HTTP::Parser::XS>
 
-=item * L<MooX::TypeTiny>
+=item * L<HTTP::XSCookies>
 
 =item * L<Scope::Upper>
 
@@ -306,6 +306,31 @@ function with decoded input.
 
 =back
 
+=head3 Templating engine changes
+
+Whereas in Dancer1, the following were equivalent for Template::Toolkit:
+
+    template 'foo/bar'
+    template '/foo/bar'
+
+In Dancer2, when using L<Dancer2::Template::TemplateToolkit>, the version with
+the leading slash will try to locate C</foo/bar> relative to your filesystem
+root, not relative to your Dancer application directory.
+
+The L<Dancer2::Template::Simple> engine is unchanged in this respect.
+
+Whereas in Dancer1, template engines have the methods:
+
+    $template_engine->view('foo.tt')
+    $template_engine->view_exists('foo.tt')
+
+In Dancer2, you should instead write:
+
+    $template_engine->view_pathname('foo.tt')
+    $template_engine->pathname_exists($full_path)
+
+You may not need these unless you are writing a templating engine.
+
 =head3 Serializers
 
 You no longer need to implement the C<loaded> method. It is simply
@@ -451,13 +476,57 @@ for these options, or the particular session engine for other supported options.
 	    is_secure: 1
         is_http_only: 1
 
+=head3 Plack Middleware
+
+In Dancer1 you could set up Plack Middleware using a C<plack_middlewares> key
+in your C<config.yml> file. Under Dancer2 you will instead need to invoke
+middleware using L<Plack::Builder>, as demonstrated in
+L<Dancer2::Manual::Deployment>.
+
 =head2 Keywords
 
-=head3 Parameters
+=head3 Calling Keywords Explicitly
 
-We've provided new parameter keywords, described in L<Dancer2::Manual>,
-meant to replace all uses of C<param> or C<params>: C<route_parameters>,
-C<query_parameters>, and C<body_parameters>.
+In Dancer1, keywords could be imported individually into a package:
+
+    package MyApp;
+    use Dancer qw< get post params session >;
+
+    get '/foo' { ... };
+
+Any keywords you did't export could be called explicitly:
+
+    package MyApp;
+    use Dancer qw< get post params session >;
+    use List::Util qw< any >;
+
+    Dancer::any sub { ... };
+
+Dancer2's DSL is implemented differently. Keywords only exist in the namespace
+of the package which C<use>s Dancer2, i.e. there is no C<Dancer2::any>, only
+e.g. C<MyApp::any>.
+
+If you only want individual keywords, you can write a shim as follows:
+
+    package MyApp::DSL;
+    use Dancer2 appname => 'MyApp';
+
+    use Exporter qw< import >;
+
+    our @EXPORT = qw< get post ... >
+
+Then in other packages:
+
+    package MyApp;
+
+    use MyApp::DSL qw< get post >;
+
+    MyApp::DSL::any sub { ... };
+
+=head3 appdir
+
+This keyword does not exist in Dancer2. However, the same information can be
+found in C<< config->{'appdir'} >>.
 
 =head3 load
 
@@ -526,3 +595,14 @@ You can retrieve the whole session hash with the C<data> method:
 
     $session->data;
 
+To destroy a session, instead of writing:
+
+    session->destroy
+
+In Dancer2, we write:
+
+    app->destroy_session if app->has_session
+
+If you make changes to the session in an C<after> hook, your changes will
+not be written to storage, because writing sessions to storage also takes
+place in an (earlier) C<after> hook.

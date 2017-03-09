@@ -28,6 +28,7 @@
     * Document query string parameters in uri_for.
       (Michael J South)
     * Remove dead code from file upload example (Stefan Hornburg - Racke)
+    * Additions to migration manual (Daniel Perrett)
 
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 
