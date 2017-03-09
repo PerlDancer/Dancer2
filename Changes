@@ -1,8 +1,10 @@
 {{$NEXT}}
 
-    [ FIX BUGS ]
+    [ BUG FIXES ]
     * Support multi-value cookies when using HTTP::XSCookies.
       (James Raspass)
+    * Read configuration options when send_as() creates a new serializer
+      (Paul Williams)
 
     [ ENHANCEMENTS ]
     * Speed up by using Type::Tiny, again.

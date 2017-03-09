@@ -317,6 +317,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Patrick Zimmermann
     Pau Amma
     Paul Cochrane
+    Paul Williams
     Pedro Bruno
     Pedro Melo
     Philippe Bricout
