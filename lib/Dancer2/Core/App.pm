@@ -593,6 +593,18 @@ has routes => (
     },
 );
 
+has 'calling_class' => (
+    'is'      => 'ro',
+    'isa'     => Str,
+    'default' => sub {
+        my $class = ( caller(2) )[0] ||
+                    ( caller(1) )[0] ||
+                    ( caller(0) )[0];
+
+        return $class;
+    },
+);
+
 # add_hook will add the hook to the first "hook candidate" it finds that support
 # it. If none, then it will try to add the hook to the current application.
 around add_hook => sub {
@@ -1111,6 +1123,11 @@ sub finish {
         && $self->plugins->[0]->_add_postponed_plugin_hooks(
             $self->postponed_hooks
         );
+
+    $self->calling_class->can('prepare_app')
+      and warn "WARNING: You have a subroutine in your "
+      . "app called 'prepare_app'. In the future "
+      . "this will automatically be called by Dancer2.";
 }
 
 sub init_route_handlers {
