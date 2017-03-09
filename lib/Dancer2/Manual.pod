@@ -490,9 +490,9 @@ For another example, this can be used along with session support to easily
 give non-logged-in users a login page:
 
     hook before => sub {
-        if (!session('user') && request->dispatch_path !~ m{^/login}) {
+        if (!session('user') && request->path !~ m{^/login}) {
             # Pass the original path requested along to the handler:
-            forward '/login', { requested_path => request->dispatch_path };
+            forward '/login', { requested_path => request->path };
         }
     };
 
@@ -914,8 +914,8 @@ This can easily be handled using a before hook to check their session:
     set session => "Simple";
 
     hook before => sub {
-        if (!session('user') && request->dispatch_path !~ m{^/login}) {
-            forward '/login', { requested_path => request->dispatch_path };
+        if (!session('user') && request->path !~ m{^/login}) {
+            forward '/login', { requested_path => request->path };
         }
     };
 

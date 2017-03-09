@@ -61,7 +61,7 @@ subtest 'halt in before hook' => sub {
 
         hook before => sub {
             response->content('I was halted');
-            halt if request->dispatch_path eq '/shortcircuit';
+            halt if request->path eq '/shortcircuit';
         };
 
     }
