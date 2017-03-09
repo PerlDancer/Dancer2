@@ -1292,7 +1292,6 @@ The objects are accessible within the route handlers using the C<upload>
 keyword:
 
     post '/upload' => sub {
-        my $upload_dir = "MyApp/UPLOADS";
         my $upload     = upload('file_input_name');    # upload object
         $upload->copy_to('Uploads/');
     };
