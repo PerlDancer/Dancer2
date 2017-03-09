@@ -14,6 +14,7 @@ use HTTP::Request::Common;
         set session => 'Simple';
     }
 
+    use lib '.';
     use t::lib::SubApp1 with => { session => engine('session') };
 
     use t::lib::SubApp2 with => { session => engine('session') };

@@ -3,6 +3,7 @@ use warnings;
 
 use Test::More;
 
+use lib '.';
 use t::lib::TestPod;
 use Dancer2::Test apps => ['t::lib::TestPod'];
 

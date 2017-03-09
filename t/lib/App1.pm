@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use Dancer2;
+use lib '.';
 use t::lib::DancerPlugin;
 
 install_hooks;
