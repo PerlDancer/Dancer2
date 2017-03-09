@@ -5,6 +5,7 @@
       (James Raspass)
     * Read configuration options when send_as() creates a new serializer
       (Paul Williams)
+    * Properly check buffer length in _read_to_end() (Marketa Wachtlova)
 
     [ ENHANCEMENTS ]
     * Speed up by using Type::Tiny, again.
