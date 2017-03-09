@@ -6,9 +6,27 @@ use Plack::Test;
 use HTTP::Request::Common;
 
 {
+    package DummyObj;
+    use Moo;
+    has foo => (is => 'ro', default => 'bar');
+    sub TO_JSON {
+        {foo => shift->foo};
+    }
+    1;
+}
+
+{
     package Test::App::SendAs;
     use Dancer2;
 
+    set engines => {
+        serializer => {
+            JSON => {
+                allow_blessed   => 1,
+                convert_blessed => 1,
+            }
+        }
+    };
     set logger => 'Capture';
     set serializer => 'YAML';
     set template => 'TemplateToolkit';
@@ -19,6 +37,10 @@ use HTTP::Request::Common;
 
     get '/json/**' => sub {
         send_as JSON => splat;
+    };
+
+    get '/json-object' => sub {
+        send_as JSON => { data => DummyObj->new() };
     };
 
     get '/json-utf8/**' => sub {
@@ -59,6 +81,14 @@ subtest "send_as json" => sub {
     is $res->content_type, 'application/json';
 
     is $res->content, '["is","wonderful"]';
+};
+
+subtest "send_as json object" => sub {
+    my $res = $test->request( GET '/json-object' );
+    is $res->code, '200';
+    is $res->content_type, 'application/json';
+
+    is $res->content, '{"data":{"foo":"bar"}}';
 };
 
 subtest "send_as json custom content-type" => sub {
