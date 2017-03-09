@@ -29,6 +29,7 @@
       (Michael J South)
     * Remove dead code from file upload example (Stefan Hornburg - Racke)
     * Additions to migration manual (Daniel Perrett)
+    * Add middleware examples to scaffolder (David - sbts)
 
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 
