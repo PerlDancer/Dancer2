@@ -6,6 +6,8 @@
     * Read configuration options when send_as() creates a new serializer
       (Paul Williams)
     * Properly check buffer length in _read_to_end() (Marketa Wachtlova)
+    * Deprecate broken request->dispatch_path in favor of request->path.
+      Warn the developer of the deprecation (Russell @veryrusty Jenkins).
 
     [ ENHANCEMENTS ]
     * Speed up by using Type::Tiny, again.
