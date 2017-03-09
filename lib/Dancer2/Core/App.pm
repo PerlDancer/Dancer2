@@ -30,7 +30,7 @@ use Dancer2::Core::Factory;
 
 use Dancer2::Handler::File;
 
-our $EVAL_SHIM = sub {
+our $EVAL_SHIM; $EVAL_SHIM ||= sub {
     my $code = shift;
     $code->(@_);
 };
