@@ -483,11 +483,7 @@ in your C<config.yml> file. Under Dancer2 you will instead need to invoke
 middleware using L<Plack::Builder>, as demonstrated in
 L<Dancer2::Manual::Deployment>.
 
-=head3 Parameters
-
-We've provided new parameter keywords, described in L<Dancer2::Manual>,
-meant to replace all uses of C<param> or C<params>: C<route_parameters>,
-C<query_parameters>, and C<body_parameters>.
+=head2 Keywords
 
 =head3 Calling Keywords Explicitly
 
