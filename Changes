@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.205000  2017-03-10 15:37:52-06:00 America/Chicago
+
     [ BUG FIXES ]
     * GH #1325: Support multi-value cookies when using HTTP::XSCookies.
       (James Raspass)

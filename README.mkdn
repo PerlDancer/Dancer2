@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.204004
+version 0.205000
 
 # DESCRIPTION
 
@@ -139,6 +139,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Dale Gallagher
     Daniel Muey
     Daniel Perrett
+    David (sbts)
     David Steinbrunner
     David Zurborg
     Davs
@@ -178,6 +179,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Ludovic Tolhurst-Cleaver
     Mario Zieschang
     Mark A. Stratman
+    Marketa Wachtlova
     Masaaki Saito
     Mateu X Hunter
     Matt Phillips
@@ -199,6 +201,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Patrick Zimmermann
     Pau Amma
     Paul Cochrane
+    Paul Williams
     Pedro Bruno
     Pedro Melo
     Philippe Bricout
