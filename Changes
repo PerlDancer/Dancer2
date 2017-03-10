@@ -1,35 +1,33 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * Support multi-value cookies when using HTTP::XSCookies.
+    * GH #1325: Support multi-value cookies when using HTTP::XSCookies.
       (James Raspass)
-    * Read configuration options when send_as() creates a new serializer
-      (Paul Williams)
-    * Properly check buffer length in _read_to_end() (Marketa Wachtlova)
-    * Deprecate broken request->dispatch_path in favor of request->path.
-      Warn the developer of the deprecation (Russell @veryrusty Jenkins).
+    * GH #1303: Read configuration options when send_as() creates a new 
+      serializer (Paul Williams)
+    * GH #1290: Properly check buffer length in _read_to_end() (Marketa 
+      Wachtlova)
+    * GH #1322: Deprecate broken request->dispatch_path in favor of 
+      request->path. Warn the developer of the deprecation (Russell 
+      @veryrusty Jenkins).
 
     [ ENHANCEMENTS ]
-    * Speed up by using Type::Tiny, again.
-      (Pete SysPete Mottram)
-    * Add support for the SameSite cookie attribute.
-      (James Raspass)
+    * GH #1326: Speed up by using Type::Tiny, again. (Pete SysPete Mottram)
+    * GH #1318: Add support for the SameSite cookie attribute. (James Raspass)
     * GH #1283: Skeleton now provides an example of setting the appdir.
       (Jason Lewis)
-    * GH #1315: Adjust dist.ini to set "build_requires" for
-      ExtUtils::MakeMaker.
-      (Atoomic)
+    * GH #1315: Adjust dist.ini to set "build_requires" for 
+      ExtUtils::MakeMaker. (Atoomic)
+    * GH #1331: Preliminary prepare_app() work (Sawyer X)
 
     [ DOCUMENTATION ]
-    * Fix broken link to send_file.
-      (Fabrice Gabolde)
-    * Typo and link fixes.
-      (Breno G. de Oliveira - @garu)
-    * Document query string parameters in uri_for.
-      (Michael J South)
-    * Remove dead code from file upload example (Stefan Hornburg - Racke)
-    * Additions to migration manual (Daniel Perrett)
-    * Add middleware examples to scaffolder (David - sbts)
+    * GH #1324: Fix broken link to send_file. (Fabrice Gabolde)
+    * GH #1311: Typo and link fixes. (Breno G. de Oliveira - @garu)
+    * GH #1310: Document query string parameters in uri_for. (Michael J South)
+    * GH #1329: Remove dead code from file upload example (Stefan Hornburg - 
+      Racke)
+    * GH #1256: Additions to migration manual (Daniel Perrett)
+    * GH #1330: Add middleware examples to scaffolder (David - sbts)
 
 0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
 
