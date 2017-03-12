@@ -55,6 +55,8 @@ recommends 'Class::XSAccessor';
 recommends 'Cpanel::JSON::XS';
 recommends 'Crypt::URandom';
 recommends 'HTTP::XSCookies', '0.000007';
+# GH#1332 if old HTTP::XSCookies is installed we need to upgrade
+eval "require HTTP::XSCookies" && requires 'HTTP::XSCookies', '0.000007';
 recommends 'HTTP::XSHeaders';
 recommends 'Math::Random::ISAAC::XS';
 recommends 'MooX::TypeTiny';
