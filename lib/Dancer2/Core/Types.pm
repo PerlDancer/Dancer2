@@ -121,6 +121,6 @@ and I<OPTIONS>.
 
 =head1 SEE ALSO
 
-<Types::Standard> for more available types
+L<Types::Standard> for more available types
 
 =cut
