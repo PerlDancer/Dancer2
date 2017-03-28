@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1336: Fix warnings on 5.10 and below. (Sawyer X)
+
 0.205000  2017-03-10 15:37:52-06:00 America/Chicago
 
     [ BUG FIXES ]
