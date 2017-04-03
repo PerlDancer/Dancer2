@@ -2487,7 +2487,16 @@ I<This method should be called from a route handler>.
 It's an alias for the L<Dancer2::Core::Request params
 accessor|Dancer2::Core::Request/"params($source)">. It returns a hash (in
 list context) or a hash reference (in scalar context) to all defined
-parameters. Check C<param> below to access quickly to a single parameter
+parameters.  
+
+By default, the values of C<POST> parameters overwrite the values of
+parameters defined by route declarations. Parameters defined by the route
+declarations overwrite query string parameters defined by C<GET> requests. See
+L<Dancer2::Core::Request params accessor|Dancer2::Core::Request/"params($source)">
+for optional arguments to C<params> to return values from specific
+sources (i.e., route, query string, post body).
+
+Check C<param> below to access quickly to a single parameter
 value.
 
     post '/login' => sub {
