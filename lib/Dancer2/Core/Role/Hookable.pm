@@ -96,8 +96,7 @@ sub has_hook {
 
 # Execute the hook at the given position
 sub execute_hook {
-    my $self = shift;
-    my $name = shift;
+    my ($self, $name, @args) = @_;
 
     $name and !ref $name
         or croak "execute_hook needs a hook name";
@@ -112,7 +111,7 @@ sub execute_hook {
       $self->log( core => "Entering hook $name" );
 
     for my $hook ( @{ $self->hooks->{$name} } ) {
-        $hook->(@_);
+        $hook->(@args);
     }
 }
 
