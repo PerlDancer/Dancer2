@@ -11,6 +11,7 @@ use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
 use Module::Runtime 'require_module';
+use Scalar::Util 'reftype';
 
 sub hook_aliases { +{} }
 sub supported_hooks {
@@ -163,7 +164,7 @@ sub retrieve {
     my %args = ( id => $id, );
 
     $args{data} = $data
-      if $data and ref $data eq 'HASH';
+      if ref $data and reftype $data eq 'HASH';
 
     $args{expires} = $self->cookie_duration
       if $self->has_cookie_duration;
