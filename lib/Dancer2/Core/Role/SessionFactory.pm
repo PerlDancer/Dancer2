@@ -45,7 +45,7 @@ has log_cb => (
 has cookie_name => (
     is      => 'ro',
     isa     => Str,
-    default => sub {'dancer.session'},
+    default => sub {'dancer2.session'},
 );
 
 has cookie_domain => (
@@ -283,7 +283,7 @@ configuration. See L<Dancer2::Config/Session-engine>.
 
 The name of the cookie to create for storing the session key
 
-Defaults to C<dancer.session>
+Defaults to C<dancer2.session>
 
 =attr cookie_domain
 

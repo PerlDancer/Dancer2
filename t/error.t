@@ -23,7 +23,7 @@ my $env = {
     SERVER_PROTOCOL   => 'HTTP/1.1',
     REMOTE_ADDR       => '127.0.0.1',
     HTTP_COOKIE =>
-      'dancer.session=1234; fbs_102="access_token=xxxxxxxxxx%7Cffffff"',
+      'dancer2.session=1234; fbs_102="access_token=xxxxxxxxxx%7Cffffff"',
     HTTP_X_FORWARDED_FOR => '127.0.0.2',
     REMOTE_HOST     => 'localhost',
     HTTP_USER_AGENT => 'Mozilla',
