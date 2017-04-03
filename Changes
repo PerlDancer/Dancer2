@@ -573,6 +573,9 @@
     * GH #911: Dancer2 request object is now a subclass of Plack::Request.
       It's also much faster now. (Sawyer X)
 
+    [ BUG FIXES ]
+    * GH #926: Default session_dir is appdir/sessions (Sherwin Daganato, Henk van Oers)
+
 0.160003  2015-06-06 11:09:00+02:00 Europe/Amsterdam
 
     [ BUG FIXES ]

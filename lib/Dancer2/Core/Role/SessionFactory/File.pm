@@ -26,7 +26,7 @@ requires '_freeze_to_handle';    # given handle and data, serialize it
 has session_dir => (
     is      => 'ro',
     isa     => Str,
-    default => sub { path( '.', 'sessions' ) },
+    default => sub { path( setting('appdir'), 'sessions' ) },
 );
 
 sub BUILD {
