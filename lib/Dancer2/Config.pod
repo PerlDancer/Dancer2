@@ -172,6 +172,11 @@ hard-configured in the proxy if possible. For Apache this would be:
     RequestHeader set X_FORWARDED_PROTO "https"
     RequestHeader set X_FORWARDED_HOST "www.example.com"
 
+Note that if you are using Apache and want to retrieve the protocol,
+then you will need to manually specify it in your Apache config:
+
+    RequestHeader set X_FORWARDED_PROTO "https"
+
 =head2 Content type / character set
 
 =head3 content_type (string)
