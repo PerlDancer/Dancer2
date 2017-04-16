@@ -181,7 +181,13 @@ sub _set_config_entry {
 
     $value = $self->_normalize_config_entry( $name, $value );
     $value = $self->_compile_config_entry( $name, $value, $self->config );
-    $self->config->{$name} = $value;
+
+    if ( ref $self->config->{$name} eq 'HASH' && ref $value eq 'HASH' ) {
+        $self->config->{$name} = Hash::Merge::Simple->merge( $self->config->{$name}, $value );
+    }
+    else {
+       $self->config->{$name} = $value;
+    }
 }
 
 sub _normalize_config {

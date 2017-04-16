@@ -28,4 +28,21 @@ ok( setting('foo') == 43 && setting('bar') == 44,
     'set multiple values successful'
 );
 
+setting( plugins => {
+    Foo => {
+        option => 'value',
+    }
+} );
+set( plugins => {
+    Bar => {
+        setting => 'yes',
+    }
+} );
+
+is( config->{plugins}->{Foo}->{option}, 'value', 'plugins settings merged' );
+is( config->{plugins}->{Bar}->{setting}, 'yes', 'new plugin cfg set correctly' );
+
+set( plugins => 'ohno' );
+is( config->{plugins}, 'ohno', 'plugins value replaced when hashref not passed' );
+
 done_testing;
