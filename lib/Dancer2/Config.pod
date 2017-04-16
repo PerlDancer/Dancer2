@@ -139,6 +139,77 @@ If you like Apache configuration files, try something similar to:
 INI-style files are deliberately simplistic and not recommended for use in
 your Dancer2 applications.
 
+=head1 MANIPULATING SETTINGS VIA ENVIRONMENT VARIABLES
+
+Dancer2 can be configured using environment variables as well. They provide
+flexibility to tune your Dancer2 app from the command line. There are a number
+of supported environment variables:
+
+=head3 DANCER2_SHARE_DIR
+
+The path to the share directory used by the `dancer2` command line utility.
+Currently it should point to a directory, which has a subdirectory called `skel`,
+which contains a skeleton file/directory structure that is used to create new
+Dancer2 applications.
+
+=head3 DANCER_APPHANDLER
+
+=head3 DANCER_CHARSET
+
+See L</charset-string>.
+
+=head3 DANCER_CONFDIR
+
+See L</DANCER_CONFDIR-and-DANCER_ENVDIR> .
+
+=head3 DANCER_CONTENT_TYPE
+
+See L</content_type-string>
+
+=head3 DANCER_ENVDIR
+
+See L</DANCER_CONFDIR-and-DANCER_ENVDIR>.
+
+=head3 DANCER_ENVIRONMENT and PLACK_ENV
+
+See L<Dancer2::Cookbook/From-a-separate-script>.
+
+=head3 DANCER_LOGGER
+
+See L</logger-enum>
+
+=head3 DANCER_NO_SERVER_TOKENS
+
+See L</no_server_tokens-boolean>.
+
+=head3 DANCER_PORT
+
+See L</port-int>.
+
+=head3 DANCER_PUBLIC
+
+See L</public-directory>.
+
+=head3 DANCER_SERVER
+
+See L</server-string>.
+
+=head3 DANCER_STARTUP_INFO
+
+See L</startup_info-boolean>.
+
+=head3 DANCER_TRACES
+
+See L</traces-boolean>.
+
+=head3 DANCER_VIEWS
+
+See L</views-directory>.
+
+=head3 DANCER_WARNINGS
+
+Currently unused. See L</warnings-boolean>
+
 =head1 SUPPORTED SETTINGS
 
 =head2 Run mode and listening interface/port
