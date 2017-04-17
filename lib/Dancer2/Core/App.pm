@@ -1641,7 +1641,6 @@ sub response_not_found {
     my $response = Dancer2::Core::Error->new(
         app    => $self,
         status  => 404,
-        message => $request->path,
     )->throw;
 
     $self->cleanup;
