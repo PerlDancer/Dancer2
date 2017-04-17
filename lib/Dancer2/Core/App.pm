@@ -1623,6 +1623,9 @@ sub response_internal_error {
     local $Dancer2::Core::Route::REQUEST  = $self->request;
     local $Dancer2::Core::Route::RESPONSE = $self->response;
 
+    local $Dancer2::Core::Route::REQUEST  = $self->request;
+    local $Dancer2::Core::Route::RESPONSE = $self->response;
+
     return Dancer2::Core::Error->new(
         app       => $self,
         status    => 500,
