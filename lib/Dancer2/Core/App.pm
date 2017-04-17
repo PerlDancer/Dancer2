@@ -404,6 +404,12 @@ around _build_config => sub {
         $self->_validate_engine($_) for keys %{ $config->{'engines'} };
     }
 
+    my $runner = Dancer2::runner();
+    exists $config->{host}
+        and $runner->config->{host} = $config->{host};
+    exists $config->{port}
+        and $runner->config->{port} = $config->{port};
+
     return $config;
 };
 
