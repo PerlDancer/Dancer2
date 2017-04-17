@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
+use t::lib::Tools qw(slurp);
 
 BEGIN {
     $|  = 1;
@@ -62,15 +63,6 @@ foreach my $template (@TEMPLATES) {
     # Execute the template
     $template->process( \$tt, $VAR1, \my $out );
     is( $out, $txt, "$template: Output matches expected" );
-}
-
-sub slurp {
-    my $f = shift;
-    local $/ = undef;
-    open( VAR, $f ) or die("open($f): $!");
-    my $buffer = <VAR>;
-    close VAR;
-    return $buffer;
 }
 
 
