@@ -130,6 +130,7 @@ sub apply_renderer {
     $self->execute_hook( 'engine.template.before_render', $tokens );
 
     my $content = $self->render( $view, $tokens );
+
     $self->execute_hook( 'engine.template.after_render', \$content );
 
     # make sure to avoid ( undef ) in list context return

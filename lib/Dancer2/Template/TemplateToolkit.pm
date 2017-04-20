@@ -23,19 +23,25 @@ sub _build_engine {
         %{ $self->config },
     );
 
-    my $start_tag = $self->config->{'start_tag'};
-    my $stop_tag = $self->config->{'stop_tag'} || $self->config->{end_tag};
-    $tt_config{'START_TAG'} = $start_tag
-      if defined $start_tag && $start_tag ne '[%';
-    $tt_config{'END_TAG'} = $stop_tag
-      if defined $stop_tag && $stop_tag ne '%]';
+    # Mappings, fade out at some stage, was there an intent to make them the same as
+    # the tags for Dancer2::Template::Simple?
+    my %legacy = (
+      INCLUDE_PATH => ['include_path'],
+      END_TAG => ['stop_tag', 'end_tag'],
+      START_TAG => ['start_tag'],
+    );
+    while (my ($key, $aliases) = each %legacy) {
+      foreach my $alias (@$aliases) {
+        if (exists $self->config->{$alias}) {
+          $self->log_cb()->('debug' => 
+            "deprecated: please update your config '$alias' should be '$key'");
+          $tt_config{$key} = $self->config->{$alias};
+        }
+      }
+    }
 
     Scalar::Util::weaken( my $ttt = $self );
-    my $include_path = $self->config->{include_path};
-    $tt_config{'INCLUDE_PATH'} ||= [
-        ( defined $include_path ? $include_path : () ),
-        sub { [ $ttt->views ] },
-    ];
+    $tt_config{'INCLUDE_PATH'} ||= [ sub { [ $ttt->views ] }, ];
 
     my $tt = Template->new(%tt_config);
     $Template::Stash::PRIVATE = undef if $self->config->{show_private_variables};
