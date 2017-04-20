@@ -2837,6 +2837,11 @@ the C<content_type> and C<charset> options. For example:
 
     send_file($fh, content_type => 'text/csv', charset => 'utf-8' );
 
+The encoding of the file or filehandle may be specified by passing both
+the C<content_type> and C<charset> options. For example:
+
+    send_file($fh, content_type => 'text/csv', charset => 'utf-8' );
+
 For files outside your B<public> folder, you can use the C<system_path>
 switch. Just bear in mind that its use needs caution as it can be dangerous.
 
