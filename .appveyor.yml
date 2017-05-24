@@ -1,0 +1,28 @@
+# Build/Test Configuration for Dancer2
+# http://www.appveyor.com/docs/appveyor-yml
+
+# whitelist for branches, so that working on a weird branch would not be tested
+branches:
+  only:
+    - master
+
+skip_tags: true
+
+cache:
+  - C:\strawberry
+
+# uses Chocolatey -- like apt or yum for Windows to install 5.24.1 64-bit
+# probably a better way to handle installing Dist::Zilla
+install:
+  - if not exist "C:\strawberry" cinst strawberryperl
+  - set PATH=C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;C:\strawberry\c\bin;%PATH%
+  - cd C:\projects\%APPVEYOR_PROJECT_NAME%
+  - cpanm Dist::Zilla 
+  - cpanm Dist::Zilla::PluginBundle::Starter
+  - cpanm Dist::Zilla::Plugin::Prereqs::FromCPANfile
+  - cpanm --installdeps .
+
+build_script:
+  - perl -e 2
+test_script:
+  - dzil test
