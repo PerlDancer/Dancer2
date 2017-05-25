@@ -20,6 +20,7 @@ install:
   - cpanm Dist::Zilla 
   - cpanm Dist::Zilla::PluginBundle::Starter
   - cpanm Dist::Zilla::PluginBundle::Git
+  - cpanm Dist::Zilla::PluginBundle::Dancer
   - cpanm Dist::Zilla::Plugin::Prereqs::FromCPANfile
   - cpanm --installdeps .
 
@@ -27,3 +28,4 @@ build_script:
   - perl -e 2
 test_script:
   - dzil test
+
