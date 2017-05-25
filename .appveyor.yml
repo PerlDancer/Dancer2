@@ -19,6 +19,7 @@ install:
   - cd C:\projects\%APPVEYOR_PROJECT_NAME%
   - cpanm Dist::Zilla 
   - cpanm Dist::Zilla::PluginBundle::Starter
+  - cpanm Dist::Zilla::PluginBundle::Git
   - cpanm Dist::Zilla::Plugin::Prereqs::FromCPANfile
   - cpanm --installdeps .
 
