@@ -109,6 +109,13 @@ following commands:
 NOYAML
     }
 
+    print <<HOWTORUN;
+The application is ready to serve; to run it, do:
+
+        cd $app_path
+        plackup bin/app.psgi
+HOWTORUN
+
     return 0;
 }
 
