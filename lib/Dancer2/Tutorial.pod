@@ -552,7 +552,7 @@ Here's the complete 'dancr.pl' script from start to finish.
          if ( body_parameters->get('username') ne setting('username') ) {
              $err = "Invalid username";
          }
-         elsif ( body_parameters->('password') ne setting('password') ) {
+         elsif ( body_parameters->get('password') ne setting('password') ) {
              $err = "Invalid password";
          }
          else {
