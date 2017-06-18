@@ -78,11 +78,19 @@ sub layout_pathname {
 
 sub pathname_exists {
     my ( $self, $pathname ) = @_;
-    return eval {
+
+    eval {
         # dies if pathname can not be found via TT2's INCLUDE_PATH search
         $self->engine->service->context->template( $pathname );
         1;
     };
+
+    if ( $@ ) {
+        warn $@;
+        return -1;
+    }
+    
+    return 1;                 
 }
 
 1;
