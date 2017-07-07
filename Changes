@@ -5,6 +5,9 @@
     * GH #1347: Add Perl versions 5.22-5.26 and appveyor to Travis-CI
       configuration (Dave Jacoby)
 
+    [ DOCUMENTATION ]
+    * GH #1335: Add missing word in request->host docs (Glenn Fowler)
+
 0.205000  2017-03-10 15:37:52-06:00 America/Chicago
 
     [ BUG FIXES ]
