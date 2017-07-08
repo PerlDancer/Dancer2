@@ -857,7 +857,7 @@ receiving serialized requests) and providing rendered pages.
      get '/' => sub { +{ resources => \%resources, ... } };
 
      # user-specific routes, for example
-     prefix => '/users' => sub {
+     prefix '/users' => sub {
          get '/view'     => sub {...};
          get '/view/:id' => sub {...};
          put '/add'      => sub {...}; # automatically deserialized params

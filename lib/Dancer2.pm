@@ -228,6 +228,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
 =head2 CONTRIBUTORS
 
     A. Sinan Unur
+    Abdullah Diab
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
