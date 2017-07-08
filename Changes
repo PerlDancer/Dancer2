@@ -10,6 +10,7 @@
     * GH #1335: Add missing word in request->host docs (Glenn Fowler)
     * GH #1337: Fix link in SEE ALSO section of Dancer2::Core::Types (Stefan
       Hornburg - Racke)
+    * GH #1341: Clarify plugin documentation (Stefan Hornburg - Racke)
     * GH #1345, #1351, #1356: Fix password check code example in tutorial
       (Jonathan Cast)
     * GH #1355: Fix typo (Gregor Herrmann)
