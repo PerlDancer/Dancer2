@@ -92,7 +92,7 @@ This object represents a delayed (asynchronous) response for L<Dancer2>.
 It can be used via the C<delayed> keyword.
 
 It keeps references to a request and a response in order to avoid
-keeping a reference ot the application.
+keeping a reference to the application.
 
 =head1 ATTRIBUTES
 
