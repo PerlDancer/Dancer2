@@ -289,6 +289,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Jean Stebens
     Jens Rehsack
     Joel Berger
+    Jonathan Cast
     Jonathan Scott Duff
     Julien Fiegehenn
     Julio Fraire
