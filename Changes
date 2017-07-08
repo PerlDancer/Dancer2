@@ -6,6 +6,7 @@
       configuration (Dave Jacoby)
 
     [ DOCUMENTATION ]
+    * GH #1334: Fix prefix example in Cookbook (Abdullah Diab)
     * GH #1335: Add missing word in request->host docs (Glenn Fowler)
     * GH #1355: Fix typo (Gregor Herrmann)
 
