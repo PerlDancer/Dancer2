@@ -694,8 +694,6 @@ then to load into the app:
 
 =head1 DESCRIPTION
 
-This is an alternate plugin basis for Dancer2.
-
 =head2 Writing the plugin
 
 =head3 C<use Dancer2::Plugin>
