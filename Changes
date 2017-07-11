@@ -5,6 +5,9 @@
     * GH #1347: Add Perl versions 5.22-5.26 and appveyor to Travis-CI
       configuration (Dave Jacoby)
 
+    [ ENHANCEMENTS ]
+    * Use Ref::Util in Core for all reference checks (Mickey Nasriachi)
+
     [ DOCUMENTATION ]
     * GH #1334: Fix prefix example in Cookbook (Abdullah Diab)
     * GH #1335: Add missing word in request->host docs (Glenn Fowler)

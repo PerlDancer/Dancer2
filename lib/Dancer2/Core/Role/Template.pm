@@ -5,6 +5,7 @@ package Dancer2::Core::Role::Template;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils 'path';
 use Carp 'croak';
+use Ref::Util qw< is_ref >;
 
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
@@ -124,7 +125,7 @@ sub render_layout {
 
 sub apply_renderer {
     my ( $self, $view, $tokens ) = @_;
-    $view = $self->view_pathname($view) if !ref $view;
+    $view = $self->view_pathname($view) if !is_ref($view);
     $tokens = $self->_prepare_tokens_options( $tokens );
 
     $self->execute_hook( 'engine.template.before_render', $tokens );

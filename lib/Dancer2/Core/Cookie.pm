@@ -6,6 +6,7 @@ use URI::Escape;
 use Dancer2::Core::Types;
 use Dancer2::Core::Time;
 use Carp 'croak';
+use Ref::Util qw< is_arrayref is_hashref >;
 use overload '""' => \&_get_value;
 
 BEGIN {
@@ -71,9 +72,9 @@ has value => (
     coerce   => sub {
         my $value = shift;
         my @values =
-            ref $value eq 'ARRAY' ? @$value
-          : ref $value eq 'HASH'  ? %$value
-          :                         ($value);
+            is_arrayref($value) ? @$value
+          : is_hashref($value)  ? %$value
+          :                       ($value);
         return [@values];
     },
 );

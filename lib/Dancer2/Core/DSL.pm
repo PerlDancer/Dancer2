@@ -5,6 +5,7 @@ package Dancer2::Core::DSL;
 use Moo;
 use Carp;
 use Module::Runtime 'require_module';
+use Ref::Util qw< is_arrayref >;
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use Dancer2::Core::Response::Delayed;
@@ -219,7 +220,7 @@ sub any {
 
     # If they've supplied their own list of methods,
     # expand del, otherwise give them the default list.
-    if ( ref $_[0] eq 'ARRAY' ) {
+    if ( is_arrayref($_[0]) ) {
         s/^del$/delete/ for @{ $_[0] };
     }
     else {

@@ -6,6 +6,7 @@ use Dancer2::Core::Types;
 use Carp 'croak';
 use List::Util 'first';
 use Scalar::Util 'blessed';
+use Ref::Util qw< is_regexpref >;
 
 our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
@@ -183,10 +184,10 @@ sub BUILDARGS {
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
-            ref($regexp) eq 'Regexp' ? qr{^\Q${prefix}\E${regexp}$} :
+            is_regexpref($regexp) ? qr{^\Q${prefix}\E${regexp}$} :
             $prefix . $regexp;
     }
-    elsif ( ref($regexp) ne 'Regexp' ) {
+    elsif ( !is_regexpref($regexp) ) {
         # No prefix, so ensure regexp begins with a '/'
         index( $regexp, '/', 0 ) == 0 or $args{regexp} = "/$regexp";
     }
@@ -195,7 +196,7 @@ sub BUILDARGS {
     $regexp = $args{regexp}; # updated value
     $args{spec_route} = $regexp;
 
-    if ( ref($regexp) eq 'Regexp') {
+    if ( is_regexpref($regexp)) {
         $args{_should_capture} = 1;
     }
     else {

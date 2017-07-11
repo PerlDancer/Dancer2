@@ -8,6 +8,7 @@ use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
 use Plack::Builder qw();
+use Ref::Util qw< is_ref is_regexpref >;
 
 # Hashref of configurable items for the runner.
 # Defaults come from ENV vars. Updated via global triggers
@@ -174,14 +175,14 @@ sub psgi_app {
         my @found_apps = ();
 
         foreach my $app_req ( @{$apps} ) {
-            if ( ref $app_req eq 'Regexp' ) {
+            if ( is_regexpref($app_req) ) {
                 # find it in the apps registry
                 push @found_apps,
                     grep +( $_->name =~ $app_req ), @{ $self->apps };
             } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
                 # use it directly
                 push @found_apps, $app_req;
-            } elsif ( ! ref $app_req ) {
+            } elsif ( !is_ref($app_req) ) {
                 # find it in the apps registry
                 push @found_apps,
                     grep +( $_->name eq $app_req ), @{ $self->apps };
