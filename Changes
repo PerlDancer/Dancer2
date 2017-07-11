@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.205001  2017-07-11 08:03:21-05:00 America/Chicago
+
     [ BUG FIXES ]
     * GH #1332: Add check for old version of HTTP::XSCookies (Peter Mottram -
       SysPete)
