@@ -11,6 +11,7 @@ use Test::More;
 use File::Spec::Functions ':ALL';
 use Dancer2::Template::Implementation::ForkedTiny ();
 use FindBin qw($Bin);
+use Ref::Util qw<is_hashref>;
 
 my $SAMPLES = catdir( $Bin, 'samples' );
 unless ( -d $SAMPLES ) {
@@ -51,7 +52,7 @@ foreach my $template (@TEMPLATES) {
     my $txt = slurp($txt_file);
     eval $var;
     die $@ if $@;
-    is( ref($VAR1), 'HASH', "$template: Loaded stash from file" );
+    ok( is_hashref($VAR1), "$template: Loaded stash from file" );
 
     # Create the processor normally
     my %params = ( INCLUDE_PATH => $SAMPLES, );

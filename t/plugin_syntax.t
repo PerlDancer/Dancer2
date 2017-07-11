@@ -4,6 +4,7 @@ use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
 use JSON::MaybeXS;
+use Ref::Util qw<is_coderef>;
 
 subtest 'global and route keywords' => sub {
     {
@@ -26,7 +27,7 @@ subtest 'global and route keywords' => sub {
     }
 
     my $app = App1->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -68,7 +69,7 @@ subtest 'plugin old syntax' => sub {
     }
 
     my $app = App2->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -83,7 +84,7 @@ subtest 'plugin old syntax' => sub {
 
 subtest caller_dsl => sub {
     my $app = App1->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -137,7 +138,7 @@ subtest 'hooks in plugins' => sub {
     }
 
     my $app = App3->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;

@@ -8,22 +8,25 @@ use HTTP::Request::Common;
 use Encode;
 use JSON::MaybeXS;
 use YAML;
+use Ref::Util qw<is_coderef>;
 
 {
     package MyApp;
     use Dancer2;
+    use Ref::Util qw<is_hashref>;
+
     set serializer => 'Mutable';
 
     get '/serialize'     => sub { +{ bar => 'baz' } };
     post '/deserialize'  => sub {
         return request->data &&
-               ref request->data eq 'HASH' &&
+               is_hashref( request->data ) &&
                request->data->{bar} ? { bar => request->data->{bar} } : { ret => '?' };
     };
 }
 
 my $app = MyApp->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

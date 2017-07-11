@@ -3,6 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 use Dancer2::Core::App;
 use Dancer2::Core::Response;
@@ -59,7 +60,7 @@ subtest "send_error in route" => sub {
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -93,7 +94,7 @@ subtest "send_error with custom stuff" => sub {
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;

@@ -5,6 +5,7 @@ use Test::More tests => 5;
 use Dancer2::Serializer::Dumper;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 {
     package MyApp;
@@ -14,7 +15,7 @@ use HTTP::Request::Common;
 }
 
 my $app = MyApp->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

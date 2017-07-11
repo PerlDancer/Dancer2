@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use File::Spec;
 use File::Basename qw/dirname/;
+use Ref::Util qw<is_arrayref>;
 
 BEGIN {
     # Disable route handlers so we can actually test route_exists
@@ -103,7 +104,7 @@ is $file_response->content, 'testfile', 'file uploaded with supplied filename';
 ## Check multiselect/multi parameters get through ok
 get '/multi' => sub {
     my $t = param('test');
-    return 'bad' if ref($t) ne 'ARRAY';
+    return 'bad' if !is_arrayref($t);
     my $p = join( '', @$t );
     return $p;
 };

@@ -10,6 +10,7 @@ use Test::Builder;
 use URI::Escape;
 use Data::Dumper;
 use File::Temp;
+use Ref::Util qw<is_arrayref>;
 
 use parent 'Exporter';
 our @EXPORT = qw(
@@ -97,8 +98,8 @@ sub _build_request_from_env {
     # or as a arrayref, or as a simple string
     my ( $method, $path, $options ) =
         @_ > 1 ? @_
-      : ref $_[0] eq 'ARRAY' ? @{ $_[0] }
-      :                        ( GET => $_[0], {} );
+      : is_arrayref($_[0]) ? @{ $_[0] }
+      :                      ( GET => $_[0], {} );
 
     my $env = {
         %ENV,
@@ -116,7 +117,7 @@ sub _build_request_from_env {
     if ( defined $options->{params} ) {
         my @params;
         while ( my ( $p, $value ) = each %{ $options->{params} } ) {
-            if ( ref($value) eq 'ARRAY' ) {
+            if ( is_arrayref($value) ) {
                 for my $v (@$value) {
                     push @params,
                       uri_escape_utf8($p) . '=' . uri_escape_utf8($v);
@@ -204,7 +205,7 @@ sub _build_env_from_request {
     if ( my $params = $request->{_query_params} ) {
         my @params;
         while ( my ( $p, $value ) = each %{$params} ) {
-            if ( ref($value) eq 'ARRAY' ) {
+            if ( is_arrayref($value) ) {
                 for my $v (@$value) {
                     push @params,
                       uri_escape_utf8($p) . '=' . uri_escape_utf8($v);
@@ -440,11 +441,10 @@ sub route_pod_coverage {
                 for ( my $idx = 0; $idx < @$pod_dataref; $idx++ ) {
                     my $pod_part = $pod_dataref->[$idx];
 
-                    next if ref $pod_part ne 'ARRAY';
+                    next if !is_arrayref($pod_part);
                     foreach my $ref_part (@$pod_part) {
-                        if ( ref($ref_part) eq "ARRAY" ) {
-                            push @$pod_dataref, $ref_part;
-                        }
+                        is_arrayref($ref_part)
+                            and push @$pod_dataref, $ref_part;
                     }
 
                     my $pod_string = lc $pod_part->[2];
@@ -538,13 +538,13 @@ sub _req_label {
         ref $req eq 'Dancer2::Core::Response' ? 'response object'
       : ref $req eq 'Dancer2::Core::Request'
       ? join( ' ', map { $req->$_ } qw/ method path / )
-      : ref $req eq 'ARRAY' ? join( ' ', @$req )
-      :                       "GET $req";
+      : is_arrayref($req) ? join( ' ', @$req )
+      :                     "GET $req";
 }
 
 sub _expand_req {
     my $req = shift;
-    return ref $req eq 'ARRAY' ? @$req : ( 'GET', $req );
+    return is_arrayref($req) ? @$req : ( 'GET', $req );
 }
 
 # Sort arrayref of headers (turn it into a list of arrayrefs, sort by the header
@@ -597,7 +597,7 @@ sub _req_to_response {
     # already a response object
     return $req if ref $req eq 'Dancer2::Core::Response';
 
-    return dancer_response( ref $req eq 'ARRAY' ? @$req : ( 'GET', $req ) );
+    return dancer_response( is_arrayref($req) ? @$req : ( 'GET', $req ) );
 }
 
 # make sure we have at least one app in the dispatcher, and if not,

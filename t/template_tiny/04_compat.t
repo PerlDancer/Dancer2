@@ -13,7 +13,7 @@ eval "require Template";
 if ($@) {
     plan( skip_all => 'Template Toolkit is not installed' );
 }
-
+use Ref::Util qw<is_hashref>;
 use FindBin qw($Bin);
 my $SAMPLES = catdir( $Bin, 'samples' );
 unless ( -d $SAMPLES ) {
@@ -46,7 +46,7 @@ foreach my $name (@TEMPLATES) {
     my $txt = slurp($txt_file);
     eval $var;
     die $@ if $@;
-    is( ref($VAR1), 'HASH', "$name: Loaded stash from file" );
+    ok( is_hashref($VAR1), "$name: Loaded stash from file" );
 
     # Create the template processor
     my %params = ( INCLUDE_PATH => $SAMPLES, );

@@ -4,6 +4,7 @@ use warnings;
 use Test::More tests => 12;
 use Plack::Test;
 use HTTP::Request;
+use Ref::Util qw<is_coderef>;
 
 use Dancer2;
 
@@ -17,7 +18,7 @@ my %method = (
 );
 
 my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

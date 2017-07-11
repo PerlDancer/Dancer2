@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More import => ['!pass'];
 use Carp 'croak';
+use Ref::Util qw<is_regexpref>;
 
 use Dancer2;
 use Dancer2::Core::App;
@@ -183,7 +184,7 @@ foreach my $test (@tests) {
     my %exp_headers = @{ $expected->[1] };
     is_deeply( \%got_headers, \%exp_headers, "[$path] Correct headers" );
 
-    if ( ref( $expected->[2] ) eq "Regexp" ) {
+    if ( is_regexpref( $expected->[2] ) ) {
         like $resp->[2][0] => $expected->[2], "[$path] Contents ok. (test $counter)";
     }
     else {
