@@ -8,7 +8,10 @@
       configuration (Dave Jacoby)
 
     [ ENHANCEMENTS ]
-    * Use Ref::Util in Core for all reference checks (Mickey Nasriachi)
+    * GH #1281: Use Ref::Util in Core for all reference checks (Mickey 
+      Nasriachi)
+    * GH #1338: Add message explaining how to run newly-created application
+      (Jonathan Cast)
 
     [ DOCUMENTATION ]
     * GH #1334: Fix prefix example in Cookbook (Abdullah Diab)
