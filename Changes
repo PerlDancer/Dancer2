@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1332: Add check for old version of HTTP::XSCookies (Peter Mottram -
+      SysPete)
     * GH #1336: Fix warnings on 5.10 and below. (Sawyer X)
     * GH #1347: Add Perl versions 5.22-5.26 and appveyor to Travis-CI
       configuration (Dave Jacoby)
