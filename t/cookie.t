@@ -27,49 +27,56 @@ sub run_test {
 
     note "Setting values";
 
-    is $cookie->value("foo") => "foo";
-    is $cookie->value        => "foo";
+    is $cookie->value("foo") => "foo", "Can set value";
+    is $cookie->value        => "foo", "Set value stuck";
 
     is $cookie . "bar", "foobar", "Stringifies to desired value";
 
-    ok $cookie->value( [qw(a b c)] );
-    is $cookie->value => 'a';
-    is_deeply [ $cookie->value ] => [qw(a b c)];
+    ok $cookie->value( [qw(a b c)] ), "can set multiple values";
+    is $cookie->value => 'a', "get first value in scalar context";
+    is_deeply [ $cookie->value ] => [qw(a b c)],
+        "get all values in list context";;
 
-    ok $cookie->value( { x => 1, y => 2 } );
+    ok $cookie->value( { x => 1, y => 2 } ), "can set values with a hashref";
     like $cookie->value => qr/^[xy]$/;    # hashes doesn't store order...
     is_deeply [ sort $cookie->value ] => [ sort ( 1, 2, 'x', 'y' ) ];
 
 
     note "accessors and defaults";
 
-    is $cookie->name        => 'foo';
-    is $cookie->name("bar") => "bar";
-    is $cookie->name        => 'bar';
+    is $cookie->name        => 'foo', "name is as expected";
+    is $cookie->name("bar") => "bar", "can change name";
+    is $cookie->name        => 'bar', "name change stuck";
 
-    ok !$cookie->domain;
-    is $cookie->domain("dancer.org") => "dancer.org";
-    is $cookie->domain               => "dancer.org";
-    is $cookie->domain("")           => "";
-    ok !$cookie->domain;
+    ok !$cookie->domain, "no domain set by default";
+    is $cookie->domain("dancer.org") => "dancer.org",
+        "setting domain returns new value";
+    is $cookie->domain               => "dancer.org",
+        "new domain valjue stuck";
+    is $cookie->domain("")           => "", "can clear domain";
+    ok !$cookie->domain, "no domain set now";
 
     is $cookie->path => '/', "by default, path is /";
     ok $cookie->has_path, "has_path";
-    is $cookie->path("/foo") => "/foo";
+    is $cookie->path("/foo") => "/foo", "setting path returns new value";
     ok $cookie->has_path, "has_path";
-    is $cookie->path => "/foo";
+    is $cookie->path => "/foo", "new path stuck";
 
-    ok !$cookie->secure;
-    is $cookie->secure(1) => 1;
-    is $cookie->secure    => 1;
-    is $cookie->secure(0) => 0;
-    ok !$cookie->secure;
+    ok !$cookie->secure, "no cookie secure flag by default";
+    is $cookie->secure(1) => 1, "enabling \$cookie->secure returns new value";
+    is $cookie->secure    => 1, "\$cookie->secure flag is enabled";
+    is $cookie->secure(0) => 0, "disabling \$cookie->secure returns new value";
+    ok !$cookie->secure, "\$cookie->secure flag is disabled";
 
-    ok !$cookie->http_only;
-    is $cookie->http_only(1) => 1;
-    is $cookie->http_only    => 1;
-    is $cookie->http_only(0) => 0;
-    ok !$cookie->http_only;
+    ok !$cookie->http_only, "no http_only by default";;
+    is $cookie->http_only(1) => 1,
+        "enabling \$cookie->http_only returns new value";;
+    is $cookie->http_only    => 1,
+        "\$cookie->http_only is now enabled";
+    is $cookie->http_only(0) => 0,
+        "disabling \$cookie->http_only returns new value";
+    ok !$cookie->http_only,
+        "\$cookie->http_only is now disabled";
 
     like exception { $cookie->same_site('foo') },
         qr/Value "foo" did not pass type constraint "Enum\["Strict","Lax"\]/;
@@ -111,7 +118,7 @@ sub run_test {
         my $want = $times{$exp};
 
         $cookie->expires($exp);
-        is $cookie->expires => $want;
+        is $cookie->expires => $want, "expiry $exp => $want";;
     }
 
 
