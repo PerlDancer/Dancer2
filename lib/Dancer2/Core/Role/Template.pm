@@ -251,7 +251,7 @@ Current version of perl, effectively C<$^V>.
 
 =item * C<dancer_version>
 
-Current version of Dancer2, effectively C<<Dancer2->VERSION>>.
+Current version of Dancer2, effectively C<< Dancer2->VERSION >>.
 
 =item * C<settings>
 
