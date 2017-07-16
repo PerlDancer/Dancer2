@@ -68,11 +68,7 @@ sub run_test {
     is $cookie->secure(0) => 0, "disabling \$cookie->secure returns new value";
     ok !$cookie->secure, "\$cookie->secure flag is disabled";
 
-    ok !$cookie->http_only, "no http_only by default";;
-    is $cookie->http_only(1) => 1,
-        "enabling \$cookie->http_only returns new value";;
-    is $cookie->http_only    => 1,
-        "\$cookie->http_only is now enabled";
+    ok $cookie->http_only, "http_only by default";
     is $cookie->http_only(0) => 0,
         "disabling \$cookie->http_only returns new value";
     ok !$cookie->http_only,
@@ -131,8 +127,10 @@ sub run_test {
                 expires => '+2h',
                 secure  => 1
             },
-            expected =>
-            sprintf( "bar=foo; Expires=%s; Path=/; Secure", $times{'+2h'} ),
+            expected => sprintf(
+                "bar=foo; Expires=%s; HttpOnly; Path=/; Secure",
+                $times{'+2h'},
+            ),
         },
         {   cookie => {
                 name      => 'bar',
@@ -147,21 +145,21 @@ sub run_test {
                 name  => 'bar',
                 value => 'foo',
             },
-            expected => "bar=foo; Path=/",
+            expected => "bar=foo; HttpOnly; Path=/",
         },
         {   cookie => {
                 name      => 'same-site',
                 value     => 'strict',
                 same_site => 'Strict',
             },
-            expected => 'same-site=strict; Path=/; SameSite=Strict',
+            expected => 'same-site=strict; HttpOnly; Path=/; SameSite=Strict',
         },
         {   cookie => {
                 name      => 'same-site',
                 value     => 'lax',
                 same_site => 'Lax',
             },
-            expected => 'same-site=lax; Path=/; SameSite=Lax',
+            expected => 'same-site=lax; HttpOnly; Path=/; SameSite=Lax',
         },
     );
 
@@ -176,7 +174,7 @@ sub run_test {
 
     my $c = Dancer2::Core::Cookie->new( name => 'foo', value => [qw/bar baz/] );
 
-    is $c->to_header, 'foo=bar&baz; Path=/';
+    is $c->to_header, 'foo=bar&baz; Path=/; HttpOnly';
 
     my $r = Dancer2::Core::Request->new( env => { HTTP_COOKIE => 'foo=bar&baz' } );
 
