@@ -15,6 +15,8 @@ my $tests_flags = {};
 {
     package App::WithSerializer;
     use Dancer2;
+    use Ref::Util qw<is_arrayref is_hashref>;
+
     set serializer => 'JSON';
 
     my @hooks = qw(
@@ -36,9 +38,9 @@ my $tests_flags = {};
 
     hook 'before_serializer' => sub {
         my ($data) = @_;  # don't shift, want to alias..
-        if ( ref $data eq 'ARRAY' ) {
+        if ( is_arrayref($data) ) {
             push( @{$data}, ( added_in_hook => 1 ) );
-        } elsif ( ref $data eq 'HASH' ) {
+        } elsif ( is_hashref($data) ) {
             $data->{'added_in_hook'} = 1;
         } else {
             $_[0] = +{ 'added_in_hook' => 1 };

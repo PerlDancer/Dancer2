@@ -8,6 +8,7 @@ use Plack::Test;
 use HTTP::Request::Common;
 use File::Temp;
 use File::Spec;
+use Ref::Util qw<is_coderef>;
 
 {
     package StaticContent;
@@ -59,7 +60,7 @@ use File::Spec;
 }
 
 my $app = StaticContent->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

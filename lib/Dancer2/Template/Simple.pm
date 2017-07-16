@@ -3,6 +3,7 @@ package Dancer2::Template::Simple;
 
 use Moo;
 use Dancer2::FileUtils 'read_file_content';
+use Ref::Util qw<is_arrayref is_coderef is_plain_hashref>;
 
 with 'Dancer2::Core::Role::Template';
 
@@ -113,7 +114,7 @@ sub _find_value_from_token_name {
         if ( not defined $value ) {
             $value = $tokens->{$e};
         }
-        elsif ( ref($value) eq 'HASH' ) {
+        elsif ( is_plain_hashref($value) ) {
             $value = $value->{$e};
         }
         elsif ( ref($value) ) {
@@ -127,12 +128,12 @@ sub _find_value_from_token_name {
 
 sub _interpolate_value {
     my ($value) = @_;
-    if ( ref($value) eq 'CODE' ) {
+    if ( is_coderef($value) ) {
         local $@;
         eval { $value = $value->() };
         $value = "" if $@;
     }
-    elsif ( ref($value) eq 'ARRAY' ) {
+    elsif ( is_arrayref($value) ) {
         $value = "@{$value}";
     }
 

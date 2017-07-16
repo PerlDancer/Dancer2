@@ -69,6 +69,7 @@ It's primary purpose is for testing. Here is an example of a test:
     use Test::More;
     use Plack::Test;
     use HTTP::Request::Common;
+    use Ref::Util qw<is_coderef>;
 
     {
         package App;
@@ -85,7 +86,7 @@ It's primary purpose is for testing. Here is an example of a test:
     }
 
     my $app = Dancer2->psgi_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;

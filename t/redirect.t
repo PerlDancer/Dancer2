@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 subtest 'basic redirects' => sub {
     {
@@ -17,7 +18,7 @@ subtest 'basic redirects' => sub {
     }
 
     my $app = App1->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -86,7 +87,7 @@ subtest 'absolute and relative redirects' => sub {
     }
 
     my $app = App2->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -133,7 +134,7 @@ subtest 'redirect behind a proxy' => sub {
     }
 
     my $app = App3->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -198,7 +199,7 @@ subtest 'redirect behind multiple proxies' => sub {
     }
 
     my $app = App4->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;

@@ -4,6 +4,7 @@ use Test::More import => ['!pass'], tests => 4;
 use Dancer2;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 get '/' => sub {
     return 'Forbidden';
@@ -32,7 +33,7 @@ hook before => sub {
 };
 
 my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;
