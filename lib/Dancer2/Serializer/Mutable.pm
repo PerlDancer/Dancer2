@@ -120,15 +120,20 @@ sub _get_content_type {
 
 __END__
 
-=head1 NAME
-
-Dancer2::Serializer::Mutable - Serialize and deserialize content using the appropriate HTTP header
-(ported from Dancer)
-
 =head1 SYNOPSIS
 
     # in config.yml
     serializer: Mutable
+
+    engines:
+        serializer:
+            Mutable:
+                mapping:
+                    'text/x-yaml'        : YAML
+                    'text/html'          : YAML
+                    'text/x-data-dumper' : Dumper
+                    'text/x-json'        : JSON
+                    'application/json'   : JSON
 
     # in the app
     put '/something' => sub {
