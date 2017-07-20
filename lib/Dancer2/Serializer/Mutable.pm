@@ -8,14 +8,6 @@ with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => sub {'application/json'} );
 
-my $formats = {
-    'text/x-yaml'        => 'YAML',
-    'text/html'          => 'YAML',
-    'text/x-data-dumper' => 'Dumper',
-    'text/x-json'        => 'JSON',
-    'application/json'   => 'JSON',
-};
-
 my $serializer = {
     'YAML'   => {
         to      => sub { Dancer2::Core::DSL::to_yaml(@_)   },
@@ -31,12 +23,46 @@ my $serializer = {
     },
 };
 
+has mapping => (
+    is   => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+
+        if ( my $mapping = $self->config->{mapping} ) {
+
+            # initialize non-default serializers
+            for my $s ( values %$mapping ) {
+                # TODO allow for arguments via the config
+                next if $serializer->{$s};
+                my $serializer_object = ('Dancer2::Serializer::'.$s)->new;
+                $serializer->{$s} = {
+                    from => sub { shift; $serializer_object->deserialize(@_) },
+                    to   => sub { shift; $serializer_object->serialize(@_)   },
+                };
+            }
+
+            return $mapping;
+        }
+
+
+        return {
+            'text/x-yaml'        => 'YAML',
+            'text/html'          => 'YAML',
+            'text/x-data-dumper' => 'Dumper',
+            'text/x-json'        => 'JSON',
+            'application/json'   => 'JSON',
+        }
+    },
+);
+
+
 sub support_content_type {
     my ( $self, $ct ) = @_;
 
     # FIXME: are we getting full content type?
 
-    if ( $ct && grep +( $_ eq $ct ), keys %{$formats} ) {
+    if ( $ct && grep +( $_ eq $ct ), keys %{$self->mapping} ) {
         $self->set_content_type($ct);
 
         return 1;
@@ -64,7 +90,7 @@ sub deserialize {
     my ( $self, $content ) = @_;
 
     # The right content type should already be set
-    my $format = $formats->{$self->content_type};
+    my $format = $self->mapping->{$self->content_type};
 
     $format and return $serializer->{$format}{'from'}->( $self, $content );
 
@@ -79,9 +105,9 @@ sub _get_content_type {
     # specifies supported content.
     foreach my $method ( qw<content_type accept> ) {
         if ( my $value = $self->request->header($method) ) {
-            if ( exists $formats->{$value} ) {
+            if ( my $serializer = $self->mapping->{$value} ) {
                 $self->set_content_type($value);
-                return $formats->{$value};
+                return $serializer;
             }
         }
     }
