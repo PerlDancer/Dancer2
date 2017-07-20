@@ -173,6 +173,37 @@ uses is
     Dancer2::Serializer::Dumper | text/x-data-dumper
     Dancer2::Serializer::JSON   | text/x-json, application/json
 
+A different mapping can be provided via the config file. For example,
+the default mapping would be configured as
+
+    engines:
+        serializer:
+            Mutable:
+                mapping:
+                    'text/x-yaml'        : YAML
+                    'text/html'          : YAML
+                    'text/x-data-dumper' : Dumper
+                    'text/x-json'        : JSON
+                    'application/json'   : JSON
+
+The keys of the mapping are the content-types to serialize,
+and the values the serializers to use. Serialization for C<YAML>, C<Dumper>
+and C<JSON> are done using internal Dancer mechanisms. Any other serializer will
+be taken to be as Dancer2 serialization class (minus the C<Dancer2::Serializer::> prefix)
+and an instance of it will be used
+to serialize/deserialize data. For example, adding L<Dancer2::Serializer::XML>
+to the mapping would be:
+
+    engines:
+        serializer:
+            Mutable:
+                mapping:
+                    'text/x-yaml'        : YAML
+                    'text/html'          : YAML
+                    'text/x-data-dumper' : Dumper
+                    'text/x-json'        : JSON
+                    'text/xml'           : XML
+
 =head2 INTERNAL METHODS
 
 The following methods are used internally by C<Dancer2> and are not made
