@@ -38,11 +38,11 @@ has mapping => (
                 my $serializer_object = ('Dancer2::Serializer::'.$s)->new;
                 $serializer->{$s} = {
                     from => sub { shift; $serializer_object->deserialize(@_) },
-                    to   => sub { shift; use DDP; p @_; $serializer_object->serialize(@_) },
+                    to   => sub { shift; $serializer_object->serialize(@_)   },
                 };
             }
 
-            return p $mapping;
+            return $mapping;
         }
 
 
