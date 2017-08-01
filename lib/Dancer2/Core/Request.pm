@@ -167,8 +167,8 @@ sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
 
 # there are two options
 sub forwarded_protocol    {
-    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
     $_[0]->env->{'HTTP_X_FORWARDED_PROTO'}    ||
+    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
     $_[0]->env->{'HTTP_FORWARDED_PROTO'}
 }
 
