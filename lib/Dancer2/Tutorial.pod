@@ -27,7 +27,7 @@ your browser at L<http://localhost:3000>.
 
 That's the reason I wrote this tutorial.  While I was investigating some
 Python web frameworks like L<Flask|http://flask.pocoo.org/> or
-L<Bottle|http://bottle.paws.de/docs/dev/index.html> I enjoyed the way they
+L<Bottle|https://bottlepy.org/docs/dev/> I enjoyed the way they
 explained step by step how to build an example application which was a
 little more involved than a trivial example.
 
