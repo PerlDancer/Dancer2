@@ -1452,6 +1452,8 @@ DISPATCH:
             my $match = $route->match($request)
                 or next ROUTE;
 
+            $request->route($route);
+
             $request->_set_route_params($match);
             $request->_set_route_parameters($match);
 

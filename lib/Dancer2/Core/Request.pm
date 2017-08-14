@@ -653,6 +653,14 @@ sub _shallow_clone {
     return $new_request;
 }
 
+
+sub route {
+    my ($self, $route) = @_;
+    if ($route) { $self->{route_matched} = $route; }
+
+    return $self->{route_matched};
+}
+
 1;
 
 __END__
@@ -1005,6 +1013,10 @@ Alias to the C<method> accessor, for backward-compatibility with C<CGI> interfac
 =method request_uri
 
 Return the raw, undecoded request URI path.
+
+=method route
+
+Return the L<route|Dancer2::Core::Route> which this request matched.
 
 =method scheme
 
