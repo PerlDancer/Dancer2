@@ -654,12 +654,12 @@ sub _shallow_clone {
 }
 
 
-sub route {
-    my ($self, $route) = @_;
-    if ($route) { $self->{route_matched} = $route; }
-
-    return $self->{route_matched};
+sub _set_route {
+    my ( $self, $route ) = @_;
+    $self->{'route'} = $route;
 }
+
+sub route { $_[0]->{'route'} }
 
 1;
 
