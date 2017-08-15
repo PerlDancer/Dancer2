@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 use File::Spec;
 
+use lib '.';
 use t::app::t1::lib::App1;
 use t::app::t1::lib::Sub::App2;
 use t::app::t2::lib::App3;
