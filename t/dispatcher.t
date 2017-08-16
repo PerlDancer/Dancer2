@@ -21,21 +21,21 @@ $app->setting( logger      => engine('logger') );
 $app->setting( show_errors => 1 );
 
 # a simple / route
-$app->add_route(
+my $simple_route = $app->add_route(
     method => 'get',
     regexp => '/',
     code   => sub {"home"},
 );
 
 # an error route
-$app->add_route(
+my $error_route = $app->add_route(
     method => 'get',
     regexp => '/error',
     code   => sub { Fail->fail },
 );
 
 # A chain of two route for /user/$foo
-$app->add_route(
+my $user_name_route = $app->add_route(
     method => 'get',
     regexp => '/user/:name',
     code   => sub {
@@ -45,7 +45,7 @@ $app->add_route(
     },
 );
 
-$app->add_route(
+my $user_splat_route = $app->add_route(
     method => 'get',
     regexp => '/user/*?',
     code   => sub {
@@ -55,7 +55,7 @@ $app->add_route(
 );
 
 # a route with a 204 response
-$app->add_route(
+my $removed_content_route = $app->add_route(
     method => 'get',
     regexp => '/twoohfour',
     code   => sub {
@@ -65,71 +65,7 @@ $app->add_route(
     },
 );
 
-# the tests
-my @tests = (
-    {   env => {
-            REQUEST_METHOD => 'GET',
-            PATH_INFO      => '/',
-        },
-        expected => [
-            200,
-            [   'Content-Length' => 4,
-                'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
-            ],
-            ["home"]
-        ]
-    },
-    {   env => {
-            REQUEST_METHOD => 'GET',
-            PATH_INFO      => '/user/Johnny',
-        },
-        expected => [
-            200,
-            [   'Content-Length' => 12,
-                'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
-            ],
-            ["Hello Johnny"]
-        ]
-    },
-    {   env => {
-            REQUEST_METHOD => 'GET',
-            PATH_INFO      => '/twoohfour',
-        },
-        expected => [
-            204,
-            [   'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
-            ],
-            []
-        ]
-    },
-    {   env => {
-            REQUEST_METHOD => 'GET',
-            PATH_INFO      => '/haltme',
-        },
-        expected => [
-            302,
-            [   'Location'       => 'http://perldancer.org',
-                'Content-Length' => '305',
-                'Content-Type'   => 'text/html; charset=utf-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
-            ],
-            qr/This item has moved/
-        ]
-    },
-
-# NOT SUPPORTED YET
-#    {   env => {
-#            REQUEST_METHOD => 'GET',
-#            PATH_INFO      => '/admin',
-#        },
-#        expected => [200, [], ["home"]]
-#    },
-
-
-);
+my $route_from_request;
 
 # simulates a redirect with halt
 $app->add_hook(
@@ -137,6 +73,7 @@ $app->add_hook(
         name => 'before',
         code => sub {
             my $app = shift;
+            $route_from_request = $app->request->route;
             if ( $app->request->path_info eq '/haltme' ) {
                 $app->response->header( Location => 'http://perldancer.org' );
                 $app->response->status(302);
@@ -160,14 +97,84 @@ $app->add_hook(
     )
 );
 
-$app->add_route(
+my $halt_route = $app->add_route(
     method => 'get',
     regexp => '/haltme',
     code   => sub {"should not get there"},
 );
+# the tests
+my @tests = (
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/',
+        },
+        expected => [
+            200,
+            [   'Content-Length' => 4,
+                'Content-Type'   => 'text/html; charset=UTF-8',
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
+            ],
+            ["home"],
+            $simple_route,
+        ]
+    },
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/user/Johnny',
+        },
+        expected => [
+            200,
+            [   'Content-Length' => 12,
+                'Content-Type'   => 'text/html; charset=UTF-8',
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
+            ],
+            ["Hello Johnny"],
+            $user_splat_route, # the second, after the first pass()es
+        ]
+    },
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/twoohfour',
+        },
+        expected => [
+            204,
+            [   'Content-Type'   => 'text/html; charset=UTF-8',
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
+            ],
+            [],
+            $removed_content_route,
+        ]
+    },
+    {   env => {
+            REQUEST_METHOD => 'GET',
+            PATH_INFO      => '/haltme',
+        },
+        expected => [
+            302,
+            [   'Location'       => 'http://perldancer.org',
+                'Content-Length' => '305',
+                'Content-Type'   => 'text/html; charset=utf-8',
+                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
+            ],
+            qr/This item has moved/,
+            $halt_route,
+        ]
+    },
+
+# NOT SUPPORTED YET
+#    {   env => {
+#            REQUEST_METHOD => 'GET',
+#            PATH_INFO      => '/admin',
+#        },
+#        expected => [200, [], ["home"]]
+#    },
+
+
+);
+
 $app->compile_hooks;
 
-plan tests => 16;
+plan tests => 20;
 
 my $dispatcher = Dancer2::Core::Dispatcher->new( apps => [$app] );
 my $counter = 0;
@@ -175,6 +182,13 @@ foreach my $test (@tests) {
     my $env      = $test->{env};
     my $expected = $test->{expected};
     my $path     = $env->{'PATH_INFO'};
+
+    $route_from_request = undef;
+
+    diag sprintf "Dispatch test %d, for %s %s",
+        $counter,
+        $test->{env}{REQUEST_METHOD},
+        $test->{env}{PATH_INFO};
 
     my $resp = $dispatcher->dispatch($env);
 
@@ -190,6 +204,14 @@ foreach my $test (@tests) {
     else {
         is_deeply $resp->[2] => $expected->[2], "[$path] Contents ok. (test $counter)";
     }
+
+
+    is(
+        $route_from_request, # squirreled away by before hook,
+        $expected->[3],
+        "Expected route is stored in request (test $counter)",
+    );
+
     $counter++;
 }
 
