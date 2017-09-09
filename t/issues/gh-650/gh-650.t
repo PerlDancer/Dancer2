@@ -8,6 +8,12 @@ use Plack::Test;
 use HTTP::Request::Common;
 use Ref::Util qw<is_coderef>;
 
+BEGIN{
+  # undefine ENV vars used as defaults for app environment in these tests
+  delete $ENV{DANCER_ENVIRONMENT};
+  delete $ENV{PLACK_ENV};
+}
+
 {
     package MyApp;
 

@@ -9,6 +9,10 @@ use Dancer2::FileUtils qw/dirname path/;
 use File::Spec;
 use File::Temp;
 
+# undefine ENV vars used as defaults for app environment in these tests
+local $ENV{DANCER_ENVIRONMENT};
+local $ENV{PLACK_ENV};
+
 my $runner = Dancer2::Core::Runner->new();
 my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
 my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
