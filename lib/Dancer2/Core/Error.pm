@@ -429,7 +429,7 @@ sub _censor {
             $hash->{$key} = { %{ $hash->{$key} } };
             $censored += _censor( $hash->{$key} );
         }
-        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
+        elsif ( $key =~ /(pass|card?num|pan|secret|bindpw)/i ) {
             $hash->{$key} = "Hidden (looks potentially sensitive)";
             $censored++;
         }
