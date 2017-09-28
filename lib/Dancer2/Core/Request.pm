@@ -203,6 +203,9 @@ sub deserialize {
     $body && length $body > 0
         or return;
 
+    # enable serializer to access request data, e.g. headers
+    $serializer->set_request($self);
+
     my $data = $serializer->deserialize($body);
     return if !defined $data;
 

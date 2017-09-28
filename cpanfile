@@ -75,6 +75,7 @@ test_requires 'Capture::Tiny', '0.12';
 test_requires 'HTTP::Body';
 test_requires 'HTTP::Cookies';
 test_requires 'HTTP::Headers';
+test_requires 'Plack::Middleware::TrafficLog'; # TODO fix t/serializer_mutable.t
 test_requires 'Template';
 test_requires 'Test::Builder';
 test_requires 'Test::EOL';

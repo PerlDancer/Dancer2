@@ -1,20 +1,31 @@
 package Dancer2::Serializer::Mutable;
+
 # ABSTRACT: Serialize and deserialize content based on HTTP header
 
 use Moo;
 use Carp 'croak';
 use Encode;
+
+# TODO this is a workaround because Serializer::YAML
+#      requires YAML.pm only during ->new()
+use YAML ();
+
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => ( default => sub {'application/json'} );
-
-my %formats = (
-    'text/x-yaml'        => 'YAML',
-    'text/html'          => 'YAML',
-    'text/x-data-dumper' => 'Dumper',
-    'text/x-json'        => 'JSON',
-    'application/json'   => 'JSON',
+has '+content_type' => (
+    default => 1,    # to satify 'required' flag of attribute
 );
+
+my %content_types = (
+    Dumper => ['text/x-data-dumper'],
+    JSON   => ['application/json', 'text/x-json'],
+    YAML   => ['text/x-yaml'],
+);
+
+our %formats;
+while (my ($format => $content_types) = each %content_types) {
+    $formats{$_} = $format for @$content_types;
+}
 
 my %serializers = (
     YAML => {
@@ -31,6 +42,36 @@ my %serializers = (
     },
 );
 
+sub deserialize {
+    my ($self, $content) = @_;
+
+    my $content_type = $self->_best_content_type(qw< Content-Type Accept >)
+      or return;
+
+    my $format      = $formats{$content_type};
+    my $deserialize = $serializers{$format}{from};
+
+    return $deserialize->($self, $content);
+}
+
+sub serialize {
+    my ($self, $entity) = @_;
+
+    if (ref $entity ne 'ARRAY' and ref $entity ne 'HASH') {
+        $self->set_content_type('text/html');
+        return $entity;
+    }
+
+    my $content_type = $self->_best_content_type(qw< Accept Content-Type >)
+      || 'application/json';
+
+    my $format    = $formats{$content_type};
+    my $serialize = $serializers{$format}{to};
+
+    $self->set_content_type($content_type);
+    return $serialize->($self, $entity);
+}
+
 sub support_content_type {
     my ($self, $content_type) = @_;
 
@@ -39,52 +80,29 @@ sub support_content_type {
 
     $content_type =~ s/;.+$//;    # remove e.g. '; charset=utf8'
 
-    return exists $formats{$content_type};
+    return exists $formats{$content_type} ? $content_type : '';
 }
 
-sub serialize {
-    my ( $self, $entity ) = @_;
+sub _best_content_type {
+    my $self = shift;
 
-    # Look for valid format in the headers
-    my $format = $self->_get_content_type();
+    for my $header (@_) {
+        my (@values) = $self->request->header($header) || next;
 
-    # Match format with a serializer and return
-    $format and return $serializer->{$format}{'to'}->(
-        $self, $entity
-    );
-
-    # If none is found then just return the entity without change
-    return $entity;
-}
-
-sub deserialize {
-    my ( $self, $content ) = @_;
-
-    # The right content type should already be set
-    my $format = $formats->{$self->content_type};
-
-    $format and return $serializer->{$format}{'from'}->( $self, $content );
-
-    return $content;
-}
-
-sub _get_content_type {
-    my $self    = shift;
-    $self->has_request or return;
-
-    # Search for the first HTTP header variable which
-    # specifies supported content.
-    foreach my $method ( qw<content_type accept> ) {
-        if ( my $value = $self->request->header($method) ) {
-            if ( exists $formats->{$value} ) {
-                $self->set_content_type($value);
-                return $formats->{$value};
-            }
+        if ($header eq 'Accept') {
+            @values = split /,\s*/, $values[0];
         }
+
+        for my $value (@values) {
+            my $content_type = $self->support_content_type($value);
+
+            $content_type and return $content_type;
+        }
+
+        return;    # header found but no value is supported
     }
 
-    # If none if found, return undef.
-    return;
+    return;        # no header found
 }
 
 1;
