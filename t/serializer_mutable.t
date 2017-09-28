@@ -5,7 +5,7 @@ use Dancer2::Serializer::Mutable;
 use HTTP::Request::Common;
 use Plack::Test;
 use Ref::Util qw<is_coderef>;
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 {
 
@@ -19,6 +19,23 @@ use Test::More tests => 2;
 
 my $app = MyApp->to_app;
 ok is_coderef($app), 'Got app';
+
+subtest support_content_type => sub {
+    ok my $serializer = Dancer2::Serializer::Mutable->new, "Dancer2::Serializer::Mutable->new";
+
+    ok $serializer->support_content_type('application/json'),
+      "supports content type application/json";
+
+    ok $serializer->support_content_type(
+        'application/json; charset=utf8'),
+      "supports content type with suffix";
+
+    ok !$serializer->support_content_type('foo/bar'),
+      "doesn't support bogus content type";
+
+    ok !$serializer->support_content_type(undef),
+      "doesn't support undefined value";
+};
 
 test_psgi $app, sub {
     my $cb = shift;

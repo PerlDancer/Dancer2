@@ -8,41 +8,38 @@ with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => sub {'application/json'} );
 
-my $formats = {
+my %formats = (
     'text/x-yaml'        => 'YAML',
     'text/html'          => 'YAML',
     'text/x-data-dumper' => 'Dumper',
     'text/x-json'        => 'JSON',
     'application/json'   => 'JSON',
-};
+);
 
-my $serializer = {
-    'YAML'   => {
-        to      => sub { Dancer2::Core::DSL::to_yaml(@_)   },
-        from    => sub { Dancer2::Core::DSL::from_yaml(@_) },
+my %serializers = (
+    YAML => {
+        to   => sub { Dancer2::Core::DSL::to_yaml(@_) },
+        from => sub { Dancer2::Core::DSL::from_yaml(@_) },
     },
-    'Dumper' => {
-        to      => sub { Dancer2::Core::DSL::to_dumper(@_)   },
-        from    => sub { Dancer2::Core::DSL::from_dumper(@_) },
+    Dumper => {
+        to   => sub { Dancer2::Core::DSL::to_dumper(@_) },
+        from => sub { Dancer2::Core::DSL::from_dumper(@_) },
     },
-    'JSON'   => {
-        to      => sub { Dancer2::Core::DSL::to_json(@_)   },
-        from    => sub { Dancer2::Core::DSL::from_json(@_) },
+    JSON => {
+        to   => sub { Dancer2::Core::DSL::to_json(@_) },
+        from => sub { Dancer2::Core::DSL::from_json(@_) },
     },
-};
+);
 
 sub support_content_type {
-    my ( $self, $ct ) = @_;
+    my ($self, $content_type) = @_;
 
-    # FIXME: are we getting full content type?
+    defined $content_type
+      or return;
 
-    if ( $ct && grep +( $_ eq $ct ), keys %{$formats} ) {
-        $self->set_content_type($ct);
+    $content_type =~ s/;.+$//;    # remove e.g. '; charset=utf8'
 
-        return 1;
-    }
-
-    return 0;
+    return exists $formats{$content_type};
 }
 
 sub serialize {
