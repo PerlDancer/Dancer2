@@ -5,6 +5,7 @@ use Moo;
 use Carp 'croak';
 use Encode;
 use Module::Runtime 'use_module';
+use YAML ();
 
 with 'Dancer2::Core::Role::Serializer';
 
@@ -14,9 +15,6 @@ has '+content_type' => ( default => sub {'text/x-yaml'} );
 sub from_yaml { __PACKAGE__->deserialize(@_) }
 
 sub to_yaml { __PACKAGE__->serialize(@_) }
-
-# class definition
-sub BUILD { use_module('YAML') }
 
 sub serialize {
     my ( $self, $entity ) = @_;

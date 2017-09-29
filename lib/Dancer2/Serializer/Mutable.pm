@@ -2,13 +2,10 @@ package Dancer2::Serializer::Mutable;
 
 # ABSTRACT: Serialize and deserialize content based on HTTP header
 
+use Dancer2::Core::DSL;
 use Moo;
 use Carp 'croak';
 use Encode;
-
-# TODO this is a workaround because Serializer::YAML
-#      requires YAML.pm only during ->new()
-use YAML ();
 
 with 'Dancer2::Core::Role::Serializer';
 
