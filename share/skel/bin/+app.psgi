@@ -11,14 +11,6 @@ use [d2% appname %2d];
 
 [d2% appname %2d]->to_app;
 
-use Plack::Builder;
-
-builder {
-    enable 'Deflater';
-    [d2% appname %2d]->to_app;
-}
-
-
 
 =begin comment
 # use this block if you want to include middleware such as Plack::Middleware::Deflater
