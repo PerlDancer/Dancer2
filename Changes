@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ DOCUMENTATION ]
+    * GH #1383: Remove full URL on links to third party modules (Alberto Simoes)
+
     [ BUG FIXES ]
     * GH #1373: Unset Dancer environment vars before testing (Alberto Simões)
     * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
