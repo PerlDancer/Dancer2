@@ -748,17 +748,25 @@ For example, the default config file for any Dancer2 application is as follows:
 
 =head2 Error Pages
 
-When an HTTP error occurs (the action responds with a status code other
-than 200), Dancer2 first looks in the public directory for a corresponding
-HTML file matching the error code (eg: 500.html or 404.html).
+When an HTTP error occurs (i.e. the action responds with a status code other
+than 200), this is how Dancer2 determines what page to display.
 
-If such a file exists, it's used to report the error, otherwise, a default
-error page will be rendered on the fly.
+=over
 
-Note that in order to provide more informative diagnostics, the default
-error page will override the error-code HTML files for errors with a C<5xx>
-status when B<show_errors> is set to true. For more information see
-L<Dancer2::Config>.
+=item * Looks in the C<views/> directory for a corresponding template file
+matching the error code (e.g. C<500.tt> or C<404.tt>). If such a file exists,
+it's used to report the error.
+
+=item * Next, looks in the C<public/> directory for a corresponding HTML file
+matching the error code (e.g. C<500.html> or C<404.html>). If such a file
+exists, it's used to report the error. (Note, however, that if B<show_errors>
+is set to true, in the case of a 500 error the static HTML page will not be
+shown, but will be replaced with a default error page containing more
+informative diagnostics. For more information see L<Dancer2::Config>.)
+
+=item * As default, render a generic error page on the fly.
+
+=back
 
 =head2 Execution Errors
 
@@ -766,10 +774,8 @@ When an error occurs during the route execution, Dancer2 will render an
 error page with the HTTP status code 500.
 
 It's possible either to display the content of the error message or to hide
-it with a generic error page.
-
-This is a choice left to the end-user and can be set with the B<show_errors>
-setting.
+it with a generic error page. This is a choice left to the end-user and can
+be controlled with the B<show_errors> setting (see above).
 
 Note that you can also choose to consider all warnings in your route
 handlers as errors when the setting B<warnings> is set to 1.
