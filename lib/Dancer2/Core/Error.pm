@@ -264,9 +264,11 @@ sub _build_content {
         return $content if defined $content;
     }
 
-    # It doesn't make sense to return a static page if show_errors is on
-    if ( !$self->show_errors && (my $content = $self->static_page) ) {
-        return $content;
+    # It doesn't make sense to return a static page for a 500 if show_errors is on
+    if ( !($self->show_errors && $self->status == '500') ) {
+         if ( my $content = $self->static_page ) {
+             return $content;
+         }
     }
 
     if ($self->has_app && $self->app->config->{error_template}) {
