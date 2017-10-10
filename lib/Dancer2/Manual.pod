@@ -3087,8 +3087,8 @@ Or to request a specific layout, of course:
     };
 
 Some tokens are automatically added to your template (C<perl_version>,
-C<dancer_version>, C<settings>, C<request>, C<query_parameters>, C<body_parameters>, C<route_parameters>, C<vars> and, if you
-have sessions enabled, C<session>). Check L<Dancer2::Core::Role::Template>
+C<dancer_version>, C<settings>, C<request>, C<vars> and, if you
+have sessions enabled, C<session>). Check L<#Default Template Variables>
 for further details.
 
 =head2 to_dumper ($structure)
