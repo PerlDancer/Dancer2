@@ -1,12 +1,13 @@
 {{$NEXT}}
 
-    [ DOCUMENTATION ]
-    * GH #1383: Remove full URL on links to third party modules (Alberto Simoes)
-
     [ BUG FIXES ]
+    * GH #1366: Use proper shebang on dancer script and make EU::MM do the job
     * GH #1373: Unset Dancer environment vars before testing (Alberto Simões)
     * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
-    * GH #1366: Use proper shebang on dancer script and make EU::MM do the job
+
+    [ DOCUMENTATION ]
+    * GH #1383: Remove full URL on links to third party modules (Alberto Simoes)
+    * GH #1393: Add "Default Template Variables" section to manual (simbabque)
 
 0.205001  2017-07-11 08:03:21-05:00 America/Chicago
 
