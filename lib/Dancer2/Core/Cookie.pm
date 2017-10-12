@@ -129,7 +129,7 @@ has http_only => (
     is       => 'rw',
     isa      => Bool,
     required => 0,
-    default  => sub {0},
+    default  => sub {1},
 );
 
 has same_site => (
