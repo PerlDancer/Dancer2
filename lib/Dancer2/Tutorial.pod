@@ -27,7 +27,7 @@ your browser at L<http://localhost:3000>.
 
 That's the reason I wrote this tutorial.  While I was investigating some
 Python web frameworks like L<Flask|http://flask.pocoo.org/> or
-L<Bottle|http://bottle.paws.de/docs/dev/index.html> I enjoyed the way they
+L<Bottle|https://bottlepy.org/docs/dev/> I enjoyed the way they
 explained step by step how to build an example application which was a
 little more involved than a trivial example.
 
@@ -170,10 +170,10 @@ So what does the F<show_entries.tt> template look like? This:
   <ul class=entries>
   [% IF entries.size %]
     [% FOREACH id IN entries.keys.nsort %]
-      <li><h2>[% entries.$id.title %]</h2>[% entries.$id.text %]
+      <li><h2>[% entries.$id.title | html %]</h2>[% entries.$id.text | html %]
     [% END %]
   [% ELSE %]
-    <li><em>Unbelievable.  No entries here so far</em>
+    <li><em>Unbelievable. No entries here so far</em>
   [% END %]
   </ul>
 
@@ -182,6 +182,18 @@ going to gloss over the syntax here and just point out the section which
 starts with C<E<lt>ul class=entriesE<gt>> - this is the section where the
 database query results are displayed.  You can also see at the very top some
 discussion about a session - more on that soon.
+
+The only other Template Toolkit related thing that has to be mentioned here is
+the C<| html> in C<[% entries.$id.title | html %]>. That's
+L<a filter|http://www.template-toolkit.org/docs/manual/Filters.html#section_html>
+to convert characters like C<E<lt>> and C<E<gt>> to C<&lt;> and C<&gt;>. This
+way they will be displayed by the browser as content on the page rather than
+just included. If we did not do this, the browser might interpret content as
+part of the page, and a malicious user could smuggle in all kinds of bad code
+that would then run in another user's browser. This is called
+L<Cross Site Scripting|https://en.wikipedia.org/wiki/Cross-site_scripting> or
+XSS and you should make sure to avoid it by always filtering data that came
+in from the web when you display it in a template.
 
 =head1 Other HTTP verbs
 

@@ -235,6 +235,7 @@ For example:
     use Test::More import => ['!pass'];
     use Plack::Test;
     use HTTP::Request::Common;
+    use Ref::Util qw<is_coderef>;
 
     {
         package App;
@@ -250,7 +251,7 @@ For example:
     }
 
     my $app = Dancer2->psgi_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -552,7 +553,8 @@ The session keyword has multiple states:
 =item * No arguments
 
 Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
-object, which has methods for L<read>, L<write>, and L<delete>.
+object, which has methods for L<read|Dancer2::Core::Session/read>, 
+L<write|Dancer2::Core::Session/write>, and L<delete|Dancer2::Core::Session/delete>.
 
     my $session = session;
     $session->read($key);

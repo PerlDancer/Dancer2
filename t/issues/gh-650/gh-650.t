@@ -6,6 +6,13 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
+
+BEGIN{
+  # undefine ENV vars used as defaults for app environment in these tests
+  delete $ENV{DANCER_ENVIRONMENT};
+  delete $ENV{PLACK_ENV};
+}
 
 {
     package MyApp;
@@ -24,7 +31,7 @@ use HTTP::Request::Common;
 }
 
 my $app = Dancer2->psgi_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

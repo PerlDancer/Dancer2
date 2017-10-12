@@ -3,6 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 use Dancer2;
 
@@ -42,7 +43,7 @@ get '/forward_with_proxy/' => sub {
 # get '/a' => sub { return "test is " . var('test'); };
 
 my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

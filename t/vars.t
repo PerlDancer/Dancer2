@@ -3,6 +3,7 @@ use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 plan tests => 3;
 
@@ -24,7 +25,7 @@ plan tests => 3;
 }
 
 my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

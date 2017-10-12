@@ -5,6 +5,7 @@ use Test::Fatal;
 use Dancer2::Core::Request;
 use Dancer2::Core::Route;
 use Capture::Tiny 0.12 'capture_stderr';
+use Ref::Util qw<is_regexpref>;
 
 my @tests = (
     [   [ 'get', '/', sub {11} ], '/', [ {}, 11 ] ],
@@ -117,7 +118,7 @@ plan tests => 110;
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
 
-    if ( ref($expected) eq 'Regexp' ) {
+    if ( is_regexpref($expected) ) {
         like(
             exception {
                 my $r = Dancer2::Core::Route->new(

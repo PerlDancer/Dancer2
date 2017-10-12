@@ -10,6 +10,7 @@ use List::Util qw/ reduce /;
 use Module::Runtime 'require_module';
 use Attribute::Handlers;
 use Scalar::Util;
+use Ref::Util qw<is_arrayref is_coderef>;
 
 our $CUR_PLUGIN;
 
@@ -110,7 +111,7 @@ sub _p2_has_from_config {
 
     $args{lazy} = 1;
 
-    if ( ref $config_name eq 'CODE' ) {
+    if ( is_coderef($config_name) ) {
         $args{default} ||= $config_name;
         $config_name = 1;
     }
@@ -152,7 +153,7 @@ sub PluginKeyword :ATTR(CODE,BEGIN) {
 
     my $func_name = *{$sym_ref}{NAME};
 
-    $args = join '', @$args if ref $args eq 'ARRAY';
+    $args = join '', @$args if is_arrayref($args);
 
     for my $name ( split ' ', $args || $func_name ) {
         $class->keywords->{$name} = $code;
@@ -598,7 +599,7 @@ sub _exported_plugin_keywords{
     return plugin_keywords => sub(@) {
         while( my $name = shift @_ ) {
             ## no critic
-            my $sub = ref $_[0] eq 'CODE'
+            my $sub = is_coderef($_[0])
                 ? shift @_
                 : eval '\&'.$class."::" . ( ref $name ? $name->[0] : $name );
             $class->keywords->{$_} = $sub for ref $name ? @$name : $name;
