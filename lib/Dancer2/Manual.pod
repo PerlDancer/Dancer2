@@ -584,7 +584,7 @@ string.
 
 =head2 Error Handling
 
-Refer to L<Error Handling|Dancer2::Manual/error-handling-1>
+Refer to L<Error Handling|Dancer2::Manual/error-hooks>
 for details about the following hooks:
 
 =over 4
@@ -601,7 +601,7 @@ for details about the following hooks:
 
 =head2 File Rendering
 
-Refer to L<File Rendering|Dancer2::Manual/file-handler>
+Refer to L<File Handler|Dancer2::Manual/file-handler>
 for details on the following hooks:
 
 =over 4
@@ -774,7 +774,7 @@ setting.
 Note that you can also choose to consider all warnings in your route
 handlers as errors when the setting B<warnings> is set to 1.
 
-=head2 Error handling
+=head2 Error Hooks
 
 When an error is caught by Dancer2's core, an exception object is built (of
 the class L<Dancer2::Core::Error>). This class provides a hook to let the

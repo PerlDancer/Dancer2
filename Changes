@@ -5,6 +5,7 @@
     * GH #1373: Unset Dancer environment vars before testing (Alberto Simões)
     * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
     * GH #1362: Make cookies http_only by default (David Precious)
+    * GH #1385: Fix links inside the documentation (Alberto Simões)
 
     [ DOCUMENTATION ]
     * GH #1285: Add "Default Template Variables" section to manual (simbabque)
