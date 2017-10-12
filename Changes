@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1304: Fix the order by which config files are loaded, independently
+      of their filename extension (Alberto Simões)
     * GH #1366: Use proper shebang on dancer script and make EU::MM do the job
     * GH #1373: Unset Dancer environment vars before testing (Alberto Simões)
     * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
