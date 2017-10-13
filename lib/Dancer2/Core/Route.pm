@@ -285,11 +285,11 @@ A HashRef of conditions on which the matching will depend. Optional.
 
 =method match
 
-Try to match the route with a given pair of method/path.
+Try to match the route with a given L<Dancer2::Core::Request> object.
 Returns the hash of matching data if success (captures and values of the route
-against the path) or undef if not.
+against the path of the request) or C<undef> if not.
 
-    my $match = $route->match( get => '/hello/sukria' );
+    my $match = $route->match( $request );
 
 =method execute
 
