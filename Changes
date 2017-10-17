@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.205002  2017-10-17 16:08:25-05:00 America/Chicago
+
     [ BUG FIXES ]
     * GH #1362: Make cookies http_only by default (David Precious)
     * GH #1366: Use proper shebang on dancer script and make EU::MM do the job
