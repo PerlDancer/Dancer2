@@ -4,6 +4,8 @@
     * GH #1362: Make cookies http_only by default (David Precious)
     * GH #1366: Use proper shebang on dancer script and make EU::MM do the job
     * GH #1373: Unset Dancer environment vars before testing (Alberto Simões)
+    * GH #1380: Consider class of error displayed when using show_errors
+      (Nick Tonkin).
     * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
     * GH #1390: Honour no_server_tokens config in error responses (Russell
       @veryrusty Jenkins)
