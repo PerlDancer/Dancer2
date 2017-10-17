@@ -202,7 +202,14 @@ has response => (
     default => sub {
         my $self = shift;
         my $serializer = $self->serializer;
+        # include server tokens in response ?
+        my $no_server_tokens = $self->has_app
+            ? $self->app->config->{'no_server_tokens'}
+            : defined $ENV{DANCER_NO_SERVER_TOKENS}
+                ? $ENV{DANCER_NO_SERVER_TOKENS}
+                : 0;
         return Dancer2::Core::Response->new(
+            server_tokens => !$no_server_tokens,
             ( serializer => $serializer )x!! $serializer
         );
     }
