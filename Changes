@@ -10,6 +10,8 @@
 
     [ DOCUMENTATION ]
     * GH #1285: Add "Default Template Variables" section to manual (simbabque)
+    * GH #1312: Fix docs for Dancer2::Core::Route->match, which takes a request
+      object (simbabque).
     * GH #1368: Don't allow XSS in tutorial (simbabque)
     * GH #1383: Remove full URL on links to third party modules (Alberto Simoes)
 
