@@ -7,6 +7,7 @@
     * GH #1380: Consider class of error displayed when using show_errors
       (Nick Tonkin).
     * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
+    * GH #1385: Fix links inside the documentation (Alberto Simões)
     * GH #1390: Honour no_server_tokens config in error responses (Russell
       @veryrusty Jenkins)
 
