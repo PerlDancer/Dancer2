@@ -97,6 +97,23 @@ In order to implement this role, the consumer B<must> implement the
 methods C<serialize> and C<deserialize>, and should define
 the C<content_type> attribute value.
 
+=head1 CONFIGURATION
+
+The B<serializer> configuration variable tells Dancer2 which engine to use.
+
+You can change it either in your config.yml file:
+
+    #Set JSON engine
+    serializer: "JSON"
+
+    # Prettify JSON output
+    engines:
+      serializer:
+        JSON:
+          pretty: 1
+
+To know which engines are availables please see L<Dancer2::Manual/"Serializers">
+
 =head1 METHODS
 
 =attr content_type
