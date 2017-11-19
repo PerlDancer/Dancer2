@@ -1,6 +1,7 @@
 requires 'App::Cmd::Setup';
 requires 'Attribute::Handlers';
 requires 'Carp';
+requires 'Clone';
 requires 'Config::Any';
 requires 'Digest::SHA';
 requires 'Encode';
