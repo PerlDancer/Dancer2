@@ -4,6 +4,7 @@ use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
 use Ref::Util qw<is_coderef>;
+use List::Util qw<all>;
 
 use Dancer2::Core::App;
 use Dancer2::Core::Response;
@@ -198,6 +199,45 @@ subtest 'Errors without server tokens' => sub {
     my $r = $test->request( GET '/ohno' );
     is( $r->code, 500, "/ohno returned 500 response");
     is( $r->header('server'), undef, "No server header when no_server_tokens => 1" );
+};
+
+subtest 'Errors with show_errors and circular references' => sub {
+    {
+        package App::ShowErrorsCircRef;
+        use Dancer2;
+        set show_errors           => 1;
+        set something_with_config => {something => config};
+        set password              => '===VERY-UNIQUE-STRING===';
+        set innocent_thing        => '===VERY-INNOCENT-STRING===';
+        set template              => 'simple';
+
+        # Trigger an error that makes Dancer2::Core::Error::_censor enter an
+        # infinite loop
+        get '/ohno' => sub {
+            template q{I don't exist};
+        };
+
+    }
+
+    my $test = Plack::Test->create( App::ShowErrorsCircRef->to_app );
+    my $r = $test->request( GET '/ohno' );
+    is( $r->code, 500, "/ohno returned 500 response");
+    like( $r->content, qr{Stack}, 'it includes a stack trace' );
+
+    my @password_values = ($r->content =~ /\bpassword\b(.+)\n/g);
+    my $is_password_hidden =
+      all { /Hidden \(looks potentially sensitive\)/ } @password_values;
+
+    ok($is_password_hidden, "password was hidden in stacktrace");
+
+    cmp_ok(@password_values, '>', 1,
+        'password key appears more than once in the stacktrace');
+
+    unlike($r->content, qr{===VERY-UNIQUE-STRING===},
+        'password value does not appear in the stacktrace');
+
+    like($r->content, qr{===VERY-INNOCENT-STRING===},
+        'Values for other keys (non-sensitive) appear in the stacktrace');
 };
 
 done_testing;
