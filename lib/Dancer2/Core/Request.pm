@@ -82,7 +82,6 @@ sub new {
 
     # Deserialize/parse body for HMV
     $self->data;
-    $self->body_parameters;
     $self->_build_uploads();
 
     return $self;
@@ -104,7 +103,7 @@ sub var {
 sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
 # XXX: incompatible with Plack::Request
-sub body { $_[0]->{'body'} ||= $_[0]->_read_to_end }
+sub body { $_[0]->raw_body }
 
 sub id { $_id }
 
@@ -119,14 +118,7 @@ sub _params { $_[0]->{'_params'} ||= $_[0]->_build_params }
 
 sub _has_params { defined $_[0]->{'_params'} }
 
-sub _body_params {
-    my $self = shift;
-
-    # make sure body is parsed
-    $self->body;
-
-    $self->{'_body_params'} ||= _decode( $self->{'_http_body'}->param );
-}
+sub _body_params { $_[0]->{'_body_params'} ||= $_[0]->body_parameters->as_hashref_mixed }
 
 sub _query_params { $_[0]->{'_query_params'} }
 
@@ -548,22 +540,20 @@ sub _read {
 sub _build_uploads {
     my ($self) = @_;
 
-    # build the body and body params
+    # parse body and build body params
     my $body_params = $self->_body_params;
 
-    my $uploads = _decode( $self->{_http_body}->upload );
+    my $uploads = $self->SUPER::uploads;
     my %uploads;
 
-    for my $name ( keys %{$uploads} ) {
-        my $files = $uploads->{$name};
-        $files = is_arrayref($files) ? $files : [$files];
-
+    for my $name ( keys %$uploads ) {
         my @uploads = map Dancer2::Core::Request::Upload->new(
-                              headers  => $_->{headers},
-                              tempname => $_->{tempname},
-                              size     => $_->{size},
-                              filename => $_->{filename},
-                      ), @{$files};
+                             # For back-compatibility, we use a HashRef of headers
+                             headers  => {@{$_->{headers}->psgi_flatten_without_sort}},
+                             tempname => $_->{tempname},
+                             size     => $_->{size},
+                             filename => _decode( $_->{filename} ),
+                      ), $uploads->get_all($name);
 
         $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
 
