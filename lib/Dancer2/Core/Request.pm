@@ -195,8 +195,20 @@ sub deserialize {
     $body && length $body > 0
         or return;
 
+    # Catch serializer fails - which is tricky as Role::Serializer
+    # wraps the deserializaion in an eval and returns undef.
+    # We want to generate a 500 error on serialization fail (Ref #794)
+    # to achieve that, override the log callback so we can catch a signal
+    # that it failed. This is messy (messes with serializer internals), but
+    # "works".
+    my $serializer_fail;
+    my $serializer_log_cb = $serializer->log_cb;
+    local $serializer->{log_cb} = sub {
+        $serializer_fail = $_[1];
+        $serializer_log_cb->(@_);
+    };
     my $data = $serializer->deserialize($body);
-    return if !defined $data;
+    die $serializer_fail if $serializer_fail;
 
     # Set _body_params directly rather than using the setter. Deserializiation
     # returns characters and skipping the decode op in the setter ensures
