@@ -87,12 +87,14 @@ SHOGUN6
         is $req->uploads->{'test_upload_file4'}[0]->content, 'SHOGUN4',
           "... content for other also good";
 
-        note "headers";
+        note "headers and decoded filename";
+        my $encoded_filename = encode_utf8($filename);
         is_deeply $uploads[0]->headers,
           { 'Content-Disposition' =>
-              qq[form-data; name="test_upload_file"; filename="$filename"],
+              qq[form-data; name="test_upload_file"; filename="$encoded_filename"],
             'Content-Type' => 'text/plain',
           };
+        is $uploads[0]->filename, $filename;
 
         note "type";
         is $uploads[0]->type, 'text/plain';
@@ -128,15 +130,15 @@ SHOGUN6
 
         # make sure cleanup is performed when the HTTP::Body object is purged
         my $file = $upload->tempname;
-        ok( ( -f $file ), 'temp file exists while HTTP::Body lives' );
-        undef $req->{_http_body};
+        ok( ( -f $file ), 'temp file exists while request object lives' );
+        undef $req;
       SKIP: {
             skip
-              "Win32 can't remove file/link while open, deadlock with HTTP::Body",
+              "Win32 can't remove file/link while open due to deadlock",
               1
               if ( $^O eq 'MSWin32' );
             ok( ( !-f $file ),
-                'temp file is removed when HTTP::Body object dies'
+                'temp file is removed when request object dies'
             );
         }
 
