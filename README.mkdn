@@ -81,12 +81,24 @@ complete outline on where to go for help.
 
 ## Project Development
 
-These are resources to help you contribute to the the Dancer2 open source project.
+These are resources to help you contribute to the Dancer2 open source project. We welcome you
+and encourage you to join us.
 
 - Dancer2 Git Guide
 
     The [Git Guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md) has step-by-step instructions for
     setting up a development environment and making contributions to [Dancer2's GitHub repository](https://github.com/PerlDancer/Dancer2).
+
+- Ways to Participate
+
+    You don't have to be a programmer to hlep move the Dancer2 project forward. [Visit our website](http://perldancer.org/contribute)
+    to learn other ways you can contribute your talents and resources.
+
+- Policy
+
+    The [Dancer2::Policy](http://search.cpan.org/perldoc?Dancer2%3A%3APolicy) man page outlines broad Standards of Conduct
+    for our developers and the wider Dancer2 community.
+    
 
 # FUNCTIONS
 
