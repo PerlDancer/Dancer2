@@ -87,12 +87,12 @@ and encourage you to join us.
 - Dancer2 Git Guide
 
     The [Git Guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md) has step-by-step instructions for
-    setting up a development environment and making contributions to [Dancer2's GitHub repository](https://github.com/PerlDancer/Dancer2).
+    setting up a development environment and making contributions to Dancer2's GitHub repository.
 
-- Ways to Participate
+- Advancing Dancer2
 
-    You don't have to be a programmer to hlep move the Dancer2 project forward. [Visit our website](http://perldancer.org/contribute)
-    to learn other ways you can contribute your talents and resources.
+    [Visit our website](http://perldancer.org/contribute) to learn how you can contribute your talents and resources even if
+    you aren't a programmer.
 
 - Policy
 
