@@ -1375,8 +1375,14 @@ C<appdir/environments>. That way, the appropriate environment config file
 will be loaded according to the running environment (if none is specified,
 it will be 'development').
 
-Note that you can change the running environment using the C<--environment>
-command line switch.
+You can change the running environment when starting your app using the
+C<plackup> command's C<--env> or C<--E> switch:
+
+    plackup -E production bin/app.psgi
+
+Altenatively, you can set the
+L<C<DANCER_ENVIRONMENT>|https://metacpan.org/pod/Dancer2::Config#DANCER_ENVIRONMENT>
+environment variable in the shell or in your web server's configuration file.
 
 Typically, you'll want to set the following values in a development config
 file:

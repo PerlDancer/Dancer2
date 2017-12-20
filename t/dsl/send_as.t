@@ -35,6 +35,10 @@ use HTTP::Request::Common;
         send_as html => '<html></html>'
     };
 
+    get '/plain' => sub {
+        send_as plain => 'some plain text with <html></html>';
+    };
+
     get '/json/**' => sub {
         send_as JSON => splat;
     };
@@ -100,7 +104,6 @@ subtest "send_as json custom content-type" => sub {
     is $res->content, '["is","wonderful"]';
 };
 
-
 subtest "send_as html" => sub {
     my $res = $test->request( GET '/html' );
     is $res->code, '200';
@@ -108,6 +111,15 @@ subtest "send_as html" => sub {
     is $res->content_type_charset, 'UTF-8';
 
     is $res->content, '<html></html>';
+};
+
+subtest "send_as plain" => sub {
+    my $res = $test->request( GET '/plain' );
+    is $res->code, '200';
+    is $res->content_type, 'text/plain';
+    is $res->content_type_charset, 'UTF-8';
+
+    is $res->content, 'some plain text with <html></html>';
 };
 
 subtest "send_as error cases" => sub {
