@@ -942,15 +942,15 @@ sub send_as {
 
     $type or croak "Can not send_as using an undefined type";
 
-    if ( lc($type) eq 'html' ) {
-        if ( $type ne 'html' ) {
+    if ( lc($type) eq 'html' || lc($type) eq 'plain' ) {
+        if ( $type ne 'html' && $type ne 'plain' ) {
             local $Carp::CarpLevel = 2;
-            carp "Please use 'html' as the type for 'send_as', not $type";
+            carp sprintf( "Please use %s as the type for 'send_as', not %s", lc($type), $type );
         }
 
         $options->{charset} = $self->config->{charset} || 'UTF-8';
         my $content = Encode::encode( $options->{charset}, $data );
-        $options->{content_type} ||= 'text/html';
+        $options->{content_type} ||= ($type eq lc('html') ? 'text/html' : 'text/plain');
         $self->send_file( \$content, %$options );     # returns from sub
     }
 
