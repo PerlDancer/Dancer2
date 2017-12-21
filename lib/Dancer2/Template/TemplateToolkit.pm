@@ -200,7 +200,7 @@ Template caching will avoid the need to re-parse template files or blocks each t
 used. Cached templates are automatically updated when you update the original template file.
 
 By default, cached templates are saved in the same directory as your template. To save
-cached templates in a different directory, you can set the C<COMPILE_DIR property in your
+cached templates in a different directory, you can set the C<COMPILE_DIR> property in your
 Dancer2 configuration file. 
 
 Please see L<Template::Manual::Config/Caching_and_Compiling_Options> for further
