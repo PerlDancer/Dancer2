@@ -142,7 +142,7 @@ C<plackup> tool (provided by L<Plack>) for launching the application:
 
     plackup -p 5000 bin/app.psgi
 
-You can the access the web application with your favorite browser at:
+You can then access the web application with your favorite browser at:
 
     http://localhost:5000
 
