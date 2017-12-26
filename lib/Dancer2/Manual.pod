@@ -275,7 +275,7 @@ in the block of code.
         "Hey " . route_parameters->get('name') . ", welcome here!";
     };
 
-Tokens can be optional by tacking a question mark to the en of it, for example:
+Tokens can be optional by tacking a question mark to the end of it, for example:
 
     get '/hello/:name?' => sub {
         my $name = route_parameters->get('name') //= 'Whoever you are';
