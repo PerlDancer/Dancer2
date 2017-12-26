@@ -10,7 +10,7 @@ This tutorial is has three parts.
 B<Part I>, the longest part of this tutorial,  will show you how to take a
 simple Perl script and turn it into a functional web app, called C<Dancr>, that
 you can use to impress your friends and family in no time while teaching you
-some the fundamental concepts you'll need to know.
+some of the fundamental concepts you'll need to know.
 
 While our example script create in Part I will work, B<Part II> will show you
 a much better, simpler way of getting your own web app up and running with the
@@ -165,7 +165,7 @@ database connections for your Dancer2 apps.
 =head2 Our first route handler
 
 Let's tackle our first route handler now, the one for the root URL '/'. Replace
-the router handler in our previous simple example with this one:
+the route handler in our previous simple example with this one:
 
   get '/' => sub {
     my $db = connect_db();
@@ -182,10 +182,9 @@ the router handler in our previous simple example with this one:
 Our new route handler is the same as our first except that our route action
 does a lot more work.
 
-the '/' URL to match, and finally, a subroutine to do something once those
-conditions have been satisfied.  Something you might not notice right away
-is the semicolon at the end of the route handler.  Since the subroutine
-is actually a coderef, it requires a semicolon.
+Something you might not notice right away is the semicolon at the end of the
+route handler. Since the subroutine is actually a coderef, a semicolon is
+required.
 
 Let's take a closer look at the subroutine.  The first few lines are
 standard DBI. The only new concept as part of Dancer2 is that C<template>
@@ -765,7 +764,7 @@ L<Dancer2::Manual/BOOTSTRAPPING_A_NEW_APP> for further details.
 =head2 Getting the new app up and running with Plack
 
 In Part I, we used the C<start> command in our script to launch a
-server to serve our app. Things are a little different when using dancer2,
+server to serve our app. Things are a little different when using C<dancer2>,
 however. Let's see how to get our app up and running by first changing into
 the Dancr2 directory and then starting the server using the C<plackup> command:
 
@@ -792,11 +791,11 @@ L<Dancer 2 Deployment Manual|Dancer2::Manual::Deployment>
 =head2 Porting dancr.pl over to the new Dancr2 app
 
 Ok, so now that we've got out new Dancr2 app up and running, it's time to learn
-how to take advantage of what the C<dancer2> command set up for us. To do that,
-we are first going to port our dancr.pl script created in Part I into Dancr2.
+how to take advantage of what the C<dancer2> command set up for us. We'll start
+by porting our dancr.pl script created in Part I into Dancr2.
 
-=head3 The C<lib> directory
-The first thing to know is that the C<lib> directory in our Dancr2 app is where
+=head3 The C<lib/> directory
+The first thing to know is that the C<lib/> directory in our Dancr2 app is where
 our app code lives. So let's take a peek in there:
 
   cd Dancr2 && cat lib/Dancr2.pm
@@ -873,10 +872,10 @@ the Dancr2 app:
 Ok, now that we've got the code moved over, let's move the assets from dancr.pl
 to our new app.
 
-=head3 The C<public> directory
+=head3 The C<public/> directory
 
-As mentioned in Part I, our static assets go into our C<public> directory. If you
-followed along with the tutorial, you should have a C<public> directory with a
+As mentioned in Part I, our static assets go into our C<public/> directory. If you
+followed along with the tutorial, you should have a C<public/> directory with a
 C<public/css> subdirectory and a file called C<style.css> within that.
 
 Dancer2 has conveniently generated the C<public/css> directory for us which is
@@ -886,7 +885,7 @@ empty. Let's copy the style sheet from our original app so our new app can use i
 
 =head3 The C<views> directory
 
-Along with our C<public> directory, Dancer has also provided a C<views> directory,
+Along with our C<public/> directory, Dancer has also provided a C<views/> directory,
 which as we covered, servers as the a home for our templates. Let's get those
 copied over now:
 
@@ -914,7 +913,7 @@ top of your file. Now we will show you a better way to configure your app using
 Dancer 2's configuration files.
 
 Your skeleton provides your app with three different configuration files. The
-first two files we'll quickly discuss, found in the C<environment> folder of
+first two files we'll quickly discuss, found in the C<environments/> folder of
 your app, are C<development.yml> and C<production.yml>. As you can probably
 guess, the C<development.yml> file has settings intended to be uses while
 developing the app and the C<production.yml> file has settings more appropriate
@@ -961,20 +960,20 @@ our app's module. There are two:
 Leave C<layout> as is but change the template setting to C<"template_toolkit">.
 Then edit your Dancr2 module file and delete those two settings.
 
-Now add the following configuration settings:
+Now add the following configuration settings to the .yml file:
 
   username: "admin"
   password: "password"
 
-Then delete these two settings from your module.
+Then delete these two settings from the Dancr2 module.
 
-So, if you have been following alone, you should have only the following C<set>
+So, if you have been following along, you should have only the following C<set>
 command in your Dancr2 module, related to the database configuration:
 
   set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
 
-We will get rid of this settings in Part III of the tutorial. All the rest have
-been moved into our configuration files.
+We will get rid of this setting in Part III of the tutorial. All the rest have
+been offloaded to our configuration files. Nice!
 
 Now use C<plackup> to run your app and check to see that everything works. By
 default, Dancer 2 will use the C<development.yml> file by default. If you decide
@@ -990,10 +989,10 @@ of the C<dancer2> command to set up a skeleton to make it really easy to get
 started developing your own apps.
 
 Part III will refine our app a little further by showing you how to use plugins
-in your app so you can capitalize on all the great work contributed by other
+so you can start capitalizing on all the great work contributed by other
 Dancer 2 developers.
 
-=head1 Part III: Plugins, Your Dancing Partners
+=head1 Part III: Plugins, Your Many Dancing Partners
 
 Dancer 2 takes advantage of the open source software revolution by making it
 exceedingly easy to use plugins that you can mix into your app to give it new
@@ -1004,8 +1003,8 @@ it is.
 =head2 Installing plugins
 
 Like Dancer 2 itself, Dancer 2 plugins can be found on the CPAN. Use your
-favorite method to download and install the L<Dancer2::Plugin::Database> module
-on your machine. We recommend using C<cpanminus> like so:
+favorite method for downloading and installing the L<Dancer2::Plugin::Database>
+module on your machine. We recommend using C<cpanminus> like so:
 
   cpanm Dancer2::Plugin::Database
 
@@ -1020,8 +1019,8 @@ module below the C<use Dancer2;> line in your module:
 
 Plugins can be configured with the YAML configuration files mentioned in Part II
 of this tutorial. Let's edit the C<development.yml> file to get our database
-configured there. Add the following lines to the file (be sure to get the
-indentation correct):
+configured there. Add the following give lines to the file while being careful
+to keep the indentation as you see it here in this example:
 
   plugins:
     Database:
@@ -1037,10 +1036,10 @@ already exist.
 
 =head2 Modifying our database code in the Dancr2 module 
 
-Now it's time to modify our Dancr2 module so it will use plugin to make queries
-instead of our own code. There are a few things to do. First, let's delete the
-code we no longer need. Now that our configuration file tells the plugin where
-our database is, you can delete this line:
+Now it's time to modify our Dancr2 module so it will use the plugin to query the
+database instead of our own code. There are a few things to do. First, we will 
+delete the code we no longer need. Since our configuration file tells the plugin
+where our database is, we can delete this line:
 
 	set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
 
@@ -1067,14 +1066,15 @@ file, we can delete this subroutine, too:
   }
 
 The database plugin provides us with hooks that we can use to handle certain
-events. Let's add in the following subroutine to our module to handle errors:
+events. Let's add in the following subroutine to our module to handle
+database errors:
 
 	hook 'database_error' => sub {
 		my $error = shift;
 		die $error;
 	};
 
-Lastly, we need to make a few adjustments to the bits of code that make the 
+Finally, we need to make a few adjustments to the bits of code that make the 
 database queries. In our C<get '/'> route, change all instances of C<$db> with
 C<database> and remove all the C<die> functions since we now have a hook to
 handle errors for us. When you are done, your route should look something
@@ -1113,15 +1113,15 @@ That's it! Now start your app with C<plackup> and make sure you don't get any
 errors and then point your browser to test the app and make sure it works as
 expected.
 
-Congrats! You are now using the database plugin. The plugin does a lot more than
-what we showed you here. We'll leave it up to you to consult the
+Congrats! You are now using the database plugin like a boss. The plugin does a
+lot more than what we showed you here. We'll leave it up to you to consult the
 L<Dancer2::Plugin::Database|documentation> to unlock its full potential.
 
 There are many more plugins for you to explore. You can learn about some of the
 more popular and useful ones at L<Dancer2::Plugins>. You can also search CPAN
 with "Dancer2::Plugin" for a more comprehensive listing.
 
-Finally, if you are feeling inspired, you can learn how to extend Dancer 2 with
+If you are feeling really inspired, you can learn how to extend Dancer 2 with
 your own plugins by reading L<Dancer2::Plugin>.
 
 =head2 Happy dancing!
