@@ -13,16 +13,17 @@ development by building a simple yet functional blog app, called C<dancr>, that
 you can use to impress your friends, mates, and family.
 
 In B<Part II>, you'll learn about the preferred way to get your own web apps up
-and running by using the C<dancer2> command. We will take the script written in
+and running by using the C<dancer2> utility. We will take the script written in
 Part I and convert it into a proper Dancer2 app, called C<Dancr2>, to help you
-gain an understanding of what the C<dancer2> command does for you.
+gain an understanding of what the C<dancer2> utility does for you.
 
 Finally, in B<Part III>, we give you a taste of the power of plugins that other
 developers have written and will show you how to modify the C<Dancr2> app to use
 a database plugin.
 
 This tutorial assumes you have some familiarity with Perl and that you know how
-to create and execute a Perl script on your computer.
+to create and execute a Perl script on your computer. Some experience with web
+development is also greatly helpful but not entirely necessary.
 
 =head1 Part I: Let's Get Dancing!
 
@@ -46,8 +47,22 @@ B<Domain Specific Language> (DSL) designed specifically for the task of building
 apps. Don't the technical jargon scare you off. Things will become clearer in our
 first code example which we will look at now.
 
-Open up your favorite text editor and copy and paste the following lines of Perl
-code into it and save it a file called C<dancr.pl>:
+=head3 Getting Dancer2 installed
+First, we need to make sure you have Dancer2 installed. Typically, you will do
+that with one of the following two commands on the command line:
+
+  cpan Dancer2  # requires the cpan command to be installed and configured
+  cpanm Dancer2 # requires you have cpanimus installed and available on your OS
+
+If you aren't familiar with installing Perl modules on your machine, you should
+L<read this guide|https://www.cpan.org/modules/INSTALL.html>. You may also want
+to consult your OS's documentation or a knowledgeable expert. And, of course,
+your search engine of choice is always there for you, as well.
+
+=head3 Your first Dancer2 app
+Now that you have Dancer2 installed, open up your favorite text editor and copy
+and paste the following lines of Perl code into it and save it to a file
+called C<dancr.pl>:
 
   #!/usr/bin/env perl
   use Dancer2;
@@ -58,39 +73,81 @@ code into it and save it a file called C<dancr.pl>:
 
   start;
 
-If you run this script, it will fire up a simple, standalone web server that
-will display "Hello World!" when you point your browser to L<http://localhost:3000>.
+If you make this script executable and run it, it will fire up a simple,
+standalone web server that will display "Hello World!" when you point your
+browser to L<http://localhost:3000>. Cool!
 
-Though this is a very simple web app, there is a lot going on under the hood
+B<Important note:> We want to emphasize that writing a script file like
+this is with a C<start> command is B<not> how you would typically begin writing a
+Dancer 2 app. Part II of this tutorial will show you how to properly deploy a
+Dancer 2 project using the C<dancer2> utility. We are just keeping things
+simple for now in the interest of staying focused on the basics of learning
+Dancer 2 app development.
+
+So, though our example app is very simple, there is a lot going on under the hood
 when we invoke C<use Dancer2;> in our first line of code. Since this is a basic
 tutorial, we won't go into the gory details of how it all works. For now, it's
 enough for you to know that the Dancer2 module infuses your script with the
-ability to use Dancer2 keywords for building apps.
+ability to use Dancer2 keywords for building apps. This tutorial will introduce
+you to some of these keywords so you can see how they are used. Getting
+comfortable with the concept of keywords is probably the most important step you
+can take as Dancer 2 developer and this tutorial will do its best to help foster
+an understanding of them.
 
-The next line of code in our example is the C<route handler> and they
-are what you'll spend most of your time creating and fiddling with in your
-Dancer2 apps. A C<route handler> has three parts:
+The next line of code in our example (which spans three lines) is the
+C<route handler> and they are what you'll spend most of your time creating and
+fiddling with in your Dancer2 apps. Though it is also a fairly simple bit of
+code, there is a lot to talk about here. We will examine this line closely, as
+it is the core of how to build an app with Dancer2.
+
+The syntax of a Dancer2 C<route handler> has three parts:
 
 =over
 
 =item *
-an B<http method> or B<http verb>; in this example we have the C<get> method used to retrieve
-resources and data created by our app. C<get> is one of the many keywords that
-Dancer2 provides to us through its DSL.
+an B<http method> or B<http verb>; in this example, we use the C<get> keyword
+to tell Dancer2 that this route should apply to GET http requests. C<get> is the
+first of many keywords that Dancer2 provides that we will cover in this tutorial.
+Those familiar with web development will know that a GET request is what we use
+to fetch information from a website.
 
 =item *
-the B<route pattern>; here it is the C</> in single quotes and it represents the
-pattern we wish to match against the URL that the browser, or client,
-has requested.
+the B<route pattern>; this is the bit that appears immediate after our C<get>
+keyword. It is simply C</>, wrapped in single quotes, and it represents the
+pattern we wish to match against the URL that the browser, or client, has requested.
+Web developers will immediately recognize that it symbolizes the root directory
+of our website. Experienced Perl programmers will pick up on the fact that the
+route pattern is nothing more than an argument for our C<get> keyword.
 
 =item *
-the B<route action>; this is the subroutine that returns our data in this case
-a simple string, C<Hello World!>.
+the B<route action>; this is the subroutine that returns our data. More 
+precisely, it is a subroutine reference. This route action in our example returns
+a simple string, C<Hello World!>. Like the route pattern, the route action is
+nothing more than an argument to our C<get> keyword.
+
+Note that convention has us use the fat arrow (C<=E<gt>>) operator between the
+two arguments to the C<get> keyword to make our code more readable, but we
+could just as well use a regular old comma. Gotta love Perl for its flexibility.
 
 =back
 
-By building similar lists of HTTP verbs, URLs, and actions like this, we create
-our app.
+So to put our route pattern in the example into plain English, we are telling
+our app, "If someone requests the root directory with the GET http method, send
+the string 'Hello Word!' back in our response." Of course, since this is a web
+app, we also have to send back headers with our response. This is quitely taken
+care of for us by Dancer2 so we don't have to think about it.
+
+The syntax for route handlers might seem a bit foreign for newer Perl developers.
+But rest assured there is nothing magical about keywords and it is all just plain
+old Perl under the hood. If you keep in mind that the keyword is nothing more
+than a subroutine (or more precisely, a method) and that the pattern and action
+are nothing more than arguments to the keyword, you'll pick it up in no time.
+Thinking of these keywords as "built-ins" to the Dancer2 framework might also
+eliminate any initial confusion about them.
+
+The most important takeaway here is that we build our app by adding route
+handlers which are nothing more than a collection of, HTTP verbs, URL patterns,
+and actions that we use to create our app.
 
 =head2 How about a little more involved example?
 
@@ -110,7 +167,8 @@ So "dancr" was born.
 dancr is a simple "micro" blog which uses the
 L<SQLite|http://www.sqlite.org> database engine for simplicity's sake.
 You'll need to install sqlite on your server if you don't have it
-installed already.
+installed already. Consult your OS documentation for getting SQLite
+installed on your machine.
 
 =head3 Required perl modules
 
@@ -196,17 +254,17 @@ handler. That tells Dancer2 to process the output through one of its templating
 engines. In this case, we're using L<Template Toolkit|Template> which offers a
 lot more flexibility than the simple default Dancer2 template engine.
 
-Templates all go into the C<views/> directory. Optionally, you can create a
-"layout" template which provides a consistent look and feel for all of your
-views. We'll construct our own layout template, cleverly named F<main.tt>, a
-little later in this tutorial.
+Templates all go into a C<views/> directory which should be placed into the same
+directory as our script. Optionally, you can create a "layout" template which
+provides a consistent look and feel for all of your views. We'll construct our
+own layout template, cleverly named F<main.tt>, a little later in this tutorial.
 
 So what's going on with the hashref as the second argument to the template
 directive? Those are all of the parameters we want to pass into our
 template. We have a C<msg> field which displays a message to the user when
 an event happens like a new entry is posted, or the user logs in or out.
 It's called a "flash" message because we only want to display it one time,
-not every time the / URL is rendered.
+not every time the C</> URL is rendered.
 
 The C<uri_for> directive tells Dancer2 to provide a URI for that specific
 route, in this case, it is the route to post a new entry into the database.
@@ -249,9 +307,9 @@ So what does the F<show_entries.tt> template look like? This:
 
 Again, since this isn't a tutorial specifically about Template Toolkit, I'm
 going to gloss over the syntax here and just point out the section which
-starts with C<E<lt>ul class=entriesE<gt>> - this is the section where the
-database query results are displayed.  You can also see at the very top some
-discussion about a session - more on that soon.
+starts with C<E<lt>ul class=entriesE<gt>>–this is the section where the
+database query results are displayed. You can also see at the very top some
+discussion about a session–more on that soon.
 
 The only other Template Toolkit related thing that has to be mentioned here is
 the C<| html> in C<[% entries.$id.title | html %]>. That's
@@ -280,8 +338,8 @@ PUT" - sending just the changes required to the entity in question.  How
 this would be handled is down to your app, it will vary depending on the
 type of entity in question and the serialization in use.
 
-Dancer2 currently supports GET, PUT/PATCH, POST, DELETE, OPTIONS which map
-to Retrieve, Update, Create, Delete respectively.  Let's take a look now at
+Dancer2's keywords currently supports GET, PUT/PATCH, POST, DELETE, OPTIONS which
+map to Retrieve, Update, Create, Delete respectively.  Let's take a look now at
 the C</add> route handler which handles a POST operation.
 
   post '/add' => sub {
@@ -307,9 +365,9 @@ the database.
 
 The first check in the subroutine is to make sure the user sending the data
 is logged in. If not, the application returns an error and stops
-processing.  Otherwise, we have standard DBI stuff. Let me insert (heh, heh)
+processing. Otherwise, we have standard DBI stuff. Let me insert (heh, heh)
 a blatant plug here for always, always using parameterized INSERTs in your
-application SQL statements.  It's the only way to be sure your application
+application SQL statements. It's the only way to be sure your application
 won't be vulnerable to SQL injection. (See L<http://www.bobby-tables.com>
 for correct INSERT examples in multiple languages.) Here we're using the
 C<body_parameters> convenience method to pull in the parameters in the current HTTP
@@ -415,9 +473,9 @@ down to the C<template> directive and display the F<login.tt> template:
     </dl>
   </form>
 
-This is even simpler than our F<show_entries.tt> template - but wait -
-there's a C<login_url> template parameter and we're only passing in the
-C<err> parameter. Where's the missing parameter?  It's being generated and
+This is even simpler than our F<show_entries.tt> template–but wait– there's a
+C<login_url> template parameter and we're only passing in the
+C<err> parameter. Where's the missing parameter? It's being generated and
 sent to the template in a C<before_template_render> directive - we'll come
 back to that in a moment or two.
 
@@ -457,7 +515,7 @@ application.
 
 =head2 Layout and static files
 
-We still have a missing puzzle piece or two.  First, how can we use Dancer2
+We still have a missing puzzle piece or two. First, how can we use Dancer2
 to serve our CSS stylesheet? Second, where are flash messages displayed?
 Third, what about the C<before_template_render> directive?
 
@@ -704,7 +762,7 @@ parameter in your handler for manipulation.
 
 You can explore this and other advanced concepts by reading the L<Dancer2::Manual>.
 
-=head1 Part II: Taking Advantage of the C<dancer2> Command to Set Up New Apps
+=head1 Part II: Taking Advantage of the C<dancer2> Utility to Set Up New Apps
 
 In Part I, we took an ordinary Perl script and turned it into a simple web
 app to teach you basic concepts in Dancer2. While that approach helped make it
@@ -714,11 +772,11 @@ by a Dancer2 developer. Let's show you how things really get done.
 =head2 Creating a new app
 
 So now that you have a good idea of what goes into building an app with Dancer2,
-it's time to cha-cha with the C<dancer2> command which will save you a lot of
+it's time to cha-cha with the C<dancer2> utility which will save you a lot of
 time and effort by setting up directories, files, and default configuration
 settings for you.
 
-The C<dancer2> command was installed on your machine when you installed the
+The C<dancer2> utility was installed on your machine when you installed the
 Dancer2 distribution. Hop over to the command line into a directory you have
 permission to write to and issue the following command:
 
@@ -780,7 +838,7 @@ customize to your liking.
 
 In Part I, we used the C<start> command in our script to launch a
 server to serve our app. Things are a little different when using C<dancer2>,
-however. You'll notice that the C<dancer2> command created a C<bin/> directory
+however. You'll notice that the C<dancer2> utility created a C<bin/> directory
 with a file in it called C<app.psgi>. This is the file we use to get our
 app up and running.
 
@@ -815,7 +873,7 @@ L<Dancer2 Deployment Manual|Dancer2::Manual::Deployment>
 =head2 Porting dancr.pl over to the new Dancr2 app
 
 Ok, so now that we've got our new Dancr2 app up and running, it's time to learn
-how to take advantage of what the C<dancer2> command set up for us by porting
+how to take advantage of what the C<dancer2> utility set up for us by porting
 our dancr.pl script created in Part I into Dancr2.
 
 =head3 The C<lib/> directory
@@ -1012,7 +1070,7 @@ file configuration with plackup's C<--env> switch like so:
 =head2 Keep on Dancing!
 
 This concludes Part II of our tutorial where we showed you how to take advantage
-of the C<dancer2> command to set up a skeleton to make it really easy to get
+of the C<dancer2> utility to set up a skeleton to make it really easy to get
 started developing your own apps.
 
 Part III will refine our app a little further by showing you how to use plugins
