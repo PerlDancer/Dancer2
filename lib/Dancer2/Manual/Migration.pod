@@ -97,35 +97,8 @@ not be executed.
 See L<Dancer2::Cookbook|https://metacpan.org/pod/Dancer2::Cookbook#Using-the-prefix-feature-to-split-your-application>
 for details.
 
-2. The following modules can be used to speed up an app in Dancer2:
-
-=over 4
-
-=item * L<URL::Encode::XS>
-
-=item * L<CGI::Deurl::XS>
-
-=item * L<HTTP::Parser::XS>
-
-=item * L<HTTP::XSCookies>
-
-=item * L<Scope::Upper>
-
-=item * L<Type::Tiny::XS>
-
-=back
-
-They would need to be installed separately. This is because L<Dancer2> does
-not incorporate any C code, but it can get C-code compiled as a module.
-Thus, these modules can be used for speed improvement provided:
-
-=over 4
-
-=item * You have access to a C interpreter
-
-=item * You don't need to fatpack your application
-
-=back
+2. To speed up an app in Dancer2, install the recommended modules listed in the
+L<Dancer2::Manual::Deployment/"Performance Improvements"> section.
 
 =head2 Request
 
