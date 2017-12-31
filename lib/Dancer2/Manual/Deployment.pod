@@ -675,5 +675,38 @@ Launch your application:
 
     plackup -s FCGI --listen /tmp/fcgi.sock bin/app.psgi
 
+
+=head2 Performance Improvements
+
+The following modules can be used to speed up an app in Dancer2:
+
+=over 4
+
+=item * L<URL::Encode::XS>
+
+=item * L<CGI::Deurl::XS>
+
+=item * L<HTTP::Parser::XS>
+
+=item * L<HTTP::XSCookies>
+
+=item * L<Scope::Upper>
+
+=item * L<Type::Tiny::XS>
+
+=back
+
+They would need to be installed separately. This is because L<Dancer2> does
+not incorporate any C code, but it can get C-code compiled as a module.
+Thus, these modules can be used for speed improvement provided:
+
+=over 4
+
+=item * You have access to a C interpreter
+
+=item * You don't need to fatpack your application
+
+=back
+
 =cut
 
