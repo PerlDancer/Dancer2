@@ -52,7 +52,7 @@ precedence.
 
 Finally, Dancer2 will look in the F<environments> directory for a
 local configuration for the specific platform you are deploying to
-(e.g. F<prodcution_local.EXT> or F<development_local.EXT>)
+(e.g. F<production_local.EXT> or F<development_local.EXT>)
 The configuration in this file is merged as before.
 
 Much like F<config_local.EXT>, this file would be useful for environment-
