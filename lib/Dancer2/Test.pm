@@ -632,7 +632,7 @@ __END__
 
     my $res = $test->request( GET '/' );
     is( $res->code, 200, '[GET /] Request successful' );
-    like( $res->content, qr/hello, world/, '[GET /] Correct content';
+    like( $res->content, qr/hello, world/, '[GET /] Correct content' );
 
     done_testing;
 
