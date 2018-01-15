@@ -557,24 +557,24 @@ script, issue the following commands:
 
 Next add the following css to the C<public/css/style.css> file you just created:
 
-	body            { font-family: sans-serif; background: #eee; }
-	a, h1, h2       { color: #377ba8; }
-	h1, h2          { font-family: 'Georgia', serif; margin: 0; }
-	h1              { border-bottom: 2px solid #eee; }
-	h2              { font-size: 1.2em; }
+  body            { font-family: sans-serif; background: #eee; }
+  a, h1, h2       { color: #377ba8; }
+  h1, h2          { font-family: 'Georgia', serif; margin: 0; }
+  h1              { border-bottom: 2px solid #eee; }
+  h2              { font-size: 1.2em; }
 
-	.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
-										padding: 0.8em; background: white; }
-	.entries        { list-style: none; margin: 0; padding: 0; }
-	.entries li     { margin: 0.8em 1.2em; }
-	.entries li h2  { margin-left: -1em; }
-	.add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
-	.add-entry dl   { font-weight: bold; }
-	.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
-										margin-bottom: 1em; background: #fafafa; }
-	.flash          { background: #cee5F5; padding: 0.5em;
-										border: 1px solid #aacbe2; }
-	.error          { background: #f0d6d6; padding: 0.5em; }
+  .page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
+                    padding: 0.8em; background: white; }
+  .entries        { list-style: none; margin: 0; padding: 0; }
+  .entries li     { margin: 0.8em 1.2em; }
+  .entries li h2  { margin-left: -1em; }
+  .add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
+  .add-entry dl   { font-weight: bold; }
+  .metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
+                    margin-bottom: 1em; background: #fafafa; }
+  .flash          { background: #cee5F5; padding: 0.5em;
+                    border: 1px solid #aacbe2; }
+  .error          { background: #f0d6d6; padding: 0.5em; }
 
 Be sure to save the file.
 
@@ -904,16 +904,16 @@ in there:
 You'll see something like the following bit of code which provides a single
 route to our app's home page and loads the index template:
 
-	package Dancr2;
-	use Dancer2;
+  package Dancr2;
+  use Dancer2;
 
-	our $VERSION = '0.1';
+  our $VERSION = '0.1';
 
-	get '/' => sub {
-			template 'index' => { 'title' => 'Dancr2' };
-	};
+  get '/' => sub {
+      template 'index' => { 'title' => 'Dancr2' };
+  };
 
-	true;
+  true;
 
 The first thing you'll notice is that instead of a script, we are using a module,
 C<Dancr2> to package our code. Modules make it easer to pull off many powerful
@@ -932,29 +932,29 @@ to be sure to remove the C<start;> line as well from the end of the file.
 
 When you're done, C<Dancr2.pm> should look something close to this:
 
-	package Dancr2;
-	use Dancer2;
+  package Dancr2;
+  use Dancer2;
 
-	our $VERSION = '0.1';
+  our $VERSION = '0.1';
 
   # Our original dancr.pl code with some minor tweaks
-	use DBI;
-	use File::Spec;
-	use File::Slurper qw/ read_text /;
-	use Template;
+  use DBI;
+  use File::Spec;
+  use File::Slurper qw/ read_text /;
+  use Template;
 
-	set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-	set 'session'      => 'YAML';
+  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+  set 'session'      => 'YAML';
   ...
 
   <snip> # The rest of the stuff </snip>
 
   ...
 
-	sub init_db {
-	  my $schema = read_text('./schema.sql');
-   $db->do($schema) or die $db->errstr;
-	}
+  sub init_db {
+    my $schema = read_text('./schema.sql');
+    $db->do($schema) or die $db->errstr;
+  }
 
   get '/logout' => sub {
     app->destroy_session;
@@ -1032,11 +1032,11 @@ We will take a look at the C<development.yml> file first. Open that file in
 your text editor and take a look inside. It has a bunch of helpful comments and
 the following five settings sprinkled throughout:
 
-	logger: "console"
-	log: "core"
-	warnings: 1
-	show_errors: 1
-	startup_info: 1
+  logger: "console"
+  log: "core"
+  warnings: 1
+  show_errors: 1
+  startup_info: 1
 
 The first four settings duplicate many of the settings in our new Dancr2 app. So
 in the spirit of DRY (don't repeat yourself), edit your Dancr2 module and delete
@@ -1085,10 +1085,10 @@ We still have a little more cleanup we can do. Now that Dancer2 knows we are
 using Template::Toolkit, we can delete the C<use Template;> line from our
 module.
 
-Now start the app C<plackup> command and check to see that everything works. By
-default, Dancer2 will load the development environment configuration. When it
-comes time to put your app into production, you can load the C<production.yml>
-file configuration with plackup's C<--env> switch like so:
+Now start the app with the C<plackup> command and check to see that everything
+works. By default, Dancer2 will load the development environment configuration.
+When it comes time to put your app into production, you can load the
+C<production.yml> file configuration with plackup's C<--env> switch like so:
 
   plackup -p 5000 --env production bin/app.psgi
 
@@ -1153,7 +1153,7 @@ delete the code we no longer need.
 Since our configuration file tells the plugin where our database is, we can
 delete this line:
 
-	set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
 
 And since the database plugin will create our database connection and initialize
 our database for us, we can scrap the following two subroutines and line from our
@@ -1178,10 +1178,10 @@ With that done, let's now take advantage of a hook the plugin provides us that
 we can use to handle certain events by adding the following command to our
 module to handle database errors:
 
-	hook 'database_error' => sub {
-		my $error = shift;
-		die $error;
-	};
+  hook 'database_error' => sub {
+    my $error = shift;
+    die $error;
+  };
 
 Now let's make a few adjustments to the bits of code that make the
 database queries. In our C<get '/'> route, change all instances of C<$db> with
@@ -1189,34 +1189,34 @@ C<database> and remove all the C<die> calls since we now have a hook to
 handle the errors for us. When you are done, your route should look something
 like this:
 
-	get '/' => sub {
-			my $sql = 'select id, title, text from entries order by id desc';
-			my $sth = database->prepare($sql);
-			$sth->execute;
-			template 'show_entries.tt', {
-					'msg' => get_flash(),
-					'add_entry_url' => uri_for('/add'),
-					'entries' => $sth->fetchall_hashref('id'),
-			};
-	};
+  get '/' => sub {
+    my $sql = 'select id, title, text from entries order by id desc';
+    my $sth = database->prepare($sql);
+    $sth->execute;
+    template 'show_entries.tt', {
+      'msg' => get_flash(),
+      'add_entry_url' => uri_for('/add'),
+      'entries' => $sth->fetchall_hashref('id'),
+    };
+  };
 
 Make the same changes to the C<post '/add'> route to transform it into this:
 
-	post '/add' => sub {
-			if ( not session('logged_in') ) {
-					send_error("Not logged in", 401);
-			}
+  post '/add' => sub {
+    if ( not session('logged_in') ) {
+      send_error("Not logged in", 401);
+    }
 
-			my $sql = 'insert into entries (title, text) values (?, ?)';
-			my $sth = database->prepare($sql);
-			$sth->execute(
-					body_parameters->get('title'),
-					body_parameters->get('text')
-			);
+    my $sql = 'insert into entries (title, text) values (?, ?)';
+    my $sth = database->prepare($sql);
+    $sth->execute(
+      body_parameters->get('title'),
+      body_parameters->get('text')
+    );
 
-			set_flash('New entry posted!');
-			redirect '/';
-	};
+    set_flash('New entry posted!');
+    redirect '/';
+  };
 
 Our last step is to get rid of the following lines which we no longer need,
 thanks to our plugin:
@@ -1230,95 +1230,97 @@ errors and then point your browser to test the app to make sure it works as
 expected. If it doesn't, double and triple check your configuration settings and
 your module's code which should now look like this:
 
-	package Dancr2;
-	use Dancer2;
-	use Dancer2::Plugin::Database;
+  package Dancr2;
+  use Dancer2;
+  use Dancer2::Plugin::Database;
 
-	our $VERSION = '0.1';
+  our $VERSION = '0.1';
 
-	my $flash;
+  my $flash;
 
-	sub set_flash {
-			my $message = shift;
+  sub set_flash {
+    my $message = shift;
+    $flash = $message;
+  }
 
-			$flash = $message;
-	}
+  sub get_flash {
+    my $msg = $flash;
+    $flash = "";
+    return $msg;
+  }
 
-	sub get_flash {
+  hook 'database_error' => sub {
+    my $error = shift;
+    die $error;
+  };
 
-			my $msg = $flash;
-			$flash = "";
+  hook before_template_render => sub {
+    my $tokens = shift;
 
-			return $msg;
-	}
+    $tokens->{'css_url'} = request->base . 'css/style.css';
+    $tokens->{'login_url'} = uri_for('/login');
+    $tokens->{'logout_url'} = uri_for('/logout');
+  };
 
-	hook before_template_render => sub {
-			my $tokens = shift;
+  get '/' => sub {
+    my $sql = 'select id, title, text from entries order by id desc';
+    my $sth = database->prepare($sql);
+    $sth->execute;
+    template 'show_entries.tt', {
+        'msg' => get_flash(),
+        'add_entry_url' => uri_for('/add'),
+        'entries' => $sth->fetchall_hashref('id'),
+    };
+  };
 
-			$tokens->{'css_url'} = request->base . 'css/style.css';
-			$tokens->{'login_url'} = uri_for('/login');
-			$tokens->{'logout_url'} = uri_for('/logout');
-	};
+  post '/add' => sub {
+    if ( not session('logged_in') ) {
+        send_error("Not logged in", 401);
+    }
 
-	get '/' => sub {
-			my $sql = 'select id, title, text from entries order by id desc';
-			my $sth = database->prepare($sql);
-			$sth->execute;
-			template 'show_entries.tt', {
-					'msg' => get_flash(),
-					'add_entry_url' => uri_for('/add'),
-					'entries' => $sth->fetchall_hashref('id'),
-			};
-	};
+    my $sql = 'insert into entries (title, text) values (?, ?)';
+    my $sth = database->prepare($sql);
+    $sth->execute(
+        body_parameters->get('title'),
+        body_parameters->get('text')
+    );
 
-	post '/add' => sub {
-			if ( not session('logged_in') ) {
-					send_error("Not logged in", 401);
-			}
+    set_flash('New entry posted!');
+    redirect '/';
+  };
 
-			my $sql = 'insert into entries (title, text) values (?, ?)';
-			my $sth = database->prepare($sql);
-			$sth->execute(
-					body_parameters->get('title'),
-					body_parameters->get('text')
-			);
+  any ['get', 'post'] => '/login' => sub {
+    my $err;
 
-			set_flash('New entry posted!');
-			redirect '/';
-	};
+    if ( request->method() eq "POST" ) {
+      # process form input
+      if ( params->{'username'} ne setting('username') ) {
+          $err = "Invalid username";
+      }
+      elsif ( params->{'password'} ne setting('password') ) {
+          $err = "Invalid password";
+      }
+      else {
+          session 'logged_in' => true;
+          set_flash('You are logged in.');
+          return redirect '/';
+      }
+    }
 
-	any ['get', 'post'] => '/login' => sub {
-			my $err;
+    # display login form
+    template 'login.tt', {
+      'err' => $err,
+    };
 
-			if ( request->method() eq "POST" ) {
-					# process form input
-					if ( params->{'username'} ne setting('username') ) {
-							$err = "Invalid username";
-					}
-					elsif ( params->{'password'} ne setting('password') ) {
-							$err = "Invalid password";
-					}
-					else {
-							session 'logged_in' => true;
-							set_flash('You are logged in.');
-							return redirect '/';
-					}
-		}
+  };
 
-		# display login form
-		template 'login.tt', {
-				'err' => $err,
-		};
+  get '/logout' => sub {
+    app->destroy_session;
+    set_flash('You are logged out.');
+    redirect '/';
+  };
 
-	};
-
-	get '/logout' => sub {
-		app->destroy_session;
-		set_flash('You are logged out.');
-		redirect '/';
-	};
-
-	true;
+  true;
 
 =head2 Next steps
 Congrats! You are now using the database plugin like a boss. The database plugin
