@@ -40,9 +40,9 @@ Next, Dancer2 will look for a file called F<config_local.EXT>. This file
 is typically useful for deployment-specific configuration that should
 not be checked into source control. For instance, database credentials
 could be stored in this file.  Any settings in this file are merged into
-the existing configuration such that those with the same name in your 
-global configuration file will take precedence over those settings in 
-the global file. 
+the existing configuration such that those with the same name in your
+global configuration file will take precedence over those settings in
+the global file.
 
 Next, Dancer2 will look in the F<environments> directory for a configuration
 file specific to the platform you are deploying to (F<production.EXT> or
@@ -52,12 +52,12 @@ precedence.
 
 Finally, Dancer2 will look in the F<environments> directory for a
 local configuration for the specific platform you are deploying to
-(e.g. F<prodcution_local.EXT> or F<development_local.EXT>) 
+(e.g. F<production_local.EXT> or F<development_local.EXT>)
 The configuration in this file is merged as before.
 
 Much like F<config_local.EXT>, this file would be useful for environment-
 specific configuration that would not be checked into source control.
-For instance, when developing an application that talks to multiple services, 
+For instance, when developing an application that talks to multiple services,
 each developer could have their own URLs to those services stored within
 their F<environments/development_local.yaml> file.
 
@@ -225,6 +225,54 @@ default mime type. This setting lets the user change it. For example, if you
 have a lot of files being served in the B<public> folder that do not have an
 extension, and are text files, set the C<default_mime_type> to
 C<text/plain>.
+
+
+=head2 Serializing responses
+
+=head3 serializer (string)
+
+When writing a webservice, data serialization/deserialization is a common
+issue to deal with. Dancer2 can automatically handle that for you, via a
+serializer.
+
+=head3 Available serializer engines
+
+The following serializers are available, be aware they dynamically depend on
+Perl modules you may not have on your system.
+
+=over 4
+
+=item * B<JSON>
+
+Requires L<JSON>.
+
+=item * B<YAML>
+
+Requires L<YAML>,
+
+=item * B<XML>
+
+Requires L<XML::Simple>.
+
+=item * B<Mutable>
+
+Will try to find the appropriate serializer using the B<Content-Type> and
+B<Accept-type> header of the request.
+
+=back
+
+=head2 Serializer engine
+
+The serializer can be configured in a separate C<engines> section, like so:
+
+   serializer: "JSON"
+
+   engines:
+     serializer:
+       JSON:
+         pretty: 1
+
+See documentation for a particular serializer for supported options.
 
 
 =head2 File / directory locations
