@@ -26,7 +26,7 @@ to create and execute a Perl script on your computer. Some experience with web
 development is also greatly helpful but not entirely necessary. This tutorial is
 mostly geared toward developers but website designers can get something out of
 it as well since the basics of templating are covered plus it might be
-good for a designer to have a decent idea of how Dancer 2 works.
+good for a designer to have a decent idea of how Dancer2 works.
 
 =head1 Part I: Let's Get Dancing!
 
@@ -40,17 +40,17 @@ Dancer2 is a micro-web framework, written in the Perl programming language, and 
 modeled after a Ruby web application framework called L<Sinatra|http://www.sinatrarb.com>.
 
 When we say "micro" framework, we mean that Dancer2 aims to maximize your freedom
-and control by getting out of your way. "Micro" doesn't mean Dancer 2
-is only good for creating small apps. Instead, it means that Dancer 2's primary
+and control by getting out of your way. "Micro" doesn't mean Dancer2
+is only good for creating small apps. Instead, it means that Dancer2's primary
 focus is on taking care of a lot of the boring, technical details of your app
 for you and by creating an easy, clean routing layer on top of your app's
 code. It also means you have almost total control over the app's functionality
 and how you create and present your content. You will not confined to someone
 else's approach to creating a website or app.
 
-With Dancer 2, you can build anything from a specialized content management
+With Dancer2, you can build anything from a specialized content management
 system to providing a simple API for querying a database over the web. But you
-don't have to reinvent the wheel, either. Dancer 2 has hundreds of plugins that
+don't have to reinvent the wheel, either. Dancer2 has hundreds of plugins that
 you can take advantage of. You can add only the capabilities your app needs to
 keep complexity to a minimum.
 
@@ -60,7 +60,7 @@ Dancer2 provides, called "keywords," are commands that you use to build your app
 access the data inside of it, and deliver it on the internet in many
 different formats.
 
-Dancer 2's keywords provide what is called a B<Domain Specific Language> (DSL)
+Dancer2's keywords provide what is called a B<Domain Specific Language> (DSL)
 designed specifically for the task of building apps. But don't let the
 technical jargon scare you off. Things will become clearer in our first code
 example which we will look at shortly.
@@ -97,16 +97,16 @@ browser to L<http://localhost:3000>. Cool!
 
 B<Important note:> We want to emphasize that writing a script file like
 this with a C<start> command is B<not> how you would typically begin writing a
-Dancer 2 app. Part II of this tutorial will show you the recommended approach
+Dancer2 app. Part II of this tutorial will show you the recommended approach
 using the C<dancer2> utility. For now, we want to stay focused on the
 fundamentals.
 
 So, though our example app is very simple, there is a lot going on under the hood
-when we invoke C<use Dancer2;> in our first line of code. We won't go into the
+when we invoke C<use Dancer2;>  - in our first line of code. We won't go into the
 gory details of how it all works. For now, it's enough for you to know that the
 Dancer2 module infuses your script with the ability to use Dancer2 keywords for
 building apps. Getting comfortable with the concept of keywords is probably the
-most important step you can take as a budding Dancer 2 developer and this
+most important step you can take as a budding Dancer2 developer and this
 tutorial will do its best to help foster your understanding of them.
 
 The next line of code in our example (which spans three lines to make it more
@@ -148,7 +148,7 @@ our C<get> method. Gotta love Perl for its flexibility.
 
 So to put our route pattern in the example into plain English, we are telling
 our app, "If the root directory is requested with the GET http method, send
-the string 'Hello Word!' back in our response." Of course, since this is a web
+the string 'Hello World!' back in our response." Of course, since this is a web
 app, we also have to send back headers with our response. This is quitely taken
 care of for us by Dancer2 so we don't have to think about it.
 
@@ -185,7 +185,7 @@ You'll need to install sqlite on your server if you don't have it
 installed already. Consult your OS documentation for getting SQLite
 installed on your machine.
 
-=head3 Required perl modules
+=head3 Required Perl modules
 
 Obviously you need L<Dancer2> installed. You'll also need the
 L<Template Toolkit|Template>, L<File::Slurper>, and L<DBD::SQLite> modules.
@@ -233,7 +233,7 @@ with the tutorial.)
   }
 
 Nothing too fancy in here, I hope. It's standard DBI except for the
-C<setting('database')> thing–more on that in a bit. For now, just assume
+C<setting('database')> thing – more on that in a bit. For now, just assume
 that the expression evaluates to the location of the database file.
 
 In Part III of the tutorial, we will show you how to use the
@@ -242,7 +242,7 @@ database connections for your Dancer2 apps.
 
 =head2 Our first route handler
 
-Ok, let's get back to the business of learning Dancer 2 by creating our app's
+Ok, let's get back to the business of learning Dancer2 by creating our app's
 first route handler for the root URL.  Replace the route handler in our
 simple example above with this one:
 
@@ -268,10 +268,10 @@ because we are creating a reference to a subroutine and because that's just what
 the Perl compiler demands and we must obey if we want our code to run.
 
 Alright, let's take a closer look at this route's action. The first few lines are
-standard DBI. The important bit related to Dancer 2 is the C<template> keyword
+standard DBI. The important bit related to Dancer2 is the C<template> keyword
 at the end of the action. That tells Dancer2 to process the output through one
 of its templating engines. There are many template engines available for use with
-Dancer 2. In this tutorial, we're using L<Template Toolkit|Template>
+Dancer2. In this tutorial, we're using L<Template Toolkit|Template>
 which offers a lot more flexibility than the simple default Dancer2
 template engine.
 
@@ -790,7 +790,7 @@ You can explore this and other advanced concepts by reading the L<Dancer2::Manua
 =head1 Part II: Taking Advantage of the C<dancer2> Utility to Set Up New Apps
 
 In Part I, we took an ordinary Perl script and turned it into a simple web
-app to teach you basic Dancer 2 concepts. While starting with a simple script
+app to teach you basic Dancer2 concepts. While starting with a simple script
 like this helped make it easier to teach these concepts, it did not demonstrate
 how a typical app is built by a Dancer2 developer. So let's show you how things
 really get done.
