@@ -6,6 +6,8 @@
 
     [DOCUMENTATION]
     * GH #1317: Document serializer configuration (sdeseille)
+    * PR #1426: Move performance improvement information from Migration guide
+      to Deployment (Pedro Melo)
 
 0.205002  2017-10-17 16:08:25-05:00 America/Chicago
 
