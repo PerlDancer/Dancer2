@@ -155,6 +155,13 @@ sub run_test {
             expected => "bar=foo; Path=/",
         },
         {   cookie => {
+                name  => 'bar',
+                value => 'foo',
+                http_only => '0',
+            },
+            expected => "bar=foo; Path=/",
+        },
+        {   cookie => {
                 name      => 'same-site',
                 value     => 'strict',
                 same_site => 'Strict',
