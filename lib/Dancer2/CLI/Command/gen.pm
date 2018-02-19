@@ -10,7 +10,7 @@ use HTTP::Tiny;
 use File::Find;
 use File::Path 'mkpath';
 use File::Spec::Functions;
-use File::ShareDir 'dist_dir';
+use File::Share 'dist_dir';
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
 use Module::Runtime 'require_module';

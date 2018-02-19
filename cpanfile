@@ -11,7 +11,7 @@ requires 'File::Basename';
 requires 'File::Copy';
 requires 'File::Find';
 requires 'File::Path';
-requires 'File::ShareDir';
+requires 'File::Share';
 requires 'File::Spec';
 requires 'File::Temp';
 requires 'Hash::Merge::Simple';
