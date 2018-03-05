@@ -3,6 +3,8 @@
     [ BUG FIXES ]
     * GH #1400: Fix infinite recursion with exceptions that use circular
       references. (Andre Walker)
+    * GH #1430: Fix `dancer2 gen` from source directory when Dancer2 not
+      installed. (Tina @perlpunk Müller - Tina)
 
     [DOCUMENTATION]
     * GH #1317: Document serializer configuration (sdeseille)
