@@ -7,14 +7,36 @@ use HTTP::Request::Common;
 use HTTP::Cookies;
 
 {
+    package
+        Dancer2::Session::SimpleHexId;
+    use Moo;
+    extends 'Dancer2::Session::Simple';
+
+    # Subclass that only generates and accepts 8 character hex session id's
+
+    our $valid_session_ids = 0;
+
+    sub generate_id {
+        return join "", map { sprintf("%x", rand 16) } 1..8
+    }
+
+    sub validate_id {
+        my $ok = ( $_[1] =~ m/^[0-9a-f]{8}$/ );
+        $valid_session_ids++ if $ok; # this should never increment in these tests
+        return $ok;
+    }
+}
+
+{
 
     package App;
     use Dancer2;
 
     set engines => {
         session => {
-            Simple => {cookie_name => 'dancer2.test'},
-            YAML   => {cookie_name => 'dancer2.test'}
+            Simple      => {cookie_name => 'dancer2.test'},
+            SimpleHexId => {cookie_name => 'dancer2.test'},
+            YAML        => {cookie_name => 'dancer2.test'}
         }
     };
 
@@ -33,7 +55,7 @@ my $app  = Dancer2->runner->apps->[0];
 
 my $bad_session_id = 'abcdefghijklmnopqrstuvwxyz123456';
 
-for my $engine (qw(YAML Simple)) {
+for my $engine (qw(YAML Simple SimpleHexId)) {
 
     # clear current session engine, and rebuild for the test
     # This is *really* messy, playing in object hashrefs..
@@ -88,5 +110,10 @@ for my $engine (qw(YAML Simple)) {
           "Session ID has been reset";
     };
 }
+
+subtest "[SimpleHexId] valid session id count" => sub {
+    is $Dancer2::Session::SimpleHexId::valid_session_ids, 0,
+        "No valid session keys passed during test"
+};
 
 done_testing;
