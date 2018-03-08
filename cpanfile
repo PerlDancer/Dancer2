@@ -43,6 +43,7 @@ requires 'Test::Builder';
 requires 'Test::More';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
+requires 'XML::Simple';
 
 # Minimum version of YAML is needed due to:
 # - https://github.com/PerlDancer/Dancer2/issues/899
