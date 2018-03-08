@@ -596,6 +596,7 @@ sub _build_cookies {
 
     # convert to objects
     while (my ($name, $value) = each %{$cookies}) {
+        next unless defined $value;
         $cookies->{$name} = Dancer2::Core::Cookie->new(
             name  => $name,
             value => [split(/[&;]/, $value)]
