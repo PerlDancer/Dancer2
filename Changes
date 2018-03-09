@@ -5,6 +5,9 @@
       references. (Andre Walker)
     * GH #1430: Fix `dancer2 gen` from source directory when Dancer2 not
       installed. (Tina @perlpunk Müller - Tina)
+    * GH #1434: Add `validate_id` method to verify a session id before
+      requesting the session engine fetch it from its data store.
+      (Russell @veryrusty Jenkins)
 
     [DOCUMENTATION]
     * GH #1317: Document serializer configuration (sdeseille)
