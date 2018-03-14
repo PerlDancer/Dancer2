@@ -8,6 +8,8 @@
     * GH #1434: Add `validate_id` method to verify a session id before
       requesting the session engine fetch it from its data store.
       (Russell @veryrusty Jenkins)
+    * GH #1435, #1438: Allow XS crush_cookie methods to return an arrayref
+      of values. (Russell @veryrusty Jenkins)
 
     [DOCUMENTATION]
     * GH #1317: Document serializer configuration (sdeseille)
