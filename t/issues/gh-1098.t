@@ -4,6 +4,7 @@ use Test::Fatal;
 use Dancer2::Core::Error;
 use Dancer2::Core::Response;
 use Dancer2::Serializer::JSON;
+use HTTP::Headers;
 use HTTP::Headers::Fast;
 use JSON::MaybeXS;
 
