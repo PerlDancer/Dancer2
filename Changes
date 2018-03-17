@@ -14,6 +14,8 @@
       Dancer2::Core::Request. (Russell @veryrusty Jenkins)
     
     [ ENHANCEMENTS ]
+    * GH #1432: Support Content-Disposition of inline in 
+      send_file() (Dave Webb)
     * PR #1433: Verbose testing in AppVeyor (Graham Knop)
 
     [ DOCUMENTATION ]
