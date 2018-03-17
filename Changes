@@ -12,8 +12,11 @@
       of values. (Russell @veryrusty Jenkins)
     * GH #1090, #1406: Replace HTTP::Body with HTTP::Entity::Parser in
       Dancer2::Core::Request. (Russell @veryrusty Jenkins)
+    
+    [ ENHANCEMENTS ]
+    * PR #1433: Verbose testing in AppVeyor (Graham Knop)
 
-    [DOCUMENTATION]
+    [ DOCUMENTATION ]
     * GH #1317: Document serializer configuration (sdeseille)
     * PR #1426: Move performance improvement information from Migration guide
       to Deployment (Pedro Melo)
