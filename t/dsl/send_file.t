@@ -57,6 +57,14 @@ use Ref::Util qw<is_coderef>;
         my $file = File::Spec->rel2abs(__FILE__);
         send_file( $file, system_path => 1, streaming => 1 );
     };
+
+    get '/content_disposition/attachment' => sub {
+        send_file('1x1.png', filename => '1x1.png');
+    };
+
+    get '/content_disposition/inline' => sub {
+        send_file('1x1.png', filename => '1x1.png', content_disposition => 'inline');
+    };
 }
 
 my $app = StaticContent->to_app;
@@ -123,6 +131,18 @@ test_psgi $app, sub {
 
         ok($r->is_success, 'send_file returns success');
         is($r->content_type, 'image/png', 'send_file returns correct content_type');
+    };
+
+    subtest 'Content-Disposition defaults to "attachment"' => sub {
+        my $r = $cb->( GET '/content_disposition/attachment' );
+        ok($r->is_success, 'send_file returns success');
+        is($r->header('Content-Disposition'), 'attachment; filename="1x1.png"', 'send_file returns correct attachment Content-Disposition');
+    };
+
+    subtest 'Content-Disposition supports "inline"' => sub {
+        my $r = $cb->( GET '/content_disposition/inline' );
+        ok($r->is_success, 'send_file returns success');
+        is($r->header('Content-Disposition'), 'inline; filename="1x1.png"', 'send_file returns correct inline Content-Disposition');
     };
 };
 

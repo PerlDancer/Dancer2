@@ -1067,7 +1067,7 @@ sub send_file {
     # content disposition
     ( exists $options{filename} )
       and $self->response->header( 'Content-Disposition' =>
-          "attachment; filename=\"$options{filename}\"" );
+          ($options{content_disposition} || "attachment") . "; filename=\"$options{filename}\"" );
 
     # use a delayed response unless server does not support streaming
     my $use_streaming = exists $options{streaming} ? $options{streaming} : 1;

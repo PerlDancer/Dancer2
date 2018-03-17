@@ -2908,6 +2908,9 @@ use.
    send_file( \$data, content_type => 'image/png'
                       filename     => 'onion.png' );
 
+By default the Content-Disposition header uses the "attachment" type, which
+triggers a "Save" dialog in some browsers. Supply a C<content_disposition>
+attribute of "inline" to have the file displayed inline by the browser.
 
 =head2 set
 
