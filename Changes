@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1304: Fix the order by which config files are loaded, independently
+      of their filename extension (Alberto Simões, Russell @veryrusty Jenkins)
     * GH #1400: Fix infinite recursion with exceptions that use circular
       references. (Andre Walker)
     * GH #1430: Fix `dancer2 gen` from source directory when Dancer2 not
