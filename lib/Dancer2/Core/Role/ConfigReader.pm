@@ -129,22 +129,18 @@ sub _build_config_files {
         }
     }
 
-    foreach my $ext (@exts) {
-        foreach my $file ( [ $location, "config.$ext" ],
-            [ $self->environments_location, "$running_env.$ext" ] )
-        {
-            my $path = path( @{$file} );
+    foreach my $file ( [ $location, "config" ],
+        [ $self->environments_location, $running_env ] )
+    {
+        foreach my $ext (@exts) {
+            my $path = path( $file->[0], $file->[1] . ".$ext" );
             next if !-r $path;
 
-            push @files, $path;
+            # Look for *_local.ext files
+            my $local = path( $file->[0], $file->[1] . "_local.$ext" );
+            push @files, $path, ( -r $local ? $local : () );
         }
     }
-
-    # Look for *_local.ext files
-    @files = map {
-        (my $l = $_) =~ s/(\w+)(\.\w+)$/${1}_local$2/;
-        $_, (-r $l ? $l : () );
-    } sort @files;
 
     return \@files;
 }
