@@ -584,7 +584,7 @@ string.
 
 =head2 Error Handling
 
-Refer to L<Error Handling|Dancer2::Manual/Error-Hooks>
+Refer to L<Error Hooks|Dancer2::Manual/Error-Hooks>
 for details about the following hooks:
 
 =over 4
