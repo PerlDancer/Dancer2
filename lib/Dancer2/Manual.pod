@@ -584,7 +584,7 @@ string.
 
 =head2 Error Handling
 
-Refer to L<Error Handling|Dancer2::Manual/error-hooks>
+Refer to L<Error Handling|Dancer2::Manual/Error-Hooks>
 for details about the following hooks:
 
 =over 4
@@ -601,7 +601,7 @@ for details about the following hooks:
 
 =head2 File Rendering
 
-Refer to L<File Handler|Dancer2::Manual/file-handler>
+Refer to L<File Handler|Dancer2::Manual/File-Handler>
 for details on the following hooks:
 
 =over 4
@@ -859,7 +859,7 @@ storage to help with debugging, but shouldn't be used on production systems.
 There are other session backends, such as L<Dancer2::Session::Memcached>,
 which are recommended for production use.
 
-You can then use the L<session|Dancer2/session> keyword to manipulate the
+You can then use the L<session|Dancer2::Manual/session> keyword to manipulate the
 session:
 
 =head3 Storing data in the session
@@ -881,8 +881,8 @@ Or, alternatively,
 =head3 Controlling where sessions are stored
 
 For disc-based session backends like L<Dancer2::Session::YAML>,
-L<Dancer2::Session::Storable> etc., session files are written to the session
-dir specified by the C<session_dir> setting, which defaults to C<./sessions>
+session files are written to the session dir specified by
+the C<session_dir> setting, which defaults to C<./sessions>
 if not specifically set.
 
 If you need to control where session files are created, you can do so
@@ -1276,28 +1276,28 @@ Current version of Dancer2, effectively C<< Dancer2->VERSION >>.
 =item * B<settings>
 
 A hash of the application configuration. This is like
-the L<config|#config> keyword.
+the L<config|Dancer2::Manual/config> keyword.
 
 =item * B<request>
 
-The current request object. This is like the L<request|#request> keyword.
+The current request object. This is like the L<request|Dancer2::Manual/request> keyword.
 
 =item * B<params>
 
 A hash reference of all the parameters.
 
 Currently the equivalent of C<< $request->params >>, and like the
-L<params|#params> keyword.
+L<params|Dancer2::Manual/params> keyword.
 
 =item * B<vars>
 
 The list of request variables, which is what you would get if you
-called the L<vars|#vars> keyword.
+called the L<vars|Dancer2::Manual/vars> keyword.
 
 =item * B<session>
 
 The current session data, if a session exists. This is like
-the L<session|#session> keyword.
+the L<session|Dancer2::Manual/session> keyword.
 
 =back
 
@@ -3097,7 +3097,8 @@ Or to request a specific layout, of course:
 
 Some tokens are automatically added to your template (C<perl_version>,
 C<dancer_version>, C<settings>, C<request>, C<vars> and, if you
-have sessions enabled, C<session>). Check L<#Default Template Variables>
+have sessions enabled, C<session>). Check L<Default Template
+Variables|Dancer2::Manual/Default-Template-Variables>
 for further details.
 
 =head2 to_dumper ($structure)
