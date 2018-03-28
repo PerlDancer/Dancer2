@@ -19,6 +19,8 @@
     * GH #1432: Support Content-Disposition of inline in 
       send_file() (Dave Webb)
     * PR #1433: Verbose testing in AppVeyor (Graham Knop)
+    * PR #1354: TemplateToolkit template engine will log (at debug level)
+      if a template is not found. (Kiel R Stirling, Russell @veryrusty Jenkins)
 
     [ DOCUMENTATION ]
     * GH #1317: Document serializer configuration (sdeseille)
