@@ -331,10 +331,10 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Ricardo Signes
     Rick Yakubowski
     Ruben Amortegui
-    sakshee3
+    Sakshee Vijay (sakshee3)
     Sam Kington
     Samit Badle
-    sdeseille
+    Sebastien Deseille (sdeseille)
     Shlomi Fish
     Slava Goltser
     Snigdha
