@@ -292,7 +292,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Joel Berger
     Jonathan Cast
     Jonathan Scott Duff
-    Julien Fiegehenn
+    Julien Fiegehenn (simbabque)
     Julio Fraire
     Kaitlyn Parkhurst (SYMKAT)
     kbeyazli
@@ -331,12 +331,11 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Ricardo Signes
     Rick Yakubowski
     Ruben Amortegui
-    sakshee3
+    Sakshee Vijay (sakshee3)
     Sam Kington
     Samit Badle
-    sdeseille
+    Sebastien Deseille (sdeseille)
     Shlomi Fish
-    simbabque
     Slava Goltser
     Snigdha
     Tatsuhiko Miyagawa
