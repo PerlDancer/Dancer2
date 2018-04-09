@@ -17,7 +17,7 @@ requires 'File::Temp';
 requires 'Hash::Merge::Simple';
 requires 'Hash::MultiValue';
 requires 'HTTP::Date';
-requires 'HTTP::Headers::Fast';
+requires 'HTTP::Headers::Fast', '0.21';
 requires 'HTTP::Tiny';
 requires 'Import::Into';
 requires 'JSON::MaybeXS';
