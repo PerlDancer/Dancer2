@@ -81,9 +81,9 @@ test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
 
-build_requires 'Test::CPAN::Meta'
-build_requires 'Test::NoTabs'
-build_requires 'Test::Pod'
+build_requires 'Test::CPAN::Meta';
+build_requires 'Test::NoTabs';
+build_requires 'Test::Pod';
 
 author_requires 'AnyEvent';
 author_requires 'CBOR::XS';
