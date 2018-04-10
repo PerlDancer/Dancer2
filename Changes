@@ -14,6 +14,7 @@
       of values. (Russell @veryrusty Jenkins)
     * GH #1090, #1406: Replace HTTP::Body with HTTP::Entity::Parser in
       Dancer2::Core::Request. (Russell @veryrusty Jenkins)
+    * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
     
     [ ENHANCEMENTS ]
     * GH #1432: Support Content-Disposition of inline in 
