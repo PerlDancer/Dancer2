@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.205002
+version 0.206000\_02
 
 # DESCRIPTION
 
@@ -174,6 +174,7 @@ Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacp
     Joel Berger
     Jonathan Cast
     Jonathan Scott Duff
+    Joseph Frazer
     Julien Fiegehenn (simbabque)
     Julio Fraire
     Kaitlyn Parkhurst (SYMKAT)
@@ -236,7 +237,7 @@ Dancer Core Developers
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2017 by Alexis Sukrieh.
+This software is copyright (c) 2018 by Alexis Sukrieh.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

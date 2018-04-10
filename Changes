@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.206000_02 2018-04-09 21:48:24-04:00 America/New_York (TRIAL RELEASE)
+
     [ BUG FIXES ]
     * GH #1304: Fix the order by which config files are loaded, independently
       of their filename extension (Alberto Simões, Russell @veryrusty Jenkins)
