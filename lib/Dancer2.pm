@@ -292,6 +292,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Joel Berger
     Jonathan Cast
     Jonathan Scott Duff
+    Joseph Frazer
     Julien Fiegehenn (simbabque)
     Julio Fraire
     Kaitlyn Parkhurst (SYMKAT)
