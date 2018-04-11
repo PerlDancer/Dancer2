@@ -82,9 +82,9 @@ test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
 
 build_requires 'Test::CPAN::Meta';
-build_requires 'Test::NoTabs';
-build_requires 'Test::Pod';
 
+author_requires 'Test::NoTabs';
+author_requires 'Test::Pod';
 author_requires 'AnyEvent';
 author_requires 'CBOR::XS';
 author_requires 'Class::Method::Modifiers';
