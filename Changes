@@ -18,6 +18,8 @@
       Dancer2::Core::Request. (Russell @veryrusty Jenkins)
     * GH #1443: Update copyright year (Joseph Frazer)
     * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
+    * GH #1292: Fix multiple attribute definitions within Plugins
+      (Nigel Gregoire)
     
     [ ENHANCEMENTS ]
     * GH #1432: Support Content-Disposition of inline in 

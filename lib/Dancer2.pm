@@ -316,6 +316,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     mokko
     Nick Patch
     Nick Tonkin
+    Nigel Gregoire
     Nikita K
     Nuno Carvalho
     Olaf Alders
