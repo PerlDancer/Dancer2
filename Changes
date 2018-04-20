@@ -28,6 +28,7 @@
     * PR #1433: Verbose testing in AppVeyor (Graham Knop)
 
     [ DOCUMENTATION ]
+    * GH #1314: Documentation tweaks (David Precious)
     * GH #1317: Document serializer configuration (sdeseille)
     * GH #1386: Add Hello World example (Gabor Szabo)
     * PR #1408: List project development resources (Steve Dondley)
