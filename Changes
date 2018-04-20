@@ -20,6 +20,7 @@
     * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
     * GH #1292: Fix multiple attribute definitions within Plugins
       (Nigel Gregoire)
+    * PR #1447: Fix missing build requires (Mohammad S Anwar)
     
     [ ENHANCEMENTS ]
     * GH #1432: Support Content-Disposition of inline in 
