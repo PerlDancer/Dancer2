@@ -340,6 +340,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Shlomi Fish
     Slava Goltser
     Snigdha
+    Steve Dondley
     Tatsuhiko Miyagawa
     Tina Müller
     Tom Hukins

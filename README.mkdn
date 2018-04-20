@@ -79,6 +79,27 @@ complete outline on where to go for help.
     [Dancer2::Manual::Migration](https://metacpan.org/pod/Dancer2::Manual::Migration) provides the most up-to-date instruction on
     how to convert a Dancer (1) based application to Dancer2.
 
+## Project Development
+
+These are resources to help you contribute to the Dancer2 open source project. We welcome you
+and encourage you to join us.
+
+- Dancer2 Git Guide
+
+    The [Git Guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md) has step-by-step instructions for
+    setting up a development environment and making contributions to Dancer2's GitHub repository.
+
+- Advancing Dancer2
+
+    [Visit our website](http://perldancer.org/contribute) to learn how you can contribute your talents and resources even if
+    you aren't a programmer.
+
+- Policy
+
+    The [Dancer2::Policy](http://search.cpan.org/perldoc?Dancer2%3A%3APolicy) man page outlines broad Standards of Conduct
+    for our developers and the wider Dancer2 community.
+    
+
 # FUNCTIONS
 
 ## my $runner=runner();

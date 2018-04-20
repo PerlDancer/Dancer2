@@ -29,6 +29,7 @@
 
     [ DOCUMENTATION ]
     * GH #1317: Document serializer configuration (sdeseille)
+    * PR #1408: List project development resources (Steve Dondley)
     * PR #1426: Move performance improvement information from Migration guide
       to Deployment (Pedro Melo)
 
