@@ -20,7 +20,8 @@ way, easily.
 
 =head1 INSTALL
 
-Installation of Dancer2 is simple:
+Installation of Dancer2 is simple, using your favourite method to install from
+CPAN, e.g.:
 
     perl -MCPAN -e 'install Dancer2'
 
@@ -32,6 +33,14 @@ least on Unix-like systems:
 
 (If you don't have root access, omit the 'sudo', and cpanminus will install
 Dancer2 and prereqs into C<~/perl5>.)
+
+Dancer2 is also available as a package from the package repository of several
+distributions, for example on Debian/Ubuntu you should be able to just:
+
+    apt-get install libdancer2-perl
+
+Do be aware, though, that distribution-packaged versions sometimes lag behind
+the most recent version on CPAN.
 
 =head1 BOOTSTRAPPING A NEW APP
 
@@ -178,11 +187,12 @@ requests.
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the specific C<route_parameters>, C<query_parameters>, and 
-C<body_parameters> keywords, which return a L<Hash::MultiValue> object. 
+through the specific L<route_parameters|/route_parameters>, 
+L<query_parameters|/query_parameters>, and  L<body_parameters|/body_parameters>
+keywords, which return a L<Hash::MultiValue> object. 
 This hashref is a merge of the route pattern matches and the request params.
 
-You can have more details about how params are built and how to access them
+You can find more details about how params are built and how to access them
 in the L<Dancer2::Core::Request> documentation.
 
 =head3 Declaring Routes
@@ -462,9 +472,10 @@ This is done with the B<pass> keyword, like in the following example
 =head1 HOOKS
 
 Hooks are code references (or anonymous subroutines) that are triggered at
-specific moments during the resolution of a request.
+specific moments during the resolution of a request.  They are set up using the
+L<hook|/hook> keyword.
 
-Many of them are supported by the core but plugins and engines can also
+Many of them are provided by Dancer2's core, but plugins and engines can also
 define their own.
 
 =over 4
@@ -475,7 +486,7 @@ C<before> hooks are evaluated before each request within the context of the
 request and receives as argument the app (a L<Dancer2::Core::App> object).
 
 It's possible to define variables which will be accessible in the action
-blocks with the keyword C<var>.
+blocks with the L<var keyword|/var>.
 
     hook before => sub {
         var note => 'Hi there';
@@ -2503,6 +2514,8 @@ Adds a hook at some position. For example :
 
 There can be multiple hooks assigned to a given position, and each will be
 executed in order.
+
+See the L<HOOKS|/HOOKS> section for a list of available hooks.
 
 =head2 info
 
