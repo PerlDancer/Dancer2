@@ -1,7 +1,5 @@
 {{$NEXT}}
 
-0.206000_02 2018-04-09 21:48:24-04:00 America/New_York (TRIAL RELEASE)
-
     [ BUG FIXES ]
     * GH #1090, #1406: Replace HTTP::Body with HTTP::Entity::Parser in
       Dancer2::Core::Request. (Russell @veryrusty Jenkins)
@@ -21,6 +19,37 @@
     * GH #1443: Update copyright year (Joseph Frazer)
     * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
     * PR #1447: Fix missing build requires (Mohammad S Anwar)
+    
+    [ ENHANCEMENTS ]
+    * PR #1354: TemplateToolkit template engine will log (at debug level)
+      if a template is not found. (Kiel R Stirling, Russell @veryrusty Jenkins)
+    * GH #1432: Support Content-Disposition of inline in 
+      send_file() (Dave Webb)
+    * PR #1433: Verbose testing in AppVeyor (Graham Knop)
+
+    [ DOCUMENTATION ]
+    * GH #1317: Document serializer configuration (sdeseille)
+    * PR #1426: Move performance improvement information from Migration guide
+      to Deployment (Pedro Melo)
+
+0.206000_02 2018-04-09 21:48:24-04:00 America/New_York (TRIAL RELEASE)
+
+    [ BUG FIXES ]
+    * GH #1090, #1406: Replace HTTP::Body with HTTP::Entity::Parser in
+      Dancer2::Core::Request. (Russell @veryrusty Jenkins)
+    * GH #1304: Fix the order by which config files are loaded, independently
+      of their filename extension (Alberto Simões, Russell @veryrusty Jenkins)
+    * GH #1400: Fix infinite recursion with exceptions that use circular
+      references. (Andre Walker)
+    * GH #1430: Fix `dancer2 gen` from source directory when Dancer2 not
+      installed. (Tina @perlpunk Müller - Tina)
+    * GH #1434: Add `validate_id` method to verify a session id before
+      requesting the session engine fetch it from its data store.
+      (Russell @veryrusty Jenkins)
+    * GH #1435, #1438: Allow XS crush_cookie methods to return an arrayref
+      of values. (Russell @veryrusty Jenkins)
+    * GH #1443: Update copyright year (Joseph Frazer)
+    * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
     
     [ ENHANCEMENTS ]
     * PR #1354: TemplateToolkit template engine will log (at debug level)
