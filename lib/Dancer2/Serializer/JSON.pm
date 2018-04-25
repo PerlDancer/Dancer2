@@ -82,9 +82,9 @@ Deserializes a JSON string into a Perl data structure.
 
 
 
-=head2 Configuring the JSON Serializer using "set engines"
+=head2 Configuring the JSON Serializer using C<set engines>
 
-The JSON serializer optoins can be configured via "set engines". The most
+The JSON serializer options can be configured via C<set engines>. The most
 common settings are:
 
 =over 4
@@ -114,7 +114,7 @@ Set engines should be called prior to setting JSON as the serializer:
 
 =head2 Returning non-JSON data.
 
-Handlers can return non-JSON via "send_as", which overrides the default serializer:
+Handlers can return non-JSON via C<send_as>, which overrides the default serializer:
 
  get '/' =>
  sub
