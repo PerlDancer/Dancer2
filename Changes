@@ -5,6 +5,7 @@
     [ ENHANCEMENTS ]
 
     [ DOCUMENTATION ]
+    * GH #1417: Add "set engines" documentation (Deirdre Moran)
     * PR #1450: Add calculator example (Gabor Szabo)
 
 0.206000  2018-04-19 22:09:46-04:00 America/New_York

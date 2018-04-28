@@ -264,6 +264,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     David Steinbrunner
     David Zurborg
     Davs
+    Deirdre Moran
     Dennis Lichtenthäler
     Dinis Rebolo
     dtcyganov

@@ -79,3 +79,48 @@ Serializes a Perl data structure into a JSON string.
 =method deserialize($content)
 
 Deserializes a JSON string into a Perl data structure.
+
+
+
+=head2 Configuring the JSON Serializer using C<set engines>
+
+The JSON serializer options can be configured via C<set engines>. The most
+common settings are:
+
+=over 4
+
+=item   allow_nonref
+
+Ignore non-ref scalars returned from handlers. With this set the "Hello, World!"
+handler returning a string will be dealt with properly.
+
+=back
+
+Set engines should be called prior to setting JSON as the serializer:
+
+ set engines =>
+ {
+     serializer =>
+     {
+         JSON =>
+         {
+            allow_nonref => 1
+         },
+     }
+ };
+
+ set serializer      => 'JSON';
+ set content_type    => 'application/json';
+
+=head2 Returning non-JSON data.
+
+Handlers can return non-JSON via C<send_as>, which overrides the default serializer:
+
+ get '/' =>
+ sub
+ {
+     send_as html =>
+     q{Welcome to the root of all evil...<br>step into my office.}
+ };
+
+Any other non-JSON returned format supported by 'send_as' can be used.
