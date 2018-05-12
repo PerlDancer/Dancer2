@@ -1024,7 +1024,7 @@ Get complete hash stored in session:
 In Dancer 2, a session backend consumes the role
 L<Dancer2::Core::Role::SessionFactory>.
 
-The following example using the Reddis session demonstrates how session
+The following example using the Redis session demonstrates how session
 engines are written in Dancer 2.
 
 First thing to do is to create the class for the session engine,
@@ -1676,7 +1676,7 @@ Assuming we have a different app that has two states we want to test:
      use Dancer2;
      set serializer => 'JSON';
 
-     get '/' => sub {
+     get '/:user' => sub {
          my $user = route_parameters->get('user');
 
          $user and return { user => $user };
