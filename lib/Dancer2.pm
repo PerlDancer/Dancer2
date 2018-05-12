@@ -273,6 +273,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Gabor Szabo
     geistteufel
     Gideon D'souza
+    Gil Magno
     Glenn Fowler
     Graham Knop
     Gregor Herrmann
