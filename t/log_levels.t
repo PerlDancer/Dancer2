@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Capture::Tiny 0.12 'capture_stderr';
 use Plack::Test;
 use HTTP::Request::Common;
@@ -30,6 +30,23 @@ use HTTP::Request::Common;
         error   "error msg\n";
 
         return 'warning';
+    };
+
+
+    get '/engine-warning' => sub {
+        # Ensure that the logger and warining level is going to be used by the engines, not just the application code
+        # Also ensure that the current log level, not the log level when the serialiser is created, is what counts.
+        set log        => 'debug';
+        set serializer => 'JSON';
+        set template   => 'Simple';
+        set session    => 'Simple';
+        set log        => 'warning';
+
+        foreach my $engine (qw(serializer session template)) {
+          app->engine($engine)->log_cb->($_ => "$engine $_ msg\n") for qw(debug warning error);
+        }
+
+        return ["engine-warning"];
     };
 }
 
@@ -78,6 +95,31 @@ test_psgi $app, sub {
 
                 # followed by an error line
                 \[App:\d+\] \s error   [^\n]+ \n
+                $
+            /x,
+            'Log levels work',
+        );
+    }
+    {
+        my $stderr = capture_stderr { $res = $cb->( GET '/engine-warning' ) };
+
+        is( $res->code, 200, 'Successful response' );
+
+        like(
+            $stderr,
+            qr/
+                ^
+                # serializer engine should output warning and error only
+                \[App:\d+\] \s warning [^\n]+? serializer \s warning [^\n]+ \n
+                \[App:\d+\] \s error   [^\n]+? serializer \s error   [^\n]+ \n
+
+                # session engine should output warning and error only
+                \[App:\d+\] \s warning [^\n]+? session \s warning [^\n]+ \n
+                \[App:\d+\] \s error   [^\n]+? session \s error   [^\n]+ \n
+
+                # template engine should output warning and error only
+                \[App:\d+\] \s warning [^\n]+? template \s warning [^\n]+ \n
+                \[App:\d+\] \s error   [^\n]+? template \s error   [^\n]+ \n
                 $
             /x,
             'Log levels work',
