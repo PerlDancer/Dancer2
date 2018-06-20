@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    
+    * GH #1456: Engine logging respects minimum level filtering (Daniel Perrett)
+
     [ ENHANCEMENTS ]
 
     [ DOCUMENTATION ]
