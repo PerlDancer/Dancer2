@@ -56,21 +56,6 @@ has mapping => (
     },
 );
 
-
-sub support_content_type {
-    my ( $self, $ct ) = @_;
-
-    # FIXME: are we getting full content type?
-
-    if ( $ct && grep +( $_ eq $ct ), keys %{$self->mapping} ) {
-        $self->set_content_type($ct);
-
-        return 1;
-    }
-
-    return 0;
-}
-
 sub serialize {
     my ( $self, $entity ) = @_;
 
