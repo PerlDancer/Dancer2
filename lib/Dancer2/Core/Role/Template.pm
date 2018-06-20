@@ -54,16 +54,6 @@ has default_tmpl_ext => (
     default => sub { shift->config->{extension} || 'tt' },
 );
 
-has views => (
-    is  => 'rw',
-    isa => Maybe [Str],
-);
-
-has layout => (
-    is  => 'rw',
-    isa => Maybe [Str],
-);
-
 has engine => (
     is      => 'ro',
     isa     => Object,
@@ -79,10 +69,23 @@ has settings => (
     writer  => 'set_settings',
 );
 
+# The attributes views, layout and layout_dir have triggers in
+# Dancer2::Core::App that enable their values to be modified by
+# the `set` keyword. As such, these are defined as read-write attrs.
+
+has views => (
+    is  => 'rw',
+    isa => Maybe [Str],
+);
+
+has layout => (
+    is  => 'rw',
+    isa => Maybe [Str],
+);
+
 has layout_dir => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub {'layouts'},
+    is  => 'rw',
+    isa => Maybe [Str],
 );
 
 sub _template_name {
