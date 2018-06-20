@@ -6,7 +6,9 @@ use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => ( default => sub {'application/json'} );
+use constant DEFAULT_CONTENT_TYPE => 'application/json';
+
+has '+content_type' => ( default => DEFAULT_CONTENT_TYPE() );
 
 my $serializer = {
     'YAML'   => {
@@ -60,7 +62,7 @@ sub serialize {
     my ( $self, $entity ) = @_;
 
     # Look for valid format in the headers
-    my $format = $self->_get_content_type();
+    my $format = $self->_get_content_type('accept');
 
     # Match format with a serializer and return
     $format and return $serializer->{$format}{'to'}->(
@@ -74,31 +76,32 @@ sub serialize {
 sub deserialize {
     my ( $self, $content ) = @_;
 
-    # The right content type should already be set
-    my $format = $self->mapping->{$self->content_type};
-
-    $format and return $serializer->{$format}{'from'}->( $self, $content );
+    my $format = $self->_get_content_type('content_type');
+    $format and return $serializer->{$format}{'from'}->($self, $content);
 
     return $content;
 }
 
 sub _get_content_type {
-    my $self    = shift;
-    $self->has_request or return;
+    my ($self, $header) = @_;
 
-    # Search for the first HTTP header variable which
-    # specifies supported content.
-    foreach my $method ( qw<content_type accept> ) {
-        if ( my $value = $self->request->header($method) ) {
-            if ( my $serializer = $self->mapping->{$value} ) {
-                $self->set_content_type($value);
-                return $serializer;
+    if ( $self->has_request ) {
+        # Search for the first HTTP header variable which specifies
+        # supported content. Both content_type and accept are checked
+        # for backwards compatibility.
+        foreach my $method ( $header, qw<content_type accept> ) {
+            if ( my $value = $self->request->header($method) ) {
+                if ( my $serializer = $self->mapping->{$value} ) {
+                    $self->set_content_type($value);
+                    return $serializer;
+                }
             }
         }
     }
 
-    # If none if found, return undef.
-    return;
+    # If none if found, return the default, 'JSON'.
+    $self->set_content_type( DEFAULT_CONTENT_TYPE() );
+    return 'JSON';
 }
 
 1;
