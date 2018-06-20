@@ -19,6 +19,7 @@ my $views =
 my $tt = Dancer2::Template::TemplateToolkit->new(
     views  => $views,
     layout => 'main.tt',
+    layout_dir => 'layouts',
 );
 
 isa_ok $tt, 'Dancer2::Template::TemplateToolkit';
@@ -118,6 +119,11 @@ content added in after_layout_render";
     get '/default_views'          => sub { set 'views' };
     get '/set_views_via_settings' => sub { set views => '/other/path' };
     get '/get_views_via_settings' => sub { set 'views' };
+
+    get '/default_layout_dir'          => sub { app->template_engine->layout_dir };
+    get '/set_layout_dir_via_settings' => sub { set layout_dir => 'alt_layout' };
+    get '/get_layout_dir_via_settings' => sub { set 'layout_dir' };
+
 }
 
 subtest "modify views - absolute paths" => sub {
@@ -137,6 +143,25 @@ subtest "modify views - absolute paths" => sub {
         $test->request( GET '/get_views_via_settings' )->content,
         '/other/path',
         '[GET /get_views_via_settings] Correct content',
+    );
+};
+
+subtest "modify layout_dir" => sub {
+    my $test = Plack::Test->create( Foo->to_app );
+
+    is(
+        $test->request( GET '/default_layout_dir' )->content,
+        'layouts',
+        '[GET /default_layout_dir] Correct layout dir',
+    );
+
+    # trigger a test via a route
+    $test->request( GET '/set_layout_dir_via_settings' );
+
+    is(
+        $test->request( GET '/get_layout_dir_via_settings' )->content,
+        'alt_layout',
+        '[GET /get_layout_dir_via_settings] Correct content',
     );
 };
 
