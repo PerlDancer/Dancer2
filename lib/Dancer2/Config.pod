@@ -172,6 +172,19 @@ hard-configured in the proxy if possible. For Apache this would be:
     RequestHeader set X_FORWARDED_PROTO "https"
     RequestHeader set X_FORWARDED_HOST "www.example.com"
 
+=head3 no_default_middleware (boolean)
+
+If set to true, your Dancer2 application will B<NOT> be wrapped with the default
+PSGI middleware. The default middleware wrappers are:
+
+=over 4
+
+=item * L<Plack::Middleware::FixMissingBodyInRedirect>
+
+=item * L<Plack::Middleware::Head>
+
+=back
+
 =head2 Content type / character set
 
 =head3 content_type (string)
