@@ -6,6 +6,8 @@
     [ ENHANCEMENTS ]
 
     [ DOCUMENTATION ]
+    * GH #1166: Add behind_proxy docs to Deployment manual (Nuno Ramos 
+      Carvalho)
     * GH #1417: Add "set engines" documentation (Deirdre Moran)
     * PR #1450: Add calculator example (Gabor Szabo)
     * PR #1452: Fix Pod formatting for CPAN (simbaque)
