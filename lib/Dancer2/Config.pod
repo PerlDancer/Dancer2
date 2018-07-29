@@ -286,12 +286,6 @@ environments). They specify different kind of error reporting, deployment
 details, etc. These files are read after the generic C<config.yml>
 configuration file.
 
-The running environment can be set with:
-
-   set environment => "production";
-
-Note that this variable is also used as a default value if other values are
-not defined.
 
 =head3 appdir (directory)
 
