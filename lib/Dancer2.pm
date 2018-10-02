@@ -138,15 +138,9 @@ Dancer2 is easy and fun:
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
 
-You are welcome to join our mailing list.
-For subscription information, mail address and archives see
-L<http://lists.preshweb.co.uk/mailman/listinfo/dancer-users>.
-
-We are also on IRC: #dancer on irc.perl.org.
-
 =head2 Documentation Index
 
-Documentation on Dancer2 is split into several manpages. Below is a
+Documentation on Dancer2 is split into several sections. Below is a
 complete outline on where to go for help.
 
 =over 4
@@ -202,6 +196,14 @@ how to convert a Dancer (1) based application to Dancer2.
 Returns the current runner. It is of type L<Dancer2::Core::Runner>.
 
 =cut
+
+=head1 SUPPORT
+
+You are welcome to join our mailing list.
+For subscription information, mail address and archives see
+L<http://lists.preshweb.co.uk/mailman/listinfo/dancer-users>.
+
+We are also on IRC: #dancer on irc.perl.org.
 
 =head1 AUTHORS
 
