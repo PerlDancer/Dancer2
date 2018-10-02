@@ -249,9 +249,33 @@ database, then we set a flash message for the user and redirect her back to
 the root URL.
 
 It's worth mentioning that the "flash message" is not part of Dancer2, but a
-part of this specific application.
+part of this specific application. We need to implement it ourself.
 
-=head1 Logins and sessions
+  sub set_flash {
+      my $message = shift;
+ 
+      session flash => $message;
+  }
+ 
+  sub get_flash {
+      my $msg = session('flash');
+      session->delete('flash');
+ 
+      return $msg;
+  }
+
+We need a way to save our temporary message, and a way to get it back out.
+Since it is a temporary message that should only be shown on the page
+immediately following the one where the value was set, we need to delete it
+once it was read.
+
+=head1 Sessions and logins
+
+A good way to implement this "flash message" mechanic is to write the message
+to the user's session. The session stores data for a specific user for the
+whole time she uses the application. It persists over all requests this user
+makes. You can read more about how to use the session
+in L<our manual|Dancer2::Manual/"SESSIONS">.
 
 Dancer2 comes with a simple in-memory session manager out of the box.  It
 supports a bunch of other session engines including YAML, memcached, browser
@@ -375,6 +399,17 @@ C<app-E<gt>destroy_session;> is Dancer2's way to remove a stored session.
 We notify the user she is logged out and route her back to the root URL once
 again.
 
+You might wonder how we can then set a value in the session in C<set_flash>,
+because we just destroyed the session.
+
+Destroying the session has removed the data from the persistence layer (which
+is the memory of our running application, because we are using the C<simple>
+session engine). If we write to I<the session> now, it will actually create
+a completely new session for our user. This new, empty session will have a new
+I<session ID>, which Dancer2 tells the user's browser about in the response.
+When the browser requests the root URL, it will send this new session ID to our
+application.
+
 =head1 Layout and static files
 
 We still have a missing puzzle piece or two.  First, how can we use Dancer2
@@ -490,18 +525,15 @@ Here's the complete 'dancr.pl' script from start to finish.
  set 'password'     => 'password';
  set 'layout'       => 'main';
 
- my $flash;
-
  sub set_flash {
      my $message = shift;
 
-     $flash = $message;
+     session flash => $message;
  }
 
  sub get_flash {
-
-     my $msg = $flash;
-     $flash = "";
+     my $msg = session('flash');
+     session->delete('flash');
 
      return $msg;
  }
