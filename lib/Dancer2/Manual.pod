@@ -1412,7 +1412,9 @@ And in a production one:
 
 Please note that you are not limited to writing configuration files in YAML.
 Dancer2 supports any file format that is supported by L<Config::Any>, such
-as JSON, XML, INI files, and Apache-style config files.
+as JSON, XML, INI files, and Apache-style config files. See the Dancer2
+L<configuration guide|https://metacpan.org/pod/Dancer2::Config#MANIPULATING-SETTINGS-VIA-CONFIGURATION-FILES>
+for more information.
 
 =head2 Accessing configuration information
 
