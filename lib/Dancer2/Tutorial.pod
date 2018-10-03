@@ -629,13 +629,20 @@ match routes with regular expressions, or you can match pieces of a route
 like C</hello/:name> where the C<:name> piece magically turns into a named
 parameter in your handler for manipulation.
 
-=head1 Happy dancing!
+=head1 Next Steps
 
-I hope this effort has been helpful and interesting enough to get you
-exploring Dancer2 on your own. The framework is still under heavy
-development but it's definitely mature enough to use in a production
-project.  Additionally, there are now a lot of great Dancer2 plugins which
-extend and enhance the capabilities of the platform.
+Hopefully this effort has been helpful and interesting enough to get you
+exploring Dancer2 on your own. Dancer2 is suitable for projects of all
+shapes and sizes, and you can easily build a solution tailored to your 
+particular needs. 
+
+There is certainly a lot left to cover. We suggest you take a stroll through 
+the L<manual|Dancer2::Manual>for more detailed information about the 
+topics covered in this tutorial, and for a more thorough explanation of all 
+things Dancer2-related. The L<cookbook|Dancer2::Cookbook> will show you how 
+to handle some handy tips and tricks when working with Dancer2. Additionally, 
+there are a lot of great Dancer2 plugins which extend and enhance the 
+capabilities of the framework.
 
 Happy dancing!
 
