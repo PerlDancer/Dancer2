@@ -2563,7 +2563,7 @@ parameters. Check C<param> below to access quickly to a single parameter
 value.
 
     post '/login' => sub {
-        // get all parameters as a single hash
+        # get all parameters as a single hash
         my %all_parameters = params;
 
         // request all parmameters from a specific source: body, query, route
@@ -2571,7 +2571,7 @@ value.
         my %route_parameters = params('route');
         my %query_parameters = params('query');
 
-        // any $source that is not body, query, or route generates an exception
+        # any $source that is not body, query, or route generates an exception
         params('fake_source'); // Unknown source params "fake_source"
     };
 
