@@ -13,6 +13,7 @@
     * PR #1452: Fix Pod formatting for CPAN (simbaque)
     * PR #1454: Fix typos in docs (Gil Magno)
     * PR #1470: Use session for flash and explain in detail (simbaque)
+    * PR #1474: Use the correct URL for HAProxy (Jason A. Crome)
 
 0.206000  2018-04-19 22:09:46-04:00 America/New_York
 
