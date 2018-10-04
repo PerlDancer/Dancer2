@@ -545,7 +545,7 @@ all environments variables in the "run" file.
 =head3 Using HAProxy
 
 C<HAProxy> is a reliable high-performance TCP/HTTP load balancer written in C available from
-L<http://haproxy.1wt.eu/>.
+L<http://www.haproxy.org/>.
 
 Suppose we want to run an application at C<app.example.com:80> and would to use two
 backends listen on hosts C<app-be1.example.com:3000> and C<app-be2.example.com:3000>.
