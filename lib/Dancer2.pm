@@ -133,7 +133,7 @@ Dancer2 is easy and fun:
 
     use Dancer2;
     get '/' => sub { "Hello World" };
-    dance;
+    dance; Show support resources after generating new app Show support resources after generating new app
 
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
@@ -202,6 +202,12 @@ how to convert a Dancer (1) based application to Dancer2.
 Returns the current runner. It is of type L<Dancer2::Core::Runner>.
 
 =cut
+
+=head1 SECURITY REPORTS
+
+If you need to report a security vulnerability in Dancer2, send all pertinent
+information to L<mailto:dancer-security@dancer.pm>. These matters are taken
+extremely seriously, and will be addressed in the earliest timeframe possible.
 
 =head1 AUTHORS
 
