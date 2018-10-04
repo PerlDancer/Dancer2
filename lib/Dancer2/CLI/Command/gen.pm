@@ -110,10 +110,19 @@ NOYAML
     }
 
     print <<HOWTORUN;
-The application is ready to serve; to run it, do:
+
+Your new application is ready! To run it:
 
         cd $app_path
         plackup bin/app.psgi
+
+If you need community assistance, the following resources are available:
+- Dancer website: http://perldancer.org
+- Mailing list: http://lists.preshweb.co.uk/mailman/listinfo/dancer-users
+- IRC: irc.perl.org#dancer
+
+Happy Dancing!
+
 HOWTORUN
 
     return 0;
