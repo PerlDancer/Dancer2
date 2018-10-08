@@ -81,9 +81,10 @@ debase, deride, put down, or vilify anyone, or act towards anyone in a way
 intending to hurt them.
 
 The community specifically considers as abuse any attempts to otherize anyone 
-by their technical skill, knowledge or by their age, colour, disability, 
-gender, language, national or social origin, political or other opinion, race, 
-religion, sex, sexual orientation or any other individual characteristic.
+by any individual characteristic, including, but not limited to, their 
+technical skill, knowledge or by their age, colour, disability, gender, 
+language, national or social origin, political or other opinion, race, 
+religion, sex, or sexual orientation.
 
 The community aims to maintain a safe space for everyone, in any forum it
 has. If you ever feel this core principle has been compromised, you are strongly
