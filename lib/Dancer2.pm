@@ -312,6 +312,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
     Matt Phillips
     Matt S Trout
     Maurice
+    MaxPerl
     Menno Blom
     Michael Kröll
     Michał Wojciechowski
