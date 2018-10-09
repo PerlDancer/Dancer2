@@ -60,8 +60,8 @@ length is reset. Removals, like warnings, are public.
 
 The list of moderators consists of all active core developers. This includes,
 in alphabetical order, Alberto Simões, David Precious, Jason Crome, Mickey 
-Nasriachi, Russell Jenkins, Sawyer X, Stefan Hornburg (Racke), Steven 
-Humphrey, and Yanick Champoux.
+Nasriachi, Peter Mottram, Russell Jenkins, Sawyer X, Stefan Hornburg (Racke), 
+Steven Humphrey, and Yanick Champoux.
 
 This list might additionally grow to active members of the community who have
 stepped up to help handle abusive behavior. If this should happen, this
