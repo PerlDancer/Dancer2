@@ -133,7 +133,7 @@ Dancer2 is easy and fun:
 
     use Dancer2;
     get '/' => sub { "Hello World" };
-    dance; Show support resources after generating new app Show support resources after generating new app
+    dance; 
 
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
