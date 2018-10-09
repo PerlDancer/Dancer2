@@ -4,6 +4,7 @@
     * GH #1456: Engine logging respects minimum level filtering (Daniel Perrett)
 
     [ ENHANCEMENTS ]
+    * GH #1469: Code of Conduct enhancements (MaxPerl)
 
     [ DOCUMENTATION ]
     * GH #1166: Add behind_proxy docs to Deployment manual (Nuno Ramos 
