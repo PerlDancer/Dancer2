@@ -18,6 +18,7 @@
     * PR #1473: Show support resources after generating new app (Jason A.
       Crome)
     * PR #1474: Use the correct URL for HAProxy (Jason A. Crome)
+    * PR #1475: Add manual section for security concerns (Jason A. Crome)
 
 0.206000  2018-04-19 22:09:46-04:00 America/New_York
 
