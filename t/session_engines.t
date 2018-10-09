@@ -8,6 +8,7 @@ use HTTP::Request::Common;
 
 use File::Spec;
 use File::Basename 'dirname';
+use File::Path 'rmtree';
 
 my $SESSION_DIR;
 BEGIN {
@@ -58,7 +59,7 @@ my $url  = "http://localhost";
 my $test = Plack::Test->create( App->to_app );
 my $app = Dancer2->runner->apps->[0];
 
-my @clients = qw(one two three);
+my @clients = qw(one two three four);
 
 for my $engine ( qw(YAML Simple) ) {
     # clear current session engine, and rebuild for the test
@@ -71,14 +72,23 @@ for my $engine ( qw(YAML Simple) ) {
     for my $client (@clients) {
         my $jar = HTTP::Cookies->new;
 
-        subtest "[$engine][$client] Empty session" => sub {
+        # this will remove the session dir before every subtest
+        my $delete_session_dir = (
+            $engine eq "YAML" && $client eq "four"
+            ? " without session dir"
+            : q{}
+        );
+
+        subtest "[$engine][$client] Empty session$delete_session_dir" => sub {
+            rmtree($SESSION_DIR) if $delete_session_dir;
             my $res = $test->request( GET "$url/read_session" );
             like $res->content, qr/name=''/,
               "empty session for client $client";
             $jar->extract_cookies($res);
         };
 
-        subtest "[$engine][$client] set_session" => sub {
+        subtest "[$engine][$client] set_session$delete_session_dir" => sub {
+            rmtree($SESSION_DIR) if $delete_session_dir;
             my $req = GET "$url/set_session/$client";
             $jar->add_cookie_header($req);
             my $res = $test->request($req);
@@ -86,23 +96,31 @@ for my $engine ( qw(YAML Simple) ) {
             $jar->extract_cookies($res);
         };
 
-        subtest "[$engine][$client] session for client" => sub {
+        subtest "[$engine][$client] session for client$delete_session_dir" => sub {
+            rmtree($SESSION_DIR) if $delete_session_dir;
             my $req = GET "$url/read_session";
             $jar->add_cookie_header($req);
             my $res = $test->request($req);
-            like $res->content, qr/name='$client'/,
-              "session looks good for client $client";
+            if ($delete_session_dir) {
+                like $res->content, qr/name=''/,
+                  "session empty but we didn't blow up for client $client";
+            } else {
+                like $res->content, qr/name='$client'/,
+                  "session looks good for client $client";
+            }
             $jar->extract_cookies($res);
         };
 
-        subtest "[$engine][$client] delete session" => sub {
+        subtest "[$engine][$client] delete session$delete_session_dir" => sub {
+            rmtree($SESSION_DIR) if $delete_session_dir;
             my $req = GET "$url/clear_session";
             $jar->add_cookie_header($req);
             my $res = $test->request($req);
             like $res->content, qr/cleared/, "deleted session key";
         };
 
-        subtest "[$engine][$client] cleanup" => sub {
+        subtest "[$engine][$client] cleanup$delete_session_dir" => sub {
+            rmtree($SESSION_DIR) if $delete_session_dir;
             my $req = GET "$url/cleanup";
             $jar->add_cookie_header($req);
             my $res = $test->request($req);

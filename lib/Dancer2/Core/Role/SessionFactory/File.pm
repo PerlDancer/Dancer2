@@ -32,6 +32,11 @@ has session_dir => (
 sub BUILD {
     my $self = shift;
 
+    return $self->_maybe_create_session_dir;
+}
+
+sub _maybe_create_session_dir {
+    my ($self) = @_;
     if ( !-d $self->session_dir ) {
         mkdir $self->session_dir
           or croak "Unable to create session dir : "
@@ -110,6 +115,12 @@ sub _flush {
 
     return $data;
 }
+
+before [ qw/_sessions _retrieve _change_id _destroy _flush/ ] => sub {
+    my ($self) = @_;
+
+    return $self->_maybe_create_session_dir;
+};
 
 1;
 
