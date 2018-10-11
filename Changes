@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1427: Allow layout_dir to be configured by set keyword (Russell
+      @veryrusty Jenkins)
     * GH #1456: Engine logging respects minimum level filtering (Daniel Perrett)
 
     [ ENHANCEMENTS ]
