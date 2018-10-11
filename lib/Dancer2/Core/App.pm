@@ -153,6 +153,12 @@ has '+local_triggers' => (
                 $self->template_engine->layout($value);
             },
 
+            layout_dir => sub {
+                my $self  = shift;
+                my $value = shift;
+                $self->template_engine->layout_dir($value);
+            },
+
             log => sub {
                 my ( $self, $value, $config ) = @_;
 
@@ -268,7 +274,9 @@ sub _build_template_engine {
     my $engine_attrs = { config => $engine_options };
     $engine_attrs->{layout} ||= $config->{layout};
     $engine_attrs->{views}  ||= $config->{views}
-        || path( $self->location, 'views' );
+                            || path( $self->location, 'views' );
+    $engine_attrs->{layout_dir} ||= $config->{layout_dir}
+                                || 'layouts';
 
     Scalar::Util::weaken( my $weak_self = $self );
 
