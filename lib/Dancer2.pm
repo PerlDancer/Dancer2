@@ -265,6 +265,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Colin Kuskie
     cym0n
     Dale Gallagher
+    Dan Book (Grinnz)
     Daniel Muey
     Daniel Perrett
     Dave Jacoby
