@@ -42,6 +42,12 @@ has options => (
     predicate => 1,
 );
 
+has xt_data => (
+    is => 'ro',
+    isa => HashRef,
+    predicate => 1,
+);
+
 sub _check_options {
     my ( $self, $options ) = @_;
     return 1 unless defined $options;
