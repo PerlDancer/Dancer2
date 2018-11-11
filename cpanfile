@@ -82,6 +82,10 @@ test_requires 'Test::EOL';
 test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
+
+# Temporary fix until issue with Test::Time is resolved
+# See https://github.com/cho45/Test-Time/issues/10 for details
+# Author of Test::Time was emailed on 2018-11-11
 test_requires 'Test::Time', '< 0.06';
 
 author_requires 'AnyEvent';

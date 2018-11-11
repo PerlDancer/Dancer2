@@ -22,6 +22,7 @@ install:
   - cpanm Dist::Zilla::PluginBundle::Git
   - cpanm Dist::Zilla::PluginBundle::Dancer
   - cpanm Dist::Zilla::Plugin::Prereqs::FromCPANfile
+  - cpanm --notest Test::Time  # Needed until issue at https://github.com/cho45/Test-Time/issues/10 is resolved
   - cpanm --installdeps .
 
 build_script:
