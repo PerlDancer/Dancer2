@@ -82,6 +82,7 @@ test_requires 'Test::EOL';
 test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
+test_requires 'Test::Time', '< 0.06';
 
 author_requires 'AnyEvent';
 author_requires 'CBOR::XS';
