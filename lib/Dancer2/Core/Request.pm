@@ -202,7 +202,8 @@ sub deserialize {
     # work-around to resolve a chicken-and-egg issue when instantiating a
     # request object; the serializer needs that request object to deserialize
     # the body params.
-    $self->serializer->has_request || $self->serializer->set_request($self);
+    Scalar::Util::weaken( my $request = $self );
+    $self->serializer->has_request || $self->serializer->set_request($request);
     my $data = $serializer->deserialize($body);
     die $serializer_fail if $serializer_fail;
 
