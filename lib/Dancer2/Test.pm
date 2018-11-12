@@ -638,19 +638,21 @@ __END__
 
 =head1 DESCRIPTION
 
-B<DEPRECATED>.  Please use L<Plack::Test> instead as shown in the SYNOPSIS!
+B<DEPRECATED. This module and all the functions listed below are deprecated. Do
+not use this module.> The routines provide by this module for testing Dancer2
+apps are buggy and unnecessary. Instead, use the L<Plack::Test> module as shown
+in the SYNOPSIS above.
 
-This module will warn for a while until we actually remove it. This is to
-provide enough time to fully remove it from your system.
+This module will be removed from the Dancer2 distribution in the near future.
+You should migrate all tests that use it over to the L<Plack::Test> module and
+remove this module from your system. This module will throw warnings to remind
+you.
 
-If you need to remove the warnings, for now, you can set:
+For now, you can set silence the warnings by setting the C<NO_WARN> option:
 
     $Dancer::Test::NO_WARN = 1;
 
-This module provides useful routines to test Dancer2 apps. They are, however,
-buggy and unnecessary. L<Plack::Test> is advised instead.
-
-$test_name is always optional.
+In the functions below, $test_name is always optional.
 
 =func dancer_response ($method, $path, $params, $arg_env);
 
