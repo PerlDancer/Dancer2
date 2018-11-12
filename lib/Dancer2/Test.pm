@@ -641,7 +641,8 @@ __END__
 B<DEPRECATED. This module and all the functions listed below are deprecated. Do
 not use this module.> The routines provide by this module for testing Dancer2
 apps are buggy and unnecessary. Instead, use the L<Plack::Test> module as shown
-in the SYNOPSIS above.
+in the SYNOPSIS above and ignore the functions in this documentation. Consult
+the L<Plack::Test> documenation for further details.
 
 This module will be removed from the Dancer2 distribution in the near future.
 You should migrate all tests that use it over to the L<Plack::Test> module and
