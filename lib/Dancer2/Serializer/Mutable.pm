@@ -6,15 +6,9 @@ use Carp 'croak';
 use Encode;
 with 'Dancer2::Core::Role::Serializer';
 
-has '+content_type' => ( default => sub {'application/json'} );
+use constant DEFAULT_CONTENT_TYPE => 'application/json';
 
-my $formats = {
-    'text/x-yaml'        => 'YAML',
-    'text/html'          => 'YAML',
-    'text/x-data-dumper' => 'Dumper',
-    'text/x-json'        => 'JSON',
-    'application/json'   => 'JSON',
-};
+has '+content_type' => ( default => DEFAULT_CONTENT_TYPE() );
 
 my $serializer = {
     'YAML'   => {
@@ -31,25 +25,44 @@ my $serializer = {
     },
 };
 
-sub support_content_type {
-    my ( $self, $ct ) = @_;
+has mapping => (
+    is   => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
 
-    # FIXME: are we getting full content type?
+        if ( my $mapping = $self->config->{mapping} ) {
 
-    if ( $ct && grep +( $_ eq $ct ), keys %{$formats} ) {
-        $self->set_content_type($ct);
+            # initialize non-default serializers
+            for my $s ( values %$mapping ) {
+                # TODO allow for arguments via the config
+                next if $serializer->{$s};
+                my $serializer_object = ('Dancer2::Serializer::'.$s)->new;
+                $serializer->{$s} = {
+                    from => sub { shift; $serializer_object->deserialize(@_) },
+                    to   => sub { shift; $serializer_object->serialize(@_)   },
+                };
+            }
 
-        return 1;
-    }
+            return $mapping;
+        }
 
-    return 0;
-}
+
+        return {
+            'text/x-yaml'        => 'YAML',
+            'text/html'          => 'YAML',
+            'text/x-data-dumper' => 'Dumper',
+            'text/x-json'        => 'JSON',
+            'application/json'   => 'JSON',
+        }
+    },
+);
 
 sub serialize {
     my ( $self, $entity ) = @_;
 
     # Look for valid format in the headers
-    my $format = $self->_get_content_type();
+    my $format = $self->_get_content_type('accept');
 
     # Match format with a serializer and return
     $format and return $serializer->{$format}{'to'}->(
@@ -63,46 +76,52 @@ sub serialize {
 sub deserialize {
     my ( $self, $content ) = @_;
 
-    # The right content type should already be set
-    my $format = $formats->{$self->content_type};
-
-    $format and return $serializer->{$format}{'from'}->( $self, $content );
+    my $format = $self->_get_content_type('content_type');
+    $format and return $serializer->{$format}{'from'}->($self, $content);
 
     return $content;
 }
 
 sub _get_content_type {
-    my $self    = shift;
-    $self->has_request or return;
+    my ($self, $header) = @_;
 
-    # Search for the first HTTP header variable which
-    # specifies supported content.
-    foreach my $method ( qw<content_type accept> ) {
-        if ( my $value = $self->request->header($method) ) {
-            if ( exists $formats->{$value} ) {
-                $self->set_content_type($value);
-                return $formats->{$value};
+    if ( $self->has_request ) {
+        # Search for the first HTTP header variable which specifies
+        # supported content. Both content_type and accept are checked
+        # for backwards compatibility.
+        foreach my $method ( $header, qw<content_type accept> ) {
+            if ( my $value = $self->request->header($method) ) {
+                if ( my $serializer = $self->mapping->{$value} ) {
+                    $self->set_content_type($value);
+                    return $serializer;
+                }
             }
         }
     }
 
-    # If none if found, return undef.
-    return;
+    # If none if found, return the default, 'JSON'.
+    $self->set_content_type( DEFAULT_CONTENT_TYPE() );
+    return 'JSON';
 }
 
 1;
 
 __END__
 
-=head1 NAME
-
-Dancer2::Serializer::Mutable - Serialize and deserialize content using the appropriate HTTP header
-(ported from Dancer)
-
 =head1 SYNOPSIS
 
     # in config.yml
     serializer: Mutable
+
+    engines:
+        serializer:
+            Mutable:
+                mapping:
+                    'text/x-yaml'        : YAML
+                    'text/html'          : YAML
+                    'text/x-data-dumper' : Dumper
+                    'text/x-json'        : JSON
+                    'application/json'   : JSON
 
     # in the app
     put '/something' => sub {
@@ -146,6 +165,37 @@ uses is
     Dancer2::Serializer::YAML   | text/x-yaml, text/html
     Dancer2::Serializer::Dumper | text/x-data-dumper
     Dancer2::Serializer::JSON   | text/x-json, application/json
+
+A different mapping can be provided via the config file. For example,
+the default mapping would be configured as
+
+    engines:
+        serializer:
+            Mutable:
+                mapping:
+                    'text/x-yaml'        : YAML
+                    'text/html'          : YAML
+                    'text/x-data-dumper' : Dumper
+                    'text/x-json'        : JSON
+                    'application/json'   : JSON
+
+The keys of the mapping are the content-types to serialize,
+and the values the serializers to use. Serialization for C<YAML>, C<Dumper>
+and C<JSON> are done using internal Dancer mechanisms. Any other serializer will
+be taken to be as Dancer2 serialization class (minus the C<Dancer2::Serializer::> prefix)
+and an instance of it will be used
+to serialize/deserialize data. For example, adding L<Dancer2::Serializer::XML>
+to the mapping would be:
+
+    engines:
+        serializer:
+            Mutable:
+                mapping:
+                    'text/x-yaml'        : YAML
+                    'text/html'          : YAML
+                    'text/x-data-dumper' : Dumper
+                    'text/x-json'        : JSON
+                    'text/xml'           : XML
 
 =head2 INTERNAL METHODS
 

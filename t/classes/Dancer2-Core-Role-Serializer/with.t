@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 4;
 use Test::Fatal;
 
 use_ok('Dancer2::Core::Hook');
@@ -119,49 +119,6 @@ subtest 'Unsuccessful' => sub {
             'Correct error message',
         );
     }
-};
-
-{
-    package Serializer::Generic;
-    use Moo;
-    with 'Dancer2::Core::Role::Serializer';
-    has '+content_type' => ( default => 'plain/test' );
-    sub serialize   {1}
-    sub deserialize {1}
-}
-
-subtest 'support_content_type' => sub {
-    plan tests => 7;
-
-    my $srl = Serializer::Generic->new;
-    isa_ok( $srl, 'Serializer::Generic'  );
-    can_ok( $srl, 'support_content_type' );
-
-    is( $srl->support_content_type(), undef, 'Empty returns undef' );
-
-    is(
-        $srl->support_content_type('plain/foo;plain/bar'),
-        '',
-        'Content type not supported',
-    );
-
-    is(
-        $srl->support_content_type('plain/foo;plain/test'),
-        '',
-        'Content type not supported (because not first)',
-    );
-
-    is(
-        $srl->support_content_type('plain/test'),
-        1,
-        'Content type supported when single',
-    );
-
-    is(
-        $srl->support_content_type('plain/test;plain/foo'),
-        1,
-        'Content type supported when first',
-    );
 };
 
 {

@@ -375,7 +375,8 @@ sub set_request {
     $defined_engines ||= $self->defined_engines;
     # populate request in app and all engines
     $self->_set_request($request);
-    $_->set_request( $request ) for @{$defined_engines};
+    Scalar::Util::weaken( my $weak_request = $request );
+    $_->set_request( $weak_request ) for @{$defined_engines};
 }
 
 has response => (
