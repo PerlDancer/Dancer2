@@ -1934,7 +1934,6 @@ If you want to use Plack middlewares, you need to enable them using
 L<Plack::Builder> as such:
 
     # in app.psgi or any other handler
-    use Dancer2;
     use MyApp;
     use Plack::Builder;
 
@@ -1942,7 +1941,7 @@ L<Plack::Builder> as such:
         enable 'Deflater';
         enable 'Session', store => 'File';
         enable 'Debug', panels => [ qw<DBITrace Memory Timer> ];
-        dance;
+        MyApp->to_app;
     };
 
 The nice thing about this setup is that it will work seamlessly through
@@ -1962,16 +1961,40 @@ If you want to set up a middleware for a specific path, you can do that using
 L<Plack::Builder> which uses L<Plack::App::URLMap>:
 
     # in your app.psgi or any other handler
-    use Dancer2;
     use MyApp;
     use Plack::Builder;
 
     my $special_handler = sub { ... };
 
     builder {
-        mount '/'        => dance;
         mount '/special' => $special_handler;
+        mount '/'        => MyApp->to_app;
     };
+
+=head3 Removing default middlewares
+
+By default, a Dancer2 app is automatically wrapped with the following middleware
+
+=over 4
+
+=item * L<Plack::Middleware::FixMissingBodyInRedirect>
+
+=item * L<Plack::Middleware::Head>
+
+=back
+
+You can configure the setting C<no_default_middleware> to a true value to stop your
+Dancer2 app being wrapped with these default middleware layers.
+
+    # in you Dancer2 app or config.yml
+    package MyApp;
+    use Dancer2
+
+    set no_default_middleware => true;
+
+This is necessary if you need to add eTag or ContentMD5 headers to
+C<HEAD> requests, and you are encouraged to manually add those default
+middleware back into your PSGI stack.
 
 =head3 Running on Perl web servers with plackup
 
@@ -2021,7 +2044,7 @@ F<app.psgi>) edit it to use L<Plack::Builder>, as described above:
 
     builder {
         enable 'Deflater';
-        dance;
+        MyApp->to_app;
     };
 
 To test if content compression works, trace the HTTP request and response

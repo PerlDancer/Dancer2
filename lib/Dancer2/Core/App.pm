@@ -1406,11 +1406,7 @@ sub to_app {
         return $response;
     };
 
-    # Wrap with common middleware
-    # FixMissingBodyInRedirect
-    $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap( $psgi );
-
-    # Only add static content handler if requires
+    # Only add static content handler if required
     if ( $self->config->{'static_handler'} ) {
         # Use App::File to "serve" the static content
         my $static_app = Plack::App::File->new(
@@ -1426,8 +1422,14 @@ sub to_app {
         );
     }
 
-    # Apply Head. After static so a HEAD request on static content DWIM.
-    $psgi = Plack::Middleware::Head->wrap( $psgi );
+    # Wrap with common middleware
+    if ( ! $self->config->{'no_default_middleware'} ) {
+        # FixMissingBodyInRedirect
+        $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap( $psgi );
+        # Apply Head. After static so a HEAD request on static content DWIM.
+        $psgi = Plack::Middleware::Head->wrap( $psgi );
+    }
+
     return $psgi;
 }
 
