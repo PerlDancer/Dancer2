@@ -639,7 +639,7 @@ __END__
 =head1 DESCRIPTION
 
 B<DEPRECATED. This module and all the functions listed below are deprecated. Do
-not use this module.> The routines provide by this module for testing Dancer2
+not use this module.> The routines provided by this module for testing Dancer2
 apps are buggy and unnecessary. Instead, use the L<Plack::Test> module as shown
 in the SYNOPSIS above and ignore the functions in this documentation. Consult
 the L<Plack::Test> documenation for further details.
@@ -649,7 +649,7 @@ You should migrate all tests that use it over to the L<Plack::Test> module and
 remove this module from your system. This module will throw warnings to remind
 you.
 
-For now, you can set silence the warnings by setting the C<NO_WARN> option:
+For now, you can silence the warnings by setting the C<NO_WARN> option:
 
     $Dancer::Test::NO_WARN = 1;
 
