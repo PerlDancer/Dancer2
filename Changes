@@ -9,8 +9,9 @@
 
     [ ENHANCEMENTS ]
     * GH #1469: Code of Conduct enhancements (MaxPerl)
-    * PR #1457: Serializer mutable with custom mapping (Russell @veryrusty
-      Jenkins, Yanick Champoux, Daniel Böhmer, Steven Humphrey)
+    * PR #1457: Serializer mutable with custom mapping. Also resolves issues
+      #795, #973, and #901 (Russell @veryrusty Jenkins, Yanick Champoux, 
+      Daniel Böhmer, Steven Humphrey)
 
     [ DOCUMENTATION ]
     * GH #1166: Add behind_proxy docs to Deployment manual (Nuno Ramos 
