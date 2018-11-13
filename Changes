@@ -12,6 +12,8 @@
     * PR #1457: Serializer mutable with custom mapping. Also resolves issues
       #795, #973, and #901 (Russell @veryrusty Jenkins, Yanick Champoux, 
       Daniel Böhmer, Steven Humphrey)
+    * PR #1459: Add no default middleware feature. Also resolves #1410 
+      (Russell @veryrusty Jenkins)
 
     [ DOCUMENTATION ]
     * GH #1166: Add behind_proxy docs to Deployment manual (Nuno Ramos 
