@@ -6,6 +6,7 @@
     * GH #1456: Engine logging respects minimum level filtering (Daniel Perrett)
     * PR #1479: Remove arbitrary Perl 5.10 requirement from tests (Dan Book)
     * PR #1480: Correct dynamic HTTP::XSCookies requirement (Dan Book)
+    * PR #1486: Install dzil deps for use by Appveyor (Dan Book)
 
     [ ENHANCEMENTS ]
     * GH #1469: Code of Conduct enhancements (MaxPerl)

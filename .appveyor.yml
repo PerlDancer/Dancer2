@@ -18,10 +18,7 @@ install:
   - set PATH=C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;C:\strawberry\c\bin;%PATH%
   - cd C:\projects\%APPVEYOR_PROJECT_NAME%
   - cpanm -v Dist::Zilla
-  - cpanm -v Dist::Zilla::PluginBundle::Starter
-  - cpanm -v Dist::Zilla::PluginBundle::Git
-  - cpanm -v Dist::Zilla::PluginBundle::Dancer
-  - cpanm -v Dist::Zilla::Plugin::Prereqs::FromCPANfile
+  - dzil authordeps --missing | cpanm -v
   - cpanm --installdeps .
 
 build_script:
