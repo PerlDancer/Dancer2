@@ -943,7 +943,7 @@ sub send_as {
     $type or croak "Can not send_as using an undefined type";
 
     if ( lc($type) eq 'html' || lc($type) eq 'plain' ) {
-        if ( $type ne 'html' && $type ne 'plain' ) {
+        if ( $type ne lc $type ) {
             local $Carp::CarpLevel = 2;
             carp sprintf( "Please use %s as the type for 'send_as', not %s", lc($type), $type );
         }
