@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.206000
+version 0.207000
 
 # DESCRIPTION
 
@@ -147,6 +147,8 @@ We are also on IRC: #dancer on irc.perl.org.
     Colin Kuskie
     cym0n
     Dale Gallagher
+    Dan Book (Grinnz)
+    Daniel Böhmer
     Daniel Muey
     Daniel Perrett
     Dave Jacoby

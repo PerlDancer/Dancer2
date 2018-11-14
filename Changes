@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.207000  2018-11-14 17:24:25-05:00 America/New_York
+
     [ BUG FIXES ]
     * GH #1427: Allow layout_dir to be configured by set keyword (Russell
       @veryrusty Jenkins)
