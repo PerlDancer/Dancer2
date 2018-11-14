@@ -9,12 +9,13 @@
     * PR #1486: Install dzil deps for use by Appveyor (Dan Book)
 
     [ ENHANCEMENTS ]
-    * GH #1469: Code of Conduct enhancements (MaxPerl)
+    * GH #1418: Send plain text content with send_as() (Steve Dondley)
     * PR #1457: Serializer mutable with custom mapping. Also resolves issues
       #795, #973, and #901 (Russell @veryrusty Jenkins, Yanick Champoux, 
       Daniel Böhmer, Steven Humphrey)
     * PR #1459: Add no default middleware feature. Also resolves #1410 
       (Russell @veryrusty Jenkins)
+    * GH #1469: Code of Conduct enhancements (MaxPerl)
 
     [ DOCUMENTATION ]
     * GH #1166: Add behind_proxy docs to Deployment manual (Nuno Ramos 
