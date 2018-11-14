@@ -950,7 +950,7 @@ sub send_as {
 
         $options->{charset} = $self->config->{charset} || 'UTF-8';
         my $content = Encode::encode( $options->{charset}, $data );
-        $options->{content_type} ||= ($type eq lc('html') ? 'text/html' : 'text/plain');
+        $options->{content_type} ||= join '/', 'text', lc $type;
         $self->send_file( \$content, %$options );     # returns from sub
     }
 
