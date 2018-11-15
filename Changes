@@ -24,10 +24,10 @@
       Carvalho)
     * GH #1417: Add "set engines" documentation (Deirdre Moran)
     * PR #1450: Add calculator example (Gabor Szabo)
-    * PR #1452: Fix Pod formatting for CPAN (simbaque)
+    * PR #1452: Fix Pod formatting for CPAN (simbabque)
     * PR #1454: Fix typos in docs (Gil Magno)
     * PR #1464: Can't set environment with 'set' keyword (Ben Kaufman)
-    * PR #1470: Use session for flash and explain in detail (simbaque)
+    * PR #1470: Use session for flash and explain in detail (simbabque)
     * PR #1472: Migration, tutorial, other doc fixes (Jason A. Crome)
     * PR #1473: Show support resources after generating new app (Jason A.
       Crome)
