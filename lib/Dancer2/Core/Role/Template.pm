@@ -338,3 +338,5 @@ Render the layout with the applied tokens
 =method apply_layout($content, \%tokens, \%options)
 
 =method process($view, \%tokens, \%options)
+
+=method template($view, \%tokens, \%options)
