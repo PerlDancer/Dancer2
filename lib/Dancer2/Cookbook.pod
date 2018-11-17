@@ -433,13 +433,15 @@ a books key containing an I<arrayref> of strings : the books names.
       }
     ]
 
-# bookstore/views/search.tt
-<p>
-<form action="/search">
-Search query: <input type="text" name="query" />
-</form>
-</p>
-<br>
+
+    # bookstore/views/search.tt
+    <p>
+    <form action="/search">
+    Search query: <input type="text" name="query" />
+    </form>
+    </p>
+    <br>
+
 
 An example of the view, displaying the search form, and the results, if any:
 
