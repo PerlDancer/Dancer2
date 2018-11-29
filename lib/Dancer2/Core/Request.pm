@@ -566,11 +566,6 @@ sub _shallow_clone {
     # in $self, then merge any overridden values
     my $env = { %{ $self->env }, %{ $options || {} } };
 
-    # request body fh has been read till end
-    # delete CONTENT_LENGTH in new request (no need to parse body again)
-    # and merge existing params
-    delete $env->{CONTENT_LENGTH};
-
     my $new_request = __PACKAGE__->new(
         env         => $env,
         body_params => {},
@@ -591,7 +586,6 @@ sub _shallow_clone {
     $new_request->{_params}       = $new_params;
     $new_request->{_body_params}  = $self->{_body_params};
     $new_request->{_route_params} = $self->{_route_params};
-    $new_request->{body}          = $self->body;
     $new_request->{headers}       = $self->headers;
 
     # Copy remaining settings
