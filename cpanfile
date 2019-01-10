@@ -3,6 +3,7 @@ requires 'Attribute::Handlers';
 requires 'Carp';
 requires 'Clone';
 requires 'Config::Any';
+requires 'Devel::StackTrace';
 requires 'Digest::SHA';
 requires 'Encode';
 requires 'Exporter', '5.57';

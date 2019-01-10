@@ -1605,8 +1605,12 @@ sub _dispatch_route {
         local $SIG{__DIE__} = sub {
             my $end_trace;
             $trace = Devel::StackTrace->new(
-                skip_frames => 1,
-                frame_filter => sub { $end_trace = 1 if $_[0]{caller}[0] eq 'Dancer2::Core::Route'; !$end_trace },
+                skip_frames  => 1,
+                frame_filter => sub {
+                    $end_trace = 1
+                      if $_[0]{caller}[0] eq 'Dancer2::Core::Route';
+                    !$end_trace;
+                },
             );
             die @_;
         };
@@ -1649,10 +1653,10 @@ sub response_internal_error {
     local $Dancer2::Core::Route::RESPONSE = $self->response;
 
     return Dancer2::Core::Error->new(
-        app         => $self,
-        status      => 500,
-        exception   => $error,
-       (stack_trace => $trace)x!! $trace,
+        app       => $self,
+        status    => 500,
+        exception => $error,
+        (stack_trace => $trace) x !!$trace,
     )->throw;
 }
 

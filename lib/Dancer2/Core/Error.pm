@@ -236,7 +236,7 @@ has content => (
 
 has stack_trace => (
     is      => 'ro',
-    isa     => InstanceOf['Devel::StackTrace'],
+    isa     => InstanceOf ['Devel::StackTrace'],
     lazy    => 1,
     default => sub { Devel::StackTrace->new(ignore_package => __PACKAGE__) },
 );
@@ -424,26 +424,36 @@ sub get_caller {
         my $html;
         unless (@stack) {
             $html = 'Trace begun at ';
-        } else {
+        }
+        else {
             if (my $eval = $frame->evaltext) {
                 if ($frame->is_require) {
-                    $html = 'require '.$eval;
-                } else {
+                    $html = 'require ' . $eval;
+                }
+                else {
                     $eval =~ s/([\\\'])/\\$1/g;
                     $html = "eval '$eval'";
                 }
-            } else {
+            }
+            else {
                 $html = $frame->subroutine;
                 $html = 'eval {...}' if $html eq '(eval)';
             }
             $html = "<span class=\"key\">$html</span>(";
             $html .= join ', ', map {
-                my $arg = Data::Dumper->new([$_])->Terse(1)->Indent(0)->Maxdepth(1)->Useqq(1)->Dump;
-                length $arg > 50 ? substr($arg, 0, 48).'...' : $arg;
+                my $arg =
+                  Data::Dumper->new([$_])->Terse(1)->Indent(0)->Maxdepth(1)
+                  ->Useqq(1)->Dump;
+                length $arg > 50 ? substr($arg, 0, 48) . '...' : $arg;
             } $frame->args;
             $html .= ') called at ';
         }
-        $html .= '<span class="errline">'.$frame->filename.'</span> line <span class="errline">'.$frame->line.'</span>';
+        $html
+          .= '<span class="errline">'
+          . $frame->filename
+          . '</span> line <span class="errline">'
+          . $frame->line
+          . '</span>';
         push @stack, $html;
     }
     return join "\n", @stack;
