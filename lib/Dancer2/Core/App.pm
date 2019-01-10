@@ -1585,6 +1585,20 @@ sub _dispatch_route {
     my ( $self, $route ) = @_;
 
     local $@;
+    my $trace;
+    local $SIG{__DIE__} = sub {
+        my $end_trace;
+        $trace = Devel::StackTrace->new(
+            skip_frames  => 1,
+            frame_filter => sub {
+                $end_trace = 1
+                  if $_[0]{caller}[0] eq 'Dancer2::Core::Route';
+                !$end_trace;
+            },
+        );
+        die @_;
+    };
+
     eval {
         $EVAL_SHIM->(sub {
             $self->execute_hook( 'core.app.before_request', $self );
@@ -1592,7 +1606,7 @@ sub _dispatch_route {
         1;
     } or do {
         my $err = $@ || "Zombie Error";
-        return $self->response_internal_error($err);
+        return $self->response_internal_error($err, $trace);
     };
     my $response = $self->response;
 
@@ -1600,28 +1614,16 @@ sub _dispatch_route {
         return $self->_prep_response( $response );
     }
 
-    my $trace;
     eval {
-        local $SIG{__DIE__} = sub {
-            my $end_trace;
-            $trace = Devel::StackTrace->new(
-                skip_frames  => 1,
-                frame_filter => sub {
-                    $end_trace = 1
-                      if $_[0]{caller}[0] eq 'Dancer2::Core::Route';
-                    !$end_trace;
-                },
-            );
-            die @_;
-        };
-        $EVAL_SHIM->(sub{
-            $response = $route->execute($self);
-        });
+        $EVAL_SHIM->(sub{ $response = $route->execute($self) });
         1;
     } or do {
         my $err = $@ || "Zombie Error";
         return $self->response_internal_error($err, $trace);
     };
+
+    # $trace is closed over by SIGDIE handler
+    undef $trace;
 
     return $response;
 }
