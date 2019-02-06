@@ -549,11 +549,14 @@ sub _build_cookies {
 
     # convert to objects
     while (my ($name, $value) = each %{$cookies}) {
+        my $cookie_value;
+        if (defined $value) {
+            # HTTP::XSCookies v0.17+ will do the split and return an arrayref
+            $cookie_value = (is_arrayref($value) ? $value : [split(/[&;]/, $value)]);
+        }
         $cookies->{$name} = Dancer2::Core::Cookie->new(
             name  => $name,
-            # HTTP::XSCookies v0.17+ will do the split and return an arrayref
-            value => (is_arrayref($value) ? $value : [split(/[&;]/, $value)])
-        );
+            value => $cookie_value);
     }
     return $cookies;
 }
