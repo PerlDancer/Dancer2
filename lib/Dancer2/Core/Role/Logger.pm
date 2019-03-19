@@ -5,6 +5,7 @@ use Dancer2::Core::Types;
 
 use Moo::Role;
 use POSIX 'strftime';
+use Encode ();
 use Data::Dumper;
 
 with 'Dancer2::Core::Role::Engine';
