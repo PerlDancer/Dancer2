@@ -7,9 +7,9 @@ with 'Dancer2::Core::Role::Engine';
 use Carp 'croak';
 use Dancer2::Core::Session;
 use Dancer2::Core::Types;
+use Dancer2::Compat 'encode_base64url';
 use Digest::SHA 'sha1';
 use List::Util 'shuffle';
-use MIME::Base64 'encode_base64url';
 use Module::Runtime 'require_module';
 use Ref::Util qw< is_ref is_arrayref is_hashref >;
 

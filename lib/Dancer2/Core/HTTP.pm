@@ -5,7 +5,7 @@ package Dancer2::Core::HTTP;
 use strict;
 use warnings;
 
-use List::Util qw/ pairmap pairgrep /;
+use Dancer2::Compat qw/pairmap pairgrep/;
 
 my $HTTP_CODES = {
 
