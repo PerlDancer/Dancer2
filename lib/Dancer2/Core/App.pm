@@ -609,18 +609,6 @@ has routes => (
     },
 );
 
-has 'calling_class' => (
-    'is'      => 'ro',
-    'isa'     => Str,
-    'default' => sub {
-        my $class = ( caller(2) )[0] ||
-                    ( caller(1) )[0] ||
-                    ( caller(0) )[0];
-
-        return $class;
-    },
-);
-
 # add_hook will add the hook to the first "hook candidate" it finds that support
 # it. If none, then it will try to add the hook to the current application.
 around add_hook => sub {
