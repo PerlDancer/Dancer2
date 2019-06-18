@@ -303,6 +303,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Jean Stebens
     Jens Rehsack
     Joel Berger
+    Johannes Piehler
     Jonathan Cast
     Jonathan Scott Duff
     Joseph Frazer
