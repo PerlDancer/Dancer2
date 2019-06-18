@@ -2528,6 +2528,26 @@ name.
         # will result in two headers "x-my-header" in the response
     }
 
+=head2 prepare_app
+
+You can introduce code you want to run when your app is loaded, similar to the
+C<prepare_app> in L<Plack::Middleware>.
+
+    prepare_app {
+        my $app = shift;
+
+        ... # do your thing
+    };
+
+You should not close over the App instance, since you receive it as a first
+argument. If you close over it, you B<will> have a memory leak.
+
+    my $app = app();
+
+    prepare_app {
+        do_something_with_app($app); # MEMORY LEAK
+    };
+
 =head2 hook
 
 Adds a hook at some position. For example :
