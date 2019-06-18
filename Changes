@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * PR #1493: Fix body not being sent on forward (Johannes Piehler)
+
+    [ ENHANCEMENTS ]
+    * None
+
     [ DOCUMENTATION ]
     * Tidy up Cookbook POD. (Mohammad S Anwar)
 
