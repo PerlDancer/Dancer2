@@ -2,6 +2,7 @@
 
     [ BUG FIXES ]
     * PR #1493: Fix body not being sent on forward (Johannes Piehler)
+    * PR #1501: Set :raw when copying files to new project (xenu)
 
     [ ENHANCEMENTS ]
     * None

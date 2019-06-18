@@ -182,7 +182,7 @@ sub _copy_templates {
 
         {
             local $/;
-            open(my $fh, '<', $from) or die "unable to open file `$from' for reading: $!";
+            open(my $fh, '<:raw', $from) or die "unable to open file `$from' for reading: $!";
             $content = <$fh>;
             close $fh;
         }
@@ -191,7 +191,7 @@ sub _copy_templates {
             $content = _process_template($content, $vars);
         }
 
-        open(my $fh, '>', $to) or die "unable to open file `$to' for writing: $!";
+        open(my $fh, '>:raw', $to) or die "unable to open file `$to' for writing: $!";
         print $fh $content;
         close $fh;
 

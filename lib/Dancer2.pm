@@ -364,4 +364,5 @@ We are also on IRC: #dancer on irc.perl.org.
     Victor Adam
     Vince Willems
     Vincent Bachelier
+    xenu
     Yves Orton
