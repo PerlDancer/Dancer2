@@ -482,6 +482,12 @@ has destroyed_session => (
     clearer   => 'clear_destroyed_session',
 );
 
+has 'prep_apps' => (
+    'is'      => 'ro',
+    'isa'     => ArrayRef,
+    'default' => sub { [] },
+);
+
 sub find_plugin {
     my ( $self, $name ) = @_;
     my $plugin = List::Util::first { ref($_) eq $name } @{ $self->plugins };
@@ -600,18 +606,6 @@ has routes => (
             del     => [],
             options => [],
         };
-    },
-);
-
-has 'calling_class' => (
-    'is'      => 'ro',
-    'isa'     => Str,
-    'default' => sub {
-        my $class = ( caller(2) )[0] ||
-                    ( caller(1) )[0] ||
-                    ( caller(0) )[0];
-
-        return $class;
     },
 );
 
@@ -1134,10 +1128,9 @@ sub finish {
             $self->postponed_hooks
         );
 
-    $self->calling_class->can('prepare_app')
-      and warn "WARNING: You have a subroutine in your "
-      . "app called 'prepare_app'. In the future "
-      . "this will automatically be called by Dancer2.";
+    foreach my $prep_cb ( @{ $self->prep_apps } ) {
+        $prep_cb->($self);
+    }
 }
 
 sub init_route_handlers {
