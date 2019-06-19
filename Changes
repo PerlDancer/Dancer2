@@ -7,7 +7,7 @@
     * GH #1502: Update jquery (racke)
 
     [ ENHANCEMENTS ]
-    * None
+    * GH #1320: Implement prepare_app keyword (Sawyer X)
 
     [ DOCUMENTATION ]
     * Tidy up Cookbook POD. (Mohammad S Anwar)
