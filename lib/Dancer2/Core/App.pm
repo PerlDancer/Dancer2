@@ -1441,15 +1441,12 @@ sub dispatch {
     # Catch bad content causing deserialization to fail when building the request
     if ( ! $request_built_successfully ) {
         my $err = $@;
-        if ($self->has_serializer_engine && $err =~ m!^Failed to deserialize content! ) {
-            Scalar::Util::weaken(my $app = $self);
-            return Dancer2::Core::Error->new(
-                app     => $app,
-                message => $err,
-            )->throw;
-        }
-        # Rethrow error
-        die $err;
+        Scalar::Util::weaken(my $app = $self);
+        return Dancer2::Core::Error->new(
+            app     => $app,
+            message => $err,
+            status  => 400,    # 400 Bad request (dont send again), rather than 500
+        )->throw;
     }
 
     my $cname = $self->session_engine->cookie_name;
