@@ -140,14 +140,15 @@ END_TEMPLATE
     return $output;
 }
 
+# status and message are 'rw' to permit modification in core.error.before hooks
 has status => (
-    is      => 'ro',
+    is      => 'rw',
     default => sub {500},
     isa     => Num,
 );
 
 has message => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => Str,
     lazy    => 1,
     default => sub { '' },
