@@ -22,6 +22,6 @@ is(
 
 is(
     $test->request( POST '/', Content => 'invalid' )->code,
-    500,
+    400,
     'Failed to decode invalid content',
 );
