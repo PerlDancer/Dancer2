@@ -27,7 +27,7 @@ test_psgi $app, sub {
     my $cb = shift;
 
     is(
-        $cb->( GET '/' => ['Content-Type' => 'multipart/form-data'] )->code,
+        $cb->( GET '/' => 'Content-Type' => 'multipart/form-data' )->code,
         400,
         'multipart with incorrect boundary returns 400',
     );
@@ -37,10 +37,9 @@ test_psgi $app, sub {
 
     is(
         $cb->(
-            GET '/' => [
+            GET '/' =>
                 'Content-Type' =>
-                  'Content-Type: multipart/form-data boundary=------boundary-------'
-            ],
+                'Content-Type: multipart/form-data boundary=------boundary-------',
         )->code,
         200,
         'Providing multipart with correct boundary works',
@@ -48,10 +47,9 @@ test_psgi $app, sub {
 
     is(
         $cb->(
-            GET '/' => [
+            GET '/' =>
                 'Content-Type' =>
-                  'multipart/form-data boundary=------boundary-------'
-            ]
+                'multipart/form-data boundary=------boundary-------',
         )->code,
         200,
         'Multipart without "Content-Type" in value works',
