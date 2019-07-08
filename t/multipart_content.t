@@ -10,7 +10,7 @@ use Ref::Util qw<is_coderef>;
     package App;
     use Dancer2;
 
-    get '/' => sub {'Got get'};
+    get '/' => sub {1};
 }
 
 #
