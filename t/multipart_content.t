@@ -3,10 +3,15 @@ use warnings;
 
 use Test::More;
 use Plack::Test;
-use HTTP::Request;
+use HTTP::Request::Common;
 use Ref::Util qw<is_coderef>;
 
-use Dancer2;
+{
+    package App;
+    use Dancer2;
+
+    get '/' => sub {'Got get'};
+}
 
 #
 # Test for this issue: https://github.com/PerlDancer/Dancer2/issues/1507
@@ -15,39 +20,42 @@ use Dancer2;
 # It should return HTTP code 400 Bad Request.
 # We also test that a request with Content-Type: multipart/form-data boundary=------boundary-------' returns 200.
 
-my $app = __PACKAGE__->to_app;
+my $app = App->to_app;
 ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;
 
-    my $method = 'get';
-    my $http = 'GET';
+    is(
+        $cb->( GET '/' => ['Content-Type' => 'multipart/form-data'] )->code,
+        400,
+        'multipart with incorrect boundary returns 400',
+    );
 
-    eval "$method '/' => sub { '$method' }";
+        my $headers = 
 
-    { # $res->code is currently 500, so this test fails; this is correct until a fix is applied
-        my $headers = [ 'Content-Type' => 'multipart/form-data' ];
-        my $res = $cb->(HTTP::Request->new($http, '/', $headers));
-        is($res->code, 400);
-    }
-    { # this test is passing
-        my $headers = [ 'Content-Type' => 'Content-Type: multipart/form-data boundary=------boundary-------' ];
-        my $res = $cb->(HTTP::Request->new($http, '/', $headers));
-        is($res->code, 200);
-    }
-    {   # why is this test failing?? It's the same as previous one,
-        # but with the 'Content-Type: ' bit not present in the header value.
-        # $res->code is currently 500 for some reason.
-        my $headers = [ 'Content-Type' => 'multipart/form-data boundary=------boundary-------' ];
-        my $res = $cb->(HTTP::Request->new($http, '/', $headers));
-        is($res->code, 200);
-    }
-    { # passes
-        my $headers = [ 'Content-Type' => 'text/html; charset=UTF-8' ];
-        my $res = $cb->(HTTP::Request->new($http, '/', $headers));
-        is($res->code, 200);
-    }
+
+    is(
+        $cb->(
+            GET '/' => [
+                'Content-Type' =>
+                  'Content-Type: multipart/form-data boundary=------boundary-------'
+            ],
+        )->code,
+        200,
+        'Providing multipart with correct boundary works',
+    );
+
+    is(
+        $cb->(
+            GET '/' => [
+                'Content-Type' =>
+                  'multipart/form-data boundary=------boundary-------'
+            ]
+        )->code,
+        200,
+        'Multipart without "Content-Type" in value works',
+    );
 };
 
 done_testing();
