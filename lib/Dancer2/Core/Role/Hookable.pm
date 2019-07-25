@@ -108,11 +108,14 @@ sub execute_hook {
     croak "Hook '$name' does not exist"
       if !$self->has_hook($name);
 
-    $self->$_isa('Dancer2::Core::App') &&
-      $self->log( core => "Entering hook $name" );
-
     for my $hook ( @{ $self->hooks->{$name} } ) {
+        $self->$_isa('Dancer2::Core::App') &&
+          $self->log( core => "Entering hook $name [$hook]" );
+
         $hook->(@_);
+
+        $self->$_isa('Dancer2::Core::App') &&
+          $self->log( core => "Exited hook $name [$hook]" );
     }
 }
 
