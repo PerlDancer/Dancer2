@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1502: Update jquery (racke)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * Fix Dancer2::Test typo (Utkarsh Gupta)
+
 0.208000  2019-06-19 10:21:16-04:00 America/New_York
 
     [ BUG FIXES ]

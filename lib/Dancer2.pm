@@ -360,6 +360,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Tina Müller
     Tom Hukins
     Upasana Shukla
+    Utkarsh Gupta
     Vernon Lyon
     Victor Adam
     Vince Willems
