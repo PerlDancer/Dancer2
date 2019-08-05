@@ -40,6 +40,7 @@ requires 'Template';
 requires 'Template::Tiny';
 requires 'Test::Builder';
 requires 'Test::More';
+requires 'Types::Standard';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
 
