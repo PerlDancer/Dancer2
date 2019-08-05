@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.208000
+version 0.208001
 
 # DESCRIPTION
 
@@ -242,6 +242,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Tina Müller
     Tom Hukins
     Upasana Shukla
+    Utkarsh Gupta
     Vernon Lyon
     Victor Adam
     Vince Willems
