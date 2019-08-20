@@ -750,10 +750,19 @@ there is loaded. Thus, any random handler can be added to your app.
 For example, the default config file for any Dancer2 application is as follows:
 
     route_handlers:
-      File:
-        public_dir: /path/to/public
-      AutoPage: 1
+      -
+        - AutoPage
+        - 1
+      -
+        - File
+        - public_dir: /path/to/public
 
+The second item in the sequence for each handler can be either just "1" (or any
+string) if your handler has no configration options, or a hash of option key-
+value pairs if it does.
+
+(Note that currently adding a route handler does not work if you start your 
+app with C<< ->to_app >>, but only when starting with C<dance>.)
 
 =head1 ERRORS
 
