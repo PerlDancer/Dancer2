@@ -193,10 +193,11 @@ template configuration settings:
 
     # in config.yml
     engines:
-      template_toolkit:
-        start_tag: '<%'
-        end_tag:   '%>'
-        COMPILE_EXT: '.tcc' # cached file extension
+      template:
+        template_toolkit:
+          start_tag: '<%'
+          end_tag:   '%>'
+          COMPILE_EXT: '.tcc' # cached file extension
 
 Template caching will avoid the need to re-parse template files or blocks each time they are
 used. Cached templates are automatically updated when you update the original template file.
