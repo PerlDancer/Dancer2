@@ -7,6 +7,7 @@
     * None
 
     [ DOCUMENTATION ]
+    * GH #1506: Explain what add_route() does with arguments (Tom Hukins)
     * GH #1519: Fix Template Toolkit config docs (Tom Hukins)
 
 0.208001  2019-08-04 21:06:25-04:00 America/New_York
