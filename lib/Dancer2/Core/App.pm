@@ -1753,11 +1753,12 @@ Register a new route handler.
         options => $conditions,
     );
 
-The arguments are passed into a new L<< Dancer2::Core::Route >> object.
+The arguments are passed into a new L<< Dancer2::Core::Route >> object
+which this method returns.
 
 =head2 route_exists
 
-Check if a route already exists.
+Return a true value if a route already exists, otherwise false.
 
     my $route = Dancer2::Core::Route->new(...);
     if ($app->route_exists($route)) {
