@@ -1742,7 +1742,7 @@ Just like C<with_plugin>, but for a single plugin.
 
     my $plugin = $app->with_plugin('Foo');
 
-=head2 add_route
+=method add_route
 
 Register a new route handler.
 
@@ -1753,18 +1753,19 @@ Register a new route handler.
         options => $conditions,
     );
 
-The arguments are passed into a new L<< Dancer2::Core::Route >> object.
+Returns a new L<< Dancer2::Core::Route >> object created with the passed
+arguments.
 
-=head2 route_exists
+=method route_exists
 
-Check if a route already exists.
+Returns a true value if a route already exists, otherwise false.
 
     my $route = Dancer2::Core::Route->new(...);
     if ($app->route_exists($route)) {
         ...
     }
 
-=head2 routes_regexps_for
+=method routes_regexps_for
 
 Sugar for getting the ordered list of all registered route regexps by method.
 
@@ -1806,7 +1807,7 @@ For example:
 
     forward '/login', { login_failed => 1 }, { method => 'GET' });
 
-=head2 app
+=method app
 
 Returns itself. This is simply available as a shim to help transition from
 a previous version in which hooks were sent a context object (originally
