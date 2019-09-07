@@ -4,7 +4,6 @@ package Dancer2::FileUtils;
 use strict;
 use warnings;
 
-use File::Basename ();
 use File::Spec;
 use Path::Tiny ();
 use Carp;
