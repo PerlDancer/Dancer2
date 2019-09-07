@@ -6,7 +6,6 @@ use Moo;
 use Carp;
 use Path::Tiny ();
 use File::Copy ();
-use Module::Runtime 'require_module';
 
 use Dancer2::Core::Types;
 
@@ -67,8 +66,7 @@ sub content {
 
 sub basename {
     my ($self) = @_;
-    require_module('File::Basename');
-    File::Basename::basename( $self->filename );
+    return Path::Tiny::path( $self->filename )->basename;
 }
 
 sub type {
