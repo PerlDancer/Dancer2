@@ -22,6 +22,7 @@ use Plack::Middleware::ConditionalGET;
 use Dancer2::ConfigReader;
 use Dancer2::Core;
 use Dancer2::Core::Cookie;
+use Dancer2::Core::HTTP;
 use Dancer2::Core::Error;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
