@@ -23,6 +23,10 @@ use Ref::Util qw<is_coderef>;
         send_file 'index.html';
     };
 
+    get '/illegal' => sub {
+        send_file '../index.html';
+    };
+
     prefix '/some' => sub {
         get '/image' => sub {
             send_file '1x1.png';
@@ -144,6 +148,17 @@ test_psgi $app, sub {
         ok($r->is_success, 'send_file returns success');
         is($r->header('Content-Disposition'), 'inline; filename="1x1.png"', 'send_file returns correct inline Content-Disposition');
     };
+
+    subtest "Illegal path" => sub {
+        my $r = $cb->( GET '/illegal' );
+        is( $r->code, 403, 'Illegal path returns 403' );
+        is(
+            $r->content,
+            'Forbidden',
+            'Text content contains UTF-8 characters',
+        );
+    };
+
 };
 
 done_testing;
