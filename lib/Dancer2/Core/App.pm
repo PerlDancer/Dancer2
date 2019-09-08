@@ -1035,7 +1035,6 @@ sub send_file {
                 || $self->config->{public_dir}
                 || Path::Tiny::path( $self->location, 'public' )->stringify;
 
-        $file_path = Path::Tiny::path( $dir, $path )->stringify;
         my $err_response = sub {
             my $status = shift;
             $self->response->status($status);
@@ -1043,17 +1042,23 @@ sub send_file {
             $self->response->content( Dancer2::Core::HTTP->status_message($status) );
             $self->with_return->( $self->response );
         };
-        $err_response->(403) if !defined $file_path;
-        $err_response->(404) if !-f $file_path;
+
+        $file_path = Path::Tiny::path( $dir, $path );
+
+        $err_response->(403) if !$file_path->exists;
+        $err_response->(404) if !$file_path->is_file;
         $err_response->(403) if !-r $file_path;
 
         # Read file content as bytes
-        $fh = Path::Tiny::path($file_path)->openr_raw();
+        $fh = $file_path->openr_raw();
 
         $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
             $charset = $self->config->{charset} || "utf-8";
         }
+
+        # cleanup for other functions not assuming on Path::Tiny
+        $file_path = $file_path->stringify;
     }
 
     # Now we are sure we can render the file...
