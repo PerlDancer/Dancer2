@@ -1043,8 +1043,14 @@ sub send_file {
             $self->with_return->( $self->response );
         };
 
-        $file_path = Path::Tiny::path( $dir, $path );
+        # resolve relative paths (with '../') as much as possible
+        $file_path = Path::Tiny::path( $dir, $path )->realpath;
 
+        # We need to check whether they are trying to access
+        # a directory outside their scope
+        $err_response->(403) if !Path::Tiny::path($dir)->realpath->subsumes($file_path);
+
+        # other error checks
         $err_response->(403) if !$file_path->exists;
         $err_response->(404) if !$file_path->is_file;
         $err_response->(403) if !-r $file_path;
