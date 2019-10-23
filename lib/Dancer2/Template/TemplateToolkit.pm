@@ -114,7 +114,7 @@ section on the engines configuration (see your config.yml file):
         end_tag:   '%>'
 
 In addition to the standard configuration variables, the option C<show_private_variables>
-is also available. Template::Toolkit, by default, do not render private variables
+is also available. Template::Toolkit, by default, does not render private variables
 (the ones starting with an underscore). If in your project it gets easier to disable
 this feature than changing variable names, add this option to your configuration.
 
@@ -130,7 +130,7 @@ This template engine allows you to use L<Template>::Toolkit in L<Dancer2>.
 =method render($template, \%tokens)
 
 Renders the template.  The first arg is a filename for the template file
-or a reference to a string that contains the template.  The second arg
+or a reference to a string that contains the template. The second arg
 is a hashref for the tokens that you wish to pass to
 L<Template::Toolkit> for rendering.
 
