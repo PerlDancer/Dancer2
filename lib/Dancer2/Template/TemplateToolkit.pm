@@ -59,7 +59,7 @@ sub render {
 #
 # TT2 will look in a its INCLUDE_PATH for templates.
 # Typically $self->views is an absolute path, and we set ABSOLUTE=> 1 above.
-# In that case TT2 does NOT itetare through what is set for INCLUDE_PATH
+# In that case TT2 does NOT iterate through what is set for INCLUDE_PATH
 # However, if its not absolute, we want to allow TT2 iterate through the
 # its INCLUDE_PATH, which we set to be $self->views.
 
