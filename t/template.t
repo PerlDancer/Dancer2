@@ -8,6 +8,8 @@ use HTTP::Request::Common;
 use File::Spec;
 use File::Basename 'dirname';
 
+diag "peter test";
+
 eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
 
