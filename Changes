@@ -10,6 +10,7 @@
     [ DOCUMENTATION ]
     * GH #1506, 1520: Explain what add_route() does with args (Tom Hukins)
     * GH #1519: Fix Template Toolkit config docs (Tom Hukins)
+    * GH #1522: Fix itetare typo (Stefan Hornburg - Racke)
     * GH #1523: Fix typo in Template Toolkit documentation (Mike Katasonov)
     * GH #1524: Fix error in configuration documentation (Tom Hukins)
 
