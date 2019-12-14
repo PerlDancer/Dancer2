@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.208001
+version 0.208002
 
 # DESCRIPTION
 
@@ -12,7 +12,7 @@ Dancer2 is the new generation of [Dancer](https://metacpan.org/pod/Dancer), the 
 Perl. Dancer2 is a complete rewrite based on [Moo](https://metacpan.org/pod/Moo).
 
 Dancer2 can optionally use XS modules for speed, but at its core remains
-fatpackable (packable by [App::FatPacker](https://metacpan.org/pod/App::FatPacker)) so you could easily deploy Dancer2
+fatpackable (packable by [App::FatPacker](https://metacpan.org/pod/App%3A%3AFatPacker)) so you could easily deploy Dancer2
 applications on hosts that do not support custom CPAN modules.
 
 Dancer2 is easy and fun:
@@ -32,52 +32,52 @@ complete outline on where to go for help.
 - Dancer2 Tutorial
 
     If you are new to the Dancer approach, you should start by reading
-    our [Dancer2::Tutorial](https://metacpan.org/pod/Dancer2::Tutorial).
+    our [Dancer2::Tutorial](https://metacpan.org/pod/Dancer2%3A%3ATutorial).
 
 - Dancer2 Manual
 
-    [Dancer2::Manual](https://metacpan.org/pod/Dancer2::Manual) is the reference for Dancer2. Here you will find
+    [Dancer2::Manual](https://metacpan.org/pod/Dancer2%3A%3AManual) is the reference for Dancer2. Here you will find
     information on the concepts of Dancer2 application development and
     a comprehensive reference to the Dancer2 domain specific
     language.
 
 - Dancer2 Keywords
 
-    The keywords for Dancer2 can be found under [DSL Keywords](https://metacpan.org/pod/Dancer2::Manual#DSL-KEYWORDS).
+    The keywords for Dancer2 can be found under [DSL Keywords](https://metacpan.org/pod/Dancer2%3A%3AManual#DSL-KEYWORDS).
 
 - Dancer2 Deployment
 
     For configuration examples of different deployment solutions involving
-    Dancer2 and Plack, refer to [Dancer2::Manual::Deployment](https://metacpan.org/pod/Dancer2::Manual::Deployment).
+    Dancer2 and Plack, refer to [Dancer2::Manual::Deployment](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ADeployment).
 
 - Dancer2 Cookbook
 
     Specific examples of code for real-life problems and some 'tricks' for
-    applications in Dancer can be found in [Dancer2::Cookbook](https://metacpan.org/pod/Dancer2::Cookbook)
+    applications in Dancer can be found in [Dancer2::Cookbook](https://metacpan.org/pod/Dancer2%3A%3ACookbook)
 
 - Dancer2 Config
 
-    For configuration file details refer to [Dancer2::Config](https://metacpan.org/pod/Dancer2::Config). It is a
+    For configuration file details refer to [Dancer2::Config](https://metacpan.org/pod/Dancer2%3A%3AConfig). It is a
     complete list of all configuration options.
 
 - Dancer2 Plugins
 
-    Refer to [Dancer2::Plugins](https://metacpan.org/pod/Dancer2::Plugins) for a partial list of available Dancer2
+    Refer to [Dancer2::Plugins](https://metacpan.org/pod/Dancer2%3A%3APlugins) for a partial list of available Dancer2
     plugins. Note that although we try to keep this list up to date we
     expect plugin authors to tell us about new modules.
 
-    For information on how to author a plugin, see ["Writing the plugin" in Dancer2::Plugin](https://metacpan.org/pod/Dancer2::Plugin#Writing-the-plugin).
+    For information on how to author a plugin, see ["Writing the plugin" in Dancer2::Plugin](https://metacpan.org/pod/Dancer2%3A%3APlugin#Writing-the-plugin).
 
 - Dancer2 Migration guide
 
-    [Dancer2::Manual::Migration](https://metacpan.org/pod/Dancer2::Manual::Migration) provides the most up-to-date instruction on
+    [Dancer2::Manual::Migration](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AMigration) provides the most up-to-date instruction on
     how to convert a Dancer (1) based application to Dancer2.
 
 # FUNCTIONS
 
 ## my $runner=runner();
 
-Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacpan.org/pod/Dancer2::Core::Runner).
+Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacpan.org/pod/Dancer2%3A%3ACore%3A%3ARunner).
 
 # SECURITY REPORTS
 
@@ -144,6 +144,7 @@ We are also on IRC: #dancer on irc.perl.org.
     chenchen000
     Chi Trinh
     Christian Walde
+    Christopher White
     Colin Kuskie
     cym0n
     Dale Gallagher
@@ -209,6 +210,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Menno Blom
     Michael Kröll
     Michał Wojciechowski
+    Mike Katasonov
     Mohammad S Anwar
     mokko
     Nick Patch
@@ -234,6 +236,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Sam Kington
     Samit Badle
     Sebastien Deseille (sdeseille)
+    Sergiy Borodych
     Shlomi Fish
     Slava Goltser
     Snigdha
