@@ -327,6 +327,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Menno Blom
     Michael Kröll
     Michał Wojciechowski
+    Mike Katasonov
     Mohammad S Anwar
     mokko
     Nick Patch
