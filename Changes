@@ -13,6 +13,8 @@
     * GH #1522: Fix itetare typo (Stefan Hornburg - Racke)
     * GH #1523: Fix typo in Template Toolkit documentation (Mike Katasonov)
     * GH #1524: Fix error in configuration documentation (Tom Hukins)
+    * GH #1526: Mention that TT2 config start_tag/end_tag need escaping 
+      (Chris White)
 
 0.208001  2019-08-04 21:06:25-04:00 America/New_York
 

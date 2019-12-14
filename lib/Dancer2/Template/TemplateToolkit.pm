@@ -105,13 +105,17 @@ setting it manually with C<set>:
 
 Most configuration variables available when creating a new instance of a
 L<Template>::Toolkit object can be declared inside the template toolkit
-section on the engines configuration (see your config.yml file):
+section on the engines configuration in your config.yml file.  For example:
 
   engines:
     template:
       template_toolkit:
         start_tag: '<%'
         end_tag:   '%>'
+
+(Note: C<start_tag> and C<end_tag> are regexes.  If you want to use PHP-style
+tags, you will need to list them as C<< <\? >> and C<< \?> >>.)
+See L<Template::Manual::Config> for the configuration variables.
 
 In addition to the standard configuration variables, the option C<show_private_variables>
 is also available. Template::Toolkit, by default, does not render private variables
