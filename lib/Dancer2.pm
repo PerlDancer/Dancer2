@@ -354,6 +354,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Sam Kington
     Samit Badle
     Sebastien Deseille (sdeseille)
+    Sergiy Borodych
     Shlomi Fish
     Slava Goltser
     Snigdha
