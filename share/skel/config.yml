@@ -2,6 +2,8 @@
 # env-related settings should go to environments/$env.yml
 # all the settings in this file will be loaded at Dancer's startup.
 
+# === Basic configuration ===
+
 # Your application's name
 appname: "[d2% appname %2d]"
 
@@ -14,6 +16,13 @@ layout: "main"
 # about unicode within your app when this setting is set (recommended).
 charset: "UTF-8"
 
+# === Engines ===
+#
+# NOTE: All the engine configurations need to be under a single "engines:"
+# key.  If you uncomment engine configurations below, make sure to delete
+# all "engines:" lines except the first.  Otherwise, only the last
+# "engines:" block will take effect.
+
 # template engine
 # simple: default and very basic template engine
 # template_toolkit: TT
@@ -24,6 +33,7 @@ template: "simple"
 # engines:
 #   template:
 #     template_toolkit:
+#       # Note: start_tag and end_tag are regexes
 #       start_tag: '<%'
 #       end_tag:   '%>'
 
