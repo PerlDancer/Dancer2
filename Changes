@@ -8,6 +8,7 @@
       jumping manually (Graham Knop)
 
     [ DOCUMENTATION ]
+    * GH #1505: Fix Flaskr link (Mohammad S Anwar)
     * GH #1506, 1520: Explain what add_route() does with args (Tom Hukins)
     * GH #1519: Fix Template Toolkit config docs (Tom Hukins)
     * GH #1522: Fix itetare typo (Stefan Hornburg - Racke)
