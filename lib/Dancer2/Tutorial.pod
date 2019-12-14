@@ -32,7 +32,7 @@ explained step by step how to build an example application which was a
 little more involved than a trivial example.
 
 Using the
-L<Flaskr|http://github.com/mitsuhiko/flask/tree/master/examples/flaskr/>
+L<Flaskr|https://github.com/pallets/flask>
 sample application as my inspiration (OK, shamelessly plagiarised) I
 translated that application to the Dancer2 framework so I could better
 understand how Dancer2 worked. (I'm learning it too!)
