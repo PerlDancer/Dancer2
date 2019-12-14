@@ -4,7 +4,8 @@
     * None
 
     [ ENHANCEMENTS ]
-    * None
+    * Remove use of Return::MultiLevel, and implement stack frame jumping 
+      manually (Graham Knop)
 
     [ DOCUMENTATION ]
     * GH #1506, 1520: Explain what add_route() does with args (Tom Hukins)
