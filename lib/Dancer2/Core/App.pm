@@ -5,7 +5,6 @@ use Moo;
 use Carp               qw<croak carp>;
 use Scalar::Util       'blessed';
 use Module::Runtime    'is_module_name';
-use Return::MultiLevel ();
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
@@ -1467,14 +1466,23 @@ DISPATCH:
             }
 
             # calling the actual route
-            my $response = Return::MultiLevel::with_return {
-                my ($return) = @_;
+            my $response;
 
-                # stash the multilevel return coderef in the app
-                $self->has_with_return
-                    or $self->set_with_return($return);
-
-                return $self->_dispatch_route($route);
+            # this is very evil, but allows breaking out of multiple stack
+            # frames without throwing an exception.  Avoiding exceptions means
+            # a naive eval won't swallow our flow control mechanisms, and
+            # avoids __DIE__ handlers.  It also prevents some cleanup routines
+            # from working, since they are expecting control to return to them
+            # after an eval.
+            DANCER2_CORE_APP_ROUTE_RETURN: {
+                if (!$self->has_with_return) {
+                    $self->set_with_return(sub {
+                        $response = shift;
+                        no warnings 'exiting';
+                        last DANCER2_CORE_APP_ROUTE_RETURN;
+                    });
+                }
+                $response = $self->_dispatch_route($route);
             };
 
             # ensure we clear the with_return handler
@@ -1679,7 +1687,8 @@ that package, thanks to that encapsulation.
 
 =attr with_return
 
-Used to cache the coderef from L<Return::MultiLevel> within the dispatcher.
+Used to cache the coderef that will return from back to the dispatcher, across
+an arbitrary number of stack frames.
 
 =method has_session
 
