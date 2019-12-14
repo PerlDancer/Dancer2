@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * GH#1527: Update travis dist to 'trusty' (Sergiy Borodych)
 
     [ ENHANCEMENTS ]
     * GH #1525: Remove use of Return::MultiLevel, and implement stack frame 
