@@ -3,10 +3,12 @@ package Dancer2::Core::Route;
 
 use Moo;
 use Dancer2::Core::Types;
+use Module::Runtime 'use_module';
 use Carp 'croak';
 use List::Util 'first';
 use Scalar::Util 'blessed';
 use Ref::Util qw< is_regexpref >;
+use Type::Registry;
 
 our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
@@ -75,6 +77,12 @@ has _params => (
     default => sub { [] },
 );
 
+has _typed_params => (
+    is      => 'ro',
+    isa     => ArrayRef,
+    default => sub { [] },
+);
+
 sub match {
     my ( $self, $request ) = @_;
 
@@ -98,15 +106,30 @@ sub match {
 
     # regex comments are how we know if we captured a token,
     # splat or a megasplat
-    my @token_or_splat = $self->regexp =~ /\(\?#(token|(?:mega)?splat)\)/g;
+    my @token_or_splat =
+      $self->regexp =~ /\(\?#((?:typed_)?token|(?:mega)?splat)\)/g;
+
     if (@token_or_splat) {
         # our named tokens
         my @tokens = @{ $self->_params };
+        my @typed_tokens = @{ $self->_typed_params };
 
         my %params;
         my @splat;
         for ( my $i = 0; $i < @values; $i++ ) {
             # Is this value from a token?
+            if ( $token_or_splat[$i] eq 'typed_token' ) {
+                my ( $token, $type ) = @{ shift @typed_tokens };
+
+                if (defined $values[$i]) {
+                    # undef value mean that token was marked as optional so
+                    # we only do type check on defined value
+                    return
+                      unless $type->check($values[$i]);
+                }
+                $params{$token} = $values[$i];
+                next;
+            }
             if ( $token_or_splat[$i] eq 'token' ) {
                 $params{ shift @tokens } = $values[$i];
                  next;
@@ -181,6 +204,13 @@ sub BUILDARGS {
     my $prefix = $args{prefix};
     my $regexp = $args{regexp};
 
+    my $type_library = delete $args{type_library};
+    if ( $type_library) {
+        eval { use_module($type_library); 1 }
+          or croak "type_library $type_library cannot be loaded";
+    }
+    $type_library ||= 'Dancer2::Core::Types';
+
     # init prefix
     if ( $prefix ) {
         $args{regexp} =
@@ -200,22 +230,40 @@ sub BUILDARGS {
         $args{_should_capture} = 1;
     }
     else {
-        @args{qw/ regexp _params _should_capture/} =
-            @{ _build_regexp_from_string($regexp) };
+        @args{qw/ regexp _params _typed_params _should_capture/} =
+            @{ _build_regexp_from_string($regexp, $type_library) };
     }
 
     return \%args;
 }
 
 sub _build_regexp_from_string {
-    my ($string) = @_;
+    my ($string, $type_library) = @_;
 
     my $capture = 0;
-    my @params;
+    my ( @params, @typed_params );
+
+    my $type_registry = Type::Registry->new;
+    $type_registry->add_types($type_library);
 
     # look for route with tokens [aka params] (/hello/:foo)
     if ( $string =~ /:/ ) {
-        @params = $string =~ /:([^\/\.\?]+)/g;
+        my @found = $string =~ m|:([^/.\?]+)|g;
+        foreach my $token ( @found ) {
+            if ( $token =~ s/\[(.+)\]$// ) {
+
+                # typed token
+                my $type = $type_registry->lookup($1);
+                push @typed_params, [ $token, $type ];
+            }
+            else {
+                push @params, $token;
+            }
+        }
+        if (@typed_params) {
+            $string =~ s!(:[^/.\?]+\[[^/.\?]+\])!(?#typed_token)([^/]+)!g;
+            $capture = 1;
+        }
         if (@params) {
             first { $_ eq 'splat' } @params
                 and warn q{Named placeholder 'splat' is deprecated};
@@ -242,7 +290,7 @@ sub _build_regexp_from_string {
     # escape slashes
     $string =~ s/\//\\\//g;
 
-    return [ "^$string\$", \@params, $capture ];
+    return [ "^$string\$", \@params, \@typed_params, $capture ];
 }
 
 sub validate_options {

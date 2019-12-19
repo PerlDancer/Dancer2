@@ -233,6 +233,54 @@ Tokens can be optional, for example:
         "Hello there, $name";
     };
 
+=head3 Named matching with type constraints
+
+Type constraints can be added to tokens.
+
+    get '/user/:id[Int]' => sub {
+        # matches /user/34 but not /user/jamesdean
+        my $user_id = route_parameters->get('id');
+    };
+
+    get '/user/:username[Str]' => sub {
+        # matches /user/jamesdean but not /user/34 since that is caught
+        # by previous route
+        my $username = route_parameters->get('username');
+    };
+
+You can even use type constraints to add a regexp check:
+
+    get '/book/:date[StrMatch[qr{\d\d\d\d-\d\d-\d\d}]]' => sub {
+        # matches /book/2014-02-04
+        my $date = route_parameters->get('date');
+    };
+
+The default type library is L<Dancer2::Core::Types> but any type library
+built using L<Type::Tiny>'s L<Type::Library> can be used instead.
+If you'd like to use a different default type library you must declare it
+in the configuration file, for example:
+
+    type_library: My::Type::Library
+
+Alternatively you can specify the type library in which the type is defined
+as part of the route definition:
+
+    get '/user/:username[My::Type::Library::Username]' => sub {
+        my $username = route_parameters->get('username');
+    };
+
+This will load C<My::Type::Library> and from it use the type C<Username>. This
+allows types to be used that are not part of the type library defined by config's
+C<type_library>.
+
+More complex constructs are allowed such as:
+
+    get '/some/:thing[Int|MyDate]' => sub {
+        ...;
+    };
+
+See L<Type::Registry/lookup($name)> for more details.
+
 =head3 Wildcard Matching
 
 A route can contain a wildcard (represented by a C<*>). Each wildcard match
