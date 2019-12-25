@@ -637,7 +637,7 @@ shapes and sizes, and you can easily build a solution tailored to your
 particular needs. 
 
 There is certainly a lot left to cover. We suggest you take a stroll through 
-the L<manual|Dancer2::Manual>for more detailed information about the 
+the L<manual|Dancer2::Manual> for more detailed information about the 
 topics covered in this tutorial, and for a more thorough explanation of all 
 things Dancer2-related. The L<cookbook|Dancer2::Cookbook> will show you how 
 to handle some handy tips and tricks when working with Dancer2. Additionally, 
