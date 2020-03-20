@@ -270,12 +270,12 @@ sub _build_template_engine {
     my $engine_options =
           $self->_get_config_for_engine( template => $value, $config );
 
-    my $engine_attrs = { config => $engine_options };
-    $engine_attrs->{layout} ||= $config->{layout};
-    $engine_attrs->{views}  ||= $config->{views}
-                            || path( $self->location, 'views' );
-    $engine_attrs->{layout_dir} ||= $config->{layout_dir}
-                                || 'layouts';
+    my $engine_attrs = {
+        config => $engine_options,
+        layout => $config->{layout},
+        layout_dir => ( $config->{layout_dir} || 'layouts' ),
+        views => ( $config->{views} || path( $self->location, 'views' ) ),
+    };
 
     Scalar::Util::weaken( my $weak_self = $self );
 
