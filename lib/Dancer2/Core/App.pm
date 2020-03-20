@@ -274,7 +274,7 @@ sub _build_template_engine {
         config => $engine_options,
         layout => $config->{layout},
         layout_dir => ( $config->{layout_dir} || 'layouts' ),
-        views => ( $config->{views} || path( $self->location, 'views' ) ),
+        views => $config->{views},
     };
 
     Scalar::Util::weaken( my $weak_self = $self );
