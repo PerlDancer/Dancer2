@@ -360,6 +360,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Snigdha
     Steve Dondley
     Tatsuhiko Miyagawa
+    Timothy Alexis Vass
     Tina Müller
     Tom Hukins
     Upasana Shukla
