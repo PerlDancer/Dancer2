@@ -229,7 +229,7 @@ match will be set in the route parameters.
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        my $name = route_parameters->get('name') //= 'Whoever you are';
+        my $name = route_parameters->get('name') // 'Whoever you are';
         "Hello there, $name";
     };
 
