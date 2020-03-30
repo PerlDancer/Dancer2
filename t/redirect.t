@@ -15,6 +15,7 @@ subtest 'basic redirects' => sub {
         get '/bounce'   => sub { redirect '/' };
         get '/redirect' => sub { response_header 'X-Foo' => 'foo'; redirect '/'; };
         get '/redirect_querystring' => sub { redirect '/login?failed=1' };
+        get '/redirect_uriescaped' => sub { redirect '?foo=bar+%26+baz' };
     }
 
     my $app = App1->to_app;
@@ -49,7 +50,7 @@ subtest 'basic redirects' => sub {
 
             is(
                 $res->headers->header('Location'),
-                'http://localhost/',
+                '/',
                 'Correct Location header',
             );
 
@@ -67,7 +68,19 @@ subtest 'basic redirects' => sub {
 
             is(
                 $res->headers->header('Location'),
-                'http://localhost/login?failed=1',
+                '/login?failed=1',
+                'Correct Location header',
+            );
+        }
+
+        {
+            my $res = $cb->( GET '/redirect_uriescaped' );
+
+            is( $res->code, 302, '[GET /redirect_uriescaped] Correct code' );
+
+            is(
+                $res->headers->header('Location'),
+                '?foo=bar+%26+baz',
                 'Correct Location header',
             );
         }
@@ -107,7 +120,7 @@ subtest 'absolute and relative redirects' => sub {
 
             is(
                 $res->headers->header('Location'),
-                'http://localhost/absolute',
+                '/absolute',
                 'Correct Location header',
             );
         }
@@ -117,125 +130,8 @@ subtest 'absolute and relative redirects' => sub {
 
             is(
                 $res->headers->header('Location'),
-                'http://localhost/somewhere/else',
+                'somewhere/else',
                 'Correct Location header',
-            );
-        }
-    };
-};
-
-subtest 'redirect behind a proxy' => sub {
-    {
-        package App3;
-        use Dancer2;
-        prefix '/test2';
-        set behind_proxy => 1;
-        get '/bounce' => sub { redirect '/test2' };
-    }
-
-    my $app = App3->to_app;
-    ok( is_coderef($app), 'Got app' );
-
-    test_psgi $app, sub {
-        my $cb = shift;
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST' => 'nice.host.name',
-                )->headers->header('Location'),
-                'http://nice.host.name/test2',
-                'behind a proxy, host() is read from X_FORWARDED_HOST',
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST' => 'nice.host.name',
-                    'FORWARDED-PROTO'  => 'https',
-                )->headers->header('Location'),
-                'https://nice.host.name/test2',
-                '... and the scheme is read from HTTP_FORWARDED_PROTO',
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST'     => 'nice.host.name',
-                    'X-FORWARDED-PROTOCOL' => 'ftp', # stupid, but why not?
-                )->headers->header('Location'),
-                'ftp://nice.host.name/test2',
-                '... or from X_FORWARDED_PROTOCOL',
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST'  => 'nice.host.name',
-                    'X-FORWARDED-PROTO' => 'https',
-                )->headers->header('Location'),
-                'https://nice.host.name/test2',
-                '... or from X_FORWARDED_PROTO',
-            );
-        }
-    };
-};
-
-subtest 'redirect behind multiple proxies' => sub {
-    {
-
-        package App4;
-        use Dancer2;
-        prefix '/test2';
-        set behind_proxy => 1;
-        get '/bounce' => sub { redirect '/test2' };
-    }
-
-    my $app = App4->to_app;
-    ok( is_coderef($app), 'Got app' );
-
-    test_psgi $app, sub {
-        my $cb = shift;
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST' => "proxy1.example, proxy2.example",
-                )->headers->header('Location'),
-                'http://proxy1.example/test2',
-                "behind multiple proxies, host() is read from X_FORWARDED_HOST",
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST' => "proxy1.example, proxy2.example",
-                    'FORWARDED-PROTO'  => 'https',
-                )->headers->header('Location'),
-                'https://proxy1.example/test2',
-                '... and the scheme is read from HTTP_FORWARDED_PROTO',
-            );
-        }
-
-        {
-            is(
-                $cb->(
-                    GET '/test2/bounce',
-                    'X-FORWARDED-HOST'     => "proxy1.example, proxy2.example",
-                    'X-FORWARDED-PROTOCOL' => 'ftp', # stupid, but why not?
-                )->headers->header('Location'),
-                'ftp://proxy1.example/test2',
-                '... or from X_FORWARDED_PROTOCOL',
             );
         }
     };
