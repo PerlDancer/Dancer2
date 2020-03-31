@@ -325,6 +325,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Matt S Trout
     Maurice
     MaxPerl
+    Ma_Sys.ma
     Menno Blom
     Michael Kröll
     Michał Wojciechowski
