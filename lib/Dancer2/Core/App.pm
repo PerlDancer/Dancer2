@@ -1273,16 +1273,6 @@ sub redirect {
     my $destination = shift;
     my $status      = shift;
 
-    # RFC 2616 requires an absolute URI with a scheme,
-    # turn the URI into that if it needs it
-
-    # Scheme grammar as defined in RFC 2396
-    #  scheme = alpha *( alpha | digit | "+" | "-" | "." )
-    my $scheme_re = qr{ [a-z][a-z0-9\+\-\.]* }ix;
-    if ( $destination !~ m{^ $scheme_re : }x ) {
-        $destination = $self->request->uri_for( $destination, {}, 1 );
-    }
-
     $self->response->redirect( $destination, $status );
 
     # Short circuit any remaining before hook / route code
