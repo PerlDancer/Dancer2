@@ -127,13 +127,14 @@ Classes consuming this must satisfy three requirements: C<_suffix>,
 C<_freeze_to_handle> and C<_thaw_from_handle>.
 
 
-    package Dancer2::SessionFactory::XYX
+    package Dancer2::Session::XYX;
 
+    use Dancer2::Core::Types;
     use Moo;
 
     has _suffix => (
         is      => 'ro',
-        isa     => 'Str',
+        isa     => Str,
         default => sub { '.xyz' },
     );
 
