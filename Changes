@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * GH #1538: Defined or should not be an assignment (Timothy Alexis 
+      Vass)
+
 0.300000  2019-12-23 23:55:09-06:00 America/Chicago
 
     [ BUG FIXES ]

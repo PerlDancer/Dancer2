@@ -223,14 +223,14 @@ Each token found in a route pattern is used as a named-pattern match. Any
 match will be set in the route parameters.
 
     get '/hello/:name' => sub {
-        "Hey " . route_parameters->get('name') . ", welcome here!";
+        return "Hey " . route_parameters->get('name') . ", welcome here!";
     };
 
 Tokens can be optional, for example:
 
     get '/hello/:name?' => sub {
-        my $name = route_parameters->get('name') //= 'Whoever you are';
-        "Hello there, $name";
+        my $name = route_parameters->get('name') // 'Whoever you are';
+        return "Hello there, $name";
     };
 
 =head3 Named matching with type constraints
