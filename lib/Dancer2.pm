@@ -282,6 +282,7 @@ We are also on IRC: #dancer on irc.perl.org.
     dtcyganov
     Erik Smit
     Fayland Lam
+    ferki
     Gabor Szabo
     geistteufel
     Gideon D'souza
