@@ -2,6 +2,7 @@
 
     [ BUG FIXES ]
     * GH #1461: Relax redirect to match RFC_7231 (James Raspass)
+    * GH #1499: Don't double decode date strings (simbabque)
     * GH #1536: Fix storing objects in YAML sessions (Tom Hukins)
 
     [ ENHANCEMENTS ]
