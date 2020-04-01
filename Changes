@@ -11,6 +11,7 @@
     [ DOCUMENTATION ]
     * GH #1521: Documentation on configuring the adress to listen on: 
       "server" does not seem to work, but "host" does (Ma_Sys.ma)
+    * GH #1530: Fix missing space in docs (ferki)
     * GH #1535: Fix example code in SessionFactory::File (Sergiy Borodych)
     * GH #1538: Defined or should not be an assignment (Timothy Alexis 
       Vass)
