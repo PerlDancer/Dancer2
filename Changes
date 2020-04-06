@@ -6,7 +6,7 @@
     * GH #1536: Fix storing objects in YAML sessions (Tom Hukins)
 
     [ ENHANCEMENTS ]
-    * None
+    * GH #1540: Improve configuration handling (Tom Hukins)
 
     [ DOCUMENTATION ]
     * GH #1425: Revamped Tutorial (Steve Dondley)
