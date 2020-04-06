@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.300001  2020-04-06 12:14:47-04:00 America/New_York
+
     [ BUG FIXES ]
     * GH #1461: Relax redirect to match RFC_7231 (James Raspass)
     * GH #1499: Don't double decode date strings (simbabque)
