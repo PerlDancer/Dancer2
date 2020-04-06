@@ -9,6 +9,7 @@
     * None
 
     [ DOCUMENTATION ]
+    * GH #1425: Revamped Tutorial (Steve Dondley)
     * GH #1521: Documentation on configuring the adress to listen on: 
       "server" does not seem to work, but "host" does (Ma_Sys.ma)
     * GH #1530: Fix missing space in docs (ferki)
