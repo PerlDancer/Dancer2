@@ -40,13 +40,13 @@ subtest 'Creating a session' => sub {
     my $res = $test->request( GET "$url/set" );
     ok( $res->is_redirect, 'Request causes redirect' );
     ($redir) = $res->header('Location');
-    is( $redir, "$url/get", 'Redirects to correct url' );
+    is( $redir, "/get", 'Redirects to correct url' );
     $jar->extract_cookies($res);
     ok( $jar->as_string, 'Received a session cookie' );
 };
 
 subtest 'Retrieving a session' => sub {
-    my $req = GET $redir;
+    my $req = GET "$url/get";
     $jar->add_cookie_header($req);
     my $res = $test->request($req);
     ok( $res->is_success, 'Successful request' );
