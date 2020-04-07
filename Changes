@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1541: Fix broken test that is skipped under CI (Peter Mottram - 
+      SysPete)
+    
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
 0.300001  2020-04-06 12:14:47-04:00 America/New_York
 
     [ BUG FIXES ]
