@@ -1,6 +1,8 @@
 package Dancer2::Tutorial;
 # ABSTRACT: An example to get you dancing
 
+=encoding utf8
+
 =pod
 
 =head1 Tutorial Overview
@@ -66,11 +68,12 @@ technical jargon scare you off. Things will become clearer in our first code
 example which we will look at shortly.
 
 =head3 Getting Dancer2 installed
+
 First, we need to make sure you have Dancer2 installed. Typically, you will do
 that with one of the following two commands:
 
-  cpan Dancer2  # requires the cpan command to be installed and configured
-  cpanm Dancer2 # requires you have cpanimus installed and available on your OS
+    cpan Dancer2  # requires the cpan command to be installed and configured
+    cpanm Dancer2 # requires you have cpanminus installed
 
 If you aren't familiar with installing Perl modules on your machine, you should
 L<read this guide|https://www.cpan.org/modules/INSTALL.html>. You may also want
@@ -78,18 +81,19 @@ to consult your OS's documentation or a knowledgeable expert. And, of course,
 your search engine of choice is always there for you, as well.
 
 =head3 Your first Dancer2 "Hello World!" app
+
 Now that you have Dancer2 installed, open up your favorite text editor and copy
 and paste the following lines of Perl code into it and save it to a file
 called C<dancr.pl>:
 
-  #!/usr/bin/env perl
-  use Dancer2;
+    #!/usr/bin/env perl
+    use Dancer2;
 
-  get '/' => sub {
-    return 'Hello World!';
-  };
+    get '/' => sub {
+        return 'Hello World!';
+    };
 
-  start;
+    start;
 
 If you make this script executable and run it, it will fire up a simple,
 standalone web server that will display "Hello World!" when you point your
@@ -102,7 +106,7 @@ using the C<dancer2> utility. For now, we want to stay focused on the
 fundamentals.
 
 So, though our example app is very simple, there is a lot going on under the hood
-when we invoke C<use Dancer2;>  - in our first line of code. We won't go into the
+when we invoke C<use Dancer2;> in our first line of code. We won't go into the
 gory details of how it all works. For now, it's enough for you to know that the
 Dancer2 module infuses your script with the ability to use Dancer2 keywords for
 building apps. Getting comfortable with the concept of keywords is probably the
@@ -139,7 +143,7 @@ precisely, it is a subroutine reference. The route action in our example returns
 a simple string, C<Hello World!>. Like the route pattern, the route action is
 nothing more than an argument to our C<get> keyword.
 
-Note that convention has us use the fat arrow (C<=E<gt>>) operator between the
+Note that convention has us use the fat comma (C<< => >>) operator between the
 route pattern and the action to to make our code more readable. But we
 could just as well have used a regular old comma to separate these argument to
 our C<get> method. Gotta love Perl for its flexibility.
@@ -191,7 +195,7 @@ Obviously you need L<Dancer2> installed. You'll also need the
 L<Template Toolkit|Template>, L<File::Slurper>, and L<DBD::SQLite> modules.
 These all can be installed using your CPAN client with the following command:
 
-  cpan Template File::Slurper DBD::SQLite
+    cpan Template File::Slurper DBD::SQLite
 
 =head2 The database code
 
@@ -202,11 +206,11 @@ if you don't understand all of it.
 Open your favorite L<text editor|http://www.vim.org> and create a schema
 definition called 'schema.sql' with the following content:
 
-  create table if not exists entries (
-    id integer primary key autoincrement,
-    title string not null,
-    text string not null
-  );
+    create table if not exists entries (
+        id integer primary key autoincrement,
+        title string not null,
+        text string not null
+    );
 
 Here we have a single table with three columns: id, title, and text. The
 'id' field is the primary key and will automatically get an ID assigned by
@@ -215,25 +219,26 @@ the database engine when a row is inserted.
 We want our application to initialize the database automatically for us when
 we start it. So, let's edit the 'dancr.pl' file we created earlier and give it
 the ability to talk to our database with the following subroutines: (Or, if you
-prefer, you can copy and paste the finished dancr.pl script–found near the end of
-Part I in this tutorial–into the file all at once and then just follow along
+prefer, you can copy and paste the finished dancr.pl script, found near the end
+of Part I in this tutorial, into the file all at once and then just follow along
 with the tutorial.)
 
-  sub connect_db {
-    my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
-       die $DBI::errstr;
+    sub connect_db {
+        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
+            or die $DBI::errstr;
 
-    return $dbh;
-  }
+        return $dbh;
+    }
 
-  sub init_db {
-    my $db = connect_db();
-    my $schema = read_text('./schema.sql');
-    $db->do($schema) or die $db->errstr;
-  }
+    sub init_db {
+        my $db     = connect_db();
+        my $schema = read_text('./schema.sql');
+        $db->do($schema)
+            or die $db->errstr;
+    }
 
 Nothing too fancy in here, I hope. It's standard DBI except for the
-C<setting('database')> thing – more on that in a bit. For now, just assume
+C<setting('database')> thing, more on that in a bit. For now, just assume
 that the expression evaluates to the location of the database file.
 
 In Part III of the tutorial, we will show you how to use the
@@ -246,17 +251,22 @@ Ok, let's get back to the business of learning Dancer2 by creating our app's
 first route handler for the root URL.  Replace the route handler in our
 simple example above with this one:
 
-  get '/' => sub {
-    my $db = connect_db();
-    my $sql = 'select id, title, text from entries order by id desc';
-    my $sth = $db->prepare($sql) or die $db->errstr;
-    $sth->execute or die $sth->errstr;
-    template 'show_entries.tt', {
-       'msg' => get_flash(),
-       'add_entry_url' => uri_for('/add'),
-       'entries' => $sth->fetchall_hashref('id'),
+    get '/' => sub {
+        my $db  = connect_db();
+        my $sql = 'select id, title, text from entries order by id desc';
+
+        my $sth = $db->prepare($sql)
+            or die $db->errstr;
+
+        $sth->execute
+            or die $sth->errstr;
+
+        template 'show_entries.tt', {
+            msg           => get_flash(),
+            add_entry_url => uri_for('/add'),
+            entries       => $sth->fetchall_hashref('id'),
+        };
     };
-  };
 
 Our new route handler is the same as the one in our first example except that
 our route action does a lot more work.
@@ -332,14 +342,14 @@ and add this file to it.
 
 Again, since this isn't a tutorial about Template Toolkit, we'll gloss
 over the syntax here and just point out the section which starts with
-C<E<lt>ul class=entriesE<gt>>–this is the section where the database query
+C<< <ul class=entries> >>. This is the section where the database query
 results are displayed. You can also see at the very top some discussion about a
-session–more on that soon.
+session, more on that soon.
 
 The only other Template Toolkit related thing that has to be mentioned here is
 the C<| html> in C<[% entries.$id.title | html %]>. That's
 L<a filter|http://www.template-toolkit.org/docs/manual/Filters.html#section_html>
-to convert characters like C<E<lt>> and C<E<gt>> to C<&lt;> and C<&gt;>. This
+to convert characters like C<< < >> and C<< > >> to C<&lt;> and C<&gt;>. This
 way they will be displayed by the browser as content on the page rather than
 just included. If we did not do this, the browser might interpret content as
 part of the page, and a malicious user could smuggle in all kinds of bad code
@@ -359,7 +369,7 @@ to implement.
 
 In addition, the C<PATCH> verb was defined in
 L<RFC5789|http://tools.ietf.org/html/rfc5789>, and is intended as a "partial
-PUT" - sending just the changes required to the entity in question.  How
+PUT", sending just the changes required to the entity in question.  How
 this would be handled is down to your app, it will vary depending on the
 type of entity in question and the serialization in use.
 
@@ -367,25 +377,27 @@ Dancer2's keywords currently supports GET, PUT/PATCH, POST, DELETE, OPTIONS whic
 map to Retrieve, Update, Create, Delete respectively.  Let's take a look now at
 the C</add> route handler which handles a POST operation.
 
-  post '/add' => sub {
-     if ( not session('logged_in') ) {
-        send_error("Not logged in", 401);
-     }
+    post '/add' => sub {
+        if ( not session('logged_in') ) {
+            send_error("Not logged in", 401);
+        }
 
-     my $db = connect_db();
-     my $sql = 'insert into entries (title, text) values (?, ?)';
-     my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute(
-         body_parameters->get('title'),
-         body_parameters->get('text')
-     ) or die $sth->errstr;
+        my $db = connect_db();
+        my $sql = 'insert into entries (title, text) values (?, ?)';
+        my $sth = $db->prepare($sql)
+            or die $db->errstr;
 
-     set_flash('New entry posted!');
-     redirect '/';
-  };
+        $sth->execute(
+            body_parameters->get('title'),
+            body_parameters->get('text')
+        ) or die $sth->errstr;
+
+        set_flash('New entry posted!');
+        redirect '/';
+    };
 
 As before, the HTTP verb begins the handler, followed by the route, and a
-subroutine to do something - in this case, it will insert a new entry into
+subroutine to do something; in this case it will insert a new entry into
 the database.
 
 The first check in the subroutine is to make sure the user sending the data
@@ -419,14 +431,14 @@ session handler and initialize a session manager. To do that, we add some
 configuration directives toward the top of our 'dancr.pl' file.  But there are
 more options than just the session engine we want to set.
 
-  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-  set 'session'      => 'Simple';
-  set 'template'     => 'template_toolkit';
-  set 'logger'       => 'console';
-  set 'log'          => 'debug';
-  set 'show_errors'  => 1;
-  set 'startup_info' => 1;
-  set 'warnings'     => 1;
+    set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'session'      => 'Simple';
+    set 'template'     => 'template_toolkit';
+    set 'logger'       => 'console';
+    set 'log'          => 'debug';
+    set 'show_errors'  => 1;
+    set 'startup_info' => 1;
+    set 'warnings'     => 1;
 
 Hopefully these are fairly self-explanatory. We want the Simple session
 engine, the Template Toolkit template engine, logging enabled (at the
@@ -438,8 +450,8 @@ Dancer2 doesn't impose any limits on what parameters you can set using the
 C<set> syntax. For this application we're going to embed our single username
 and password into the application itself:
 
-  set 'username' => 'admin';
-  set 'password' => 'password';
+    set 'username' => 'admin';
+    set 'password' => 'password';
 
 Hopefully no one will ever guess our clever password!  Obviously, you will
 want a more sophisticated user authentication scheme in any sort of
@@ -455,29 +467,29 @@ leave that discussion for later.
 Now that dancr is configured to handle sessions, let's take a look at the
 URL handler for the C</login> route.
 
-  any ['get', 'post'] => '/login' => sub {
-     my $err;
+    any ['get', 'post'] => '/login' => sub {
+        my $err;
 
-     if ( request->method() eq "POST" ) {
-       # process form input
-       if ( body_parameters->get('username') ne setting('username') ) {
-         $err = "Invalid username";
-       }
-       elsif ( body_parameters->get('password') ne setting('password') ) {
-         $err = "Invalid password";
-       }
-       else {
-         session 'logged_in' => true;
-         set_flash('You are logged in.');
-         return redirect '/';
-       }
-    }
+        if ( request->method() eq "POST" ) {
+            # process form input
+            if ( body_parameters->get('username') ne setting('username') ) {
+                $err = "Invalid username";
+            }
+            elsif ( body_parameters->get('password') ne setting('password') ) {
+                $err = "Invalid password";
+            }
+            else {
+                session 'logged_in' => true;
+                set_flash('You are logged in.');
+                return redirect '/';
+            }
+        }
 
-    # display login form
-    template 'login.tt', {
-      'err' => $err,
+        # display login form
+        template 'login.tt', {
+            err => $err,
+        };
     };
-  };
 
 This is the first handler which accepts two different verb types, a GET for
 a human browsing to the URL and a POST for the browser to submit the user's
@@ -500,7 +512,7 @@ down to the C<template> directive and display the F<login.tt> template:
 This is even simpler than our F<show_entries.tt> template–but wait– there's a
 C<login_url> template parameter and we're only passing in the
 C<err> parameter. Where's the missing parameter? It's being generated and
-sent to the template in a C<before_template_render> directive - we'll come
+sent to the template in a C<before_template_render> directive, we'll come
 back to that in a moment or two.
 
 So the user fills out the F<login.tt> template and submits it back to the
@@ -516,13 +528,13 @@ message and back to the root URL handler.
 And finally, we need a way to clear our user's session with the customary
 logout procedure.
 
-  get '/logout' => sub {
-     app->destroy_session;
-     set_flash('You are logged out.');
-     redirect '/';
-  };
+    get '/logout' => sub {
+        app->destroy_session;
+        set_flash('You are logged out.');
+        redirect '/';
+    };
 
-C<app-E<gt>destroy_session;> is Dancer2's way to remove a stored session.
+C<< app->destroy_session; >> is Dancer2's way to remove a stored session.
 We notify the user she is logged out and route her back to the root URL once
 again.
 
@@ -553,9 +565,9 @@ is served from L<http://localhost:3000/css/style.css>.
 If you wanted to build a mostly static web site you could simply write route
 handlers like this one:
 
-  get '/' => sub {
-     send_file 'index.html';
-  };
+    get '/' => sub {
+        send_file 'index.html';
+    };
 
 where index.html would live in your C<public/> directory.
 
@@ -565,28 +577,28 @@ the contents of that file to the user.
 Let's go ahead and create our style sheet. In the same directory as your dancr.pl
 script, issue the following commands:
 
-  mkdir public && mkdir public/css && touch public/css/style.css
+    mkdir public && mkdir public/css && touch public/css/style.css
 
 Next add the following css to the C<public/css/style.css> file you just created:
 
-	body            { font-family: sans-serif; background: #eee; }
-	a, h1, h2       { color: #377ba8; }
-	h1, h2          { font-family: 'Georgia', serif; margin: 0; }
-	h1              { border-bottom: 2px solid #eee; }
-	h2              { font-size: 1.2em; }
+    body            { font-family: sans-serif; background: #eee; }
+    a, h1, h2       { color: #377ba8; }
+    h1, h2          { font-family: 'Georgia', serif; margin: 0; }
+    h1              { border-bottom: 2px solid #eee; }
+    h2              { font-size: 1.2em; }
 
-	.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
-										padding: 0.8em; background: white; }
-	.entries        { list-style: none; margin: 0; padding: 0; }
-	.entries li     { margin: 0.8em 1.2em; }
-	.entries li h2  { margin-left: -1em; }
-	.add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
-	.add-entry dl   { font-weight: bold; }
-	.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
-										margin-bottom: 1em; background: #fafafa; }
-	.flash          { background: #cee5F5; padding: 0.5em;
-										border: 1px solid #aacbe2; }
-	.error          { background: #f0d6d6; padding: 0.5em; }
+    .page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
+                      padding: 0.8em; background: white; }
+    .entries        { list-style: none; margin: 0; padding: 0; }
+    .entries li     { margin: 0.8em 1.2em; }
+    .entries li h2  { margin-left: -1em; }
+    .add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
+    .add-entry dl   { font-weight: bold; }
+    .metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
+                      margin-bottom: 1em; background: #fafafa; }
+    .flash          { background: #cee5F5; padding: 0.5em;
+                      border: 1px solid #aacbe2; }
+    .error          { background: #f0d6d6; padding: 0.5em; }
 
 Be sure to save the file.
 
@@ -596,7 +608,7 @@ I mentioned earlier in the tutorial that it is possible to
 create a C<layout> template. In dancr, that layout is called C<main> and
 it's set up by putting in a directive like this:
 
-  set layout => 'main';
+    set layout => 'main';
 
 near the top of your web application.  This tells Dancer2's template
 engine that it should look for a file called F<main.tt> in
@@ -647,13 +659,13 @@ across all (or most) templates. This cuts down on code-duplication and
 makes your app easier to maintain over time since you only need to update
 the values in this one place instead of everywhere you render a template.
 
-  hook before_template_render => sub {
-     my $tokens = shift;
+    hook before_template_render => sub {
+        my $tokens = shift;
 
-     $tokens->{'css_url'} = request->base . 'css/style.css';
-     $tokens->{'login_url'} = uri_for('/login');
-     $tokens->{'logout_url'} = uri_for('/logout');
-  };
+        $tokens->{'css_url'}    = request->base . 'css/style.css';
+        $tokens->{'login_url'}  = uri_for('/login');
+        $tokens->{'logout_url'} = uri_for('/logout');
+    };
 
 Here again I'm using C<uri_for> instead of hardcoding the routes.  This code
 block is executed before any of the templates are processed so that the
@@ -663,120 +675,129 @@ template parameters have the appropriate values before being rendered.
 
 Here's the complete 'dancr.pl' script from start to finish.
 
- use Dancer2;
- use DBI;
- use File::Spec;
- use File::Slurper qw/ read_text /;
- use Template;
+    use Dancer2;
+    use DBI;
+    use File::Spec;
+    use File::Slurper qw/ read_text /;
+    use Template;
 
- set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
- set 'session'      => 'Simple';
- set 'template'     => 'template_toolkit';
- set 'logger'       => 'console';
- set 'log'          => 'debug';
- set 'show_errors'  => 1;
- set 'startup_info' => 1;
- set 'warnings'     => 1;
- set 'username'     => 'admin';
- set 'password'     => 'password';
- set 'layout'       => 'main';
+    set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'session'      => 'Simple';
+    set 'template'     => 'template_toolkit';
+    set 'logger'       => 'console';
+    set 'log'          => 'debug';
+    set 'show_errors'  => 1;
+    set 'startup_info' => 1;
+    set 'warnings'     => 1;
+    set 'username'     => 'admin';
+    set 'password'     => 'password';
+    set 'layout'       => 'main';
 
- sub set_flash {
-     my $message = shift;
+    sub set_flash {
+        my $message = shift;
 
-     session flash => $message;
- }
-
- sub get_flash {
-     my $msg = session('flash');
-     session->delete('flash');
-
-     return $msg;
- }
-
- sub connect_db {
-     my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
-         die $DBI::errstr;
-
-     return $dbh;
- }
-
- sub init_db {
-     my $db = connect_db();
-     my $schema = read_text('./schema.sql');
-     $db->do($schema) or die $db->errstr;
- }
-
- hook before_template_render => sub {
-     my $tokens = shift;
-
-     $tokens->{'css_url'} = request->base . 'css/style.css';
-     $tokens->{'login_url'} = uri_for('/login');
-     $tokens->{'logout_url'} = uri_for('/logout');
- };
-
- get '/' => sub {
-     my $db = connect_db();
-     my $sql = 'select id, title, text from entries order by id desc';
-     my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute or die $sth->errstr;
-     template 'show_entries.tt', {
-         'msg' => get_flash(),
-         'add_entry_url' => uri_for('/add'),
-         'entries' => $sth->fetchall_hashref('id'),
-     };
- };
-
- post '/add' => sub {
-     if ( not session('logged_in') ) {
-         send_error("Not logged in", 401);
-     }
-
-     my $db = connect_db();
-     my $sql = 'insert into entries (title, text) values (?, ?)';
-     my $sth = $db->prepare($sql) or die $db->errstr;
-     $sth->execute(
-         body_parameters->get('title'),
-         body_parameters->get('text')
-     ) or die $sth->errstr;
-
-     set_flash('New entry posted!');
-     redirect '/';
- };
-
- any ['get', 'post'] => '/login' => sub {
-     my $err;
-
-     if ( request->method() eq "POST" ) {
-         # process form input
-         if ( body_parameters->get('username') ne setting('username') ) {
-             $err = "Invalid username";
-         }
-         elsif ( body_parameters->get('password') ne setting('password') ) {
-             $err = "Invalid password";
-         }
-         else {
-             session 'logged_in' => true;
-             set_flash('You are logged in.');
-             return redirect '/';
-         }
+        session flash => $message;
     }
 
-    # display login form
-    template 'login.tt', {
-        'err' => $err,
+    sub get_flash {
+        my $msg = session('flash');
+        session->delete('flash');
+
+        return $msg;
+    }
+
+    sub connect_db {
+        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
+            or die $DBI::errstr;
+
+        return $dbh;
+    }
+
+    sub init_db {
+        my $db     = connect_db();
+        my $schema = read_text('./schema.sql');
+        $db->do($schema)
+            or die $db->errstr;
+    }
+
+    hook before_template_render => sub {
+        my $tokens = shift;
+
+        $tokens->{'css_url'}    = request->base . 'css/style.css';
+        $tokens->{'login_url'}  = uri_for('/login');
+        $tokens->{'logout_url'} = uri_for('/logout');
     };
 
- };
+    get '/' => sub {
+        my $db  = connect_db();
+        my $sql = 'select id, title, text from entries order by id desc';
 
- get '/logout' => sub {
-    app->destroy_session;
-    set_flash('You are logged out.');
-    redirect '/';
- };
+        my $sth = $db->prepare($sql)
+            or die $db->errstr;
 
- init_db();
- start;
+        $sth->execute
+            or die $sth->errstr;
+
+        template 'show_entries.tt', {
+            msg           => get_flash(),
+            add_entry_url => uri_for('/add'),
+            entries       => $sth->fetchall_hashref('id'),
+        };
+    };
+
+    post '/add' => sub {
+        if ( not session('logged_in') ) {
+            send_error("Not logged in", 401);
+        }
+
+        my $db  = connect_db();
+        my $sql = 'insert into entries (title, text) values (?, ?)';
+
+        my $sth = $db->prepare($sql)
+            or die $db->errstr;
+
+        $sth->execute(
+            body_parameters->get('title'),
+            body_parameters->get('text')
+        ) or die $sth->errstr;
+
+        set_flash('New entry posted!');
+        redirect '/';
+    };
+
+    any ['get', 'post'] => '/login' => sub {
+        my $err;
+
+        if ( request->method() eq "POST" ) {
+            # process form input
+            if ( body_parameters->get('username') ne setting('username') ) {
+                $err = "Invalid username";
+            }
+            elsif ( body_parameters->get('password') ne setting('password') ) {
+                $err = "Invalid password";
+            }
+            else {
+                session 'logged_in' => true;
+                set_flash('You are logged in.');
+                return redirect '/';
+            }
+        }
+
+        # display login form
+        template 'login.tt', {
+            err => $err,
+        };
+
+    };
+
+    get '/logout' => sub {
+        app->destroy_session;
+        set_flash('You are logged out.');
+        redirect '/';
+    };
+
+    init_db();
+    start;
 
 =head3 Advanced route moves
 
@@ -806,7 +827,7 @@ The C<dancer2> utility was installed on your machine when you installed the
 Dancer2 distribution. Hop over to the command line into a directory you have
 permission to write to and issue the following command:
 
-  dancer2 -a Dancr2
+    dancer2 -a Dancr2
 
 That command should output something like the following to the console:
 
@@ -872,12 +893,12 @@ app up and running.
 Let's see how to to do that by first changing into the Dancr2 directory and
 then starting the server using the C<plackup> command:
 
-  cd Dancr2;
-  plackup -p 5000 bin/app.psgi
+    cd Dancr2;
+    plackup -p 5000 bin/app.psgi
 
 If all went well, you'll be able to see the Dancr2 home page by visiting:
 
-  http://localhost:5000
+    http://localhost:5000
 
 The web page you see there gives you some very basic advice for tuning and
 modifying your app and where you can go for more information to learn about
@@ -904,25 +925,26 @@ how to take advantage of what the C<dancer2> utility set up for us by porting
 our dancr.pl script created in Part I into Dancr2.
 
 =head3 The C<lib/> directory
+
 The C<lib/> directory in our Dancr2 app is where our C<app.psgi> file will
 expect our code to live. So let's take a peek at the file generated for us
 in there:
 
-  cat lib/Dancr2.pm
+    cat lib/Dancr2.pm
 
 You'll see something like the following bit of code which provides a single
 route to our app's home page and loads the index template:
 
-	package Dancr2;
-	use Dancer2;
+    package Dancr2;
+    use Dancer2;
 
-	our $VERSION = '0.1';
+    our $VERSION = '0.1';
 
-	get '/' => sub {
-			template 'index' => { 'title' => 'Dancr2' };
-	};
+    get '/' => sub {
+        template 'index' => { title => 'Dancr2' };
+    };
 
-	true;
+    true;
 
 The first thing you'll notice is that instead of a script, we are using a module,
 C<Dancr2> to package our code. Modules make it easer to pull off many powerful
@@ -941,43 +963,44 @@ to be sure to remove the C<start;> line as well from the end of the file.
 
 When you're done, C<Dancr2.pm> should look something close to this:
 
-	package Dancr2;
-	use Dancer2;
+    package Dancr2;
+    use Dancer2;
 
-	our $VERSION = '0.1';
+    our $VERSION = '0.1';
 
-  # Our original dancr.pl code with some minor tweaks
-	use DBI;
-	use File::Spec;
-	use File::Slurper qw/ read_text /;
-	use Template;
+    # Our original dancr.pl code with some minor tweaks
+    use DBI;
+    use File::Spec;
+    use File::Slurper qw/ read_text /;
+    use Template;
 
-	set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-	set 'session'      => 'YAML';
-  ...
+    set 'database' => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'session'  => 'YAML';
+    ...
 
-  <snip> # The rest of the stuff </snip>
+    <snip> # The rest of the stuff </snip>
 
-  ...
+    ...
 
-	sub init_db {
-	  my $schema = read_text('./schema.sql');
-   $db->do($schema) or die $db->errstr;
-	}
+    sub init_db {
+        my $schema = read_text('./schema.sql');
+        $db->do($schema)
+            or die $db->errstr;
+    }
 
-  get '/logout' => sub {
-    app->destroy_session;
-    set_flash('You are logged out.');
-    redirect '/';
-  };
+    get '/logout' => sub {
+        app->destroy_session;
+        set_flash('You are logged out.');
+        redirect '/';
+    };
 
-  init_db();
+    init_db();
 
 Finally, to avoid getting an error in the C<init_db>) subroutine when it tries to
 load our schema file, copy over the C<schema.db> file to the root directory of
 the Dancr2 app:
 
-  cp /path/to/dancr.pl/schema.db /path/to/Dancr2;
+    cp /path/to/dancr.pl/schema.db /path/to/Dancr2;
 
 Ok, now that we've got the code moved over, let's move the assets from dancr.pl
 to our new app.
@@ -993,10 +1016,10 @@ Dancer2 has conveniently generated the C<public/css> directory for us which has
 a default css file. Let's copy the style sheet from our original app so our new
 app can use it:
 
-  # Note: This command overwrites the default style sheet. Move it or copy it if 
-  # you wish to preserve it.
+    # Note: This command overwrites the default style sheet. Move it or copy
+    # it if you wish to preserve it.
 
-  cp /path/to/dancr.pl/public/css/style.css /path/to/Dancr2/public/css;
+    cp /path/to/dancr.pl/public/css/style.css /path/to/Dancr2/public/css;
 
 =head3 The C<views> directory
 
@@ -1004,10 +1027,10 @@ Along with our C<public/> directory, Dancer has also provided a C<views/> direct
 which as we covered, serves as the a home for our templates. Let's get those
 copied over now:
 
-  # NOTE: This command will overwrite the default main.tt tempalte file. Move it
-  # or copy it if you wish to preserve it.
+    # NOTE: This command will overwrite the default main.tt tempalte file. Move
+    # it or copy it if you wish to preserve it.
 
-  cp -r /path/to/dancr.pl/views/* /path/to/Dancr2/views;
+    cp -r /path/to/dancr.pl/views/* /path/to/Dancr2/views;
 
 =head3 Does it work?
 
@@ -1015,8 +1038,8 @@ If you followed the instructions here closely, your Dancr2 app should be working
 Shut down any running Plack servers and then issue the same plackup command to
 see if it runs:
 
-  cd /path/to/Dancr2
-  plackup -p 5000 bin/app.psgi
+    cd /path/to/Dancr2
+    plackup -p 5000 bin/app.psgi
 
 If you see any errors, get them resolved until the app loads.
 
@@ -1041,11 +1064,11 @@ We will take a look at the C<development.yml> file first. Open that file in
 your text editor and take a look inside. It has a bunch of helpful comments and
 the following five settings sprinkled throughout:
 
-	logger: "console"
-	log: "core"
-	warnings: 1
-	show_errors: 1
-	startup_info: 1
+    logger: "console"
+    log: "core"
+    warnings: 1
+    show_errors: 1
+    startup_info: 1
 
 The first four settings duplicate many of the settings in our new Dancr2 app. So
 in the spirit of DRY (don't repeat yourself), edit your Dancr2 module and delete
@@ -1056,12 +1079,12 @@ setting from "core" to "debug" so it matches the value we had in our module.
 
 We will leave it up to you what you want to do with the fifth setting,
 C<startup_info>. You can read about that setting, along with all the other
-settings, in the L<configuration manual|Dancer2::Config/"Startup info (boolean)">.
+settings, in the L<configuration manual|Dancer2::Config/"startup info (boolean)">.
 
 Finally, let's add a new setting to the configuration file for C<session> with
 the following line:
 
-  session: "Simple"
+    session: "Simple"
 
 Then delete the corresponding setting from your Dancr2 module.
 
@@ -1069,23 +1092,23 @@ Alright, our Dancr2 app is a little leaner and meaner. Now open the main
 C<config.yml> file and look for the settings in there that are also duplicated in
 our app's module. There are two:
 
-  layout: "main"
-  template: "simple"
+    layout: "main"
+    template: "simple"
 
 Leave C<layout> as is but change the template setting to "template_toolkit".
 Then edit your Dancr2 module file and delete these two settings.
 
 Finally, add the following configuration settings to the .yml file:
 
-  username: "admin"
-  password: "password"
+    username: "admin"
+    password: "password"
 
 Then you delete these two settings from the Dancr2 module, as well.
 
 So, if you have been following along, you now have only the following C<set>
 command in your Dancr2 module, related to the database configuration:
 
-  set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'database' => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
 
 We will get rid of this setting in Part III of the tutorial. All the rest of the
 settings have been transferred to our configuration files. Nice!
@@ -1099,7 +1122,7 @@ default, Dancer2 will load the development environment configuration. When it
 comes time to put your app into production, you can load the C<production.yml>
 file configuration with plackup's C<--env> switch like so:
 
-  plackup -p 5000 --env production bin/app.psgi
+    plackup -p 5000 --env production bin/app.psgi
 
 =head2 Keep on Dancing!
 
@@ -1125,14 +1148,14 @@ Like Dancer2 itself, Dancer2 plugins can be found on the CPAN. Use your
 favorite method for downloading and installing the L<Dancer2::Plugin::Database>
 module on your machine. We recommend using C<cpanminus> like so:
 
-  cpanm Dancer2::Plugin::Database
+    cpanm Dancer2::Plugin::Database
 
 =head2 Using plugins
 
 Using a plugin couldn't be easier. Simply add the following line to your Dancr2
 module below the C<use Dancer2;> line in your module:
 
-  use Dancer2::Plugin::Database;
+    use Dancer2::Plugin::Database;
 
 =head2 Configuring plugins
 
@@ -1162,35 +1185,36 @@ delete the code we no longer need.
 Since our configuration file tells the plugin where our database is, we can
 delete this line:
 
-	set 'database'     => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
+    set 'database' => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
 
 And since the database plugin will create our database connection and initialize
 our database for us, we can scrap the following two subroutines and line from our
 module:
 
-  sub connect_db {
-    my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database')) or
-        die $DBI::errstr;
+    sub connect_db {
+        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
+            or die $DBI::errstr;
 
-    return $dbh;
-  }
+        return $dbh;
+    }
 
-  sub init_db {
-    my $db = connect_db();
-    my $schema = read_text('./schema.sql');
-    $db->do($schema) or die $db->errstr;
-  }
+    sub init_db {
+        my $db = connect_db();
+        my $schema = read_text('./schema.sql');
+        $db->do($schema)
+            or die $db->errstr;
+    }
 
-  init_db(); # Found at the bottom of our file
+    init_db(); # Found at the bottom of our file
 
 With that done, let's now take advantage of a hook the plugin provides us that
 we can use to handle certain events by adding the following command to our
 module to handle database errors:
 
-	hook 'database_error' => sub {
-		my $error = shift;
-		die $error;
-	};
+    hook 'database_error' => sub {
+        my $error = shift;
+        die $error;
+    };
 
 Now let's make a few adjustments to the bits of code that make the
 database queries. In our C<get '/'> route, change all instances of C<$db> with
@@ -1198,34 +1222,34 @@ C<database> and remove all the C<die> calls since we now have a hook to
 handle the errors for us. When you are done, your route should look something
 like this:
 
-	get '/' => sub {
-			my $sql = 'select id, title, text from entries order by id desc';
-			my $sth = database->prepare($sql);
-			$sth->execute;
-			template 'show_entries.tt', {
-					'msg' => get_flash(),
-					'add_entry_url' => uri_for('/add'),
-					'entries' => $sth->fetchall_hashref('id'),
-			};
-	};
+    get '/' => sub {
+        my $sql = 'select id, title, text from entries order by id desc';
+        my $sth = database->prepare($sql);
+        $sth->execute;
+        template 'show_entries.tt', {
+            msg           => get_flash(),
+            add_entry_url => uri_for('/add'),
+            entries       => $sth->fetchall_hashref('id'),
+        };
+    };
 
 Make the same changes to the C<post '/add'> route to transform it into this:
 
-	post '/add' => sub {
-			if ( not session('logged_in') ) {
-					send_error("Not logged in", 401);
-			}
+    post '/add' => sub {
+        if ( not session('logged_in') ) {
+            send_error("Not logged in", 401);
+        }
 
-			my $sql = 'insert into entries (title, text) values (?, ?)';
-			my $sth = database->prepare($sql);
-			$sth->execute(
-					body_parameters->get('title'),
-					body_parameters->get('text')
-			);
+        my $sql = 'insert into entries (title, text) values (?, ?)';
+        my $sth = database->prepare($sql);
+        $sth->execute(
+            body_parameters->get('title'),
+            body_parameters->get('text')
+        );
 
-			set_flash('New entry posted!');
-			redirect '/';
-	};
+        set_flash('New entry posted!');
+        redirect '/';
+    };
 
 Our last step is to get rid of the following lines which we no longer need,
 thanks to our plugin:
@@ -1239,97 +1263,97 @@ errors and then point your browser to test the app to make sure it works as
 expected. If it doesn't, double and triple check your configuration settings and
 your module's code which should now look like this:
 
-	package Dancr2;
-	use Dancer2;
-	use Dancer2::Plugin::Database;
+    package Dancr2;
+    use Dancer2;
+    use Dancer2::Plugin::Database;
 
-	our $VERSION = '0.1';
+    our $VERSION = '0.1';
 
-	my $flash;
+    my $flash;
 
-	sub set_flash {
-			my $message = shift;
+    sub set_flash {
+        my $message = shift;
 
-			$flash = $message;
-	}
+        $flash = $message;
+    }
 
-	sub get_flash {
+    sub get_flash {
+        my $msg = $flash;
+        $flash  = "";
 
-			my $msg = $flash;
-			$flash = "";
+        return $msg;
+    }
 
-			return $msg;
-	}
+    hook before_template_render => sub {
+        my $tokens = shift;
 
-	hook before_template_render => sub {
-			my $tokens = shift;
+        $tokens->{'css_url'}    = request->base . 'css/style.css';
+        $tokens->{'login_url'}  = uri_for('/login');
+        $tokens->{'logout_url'} = uri_for('/logout');
+    };
 
-			$tokens->{'css_url'} = request->base . 'css/style.css';
-			$tokens->{'login_url'} = uri_for('/login');
-			$tokens->{'logout_url'} = uri_for('/logout');
-	};
+    get '/' => sub {
+        my $sql = 'select id, title, text from entries order by id desc';
+        my $sth = database->prepare($sql);
+        $sth->execute;
+        template 'show_entries.tt', {
+            msg           => get_flash(),
+            add_entry_url => uri_for('/add'),
+            entries       => $sth->fetchall_hashref('id'),
+        };
+    };
 
-	get '/' => sub {
-			my $sql = 'select id, title, text from entries order by id desc';
-			my $sth = database->prepare($sql);
-			$sth->execute;
-			template 'show_entries.tt', {
-					'msg' => get_flash(),
-					'add_entry_url' => uri_for('/add'),
-					'entries' => $sth->fetchall_hashref('id'),
-			};
-	};
+    post '/add' => sub {
+        if ( not session('logged_in') ) {
+            send_error("Not logged in", 401);
+        }
 
-	post '/add' => sub {
-			if ( not session('logged_in') ) {
-					send_error("Not logged in", 401);
-			}
+        my $sql = 'insert into entries (title, text) values (?, ?)';
+        my $sth = database->prepare($sql);
+        $sth->execute(
+            body_parameters->get('title'),
+            body_parameters->get('text')
+        );
 
-			my $sql = 'insert into entries (title, text) values (?, ?)';
-			my $sth = database->prepare($sql);
-			$sth->execute(
-					body_parameters->get('title'),
-					body_parameters->get('text')
-			);
+        set_flash('New entry posted!');
+        redirect '/';
+    };
 
-			set_flash('New entry posted!');
-			redirect '/';
-	};
+    any ['get', 'post'] => '/login' => sub {
+        my $err;
 
-	any ['get', 'post'] => '/login' => sub {
-			my $err;
+        if ( request->method() eq "POST" ) {
+            # process form input
+            if ( params->{'username'} ne setting('username') ) {
+                $err = "Invalid username";
+            }
+            elsif ( params->{'password'} ne setting('password') ) {
+                $err = "Invalid password";
+            }
+            else {
+                session 'logged_in' => true;
+                set_flash('You are logged in.');
+                return redirect '/';
+            }
+        }
 
-			if ( request->method() eq "POST" ) {
-					# process form input
-					if ( params->{'username'} ne setting('username') ) {
-							$err = "Invalid username";
-					}
-					elsif ( params->{'password'} ne setting('password') ) {
-							$err = "Invalid password";
-					}
-					else {
-							session 'logged_in' => true;
-							set_flash('You are logged in.');
-							return redirect '/';
-					}
-		}
+        # display login form
+        template 'login.tt', {
+            err => $err,
+        };
 
-		# display login form
-		template 'login.tt', {
-				'err' => $err,
-		};
+    };
 
-	};
+    get '/logout' => sub {
+        app->destroy_session;
+        set_flash('You are logged out.');
+        redirect '/';
+    };
 
-	get '/logout' => sub {
-		app->destroy_session;
-		set_flash('You are logged out.');
-		redirect '/';
-	};
-
-	true;
+    true;
 
 =head2 Next steps
+
 Congrats! You are now using the database plugin like a boss. The database plugin
 does a lot more than what we showed you here. We'll leave it up to you to consult
 the L<Dancer2::Plugin::Database|documentation> to unlock its full potential.
@@ -1351,6 +1375,7 @@ it's definitely mature enough to use in a production project.
 Happy dancing!
 
 =head2 One more thing: Test!
+
 Before we go, we want to mention that Dancer2 makes it very easy to
 run automated tests on your app to help you find bugs. If you are new to
 testing, we encourage you to start learning how. Your future self will thank you.
