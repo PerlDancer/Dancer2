@@ -3,7 +3,8 @@
 0.300003  2020-04-09 10:39:55-04:00 America/New_York
 
     [ BUG FIXES ]
-    * None
+    * GH #1509: Request instantiation fails throw 400 Bad Response (Russell
+      @veryrusty Jenkins)
     
     [ ENHANCEMENTS ]
     * None
