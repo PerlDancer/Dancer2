@@ -1423,10 +1423,25 @@ sub dispatch {
     my $env  = shift;
 
     my $runner  = Dancer2::runner();
-    my $request = $runner->{'internal_request'} ||
-                  $self->build_request($env);
-    my $cname   = $self->session_engine->cookie_name;
+    my $request;
+    my $request_built_successfully = eval {
+        $EVAL_SHIM->(sub {
+            $request = $runner->{'internal_request'} || $self->build_request($env);
+        });
+        1;
+    };
+    # Catch bad content causing deserialization to fail when building the request
+    if ( ! $request_built_successfully ) {
+        my $err = $@;
+        Scalar::Util::weaken(my $app = $self);
+        return Dancer2::Core::Error->new(
+            app     => $app,
+            message => $err,
+            status  => 400,    # 400 Bad request (dont send again), rather than 500
+        )->throw;
+    }
 
+    my $cname = $self->session_engine->cookie_name;
     my $defined_engines = $self->defined_engines;
 
 DISPATCH:

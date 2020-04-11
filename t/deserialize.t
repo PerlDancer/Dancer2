@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Plack::Test;
 use HTTP::Request::Common;
 use Dancer2::Logger::Capture;
@@ -18,6 +18,14 @@ isa_ok( $logger, 'Dancer2::Logger::Capture' );
 
     # for now
     set logger     => 'Console';
+
+    # deserialization fail hook
+    hook 'core.error.before' => sub {
+        my ($err) = @_;  # Dancer2::Core::Error object
+        if ( $err->message =~ m!Failed to deserialize content! ) {
+            $err->status(444);  # custom status
+        }
+    };
 
     put '/from_params' => sub {
         my %p = params();
@@ -182,12 +190,13 @@ note 'Check serialization errors'; {
     test_psgi $app, sub {
         my $cb = shift;
 
-        $cb->(
+        my $r = $cb->(
             PUT '/from_params',
                 'Content-Type' => 'application/json',
                 Content        => '---',
         );
 
+        # Ensure error is logged
         my $trap = $logger->trapper;
         isa_ok( $trap, 'Dancer2::Logger::Capture::Trap' );
 
@@ -200,16 +209,20 @@ note 'Check serialization errors'; {
         isa_ok( $msg, 'HASH' );
         is( scalar keys %{$msg}, 2, 'Two items in the error' );
 
+        my $err_regex = qr{
+            ^
+            \QFailed to deserialize content: \E
+            \Qmalformed number\E
+        }x;
+
         is( $msg->{'level'}, 'core', 'Correct level' );
-        like(
-            $msg->{'message'},
-            qr{
-                ^
-                \QFailed to deserialize content: \E
-                \Qmalformed number\E
-            }x,
-            'Correct error message',
-        );
+        like( $msg->{'message'}, $err_regex, 'Logged correct error message' );
+
+        # Check we get a 444 response
+        is( $r->code, 444, "444 custom response" );
+        my $content = Dancer2::Serializer::JSON::decode_json( $r->content );
+        like( $content->{message}, $err_regex, "Failed to deserialize content error");
+
     }
 }
 
