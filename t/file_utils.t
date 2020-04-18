@@ -4,9 +4,7 @@ use utf8;
 
 use Test::More tests => 25;
 use Test::Fatal;
-use File::Spec;
-BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
-use File::Temp 0.22;
+use Path::Tiny qw();
 
 use Dancer2::FileUtils qw/read_file_content path_or_empty path/;
 
@@ -53,7 +51,7 @@ for my $case ( @$paths ) {
 my $p = Dancer2::FileUtils::dirname('/somewhere');
 is $p, '/';
 
-my $tmp = File::Temp->new();
+my $tmp = Path::Tiny->tempfile->filehandle;
 my $two = "²❷";
 write_file( $tmp, "one$/$two" );
 
@@ -70,7 +68,7 @@ if ( !-e $path ) {
     is( path_or_empty($path), '', 'path_or_empty on non-existent path', );
 }
 
-my $tmpdir = File::Temp->newdir;
+my $tmpdir = Path::Tiny->tempdir;
 is( path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
 
 #slightly tricky paths on different platforms

@@ -1,8 +1,7 @@
 use strict;
 use warnings;
 use Test::More tests=> 3;
-use File::Temp qw/tempdir/;
-use File::Spec;
+use Path::Tiny qw(path tempdir);
 
 my $log_dir = tempdir( CLEANUP => 1 );
 
@@ -61,8 +60,8 @@ my $check_cb = sub {
     );
 
     is(
-        $logger->log_dir,
-        $dir,
+        path($logger->log_dir)->canonpath,
+        path($dir)->canonpath,
         'Logger got correct log directory',
     );
 
@@ -73,8 +72,8 @@ my $check_cb = sub {
     );
 
     is(
-        $logger->log_file,
-        File::Spec->catfile( $dir, $file ),
+        path($logger->log_file)->canonpath,
+        path($dir, $file)->canonpath,
         'Logger got correct log file',
     );
 };

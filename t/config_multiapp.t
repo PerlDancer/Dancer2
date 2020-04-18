@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
-use File::Spec;
+use Path::Tiny;
 
 use lib '.';
 use t::app::t1::lib::App1;
@@ -14,7 +14,7 @@ for my $app ( @{ Dancer2->runner->apps } ) {
     my $path = $app->name eq 'App3' ? 't2' : 't1';
 
     is_deeply $app->config_files,
-        [ File::Spec->rel2abs(File::Spec->catfile( 't', 'app', $path, 'config.yml' )) ],
+        [ path('t', 'app', $path, 'config.yml')->absolute->canonpath ],
         $app->name . ": config files found";
 
     is $app->config->{app}->{config}, 'ok',

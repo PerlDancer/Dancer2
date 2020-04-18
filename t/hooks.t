@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use File::Spec;
+use Path::Tiny ();
 use Plack::Test;
 use HTTP::Request::Common;
 use Capture::Tiny 0.12 'capture_stderr';
@@ -72,7 +72,7 @@ my $tests_flags = {};
     }
 
     get '/send_file' => sub {
-        send_file( File::Spec->rel2abs(__FILE__), system_path => 1 );
+        send_file( Path::Tiny::path(__FILE__)->absolute, system_path => 1 );
     };
 }
 

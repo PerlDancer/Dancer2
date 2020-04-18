@@ -2,14 +2,14 @@
 
 use strict;
 use warnings;
-use File::Spec;
-use File::Basename qw/dirname/;
+use Path::Tiny qw();
 use Ref::Util qw<is_arrayref>;
 
 BEGIN {
     # Disable route handlers so we can actually test route_exists
     # and route_doesnt_exist. Use config that disables default route handlers.
-    $ENV{DANCER_CONFDIR} = File::Spec->catdir(dirname(__FILE__), 'dancer-test');
+    $ENV{DANCER_CONFDIR} =
+      Path::Tiny::path(__FILE__)->parent->child('dancer-test')->canonpath;
 }
 
 use Test::More tests => 50;
@@ -17,7 +17,6 @@ use Test::More tests => 50;
 use Dancer2;
 use Dancer2::Test;
 use Dancer2::Core::Request;
-use File::Temp;
 use Encode;
 use URI::Escape;
 
@@ -92,13 +91,12 @@ my $file_response = dancer_response(
 );
 is $file_response->content, 'testdata', 'file uploaded with supplied data';
 
-my $temp = File::Temp->new;
-print $temp 'testfile';
-close($temp);
+my $temp = Path::Tiny->tempfile;
+$temp->append('testfile');
 
 $file_response =
   dancer_response( POST => '/upload',
-    { files => [ { filename => $temp->filename, name => 'test' } ] } );
+    { files => [ { filename => $temp->canonpath, name => 'test' } ] } );
 is $file_response->content, 'testfile', 'file uploaded with supplied filename';
 
 ## Check multiselect/multi parameters get through ok
