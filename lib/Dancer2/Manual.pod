@@ -171,7 +171,7 @@ be used as the content to render for the client.
 Each route handler you create inside of your script is stored in your app so
 your app can handle the requests as they come in.
 
-You can make your route handler dynamic with parameters. As a simiple example:
+You can make your route handler dynamic with parameters. As a simple example:
 
     get '/hello/:name' => sub {
       return "Hi there " . route_parameters->get('name');
