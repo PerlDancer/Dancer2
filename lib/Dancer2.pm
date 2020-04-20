@@ -293,6 +293,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Grzegorz Rożniecki
     Hobbestigrou
     Hunter McMillen
+    ice-lenor
     Ivan Bessarabov
     Ivan Kruglov
     JaHIY

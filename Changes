@@ -4,10 +4,11 @@
 
     [ BUG FIXES ]
     * GH #1509: Request instantiation fails throw 400 Bad Response (Russell
-      @veryrusty Jenkins)
+      @veryrusty Jenkins). This resolves GH #1056, 1482, 1496, 1507, 1508,
+      and 1510.
     
     [ ENHANCEMENTS ]
-    * None
+    * GH #1510: Test for proper multi-part form handing (ice-lenor, Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #1543: Various tutorial cleanups (Peter Mottram - SysPete)
