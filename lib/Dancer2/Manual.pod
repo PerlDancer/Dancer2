@@ -87,39 +87,23 @@ The L<dancer2> script creates the following:
 =item *
 a directory named after the name of the app, L<MyApp> in this case
 
-=item *
+=item a configuration file, F<MyApp/config.yml>.
 
-a configuration file, l<MyApp/config.yml>.
+=item a F<views> directory (where your templates and layouts will live),
 
-=item *
+=item F<environments> directory (where environment-specific settings live),
 
-a L<views> directory (where your templates and layouts will live),
-
-=item *
-
-an L<environments> directory (where environment-specific settings live),
-
-=item *
-
-a L<public> directory (where static assets like css file and javascrpt files can
+=item F<public> directory (where static assets like css file and javascrpt files can
 go)
 
-=item *
+=item F<t> directory (where your tests can go)
 
-a L<t> directory (where your tests can go)
-
-=item *
-
-a variety of files for helping you build your application into a
+=item a variety of files for helping you build your application into a
 module for release
 
-=item *
+=item a module containing the actual guts of your application in L<lib>
 
-a module containing the actual guts of your application in L<lib>
-
-=item *
-
-a script to start your appliaction in L<bin>.
+=item a script to start your appliaction in L<bin>.
 
 =back
 
