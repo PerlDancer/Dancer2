@@ -44,16 +44,6 @@ test_psgi $app, sub {
         200,
         'Providing multipart with correct boundary works',
     );
-
-    is(
-        $cb->(
-            GET '/' =>
-                'Content-Type' =>
-                'multipart/form-data boundary=------boundary-------',
-        )->code,
-        200,
-        'Multipart without "Content-Type" in value works',
-    );
 };
 
 done_testing();
