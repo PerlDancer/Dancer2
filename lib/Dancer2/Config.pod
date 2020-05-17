@@ -499,6 +499,7 @@ The session engine is configured in the C<engines> section.
        Simple:
          cookie_name: dance.set
          cookie_duration: '24 hours'
+         cookie_same_site: Lax
          is_secure: 1
          is_http_only: 1
 
@@ -537,6 +538,15 @@ only be sent over HTTPS connections.
 This setting defaults to 1 and instructs the session cookie to be created
 with the C<HttpOnly> option active, meaning that JavaScript will not be able
 to access to its value.
+
+=head2 cookie_same_site
+
+Restricts the session cookie to a first-party or same-site context. Valid
+values are C<Strict>, C<Lax>, or C<None>.
+
+Refer to
+L<RFC6265bis|https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site>
+for further details regarding same-site context.
 
 =head2 auto_page (boolean)
 
