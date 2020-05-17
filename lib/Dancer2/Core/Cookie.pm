@@ -134,7 +134,7 @@ has http_only => (
 
 has same_site => (
     is       => 'rw',
-    isa      => Enum[qw[Strict Lax]],
+    isa      => Enum[qw[Strict Lax None]],
     required => 0,
 );
 
