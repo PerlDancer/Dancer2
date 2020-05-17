@@ -59,7 +59,7 @@ subtest 'Set session' => sub {
 
     my ( $expires, $domain, $path, $opts );
     my $cookie = $jar->scan( sub {
-        ( $expires, $domain, $path, $opts ) = @_[ 8, 4, 3 ];
+        ( $expires, $domain, $path, $opts ) = @_[ 8, 4, 3, 10 ];
     } );
 
     my $httponly = $opts->{'HttpOnly'};
