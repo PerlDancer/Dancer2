@@ -9,6 +9,7 @@
     
     [ ENHANCEMENTS ]
     * GH #1510: Test for proper multi-part form handing (ice-lenor, Sawyer X)
+    * GH #1547: Cookie SameSite support (Russell @veryrusty Jenkins)
 
     [ DOCUMENTATION ]
     * GH #1543: Various tutorial cleanups (Peter Mottram - SysPete)

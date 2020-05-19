@@ -85,6 +85,13 @@ has is_http_only => (
     default => sub {1},
 );
 
+has cookie_same_site => (
+    is        => 'ro',
+    isa       => Str,
+    predicate => 1,
+    coerce    => sub { ucfirst $_[0] },
+);
+
 sub create {
     my ($self) = @_;
 
@@ -254,6 +261,9 @@ sub cookie {
         secure    => $self->is_secure,
         http_only => $self->is_http_only,
     );
+
+    $cookie{same_site} = $self->cookie_same_site
+      if $self->has_cookie_same_site;
 
     $cookie{domain} = $self->cookie_domain
       if $self->has_cookie_domain;
