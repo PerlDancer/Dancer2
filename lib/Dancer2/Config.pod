@@ -527,6 +527,15 @@ The session expiry time in seconds, or as e.g. "2 hours" (see
 L<Dancer2::Core::Cookie/expires>.  By default, there is no specific expiry
 time.
 
+=head3 cookie_same_site
+
+Restricts the session cookie to a first-party or same-site context. Valid
+values are C<Strict>, C<Lax>, or C<None>.
+
+Refer to
+L<RFC6265bis|https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site>
+for further details regarding same-site context.
+
 =head3 is_secure
 
 The user's session ID is stored in a cookie.  If the C<is_secure> setting is
@@ -538,15 +547,6 @@ only be sent over HTTPS connections.
 This setting defaults to 1 and instructs the session cookie to be created
 with the C<HttpOnly> option active, meaning that JavaScript will not be able
 to access to its value.
-
-=head2 cookie_same_site
-
-Restricts the session cookie to a first-party or same-site context. Valid
-values are C<Strict>, C<Lax>, or C<None>.
-
-Refer to
-L<RFC6265bis|https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site>
-for further details regarding same-site context.
 
 =head2 auto_page (boolean)
 
