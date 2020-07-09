@@ -217,7 +217,10 @@ attribute to 0.
 
 =attr same_site
 
-Whether the cookie ought not to be sent along with cross-site requests,
-an enum of either "Strict" or "Lax", default is unset.
+Whether the cookie ought not to be sent along with cross-site requests.
+Valid values are C<Strict>, C<Lax>, or C<None>. Default is unset.
+Refer to
+L<RFC6265bis|https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site>
+for further details regarding same-site context.
 
 =cut
