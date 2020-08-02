@@ -32,7 +32,7 @@ requires 'Plack::Middleware::FixMissingBodyInRedirect';
 requires 'Plack::Middleware::RemoveRedundantBody';
 requires 'POSIX';
 requires 'Ref::Util';
-requires 'Role::Tiny', '2.000000';
+requires 'Role::Tiny', '>=2.000000, !=2.000007';
 requires 'Safe::Isa';
 requires 'Sub::Quote';
 requires 'Template';
