@@ -438,13 +438,12 @@ more options than just the session engine we want to set.
     set 'log'          => 'debug';
     set 'show_errors'  => 1;
     set 'startup_info' => 1;
-    set 'warnings'     => 1;
 
 Hopefully these are fairly self-explanatory. We want the Simple session
 engine, the Template Toolkit template engine, logging enabled (at the
 'debug' level with output to the console instead of a file), we want to show
-errors to the web browser, log access attempts and log Dancer2 warnings
-(instead of silently ignoring them).
+errors to the web browser and prints a banner at the server start with
+information such as versions and the environment.
 
 Dancer2 doesn't impose any limits on what parameters you can set using the
 C<set> syntax. For this application we're going to embed our single username
@@ -688,7 +687,6 @@ Here's the complete 'dancr.pl' script from start to finish.
     set 'log'          => 'debug';
     set 'show_errors'  => 1;
     set 'startup_info' => 1;
-    set 'warnings'     => 1;
     set 'username'     => 'admin';
     set 'password'     => 'password';
     set 'layout'       => 'main';
@@ -1066,7 +1064,6 @@ the following five settings sprinkled throughout:
 
     logger: "console"
     log: "core"
-    warnings: 1
     show_errors: 1
     startup_info: 1
 
@@ -1077,7 +1074,7 @@ the four lines that correspond to these four settings.
 Then, in the configuration file, be sure to change the value for the C<log>
 setting from "core" to "debug" so it matches the value we had in our module.
 
-We will leave it up to you what you want to do with the fifth setting,
+We will leave it up to you what you want to do with the fourth setting,
 C<startup_info>. You can read about that setting, along with all the other
 settings, in the L<configuration manual|Dancer2::Config/"startup info (boolean)">.
 
