@@ -836,9 +836,6 @@ It's possible either to display the content of the error message or to hide
 it with a generic error page. This is a choice left to the end-user and can
 be controlled with the B<show_errors> setting (see above).
 
-Note that you can also choose to consider all warnings in your route
-handlers as errors when the setting B<warnings> is set to 1.
-
 =head2 Error Hooks
 
 When an error is caught by Dancer2's core, an exception object is built (of
