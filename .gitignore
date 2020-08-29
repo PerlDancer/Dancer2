@@ -19,3 +19,7 @@ t/sessions
 /.tidyall.d
 /perltidy.LOG
 tools/logs/
+
+# Don't track these when using Carton:
+/local
+/cpanfile.snapshot
