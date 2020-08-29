@@ -367,11 +367,12 @@ sub backtrace {
 }
 
 sub dumper {
-    my $obj = shift;
+    my $self = shift;
+    my $obj  = shift;
 
     # Take a copy of the data, so we can mask sensitive-looking stuff:
     my $data     = clone($obj);
-    my $censored = _censor( $data );
+    my $censored = $self->_censor( $data );
 
     #use Data::Dumper;
     my $dd = Data::Dumper->new( [ $data ] );
@@ -399,7 +400,7 @@ sub environment {
     my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
     # Get a sanitised dump of the settings, session and environment
-    $_ = $_ ? dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
+    $_ = $_ ? $self->dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
 
     return <<"END_HTML";
 <div class="title">Stack</div><pre class="content">$stack</pre>
@@ -427,7 +428,8 @@ sub get_caller {
 # items which were "censored".
 
 sub _censor {
-    my $hash = shift;
+    my $self    = shift;
+    my $hash    = shift;
     my $visited = shift || {};
 
     unless ( $hash && is_hashref($hash) ) {
@@ -436,16 +438,21 @@ sub _censor {
     }
 
     my $censored = 0;
+    
+    my @censor_pattern_list = qw( pass card?num pan secret);
+    push @censor_pattern_list, @{$self->app->config->{config_censor} };
+    my $censor_re = join( '|', @censor_pattern_list );
+
     for my $key ( keys %$hash ) {
         if ( is_hashref( $hash->{$key} ) ) {
             if (!$visited->{ $hash->{$key} }) {
                 # mark the new ref as visited
                 $visited->{ $hash->{$key} } = 1;
 
-                $censored += _censor( $hash->{$key}, $visited );
+                $censored += $self->_censor( $hash->{$key}, $visited );
             }
         }
-        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
+        elsif ( $key =~ /($censor_re)/i ) {
             $hash->{$key} = "Hidden (looks potentially sensitive)";
             $censored++;
         }

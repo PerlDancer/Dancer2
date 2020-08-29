@@ -210,6 +210,9 @@ subtest 'Errors with show_errors and circular references' => sub {
         set password              => '===VERY-UNIQUE-STRING===';
         set innocent_thing        => '===VERY-INNOCENT-STRING===';
         set template              => 'simple';
+        set config_censor         => [ 'bindpw' ];
+
+        set bindpw                => "===A-SECURE-STRING===";
 
         # Trigger an error that makes Dancer2::Core::Error::_censor enter an
         # infinite loop
@@ -235,6 +238,9 @@ subtest 'Errors with show_errors and circular references' => sub {
 
     unlike($r->content, qr{===VERY-UNIQUE-STRING===},
         'password value does not appear in the stacktrace');
+
+    unlike($r->content, qr{===A-SECURE-STRING===},
+        'custom password value does not appear in the stacktrace');
 
     like($r->content, qr{===VERY-INNOCENT-STRING===},
         'Values for other keys (non-sensitive) appear in the stacktrace');
