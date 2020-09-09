@@ -239,13 +239,6 @@ sub to_string {
     return "[#" . $self->id . "] " . $self->method . " " . $self->path;
 }
 
-sub base {
-    my $self = shift;
-    my $uri  = $self->_common_uri;
-
-    return $uri->canonical;
-}
-
 sub _common_uri {
     my $self = shift;
 
@@ -260,19 +253,20 @@ sub _common_uri {
     $uri->authority( $host || "$server:$port" );
     $uri->path( $path      || '/' );
 
-    return $uri;
+    return $uri->canonical;
 }
 
-sub uri_base {
-    my $self  = shift;
-    my $uri   = $self->_common_uri;
-    my $canon = $uri->canonical;
+sub base { return $_[0]->_common_uri; }
 
-    if ( $canon->path eq '/' ) {
-        $canon->path('');
+sub uri_base {
+    my $self = shift;
+    my $uri  = $self->_common_uri;
+
+    if ( $uri->path eq '/' ) {
+        $uri->path('');
     }
 
-    return $canon;
+    return $uri;
 }
 
 sub dispatch_path {
