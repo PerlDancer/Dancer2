@@ -268,8 +268,8 @@ sub uri_base {
     my $uri   = $self->_common_uri;
     my $canon = $uri->canonical;
 
-    if ( $uri->path eq '/' ) {
-        $canon =~ s{/$}{};
+    if ( $canon->path eq '/' ) {
+        $canon->path('');
     }
 
     return $canon;
