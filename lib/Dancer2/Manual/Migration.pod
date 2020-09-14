@@ -443,11 +443,11 @@ for these options, or the particular session engine for other supported options.
   session: Simple
 
   engines:
-     session:
-	   Simple:
-	    cookie_name: dance.set
+    session:
+      Simple:
+        cookie_name: dance.set
         cookie_duration: '24 hours'
-	    is_secure: 1
+        is_secure: 1
         is_http_only: 1
 
 =head3 Plack Middleware
