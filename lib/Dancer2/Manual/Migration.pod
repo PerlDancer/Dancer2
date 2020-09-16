@@ -383,7 +383,7 @@ In Dancer 2 you can also enable Template::Toolkit with the same configuration op
 
 But the default start_tag and end_tag are now [% and %], so if you used the default in Dancer 1
 now you will have to explicitly change the start_tag and end_tag values.
-The configuration also got an extral level of depth. Under the C<engine> key there is a C<template>
+The configuration also got an extra level of depth. Under the C<engine> key there is a C<template>
 key and the C<template_toolkit> key comes below that. As in this example:
 
     engines:
