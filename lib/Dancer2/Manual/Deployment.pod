@@ -489,7 +489,7 @@ multiple Dancer apps on multiple other machines:
 
 =head3 Using Lighttpd
 
-You can use Lighttp's C<mod_proxy>:
+You can use Lighttpd's C<mod_proxy>:
 
     $HTTP["url"] =~ "/application" {
         proxy.server = (
