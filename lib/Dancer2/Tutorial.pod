@@ -1289,6 +1289,11 @@ your module's code which should now look like this:
         $tokens->{'logout_url'} = uri_for('/logout');
     };
 
+    hook 'database_error' => sub {
+        my $error = shift;
+        die $error;
+    };
+
     get '/' => sub {
         my $sql = 'select id, title, text from entries order by id desc';
         my $sth = database->prepare($sql);
