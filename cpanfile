@@ -74,6 +74,7 @@ suggests 'MIME::Types';
 test_requires 'Capture::Tiny', '0.12';
 test_requires 'HTTP::Cookies';
 test_requires 'HTTP::Headers';
+test_requires 'Pod::Simple::SimpleTree';
 test_requires 'Template';
 test_requires 'Test::Builder';
 test_requires 'Test::EOL';
