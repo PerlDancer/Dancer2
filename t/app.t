@@ -259,12 +259,19 @@ is_deeply(
     'Empty configuration for nonexistent engine',
 );
 
-# TODO: not such an intelligent check, this one...
+# TODO: not such an intelligent check, these ones...
 # set configuration for an engine
 $app->config->{'engines'}{'template'}{'Tiny'}{'hello'} = 'world';
+$app->config->{'engines'}{'template'}{'Some::Other::Template::Namespace'}{'hello'} = 'world';
 
 is_deeply(
     $app->_get_config_for_engine( template => 'Tiny', $app->config ),
+    { hello => 'world' },
+    '_get_config_for_engine can find the right configuration',
+);
+
+is_deeply(
+    $app->_get_config_for_engine( template => '+Some::Other::Template::Namespace', $app->config ),
     { hello => 'world' },
     '_get_config_for_engine can find the right configuration',
 );
