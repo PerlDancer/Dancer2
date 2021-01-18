@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * GH #1546: Add MIME type for all files served from public (Russell 
+      @veryrusty Jenkins)
     
     [ ENHANCEMENTS ]
     * GH #1552: Update jQuery (Sergiy Borodych)
