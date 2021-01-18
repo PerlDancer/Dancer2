@@ -4,6 +4,7 @@
     * None
     
     [ ENHANCEMENTS ]
+    * GH #1552: Update jQuery (Sergiy Borodych)
     * GH #1571: Add GitHub Actions support (Gabor Szabo)
     * GH #1572: Install Dancer2::Session::Cookie in order to run the test 
       t/issues/gh-811.t (racke)
