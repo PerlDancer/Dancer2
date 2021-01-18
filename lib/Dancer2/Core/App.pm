@@ -1396,7 +1396,7 @@ sub to_app {
         # Use App::File to "serve" the static content
         my $static_app = Plack::App::File->new(
             root         => $self->config->{public_dir},
-            content_type => sub { $self->mime_type->for_name(shift) },
+            content_type => sub { $self->mime_type->for_file( $_[0] ) },
         )->to_app;
         # Conditionally use the static handler wrapped with ConditionalGET
         # when the file exists. Otherwise the request passes into our app.
