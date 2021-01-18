@@ -1,0 +1,204 @@
+name: CI
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+  schedule:
+    - cron: '42 5 * * *'
+
+# Build and test Dancer on several versions of Perl using an image that already has a lot of modules installed.
+# This will provide a fast feedback if a commit broke anything in the unit-tests.
+# Using 5.32 we also create the tar.gz file and save it as an artifact.
+#
+# Once this job passed we launch several jobs in parallel
+# 1) Verify that we can install the created distribution on many versions of Perl using a Linux Docker image with vanilla Perl.
+# 2) Verify that we can install the created distribution on native Linux/Windows/OSX.
+# 3) Verify that a mumber of plugins and other distributions that depend on Dancer, that the new version won't break them.
+
+# We run the job on every push and every pull-request.
+# We also run them periodically to makes sure none changes in dependencies of Dancer don't break it even during the days when the
+#    Dancer developers rest.
+
+jobs:
+  build-in-container:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - '5.32'
+          - '5.30'
+          - '5.20'
+
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}     # https://hub.docker.com/r/perldocker/perl-tester
+
+    name: Build on Linux with Perl ${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+            perl -v
+            dzil authordeps --missing | cpanm --notest
+            dzil listdeps --author --missing | cpanm --notest
+
+      - name: Regular tests
+        run: |
+            dzil test --author --release
+
+
+      # test t/issues/gh-811.t depends on Dancer2::Session::Cookie so it is skipped the first time
+      # but it feel cleaner to run the tests once before we install Dancer
+      - name: Install Extra dependencies
+        run: |
+            cpanm --notest Dancer2::Session::Cookie
+
+      - name: Full test cycle
+        run: |
+            dzil test --author --release
+
+      - name: Create release
+        if: ${{ matrix.perl-version == '5.32' }}
+        run: |
+            # Increase the version number by 0.000001 so in the reports we can be sure we are using the code to be released.
+            perl -i -p -e 's/^version\s*=\s*(\d+\.\d+)/"version = " . ($1 + 0.000001)/e' dist.ini
+            dzil build
+
+      - name: Archive artifacts
+        if: ${{ matrix.perl-version == '5.32' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: the-dancer
+          path: |
+            Dancer2-*.tar.gz
+
+
+  test-on-clean-perl:
+    runs-on: ubuntu-latest
+    needs: build-in-container
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - '5.32'
+          - "5.30"
+#          - "5.28"
+#          - "5.26"
+#          - "5.24"
+#          - "5.22"
+#          - "5.20"
+#          - "5.18"
+#          - "5.16"
+#          - "5.14"
+          - "5.12"  # Not available?
+          - "5.10"  # Not available?
+
+    container:
+      image: perl:${{ matrix.perl-version }}
+
+    name: Test Dancer on ${{ matrix.perl-version }}
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: the-dancer
+
+      - name: Install Dancer
+        run: |
+            perl -v
+            cpanm Dancer2-*.tar.gz
+            perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
+
+
+  test-downstream:
+    runs-on: ubuntu-latest
+    needs: build-in-container
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - '5.32'
+
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}     # https://hub.docker.com/r/perldocker/perl-tester
+
+    name: Test downstream on ${{ matrix.perl-version }}
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: the-dancer
+
+      - name: Install Dancer
+        run: |
+            perl -v
+            cpanm Dancer2-*.tar.gz
+            perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
+
+      - name: Testing selected Plugins
+        run: |
+            cpanm --test-only --verbose Dancer2::Plugin::Auth::HTTP::Basic::DWIW
+            cpanm --test-only --verbose Dancer2::Plugin::Minion
+            cpanm --test-only --verbose Dancer2::Template::Handlebars
+            cpanm --test-only --verbose Dancer2::Session::Cookie
+
+      - name: Testing selected downstream modules
+        run: |
+            # cpanm App::Mxpress::PDF #  Couldn't find module or a distribution MetaCPAN::CLient::Pod::PDF
+            # cpanm App::unbelievable
+            # cpanm TT2::Play::Area
+            cpanm App::Notifier::Service
+            cpanm Map::Tube::Server
+
+  native:
+    needs: build-in-container
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, macos-latest, windows-latest]
+        perl: [ '5.32' ]
+
+    runs-on: ${{matrix.runner}}
+    name: Native on OS ${{matrix.runner}} Perl ${{matrix.perl}}
+
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: the-dancer
+
+      - name: Set up perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+            perl-version: ${{ matrix.perl }}
+            distribution: ${{ ( startsWith( matrix.runner, 'windows-' ) && 'strawberry' ) || 'default' }}
+
+      - name: Install Dancer on Windows
+        if: ${{ startsWith( matrix.runner, 'windows-' )  }}
+        run: |
+            perl -v
+
+            # Unclear why Test::TCP fails on GitHub Actions on Windows, but this seems to be related:
+            # https://github.com/tokuhirom/Test-TCP/pull/99
+            cpanm --notest Test::TCP
+
+            dir
+            Set-Content -NoNewline "cpanm --verbose " install.bat
+            Get-ChildItem -Name Dancer2* >> install.bat
+            dir
+            type install.bat
+            .\install.bat
+            perl -MDancer2 -e "print qq{$Dancer2::VERSION\n}"
+
+      - name: Install Dancer on Linux and OSX
+        if: ${{ ! startsWith( matrix.runner, 'windows-' )  }}
+        run: |
+            cpanm Dancer2-*.tar.gz
+            perl -MDancer2 -e 'print qq{$Dancer2::VERSION\n}'
+
