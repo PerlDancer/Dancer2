@@ -5,6 +5,8 @@
     
     [ ENHANCEMENTS ]
     * GH #1571: Add GitHub Actions support (Gabor Szabo)
+    * GH #1572: Install Dancer2::Session::Cookie in order to run the test 
+      t/issues/gh-811.t (racke)
 
     [ DOCUMENTATION ]
     * None
