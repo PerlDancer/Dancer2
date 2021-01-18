@@ -240,6 +240,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
+    Alexander Pankoff
     Alexandr Ciornii
     Andrew Beverley
     Andrew Grangaard
