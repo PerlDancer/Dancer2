@@ -3,6 +3,7 @@
     [ BUG FIXES ]
     * GH #1546: Add MIME type for all files served from public (Russell 
       @veryrusty Jenkins)
+    * GH #1564: Add script_name to redirects beginning with / (Nigel Gregoire)
     
     [ ENHANCEMENTS ]
     * GH #1552: Update jQuery (Sergiy Borodych)
