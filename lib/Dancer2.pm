@@ -281,6 +281,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Dennis Lichtenthäler
     Dinis Rebolo
     dtcyganov
+    Elliot Holden
     Erik Smit
     Fayland Lam
     ferki
