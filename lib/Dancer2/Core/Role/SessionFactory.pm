@@ -321,6 +321,12 @@ Default duration before session cookie expiration.  If set, the
 L<Dancer2::Core::Session> C<expires> attribute will be set to the current time
 plus this duration (expression parsed by L<Dancer2::Core::Time>).
 
+=attr cookie_same_site
+
+Restricts the session cookie to a first-party or same-site context.
+Defaults to the empty string and is unused as a result.
+See L<Dancer2::Core::Cookie/same_site>.
+
 =attr session_duration
 
 Duration in seconds before sessions should expire, regardless of cookie
