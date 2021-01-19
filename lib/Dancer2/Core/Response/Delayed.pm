@@ -14,7 +14,7 @@ has response => (
     is       => 'ro',
     isa      => InstanceOf['Dancer2::Core::Response'],
     required => 1,
-    handles => [qw/status headers/],
+    handles => [qw/status headers push_header/],
 );
 
 has cb => (
