@@ -7,7 +7,7 @@ use HTTP::Request::Common;
 eval { require AnyEvent; 1; }
     or plan skip_all => 'AnyEvent required for this test';
 
-plan tests => 5;
+plan tests => 6;
 
 {
     package App::Content; ## no critic
@@ -50,6 +50,25 @@ plan tests => 5;
     use Dancer2;
     get '/' => sub {
         delayed {content;done;'Not OK'};
+    };
+}
+
+{
+    package App::AddHeader; ## no critic
+    use Dancer2;
+
+    hook 'after' => sub {
+        my $response = shift;
+        $response->push_header('Authorization' => 'bar');
+    };
+
+    get '/' => sub {
+        delayed {
+            response->push_header('Content-Type' => 'foo');
+            flush;
+            content "baz";
+            done;
+        }
     };
 }
 
@@ -111,6 +130,14 @@ subtest 'Testing an app without content keyword' => sub {
     my $res  = $test->request( GET '/' );
     ok( $res->is_success, 'Successful request' );
     is( $res->content, '', 'Correct content' );
+};
+
+subtest 'Delayed response has push_header method' => sub {
+    my $test = Plack::Test->create( App::AddHeader->to_app );
+    my $res  = $test->request( GET '/' );
+    ok( $res->is_success, 'Successful request' );
+    is( $res->headers->header('Content-Type'), 'foo', 'Correct header pushed from inside "delayed"' );
+    is( $res->headers->header('Authorization'), 'bar', 'Correct header pushed from inside hook' );
 };
 
 subtest 'Delayed response ignored for non-delayed content' => sub {
