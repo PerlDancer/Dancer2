@@ -1273,6 +1273,14 @@ sub redirect {
     my $destination = shift;
     my $status      = shift;
 
+    if ($destination =~ m{^/[^/]}) {
+        # If the app is mounted to something other than "/", we must
+        # preserve its path.
+        my $script_name = $self->request->script_name;
+        $script_name =~ s{/$}{}; # Remove trailing slash (if present).
+        $destination = $script_name . $destination;
+    }
+
     $self->response->redirect( $destination, $status );
 
     # Short circuit any remaining before hook / route code
