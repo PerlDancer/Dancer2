@@ -4,6 +4,7 @@ package Dancer2::Serializer::Mutable;
 use Moo;
 use Carp 'croak';
 use Encode;
+use Module::Runtime 'require_module';
 with 'Dancer2::Core::Role::Serializer';
 
 use constant DEFAULT_CONTENT_TYPE => 'application/json';
@@ -37,7 +38,9 @@ has mapping => (
             for my $s ( values %$mapping ) {
                 # TODO allow for arguments via the config
                 next if $serializer->{$s};
-                my $serializer_object = ('Dancer2::Serializer::'.$s)->new;
+                my $serializer_class = "Dancer2::Serializer::$s";
+                require_module($serializer_class);
+                my $serializer_object = $serializer_class->new;
                 $serializer->{$s} = {
                     from => sub { shift; $serializer_object->deserialize(@_) },
                     to   => sub { shift; $serializer_object->serialize(@_)   },
