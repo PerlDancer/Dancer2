@@ -264,6 +264,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Chi Trinh
     Christian Walde
     Christopher White
+    cloveistaken
     Colin Kuskie
     cym0n
     Dale Gallagher
