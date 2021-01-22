@@ -8,6 +8,8 @@
     * GH #1564: Add script_name to redirects beginning with / (Nigel Gregoire)
     * GH #1567: Fix CSS so errors do not display ourside of <pre> HTML
       element (Elliot Holden)
+    * GH #1568: Serializer::Mutable doesn't auto-load other serializers
+      (Russell @veryrusty Jenkins)
     
     [ ENHANCEMENTS ]
     * GH #1552: Update jQuery (Sergiy Borodych)
