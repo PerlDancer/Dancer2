@@ -23,6 +23,7 @@
     [ DOCUMENTATION ]
     * GH #1490: Document Dancer2::Core::App->template() (Steve Dondley)
     * GH #1551: Fix pod for cookie same site attribute (Sergiy Borodych)
+    * GH #1562: Fix links, missing code in Tutorial (cloveistaken)
 
 0.300004  2020-05-26 20:52:34-04:00 America/New_York
 

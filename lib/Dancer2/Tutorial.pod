@@ -877,7 +877,7 @@ customize to your liking.
 
 If you don't like the default skeleton provided to you by Dancer, the C<dancer2>
 command allows you to generate your own custom skeletons. Consult
-L<Dancer2::Manual/BOOTSTRAPPING_A_NEW_APP> for further details on this and other
+L<Dancer2::Manual/BOOTSTRAPPING-A-NEW-APP> for further details on this and other
 capabilities of the C<dancer2>) utility.
 
 =head2 Getting the new app up and running with Plack
@@ -947,7 +947,7 @@ route to our app's home page and loads the index template:
 The first thing you'll notice is that instead of a script, we are using a module,
 C<Dancr2> to package our code. Modules make it easer to pull off many powerful
 tricks like packaging our app across several discrete modules. We'll let the
-L<manual|Dancer2::Manual/Importing_using_Appname> explain this more
+L<manual|Dancer2::Manual/Importing-using-Appname> explain this more
 advanced technique.
 
 =head3 Updating the Dancr2 module
@@ -1076,7 +1076,7 @@ setting from "core" to "debug" so it matches the value we had in our module.
 
 We will leave it up to you what you want to do with the fourth setting,
 C<startup_info>. You can read about that setting, along with all the other
-settings, in the L<configuration manual|Dancer2::Config/"startup info (boolean)">.
+settings, in the L<configuration manual|Dancer2::Config/"startup_info-(boolean)">.
 
 Finally, let's add a new setting to the configuration file for C<session> with
 the following line:
@@ -1287,6 +1287,11 @@ your module's code which should now look like this:
         $tokens->{'css_url'}    = request->base . 'css/style.css';
         $tokens->{'login_url'}  = uri_for('/login');
         $tokens->{'logout_url'} = uri_for('/logout');
+    };
+
+    hook 'database_error' => sub {
+        my $error = shift;
+        die $error;
     };
 
     get '/' => sub {
