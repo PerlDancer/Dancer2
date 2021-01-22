@@ -5,6 +5,7 @@
       @veryrusty Jenkins)
     * GH #1555: Remove all leftovers of warnings config setting (Sergiy 
       Borodych)
+    * GH #1557: Remove HTTP::XSCookies workaround (Alexander Pankoff)
     * GH #1564: Add script_name to redirects beginning with / (Nigel Gregoire)
     * GH #1567: Fix CSS so errors do not display ourside of <pre> HTML
       element (Elliot Holden)
