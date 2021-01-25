@@ -31,7 +31,7 @@ subtest 'Testing an app with request keyword' => sub {
     }
 };
 
-subtest 'Testing app with request_header heyword' => sub {
+subtest 'Testing app with request_header keyword' => sub {
     my $test = Plack::Test->create( App::DSL::Request->to_app );
     my $res = $test->request( GET '/headers', 'X-Foo' => 'Bar' );
     ok( $res->is_success, 'Successful GET request' );
