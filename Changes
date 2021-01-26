@@ -11,6 +11,8 @@
       element (Elliot Holden)
     * GH #1568: Serializer::Mutable doesn't auto-load other serializers
       (Russell @veryrusty Jenkins)
+    * GH #1579: Fix missing push_header method in Response::Delayed 
+      (Paul Clements)
     
     [ ENHANCEMENTS ]
     * GH #1552: Update jQuery (Sergiy Borodych)

@@ -348,6 +348,7 @@ We are also on IRC: #dancer on irc.perl.org.
     pants
     Patrick Zimmermann
     Pau Amma
+    Paul Clements
     Paul Cochrane
     Paul Williams
     Pedro Bruno
