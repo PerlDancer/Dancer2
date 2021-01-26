@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.300005  2021-01-26 15:57:41-05:00 America/New_York
+
     [ BUG FIXES ]
     * GH #1546: Add MIME type for all files served from public (Russell 
       @veryrusty Jenkins)
