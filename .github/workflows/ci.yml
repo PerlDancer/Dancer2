@@ -22,6 +22,7 @@ on:
 #    Dancer developers rest.
 
 jobs:
+  if: ${{ github.repository == 'PerlDancer/Dancer2' || github.event_name != 'schedule' }}
   build-in-container:
     runs-on: ubuntu-latest
 
