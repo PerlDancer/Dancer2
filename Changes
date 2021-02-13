@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+    
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * GH #1582: Small fixes in Migration POD (Sergiy Borodych)
+
 0.300005  2021-01-26 15:57:41-05:00 America/New_York
 
     [ BUG FIXES ]
