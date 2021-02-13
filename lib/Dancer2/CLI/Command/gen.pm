@@ -118,8 +118,8 @@ Your new application is ready! To run it:
         plackup bin/app.psgi
 
 If you need community assistance, the following resources are available:
-- Dancer website: http://perldancer.org
-- Mailing list: http://lists.preshweb.co.uk/mailman/listinfo/dancer-users
+- Dancer website: https://perldancer.org
+- Mailing list: https://lists.preshweb.co.uk/mailman/listinfo/dancer-users
 - IRC: irc.perl.org#dancer
 
 Happy Dancing!
