@@ -266,7 +266,7 @@ sub _version_check {
     return if $version =~  m/_/;
 
     my $latest_version = 0;
-    my $resp = _send_http_request( 'https://fastapi.metacpan.org/module/Dancer2' );
+    my $resp = _send_http_request( 'https://fastapi.metacpan.org/release/Dancer2' );
 
     if ($resp) {
         if ( decode_json( $resp )->{ version } =~ /(\d\.\d+)/ ) {
