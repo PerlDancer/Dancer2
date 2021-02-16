@@ -6,8 +6,10 @@ use warnings;
 
 use App::Cmd::Setup -command;
 
+use URI;
 use HTTP::Tiny;
 use File::Find;
+use File::Which;
 use File::Path 'mkpath';
 use File::Spec::Functions;
 use File::Share 'dist_dir';
@@ -29,6 +31,8 @@ sub opt_spec {
         [ 'overwrite|o',     'overwrite existing files' ],
         [ 'no-check|x',      'don\'t check latest Dancer2 version (requires internet)' ],
         [ 'skel|s=s',        'skeleton directory' ],
+        ['git|g',            'init git repository'],
+        ['remote|r=s',       'URI for git repository (implies -g)'],
     );
 }
 
@@ -44,6 +48,12 @@ sub validate_args {
             "Application names must not contain single colons, dots, " .
             "hyphens or start with a number.\n"
         );
+    }
+
+    if (my $remote = $opt->{ remote }) {
+        my $scheme = URI->new( $remote )->scheme // $opt->{ remote }; # This feels dirty
+        $scheme eq 'git' || $scheme =~ /^http/ || $scheme =~ /^git@.+:.+\.git$/
+          or $self->usage_error( "'$remote' must be a valid URI to git repository");
     }
 
     my $path = $opt->{path};
@@ -92,6 +102,39 @@ sub execute {
     _copy_templates($files_to_copy, $vars, $opt->{overwrite});
     _create_manifest($files_to_copy, $app_path);
     _add_to_manifest_skip($app_path);
+
+    if (my $remote = $opt->{remote} or $opt->{git}) {
+        my $git_error = <<'GITERR';
+
+*****
+
+WARNING: Couldn't initialize a git repo despite being asked to do so.
+
+To resolve this, cd to your application directory and run the following 
+commands:
+
+  git init
+  git add .
+  git commit -m"Initial commit of $app_name by Dancer2"
+GITERR
+
+        my $git = which 'git';
+        -x $git or die "Can't execute git: $!";
+
+        chdir File::Spec->rel2abs($app_path) or die "Can't cd to $app_path: $!";
+        if( system( 'git', 'init') != 0 or 
+            system( 'git', 'add', '.') != 0 or 
+            system( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
+            print $git_error;
+        }
+        else {
+            if( system( 'git', 'remote', 'add', 'origin', $opt->{ remote }) != 0 ) {
+                print $git_error;
+                print "  git remote add origin " . $opt->{ remote } . "\n";
+            }
+        }
+        print "\n*****\n";
+    }
 
     if ( ! eval { require_module('YAML'); 1; } ) {
         print <<'NOYAML';
