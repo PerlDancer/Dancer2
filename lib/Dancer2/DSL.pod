@@ -40,6 +40,10 @@ Or even, a route handler that would match any HTTP methods:
         # code
     };
 
+=head2 app
+
+Returns an instance of the app. App is a L<Dancer2::Core::App>.
+
 =head2 body_parameters
 
 Returns a L<Hash::MultiValue> object from the body parameters.
@@ -154,16 +158,30 @@ You can use abbreviations for content types. For instance:
 Note that if you want to change the default content-type for every route,
 it is easier to change the C<content_type> setting instead.
 
+=head2 context
+
+Deprecated. Use L<app> instead.
+
 =head2 dance
 
 Alias for the C<start> keyword. L<to_app> is preferable. 
+
+=head2 dancer_app
+
+Returns the app object. See L<app>.
 
 =head2 dancer_version
 
 Returns the version of Dancer. If you need the major version, do something
 like:
 
-  int(dancer_version);
+    int(dancer_version);
+
+or (better), call C<dancer_major_version>.
+
+=head2 dancer_major_version
+
+Returns the major version of Dancer.
 
 =head2 debug
 
@@ -184,11 +202,28 @@ Defines a route for HTTP B<DELETE> requests to the given URL:
 
     del '/resource' => sub { ... };
 
+=head2 delayed
+
+Stream a response asynchronously. For more information, please see 
+L<Dancer2::Manual/Delayed responses (Async/Streaming)>, or 
+L<this article|https://advent.perldancer.org/2020/22> in the 2020 Dancer 
+Advent Calendar.
+
 =head2 dirname
 
 Returns the dirname of the path given:
 
     my $dir = dirname($some_path);
+
+=head2 done
+
+Close the streaming connection. Can only be called within a streaming 
+response callback.
+
+=head2 dsl
+
+Allows access to the DSL within your plugin/application. Is an instance of
+L<Dancer2::Core::DSL>.
 
 =head2 encode_json ($structure)
 
@@ -216,6 +251,11 @@ messages go.
 =head2 false
 
 Constant that returns a false value (0).
+
+=head2 flush
+
+Flush headers when streaming a response. Necessary when L<content> is called
+multiple times.
 
 =head2 forward
 
@@ -335,6 +375,14 @@ B<WARNING:> Issuing a halt immediately exits the current route, and performs
 the halt. Thus, any code after a halt is ignored, until the end of the route.
 Hence, it's not necessary anymore to use C<return> with halt.
 
+=head2 header
+
+Deprecated. Use L<response_header> instead.
+
+=head2 headers
+
+Deprecated. Use L<response_headers> instead.
+
 =head2 hook
 
 Adds a hook at some position. For example :
@@ -357,6 +405,12 @@ Logs a message of C<info> level:
 
 See L<Dancer2::Core::Role::Logger> for details on how to configure where log
 messages go.
+
+=head2 log
+
+Logs messages at the specified level. For example:
+
+    log( debug => "This is a debug message." );
 
 =head2 mime
 
@@ -552,6 +606,10 @@ argument. If you close over it, you B<will> have a memory leak.
 Provides the same functionality as L<to_app> but uses the deprecated
 Dispatcher engine. You should use L<to_app> instead.
 
+=head2 push_header
+
+Deprecated. Use C<push_response_header> instead.
+
 =head2 push_response_header
 
 Do the same as C<response_header>, but allow for multiple headers with the same
@@ -623,6 +681,11 @@ Returns request header(s).
         ...
     };
 
+=head2 response
+
+Returns the current response object, which is of type 
+L<Dancer2::Core::Route::REQUEST>.
+
 =head2 response_header
 
 Adds a custom header to response:
@@ -650,6 +713,10 @@ Returns a L<Hash::MultiValue> object from the route parameters.
     get '/:foo' => sub {
         my $foo = route_parameters->get('foo');
     };
+
+=head2 runner
+
+Returns the runner singleton. Type is L<Dancer2::Core::Runner>.
 
 =head2 send_as
 
