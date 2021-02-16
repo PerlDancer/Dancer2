@@ -14,7 +14,7 @@ my $dsl_keywords = Dancer2::Core::DSL->new(app => App->to_app)->dsl_keywords;
 
 isa_ok($dsl_keywords, 'HASH', 'Check whether keywords are present');
 
-my $podpa = Pod::Simple::SimpleTree->new->parse_file('lib/Dancer2/Manual.pod')->root;
+my $podpa = Pod::Simple::SimpleTree->new->parse_file('lib/Dancer2/DSL.pod')->root;
 
 my $in_section = 0;
 
