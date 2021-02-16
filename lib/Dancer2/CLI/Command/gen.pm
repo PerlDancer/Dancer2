@@ -8,6 +8,7 @@ use App::Cmd::Setup -command;
 
 use URI;
 use HTTP::Tiny;
+use File::Copy;
 use File::Find;
 use File::Which;
 use File::Path 'mkpath';
@@ -120,6 +121,9 @@ GITERR
 
         my $git = which 'git';
         -x $git or die "Can't execute git: $!";
+
+        my $gitignore = catfile( $dist_dir, '.gitignore' );
+        copy( $gitignore, $app_path );
 
         chdir File::Spec->rel2abs($app_path) or die "Can't cd to $app_path: $!";
         if( system( 'git', 'init') != 0 or 
