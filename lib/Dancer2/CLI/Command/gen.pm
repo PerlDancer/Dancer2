@@ -81,12 +81,8 @@ sub execute {
     }
 
     if( $opt->{ docker } ) {
-        # Use a modified cpanfile with the XS dependencies instead. No need to fatpack in a
-        # container!
-        @$files_to_copy = grep { $_->[0] !~ /cpanfile/ } @$files_to_copy; 
         my $docker_dir = catdir( $dist_dir, 'docker' );
         push @$files_to_copy, [ catfile( $docker_dir, 'Dockerfile' ), "$app_name/Dockerfile" ];
-        push @$files_to_copy, [ catfile( $docker_dir, 'cpanfile' ),   "$app_name/cpanfile" ];
     }
 
     my $vars = {
