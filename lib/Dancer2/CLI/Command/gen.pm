@@ -116,13 +116,14 @@ NOYAML
     }
 
     if( $opt->{ docker } ) {
+        my $image = lc $app_name;
         print <<DOCKERRUN;
 
 Your new application is ready! To run it:
 
         cd $app_path
-        docker build -t ${app_name}_image .
-        docker run -d -p 5000:5000 --name $app_name ${app_name}_image
+        docker build -t ${image} .
+        docker run -d -p 5000:5000 --name $app_name ${image}
 
 (note: you may need to run the docker commands with sudo)
 
