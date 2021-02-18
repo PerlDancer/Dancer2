@@ -1,4 +1,4 @@
-FROM perl
+FROM perl:latest
 WORKDIR /srv/[d2% appname %2d]
 COPY . .
 RUN cpanm --installdeps --notest .
