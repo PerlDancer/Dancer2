@@ -112,13 +112,35 @@ following commands:
 NOYAML
     }
 
-    print <<HOWTORUN;
+    if( $opt->{ docker } ) {
+        print <<DOCKERRUN;
+
+Your new application is ready! To run it:
+
+        cd $app_path
+        docker build -t ${app_name}_image
+        docker run -d -p 5000:5000 --name $app_name ${app_name}_image
+
+(note: you may need to run the docker commands with sudo)
+
+You may also run your app without Docker:
+
+        cd $app_path
+        plackup bin/app.psgi
+
+DOCKERRUN
+    } else {
+        print <<HOWTORUN;
 
 Your new application is ready! To run it:
 
         cd $app_path
         plackup bin/app.psgi
 
+HOWTORUN
+    }
+
+    print  <<COMMUNITY;
 If you need community assistance, the following resources are available:
 - Dancer website: http://perldancer.org
 - Mailing list: http://lists.preshweb.co.uk/mailman/listinfo/dancer-users
@@ -126,7 +148,7 @@ If you need community assistance, the following resources are available:
 
 Happy Dancing!
 
-HOWTORUN
+COMMUNITY
 
     return 0;
 }
