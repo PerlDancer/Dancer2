@@ -4,9 +4,10 @@ package Dancer2::Handler::File;
 use Carp 'croak';
 use Moo;
 use HTTP::Date;
-use Dancer2::FileUtils 'path', 'open_file', 'read_glob_content';
+use Dancer2::FileUtils 'path';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
+use Path::Tiny ();
 use File::Spec;
 
 with qw<
@@ -50,7 +51,7 @@ sub _build_public_dir {
     my $self = shift;
     return $self->app->config->{public_dir}
         || $ENV{DANCER_PUBLIC}
-        || path( $self->app->location, 'public' );
+        || Path::Tiny::path( $self->app->location, 'public' )->stringify;
 }
 
 sub register {
@@ -84,7 +85,7 @@ sub code {
             $path =~ s/^\Q$prefix\E//;
         }
 
-        my $file_path = $self->merge_paths( $path, $self->public_dir );
+        my $file_path = Path::Tiny::path( $self->public_dir, $path )->stringify;
         return $self->standard_response( $app, 403 ) if !defined $file_path;
 
         if ( !-f $file_path ) {
@@ -100,9 +101,7 @@ sub code {
         $self->execute_hook( 'handler.file.before_render', $file_path );
 
         # Read file content as bytes
-        my $fh = open_file( "<", $file_path );
-        binmode $fh;
-        my $content = read_glob_content($fh);
+        my $content = Path::Tiny::path($file_path)->slurp_raw;
 
         # Assume m/^text/ mime types are correctly encoded
         my $content_type = $self->mime->for_file($file_path) || 'text/plain';
@@ -129,24 +128,6 @@ sub code {
         $self->execute_hook( 'handler.file.after_render', $app->response );
         return ( $app->request->method eq 'GET' ) ? $content : '';
     };
-}
-
-sub merge_paths {
-    my ( undef, $path, $public_dir ) = @_;
-
-    my ( $volume, $dirs, $file ) = File::Spec->splitpath( $path );
-    my @tokens = File::Spec->splitdir( "$dirs$file" );
-    my $updir = File::Spec->updir;
-    return if grep $_ eq $updir, @tokens;
-
-    my ( $pub_vol, $pub_dirs, $pub_file ) = File::Spec->splitpath( $public_dir );
-    my @pub_tokens = File::Spec->splitdir( "$pub_dirs$pub_file" );
-    return if length $volume and length $pub_vol and $volume ne $pub_vol;
-
-    my @final_vol = ( length $pub_vol ? $pub_vol : length $volume ? $volume : () );
-    my @file_path = ( @final_vol, @pub_tokens, @tokens );
-    my $file_path = path( @file_path );
-    return $file_path;
 }
 
 1;

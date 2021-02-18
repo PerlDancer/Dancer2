@@ -4,18 +4,16 @@ use Test::More;
 use Test::Fatal;
 use Carp 'croak';
 
+use Path::Tiny qw< path >;
 use Dancer2::Core::Runner;
-use Dancer2::FileUtils qw/dirname path/;
-use File::Spec;
-use File::Temp;
 
 # undefine ENV vars used as defaults for app environment in these tests
 local $ENV{DANCER_ENVIRONMENT};
 local $ENV{PLACK_ENV};
 
 my $runner = Dancer2::Core::Runner->new();
-my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
-my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
+my $location = path( __FILE__() )->sibling('config');
+my $location2 = path( __FILE__() )->sibling('config2');
 
 {
 
@@ -180,7 +178,7 @@ $f->setting( traces => 1 );
 like( exception { Foo->foo() }, qr{Foo::foo}, "traces are enabled", );
 
 {
-    my $tmpdir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
+    my $tmpdir = Path::Tiny->tempdir( CLEANUP => 1, TMPDIR => 1 );
     $ENV{DANCER_CONFDIR} = $tmpdir;
     my $f = Prod->new;
     is $f->config_location, $tmpdir;

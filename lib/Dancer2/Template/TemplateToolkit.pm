@@ -5,7 +5,7 @@ package Dancer2::Template::TemplateToolkit;
 use Moo;
 use Carp qw<croak>;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw<path>;
+use Path::Tiny ();
 use Scalar::Util ();
 use Template;
 
@@ -70,10 +70,10 @@ sub view_pathname {
 
 sub layout_pathname {
     my ( $self, $layout ) = @_;
-    return path(
+    return Path::Tiny::path(
         $self->layout_dir,
         $self->_template_name($layout),
-    );
+    )->stringify;
 }
 
 sub pathname_exists {

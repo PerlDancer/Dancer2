@@ -7,9 +7,8 @@ use Dancer2::Core::Types;
 
 with 'Dancer2::Core::Role::Logger';
 
-use File::Spec;
 use Fcntl qw(:flock SEEK_END);
-use Dancer2::FileUtils qw(open_file);
+use Path::Tiny ();
 use IO::File;
 
 has environment => (
@@ -58,24 +57,27 @@ has fh => (
     builder => '_build_fh',
 );
 
-sub _build_log_dir { File::Spec->catdir( $_[0]->location, 'logs' ) }
+sub _build_log_dir { Path::Tiny::path( $_[0]->location, 'logs' )->stringify }
 
 sub _build_file_name {$_[0]->environment . ".log"}
 
 sub _build_log_file {
     my $self = shift;
-    return File::Spec->catfile( $self->log_dir, $self->file_name );
+    return Path::Tiny::path( $self->log_dir, $self->file_name )->stringify;
 }
 
 sub _build_fh {
     my $self    = shift;
     my $logfile = $self->log_file;
 
-    my $fh;
-    unless ( $fh = open_file( '>>', $logfile ) ) {
-        carp "unable to create or append to $logfile";
+    my $fh = eval {
+        Path::Tiny::path($logfile)->filehandle(
+            '>>', ':encoding(UTF-8)',
+        );
+    } or do {
+        Carp::carp("unable to create or append to $logfile");
         return;
-    }
+    };
 
     $fh->autoflush;
 

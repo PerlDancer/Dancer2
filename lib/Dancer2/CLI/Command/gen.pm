@@ -7,13 +7,11 @@ use warnings;
 use App::Cmd::Setup -command;
 
 use HTTP::Tiny;
+use Path::Tiny ();
 use File::Find;
-use File::Path 'mkpath';
-use File::Spec::Functions;
 use File::Share 'dist_dir';
-use File::Basename qw/dirname basename/;
-use Dancer2::Template::Simple;
 use Module::Runtime 'require_module';
+use Dancer2::Template::Simple;
 
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
@@ -45,12 +43,12 @@ sub validate_args {
         );
     }
 
-    my $path = $opt->{path};
-    -d $path or $self->usage_error("directory '$path' does not exist");
+    my $path = Path::Tiny::path( $opt->{path} );
+    $path->is_dir or $self->usage_error("directory '$path' does not exist");
     -w $path or $self->usage_error("directory '$path' is not writeable");
 
     if ( my $skel_path = $opt->{skel} ) {
-        -d $skel_path
+        Path::Tiny::path($skel_path)->is_dir
             or $self->usage_error("skeleton directory '$skel_path' not found");
     }
 }
@@ -59,22 +57,27 @@ sub execute {
     my ($self, $opt, $args) = @_;
     $self->_version_check() unless $opt->{'no_check'};
 
-    my $dist_dir = dist_dir('Dancer2');
-    my $skel_dir = $opt->{skel} || catdir($dist_dir, 'skel');
-    -d $skel_dir or die "$skel_dir doesn't exist";
+    my @dirs =
+      $opt->{'skel'}
+      ? ($opt->{'skel'})
+      : (dist_dir('Dancer2'), 'skel');
+
+    my $skel_dir = Path::Tiny::path(@dirs);
+    $skel_dir->is_dir
+        or die "Skeleton directory '$skel_dir' doesn't exist";
 
     my $app_name = $opt->{application};
     my $app_file = _get_app_file($app_name);
     my $app_path = _get_app_path($opt->{path}, $app_name);
 
     if( my $dir = $opt->{directory} ) {
-        $app_path = catdir( $opt->{path}, $dir );
+        $app_path = Path::Tiny::path( $opt->{path}, $dir );
     }
 
     my $files_to_copy = _build_file_list($skel_dir, $app_path);
     foreach my $pair (@$files_to_copy) {
         if ($pair->[0] =~ m/$SKEL_APP_FILE$/) {
-            $pair->[1] = catfile($app_path, $app_file);
+            $pair->[1] = Path::Tiny::path($app_path, $app_file);
             last;
         }
     }
@@ -82,7 +85,7 @@ sub execute {
     my $vars = {
         appname          => $app_name,
         appfile          => $app_file,
-        appdir           => File::Spec->rel2abs($app_path),
+        appdir           => Path::Tiny::path($app_path)->absolute,
         perl_interpreter => _get_perl_interpreter(),
         cleanfiles       => _get_dashed_name($app_name),
         dancer_version   => $self->version(),
@@ -148,7 +151,7 @@ sub _build_file_list {
         my $is_git = $file =~ m{^\.git(/|$)}
             and return;
 
-        push @result, [ $_, catfile($to, $file) ];
+        push @result, [ $_, Path::Tiny::path($to, $file) ];
     };
 
     find({ wanted => $wanted, no_chdir => 1 }, $from);
@@ -167,15 +170,15 @@ sub _copy_templates {
             next unless ($res eq 'y') or ($res eq 'a');
         }
 
-        my $to_dir = dirname($to);
-        if (! -d $to_dir) {
+        my $to_dir = Path::Tiny::path($to)->parent;
+        if (! $to_dir->is_dir ) {
             print "+ $to_dir\n";
-            mkpath $to_dir or die "could not mkpath $to_dir: $!";
+            $to_dir->mkpath or die "could not mkpath $to_dir: $!";
         }
 
-        my $to_file = basename($to);
+        my $to_file = Path::Tiny::path($to)->parent->stringify;
         my $ex = ($to_file =~ s/^\+//);
-        $to = catfile($to_dir, $to_file) if $ex;
+        $to = Path::Tiny::path($to_dir, $to_file)->stringify if $ex;
 
         print "+ $to\n";
         my $content;
@@ -210,7 +213,7 @@ sub _create_manifest {
 
     foreach my $file (@{$files}) {
         my $filename = substr $file->[1], length($dir) + 1;
-        my $basename = basename $filename;
+        my $basename = path($filename)->parent->stringify;
         my $clean_basename = $basename;
         $clean_basename =~ s/^\+//;
         $filename =~ s/\Q$basename\E/$clean_basename/;
@@ -239,13 +242,14 @@ sub _process_template {
 
 sub _get_app_path {
     my ($path, $appname) = @_;
-    return catdir($path, _get_dashed_name($appname));
+    return Path::Tiny::path($path, _get_dashed_name($appname) );
 }
 
 sub _get_app_file {
     my $appname = shift;
+
     $appname =~ s{::}{/}g;
-    return catfile('lib', "$appname.pm");
+    return Path::Tiny::path( 'lib', "$appname.pm" );
 }
 
 sub _get_perl_interpreter {
