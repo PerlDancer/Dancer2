@@ -28,6 +28,7 @@ sub opt_spec {
         [ 'overwrite|o',     'overwrite existing files' ],
         [ 'no-check|x',      'don\'t check latest Dancer2 version (requires internet)' ],
         [ 'skel|s=s',        'skeleton directory' ],
+        [ 'docker|c',        'create a dockerfile (container definition)' ]
     );
 }
 
@@ -78,6 +79,8 @@ sub execute {
             last;
         }
     }
+    push @$files_to_copy, [ catfile( $dist_dir, 'Dockerfile' ), "$app_name/Dockerfile" ]
+        if $opt->{ docker };
 
     my $vars = {
         appname          => $app_name,
