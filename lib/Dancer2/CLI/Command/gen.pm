@@ -79,8 +79,15 @@ sub execute {
             last;
         }
     }
-    push @$files_to_copy, [ catfile( $dist_dir, 'Dockerfile' ), "$app_name/Dockerfile" ]
-        if $opt->{ docker };
+
+    if( $opt->{ docker } ) {
+        # Use a modified cpanfile with the XS dependencies instead. No need to fatpack in a
+        # container!
+        @$files_to_copy = grep { $_->[0] !~ /cpanfile/ } @$files_to_copy; 
+        my $docker_dir = catdir( $dist_dir, 'docker' );
+        push @$files_to_copy, [ catfile( $docker_dir, 'Dockerfile' ), "$app_name/Dockerfile" ];
+        push @$files_to_copy, [ catfile( $docker_dir, 'cpanfile' ),   "$app_name/cpanfile" ];
+    }
 
     my $vars = {
         appname          => $app_name,
@@ -118,7 +125,7 @@ NOYAML
 Your new application is ready! To run it:
 
         cd $app_path
-        docker build -t ${app_name}_image
+        docker build -t ${app_name}_image .
         docker run -d -p 5000:5000 --name $app_name ${app_name}_image
 
 (note: you may need to run the docker commands with sudo)
