@@ -1,0 +1,22 @@
+requires "Dancer2" => "[d2% dancer_version %2d]";
+requires "URL::Encode::XS"         => "0";
+requires "CGI::Deurl::XS"          => "0";
+requires "HTTP::Parser::XS"        => "0";
+requires "CBOR::XS"                => "0";
+requires "YAML::XS"                => "0";
+requires "Class::XSAccessor"       => "0";
+requires "Cpanel::JSON::XS"        => "0";
+requires "Crypt::URandom"          => "0";
+requires "HTTP::XSCookies"         => "0";
+requires "HTTP::XSHeaders"         => "0";
+requires "Math::Random::ISAAC::XS" => "0";
+requires "MooX::TypeTiny"          => "0";
+requires "Scope::Upper"            => "0";
+requires "Type::Tiny::XS"          => "0";
+
+recommends "YAML" => "0";
+
+on "test" => sub {
+    requires "Test::More"            => "0";
+    requires "HTTP::Request::Common" => "0";
+};
