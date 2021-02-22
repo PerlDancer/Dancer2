@@ -686,8 +686,6 @@ The following modules can be used to speed up an app in Dancer2:
 
 =over 4
 
-=item * L<CBOR::XS>
-
 =item * L<CGI::Deurl::XS>
 
 =item * L<Class::XSAccessor>
@@ -696,8 +694,6 @@ The following modules can be used to speed up an app in Dancer2:
 
 =item * L<Crypt::URandom>
 
-=item * L<HTTP::Parser::XS>
-
 =item * L<HTTP::XSCookies>
 
 =item * L<HTTP::XSHeaders>
@@ -705,8 +701,6 @@ The following modules can be used to speed up an app in Dancer2:
 =item * L<Math::Random::ISAAC::XS>
 
 =item * L<MooX::TypeTiny>
-
-=item * L<Scope::Upper>
 
 =item * L<Type::Tiny::XS>
 
