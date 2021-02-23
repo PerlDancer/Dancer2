@@ -4,7 +4,7 @@
     * None
     
     [ ENHANCEMENTS ]
-    * None
+    * PR #1590: Improve install/documentation of XS modules (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * GH #1582: Small fixes in Migration POD (Sergiy Borodych)
