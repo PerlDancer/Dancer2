@@ -686,31 +686,40 @@ The following modules can be used to speed up an app in Dancer2:
 
 =over 4
 
-=item * L<URL::Encode::XS>
-
 =item * L<CGI::Deurl::XS>
 
-=item * L<HTTP::Parser::XS>
+=item * L<Class::XSAccessor>
+
+=item * L<Cpanel::JSON::XS>
+
+=item * L<Crypt::URandom>
 
 =item * L<HTTP::XSCookies>
 
-=item * L<Scope::Upper>
+=item * L<HTTP::XSHeaders>
+
+=item * L<Math::Random::ISAAC::XS>
+
+=item * L<MooX::TypeTiny>
 
 =item * L<Type::Tiny::XS>
 
-=back
+=item * L<URL::Encode::XS>
 
-They would need to be installed separately. This is because L<Dancer2> does
-not incorporate any C code, but it can get C-code compiled as a module.
-Thus, these modules can be used for speed improvement provided:
-
-=over 4
-
-=item * You have access to a C interpreter
-
-=item * You don't need to fatpack your application
+=item * L<YAML::XS>
 
 =back
+
+If you generated your application with C<dancer2 gen>, you can easily install
+these with the following command:
+    
+    cpanm --installdeps . --with-feature=accelerate
+
+To build them, you will need access to a C compiler, and using these modules
+will prevent you from fatpacking your application.
+
+These modules are installed by default when building a Docker container 
+containing your application.
 
 =cut
 
