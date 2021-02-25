@@ -14,6 +14,7 @@ use File::Share 'dist_dir';
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
 use Module::Runtime 'require_module';
+use JSON::MaybeXS;
 
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
@@ -104,7 +105,7 @@ following commands:
 
   cpan YAML
   perl -MCPAN -e 'install YAML'
-  curl -L http://cpanmin.us | perl - --sudo YAML
+  curl -L https://cpanmin.us | perl - --sudo YAML
 *****
 NOYAML
     }
@@ -265,20 +266,20 @@ sub _version_check {
     return if $version =~  m/_/;
 
     my $latest_version = 0;
-    my $resp = _send_http_request('http://search.cpan.org/api/module/Dancer2');
+    my $resp = _send_http_request( 'https://fastapi.metacpan.org/release/Dancer2' );
 
     if ($resp) {
-        if ( $resp =~ /"version" (?:\s+)? \: (?:\s+)? "(\d\.\d+)"/x ) {
+        if ( decode_json( $resp )->{ version } =~ /(\d\.\d+)/ ) {
             $latest_version = $1;
         } else {
-            die "Can't understand search.cpan.org's reply.\n";
+            die "Can't understand fastapi.metacpan.org's reply.\n";
         }
     }
 
     if ($latest_version > $version) {
         print qq|
 The latest stable Dancer2 release is $latest_version, you are currently using $version.
-Please check http://search.cpan.org/dist/Dancer2/ for updates.
+Please check https://metacpan.org/pod/Dancer2/ for updates.
 
 |;
     }
