@@ -148,6 +148,9 @@ jobs:
             cpanm --test-only --verbose Dancer2::Plugin::Minion
             cpanm --test-only --verbose Dancer2::Template::Handlebars
             cpanm --test-only --verbose Dancer2::Session::Cookie
+            cpanm --test-only --verbose Dancer2::Plugin::Email
+            cpanm --test-only --verbose Dancer2::Plugin::Auth::Extensible
+            cpanm --test-only --verbose Dancer2::Plugin::DBIC
 
       - name: Testing selected downstream modules
         run: |

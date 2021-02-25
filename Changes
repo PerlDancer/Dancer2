@@ -6,6 +6,7 @@
     [ ENHANCEMENTS ]
     * PR #1581: Disable scheduled GitHub action on Forks (Gabor Szabo)
     * PR #1590: Improve install/documentation of XS modules (Jason A. Crome)
+    * PR #1591: Add more plugins to GitHub Actions CI (Gabor Szabo)
 
     [ DOCUMENTATION ]
     * GH #1582: Small fixes in Migration POD (Sergiy Borodych)
