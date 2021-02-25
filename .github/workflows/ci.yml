@@ -23,6 +23,7 @@ on:
 
 jobs:
   build-in-container:
+    if: ${{ github.repository == 'PerlDancer/Dancer2' || github.event_name != 'schedule' }}
     runs-on: ubuntu-latest
 
     strategy:
