@@ -10,6 +10,8 @@
 
     [ DOCUMENTATION ]
     * GH #1582: Small fixes in Migration POD (Sergiy Borodych)
+    * PR #1595: Add cookbook recipe for enabling/disabling routes at 
+      runtime (Nick Tonkin)
 
 0.300005  2021-01-26 15:57:41-05:00 America/New_York
 

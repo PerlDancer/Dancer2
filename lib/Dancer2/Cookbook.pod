@@ -74,6 +74,52 @@ view (e.g. C</foo/bar.tt>) and render it with the default layout, if
 found. For full details, see the documentation for the L<auto_page
 setting|Dancer2::Config/"auto_page">.
 
+=head2 Enabling and disabling routes with config and Module::Runtime
+
+For various reasons you may want to be able to turn routes on and off in
+your app without having to comment out sections of code. This is easily
+accomplished if you encapsulate each route handler (or group of related
+handlers) in a separate module, and load the wanted routes at runtime.
+
+In C<MyApp::Route::Foo>:
+
+    package MyApp::Route::Foo;
+
+    use Dancer2 appname => 'MyApp';
+
+    get '/foo' => sub { return "bar" };
+
+In C<MyApp::Route::Baz>:
+
+    package MyApp::Route::Baz;
+
+    use Dancer2 appname => 'MyApp';
+
+    get '/baz' => sub { return "qux" };
+
+In your C<config.yaml>:
+
+    route_modules :
+        Foo : 1
+        Baz : 0
+
+In your main route controller:
+    
+    use Dancer2;
+    use Module::Runtime 'require_module';
+
+    my $module_base = 'MyApp::Route::';
+
+    my %modules = %{ config->{route_modules} };
+
+    my @required_modules = grep { $modules{$_} } keys %modules;
+
+    require_module( $module_base . $_ ) for @required_modules;
+
+Now your app will expose C</foo> but requests to C</baz> will get a
+404 response.
+
+
 =head2 Simplifying AJAX queries with the Ajax plugin
 
 As an AJAX query is just an HTTP query, it's similar to a GET or POST route.
