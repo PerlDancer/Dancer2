@@ -105,7 +105,27 @@ sub execute {
     _add_to_manifest_skip($app_path);
 
     if (my $remote = $opt->{remote} or $opt->{git}) {
-        my $git_error = <<'GITERR';
+        if ( ! eval { require_module('Git'); 1; } ) {
+            print <<'NOGIT';
+
+*****
+
+WARNING: Git.pm is not installed.  This is not a full dependency, but is highly
+recommended; in particular, we cannot initialize your git repository without
+it installed.
+
+To resolve this, install Git from CPAN using one of the following commands:
+
+  cpanm Git
+  cpan Git
+  perl -MCPAN -e 'install Git'
+  curl -L https://cpanmin.us | perl - --sudo Git
+
+and regenerate your application.
+*****
+NOGIT
+        } else {
+            my $git_error = <<'GITERR';
 
 *****
 
@@ -119,29 +139,32 @@ commands:
   git commit -m"Initial commit of $app_name by Dancer2"
 GITERR
 
-        my $git = which 'git';
-        -x $git or die "Can't execute git: $!";
+            my $git = which 'git';
+            -x $git or die "Can't execute git: $!";
 
-        my $gitignore = catfile( $dist_dir, '.gitignore' );
-        copy( $gitignore, $app_path );
+            my $gitignore = catfile( $dist_dir, '.gitignore' );
+            copy( $gitignore, $app_path );
 
-        chdir File::Spec->rel2abs($app_path) or die "Can't cd to $app_path: $!";
-        if( system( 'git', 'init') != 0 or 
-            system( 'git', 'add', '.') != 0 or 
-            system( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
-            print $git_error;
-        }
-        else {
-            if( system( 'git', 'remote', 'add', 'origin', $opt->{ remote }) != 0 ) {
+            chdir File::Spec->rel2abs($app_path) or die "Can't cd to $app_path: $!";
+            if( system( 'git', 'init') != 0 or 
+                system( 'git', 'add', '.') != 0 or 
+                system( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
                 print $git_error;
-                print "  git remote add origin " . $opt->{ remote } . "\n";
             }
+            else {
+                if( $opt->{ remote } && 
+                    system( 'git', 'remote', 'add', 'origin', $opt->{ remote }) != 0 ) {
+                    print $git_error;
+                    print "  git remote add origin " . $opt->{ remote } . "\n";
+                }
+            }
+            print "\n*****\n";
         }
-        print "\n*****\n";
     }
 
     if ( ! eval { require_module('YAML'); 1; } ) {
         print <<'NOYAML';
+
 *****
 WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly
 recommended; in particular, the scaffolded Dancer app being created will not be
