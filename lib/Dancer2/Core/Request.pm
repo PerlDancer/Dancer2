@@ -609,6 +609,14 @@ sub _set_route {
 
 sub route { $_[0]->{'route'} }
 
+sub body_data {
+    my $self = shift;
+    return $self->data if $self->serializer;
+    $self->_body_params;
+    return $self->{_body_params} if keys %{ $self->{_body_params} };
+    return $self->body;
+}
+
 1;
 
 __END__

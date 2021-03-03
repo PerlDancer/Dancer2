@@ -431,13 +431,7 @@ sub query_parameters { shift; $Dancer2::Core::Route::REQUEST->query_parameters(@
 sub body_parameters  { shift; $Dancer2::Core::Route::REQUEST->body_parameters(@_);  }
 sub route_parameters { shift; $Dancer2::Core::Route::REQUEST->route_parameters(@_); }
 
-sub request_data {
-    my $req = $Dancer2::Core::Route::REQUEST;
-    return $req->data if $req->serializer;
-    $req->_body_params;
-    return $req->{_body_params} if keys %{ $req->{_body_params} };
-    return $req->body;
-}
+sub request_data { shift; $Dancer2::Core::Route::REQUEST->body_data(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
