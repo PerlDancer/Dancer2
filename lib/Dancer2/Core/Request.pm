@@ -745,7 +745,7 @@ already did it for you and kept the raw body untouched in there.
 =method body_data
 
 Returns the body of the request in data form, making it possible to distinguish
-between C<body_parameters>, a representation of Web parameters
+between C<body_parameters>, a representation of the request parameters
 (L<Hash::MultiValue>) and other forms of content.
 
 If a serializer is set, this is the deserialized request body. Otherwise this is

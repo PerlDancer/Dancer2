@@ -2720,7 +2720,7 @@ Returns the request's body in data form
 (in case a serializer is set, it will be in deserialized).
 
 This allows us to distinguish between C<body_parameters>, a representation
-of Web parameters (L<Hash::MultiValue>) and other forms of content.
+of request parameters (L<Hash::MultiValue>) and other forms of content.
 
 =head2 pass
 
