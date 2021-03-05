@@ -47,23 +47,11 @@ __END__
   use Dancer2::Core::Hook;
   Dancer2::Core::Hook->register_hooks_name(qw/before_auth after_auth/);
 
-=method register_hook ($hook_name, [$properties], $code)
-
-    hook 'before', {apps => ['main']}, sub {...};
+=method register_hook ($hook_name, $code)
 
     hook 'before' => sub {...};
 
-Attaches a hook at some point, with a possible list of properties.
-
-Currently supported properties:
-
-=over 4
-
-=item apps
-
-    an array reference containing apps name
-
-=back
+Attaches a hook at some point.
 
 =method register_hooks_name
 
@@ -78,7 +66,7 @@ Test if a hook with this name has already been registered.
 
 =method execute_hook
 
-Execute a hooks
+Execute a hook
 
 =method get_hooks_for
 
