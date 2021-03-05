@@ -609,6 +609,14 @@ sub _set_route {
 
 sub route { $_[0]->{'route'} }
 
+sub body_data {
+    my $self = shift;
+    return $self->data if $self->serializer;
+    $self->_body_params;
+    return $self->{_body_params} if keys %{ $self->{_body_params} };
+    return $self->body;
+}
+
 1;
 
 __END__
@@ -733,6 +741,15 @@ Return the raw body of the request, unparsed.
 If you need to access the body of the request, you have to use this accessor and
 should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
 already did it for you and kept the raw body untouched in there.
+
+=method body_data
+
+Returns the body of the request in data form, making it possible to distinguish
+between C<body_parameters>, a representation of the request parameters
+(L<Hash::MultiValue>) and other forms of content.
+
+If a serializer is set, this is the deserialized request body. Otherwise this is
+the decoded body parameters (if any), or the body content itself.
 
 =method content
 

@@ -4,6 +4,7 @@
     * PR #1586: Run version checks against MetaCPAN (Jason A. Crome)
     
     [ ENHANCEMENTS ]
+    * GH #1064: Add DSL keyword request_data (Mickey Nasriachi)
     * PR #1581: Disable scheduled GitHub action on Forks (Gabor Szabo)
     * PR #1590: Improve install/documentation of XS modules (Jason A. Crome)
     * PR #1591: Add more plugins to GitHub Actions CI (Gabor Szabo)

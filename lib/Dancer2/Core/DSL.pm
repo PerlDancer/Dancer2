@@ -99,6 +99,7 @@ sub dsl_keywords {
         put                  => { is_global => 1 },
         redirect             => { is_global => 0 },
         request              => { is_global => 0 },
+        request_data         => { is_global => 0 },
         request_header       => { is_global => 0 },
         response             => { is_global => 0 },
         response_header      => { is_global => 0 },
@@ -429,6 +430,8 @@ sub param { shift; $Dancer2::Core::Route::REQUEST->param(@_); }
 sub query_parameters { shift; $Dancer2::Core::Route::REQUEST->query_parameters(@_); }
 sub body_parameters  { shift; $Dancer2::Core::Route::REQUEST->body_parameters(@_);  }
 sub route_parameters { shift; $Dancer2::Core::Route::REQUEST->route_parameters(@_); }
+
+sub request_data { shift; $Dancer2::Core::Route::REQUEST->body_data(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
