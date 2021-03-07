@@ -1111,6 +1111,11 @@ sub BUILD {
     $self->_init_hooks();
 }
 
+after BUILD => sub {
+    my $self = shift;
+    $self->log(core => 'Built config from files: ' . join(' ', @{$self->config_files}));
+};
+
 sub finish {
     my $self = shift;
 
