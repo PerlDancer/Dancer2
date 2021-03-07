@@ -19,6 +19,11 @@ use Dancer2::Template::Simple;
 use Module::Runtime 'require_module';
 use JSON::MaybeXS;
 
+# For git integration
+use Symbol;
+use IPC::Open3 qw();
+use Try::Tiny;
+
 my $SKEL_APP_FILE = 'lib/AppFile.pm';
 
 sub description { 'Helper script to create new Dancer2 applications' }
@@ -105,28 +110,7 @@ sub execute {
     _add_to_manifest_skip($app_path);
 
     if (my $remote = $opt->{remote} or $opt->{git}) {
-        if ( ! eval { require_module('Git'); 1; } ) {
-            print <<'NOGIT';
-
-*****
-
-WARNING: Git.pm is not installed.  This is not a full dependency, but is highly
-recommended; in particular, we cannot initialize your git repository without
-it installed.
-
-To resolve this, install Git from CPAN using one of the following commands:
-
-  cpanm Git
-  cpan Git
-  perl -MCPAN -e 'install Git'
-  curl -L https://cpanmin.us | perl - --sudo Git
-
-and regenerate your application.
-*****
-NOGIT
-        } else {
-            my $git_error = <<'GITERR';
-
+        my $git_error = <<'GITERR';
 *****
 
 WARNING: Couldn't initialize a git repo despite being asked to do so.
@@ -139,33 +123,32 @@ commands:
   git commit -m"Initial commit of $app_name by Dancer2"
 GITERR
 
-            my $git = which 'git';
-            -x $git or die "Can't execute git: $!";
+        my $git = which 'git';
+        -x $git or die "Can't execute git: $!";
 
-            my $gitignore = catfile( $dist_dir, '.gitignore' );
-            copy( $gitignore, $app_path );
+        my $gitignore = catfile( $dist_dir, '.gitignore' );
+        copy( $gitignore, $app_path );
 
-            chdir File::Spec->rel2abs($app_path) or die "Can't cd to $app_path: $!";
-            if( system( 'git', 'init') != 0 or 
-                system( 'git', 'add', '.') != 0 or 
-                system( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
-                print $git_error;
-            }
-            else {
-                if( $opt->{ remote } && 
-                    system( 'git', 'remote', 'add', 'origin', $opt->{ remote }) != 0 ) {
-                    print $git_error;
-                    print "  git remote add origin " . $opt->{ remote } . "\n";
-                }
-            }
-            print "\n*****\n";
+        chdir File::Spec->rel2abs($app_path) or die "Can't cd to $app_path: $!";
+        if( _run_shell_cmd( 'git', 'init') != 0 or 
+            _run_shell_cmd( 'git', 'add', '.') != 0 or 
+            _run_shell_cmd( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
+            print $git_error;
         }
+        else {
+            if( $opt->{ remote } && 
+                _run_shell_cmd( 'git', 'remote', 'add', 'origin', $opt->{ remote }) != 0 ) {
+                print $git_error;
+                print "  git remote add origin " . $opt->{ remote } . "\n";
+            }
+        }
+        print "\n*****\n";
     }
 
     if ( ! eval { require_module('YAML'); 1; } ) {
         print <<'NOYAML';
-
 *****
+
 WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly
 recommended; in particular, the scaffolded Dancer app being created will not be
 able to read settings from the config file without YAML.pm being installed.
@@ -176,6 +159,7 @@ following commands:
   cpan YAML
   perl -MCPAN -e 'install YAML'
   curl -L https://cpanmin.us | perl - --sudo YAML
+
 *****
 NOYAML
     }
@@ -362,6 +346,28 @@ sub _send_http_request {
 
     my $response = $ua->get($url);
     return $response->{'success'} ? $response->{'content'} : undef;
+}
+
+# Shell out to run git
+sub _run_shell_cmd {
+    my @cmds = @_;
+
+    my $exit_status = try {
+        my $pid = IPC::Open3::open3(
+            my $stdin, 
+            my $stdout, 
+            my $stderr = Symbol::gensym,
+            @cmds,
+        );
+
+        waitpid( $pid, 0 );
+        return $? >> 8;
+    } catch {
+        print STDERR "$_\n";
+        return 1;
+    };
+
+    return $exit_status;
 }
 
 1;

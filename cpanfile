@@ -65,7 +65,6 @@ recommends 'Scope::Upper';
 recommends 'Type::Tiny::XS';
 recommends 'URL::Encode::XS';
 recommends 'YAML::XS';
-recommends 'Git';
 
 suggests 'Fcntl';
 suggests 'MIME::Types';
