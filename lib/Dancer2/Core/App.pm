@@ -1113,9 +1113,8 @@ sub BUILD {
 
 after BUILD => sub {
     my $self = shift;
-    defined $self->config->{'logger'} and $self->log(
-        'core' => 'Built config from files: '
-                  . join(' ', @{$self->config_files})
+    $self->log(
+        core => 'Built config from files: ' . join(' ', @{$self->config_files})
     );
 };
 
