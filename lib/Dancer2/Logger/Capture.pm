@@ -62,7 +62,7 @@ A worked-out real-world example:
 
 This is a logger class for L<Dancer2> which captures all logs to an object.
 
-It's primary purpose is for testing. Here is an example of a test:
+Its primary purpose is for testing. Here is an example of a test:
 
     use strict;
     use warnings;
