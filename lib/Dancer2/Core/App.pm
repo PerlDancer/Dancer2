@@ -1109,6 +1109,8 @@ sub BUILD {
     my $self = shift;
     $self->init_route_handlers();
     $self->_init_hooks();
+
+    $self->log(core => 'Built config from files: ' . join(' ', @{$self->config_files}));
 }
 
 sub finish {
