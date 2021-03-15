@@ -3,7 +3,7 @@ package Dancer2::CLI::Command::version;
 
 use strict;
 use warnings;
-use App::Cmd::Setup -command;
+use Dancer2::Bundled::App::Cmd::Setup -command;
 use Module::Runtime 'require_module';
 
 sub description { 'Display version of Dancer2' }

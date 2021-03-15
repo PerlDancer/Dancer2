@@ -3,6 +3,6 @@ package Dancer2::CLI;
 
 use strict;
 use warnings;
-use App::Cmd::Setup -app;
+use Dancer2::Bundled::App::Cmd::Setup -app;
 
 1;

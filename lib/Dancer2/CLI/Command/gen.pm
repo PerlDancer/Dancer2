@@ -4,7 +4,7 @@ package Dancer2::CLI::Command::gen;
 use strict;
 use warnings;
 
-use App::Cmd::Setup -command;
+use Dancer2::Bundled::App::Cmd::Setup -command;
 
 use HTTP::Tiny;
 use File::Find;
