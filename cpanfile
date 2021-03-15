@@ -1,4 +1,4 @@
-requires 'App::Cmd::Setup';
+requires 'App::Cmd::Setup', '<= 0.331';
 requires 'Attribute::Handlers';
 requires 'Carp';
 requires 'Clone';
