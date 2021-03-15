@@ -2,6 +2,8 @@
 
     [ BUG FIXES ]
     * PR #1586: Run version checks against MetaCPAN (Jason A. Crome)
+    * PR #1604: Remove App::Cmd dependency; have script/dancer2 bail if
+      it's not installed (David Precious)
     
     [ ENHANCEMENTS ]
     * GH #1064: Add DSL keyword request_data (Mickey Nasriachi)
