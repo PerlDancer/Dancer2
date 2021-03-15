@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.301000  2021-03-15 18:58:17-04:00 America/New_York
+
     [ BUG FIXES ]
     * PR #1586: Run version checks against MetaCPAN (Jason A. Crome)
     * PR #1604: Remove App::Cmd dependency; have script/dancer2 bail if
