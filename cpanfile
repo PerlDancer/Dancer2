@@ -1,4 +1,3 @@
-requires 'App::Cmd::Setup';
 requires 'Attribute::Handlers';
 requires 'Carp';
 requires 'Clone';
