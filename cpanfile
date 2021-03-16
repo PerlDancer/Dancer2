@@ -31,7 +31,6 @@ requires 'Plack::Middleware::FixMissingBodyInRedirect';
 requires 'Plack::Middleware::RemoveRedundantBody';
 requires 'POSIX';
 requires 'Ref::Util';
-requires 'Role::Tiny', '>=2.000000, !=2.000007';
 requires 'Safe::Isa';
 requires 'Sub::Quote';
 requires 'Template';
@@ -41,6 +40,9 @@ requires 'Test::More';
 requires 'Types::Standard';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
+
+requires 'Role::Tiny', '2.000000';
+conflicts 'Role::Tiny', '== 2.000007';
 
 # Minimum version of YAML is needed due to:
 # - https://github.com/PerlDancer/Dancer2/issues/899
