@@ -80,8 +80,6 @@ test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
 
-build_requires 'Test::CPAN::Meta';
-
 author_requires 'Test::NoTabs';
 author_requires 'Test::Pod';
 author_requires 'AnyEvent';
