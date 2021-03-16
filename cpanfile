@@ -50,7 +50,7 @@ conflicts 'Role::Tiny', '== 2.000007';
 # - http://www.cpantesters.org/cpan/report/25911c10-4199-11e6-8d7d-86c55bc2a771
 # - http://www.cpantesters.org/cpan/report/284ac158-419a-11e6-9a35-e3e15bc2a771
 requires 'YAML', '0.86';
-conflicts 'YAML', '1.16';
+conflicts 'YAML', '== 1.16';
 
 recommends 'CGI::Deurl::XS';
 recommends 'Class::XSAccessor';
