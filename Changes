@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    
+    * PR #1607: Fix broken tests following App::Cmd removal (Jason Crome)
+
     [ ENHANCEMENTS ]
     * PR #1606: Clean up various build prereqs (Graham Knop)
 
