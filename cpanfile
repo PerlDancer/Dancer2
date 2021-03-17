@@ -31,7 +31,6 @@ requires 'Plack::Middleware::FixMissingBodyInRedirect';
 requires 'Plack::Middleware::RemoveRedundantBody';
 requires 'POSIX';
 requires 'Ref::Util';
-requires 'Role::Tiny', '>=2.000000, !=2.000007';
 requires 'Safe::Isa';
 requires 'Sub::Quote';
 requires 'Template';
@@ -42,13 +41,16 @@ requires 'Types::Standard';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
 
+requires 'Role::Tiny', '2.000000';
+conflicts 'Role::Tiny', '== 2.000007';
+
 # Minimum version of YAML is needed due to:
 # - https://github.com/PerlDancer/Dancer2/issues/899
 # Excluded 1.16 is needs due to:
 # - http://www.cpantesters.org/cpan/report/25911c10-4199-11e6-8d7d-86c55bc2a771
 # - http://www.cpantesters.org/cpan/report/284ac158-419a-11e6-9a35-e3e15bc2a771
 requires 'YAML', '0.86';
-conflicts 'YAML', '1.16';
+conflicts 'YAML', '== 1.16';
 
 recommends 'CGI::Deurl::XS';
 recommends 'Class::XSAccessor';
@@ -77,8 +79,6 @@ test_requires 'Test::EOL';
 test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
-
-build_requires 'Test::CPAN::Meta';
 
 author_requires 'Test::NoTabs';
 author_requires 'Test::Pod';
