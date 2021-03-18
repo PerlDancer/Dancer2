@@ -45,9 +45,8 @@ option overwrite => (
     default  => 0,
 );
 
-option nocheck => (
+option no_check => (
     is       => 'ro',
-    option   => 'no-check',
     short    => 'x',
     doc      => "don't check latest Dancer2 version (default: check - requires internet)",
     required => 0,
@@ -72,7 +71,7 @@ sub run {
     print "DIR: " . $self->directory, "\n";
     print "PATH: " . $self->path, "\n";
     print "OVERWRITE: " . $self->overwrite, "\n";
-    print "NOCHECK: " . $self->nocheck, "\n";
+    print "NOCHECK: " . $self->no_check, "\n";
     print "SKEL: " . $self->skel, "\n";
 }
 
