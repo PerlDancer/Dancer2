@@ -6,8 +6,6 @@ use warnings;
 use Moo;
 use HTTP::Tiny;
 use JSON::MaybeXS;
-use File::Share 'dist_dir';
-use Module::Runtime 'require_module';
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
 
@@ -68,15 +66,6 @@ option skel => (
     default    => '.',
 );
 
-option version => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub {
-        require_module( 'Dancer2' );
-        return Dancer2->VERSION;
-    },
-);
-
 # Last chance to validate args before we attempt to do something with them
 sub BUILD {
     my ( $self, $args ) = @_;
@@ -102,7 +91,8 @@ sub run {
     my $self = shift;
 
     $self->_version_check;
-    print "D2 VERSION: " . $self->version, "\n";
+    print "D2 VERSION: " . $self->parent_command->_dancer2_version, "\n";
+    print "DIST DIR: " . $self->parent_command->_dist_dir, "\n";
     print "APP: " . $self->application, "\n";
     print "DIR: " . $self->directory, "\n";
     print "PATH: " . $self->path, "\n";
@@ -114,7 +104,7 @@ sub run {
 # Other utility methods
 sub _version_check {
     my $self    = shift;
-    my $version = $self->version;
+    my $version = $self->parent_command->_dancer2_version;
     return if $version =~  m/_/;
 
     my $latest_version = 0;
