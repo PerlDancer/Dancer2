@@ -10,6 +10,11 @@ use Module::Runtime 'require_module';
 
 subcommand gen => 'Dancer2::CLI::Gen';
 
+sub run {
+    my ($self) = @_;
+}
+
+# Thinking ahead, these might be useful in future subcommands
 has _dancer2_version => (
     is      => 'ro',
     lazy    => 1,
@@ -24,9 +29,5 @@ has _dist_dir => (
     lazy    => 1,
     default => dist_dir('Dancer2'),
 );
-
-sub run {
-    my ($self) = @_;
-}
 
 1;

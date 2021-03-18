@@ -6,6 +6,11 @@ use warnings;
 use Moo;
 use HTTP::Tiny;
 use JSON::MaybeXS;
+use File::Find;
+use File::Path 'mkpath';
+use File::Spec::Functions qw( catdir );
+use File::Basename qw/dirname basename/;
+use Dancer2::Template::Simple;
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
 
@@ -55,7 +60,6 @@ option no_check => (
     default  => 0,
 );
 
-# TODO: private dist_dir attr, default to using it
 option skel => (
     is         => 'ro',
     short      => 's',
@@ -63,7 +67,10 @@ option skel => (
     format     => 's',
     format_doc => 'directory',
     required   => 0,
-    default    => '.',
+    default    => sub{
+        my $self = shift; 
+        catdir( $self->parent_command->_dist_dir, 'skel' ); 
+    },
 );
 
 # Last chance to validate args before we attempt to do something with them
