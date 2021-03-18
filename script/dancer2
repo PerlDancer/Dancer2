@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # PODNAME: dancer2
 # ABSTRACT: Dancer2 command line interface
 
@@ -6,20 +6,22 @@ use strict;
 use warnings;
 use Dancer2::CLI;
 
-# backward compatibility
-if (@ARGV && ($ARGV[0] =~ m/^-(a|p|x|s)/ || $ARGV[0] =~ m/^--(application|path|no-check|skel)/)) {
-    # GetOptions and Getopt::Long::Descriptive differently treats
-    # cases like '-a=Test'. GetOptions returs 'Test' as value of 'a',
-    # while Getopt::Long::Descriptive returns '=Test' as value
-    foreach (@ARGV) {
-        s/^\-(a|p)=/-$1/;
-    }
+## backward compatibility
+#if (@ARGV && ($ARGV[0] =~ m/^-(a|p|x|s)/ || $ARGV[0] =~ m/^--(application|path|no-check|skel)/)) {
+    ## GetOptions and Getopt::Long::Descriptive differently treats
+    ## cases like '-a=Test'. GetOptions returs 'Test' as value of 'a',
+    ## while Getopt::Long::Descriptive returns '=Test' as value
+    #foreach (@ARGV) {
+        #s/^\-(a|p)=/-$1/;
+    #}
 
-    unshift @ARGV, 'gen';
-}
+    #unshift @ARGV, 'gen';
+#}
 
 
-exit Dancer2::CLI->run;
+#exit Dancer2::CLI->run;
+
+Dancer2::CLI->new_with_options->run;
 
 __END__
 =pod
