@@ -4,6 +4,10 @@ package Dancer2::CLI::Gen;
 use strict;
 use warnings;
 use Moo;
+use HTTP::Tiny;
+use JSON::MaybeXS;
+use File::Share 'dist_dir';
+use Module::Runtime 'require_module';
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
 
@@ -61,18 +65,75 @@ option skel => (
     format     => 's',
     format_doc => 'directory',
     required   => 0,
-    default    => 0,
+    default    => '.',
 );
+
+option version => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        require_module( 'Dancer2' );
+        return Dancer2->VERSION;
+    },
+);
+
+# Last chance to validate args before we attempt to do something with them
+sub BUILD {
+    my ( $self, $args ) = @_;
+
+    my $name = $self->application;
+    if ( $name =~ /[^\w:]/ || $name =~ /^\d/ || $name =~ /\b:\b|:{3,}/ ) {
+        $self->osprey_usage( 1, qq{ 
+Invalid application name. Application names must not contain single colons, 
+dots, hyphens or start with a number.
+        });
+    }
+
+    my $path = $self->path;
+    -d $path or $self->osprey_usage( 1, "directory '$path' does not exist" );
+    -w $path or $self->osprey_usage( 1, "directory '$path' is not writeable" );
+
+    if ( my $skel = $self->skel ) {
+        -d $skel or $self->osprey_usage( 1, "directory '$skel' not found" );
+    }
+}
 
 sub run {
     my $self = shift;
 
+    $self->_version_check;
+    print "D2 VERSION: " . $self->version, "\n";
     print "APP: " . $self->application, "\n";
     print "DIR: " . $self->directory, "\n";
     print "PATH: " . $self->path, "\n";
     print "OVERWRITE: " . $self->overwrite, "\n";
     print "NOCHECK: " . $self->no_check, "\n";
     print "SKEL: " . $self->skel, "\n";
+}
+
+# Other utility methods
+sub _version_check {
+    my $self    = shift;
+    my $version = $self->version;
+    return if $version =~  m/_/;
+
+    my $latest_version = 0;
+    my $resp = HTTP::Tiny->new( timeout => 5 )->get( 'https://fastapi.metacpan.org/release/Dancer2' );
+    if( $resp->{ success } ) {
+        if ( decode_json( $resp->{ content } )->{ version } =~ /(\d\.\d+)/ ) {
+            $latest_version = $1;
+        } else {
+            die "Can't understand fastapi.metacpan.org's reply.\n";
+        }
+    }
+
+    if ($latest_version gt $version) {
+        print qq{
+The latest stable Dancer2 release is $latest_version. You are currently using $version.
+Please check https://metacpan.org/pod/Dancer2/ for updates.
+
+};
+    }
 }
 
 1;
