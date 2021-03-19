@@ -10,9 +10,9 @@ use Module::Runtime 'require_module';
 
 subcommand gen => 'Dancer2::CLI::Gen';
 
-sub run {
-    my ($self) = @_;
-}
+# Could have done this one inline, but wanted to remain consistent
+# across subcommands.
+subcommand version => 'Dancer2::CLI::Version';
 
 # Thinking ahead, these might be useful in future subcommands
 has _dancer2_version => (
