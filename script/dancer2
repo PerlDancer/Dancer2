@@ -79,16 +79,22 @@ how to convert a Dancer (1) based application to Dancer2.
 
 =over
 
-=item gen                   : create new Dancer2 application
+=item * gen                   
 
-=item version               : display version
+Create a new Dancer2 application.
+
+=item * version               
+
+Display version of Dancer2 currently installed.
 
 =back
 
 To get detailed description of each individual command run:
+    
     dancer2 <command> --help
 
-The lastest list of available commands can be displayed by:
+The latest list of available commands can be displayed by:
+    
     dancer2 
 
 =head1 AUTHOR
