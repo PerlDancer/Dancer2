@@ -1,8 +1,6 @@
 package Dancer2::CLI::Version;
 # ABSTRACT: Display Dancer2 version
 
-use strict;
-use warnings;
 use Moo;
 use CLI::Osprey
     desc => 'Display version of Dancer2';

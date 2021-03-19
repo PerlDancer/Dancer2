@@ -1,8 +1,6 @@
 package Dancer2::CLI::Gen;
 # ABSTRACT: Create new Dancer2 application
 
-use strict;
-use warnings;
 use Moo;
 use HTTP::Tiny;
 use JSON::MaybeXS;
@@ -11,7 +9,7 @@ use File::Path 'mkpath';
 use File::Spec::Functions qw( catdir catfile );
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
-use Module::Runtime qw( require_module is_module_name );
+use Module::Runtime qw( use_module is_module_name );
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
 
@@ -130,7 +128,7 @@ sub run {
 }
 
 sub _check_yaml {
-    if ( ! eval { require_module( 'YAML' ); 1; } ) {
+    if ( ! eval { use_module( 'YAML' ); 1; } ) {
         print qq{
 *****
 
