@@ -8,10 +8,10 @@ use HTTP::Tiny;
 use JSON::MaybeXS;
 use File::Find;
 use File::Path 'mkpath';
-use File::Spec::Functions qw( catdir );
+use File::Spec::Functions qw( catdir catfile );
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
-use Module::Runtime 'is_module_name';
+use Module::Runtime qw( require_module is_module_name );
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
 
@@ -84,26 +84,213 @@ dots, hyphens or start with a number.
     }) unless is_module_name( $self->application );
 
     my $path = $self->path;
-    -d $path or $self->osprey_usage( 1, "directory '$path' does not exist" );
-    -w $path or $self->osprey_usage( 1, "directory '$path' is not writeable" );
+    -d $path or $self->osprey_usage( 1, "path: directory '$path' does not exist" );
+    -w $path or $self->osprey_usage( 1, "path: directory '$path' is not writeable" );
 
     if ( my $skel = $self->skel ) {
-        -d $skel or $self->osprey_usage( 1, "directory '$skel' not found" );
+        -d $skel or $self->osprey_usage( 1, "skel: directory '$skel' not found" );
     }
 }
 
 sub run {
     my $self = shift;
 
-    $self->_version_check;
-    print "D2 VERSION: " . $self->parent_command->_dancer2_version, "\n";
-    print "DIST DIR: " . $self->parent_command->_dist_dir, "\n";
-    print "APP: " . $self->application, "\n";
-    print "DIR: " . $self->directory, "\n";
-    print "PATH: " . $self->path, "\n";
-    print "OVERWRITE: " . $self->overwrite, "\n";
-    print "NOCHECK: " . $self->no_check, "\n";
-    print "SKEL: " . $self->skel, "\n";
+    my $app_name = $self->application;
+    my $app_file = $self->_get_app_file( $app_name );
+    my $app_path = $self->_get_app_path( $self->path, $app_name );
+
+    if( my $dir = $self->directory ) {
+        $app_path = catdir( $self->path, $dir );
+    }
+
+    my $files_to_copy = $self->_build_file_list( $self->skel, $app_path );
+    foreach my $pair( @$files_to_copy ) {
+        if( $pair->[0] =~ m/lib\/AppFile.pm$/ ) {
+            $pair->[1] = catfile( $app_path, $app_file );
+            last;
+        }
+    }
+
+    my $vars = {
+        appname          => $app_name,
+        appfile          => $app_file,
+        appdir           => File::Spec->rel2abs( $app_path ),
+        perl_interpreter => $self->_get_perl_interpreter,
+        cleanfiles       => $self->_get_dashed_name( $app_name ),
+        dancer_version   => $self->parent_command->_dancer2_version,
+    };
+
+    $self->_copy_templates( $files_to_copy, $vars, $self->overwrite );
+    $self->_create_manifest( $files_to_copy, $app_path );
+    $self->_add_to_manifest_skip( $app_path);
+
+    $self->_check_yaml;
+    $self->_how_to_run( $app_path );
+}
+
+sub _check_yaml {
+    if ( ! eval { require_module( 'YAML' ); 1; } ) {
+        print qq{
+*****
+
+WARNING: YAML.pm is not installed.  This is not a full dependency, but is highly
+recommended; in particular, the scaffolded Dancer app being created will not be
+able to read settings from the config file without YAML.pm being installed.
+
+To resolve this, simply install YAML from CPAN, for instance using one of the
+following commands:
+
+  cpan YAML
+  perl -MCPAN -e 'install YAML'
+  curl -L https://cpanmin.us | perl - --sudo YAML
+
+*****
+        };
+    }
+}
+
+sub _how_to_run {
+    my( $self, $app_path ) = @_;
+    print qq{
+Your new application is ready! To run it:
+
+        cd $app_path
+        plackup bin/app.psgi
+
+If you need community assistance, the following resources are available:
+- Dancer website: http://perldancer.org
+- Mailing list: http://lists.preshweb.co.uk/mailman/listinfo/dancer-users
+- IRC: irc.perl.org#dancer
+
+Happy Dancing!
+    };
+}
+
+# skel creation routines
+sub _build_file_list {
+    my ( $self, $from, $to ) = @_;
+    $from   =~ s{/+$}{};
+    my $len = length($from) + 1;
+
+    my @result;
+    my $wanted = sub {
+        return unless -f;
+        my $file = substr( $_, $len );
+
+        # ignore .git and git/*
+        my $is_git = $file =~ m{^\.git(/|$)}
+            and return;
+
+        push @result, [ $_, catfile( $to, $file ) ];
+    };
+
+    find({ wanted => $wanted, no_chdir => 1 }, $from );
+    return \@result;
+}
+
+sub _copy_templates {
+    my ( $self, $files, $vars, $overwrite ) = @_;
+
+    foreach my $pair (@$files) {
+        my ( $from, $to ) = @{$pair};
+        if ( -f $to && !$overwrite ) {
+            print "! $to exists, overwrite? [N/y/a]: ";
+            my $res = <STDIN>; chomp($res);
+            $overwrite = 1 if $res eq 'a';
+            next unless ( $res eq 'y' ) or ( $res eq 'a' );
+        }
+
+        my $to_dir = dirname( $to );
+        if ( ! -d $to_dir ) {
+            print "+ $to_dir\n";
+            mkpath $to_dir or die "could not mkpath $to_dir: $!";
+        }
+
+        my $to_file = basename($to);
+        my $ex      = ($to_file =~ s/^\+//);
+        $to         = catfile($to_dir, $to_file) if $ex;
+
+        print "+ $to\n";
+        my $content;
+        {
+            local $/;
+            open( my $fh, '<:raw', $from ) or die "unable to open file `$from' for reading: $!";
+            $content = <$fh>;
+            close $fh;
+        }
+
+        if( $from !~ m/\.(ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/ ) {
+            $content = _process_template($content, $vars);
+        }
+
+        open( my $fh, '>:raw', $to ) or die "unable to open file `$to' for writing: $!";
+        print $fh $content;
+        close $fh;
+
+        if( $ex ) {
+            chmod( 0755, $to ) or warn "unable to change permissions for $to: $!";
+        }
+    }
+}
+
+sub _create_manifest {
+    my ( $self, $files, $dir ) = @_;
+
+    my $manifest_name = catfile( $dir, 'MANIFEST' );
+    open( my $manifest, '>', $manifest_name ) or die $!;
+    print $manifest "MANIFEST\n";
+
+    foreach my $file( @{ $files } ) {
+        my $filename       = substr $file->[1], length( $dir ) + 1;
+        my $basename       = basename $filename;
+        my $clean_basename = $basename;
+        $clean_basename    =~ s/^\+//;
+        $filename          =~ s/\Q$basename\E/$clean_basename/;
+        print {$manifest} "$filename\n";
+    }
+
+    close $manifest;
+}
+
+sub _add_to_manifest_skip {
+    my ( $self, $dir ) = @_;
+
+    my $filename = catfile( $dir, 'MANIFEST.SKIP' );
+    open my $fh, '>>', $filename or die $!;
+    print {$fh} "^$dir-\n";
+    close $fh;
+}
+
+sub _process_template {
+    my ( $self, $template, $tokens ) = @_;
+
+    my $engine = Dancer2::Template::Simple->new;
+    $engine->{ start_tag } = '[d2%';
+    $engine->{ stop_tag }  = '%2d]';
+    return $engine->render( \$template, $tokens );
+}
+
+# These are good candidates to move to Dancer2::CLI if other commands 
+# need them later.
+sub _get_app_path {
+    my ( $self, $path, $appname ) = @_;
+    return catdir( $path, $self->_get_dashed_name( $appname ));
+}
+
+sub _get_app_file {
+    my ( $self, $appname ) = @_;
+    $appname =~ s{::}{/}g;
+    return catfile( 'lib', "$appname.pm" );
+}
+
+sub _get_perl_interpreter {
+    return -r '/usr/bin/env' ? '#!/usr/bin/env perl' : "#!$^X";
+}
+
+sub _get_dashed_name {
+    my ( $self, $name ) = @_;
+    $name =~ s{::}{-}g;
+    return $name;
 }
 
 # Other utility methods
