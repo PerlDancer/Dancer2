@@ -159,7 +159,7 @@ Your new application is ready! To run it:
 
 If you need community assistance, the following resources are available:
 - Dancer website: http://perldancer.org
-- Mailing list: http://lists.preshweb.co.uk/mailman/listinfo/dancer-users
+- Mailing list: http://lists.perldancer.org/mailman/listinfo/dancer-users
 - IRC: irc.perl.org#dancer
 
 Happy Dancing!
