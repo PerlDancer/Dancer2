@@ -312,7 +312,7 @@ Please check https://metacpan.org/pod/Dancer2/ for updates.
         }
     } else {
         warn "\nCouldn't determine latest version of Dancer2. Please check your internet
-connection, or use pass -x to gen to bypass this check in the future.\n\n";
+connection, or pass -x to gen to bypass this check in the future.\n\n";
 
     }
 }
