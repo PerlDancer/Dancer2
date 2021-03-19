@@ -194,7 +194,7 @@ sub _copy_templates {
     foreach my $pair (@$files) {
         my ( $from, $to ) = @{$pair};
         if ( -f $to && !$overwrite ) {
-            print "! $to exists, overwrite? [N/y/a]: ";
+            print "! $to exists, overwrite? (or rerun this command with -o) [N/y/a]: ";
             my $res = <STDIN>; chomp($res);
             $overwrite = 1 if $res eq 'a';
             next unless ( $res eq 'y' ) or ( $res eq 'a' );
