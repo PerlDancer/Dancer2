@@ -11,6 +11,7 @@ use File::Path 'mkpath';
 use File::Spec::Functions qw( catdir );
 use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
+use Module::Runtime 'is_module_name';
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
 
@@ -77,13 +78,10 @@ option skel => (
 sub BUILD {
     my ( $self, $args ) = @_;
 
-    my $name = $self->application;
-    if ( $name =~ /[^\w:]/ || $name =~ /^\d/ || $name =~ /\b:\b|:{3,}/ ) {
-        $self->osprey_usage( 1, qq{ 
+    $self->osprey_usage( 1, qq{ 
 Invalid application name. Application names must not contain single colons, 
 dots, hyphens or start with a number.
-        });
-    }
+    }) unless is_module_name( $self->application );
 
     my $path = $self->path;
     -d $path or $self->osprey_usage( 1, "directory '$path' does not exist" );
