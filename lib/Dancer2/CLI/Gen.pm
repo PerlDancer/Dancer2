@@ -94,6 +94,7 @@ dots, hyphens or start with a number.
 
 sub run {
     my $self = shift;
+    $self->_version_check unless $self->no_check;
 
     my $app_name = $self->application;
     my $app_file = $self->_get_app_file( $app_name );
@@ -145,7 +146,7 @@ following commands:
   curl -L https://cpanmin.us | perl - --sudo YAML
 
 *****
-        };
+};
     }
 }
 
@@ -163,7 +164,8 @@ If you need community assistance, the following resources are available:
 - IRC: irc.perl.org#dancer
 
 Happy Dancing!
-    };
+
+};
 }
 
 # skel creation routines
@@ -301,20 +303,19 @@ sub _version_check {
 
     my $latest_version = 0;
     my $resp = HTTP::Tiny->new( timeout => 5 )->get( 'https://fastapi.metacpan.org/release/Dancer2' );
-    if( $resp->{ success } ) {
-        if ( decode_json( $resp->{ content } )->{ version } =~ /(\d\.\d+)/ ) {
-            $latest_version = $1;
-        } else {
-            die "Can't understand fastapi.metacpan.org's reply.\n";
-        }
-    }
-
-    if ($latest_version gt $version) {
-        print qq{
+    if( $resp->{ success } && decode_json( $resp->{ content } )->{ version } =~ /(\d\.\d+)/ ) {
+        $latest_version = $1;
+        if ($latest_version gt $version) {
+            print qq{
 The latest stable Dancer2 release is $latest_version. You are currently using $version.
 Please check https://metacpan.org/pod/Dancer2/ for updates.
 
 };
+        }
+    } else {
+        warn "\nCouldn't determine latest version of Dancer2. Please check your internet
+connection, or use pass -x to gen to bypass this check in the future.\n\n";
+
     }
 }
 
