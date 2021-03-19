@@ -30,4 +30,9 @@ has _dist_dir => (
     default => dist_dir('Dancer2'),
 );
 
+sub run {
+    my $self = shift;
+    return $self->osprey_usage;
+}
+
 1;
