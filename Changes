@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * PR #1601: Log files used to build config (Nick Tonkin)
+    * PR #1608: Migrate CLI to CLI::Osprey (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * None
+
 0.301001  2021-03-17 08:52:34-04:00 America/New_York
 
     [ BUG FIXES ]
@@ -7,7 +17,6 @@
 
     [ ENHANCEMENTS ]
     * PR #1606: Clean up various build prereqs (Graham Knop)
-    * PR #1608: Migrate CLI to CLI::Osprey (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * None
