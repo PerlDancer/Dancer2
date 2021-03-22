@@ -4,7 +4,7 @@
     * None
 
     [ ENHANCEMENTS ]
-    * PR #1601: Log files used to build config (Nick Tonkin)
+    * GH #1593: Log files used to build config (Nick Tonkin)
     * PR #1608: Migrate CLI to CLI::Osprey (Jason A. Crome)
 
     [ DOCUMENTATION ]
