@@ -7,6 +7,7 @@
 
     [ ENHANCEMENTS ]
     * PR #1606: Clean up various build prereqs (Graham Knop)
+    * PR #1608: Migrate CLI to CLI::Osprey (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * None
