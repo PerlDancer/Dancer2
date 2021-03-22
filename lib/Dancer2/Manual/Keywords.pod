@@ -17,7 +17,7 @@ For example, take the following example:
     get '/hello/:name' => sub {
         my $name = route_parameters->get('name');
     };
-    dance;
+    true;
 
 C<get> and C<route_parameters> are keywords provided by Dancer2.
 
