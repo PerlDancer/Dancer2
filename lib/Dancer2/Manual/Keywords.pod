@@ -69,7 +69,8 @@ versions:
     }x
     , sub {
         my $value_for = captures;
-        "i don't want to $$value_for{action} the $$value_for{object} $$value_for{id} !"
+        "i don't want to $value_for->{action} " . 
+            "the $value_for->{object} $value_for->{id} !"
     };
 
 =head2 cookie
