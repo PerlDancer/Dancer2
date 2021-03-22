@@ -1,5 +1,5 @@
 # ABSTRACT: Dancer2 DSL Keywords
-package Dancer2::DSL;
+package Dancer2::Manual::Keywords;
 
 =pod
 
