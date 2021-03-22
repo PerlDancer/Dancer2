@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # PODNAME: dancer2
 # ABSTRACT: Dancer2 command line interface
 
@@ -6,20 +6,7 @@ use strict;
 use warnings;
 use Dancer2::CLI;
 
-# backward compatibility
-if (@ARGV && ($ARGV[0] =~ m/^-(a|p|x|s)/ || $ARGV[0] =~ m/^--(application|path|no-check|skel)/)) {
-    # GetOptions and Getopt::Long::Descriptive differently treats
-    # cases like '-a=Test'. GetOptions returs 'Test' as value of 'a',
-    # while Getopt::Long::Descriptive returns '=Test' as value
-    foreach (@ARGV) {
-        s/^\-(a|p)=/-$1/;
-    }
-
-    unshift @ARGV, 'gen';
-}
-
-
-exit Dancer2::CLI->run;
+Dancer2::CLI->new_with_options->run;
 
 __END__
 =pod
@@ -92,95 +79,34 @@ how to convert a Dancer (1) based application to Dancer2.
 
 =over
 
-=item gen                   : create new Dancer2 application
+=item * gen                   
 
-=item commands              : list the application's commands
+Create a new Dancer2 application.
 
-=item help                  : display a command's help screen
+=item * version               
 
-=item version               : display version
+Display version of Dancer2 currently installed.
 
 =back
 
 To get detailed description of each individual command run:
-    dancer2 help <command>
+    
+    dancer2 <command> --help
 
-The lastest list of available commands can be dispayed by:
-    dancer2 commands
-
-=head1 COMMAND 'gen'
-
-Helper script for providing a bootstrapping method to quickly and easily create
-the framework for a new Dancer2 application.
-
-=head3 OPTIONS
-
-        -a --application     the name of your application
-        -p --path            the path where to create your application
-                             (current directory if not specified)
-        -o --overwrite       overwrite existing files
-        -x --no-check        don't check for the latest version of Dancer2
-                             (checking version implies internet connection)
-        -s --skel            skeleton directory
-
-=head3 EXAMPLE
-
-Here is an application created with dancer2:
-
-    $ dancer2 gen -a MyWeb::App
-    + MyWeb-App
-    + MyWeb-App/bin
-    + MyWeb-App/bin/app.psgi
-    + MyWeb-App/config.yml
-    + MyWeb-App/environments
-    + MyWeb-App/environments/development.yml
-    + MyWeb-App/environments/production.yml
-    + MyWeb-App/views
-    + MyWeb-App/views/index.tt
-    + MyWeb-App/views/layouts
-    + MyWeb-App/views/layouts/main.tt
-    + MyWeb-App/MANIFEST.SKIP
-    + MyWeb-App/lib
-    + MyWeb-App/lib/MyWeb
-    + MyWeb-App/lib/MyWeb/App.pm
-    + MyWeb-App/public
-    + MyWeb-App/public/css
-    + MyWeb-App/public/css/style.css
-    + MyWeb-App/public/css/error.css
-    + MyWeb-App/public/images
-    + MyWeb-App/public/500.html
-    + MyWeb-App/public/404.html
-    + MyWeb-App/public/dispatch.fcgi
-    + MyWeb-App/public/dispatch.cgi
-    + MyWeb-App/public/javascripts
-    + MyWeb-App/public/javascripts/jquery.js
-    + MyWeb-App/t
-    + MyWeb-App/t/002_index_route.t
-    + MyWeb-App/t/001_base.t
-    + MyWeb-App/Makefile.PL
-
-The application is ready to serve:
-
-    $ cd MyWeb-App
-    $ plackup bin/app.psgi
-    >> Listening on 127.0.0.1:3000
-    == Entering the development dance floor ...
+The latest list of available commands can be displayed by:
+    
+    dancer2 
 
 =head1 AUTHOR
 
-This script has been written by Ivan Kruglov
-<ivan.kruglov@yahoo.com> base on original dancer2
-script which has been written by Sebastien Deseille
-<sebastien.deseille@gmail.com> and Alexis Sukrieh
-<sukria@cpan.org>.
+Dancer Core Developers
 
-=head1 SOURCE CODE
+=head1 COPYRIGHT AND LICENSE
 
-See L<Dancer2> for more information.
+This software is copyright (c) 2021 by Alexis Sukrieh.
 
-=head1 LICENSE
-
-This module is free software and is published under the same
-terms as Perl itself.
+This  is  free software; you can redistribute it and/or modify it
+under the same terms as the Perl 5  programming  language  system
+itself.
 
 =cut
