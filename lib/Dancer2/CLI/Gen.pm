@@ -4,7 +4,6 @@ package Dancer2::CLI::Gen;
 use Moo;
 use HTTP::Tiny;
 use Path::Tiny;
-use Data::Printer;
 use JSON::MaybeXS;
 use Dancer2::Template::Simple;
 use Module::Runtime qw( use_module is_module_name );
