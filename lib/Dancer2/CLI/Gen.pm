@@ -179,7 +179,7 @@ sub _build_file_list {
         next if $file->is_dir;
         
         my $filename = $file->relative( $from );
-        push @result, [ $file, path( $to )->child( $filename )];
+        push @result, [ $file, path( $to, $filename )];
     }
     return \@result;
 }
