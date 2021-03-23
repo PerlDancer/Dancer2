@@ -68,7 +68,7 @@ option skel => (
     required   => 0,
     default    => sub{
         my $self = shift; 
-        path( $self->parent_command->_dist_dir )->child( 'skel' ); 
+        path( $self->parent_command->_dist_dir, 'skel' ); 
     },
 );
 
@@ -99,13 +99,13 @@ sub run {
     my $app_path = $self->_get_app_path( $self->app_path, $app_name );
 
     if( my $dir = $self->directory ) {
-        $app_path = path( $self->app_path)->child( $dir );
+        $app_path = path( $self->app_path, $dir );
     }
 
     my $files_to_copy = $self->_build_file_list( $self->skel, $app_path );
     foreach my $pair( @$files_to_copy ) {
         if( $pair->[0] =~ m/lib\/AppFile.pm$/ ) {
-            $pair->[1] = path( $app_path )->child( $app_file );
+            $pair->[1] = path( $app_path, $app_file );
             last;
         }
     }
@@ -174,12 +174,11 @@ sub _build_file_list {
     my @result;
     my $iter = path( $from )->iterator({ recurse => 1 });
     while( my $file = $iter->() ) {
-        warn "File not found: $file" unless -e $file; # Paranoia
+        warn "File not found: $file" unless $file->exists; # Paranoia
         next if $file->basename =~ m{^\.git(/|$)};
         next if $file->is_dir;
         
-        # TODO: There has to be a more Path::Tiny way of this, no?
-        my $filename = substr( $file, length( $from ) + 1 );
+        my $filename = $file->relative( $from );
         push @result, [ $file, path( $to )->child( $filename )];
     }
     return \@result;
@@ -200,12 +199,14 @@ sub _copy_templates {
         my $to_dir = path( $to )->parent;
         if ( ! $to_dir->is_dir ) {
             print "+ $to_dir\n";
-            $to_dir->mkpath or die "could not mkpath $to_dir: $!";
+            $to_dir->mkpath;
         }
 
+        # Skeleton files whose names are prefixed with + need to be executable, but we must strip 
+        # that from the name when copying them
         my $to_file = path( $to )->basename;
         my $ex      = ( $to_file =~ s/^\+// );
-        $to         = path( $to_dir)->child( $to_file ) if $ex; # BUGGED
+        $to         = path( $to_dir, $to_file ) if $ex;
 
         print "+ $to\n";
         my $content;
@@ -220,12 +221,9 @@ sub _copy_templates {
             $content = $self->_process_template($content, $vars);
         }
 
-        open( my $fh, '>:raw', $to ) or die "unable to open file `$to` for writing: $!";
-        print $fh $content;
-        close $fh;
-
+        path( $to )->spew_raw( $content );
         if( $ex ) {
-            chmod( 0755, $to ) or warn "unable to change permissions for $to: $!";
+            $to->chmod( 0755 ) or warn "unable to change permissions for $to: $!";
         }
     }
 }
@@ -233,12 +231,12 @@ sub _copy_templates {
 sub _create_manifest {
     my ( $self, $files, $dir ) = @_;
 
-    my $manifest_name = path( $dir )->child( 'MANIFEST' );
+    my $manifest_name = path( $dir, 'MANIFEST' );
     open( my $manifest, '>', $manifest_name ) or die $!;
     print $manifest "MANIFEST\n";
 
     foreach my $file( @{ $files } ) {
-        my $filename       = substr $file->[1], length( $dir ) + 1; # TODO: Path::Tiny way?
+        my $filename       = $file->[1]->relative( $dir );
         my $basename       = path( $filename )->basename;
         my $clean_basename = $basename;
         $clean_basename    =~ s/^\+//;
@@ -252,7 +250,7 @@ sub _create_manifest {
 sub _add_to_manifest_skip {
     my ( $self, $dir ) = @_;
 
-    my $filename = path( $dir )->child( 'MANIFEST.SKIP' );
+    my $filename = path( $dir, 'MANIFEST.SKIP' );
     open my $fh, '>>', $filename or die $!;
     print {$fh} "^$dir-\n";
     close $fh;
@@ -271,13 +269,13 @@ sub _process_template {
 # need them later.
 sub _get_app_path {
     my ( $self, $path, $appname ) = @_;
-    return path( $path )->child( $self->_get_dashed_name( $appname ));
+    return path( $path, $self->_get_dashed_name( $appname ));
 }
 
 sub _get_app_file {
     my ( $self, $appname ) = @_;
     $appname =~ s{::}{/}g;
-    return path( 'lib' )->child( "$appname.pm" );
+    return path( 'lib', "$appname.pm" );
 }
 
 sub _get_perl_interpreter {
