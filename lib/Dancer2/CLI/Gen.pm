@@ -236,8 +236,8 @@ sub _create_manifest {
     print $manifest "MANIFEST\n";
 
     foreach my $file( @{ $files } ) {
-        my $filename       = $file->[1]->relative( $dir );
-        my $basename       = path( $filename )->basename;
+        my $filename       = path( $file->[1] )->relative( $dir );
+        my $basename       = $filename->basename;
         my $clean_basename = $basename;
         $clean_basename    =~ s/^\+//;
         $filename          =~ s/\Q$basename\E/$clean_basename/;
