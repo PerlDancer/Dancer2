@@ -9,7 +9,7 @@
     # PR #1610: Replace File::Find with Path::Tiny in CLI (Jason A. Crome)
 
     [ DOCUMENTATION ]
-    * None
+    * PR #1597: Update Core/Hook.pm Pod (Paul Clements)
 
 0.301001  2021-03-17 08:52:34-04:00 America/New_York
 
