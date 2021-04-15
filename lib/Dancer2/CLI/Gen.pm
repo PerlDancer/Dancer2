@@ -3,11 +3,8 @@ package Dancer2::CLI::Gen;
 
 use Moo;
 use HTTP::Tiny;
+use Path::Tiny;
 use JSON::MaybeXS;
-use File::Find;
-use File::Path 'mkpath';
-use File::Spec::Functions qw( catdir catfile );
-use File::Basename qw/dirname basename/;
 use Dancer2::Template::Simple;
 use Module::Runtime qw( use_module is_module_name );
 use CLI::Osprey
@@ -33,9 +30,12 @@ option directory => (
     default    => sub { my $self = shift; return $self->application; },
 );
 
-option path => (
+# This was causing conflict with Path::Tiny's path(), so renaming to avoid
+# the overhead of making Path::Tiny an object.
+option app_path => (
     is         => 'ro',
     short      => 'p',
+    option     => 'path',
     doc        => 'application path (default: current directory)',
     format     => 's',
     format_doc => 'directory',
@@ -68,7 +68,7 @@ option skel => (
     required   => 0,
     default    => sub{
         my $self = shift; 
-        catdir( $self->parent_command->_dist_dir, 'skel' ); 
+        path( $self->parent_command->_dist_dir, 'skel' ); 
     },
 );
 
@@ -81,7 +81,7 @@ Invalid application name. Application names must not contain single colons,
 dots, hyphens or start with a number.
     }) unless is_module_name( $self->application );
 
-    my $path = $self->path;
+    my $path = $self->app_path;
     -d $path or $self->osprey_usage( 1, "path: directory '$path' does not exist" );
     -w $path or $self->osprey_usage( 1, "path: directory '$path' is not writeable" );
 
@@ -96,16 +96,16 @@ sub run {
 
     my $app_name = $self->application;
     my $app_file = $self->_get_app_file( $app_name );
-    my $app_path = $self->_get_app_path( $self->path, $app_name );
+    my $app_path = $self->_get_app_path( $self->app_path, $app_name );
 
     if( my $dir = $self->directory ) {
-        $app_path = catdir( $self->path, $dir );
+        $app_path = path( $self->app_path, $dir );
     }
 
     my $files_to_copy = $self->_build_file_list( $self->skel, $app_path );
     foreach my $pair( @$files_to_copy ) {
         if( $pair->[0] =~ m/lib\/AppFile.pm$/ ) {
-            $pair->[1] = catfile( $app_path, $app_file );
+            $pair->[1] = path( $app_path, $app_file );
             last;
         }
     }
@@ -169,22 +169,18 @@ Happy Dancing!
 # skel creation routines
 sub _build_file_list {
     my ( $self, $from, $to ) = @_;
-    $from   =~ s{/+$}{};
-    my $len = length($from) + 1;
+    $from =~ s{/+$}{};
 
     my @result;
-    my $wanted = sub {
-        return unless -f;
-        my $file = substr( $_, $len );
-
-        # ignore .git and git/*
-        my $is_git = $file =~ m{^\.git(/|$)}
-            and return;
-
-        push @result, [ $_, catfile( $to, $file ) ];
-    };
-
-    find({ wanted => $wanted, no_chdir => 1 }, $from );
+    my $iter = path( $from )->iterator({ recurse => 1 });
+    while( my $file = $iter->() ) {
+        warn "File not found: $file" unless $file->exists; # Paranoia
+        next if $file->basename =~ m{^\.git(/|$)};
+        next if $file->is_dir;
+        
+        my $filename = $file->relative( $from );
+        push @result, [ $file, path( $to, $filename )];
+    }
     return \@result;
 }
 
@@ -200,15 +196,17 @@ sub _copy_templates {
             next unless ( $res eq 'y' ) or ( $res eq 'a' );
         }
 
-        my $to_dir = dirname( $to );
-        if ( ! -d $to_dir ) {
+        my $to_dir = path( $to )->parent;
+        if ( ! $to_dir->is_dir ) {
             print "+ $to_dir\n";
-            mkpath $to_dir or die "could not mkpath $to_dir: $!";
+            $to_dir->mkpath;
         }
 
-        my $to_file = basename($to);
-        my $ex      = ($to_file =~ s/^\+//);
-        $to         = catfile($to_dir, $to_file) if $ex;
+        # Skeleton files whose names are prefixed with + need to be executable, but we must strip 
+        # that from the name when copying them
+        my $to_file = path( $to )->basename;
+        my $ex      = ( $to_file =~ s/^\+// );
+        $to         = path( $to_dir, $to_file ) if $ex;
 
         print "+ $to\n";
         my $content;
@@ -220,15 +218,12 @@ sub _copy_templates {
         }
 
         if( $from !~ m/\.(ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/ ) {
-            $content = _process_template($content, $vars);
+            $content = $self->_process_template($content, $vars);
         }
 
-        open( my $fh, '>:raw', $to ) or die "unable to open file `$to' for writing: $!";
-        print $fh $content;
-        close $fh;
-
+        path( $to )->spew_raw( $content );
         if( $ex ) {
-            chmod( 0755, $to ) or warn "unable to change permissions for $to: $!";
+            $to->chmod( 0755 ) or warn "unable to change permissions for $to: $!";
         }
     }
 }
@@ -236,13 +231,13 @@ sub _copy_templates {
 sub _create_manifest {
     my ( $self, $files, $dir ) = @_;
 
-    my $manifest_name = catfile( $dir, 'MANIFEST' );
+    my $manifest_name = path( $dir, 'MANIFEST' );
     open( my $manifest, '>', $manifest_name ) or die $!;
     print $manifest "MANIFEST\n";
 
     foreach my $file( @{ $files } ) {
-        my $filename       = substr $file->[1], length( $dir ) + 1;
-        my $basename       = basename $filename;
+        my $filename       = path( $file->[1] )->relative( $dir );
+        my $basename       = $filename->basename;
         my $clean_basename = $basename;
         $clean_basename    =~ s/^\+//;
         $filename          =~ s/\Q$basename\E/$clean_basename/;
@@ -255,7 +250,7 @@ sub _create_manifest {
 sub _add_to_manifest_skip {
     my ( $self, $dir ) = @_;
 
-    my $filename = catfile( $dir, 'MANIFEST.SKIP' );
+    my $filename = path( $dir, 'MANIFEST.SKIP' );
     open my $fh, '>>', $filename or die $!;
     print {$fh} "^$dir-\n";
     close $fh;
@@ -274,13 +269,13 @@ sub _process_template {
 # need them later.
 sub _get_app_path {
     my ( $self, $path, $appname ) = @_;
-    return catdir( $path, $self->_get_dashed_name( $appname ));
+    return path( $path, $self->_get_dashed_name( $appname ));
 }
 
 sub _get_app_file {
     my ( $self, $appname ) = @_;
     $appname =~ s{::}{/}g;
-    return catfile( 'lib', "$appname.pm" );
+    return path( 'lib', "$appname.pm" );
 }
 
 sub _get_perl_interpreter {

@@ -6,6 +6,7 @@
     [ ENHANCEMENTS ]
     * GH #1593: Log files used to build config (Nick Tonkin)
     * PR #1608: Migrate CLI to CLI::Osprey (Jason A. Crome)
+    # PR #1610: Replace File::Find with Path::Tiny in CLI (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * None
