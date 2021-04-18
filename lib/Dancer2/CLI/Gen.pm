@@ -2,6 +2,7 @@ package Dancer2::CLI::Gen;
 # ABSTRACT: Create new Dancer2 application
 
 use Moo;
+use URI;
 use HTTP::Tiny;
 use Path::Tiny;
 use JSON::MaybeXS;
@@ -9,6 +10,12 @@ use Dancer2::Template::Simple;
 use Module::Runtime qw( use_module is_module_name );
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
+
+# For git integration
+use Symbol;
+use IPC::Open3 qw();
+use Try::Tiny;
+use File::Which;
 
 option application => (
     is            => 'ro',
@@ -80,6 +87,23 @@ option docker => (
     default  => 0,
 );
 
+option git => (
+    is         => 'ro',
+    short      => 'g',
+    doc        => 'init git repository',
+    required   => 0,
+    default    => 0,
+);
+
+option remote => ( 
+    is         => 'ro',
+    short      => 'r',
+    doc        => 'URI for git repository (implies -g)',
+    format     => 's',
+    format_doc => 'URI',
+    required   => 0,
+);
+
 # Last chance to validate args before we attempt to do something with them
 sub BUILD {
     my ( $self, $args ) = @_;
@@ -88,6 +112,12 @@ sub BUILD {
 Invalid application name. Application names must not contain single colons, 
 dots, hyphens or start with a number.
     }) unless is_module_name( $self->application );
+
+    if ( my $remote = $self->remote ) {
+        my $scheme = URI->new( $remote )->scheme // $self->remote; # This feels dirty
+        $scheme eq 'git' || $scheme =~ /^http/ || $scheme =~ /^git@.+:.+\.git$/
+          or $self->osprey_usage( 1, "'$remote' must be a valid URI to git repository");
+    }
 
     my $path = $self->app_path;
     -d $path or $self->osprey_usage( 1, "path: directory '$path' does not exist" );
@@ -125,6 +155,7 @@ sub run {
     my $vars = {
         appname          => $app_name,
         appfile          => $app_file,
+        apppath          => $app_path,
         appdir           => File::Spec->rel2abs( $app_path ),
         apppath          => $app_path,
         perl_interpreter => $self->_get_perl_interpreter,
@@ -137,8 +168,52 @@ sub run {
     $self->_create_manifest( $files_to_copy, $app_path );
     $self->_add_to_manifest_skip( $app_path);
 
+    $self->_check_git( $vars );
     $self->_check_yaml;
     $self->_how_to_run( $vars );
+}
+
+sub _check_git {
+    my( $self, $vars ) = @_;
+
+    if( my $remote = $self->remote or $self->git ) {
+        my $app_name  = $vars->{ appname };
+        my $git_error = qq{
+*****
+
+WARNING: Couldn't initialize a git repo despite being asked to do so.
+
+To resolve this, cd to your application directory and run the following 
+commands:
+
+  git init
+  git add .
+  git commit -m"Initial commit of $app_name by Dancer2"
+};
+
+        my $git = which 'git';
+        -x $git or die "Can't execute git: $!";
+
+        #my $dist_dir  = $self->parent_command->_dist_dir;
+        my $app_path  = $vars->{ apppath };
+        my $gitignore = path( $self->skel, '.gitignore' );
+        path( $gitignore )->copy( $app_path );
+
+        chdir File::Spec->rel2abs( $app_path ) or die "Can't cd to $app_path: $!";
+        if( _run_shell_cmd( 'git', 'init') != 0 or 
+            _run_shell_cmd( 'git', 'add', '.') != 0 or 
+            _run_shell_cmd( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
+            print $git_error;
+        }
+        else {
+            if( $self->remote && 
+                _run_shell_cmd( 'git', 'remote', 'add', 'origin', $self->remote ) != 0 ) {
+                print $git_error;
+                print "  git remote add origin " . $self->remote . "\n";
+            }
+        }
+        print "\n*****\n";
+    }
 }
 
 sub _check_yaml {
@@ -348,6 +423,28 @@ Please check https://metacpan.org/pod/Dancer2/ for updates.
 connection, or pass -x to gen to bypass this check in the future.\n\n";
 
     }
+}
+
+# Shell out to run git
+sub _run_shell_cmd {
+    my @cmds = @_;
+
+    my $exit_status = try {
+        my $pid = IPC::Open3::open3(
+            my $stdin, 
+            my $stdout, 
+            my $stderr = Symbol::gensym,
+            @cmds,
+        );
+
+        waitpid( $pid, 0 );
+        return $? >> 8;
+    } catch {
+        print STDERR "$_\n";
+        return 1;
+    };
+
+    return $exit_status;
 }
 
 1;
