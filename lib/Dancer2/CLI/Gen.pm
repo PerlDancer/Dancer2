@@ -174,24 +174,24 @@ Your new application is ready! To run it:
 
         cd $app_path
         docker build -t ${image} .
-        docker run -d -p 5000:5000 --name $app_name ${image}
+        docker run -d -p 5000:4000 --name $app_name ${image}
+
+where 5000 is the external port, and 4000 is the port your application
+runs on inside of the container.
 
 (note: you may need to run the docker commands with sudo)
 
 You may also run your app without Docker:
-
-        cd $app_path
-        plackup bin/app.psgi
 };
     } else {
-        print qq{
-Your new application is ready! To run it:
-
-        cd $app_path
-        plackup bin/app.psgi
-};
+        print "\nYour new application is ready! To run it:\n";
     }
     print qq{
+        cd $app_path
+        plackup bin/app.psgi
+
+To access your application, point your browser to http://localhost:5000
+
 If you need community assistance, the following resources are available:
 - Dancer website: http://perldancer.org
 - Mailing list: http://lists.perldancer.org/mailman/listinfo/dancer-users
