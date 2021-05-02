@@ -1201,7 +1201,7 @@ following:
 
     set views => path( app->location , 'templates' );
 
-By default, the internal template engine L<Dancer2::Template::Simple> is
+By default, Template::Tiny L<Dancer2::Template::Tiny> is
 used, but you may want to upgrade to L<Template
 Toolkit|http://www.template-toolkit.org/>. If you do so, you have to enable
 this engine in your settings as explained in
