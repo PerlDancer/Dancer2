@@ -24,18 +24,14 @@ charset: "UTF-8"
 # "engines:" block will take effect.
 
 # template engine
-# simple: default and very basic template engine
-# template_toolkit: TT
+#
+# tiny: Template Tiny - Dancer2::Template::Tiny
+# template_toolkit: TT - Dancer2::Template::TemplateToolkit
+#
+# Other template engines are available, see metacpan:
+# https://metacpan.org/search?q=Dancer2%3A%3ATemplate&search_type=modules
 
-template: "simple"
-
-# template: "template_toolkit"
-# engines:
-#   template:
-#     template_toolkit:
-#       # Note: start_tag and end_tag are regexes
-#       start_tag: '<%'
-#       end_tag:   '%>'
+template: "tiny"
 
 # session engine
 #
