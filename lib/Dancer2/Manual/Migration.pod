@@ -291,8 +291,6 @@ In Dancer2, when using L<Dancer2::Template::TemplateToolkit>, the version with
 the leading slash will try to locate C</foo/bar> relative to your filesystem
 root, not relative to your Dancer application directory.
 
-The L<Dancer2::Template::Simple> engine is unchanged in this respect.
-
 Whereas in Dancer1, template engines have the methods:
 
     $template_engine->view('foo.tt')
