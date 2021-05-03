@@ -281,9 +281,7 @@ Alright, let's take a closer look at this route's action. The first few lines ar
 standard DBI. The important bit related to Dancer2 is the C<template> keyword
 at the end of the action. That tells Dancer2 to process the output through one
 of its templating engines. There are many template engines available for use with
-Dancer2. In this tutorial, we're using L<Template Toolkit|Template>
-which offers a lot more flexibility than the simple default Dancer2
-template engine.
+Dancer2. In this tutorial, we're using L<Template Toolkit|Template>.
 
 Templates all go into a C<views/> directory which located in the same
 directory as our dancr.pl script. Optionally, you can create a "layout" template
@@ -1090,7 +1088,7 @@ C<config.yml> file and look for the settings in there that are also duplicated i
 our app's module. There are two:
 
     layout: "main"
-    template: "simple"
+    template: "tiny"
 
 Leave C<layout> as is but change the template setting to "template_toolkit".
 Then edit your Dancr2 module file and delete these two settings.
