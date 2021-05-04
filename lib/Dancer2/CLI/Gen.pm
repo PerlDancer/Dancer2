@@ -5,7 +5,7 @@ use Moo;
 use HTTP::Tiny;
 use Path::Tiny;
 use JSON::MaybeXS;
-use Dancer2::Template::Simple;
+use Dancer2::Template::Tiny;
 use Module::Runtime qw( use_module is_module_name );
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
@@ -259,9 +259,7 @@ sub _add_to_manifest_skip {
 sub _process_template {
     my ( $self, $template, $tokens ) = @_;
 
-    my $engine = Dancer2::Template::Simple->new;
-    $engine->{ start_tag } = '[d2%';
-    $engine->{ stop_tag }  = '%2d]';
+    my $engine = Dancer2::Template::Tiny->new;
     return $engine->render( \$template, $tokens );
 }
 
