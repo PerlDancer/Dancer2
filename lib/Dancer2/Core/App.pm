@@ -1275,7 +1275,7 @@ sub redirect {
     my $destination = shift;
     my $status      = shift;
 
-    if ($destination =~ m{^/[^/]}) {
+    if ($destination =~ m{^/(?!/)}) {
         # If the app is mounted to something other than "/", we must
         # preserve its path.
         my $script_name = $self->request->script_name;
