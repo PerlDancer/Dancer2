@@ -17,9 +17,11 @@
             <h3>Join the community</h3>
             <ul class="links">
 
-              <li><a href="http://perldancer.org/">PerlDancer</a></li>
-              <li><a href="http://twitter.com/PerlDancer/">Official Twitter</a></li>
+              <li><a href="https://perldancer.org/">PerlDancer Website</a></li>
+              <li><a href="https://twitter.com/PerlDancer/">Official Twitter</a></li>
               <li><a href="https://github.com/PerlDancer/Dancer2/">GitHub Community</a></li>
+              <li><a href="http://lists.perldancer.org/mailman/listinfo/dancer-users">Mailing List</a></li>
+              <li><a href="irc://irc.perl.org/dancer">IRC</a></li>
             </ul>
           </li>
 
@@ -33,6 +35,7 @@
               <li><a
               href="https://metacpan.org/pod/Dancer2::Tutorial"
               title="a tutorial to build a small blog engine with Dancer">Tutorial</a></li>
+              <li><a href="https://metacpan.org/pod/Dancer2::Manual::Deployment">Deployment</a></li>
             </ul>
           </li>
 
