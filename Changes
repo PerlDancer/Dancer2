@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * PR #1614: Generate Dockerfile when creating new app (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * None
+
 0.301002  2021-04-18 15:29:32-04:00 America/New_York
 
     [ BUG FIXES ]
