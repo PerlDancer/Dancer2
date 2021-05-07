@@ -3,9 +3,9 @@ requires "Dancer2" => "[d2% dancer_version %2d]";
 recommends "YAML"                    => "0";
 recommends "URL::Encode::XS"         => "0";
 recommends "CGI::Deurl::XS"          => "0";
+recommends "CBOR::XS"                => "0";
 recommends "YAML::XS"                => "0";
 recommends "Class::XSAccessor"       => "0";
-recommends "Cpanel::JSON::XS"        => "0";
 recommends "Crypt::URandom"          => "0";
 recommends "HTTP::XSCookies"         => "0";
 recommends "HTTP::XSHeaders"         => "0";
@@ -31,3 +31,4 @@ on "test" => sub {
     requires "Test::More"            => "0";
     requires "HTTP::Request::Common" => "0";
 };
+

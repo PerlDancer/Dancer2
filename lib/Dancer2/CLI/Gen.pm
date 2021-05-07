@@ -72,6 +72,14 @@ option skel => (
     },
 );
 
+option docker => (
+    is       => 'ro',
+    short    => 'c',
+    doc      => 'create a dockerfile (container definition)',
+    required => 0,
+    default  => 0,
+);
+
 # Last chance to validate args before we attempt to do something with them
 sub BUILD {
     my ( $self, $args ) = @_;
@@ -110,13 +118,19 @@ sub run {
         }
     }
 
+    if( $self->docker ) {
+        push @$files_to_copy, [ path( $self->skel, 'docker/Dockerfile' ), "$app_name/Dockerfile" ];
+    }
+
     my $vars = {
         appname          => $app_name,
         appfile          => $app_file,
         appdir           => File::Spec->rel2abs( $app_path ),
+        apppath          => $app_path,
         perl_interpreter => $self->_get_perl_interpreter,
         cleanfiles       => $self->_get_dashed_name( $app_name ),
         dancer_version   => $self->parent_command->_dancer2_version,
+        docker           => $self->docker,
     };
 
     $self->_copy_templates( $files_to_copy, $vars, $self->overwrite );
@@ -124,7 +138,7 @@ sub run {
     $self->_add_to_manifest_skip( $app_path);
 
     $self->_check_yaml;
-    $self->_how_to_run( $app_path );
+    $self->_how_to_run( $vars );
 }
 
 sub _check_yaml {
@@ -149,12 +163,34 @@ following commands:
 }
 
 sub _how_to_run {
-    my( $self, $app_path ) = @_;
-    print qq{
+    my( $self, $vars ) = @_;
+
+    my $app_path = $vars->{ apppath };
+    my $app_name = $vars->{ appname };
+    if( $vars->{ docker } ) {
+        my $image = lc $app_name;
+        print qq{
 Your new application is ready! To run it:
 
         cd $app_path
+        docker build -t ${image} .
+        docker run -d -p 5000:4000 --name $app_name ${image}
+
+where 5000 is the external port, and 4000 is the port your application
+runs on inside of the container.
+
+(note: you may need to run the docker commands with sudo)
+
+You may also run your app without Docker:
+};
+    } else {
+        print "\nYour new application is ready! To run it:\n";
+    }
+    print qq{
+        cd $app_path
         plackup bin/app.psgi
+
+To access your application, point your browser to http://localhost:5000
 
 If you need community assistance, the following resources are available:
 - Dancer website: http://perldancer.org
