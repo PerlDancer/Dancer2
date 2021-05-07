@@ -358,13 +358,13 @@ C<DANCER_SERVER_TOKENS> changed to C<DANCER_NO_SERVER_TOKENS>.
 
 =head3 engines
 
-If you want to use Template::Toolkit instead of the built-in simple templating
+In Dancer 1, If you wanted to use Template::Toolkit instead of the built-in simple templating
 engine you used to enable the following line in the config.yml file.
 
     template: "template_toolkit"
 
 That was enough to get started. The start_tag and end_tag it used were the same as in
-the simple template <% and %> respectively.
+the simple template engine, <% and %>, respectively.
 
 If you wanted to further customize the Template::Toolkit you could also enable or add
 the following:
@@ -375,12 +375,15 @@ the following:
          start_tag: '[%'
          end_tag:   '%]'
 
-In Dancer 2 you can also enable Template::Toolkit with the same configuration option:
+In Dancer 2, the simple templating engine has been removed, and Template::Tiny is used as
+the default templating engine instead. The default start_tag and end_tag are now [% and %],
+so if you used the default in Dancer 1, you will have to explicitly change the start_tag and end_tag
+values.
+
+You can still enable Template::Toolkit with the same configuration option as in Dancer 1:
 
     template: "template_toolkit"
 
-But the default start_tag and end_tag are now [% and %], so if you used the default in Dancer 1
-now you will have to explicitly change the start_tag and end_tag values.
 The configuration also got an extra level of depth. Under the C<engine> key there is a C<template>
 key and the C<template_toolkit> key comes below that. As in this example:
 
