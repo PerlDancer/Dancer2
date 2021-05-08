@@ -153,15 +153,14 @@ To use this engine, you may configure L<Dancer2> via C<config.yaml>:
 
 =head1 DESCRIPTION
 
-This template engine is provided as a default one for the Dancer2 micro
-framework.
+This template engine is primarily to serve as a migration path for users of 
+L<Dancer>. This should be fine for development purposes, but you would be 
+better served by using L<Dancer2::Template::TemplateToolkit> or one of the
+many alternatives available on CPAN to power an application with Dancer2 
+in production environment. 
 
-This template engine should be fine for development purposes but is not a
-powerful one, it's written in pure Perl and has no C bindings to accelerate the
-template processing.
-
-If you want to power an application with Dancer2 in production environment, it's
-strongly advised to switch to L<Dancer2::Template::TemplateToolkit>.
+C<Dancer2::Template::Simple> is written in pure Perl and has no C bindings 
+to accelerate the template processing.
 
 =head1 SYNTAX
 
