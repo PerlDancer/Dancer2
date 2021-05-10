@@ -115,8 +115,8 @@ dots, hyphens or start with a number.
 
     if ( my $remote = $self->remote ) {
         my $scheme = URI->new( $remote )->scheme // $self->remote; # This feels dirty
-        $scheme eq 'git' || $scheme =~ /^http/ || $scheme =~ /^git@.+:.+\.git$/
-          or $self->osprey_usage( 1, "'$remote' must be a valid URI to git repository");
+        $self->osprey_usage( 1, "'$remote' must be a valid URI to git repository")
+            unless $scheme =~ / ^ git \@ .+ : .+ \.git $ | ^ http /x;
     }
 
     my $path = $self->app_path;
@@ -196,7 +196,7 @@ commands:
 
         #my $dist_dir  = $self->parent_command->_dist_dir;
         my $app_path  = $vars->{ apppath };
-        my $gitignore = path( $self->skel, '.gitignore' );
+        my $gitignore = path( $self->parent_command->_dist_dir, '.gitignore' );
         path( $gitignore )->copy( $app_path );
 
         chdir File::Spec->rel2abs( $app_path ) or die "Can't cd to $app_path: $!";
