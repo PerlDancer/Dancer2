@@ -194,6 +194,8 @@ To access your application, point your browser to http://localhost:5000
 
 If you need community assistance, the following resources are available:
 - Dancer website: http://perldancer.org
+- Twitter: https://twitter.com/PerlDancer/
+- GitHub: https://github.com/PerlDancer/Dancer2/
 - Mailing list: http://lists.perldancer.org/mailman/listinfo/dancer-users
 - IRC: irc.perl.org#dancer
 
