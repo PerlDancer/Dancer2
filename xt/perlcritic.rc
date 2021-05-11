@@ -22,7 +22,7 @@ packages = Data::Dumper File::Find FindBin Log::Log4perl Carp
 # I really don't think q{/} is more readable than '/'...
 [-ValuesAndExpressions::ProhibitNoisyQuotes]
 # Perl::Critic recommends Readonly, but this IS BAD!
-# we use Const::Fast instead, but this policy keeps poping up.
+# we use Const::Fast instead, but this policy keeps popping up.
 [-ValuesAndExpressions::ProhibitMagicNumbers]
 # we want to be able to build DSLs
 [-Modules::ProhibitAutomaticExportation]

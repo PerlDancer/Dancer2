@@ -7,6 +7,7 @@
     * PR #1614: Generate Dockerfile when creating new app (Jason A. Crome)
 
     [ DOCUMENTATION ]
+    * PR #1563: Fix typos in perlcritic.rc notes (Achyut Kumar Panda)
     * PR #1618: Provide a consistent list of community resources (Jason A.
       Crome)
 

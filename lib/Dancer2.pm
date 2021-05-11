@@ -237,6 +237,7 @@ We are also on IRC: #dancer on irc.perl.org.
 
     A. Sinan Unur
     Abdullah Diab
+    Achyut Kumar Panda
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
