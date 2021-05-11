@@ -154,7 +154,7 @@ To use this engine, you may configure L<Dancer2> via C<config.yaml>:
 =head1 DESCRIPTION
 
 This template engine is primarily to serve as a migration path for users of 
-L<Dancer>. This should be fine for development purposes, but you would be 
+L<Dancer>. It should be fine for development purposes, but you would be 
 better served by using L<Dancer2::Template::TemplateToolkit> or one of the
 many alternatives available on CPAN to power an application with Dancer2 
 in production environment. 
