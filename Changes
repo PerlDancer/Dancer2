@@ -9,6 +9,8 @@
 
     [ DOCUMENTATION ]
     * PR #1563: Fix typos in perlcritic.rc notes (Achyut Kumar Panda)
+    * PR #1609: Document and test for missing DSL keywords (racke, Jason A.
+      Crome)
     * PR #1618: Provide a consistent list of community resources (Jason A.
       Crome)
 
