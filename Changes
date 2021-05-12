@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * GH #1611: Redirect '/' doesn't always work as expected (Russell 
+      @veryrusty Jenkins, Christopher Gurnee)
 
     [ ENHANCEMENTS ]
     * PR #1614: Generate Dockerfile when creating new app (Jason A. Crome)
