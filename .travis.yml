@@ -37,4 +37,5 @@ install:
 sudo: false
 
 script:
-    - dzil test --author --release
+    - perl -E 'exit($] < 5.020)'  || dzil test --author --release
+    - perl -E 'exit($] >= 5.020)' || dzil test
