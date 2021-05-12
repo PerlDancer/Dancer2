@@ -46,7 +46,7 @@ for my $entry (@$podpa) {
 
 # go through the authoritative list and test we have a corresponding POD entry
 for my $keyword ( sort keys %$dsl_keywords ) { 
-    ok( exists $dsl_keywords->{$keyword}->{found}, "Checking for keyword $keyword" );
+    ok( exists $dsl_keywords->{$keyword}->{found}, "Keyword $keyword is documented in Dancer2::Manual::Keywords" );
 }
 
 done_testing;
