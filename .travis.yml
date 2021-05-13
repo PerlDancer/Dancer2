@@ -29,15 +29,15 @@ install:
     - perl -E 'exit($] < 5.014)' || cpanm --no-skip-satisfied Safe || cpanm --no-skip-satisfied --notest Safe || { cat ~/.cpanm/build.log ; false ; }
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
     - cpanm --no-skip-satisfied Class::Method::Modifiers YAML::XS || { cat ~/.cpanm/build.log ; false ; }
-    - perl -E 'exit($] < 5.020)'  || dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
-    - perl -E 'exit($] < 5.020)'  || dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
-    - perl -E 'exit($] >= 5.020)' || dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
-    - perl -E 'exit($] >= 5.020)' || dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
+    - perl -e 'if($] >= 5.020){exec("dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
+    - perl -e 'if($] >= 5.020){exec("dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
+    - perl -e 'if($] < 5.020){exec("dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; } ");}'
+    - perl -e 'if($] < 5.020){exec("dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
 # Needed for test t/issues/gh-811.t
     - cpanm Dancer2::Session::Cookie
 # We do not need sudo. Setting this allows travis to use (Docker) containers on EC2
 sudo: false
 
 script:
-    - perl -E 'exit($] < 5.020)'  || dzil test --author --release
-    - perl -E 'exit($] >= 5.020)' || dzil test
+    - perl -e 'if($] >= 5.020){ exec("dzil test --author --release"); }'
+    - perl -e 'if($] < 5.020){ exec("dzil test"); }'
