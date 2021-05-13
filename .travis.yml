@@ -31,8 +31,7 @@ install:
     - cpanm --no-skip-satisfied Class::Method::Modifiers YAML::XS || { cat ~/.cpanm/build.log ; false ; }
     - perl -e 'if($] >= 5.020){exec("dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
     - perl -e 'if($] >= 5.020){exec("dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
-    - perl -e 'if($] < 5.020){exec("dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; } ");}'
-    - perl -e 'if($] < 5.020){exec("dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
+    - perl -e 'if($] < 5.020){exec("dzil listdeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
 # Needed for test t/issues/gh-811.t
     - cpanm Dancer2::Session::Cookie
 # We do not need sudo. Setting this allows travis to use (Docker) containers on EC2
