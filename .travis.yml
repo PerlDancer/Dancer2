@@ -28,7 +28,7 @@ install:
 #Safe fails to install due to failing tests since version 2.35 on perl < 5.14
     - perl -E 'exit($] < 5.014)' || cpanm --no-skip-satisfied Safe || cpanm --no-skip-satisfied --notest Safe || { cat ~/.cpanm/build.log ; false ; }
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
-    # Need an old version of App::Cmd for dzil that doesn't require 5.20
+# Need old versions of App::Cmd and Pod::Weaver (for dzil) that don't have the 5.20 requirement
     - cpanm App::Cmd@0.331 Pod::Weaver@4.015
     - cpanm --no-skip-satisfied Class::Method::Modifiers YAML::XS || { cat ~/.cpanm/build.log ; false ; }
     - dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
