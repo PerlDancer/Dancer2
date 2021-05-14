@@ -149,8 +149,7 @@ jobs:
             cpanm --test-only --verbose Dancer2::Template::Handlebars
             cpanm --test-only --verbose Dancer2::Session::Cookie
             cpanm --test-only --verbose Dancer2::Plugin::Email
-            # This has a broken test that needs fixing. Uncomment when resolved!
-            #cpanm --test-only --verbose Dancer2::Plugin::Auth::Extensible
+            cpanm --test-only --verbose Dancer2::Plugin::Auth::Extensible
             cpanm --test-only --verbose Dancer2::Plugin::DBIC
 
       - name: Testing selected downstream modules
