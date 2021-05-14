@@ -28,15 +28,15 @@ install:
 #Safe fails to install due to failing tests since version 2.35 on perl < 5.14
     - perl -E 'exit($] < 5.014)' || cpanm --no-skip-satisfied Safe || cpanm --no-skip-satisfied --notest Safe || { cat ~/.cpanm/build.log ; false ; }
 #Moo fails to install without Class::Method::Modifiers since 2012/10/19 
+    # Need an old version of App::Cmd for dzil that doesn't require 5.20
+    - cpanm App::Cmd@0.331
     - cpanm --no-skip-satisfied Class::Method::Modifiers YAML::XS || { cat ~/.cpanm/build.log ; false ; }
-    - perl -e 'if($] >= 5.020){exec("dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
-    - perl -e 'if($] >= 5.020){exec("dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
-    - perl -e 'if($] < 5.020){exec("dzil listdeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }");}'
+    - dzil authordeps --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
+    - dzil listdeps --author --missing | cpanm --no-skip-satisfied || { cat ~/.cpanm/build.log ; false ; }
 # Needed for test t/issues/gh-811.t
     - cpanm Dancer2::Session::Cookie
 # We do not need sudo. Setting this allows travis to use (Docker) containers on EC2
 sudo: false
 
 script:
-    - perl -e 'if($] >= 5.020){ exec("dzil test --author --release"); }'
-    - perl -e 'if($] < 5.020){ exec("dzil test"); }'
+    - dzil test --author --release
