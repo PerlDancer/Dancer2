@@ -7,11 +7,12 @@ use Carp qw<croak>;
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw<path>;
 use Scalar::Util ();
+use Scope::Guard qw<guard>;
 use Template;
 
 with 'Dancer2::Core::Role::Template';
 
-has '+engine' => ( isa => InstanceOf ['Template'], );
+has '+engine' => ( isa => InstanceOf ['Template'], clearer => 1);
 
 sub _build_engine {
     my $self      = shift;
@@ -45,11 +46,22 @@ sub _build_engine {
 sub render {
     my ( $self, $template, $tokens ) = @_;
 
+    # If a longjump occurs out of the TT render (e.g. for a redirect), then TT
+    # will not unset its internal variable _HOT and will think that any
+    # subsequent calls are recursion into the same template. Therefore, set up
+    # a guard to catch any such jumps and ensure that the TT object is rebuilt
+    # to prevent the problem happening
+    my $guard = guard {
+        $self->clear_engine;
+    };
+
     my $content = '';
     my $charset = $self->charset;
     my @options = length($charset) ? ( binmode => ":encoding($charset)" ) : ();
     $self->engine->process( $template, $tokens, \$content, @options )
       or croak 'Failed to render template: ' . $self->engine->error;
+
+    $guard->dismiss;
 
     return $content;
 }

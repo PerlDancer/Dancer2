@@ -1,0 +1,1 @@
+[% IF NOT redirect_sub %]foobar[% END %]
