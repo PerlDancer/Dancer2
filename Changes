@@ -6,6 +6,7 @@
     * PR #1620: Quiet spammy failing CI builds (Jason A. Crome)
 
     [ ENHANCEMENTS ]
+    * PR #1613: Add git features to Dancer2 CLI (Jason A. Crome)
     * PR #1614: Generate Dockerfile when creating new app (Jason A. Crome)
 
     [ DOCUMENTATION ]
