@@ -149,7 +149,7 @@ sub run {
     }
 
     if( $self->docker ) {
-        push @$files_to_copy, [ path( $self->skel, 'docker/Dockerfile' ), "$app_name/Dockerfile" ];
+        push @$files_to_copy, [ path( $self->parent_command->_dist_dir, 'docker/Dockerfile' ), "$app_name/Dockerfile" ];
     }
 
     my $vars = {
