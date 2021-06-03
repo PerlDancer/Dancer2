@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.301002
+version 0.301003
 
 # DESCRIPTION
 
@@ -119,6 +119,7 @@ We are also on IRC: #dancer on irc.perl.org.
 
     A. Sinan Unur
     Abdullah Diab
+    Achyut Kumar Panda
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
