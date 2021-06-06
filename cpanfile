@@ -41,6 +41,7 @@ requires 'Types::Standard';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
 requires 'CLI::Osprey';
+requires 'File::Which';
 
 requires 'Role::Tiny', '2.000000';
 conflicts 'Role::Tiny', '== 2.000007';
