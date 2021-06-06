@@ -2,6 +2,7 @@
 
     [ BUG FIXES ]
     * GH #1624: Fix missing gen subcommand in tutorial (racke)
+    * PR #1626: Add File::Which to Dancer2 dependencies (Jason A. Crome)
 
     [ ENHANCEMENTS ]
     * None
