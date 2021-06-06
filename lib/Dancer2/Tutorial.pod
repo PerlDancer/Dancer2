@@ -825,7 +825,7 @@ The C<dancer2> utility was installed on your machine when you installed the
 Dancer2 distribution. Hop over to the command line into a directory you have
 permission to write to and issue the following command:
 
-    dancer2 -a Dancr2
+    dancer2 gen -a Dancr2
 
 That command should output something like the following to the console:
 
