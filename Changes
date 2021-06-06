@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.301004  2021-06-06 13:30:28-04:00 America/New_York
+
     [ BUG FIXES ]
     * GH #1624: Fix missing gen subcommand in tutorial (racke)
     * PR #1626: Add File::Which to Dancer2 dependencies (Jason A. Crome)
