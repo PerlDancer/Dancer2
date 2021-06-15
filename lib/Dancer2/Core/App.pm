@@ -4,6 +4,7 @@ package Dancer2::Core::App;
 use Moo;
 use Carp               qw<croak carp>;
 use Scalar::Util       'blessed';
+use List::Util         ();
 use Module::Runtime    'is_module_name';
 use Safe::Isa;
 use Sub::Quote;
@@ -1679,6 +1680,33 @@ sub response_not_found {
     $self->cleanup;
 
     return $response;
+}
+
+sub uri_for_route {
+    my ( $self, $route_name, $named_params, $unnamed_params, $dont_escape ) = @_;
+
+    my $route =
+      List::Util::first { $_->name eq $route_name } @{$self->routes->{'get'}};
+
+    my $string = $route->spec_route;
+
+    $string =~ /[:@]/
+        or return $string;
+
+    # XXX This regex here are taken from
+    #     Dancer2::Core::Route::_build_regexp_from_string.
+    #     Would anyone like to refactor? -- SX.
+    my @params = $string =~ m{:([^/\.\?]+)}g;
+    foreach my $param (@params) {
+        my $value = $named_params->{$param}
+            or Carp::croak("$param is not a part of route $route_name");
+
+        $string =~ s!\Q:$param\E!$value!g;
+    }
+
+    # FIXME: Add this for splat and megasplat
+
+    return $self->request->uri_for($string);
 }
 
 1;
