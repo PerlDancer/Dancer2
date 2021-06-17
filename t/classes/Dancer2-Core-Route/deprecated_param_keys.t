@@ -16,9 +16,7 @@ like(
     'Find deprecation of :splat',
 );
 
-SKIP: {
-    skip 'Need perl >= 5.10', 1 unless $] >= 5.010;
-    like(
+like(
         capture_stderr {
             Dancer2::Core::Route->new(
                 regexp => '/:captures',
@@ -28,7 +26,6 @@ SKIP: {
         },
         qr{^Named placeholder 'captures' is deprecated},
         'Find deprecation of :captures',
-    );
-}
+);
 
 done_testing;

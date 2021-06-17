@@ -347,11 +347,7 @@ subtest 'Captured route parameters' => sub {
     }
 };
 
-SKIP: {
-    Test::More::skip "named captures not available until 5.10", 1
-      if !$^V or $^V lt v5.10;
-
-    subtest 'Named captured route parameters' => sub {
+subtest 'Named captured route parameters' => sub {
         {
             package App::Route::NamedCapture; ## no critic
             use Dancer2;
@@ -391,6 +387,6 @@ SKIP: {
             my $res = $app->request( GET '/bar/quux' );
             ok( $res->is_success, 'Successful request' );
         };
-    };
 };
+
 done_testing();
