@@ -95,12 +95,8 @@ sub match {
     return unless @values;
 
     # if some named captures are found, return captures
-    # no warnings is for perl < 5.10
     # - Note no @values implies no named captures
-    if (my %captures =
-        do { no warnings; %+ }
-      )
-    {
+    if (my %captures = %+ ) {
         return $self->_match_data( { captures => \%captures } );
     }
 
