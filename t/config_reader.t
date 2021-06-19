@@ -186,4 +186,28 @@ like( exception { Foo->foo() }, qr{Foo::foo}, "traces are enabled", );
     is $f->config_location, $tmpdir;
 }
 
+{
+    # Test _replace_env_vars
+    local $ENV{'SOME_ENV'} = 'Some Value';
+    my $cfg = { aa => 1,
+        coderef => sub { 1; },
+        name => 'Value "${ENV:SOME_ENV}" is.', ## no critic (ValuesAndExpressions::RequireInterpolationOfMetachars)
+        object => (
+            bless { name => 'Value "${ENV:SOME_ENV}" is.' }, ## no critic (ValuesAndExpressions::RequireInterpolationOfMetachars)
+            'An::Object'),
+        a => { bb => 2, b => { cc => 3, c => {
+                    name => 'Value "${ENV:SOME_ENV}" is.', ## no critic (ValuesAndExpressions::RequireInterpolationOfMetachars)
+                    dd => 4, d => [
+                        'ee',
+                        'Value "${ENV:SOME_ENV}" is.', ## no critic (ValuesAndExpressions::RequireInterpolationOfMetachars)
+                    ],
+                }, }, }, };
+    $f->_replace_env_vars( $cfg );
+    is( $cfg->{'name'}, 'Value "Some Value" is.', 'Replace with env var at root' );
+    is( $cfg->{'a'}->{'b'}->{'c'}->{'name'}, 'Value "Some Value" is.', 'Replace with env var at random' );
+    is( $cfg->{'a'}->{'b'}->{'c'}->{'d'}->[1], 'Value "Some Value" is.', 'Replace with env var in an array' );
+    is( $cfg->{'object'}->{'name'}, 'Value "${ENV:SOME_ENV}" is.',  ## no critic (ValuesAndExpressions::RequireInterpolationOfMetachars)
+        'Not Replaced inside an object' );
+}
+
 done_testing;
