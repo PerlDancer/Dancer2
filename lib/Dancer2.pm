@@ -2,6 +2,7 @@ package Dancer2;
 
 # ABSTRACT: Lightweight yet powerful web application framework
 
+use 5.10.1;
 use strict;
 use warnings;
 use List::Util 'first';

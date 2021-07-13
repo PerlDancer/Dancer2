@@ -337,7 +337,7 @@ must be defined explicitly with C<qr{}>, like the following:
         return "Hello $name";
     };
 
-For Perl 5.10+, a route regex may use named capture groups. The C<captures>
+A route regex may use named capture groups. The C<captures>
 keyword will return a reference to a copy of C<%+>.
 
 =head3 Conditional Matching

@@ -7,7 +7,7 @@
     * PR #1626: Add File::Which to Dancer2 dependencies (Jason A. Crome)
 
     [ ENHANCEMENTS ]
-    * None
+    * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
 
     [ DOCUMENTATION ]
     * None

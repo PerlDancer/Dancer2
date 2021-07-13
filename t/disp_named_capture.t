@@ -22,12 +22,8 @@ my $response = $test->request( $request );
 is( $response->content, 1 );
 
 # "Dummy" regex to populate global $+
-# eval'd as named captures are not available until 5.10
-my $c;
-eval <<'NAMED';
 "12345" =~ m#(?<capture>23)#;
-$c = $+{capture};
-NAMED
+my $c = $+{capture};
 
 $request  = HTTP::Request->new( GET => 'http://localhost/2' );
 $response = $test->request( $request );
