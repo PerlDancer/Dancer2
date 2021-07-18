@@ -233,7 +233,10 @@ sub load_config_file {
 
     # TODO handle mergeable entries
 
-    $self->_replace_env_vars($config);
+    if( defined $config->{'env_var_replace'} && $config->{'env_var_replace'} ) {
+        warn "Apply environment variables to config\n" if $ENV{DANCER_CONFIG_VERBOSE};
+        $self->_replace_env_vars($config);
+    }
 
     return $config;
 }
