@@ -1161,11 +1161,11 @@ of this tutorial. Let's edit the C<development.yml> file and add our database
 configuration there. Below the last line in that file, add the following lines,
 being careful to keep the indentation as you see it here:
 
-  plugins:                 ; all plugin configuration settings go in this section
-    Database:              ; the name of our plugin
-      driver: "SQLite"     ; driver we want to use
-      database: "dancr.db" ; where the database will go in our app
-                           ; run a query when connecting to the datbase:
+  plugins:                 # all plugin configuration settings go in this section
+    Database:              # the name of our plugin
+      driver: "SQLite"     # driver we want to use
+      database: "dancr.db" # where the database will go in our app
+                           # run a query when connecting to the datbase:
       on_connect_do: [ "create table if not exists entries (id integer primary key autoincrement, title string not null, text string not null)" ]
 
 Here, we direct our database plugin to use the "SQLite" driver and to
