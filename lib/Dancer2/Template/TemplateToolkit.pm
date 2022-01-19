@@ -152,26 +152,26 @@ A subclass to use the aforementioned L<Template::Stash::AutoEscaping> might look
 
     package Dancer2::Template::TemplateToolkit::AutoEscaping;
     # or MyApp::
-    
+
     use Moo;
     use Template::Stash::AutoEscaping;
-    
+
     extends 'Dancer2::Template::TemplateToolkit';
-    
+
     around '_build_engine' => sub {
         my $orig = shift;
         my $self = shift;
-    
+
         my $tt = $self->$orig(@_);
-    
+
         # replace the stash object
         $tt->service->context->{STASH} = Template::Stash::AutoEscaping->new(
             $self->config->{STASH}
         );
-    
+
         return $tt;
     };
-    
+
     1;
 
 You can then use this new subclass in your config file instead of C<template_toolkit>.
@@ -208,11 +208,11 @@ used. Cached templates are automatically updated when you update the original te
 
 By default, cached templates are saved in the same directory as your template. To save
 cached templates in a different directory, you can set the C<COMPILE_DIR> property in your
-Dancer2 configuration file. 
+Dancer2 configuration file.
 
 Please see L<Template::Manual::Config/Caching_and_Compiling_Options> for further
 details and more caching options.
-            
+
 =head1 SEE ALSO
 
 L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Toolkit>.

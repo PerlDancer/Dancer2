@@ -902,7 +902,7 @@ The web page you see there gives you some very basic advice for tuning and
 modifying your app and where you can go for more information to learn about
 developing apps with Dancer2 (like this handy tutorial!).
 
-Our Dancr2 app is served on a simple web server provided by Plack. Plack is 
+Our Dancr2 app is served on a simple web server provided by Plack. Plack is
 PSGI compliant software, hence the C<psgi> extension for our file in the C<bin/>
 directory. Plack and PSGI is beyond the scope of this tutorial but you can learn
 more by visiting the L<Plack website|http://plackperl.org/>.
@@ -1010,7 +1010,7 @@ you followed along with the tutorial in Part I, you should have a C<public/>
 directory with a C<public/css> subdirectory and a file called C<style.css>
 within that.
 
-Dancer2 has conveniently generated the C<public/css> directory for us which has 
+Dancer2 has conveniently generated the C<public/css> directory for us which has
 a default css file. Let's copy the style sheet from our original app so our new
 app can use it:
 

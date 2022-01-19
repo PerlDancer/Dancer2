@@ -406,7 +406,7 @@ automatically installed with C<Dancer2>.
 
 =head2 Do not use the C<dance> keyword!
 
-L<Dancer> and early versions of C<Dancer2> used the C<dance> keyword to 
+L<Dancer> and early versions of C<Dancer2> used the C<dance> keyword to
 run an application. Do B<not> use it to run new applications! The keyword
 still exists for compatibility's sake, but its use is discouraged.
 

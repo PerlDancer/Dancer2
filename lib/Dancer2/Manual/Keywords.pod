@@ -66,7 +66,7 @@ route's regular expression.
     }x
     , sub {
         my $value_for = captures;
-        "i don't want to $value_for->{action} " . 
+        "i don't want to $value_for->{action} " .
             "the $value_for->{object} $value_for->{id} !"
     };
 
@@ -162,7 +162,7 @@ Deprecated. Use L<app> instead.
 
 =head2 dance
 
-Alias for the C<start> keyword. L<to_app> is preferable. 
+Alias for the C<start> keyword. L<to_app> is preferable.
 
 =head2 dancer_app
 
@@ -202,9 +202,9 @@ Defines a route for HTTP B<DELETE> requests to the given URL:
 
 =head2 delayed
 
-Stream a response asynchronously. For more information, please see 
-L<Dancer2::Manual/Delayed responses (Async/Streaming)>, or 
-L<this article|https://advent.perldancer.org/2020/22> in the 2020 Dancer 
+Stream a response asynchronously. For more information, please see
+L<Dancer2::Manual/Delayed responses (Async/Streaming)>, or
+L<this article|https://advent.perldancer.org/2020/22> in the 2020 Dancer
 Advent Calendar.
 
 =head2 dirname
@@ -215,7 +215,7 @@ Returns the dirname of the path given:
 
 =head2 done
 
-Close the streaming connection. Can only be called within a streaming 
+Close the streaming connection. Can only be called within a streaming
 response callback.
 
 =head2 dsl
@@ -689,7 +689,7 @@ Returns request header(s).
 
 =head2 response
 
-Returns the current response object, which is of type 
+Returns the current response object, which is of type
 L<Dancer2::Core::Route::REQUEST>.
 
 =head2 response_header

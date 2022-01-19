@@ -187,9 +187,9 @@ requests.
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the specific L<route_parameters|/route_parameters>, 
+through the specific L<route_parameters|/route_parameters>,
 L<query_parameters|/query_parameters>, and  L<body_parameters|/body_parameters>
-keywords, which return a L<Hash::MultiValue> object. 
+keywords, which return a L<Hash::MultiValue> object.
 This hashref is a merge of the route pattern matches and the request params.
 
 You can find more details about how params are built and how to access them
@@ -2263,5 +2263,5 @@ For example, take the following example:
 
 C<get> and C<route_parameters> are keywords provided by Dancer2.
 
-See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of 
+See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
 keywords provided by Dancer2.

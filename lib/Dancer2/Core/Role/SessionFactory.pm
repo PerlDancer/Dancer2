@@ -405,7 +405,7 @@ argument and must return a hash reference of session data.
 =head2 change_id
 
 Changes the session ID of the corresponding session.
-    
+
     MySessionFactory->change_id(session => $session_object);
 
 The method C<_change_id> must be implemented. It must take C<$old_id> and
