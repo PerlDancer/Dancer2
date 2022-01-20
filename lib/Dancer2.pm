@@ -137,7 +137,7 @@ need to make in your code.
 
 =head1 Scaffolding a new application
 
-While you can start a Dancer web application in any directory structure,
+While you can start a Dancer2 web application in any directory structure,
 there is a recommended structure and an application (C<dancer2>) that
 will scaffold a directory using this structure:
 
@@ -152,8 +152,8 @@ elements:
 
 The main configuration file with some sample configuration to help get
 you started, and a directory containing additional configuration files
-that will be loaded depending on the L<Plack> environment your server
-starts in (B<production> or B<development>).
+that will be loaded depending on the L<Plack> environment in which
+your server starts (B<production> or B<development>).
 
 Note: The L<Starman> web server uses the C<deployment> environment
 value.
@@ -198,26 +198,76 @@ structure.
 
 =head1 Apps
 
-All Dancer2 web applications are composed of containers called Dancer
-Applications (I<Apps>).
+All Dancer2 web applications are composed of containers called Dancer2
+Applications (or I<apps> for short).
 
-These Apps provide keywords for creating your web application and
+These apps provide keywords for creating your web application and
 contain several components, specifically B<Engines>, B<Routes>,
 and B<Hooks>.
 
-Web applications are made out of either one or more Dancer applications,
-while each Dancer Application is self-contained, including its own
+Web applications are made out of either one or more Dancer2 applications,
+while each Dancer2 Application is self-contained, including its own
 configuration, its own engine instances, its own routing endpoints, and
 its own hooks.
 
-You can, however, spread a single Dancer Application across multiple
+             .----------------------------------.
+     \o/     | Web application for example.com  |
+      | ----------------------->                |
+     / \     |      .---------------------.     |
+             |      | Primary web handler |     |
+             |      '---------------------'     |
+             |                 |                |
+             |                 v                |
+             |          .-------------.         |
+             |          | Dancer2 app |         |
+             |          |-------------|         |
+             |          | MyApp       |         |
+             |          |             |         |
+             |          | .---------. |         |
+             |          | | Engines | |         |
+             |          | .---------. |         |
+             |          | | Routes  | |         |
+             |          | .---------. |         |
+             |          | |  Hooks  | |         |
+             |          | '---------' |         |
+             |          '-------------'         |
+             '----------------------------------'
+
+This application only has one Dancer2 app, but you can create a web
+application composed of numerous Dancer2 apps, each having its own
+engines, routes, and hooks:
+
+           .--------------------------------------------------.
+   \o/     |         Web application for example.com          |
+    | ------------------------------->                        |
+   / \     |              .---------------------.             |
+           |        .-----| Primary web handler |-----.       |
+           |        |     '---------------------'     |       |
+           |        |                |                |       |
+           |        v                v                v       |
+           |.--------------.  .-------------. .--------------.|
+           || Dancer2 app  |  | Dancer2 app | | Dancer2 app  ||
+           ||--------------|  |-------------| |--------------||
+           || MyApp::Admin |  | MyApp::Main | | MyApp::Users ||
+           ||              |  |             | |              ||
+           ||  .---------. |  | .---------. | |  .---------. ||
+           ||  | Engines | |  | | Engines | | |  | Engines | ||
+           ||  .---------. |  | .---------. | |  .---------. ||
+           ||  | Routes  | |  | | Routes  | | |  | Routes  | ||
+           ||  .---------. |  | .---------. | |  .---------. ||
+           ||  |  Hooks  | |  | |  Hooks  | | |  |  Hooks  | ||
+           ||  '---------' |  | '---------' | |  '---------' ||
+           |'--------------'  '-------------' '--------------'|
+           '--------------------------------------------------'
+
+You can also spread a single Dancer2 Application across multiple
 files in order to make your code easier to maintain. This is explained
 below under the section I<Extending an application>.
 
 =head2 Engines
 
 Engines provide many of the logistics of a common web application. There
-are specifically four engine types.
+are four engine types.
 
 =over 4
 
@@ -236,8 +286,9 @@ retrieving stateful information.
 
 =item * B<Serializer>
 
-Automatically serializing and deserializing data, helpful when writing
-a web API application.
+Automatically serializing and deserializing data. This is helpful when
+writing a web API application that interacts with a particular format like
+JSON.
 
 =back
 
@@ -250,8 +301,8 @@ that happens.
 =head2 Hooks
 
 Hooks are additional pieces of code that run in several steps along the
-way, such as before or after a template is rendered, before or after a
-route is executed, or in several other situations.
+way, such as before or after a template is rendered or before or after a
+route is executed.
 
 Defining hooks allows you to have these events trigger your code.
 
@@ -307,7 +358,7 @@ Please see below under the section I<Extending an application>.
 
 =head2 Configuration
 
-You can configure your Dancer App in two ways:
+You can configure your Dancer2 App in two ways:
 
 =over 4
 
@@ -325,8 +376,8 @@ configuration they define will be available as soon as possible.
     # under config.yml
     template: "template_toolkit"
 
-You can then reach the values of the configuration file using the
-C<config> keyword.
+You can then reach the values defined in the configuration file using
+the C<config> keyword.
 
     package MyApp;
     use Dancer2;
@@ -342,7 +393,7 @@ files allow you to do.
 
     package MyApp;
     use Dancer2;
-    set template => 'template_toolkit';
+    set 'template' => 'template_toolkit';
 
 Configuration created with C<set> is available after the application is
 created, which might be too late for you (such as with plugins that need
@@ -366,7 +417,7 @@ created by the C<set> keyword.
 =head2 Extending an application
 
 When Dancer2 creates an App, the application name will be based on the
-package it is imported in.
+package into which it was imported.
 
     use Dancer2; # default package: "main"
 
@@ -385,8 +436,8 @@ Multiple packages yield multiple applications:
     package MyApp2;
     use Dancer2;
 
-If you to extend a single application within multiple packages, you can
-merge them together using the C<appname> option:
+If you wish to extend a single application within multiple packages, you
+can merge them together using the C<appname> option:
 
     # MyApp.pm:
     package MyApp;
@@ -395,9 +446,12 @@ merge them together using the C<appname> option:
 
     # MyApp/Extra.pm:
     package MyApp::Extra;
-    use Dancer2 appname => 'MyApp'; # merge into "MyApp" application
+    use Dancer2 'appname' => 'MyApp'; # merge into "MyApp" application
 
-This will create a single application spread across two packages.
+This will create a single Dancer2 application spread across two packages
+defined in two different files. This is a convenient technique to scale your
+application code into several files without splitting it into multiple
+Dancer2 apps.
 
 =head1 Running an application
 
@@ -443,7 +497,7 @@ C<plackup> has many options, but a noteworthy one here is the
 auto-loading parameter, which restarts the development server as soon
 as it identifies you changed a file:
 
-    plackup -R lib,bin
+    plackup -R lib,bin app.psgi
 
 This monitors the F<lib> and F<bin> directories for file changes. The
 templates directory doesn't need to be monitored since template changes
@@ -457,8 +511,12 @@ serve the handler script above.
 
 If you want to run your application on a server that does not have native
 PSGI support, you can still run it as a CGI or FastCGI application. The
-scaffolded structure C<dancer2> command line creates appropriate files
-that can be used as handlers in those cases.
+C<dancer2> command line creates appropriate files that can be used as
+handlers in those cases.
+
+The Dancer community helped document different deployment methods which
+can be found in L<Dancer2::Manual::Deployment>. If your scenario does
+not exist there, please help us expand the deployment guide.
 
 =head1 Plugins
 
@@ -466,7 +524,7 @@ Plugins have the ability of adding additional keywords or hooks to an
 application to ease the development or provide seamless integration.
 
 For example, a plugin could provide a keyword that creates objects from
-configuration settings or generate endpoints to your application in a
+configuration settings or to generate endpoints to your application in a
 specific way.
 
 Read more on how to write plugins in L<Dancer2::Plugin>.
@@ -526,8 +584,9 @@ or only a subset:
 
 =head2 Path
 
-Dancer supports a sophisticated path spec, allowing you to define
-variables - named or anonymous.
+Dancer2 supports a sophisticated path spec, allowing you to define
+variables - named or anonymous. It even allows you to introduce a regex-based
+specification or structures type definitions to validate the path when matched.
 
 =head3 Static paths
 
@@ -535,7 +594,7 @@ Static paths are simple strings:
 
     get '/view/' => sub {...};
 
-This will match the explicit path, F</view/>.
+This will match the explicit path F</view/>.
 
 =head3 Variables
 
@@ -576,7 +635,7 @@ it as a hash directly as well:
         my ( $greeting, $name ) = @{route_parameters()}{qw<greeting name>};
     };
 
-=head4 Splat (Anonymous Placeholders)
+=head4 Anonymous Placeholders with C<splat>
 
 The keyword C<splat> returns a B<list> of all the anonymous variables
 matched.
@@ -592,10 +651,10 @@ matched.
 You can use as many as you like, but remember it will B<always>
 return a list, never a scalar.
 
-=head4 Megasplat (Greedy Placeholders)
+=head4 Greedy Placeholders with Megasplat 
 
 The Megasplat is used as a way to capture as many matches as possible,
-otherwise known as I<greediness>. This way, Dancer will grab every
+otherwise known as I<greediness>. This way, Dancer2 will grab every
 path segment (delimited by forward slashes) separately.
 
 In this case, C<splat> will still return a list, but where a megasplat
@@ -617,6 +676,60 @@ same and they can be mixed together:
 You can, of course, mix all of these together.
 
     get '/*/**/*/:name' => sub {...};
+
+=head4 Type constraints and validation rules
+
+When defining a route, you can also provide type constraints to validate
+the route. Keep in mind, when a route is not valid, it will simply not
+match. You only get an error if you match nothing - a 404 error.
+
+    get '/user/:id[Int]' => sub {
+        ...
+    };
+
+    # /user/30  # ok
+    # /user/foo # 404
+
+Regular expressiosn can also be used:
+
+    get '/book/:date[StrMatch[qr{\d\d\d\d-\d\d-\d\d}]]' => sub {
+        # matches /book/2014-02-04
+        my $date = route_parameters->get('date');
+        ...
+    };
+
+The available types are defined in L<Dancer2::Core::Types>. You can
+change this type library to any other library that is built using
+L<Type::Tiny>'s L<Type:Library>:
+
+    # in your configuration
+    type_library: My::Type::Library
+
+You can also use a specific library's exact type as the name:
+
+    get '/user/:username[My::Type::Library::Username]' => sub {
+        my $username = route_parameters->get('username');
+        ...
+    };
+
+This will load C<My::Type::Library> and use the type C<Username>.
+This allows types to be used that are not part of the type library
+defined by config's C<type_library>.
+
+More complex constructs are also allowed such as:
+
+   get '/some/:thing[Int|MyDate]' => sub {
+       ...;
+   };
+
+See C<lookup($name)> in L<Type::Registry> for more details.
+
+Keep in mind that it is not always better to be this specific in
+the route definition. Additionally, paths that accept multiple types
+of input can be more confusing to users.
+
+While Dancer2 provides a lot of options, you must choose with care
+when deciding which features to use and how.
 
 =head4 Regular expressions
 
@@ -640,8 +753,7 @@ C<splat> keyword described above:
         my ($id) = splat; # "10XR"
     };
 
-If you're using perl 5.10 and above, named captures are available
-using the C<captures> keyword:
+Named captures are available using the C<captures> keyword:
 
     # /view/10XR
     get qr{^/view/(?<id>\d\d\w)$} => sub {
@@ -671,7 +783,7 @@ You can also use variables in prefixes:
             # /hello/world
             # /hey/world
             my $greeting = route_parameters->get('greeting');
-            "$greeting, World!";
+            return "$greeting, World!";
         },
     };
 
@@ -685,44 +797,47 @@ to the user for the request.
         return "Hello, is it me you're looking for?";
     };
 
-You will likely return HTML:
+You will likely want your web application to return HTML:
 
     get '/' => sub {
         return '<html><body>Do not do this, see below!</body></html>';
     };
 
-You will most often use the C<template> keyword in order to render
-templates and return their HTML content as the response:
+The C<template> keyword is used to render templates and return their HTML
+content as the response:
 
     get '/' => sub {
         template 'index'; # render views/index.tt
     };
 
-I<The extension will be automatically added, depending on the template
-engine you're using.>
+The C<template> keyword will look for a corresponding template file in the
+F<views/> directory. The extension (in the above example, C<tt>) is
+determined automatically based on the template engine you are using.
 
 The C<template> keyword also accepts variables for rendering:
 
     get '/' => sub {
         my $now = time;
-        template index => { now => $now };
+        template 'index' => { 'now' => $now };
     };
 
 The C<template> keyword will automatically render the template inside
-a B<layout>. The default is F<main>, but that can also be configured.
+a B<layout>. These layouts are also templates (found in the F<views/layouts/>
+directory) which act as a wrapper in which the templates are being rendered.
+
+The default is called C<main> (found in F<views/layouts/>, but that can also be
+configured by setting the C<layout> parameter to a different value.
+
+    set 'layout' => 'awesome_main'; # will look for this layout template instead
 
 You can also control the layout per rendering:
 
     get '/' => sub {
-        template index => { name => 'Sawyer' }, { layout => 'mobile' };
+        template 'index' => { 'name' => 'Sawyer' }, { 'layout' => 'mobile' };
     };
 
-The layout is a master template in which your templates are rendered.
-It is available in the F<views/layouts> directory.
-
-You can also use other keywords to control the flow of requests and
-responses, such as returning a redirect to a different URL. They are
-described below under B<Control Flow>.
+This allows you to maintain multiple layouts in your application in which you
+templates will be rendered.
 
 =head3 Parameters
 
@@ -730,10 +845,10 @@ While you have full access to the underlying core objects representing
 the request (using C<request>) and the response (using C<response>),
 you will probably use the parameters the most.
 
-There are three keywords for parameters, depending on where they are
-provided. All three return L<Hash::MultiValue> objects in order to
-prevent implicit context. If you do not know what this means, don't
-worry about it.
+There are three keywords for parameters, depending on how the user provided
+them. All three return L<Hash::MultiValue> objects in order to properly handle
+parameters which can have single or multiple values. (It's okay if you do not
+know what this means yet.)
 
 =over 4
 
@@ -790,28 +905,31 @@ keyword to retrieve the content:
     post '/update' => sub {
         # Request body:
         # "this is not a key and value pair"
-        my $content = request->body;
+        my $content = request->body();
         ...
     };
 
 A common mistake is to send JSON as a serialized string and expect it
-to be automatically available as parameters (this can be done using the
-L<Dancer2::Serializer::JSON> functionality).
+to be automatically available as parameters (this can be done by using
+L<Dancer2::Serializer::JSON>).
 
-You can use the C<from_json> and C<to_json> helpers provided.
+You can use the C<decode_json> and C<encode_json> helpers provided.
 
     post '/update' => sub {
         # Request body:
         # '{"status":"changed","value":-10}'
-        my $parameters = from_json( request->body );
+        my $parameters = decode_json( request->body() );
 
-        return to_json( {
+        return encode_json( {
             success => 1,
         } );
     };
 
 This is subject to the same L<Hash::MultiValue> principles explained
 under C<query_parameters> above.
+
+You might be familiar with the keywords C<to_json> and C<from_json>. While
+they are still supported, we do not recommend using them.
 
 =back
 
@@ -838,7 +956,7 @@ You can return an error directly to the user using C<send_error>
 
 You will notice that C<send_error> returns right away, and once it is
 called, a response will be returned to your user. You need not include
-a C<return> statement.
+a C<return> statement, but you can if you wish.
 
 =item * C<redirect>
 
@@ -857,7 +975,8 @@ a different URL instead:
     };
 
 As with C<send_error>, C<redirect> will return immediately once
-executed; the rest of the code will not be run.
+executed; the rest of the code will not be run. You can, of course, include
+a C<return> statement for it if you wish.
 
 =item * C<forward>
 
@@ -875,20 +994,29 @@ form a pattern called B<chained methods>.
 
 Notice that when calling C<forward>, a response does not return to
 the user, and the user will not see the new path once the response does
-reach them.
+reach them. You can include a C<return> statement for it if you wish.
+
+You can think of C<forward> as an internal redirect that is entirely
+transparent to the user. They still see the original URL when they receive
+a response.
+
+This can also be achieved by just splitting your application to subroutines
+and calling the appropriate subroutine. In fact, it might even be more
+maintainable.
 
 =item * C<pass>
 
-If there are two paths that could handle a URL, the first one registered
-will be reached. However, it can indicate that it refuses to serve the
-response. It can do that once it runs some code.
+If there is more than one route that could handle a request, the first one
+registered will be reached. However, a route can indicate that it refuses to
+serve the response or that it would like another route to handle it.
+This can be done before or after any code is run.
 
 This also allows to generate B<chained methods> but in a much less
 elegant way.
 
     get '/:name' => sub {
         if ( route_parameters->get('name') eq 'Sawyer' ) {
-            return template sawyer => {};
+            return template 'sawyer' => {};
         }
 
         # try to find something else to handle this
@@ -897,7 +1025,7 @@ elegant way.
 
     get '/*' => sub {
         my ($item) = splat;
-        template failsafe => { msg => "Cannot handle item: $item" };
+        template 'failsafe' => { 'msg' => "Cannot handle item: $item" };
     };
 
 The key difference between C<forward> and C<pass> is that C<forward>
@@ -924,16 +1052,16 @@ immediatly returns and the B<after> hook will not be called.
 All the information that was collected meanwhile for the response (such
 as additional response headers, specific status you explicitly set with
 the C<status> keyword, content you may have set manually, etc.)
-will be used to create the response the user will receive.
+will be used to create the response returned to the user.
 
-You can also use this within the context of a B<before> hook, but it
+You can also use C<halt> within the context of a B<before> hook, but it
 is not recommended.
 
 =back
 
 =head2 Keeping information
 
-There are several ways to maintain information in your application,
+There are several ways to maintain data in your application,
 whether it is throughout a request or between requests.
 
 =head3 C<vars>
@@ -943,7 +1071,7 @@ for the life-cycle of a request. When you define something with C<var>,
 it is available for additional routes that handle a current request.
 
     get '/' => sub {
-        var time => scalar time;
+        var 'time' => scalar time;
         forward('/handle');
     };
 
@@ -957,14 +1085,14 @@ a B<before> hook.
 
 Assuming our web application is an API in which every request goes
 to the database. This means that connecting to the database is something
-we do in every route. We can use the B<before> hook in order to connect
+we do in every route. We can use the B<before> hook to connect
 to the database. Then in the route, we can use the handle we created
-during that request (in the B<before> hook) in order to make a database
+during that request (in the B<before> hook) to make a database
 call:
 
-    hook before => sub {
+    hook 'before' => sub {
         # create a variable "dbh" which will be the database handle
-        var dbh => connect_db( config->{'db_conn'} );
+        var 'dbh' => connect_db( config->{'db_conn'} );
     };
 
     get '/users' => sub {
@@ -978,8 +1106,8 @@ automatically be cleaned up.
 
 =head3 Cookies
 
-Cookies can be used to keep information on the client side in the
-browser. Dancer provides two keywords for all cookie-related actions:
+Cookies can be used to keep data on the client side in the
+browser. Dancer2 provides two keywords for all cookie-related actions:
 
 =over 4
 
@@ -989,10 +1117,10 @@ You can create new cookies or access existing ones using the C<cookie>
 keyword:
 
     # create a new cookie
-    cookie lang => 'fr-FR';
+    cookie 'lang' => 'fr-FR';
 
     # create a cookie with an expiration
-    cookie lang => 'fr-FR', expires => '2 hours';
+    cookie 'lang' => 'fr-FR', 'expires' => '2 hours';
 
 The options available for cookies are: C<path>, C<expires>, C<domain>,
 C<secure>, and C<http_only>. You can read more about the options
@@ -1005,9 +1133,9 @@ When you call C<cookie> on an existing key, you receive a cookie
 object (of type L<Dancer2::Core::Cookie>). You can then call attributes
 to receive specific details about the cookie:
 
-    my $cookie_name   = $cookie->name;
-    my $cookie_domain = $cookie->domain;
-    my $cookie_path   = $cookie->path;
+    my $cookie_name   = $cookie->name();
+    my $cookie_domain = $cookie->domain();
+    my $cookie_path   = $cookie->path();
 
 The C<value> attribute (the most useful one) is context sensitive.
 If you provided a cookie value which is a key/value URI pair, and you
@@ -1015,14 +1143,14 @@ call C<value> in scalar context, only the first value will be returned.
 If you call it in list context, all values will be returned.
 
     # setting a URI key/value pair as the value
-    cookie token => 'name=Sawyer&username=xsawyerx';
+    cookie 'token' => 'name=Sawyer&username=xsawyerx';
 
     # retrieving the first value
-    my $value = $cookie->value;
+    my $value = $cookie->value();
     # $value is now 'name=Sawyer'
 
     # retrieving all values
-    my @values = $cookie->value;
+    my @values = $cookie->value();
     # @values is now ( 'name=Sawyer', 'username=xsawyerx' )
 
 =item * C<cookies>
@@ -1032,7 +1160,7 @@ a hashref of all objects based on their name:
 
     get '/some_action' => sub {
         my $cookie = cookies->{'token'};
-        my $value  = $cookie->value;
+        my $value  = $cookie->value();
         return $value;
     };
 
@@ -1042,7 +1170,7 @@ a hashref of all objects based on their name:
 
 Sessions store information about the user on the server side and provide
 a session ID in a user cookie. When a user returns with the cookie
-containing the session ID, Dancer can locate their session information
+containing the session ID, Dancer2 can locate their session information
 and retrieve it.
 
 You can create a session using the C<session> keyword:
@@ -1054,7 +1182,7 @@ You can create a session using the C<session> keyword:
         my $user = check_user( $username, $password )
             or redirect '/login';
 
-        session user => $user;
+        session 'user' => $user;
         redirect '/';
     };
 
@@ -1075,13 +1203,13 @@ appropriate storage and retrieve the data.
 If you want to delete a key from the session, you can set it explicitly
 to C<undef>:
 
-    session user => undef; # delete "user" in the storage
+    session 'user' => undef; # delete "user" in the storage
 
 To clear the session completely, you can call C<destroy_session> on
 the C<app> itself:
 
     get '/logout' => sub {
-        app->destroy_session;
+        app->destroy_session();
     };
 
 If called without parameters, the C<session> keyword will return an
@@ -1089,12 +1217,12 @@ object representing the session, including all the data relating to the
 session. The type is L<Dancer2::Core::Session>.
 
     get '/introspect' => sub {
-        my $session = session;
-        $session->expires;
-        $session->id;
+        my $session = session();
+        $session->expires();
+        $session->id();
     };
 
-Note: Dancer comes with a default simple memory-based session engine,
+Note: Dancer2 comes with a default simple memory-based session engine,
 to help you get started. Once you're ready, you should use a
 production-level session engine, such as L<Dancer2::Session::DBIC>,
 L<Dancer2::Session::Memcached>, or L<Dancer2::Session::Redis>.
@@ -1102,27 +1230,27 @@ L<Dancer2::Session::Memcached>, or L<Dancer2::Session::Redis>.
 =head2 Hooks
 
 Hooks allow you to run code at certain points in the cycle of a request.
-Dancer provides several hooks and plugins can provide additional hooks
+Dancer2 provides several hooks and plugins can provide additional hooks
 for events that happen during the work of the plugin.
 
 =over 4
 
 =item * C<before>
 
-    hook before => sub {
+    hook 'before' => sub {
         ...
     };
 
-The C<before> hook is run after Dancer decided what route needs to be
+The C<before> hook is run after Dancer2 decided what route needs to be
 called, but before calling it. If you have a 404, the C<before> hook
 will not be called.
 
-The before hook provides a place to create variables which will be
+The C<before> hook provides a place to create variables which will be
 available to the called route, as explained under C<vars> above.
 
 =item * C<after>
 
-    hook after => sub {
+    hook 'after' => sub {
         ...
     };
 
@@ -1131,14 +1259,14 @@ is sent back to the user.
 
 =item * C<before_template_render>
 
-    hook before_template_render => sub {
+    hook 'before_template_render' => sub {
         my $tokens = shift;
         my $now    = time;
         $tokens->{'now'} = $now;
     };
 
 The C<before_template_render> hook is called before a template is
-rendered.  It receives the tokens that will be sent to the template
+rendered. It receives the tokens that will be sent to the template
 (as a hashref) so you could modify them to provide additional default
 variables for the template.
 
