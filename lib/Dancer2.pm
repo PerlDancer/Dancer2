@@ -266,8 +266,24 @@ below under the section I<Extending an application>.
 
 =head2 Engines
 
-Engines provide many of the logistics of a common web application. There
-are four engine types.
+Engines provide many of the logistics of a common web application.
+
+Engines can be applied and configured either in the configuration file
+(the preferred method) or using the C<set> keyword.
+
+    # config.yml
+    logger:     "File"
+    session:    "YAML"
+    serializer: "JSON"
+
+    engines:
+      logger:
+        File:
+          log_dir: "/var/log/myapp"
+
+You can read more about configurations in L<Dancer2::Config>.
+
+There are four engine types.
 
 =over 4
 
@@ -275,20 +291,193 @@ are four engine types.
 
 Providing rendering of templates to produce formatted data, usually HTML.
 
+Dancer2 ships with the following template engines:
+
+=over 4
+
+=item * L<Dancer2::Template::Simple>
+
+A simple template engine with variables, but no conditions.
+
+=item * L<Dancer2::Template::Tiny>
+
+A fork of L<Template::Tiny> that supports angle brackets for variables.
+
+=item * L<Dancer2::Template::TemplateToolkit>
+
+Uses the popular L<Template> Toolkit template system.
+
+=back
+
+You can seek additional template engines by searching MetaCPAN.org for
+any class that starts with C<Dancer2::Template::> or write your own.
+
 =item * B<Logger>
 
 Making it trivial to log messages from the web application.
+
+Dancer2 ships with the following logging engines:
+
+=over 4
+
+=item * L<Dancer2::Logger::Capture>
+
+A general-purpose capture logger. By default, it will use
+L<Dancer2::Logger::Capture::Trap> but you are able to provide a different
+trap instance.
+
+You could, for example, trap messages into a database instead of in-memory
+storage. See below under C<Dancer2::Logger::Capture::Trap> on what trapping
+is.
+
+=item * L<Dancer2::Logger::Capture::Trap>
+
+A logger that captures the messages and stores them in a "trap," allowing
+you to read and discard them as you wish. This is helpful when writing a
+test. See above under C<Dancer2::Logger::Capture> for a capture logger that
+supports changing the instance of trapper.
+
+=item * L<Dancer2::Logger::Console>
+
+The default logger for the Dancer2 development. It logs messages onto the
+conosle in which you started the server. You do not want to use this in
+production, as the server would be run in the background and the messages
+like sent to a log file or a database.
+
+=item * L<Dancer2::Logger::Diag>
+
+Logs all messages as L<Test::More>'s C<diag> function. This is useful if
+you write tests and want to see debugging information on what the server
+did.
+
+=item * L<Dancer2::Logger::File>
+
+A logger that writes to a file. This is the default logger on the production
+environment for Dancer2. By default, it will look for the F<logs/> directory
+and log the requests under the environment name (such as "production") with
+the file extension F<.log>, like F<logs/production.log>.
+
+=item * L<Dancer2::Logger::Note>
+
+Similar to L<Dancer2::Logger::Diag> but uses L<Test::More>'s C<note>
+function. The difference is that C<diag> is seen when the test is run within
+a harness, while C<note> will not be seen when the test is run within a
+harness.
+
+=item * L<Dancer2::Logger::Null>
+
+A logger that discards all the messages it receives. This is useful when
+you do not care about the logging and do not want it to interfere. It is
+better than just having a trap log that is not checked, since it will not
+accumulate messages in memory.
+
+=back
+
+You can seek additional logging engines by searching MetaCPAN.org for
+any class that starts with C<Dancer2::Logger::> or write your own.
 
 =item * B<Session>
 
 Making it easy to create a stateful web application by storing and
 retrieving stateful information.
 
+Dancer2 ships with the following session engines:
+
+=over 4
+
+=item * L<Dancer2::Session::Simple>
+
+A simple session engine with in-meomry storage. This is useful for
+development that is run on a development server.
+
+There are two major disadvantages to using this session engine, even under
+development:
+
+=over 4
+
+=item 1. Web server restarts wipe the session data
+
+=item 2. If your web server uses multiple workers, the session data is not
+shared across these, so you will have inconsistent session data
+
+=back
+
+Think of it as: Good for small proof-of-concept session, but not enough
+when the app is no longer trivial.
+
+This session engine is B<not> suitable for production environments.
+
+=item * L<Dancer2::Session::YAML>
+
+A L<YAML>-based session engine that stores its session data in YAML
+formatted files on disk.
+
+While this will work for multiple workers and sustain across restarts,
+we do not recommend it for production environments. You should likely
+use a DB-based session engine like L<Dancer2::Session::DBIC>,
+L<Dancer2::Session::CHI>, or L<Dancer2::Session::Redis>, or even one
+using a secure client-side cookie, L<Dancer2::Session::Cookie>.
+
+=back
+
+You can seek additional session engines by searching MetaCPAN.org for
+any class that starts with C<Dancer2::Session::> or write your own.
+
 =item * B<Serializer>
 
 Automatically serializing and deserializing data. This is helpful when
 writing a web API application that interacts with a particular format like
 JSON.
+
+One thing to keep in mind with serializers is that they control all input
+and output with your app. If you have a JSON serializer (see below), you
+will not be able to receive non-JSON input or return non-JSON output.
+
+Dancer2 ships with the following serialization engines:
+
+=over 4
+
+=item * L<Dancer2::Serializer::Dumper>
+
+This serialization engine allows receiving requests and returning
+responses using the L<Data::Dumper> serialization format. This format
+supports not only structures but objects.
+
+B<NOTE:> You should not be using this for multiple reasons, from the
+format not being compatible between versions to possible security
+issues (depending on the version of L<Data::Dumper> you have).
+
+=item * L<Dancer2::Serializer::JSON>
+
+This serialization engine allows receiving requests and returning
+responses written in the JSON serialization format. This is the most
+common serializer used in Dancer2.
+
+Keep in mind, you do not have to use the JSON serializer. You are also
+able to deserialize input manually.
+
+=item * L<Dancer2::Serializer::Mutable>
+
+The mutable serializer attempts to deteremine which serialization format
+is requested base on the request path and use the appropriate serializer.
+
+The idea is for your application to manage input and output in different
+formats, allowing more freedom to the client (which might also be you
+or someone you work with) to interact in whatever format their system
+prefers.
+
+It currently supports C<Dumper>, C<JSON>, and C<YAML>. You can control
+these mappings, as explained in its documentation.
+
+=item * L<Dancer2::Serializer::YAML>
+
+This serialization engine allows receiving requests and returning
+responses written in the YAML serialization format.
+
+=back
+
+You can seek additional serialization engines by searching MetaCPAN.org for
+any class that starts with C<Dancer2::Serializer::> or write your own.
 
 =back
 
@@ -470,7 +659,10 @@ explains the problems inherent in the C<dance> keyword in greater detail.
 =head2 Development server
 
 In order to run the development server, you need to run C<plackup> on a
-PSGI application file. One is created for you when you scaffold a new
+PSGI application file. The C<plackup> script is installed when you install
+L<Plack>, which happens when you install L<Dancer2>.
+
+A PSGI application file is created for you when you scaffold a new
 application using the C<dancer2> command line application.
 
     plackup bin/app.psgi
@@ -551,23 +743,23 @@ The following keywords are available:
 
 =item * C<get>
 
-Handles GET methods.
+Handles reqeusts using a GET method.
 
 =item * C<post>
 
-Handles POST methods.
+Handles reqeusts using a POST method.
 
 =item * C<put>
 
-Handles PUT methods.
+Handles reqeusts using a PUT method.
 
 =item * C<patch>
 
-Handles PATCH methods.
+Handles reqeusts using a PATCH method.
 
 =item * C<del>
 
-Handles DELETE methods.
+Handles reqeusts using a DELETE method.
 
 =item * C<any>
 
