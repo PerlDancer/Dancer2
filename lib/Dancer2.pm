@@ -148,6 +148,19 @@ elements:
 
 =over 4
 
+=item * F<.dancer>
+
+When Dancer2 starts, it looks to identify the location of the application,
+which it will do by trying to find F<bin/> and F<lib/> directories.
+However, it is entirely possible to not have a F<bin/> directory (if you
+don't have a handler file or do not need one) or entirely rename these
+directories. In such a case, Dancer2 is not sure what is the root directory
+of this application.
+
+The F<.dancer> file is a conclusive way to indicate this is a Dancer2
+application directory and - even when you have both F<bin/> and F<lib/>
+directories, it is good form to have a F<.dancer> file.
+
 =item * F<config.yml> and F<environments>
 
 The main configuration file with some sample configuration to help get
@@ -157,6 +170,15 @@ your server starts (B<production> or B<development>).
 
 Note: The L<Starman> web server uses the C<deployment> environment
 value.
+
+If you create additional configuration files with the name
+F<config_local.EXT> where C<EXT> is the extension (C<.yml>, for example),
+Dancer2 will read these configuration files first and they will take
+precedence over the global ones. This allows you to put the global
+configurations into a shared Git repo, but keep the local ones uncommitted
+(and stored in F<.gitignore> so they won't accidentally be committed.
+
+This is useful for database credentials or user-specific configurations.
 
 =item * F<public>
 
@@ -596,7 +618,7 @@ template system you requested.
     package MyApp;
     use Dancer2; # template engine created
 
-    set template => 'new_template_system'; # new engine instantiated
+    set 'template' => 'new_template_system'; # new engine instantiated
 
 The C<config> keyword will provide access for all the configuration
 created by the C<set> keyword.
@@ -731,6 +753,11 @@ Routes have three main parts: B<Method>, B<Path>, and B<Callback>.
 
 In the above example, the method is B<GET>, the path is B</>, and the
 callback is the B<sub> provided at the end.
+
+While not necessarily useful, it is good to know that routes are internally
+represented by objects of L<Dancer2::Core::Route> and when you define a new
+route with the available keywords (described below), you will receive such
+an object instance (of class L<Dancer2::Core::Route>) back.
 
 =head2 Method
 
@@ -1002,6 +1029,50 @@ content as the response:
         template 'index'; # render views/index.tt
     };
 
+In effect, the result type is determined by two factors: The content type
+the application returns (C<text/html> by default) and the returned string
+(which, if you're using C<template>, will be an HTML template in your
+F<views/> directory).
+
+You can change that in several ways:
+
+=over 4
+
+=item * Change the C<content_type> and value
+
+    get '/' => sub {
+        content_type 'text/plain'; # plain text!
+        return "Hello, there!";
+    };
+
+Browsers expect HTML, but some usages (AJAX endpoints, for example) might
+expect a different content type (either C<plain/text> or
+C<application/json>.
+
+=item * Use a serializer
+
+Essentially, they wrap your handler and automatically interpret input from
+some format (like JSON) and translate your response into that format.
+
+Serializers are described below.
+
+=item * Use C<send_as>
+
+It is also possible to change the content per-response using the C<send_as>
+keyword:
+
+    get '/' => sub {
+        # JSON string with 'application/json' as the content type
+        if ( SOME_CONDITION() ) {
+            send_as 'JSON' => {...};
+        }
+
+        # HTML
+        template 'foo' => {...};
+    };
+
+=back
+
 The C<template> keyword will look for a corresponding template file in the
 F<views/> directory. The extension (in the above example, C<tt>) is
 determined automatically based on the template engine you are using.
@@ -1030,6 +1101,21 @@ You can also control the layout per rendering:
 
 This allows you to maintain multiple layouts in your application in which you
 templates will be rendered.
+
+The C<template> keyword can also be used outside of a web request, which allows
+you to prerender templates.
+
+B<Note:> The C<template> keyword does not return from your piece of code. You
+will need to call C<return> (or use it as the last statement, as many examples
+do) for it to be the returned value.
+
+    get '/' => sub {
+        # User will not see because there's another line
+        template 'foo' => { 'message' => 'hello!' };
+
+        # User will receive as the result the exit code of this keyword
+        log('Hey, look at this message!');
+    };
 
 =head3 Parameters
 
@@ -1110,12 +1196,14 @@ You can use the C<decode_json> and C<encode_json> helpers provided.
     post '/update' => sub {
         # Request body:
         # '{"status":"changed","value":-10}'
-        my $parameters = decode_json( request->body() );
+        my $parameters = decode_json( request_data() );
 
         return encode_json( {
             success => 1,
         } );
     };
+
+C<request_data> returns the body of the body of the request.
 
 This is subject to the same L<Hash::MultiValue> principles explained
 under C<query_parameters> above.
