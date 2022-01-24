@@ -104,7 +104,7 @@ In your C<config.yaml>:
         Baz : 0
 
 In your main route controller:
-    
+
     use Dancer2;
     use Module::Runtime 'require_module';
 
@@ -737,8 +737,8 @@ Assuming we have the original user-creation form submitting a username and passw
      use Dancer2::Plugin::Passphrase;
      post '/register' => sub {
          my $username = query_parameters->get('username');
-         my $password = passphrase( 
-             query_parameters->get('password') 
+         my $password = passphrase(
+             query_parameters->get('password')
          )->generate;
 
          # $password is now a hashed password object

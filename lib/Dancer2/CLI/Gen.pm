@@ -74,8 +74,8 @@ option skel => (
     format_doc => 'directory',
     required   => 0,
     default    => sub{
-        my $self = shift; 
-        path( $self->parent_command->_dist_dir, 'skel' ); 
+        my $self = shift;
+        path( $self->parent_command->_dist_dir, 'skel' );
     },
 );
 
@@ -95,7 +95,7 @@ option git => (
     default    => 0,
 );
 
-option remote => ( 
+option remote => (
     is         => 'ro',
     short      => 'r',
     doc        => 'URI for git repository (implies -g)',
@@ -108,8 +108,8 @@ option remote => (
 sub BUILD {
     my ( $self, $args ) = @_;
 
-    $self->osprey_usage( 1, qq{ 
-Invalid application name. Application names must not contain single colons, 
+    $self->osprey_usage( 1, qq{
+Invalid application name. Application names must not contain single colons,
 dots, hyphens or start with a number.
     }) unless is_module_name( $self->application );
 
@@ -183,7 +183,7 @@ sub _check_git {
 
 WARNING: Couldn't initialize a git repo despite being asked to do so.
 
-To resolve this, cd to your application directory and run the following 
+To resolve this, cd to your application directory and run the following
 commands:
 
   git init
@@ -200,13 +200,13 @@ commands:
         path( $gitignore )->copy( $app_path );
 
         chdir File::Spec->rel2abs( $app_path ) or die "Can't cd to $app_path: $!";
-        if( _run_shell_cmd( 'git', 'init') != 0 or 
-            _run_shell_cmd( 'git', 'add', '.') != 0 or 
+        if( _run_shell_cmd( 'git', 'init') != 0 or
+            _run_shell_cmd( 'git', 'add', '.') != 0 or
             _run_shell_cmd( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
             print $git_error;
         }
         else {
-            if( $self->remote && 
+            if( $self->remote &&
                 _run_shell_cmd( 'git', 'remote', 'add', 'origin', $self->remote ) != 0 ) {
                 print $git_error;
                 print "  git remote add origin " . $self->remote . "\n";
@@ -290,7 +290,7 @@ sub _build_file_list {
         warn "File not found: $file" unless $file->exists; # Paranoia
         next if $file->basename =~ m{^\.git(/|$)};
         next if $file->is_dir;
-        
+
         my $filename = $file->relative( $from );
         push @result, [ $file, path( $to, $filename )];
     }
@@ -315,7 +315,7 @@ sub _copy_templates {
             $to_dir->mkpath;
         }
 
-        # Skeleton files whose names are prefixed with + need to be executable, but we must strip 
+        # Skeleton files whose names are prefixed with + need to be executable, but we must strip
         # that from the name when copying them
         my $to_file = path( $to )->basename;
         my $ex      = ( $to_file =~ s/^\+// );
@@ -378,7 +378,7 @@ sub _process_template {
     return $engine->render( \$template, $tokens );
 }
 
-# These are good candidates to move to Dancer2::CLI if other commands 
+# These are good candidates to move to Dancer2::CLI if other commands
 # need them later.
 sub _get_app_path {
     my ( $self, $path, $appname ) = @_;
@@ -431,8 +431,8 @@ sub _run_shell_cmd {
 
     my $exit_status = try {
         my $pid = IPC::Open3::open3(
-            my $stdin, 
-            my $stdout, 
+            my $stdin,
+            my $stdout,
             my $stderr = Symbol::gensym,
             @cmds,
         );

@@ -119,7 +119,7 @@ sub _build_config_files {
     if (my $ext = $ENV{DANCER_CONFIG_EXT}) {
         if (grep { $ext eq $_ } @available_exts) {
             @exts = $ext;
-            warn "Only looking for configs ending in '$ext'\n" 
+            warn "Only looking for configs ending in '$ext'\n"
                 if $ENV{DANCER_CONFIG_VERBOSE};
         } else {
             warn "DANCER_CONFIG_EXT environment variable set to '$ext' which\n" .
@@ -155,7 +155,7 @@ sub _build_config {
         $default,
         map {
             warn "Merging config file $_\n" if $ENV{DANCER_CONFIG_VERBOSE};
-            $self->load_config_file($_) 
+            $self->load_config_file($_)
         } @{ $self->config_files }
     );
 

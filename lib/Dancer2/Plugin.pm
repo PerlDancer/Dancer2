@@ -799,8 +799,8 @@ Calls to C<plugin_keywords> are cumulative.
 For perl 5.12 and higher, keywords can also be defined by adding the C<:PluginKeyword> attribute
 to the function you wish to export.
 
-For Perl 5.10, the export triggered by the sub attribute comes too late in the 
-game, and the keywords won't be exported in the application namespace. 
+For Perl 5.10, the export triggered by the sub attribute comes too late in the
+game, and the keywords won't be exported in the application namespace.
 
     sub foo :PluginKeyword { ... }
 
@@ -937,7 +937,7 @@ do the following in a test:
     };
 
     flibble(45);          # plugin keyword called which causes config read
-    
+
     set plugins => {
         FooBar => {
             wibble => 0,  # this will NOT change plugin config
@@ -979,16 +979,16 @@ don't want anything imported via empty parentheses when C<use>ing the module:
 It's easy to use plugins from within a plugin:
 
     package Dancer2::Plugin::SourPuss;
-    
-    use Dancer2::Plugin; 
-    use Dancer2::Plugin::Polite; 
-    
-    sub my_keyword { my $smiley = smiley(); } 
+
+    use Dancer2::Plugin;
+    use Dancer2::Plugin::Polite;
+
+    sub my_keyword { my $smiley = smiley(); }
 
     1;
 
 This does not export C<smiley()> into your application - it is only available
-from within your plugin. However, from the example above, you can wrap 
+from within your plugin. However, from the example above, you can wrap
 DSL from other plugins and make it available from your plugin.
 
 =head2 Utilizing other plugins
@@ -1035,7 +1035,7 @@ Or using their alias:
 
     $plugin->app->execute_hook( 'on_route_exception' );
 
-B<Note:> If your plugin consumes a plugin that declares any hooks, those hooks 
+B<Note:> If your plugin consumes a plugin that declares any hooks, those hooks
 are added to your application, even though DSL is not.
 
 =head2 Writing Test Gotchas
