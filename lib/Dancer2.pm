@@ -154,8 +154,8 @@ When Dancer2 starts, it looks to identify the location of the application,
 which it will do by trying to find F<bin/> and F<lib/> directories.
 However, it is entirely possible to not have a F<bin/> directory (if you
 don't have a handler file or do not need one) or entirely rename these
-directories. In such a case, Dancer2 is not sure what is the root directory
-of this application.
+directories. In such a case, Dancer2 cannot reliably determine the root
+directory of the application.
 
 The F<.dancer> file is a conclusive way to indicate this is a Dancer2
 application directory and - even when you have both F<bin/> and F<lib/>
@@ -755,7 +755,7 @@ In the above example, the method is B<GET>, the path is B</>, and the
 callback is the B<sub> provided at the end.
 
 While not necessarily useful, it is good to know that routes are internally
-represented by objects of L<Dancer2::Core::Route> and when you define a new
+represented by objects of L<Dancer2::Core::Route>. When you define a new
 route with the available keywords (described below), you will receive such
 an object instance (of class L<Dancer2::Core::Route>) back.
 
@@ -1030,9 +1030,10 @@ content as the response:
     };
 
 In effect, the result type is determined by two factors: The content type
-the application returns (C<text/html> by default) and the returned string
-(which, if you're using C<template>, will be an HTML template in your
-F<views/> directory).
+the application returns and the returned string.
+
+If you are using the C<template> keyword, you are probably rendering an HTML
+template and by default Dancer2 provides a content type of C<text/html>.
 
 You can change that in several ways:
 
@@ -1047,7 +1048,7 @@ You can change that in several ways:
 
 Browsers expect HTML, but some usages (AJAX endpoints, for example) might
 expect a different content type (either C<plain/text> or
-C<application/json>.
+C<application/json>).
 
 =item * Use a serializer
 
@@ -1116,6 +1117,25 @@ do) for it to be the returned value.
         # User will receive as the result the exit code of this keyword
         log('Hey, look at this message!');
     };
+
+    get '/get_smallest_version' => sub {
+        my $desktop_version = template 'index',
+                                       {...},
+                                       { 'layout' => 'desktop' };
+
+        my $mobile_version = template 'index',
+                                      {...},
+                                      { 'layout' => 'mobile' };
+
+        if ( length $desktop_version < length $mobile_version ) {
+            return $desktop_version;
+        }
+
+        return $mobile_version;
+    };
+
+(This is a contrived example in which we would return the smallest-lengthed
+rendering of the C<index> page, which is probably a ridiculous thing to do.)
 
 =head3 Parameters
 
