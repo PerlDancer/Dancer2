@@ -21,7 +21,7 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
     package Prod;
     use Moo;
-    with 'Dancer2::Core::Role::ConfigReader';
+    with 'Dancer2::Core::Role::Config';
 
     sub name {'Prod'}
 
@@ -31,7 +31,7 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
     package Dev;
     use Moo;
-    with 'Dancer2::Core::Role::ConfigReader';
+    with 'Dancer2::Core::Role::Config';
 
     sub _build_environment    {'development'}
     sub _build_location       {$location};
@@ -39,7 +39,7 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
     package Failure;
     use Moo;
-    with 'Dancer2::Core::Role::ConfigReader';
+    with 'Dancer2::Core::Role::Config';
 
     sub _build_environment    {'failure'}
     sub _build_location       {$location}
@@ -47,7 +47,7 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
     package Staging;
     use Moo;
-    with 'Dancer2::Core::Role::ConfigReader';
+    with 'Dancer2::Core::Role::Config';
 
     sub _build_environment    {'staging'}
     sub _build_location       {$location}
@@ -55,7 +55,7 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
     package Merging;
     use Moo;
-    with 'Dancer2::Core::Role::ConfigReader';
+    with 'Dancer2::Core::Role::Config';
 
     sub name {'Merging'}
 
@@ -65,7 +65,7 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 
     package LocalConfig;
     use Moo;
-    with 'Dancer2::Core::Role::ConfigReader';
+    with 'Dancer2::Core::Role::Config';
 
     sub name {'LocalConfig'}
 
@@ -81,8 +81,8 @@ is_deeply $d->config_files,
   "config_files() only sees existing files";
 
 my $f = Prod->new;
-is $f->does('Dancer2::Core::Role::ConfigReader'), 1,
-  "role Dancer2::Core::Role::ConfigReader is consumed";
+is $f->does('Dancer2::Core::Role::Config'), 1,
+  "role Dancer2::Core::Role::Config is consumed";
 
 is_deeply $f->config_files,
   [ path( $location, 'config.yml' ),
