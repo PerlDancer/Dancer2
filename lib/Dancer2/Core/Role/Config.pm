@@ -1,5 +1,5 @@
 # ABSTRACT: Config role for Dancer2 core objects
-package Dancer2::Core::Role::ConfigReader;
+package Dancer2::Core::Role::Config;
 
 use Moo::Role;
 
@@ -7,7 +7,7 @@ use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
-use Module::Runtime 'require_module';
+use Module::Runtime qw{ require_module use_module };
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
@@ -66,6 +66,13 @@ has config_files => (
     builder => '_build_config_files',
 );
 
+has config_readers => (
+    is      => 'ro',
+    lazy    => 1,
+    isa     => ArrayRef,
+    builder => '_build_config_readers',
+);
+
 has local_triggers => (
     is      => 'ro',
     isa     => HashRef,
@@ -84,9 +91,11 @@ has global_triggers => (
             },
         };
 
+        no warnings 'once'; # Disable: Name "Dancer2::runner" used only once: possible typo
         my $runner_config = defined $Dancer2::runner
                             ? Dancer2->runner->config
                             : {};
+        use warnings 'once';
 
         for my $global ( keys %$runner_config ) {
             next if exists $triggers->{$global};
@@ -107,60 +116,43 @@ sub _build_environment { 'development' }
 sub _build_config_files {
     my ($self) = @_;
 
-    my $location = $self->config_location;
-    # an undef location means no config files for the caller
-    return [] unless defined $location;
-
-    my $running_env = $self->environment;
-    my @available_exts = Config::Any->extensions;
-    my @files;
-
-    my @exts = @available_exts;
-    if (my $ext = $ENV{DANCER_CONFIG_EXT}) {
-        if (grep { $ext eq $_ } @available_exts) {
-            @exts = $ext;
-            warn "Only looking for configs ending in '$ext'\n" 
-                if $ENV{DANCER_CONFIG_VERBOSE};
-        } else {
-            warn "DANCER_CONFIG_EXT environment variable set to '$ext' which\n" .
-                 "is not recognized by Config::Any. Looking for config file\n" .
-                 "using default list of extensions:\n" .
-                 "\t@available_exts\n";
-        }
-    }
-
-    foreach my $file ( [ $location, "config" ],
-        [ $self->environments_location, $running_env ] )
-    {
-        foreach my $ext (@exts) {
-            my $path = path( $file->[0], $file->[1] . ".$ext" );
-            next if !-r $path;
-
-            # Look for *_local.ext files
-            my $local = path( $file->[0], $file->[1] . "_local.$ext" );
-            push @files, $path, ( -r $local ? $local : () );
-        }
-    }
-
-    return \@files;
+    return [ map {
+            warn "Merging config_files from @{[ $_->name() ]}\n" if $ENV{DANCER_CONFIG_VERBOSE};
+            @{ $_->config_files() }
+        } @{ $self->config_readers }
+    ];
 }
 
+# The new config builder
 sub _build_config {
     my ($self) = @_;
 
-    my $location = $self->config_location;
     my $default  = $self->default_config;
-
     my $config = Hash::Merge::Simple->merge(
         $default,
         map {
-            warn "Merging config file $_\n" if $ENV{DANCER_CONFIG_VERBOSE};
-            $self->load_config_file($_) 
-        } @{ $self->config_files }
+            warn "Merging config from @{[ $_->name() ]}\n" if $ENV{DANCER_CONFIG_VERBOSE};
+            $_->read_config()
+        } @{ $self->config_readers }
     );
 
     $config = $self->_normalize_config($config);
     return $config;
+}
+
+sub _build_config_readers {
+    my ($self) = @_;
+
+    my @config_reader_names = $ENV{'DANCER_CONFIG_READERS'}
+                            ? (split qr{ [[:space:]]{1,} }msx, $ENV{'DANCER_CONFIG_READERS'})
+                            : ( q{Dancer2::ConfigReader::File::Simple} );
+
+    return [ map {
+        use_module($_)->new(
+            location => $self->location,
+            environment => $self->environment,
+            );
+    } @config_reader_names ];
 }
 
 sub _set_config_entries {
@@ -217,24 +209,6 @@ sub has_setting {
     return exists $self->config->{$name};
 }
 
-sub load_config_file {
-    my ( $self, $file ) = @_;
-    my $config;
-
-    eval {
-        my @files = ($file);
-        my $tmpconfig =
-          Config::Any->load_files( { files => \@files, use_ext => 1 } )->[0];
-        ( $file, $config ) = %{$tmpconfig} if defined $tmpconfig;
-    };
-    if ( my $err = $@ || ( !$config ) ) {
-        croak "Unable to parse the configuration file: $file: $@";
-    }
-
-    # TODO handle mergeable entries
-    return $config;
-}
-
 # private
 
 my $_normalizers = {
@@ -281,8 +255,46 @@ __END__
 
 =head1 DESCRIPTION
 
-Provides a C<config> attribute that feeds itself by finding and parsing
-configuration files.
+This is the redesigned C<Dancer2::Core::Role::ConfigReader>
+to manage the Dancer2 configuration.
+
+It is now possible for user to control which B<ConfigReader>
+class to use to create the config.
+
+Use C<DANCER_CONFIG_READERS> environment variable to define
+which class or classes you want.
+
+    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple Dancer2::ConfigReader::CustomConfig'
+
+If you want several, separate them with whitespace.
+Configs are read in left-to-write order where the previous
+config items get overwritten by subsequent ones.
+
+You can create your own custom B<ConfigReader>.
+The default is to use C<Dancer2::ConfigReader::File::Simple>
+which was the only way to read config files earlier.
+
+If you want, you can also extend class C<Dancer2::ConfigReader::File::Simple>.
+Here is an example:
+
+    package Dancer2::ConfigReader::FileExtended;
+    use Moo;
+    extends 'Dancer2::ConfigReader::File::Simple';
+    has name => (
+        is      => 'ro',
+        default => sub {'FileExtended'},
+    );
+    around read_config => sub {
+        my ($orig, $self) = @_;
+        my $config = $orig->($self, @_);
+        $config->{'dummy'}->{'item'} = 123;
+        return $config;
+    };
+
+
+Provides a C<config> attribute that - when accessing
+the first time - feeds itself by executing one or more
+B<ConfigReader> packages.
 
 Also provides a C<setting()> method which is supposed to be used by externals to
 read/write config entries.
@@ -299,19 +311,20 @@ Gets the location from the configuration. Same as C<< $object->location >>.
 
 =attr environments_location
 
-Gets the directory were the environment files are stored.
+Gets the directory where the environment files are stored.
 
 =attr config
 
 Returns the whole configuration.
 
-=attr environments
+=attr environment
 
 Returns the name of the environment.
 
 =attr config_files
 
-List of all the configuration files.
+List of all the configuration files. This information
+is queried from the B<ConfigReader> classes.
 
 =head1 METHODS
 
@@ -326,7 +339,3 @@ Get or set an element from the configuration.
 =head2 has_setting
 
 Verifies that a key exists in the configuration.
-
-=head2 load_config_file
-
-Load the configuration files.
