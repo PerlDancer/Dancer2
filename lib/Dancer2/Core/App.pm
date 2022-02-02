@@ -39,7 +39,7 @@ our $EVAL_SHIM; $EVAL_SHIM ||= sub {
 # we have hooks here
 with qw<
     Dancer2::Core::Role::Hookable
-    Dancer2::Core::Role::ConfigReader
+    Dancer2::Core::Role::Config
 >;
 
 sub supported_engines { [ qw<logger serializer session template> ] }
