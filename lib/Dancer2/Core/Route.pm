@@ -114,28 +114,30 @@ sub match {
         my @splat;
         for ( my $i = 0; $i < @values; $i++ ) {
             # Is this value from a token?
-            if ( $token_or_splat[$i] eq 'typed_token' ) {
-                my ( $token, $type ) = @{ shift @typed_tokens };
+            if ( defined $token_or_splat[$i] ) {
+                if ( $token_or_splat[$i] eq 'typed_token' ) {
+                    my ( $token, $type ) = @{ shift @typed_tokens };
 
-                if (defined $values[$i]) {
-                    # undef value mean that token was marked as optional so
-                    # we only do type check on defined value
-                    return
-                      unless $type->check($values[$i]);
+                    if (defined $values[$i]) {
+                        # undef value mean that token was marked as optional so
+                        # we only do type check on defined value
+                        return
+                          unless $type->check($values[$i]);
+                    }
+                    $params{$token} = $values[$i];
+                    next;
                 }
-                $params{$token} = $values[$i];
-                next;
-            }
-            if ( $token_or_splat[$i] eq 'token' ) {
-                $params{ shift @tokens } = $values[$i];
-                 next;
-            }
+                if ( $token_or_splat[$i] eq 'token' ) {
+                    $params{ shift @tokens } = $values[$i];
+                     next;
+                }
 
-            # megasplat values are split on '/'
-            if ($token_or_splat[$i] eq 'megasplat') {
-                $values[$i] = [
-                    defined $values[$i] ? split( m{/} , $values[$i], -1 ) : ()
-                ];
+                # megasplat values are split on '/'
+                if ($token_or_splat[$i] eq 'megasplat') {
+                    $values[$i] = [
+                        defined $values[$i] ? split( m{/} , $values[$i], -1 ) : ()
+                    ];
+                }
             }
             push @splat, $values[$i];
         }
