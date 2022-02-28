@@ -112,10 +112,17 @@ my @tests = (
         [ { splat => [48] }, 44 ],
     ],
 
+    # regex and tokens/splat
+    [
+        [ 'get', '/(any|some)/thing/*', sub {60} ],
+        # was causing 'Use of uninitialized value within @token_or_splat' warnings
+        '/any/thing/else',
+        [ { splat => ['any', 'else'] }, 60 ]
+    ],
 );
 
 
-plan tests => 111;
+plan tests => 116;
 
 for my $t (@tests) {
     my ( $route, $path, $expected ) = @$t;
