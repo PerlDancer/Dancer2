@@ -97,7 +97,6 @@ jobs:
 #          - "5.16"
 #          - "5.14"
           - "5.12"  # Not available?
-          - "5.10"  # Not available?
 
     container:
       image: perl:${{ matrix.perl-version }}
