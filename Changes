@@ -10,7 +10,7 @@
     * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
 
     [ DOCUMENTATION ]
-    * None
+    * Fix YAML example in the tutorial (Tina Müller)
 
 0.301003  2021-06-03 09:24:33-04:00 America/New_York
 
