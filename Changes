@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * PR #1634: Fix CI push setting to run tests on branches with / in the 
+      name (Stefan Hornburg - Racke)
     * PR #1641: Fix uninitialized warnings from parsing routes with mixed
       regex/splats (Russell @veryrusty Jenkins)
 
