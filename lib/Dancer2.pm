@@ -192,6 +192,24 @@ how to convert a Dancer (1) based application to Dancer2.
 
 =back
 
+=head3 Other Documentation
+
+=over
+
+=item * Git Guide
+
+The L<Git guide|GitGuide> describes how to set up your development environment to contribute
+to the development of Dancer2, Dancer2's Git workflow, submission guidelines, and
+various coding standards.
+
+=item * Deprecation Policy
+
+The L<deprecation policy|Dancer2::DeprecationPolicy> defines the process for removing old,
+broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
+for guiding and shaping future development of Dancer2.
+
+=back
+
 =func my $runner=runner();
 
 Returns the current runner. It is of type L<Dancer2::Core::Runner>.
