@@ -40,7 +40,7 @@ below.
 
 ### Quality Assurance
 
-Dancer2 should be able to install for all Perl versions since 5.8, on
+Dancer2 should be able to install for all Perl versions since 5.12, on
 any platform for which Perl exists. We focus mainly on GNU/Linux (any
 distribution), \*BSD and Windows (native and Cygwin).
 
