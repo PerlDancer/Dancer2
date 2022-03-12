@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
+    * PR #1643: Set minimum Perl to 5.12.5 (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * Fix YAML example in the tutorial (Tina Müller)
+
 0.301004  2021-06-06 13:30:28-04:00 America/New_York
 
     [ BUG FIXES ]
@@ -7,10 +17,10 @@
     * PR #1626: Add File::Which to Dancer2 dependencies (Jason A. Crome)
 
     [ ENHANCEMENTS ]
-    * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
+    * None
 
     [ DOCUMENTATION ]
-    * Fix YAML example in the tutorial (Tina Müller)
+    * None
 
 0.301003  2021-06-03 09:24:33-04:00 America/New_York
 
