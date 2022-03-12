@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * PR #1641: Fix uninitialized warnings from parsing routes with mixed
+      regex/splats (Russell @veryrusty Jenkins)
 
     [ ENHANCEMENTS ]
     * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
