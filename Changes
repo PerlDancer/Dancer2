@@ -12,6 +12,8 @@
 
     [ DOCUMENTATION ]
     * Fix YAML example in the tutorial (Tina Müller)
+    * PR #1644: Add deprecation policy to docs; link git guide (Jason A. 
+      Crome)
 
 0.301004  2021-06-06 13:30:28-04:00 America/New_York
 

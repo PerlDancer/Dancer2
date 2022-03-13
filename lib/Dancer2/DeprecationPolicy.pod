@@ -1,0 +1,98 @@
+package Dancer2::DeprecationPolicy; # ABSTRACT: Define the process by which
+outdated, broken, or unused code from Dancer2
+
+=encoding UTF-8
+
+=head1 DESCRIPTION
+
+While there are conflicting ideas about deprecation, in Dancer2, deprecated
+code is code that:
+
+=over
+
+=item * Is in the way of implementing important features or fixes that provide
+more value.
+
+=item * Has a negative impact on the integrity and security of user code,
+whether by misusing it to not.
+
+=item * Provides a negative experience for the users.
+
+=back
+
+Deprecated code is code we either had to write and can now remove or we thought
+was a good idea and were wrong. It is code that doesn't overall benefit users
+or the developers.
+
+Deprecated code is code that is marked for eventual removal and we do not
+intend to keep in the Dancer2 codebase.
+
+=head1 DEPRECATION PROCESS
+
+=over
+
+=item * Code to be deprecated is posted/discussed publicly (see below)
+
+=item * Deprecated code enters soft deprecation phase
+
+=item * After 12 months or 2 major releases, code is hard deprecated
+
+=item * After 6 months or 1 major release, hard deprecated code is removed
+
+=back
+
+Deprecated code is marked with warnings and the version and/or date in which it
+will no longer be available.
+
+=head2 Public Notice
+
+When a feature/code is to be deprecated, the Dancer Core Team will create a new
+GitHub issue for the code/feature to be deprecated, and announce this in a
+public manner (blog post, Twitter, and the mailing list, at minimum). The
+notice should provide the reason for the deprecation, what Dancer2/the
+community is gaining as a result of the deprecation, and what the officially
+recognized alternative to the deprecated code is.
+
+The public notice period will provide the developer/user base an opportunity to
+voice objections or provide feedback or alternatives to deprecation. It also
+allows the Core Team to better assess the potential long range effects of
+deprecation.
+
+While the deprecated feature/code can be discussed by community, the decision
+will be ultimately made by the Dancer Core Team. There is no definitive time
+for the public notice period to end; some deprecations are more urgent than
+others, and each situation is left to the discretion of the Core Team, with
+feedback from the community.
+
+=head2 Soft Deprecation
+
+When code is soft deprecated, a warning will be thrown to indicate that the
+code is to be considered deprecated. Apps will continue to function normally
+otherwise.
+
+=head2 Hard Deprecation
+
+After 12 months or two major releases (whichever comes first), the code is
+considered to be hard deprecated. An error will continue to be thrown, but
+unlike soft deprecation, continued usage of the deprecated code will cause the
+application to die.
+
+There is one caveat to this: code will B<never> be deprecated for less than 6
+months. So if we deprecate code after v0.500000, become unusually productive,
+and produce Dancer 0.600000 and 0.700000 in a two month timeframe, no
+deprecated code will be removed because 6 months hasn't elapsed.
+
+=head2 Removal
+
+Six months following hard deprecation, or one major release after hard
+deprecation, the deprecated code is removed from Dancer2.
+
+=head1 EXCEPTIONS
+
+In special cases, based on community feedback, these timelines may be extended.
+But we expect this to be a rare occurrence, at best.
+
+=head1 PLUGINS
+
+We strongly encourage (but cannot/do not require) plugin authors to adopt the
+same policy.
