@@ -11,7 +11,7 @@
     * PR #1643: Set minimum Perl to 5.12.5 (Jason A. Crome)
 
     [ DOCUMENTATION ]
-    * Fix YAML example in the tutorial (Tina Müller)
+    * PR #1633: Fix YAML example in the tutorial (Tina Müller)
     * PR #1644: Add deprecation policy to docs; link git guide (Jason A. 
       Crome)
 
