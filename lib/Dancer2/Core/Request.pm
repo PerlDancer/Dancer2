@@ -276,7 +276,7 @@ sub uri_base {
 }
 
 sub dispatch_path {
-    warn q{request->dispatch_path is deprecated};
+    warn q{DEPRECATED: request->dispatch_path. Please use request->path instead};
     return shift->path;
 }
 

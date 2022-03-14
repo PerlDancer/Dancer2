@@ -56,7 +56,7 @@ our $NO_WARN = 0;
 # or can be fed a response (which is passed through without
 # any modification)
 sub dancer_response {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     _find_dancer_apps_for_dispatcher();
@@ -226,7 +226,7 @@ sub _build_env_from_request {
 
 sub response_status_is {
     my ( $req, $status, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     $test_name ||= "response status is $status for " . _req_label($req);
@@ -255,7 +255,7 @@ sub _find_route_match {
 }
 
 sub route_exists {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     my $tb = Test::Builder->new;
@@ -264,7 +264,7 @@ sub route_exists {
 }
 
 sub route_doesnt_exist {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     my $tb = Test::Builder->new;
@@ -275,7 +275,7 @@ sub route_doesnt_exist {
 sub response_status_isnt {
     my ( $req, $status, $test_name ) = @_;
 
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     $test_name ||= "response status is not $status for " . _req_label($req);
@@ -315,28 +315,28 @@ sub response_status_isnt {
 }
 
 sub response_content_is {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'is_eq' );
 }
 
 sub response_content_isnt {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'isnt_eq' );
 }
 
 sub response_content_like {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'like' );
 }
 
 sub response_content_unlike {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'unlike' );
@@ -344,7 +344,7 @@ sub response_content_unlike {
 
 sub response_content_is_deeply {
     my ( $req, $matcher, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "response content looks good for " . _req_label($req);
 
@@ -355,7 +355,7 @@ sub response_content_is_deeply {
 
 sub response_is_file {
     my ( $req, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "a file is returned for " . _req_label($req);
 
@@ -367,7 +367,7 @@ sub response_is_file {
 
 sub response_headers_are_deeply {
     my ( $req, $expected, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "headers are as expected for " . _req_label($req);
 
@@ -382,7 +382,7 @@ sub response_headers_are_deeply {
 
 sub response_headers_include {
     my ( $req, $expected, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "headers include expected data for " . _req_label($req);
     my $tb = Test::Builder->new;

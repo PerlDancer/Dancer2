@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 0.301004
+version 0.400000
 
 # DESCRIPTION
 
@@ -72,6 +72,20 @@ complete outline on where to go for help.
 
     [Dancer2::Manual::Migration](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AMigration) provides the most up-to-date instruction on
     how to convert a Dancer (1) based application to Dancer2.
+
+### Other Documentation
+
+- Git Guide
+
+    The [Git guide](https://metacpan.org/pod/GitGuide) describes how to set up your development environment to contribute
+    to the development of Dancer2, Dancer2's Git workflow, submission guidelines, and
+    various coding standards.
+
+- Deprecation Policy
+
+    The [deprecation policy](https://metacpan.org/pod/Dancer2%3A%3ADeprecationPolicy) defines the process for removing old,
+    broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
+    for guiding and shaping future development of Dancer2.
 
 # FUNCTIONS
 
@@ -268,7 +282,7 @@ Dancer Core Developers
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2021 by Alexis Sukrieh.
+This software is copyright (c) 2022 by Alexis Sukrieh.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
