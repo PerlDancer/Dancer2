@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * GH #1657: Fix the Dancer2::DeprecationPolicy abstract (Jason A. Crome)
+
 0.400000  2022-03-13 22:16:13-04:00 America/New_York
 
     [ BUG FIXES ]

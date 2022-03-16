@@ -1,5 +1,6 @@
-package Dancer2::DeprecationPolicy; # ABSTRACT: Define the process by which
-outdated, broken, or unused code from Dancer2
+package Dancer2::DeprecationPolicy; 
+
+# ABSTRACT: Define the process by which outdated, broken, or unused code is removed from Dancer2
 
 =encoding UTF-8
 
