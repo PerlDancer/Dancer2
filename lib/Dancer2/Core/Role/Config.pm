@@ -257,11 +257,15 @@ __END__
 
 =head1 DESCRIPTION
 
-This is the redesigned C<Dancer2::Core::Role::ConfigReader>
-to manage the Dancer2 configuration.
+This class provides a C<config> attribute that - when accessing
+the first time - feeds itself by executing one or more
+B<ConfigReader> packages.
 
-It is now possible for user to control which B<ConfigReader>
-class to use to create the config.
+Also provides a C<setting()> method which is supposed to be used by externals to
+read/write config entries.
+
+You can control which B<ConfigReader>
+class or classes to use to create the config.
 
 Use C<DANCER_CONFIG_READERS> environment variable to define
 which class or classes you want.
@@ -269,12 +273,52 @@ which class or classes you want.
     DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple Dancer2::ConfigReader::CustomConfig'
 
 If you want several, separate them with whitespace.
-Configs are read in left-to-write order where the previous
+Configs are added in left-to-write order where the previous
 config items get overwritten by subsequent ones.
 
-You can create your own custom B<ConfigReader>.
-The default is to use C<Dancer2::ConfigReader::File::Simple>
-which was the only way to read config files earlier.
+For example, if config
+
+    item1: content1
+    item2: content2
+    item3:
+        subitem1: subcontent1
+        subitem2: subcontent2
+        subitem3:
+            subsubitem1:
+                subsubcontent1
+    item4:
+        subitem1: subcontent1
+        subitem2: subcontent2
+
+was followed by config
+
+    item2: content9
+    item3:
+        subitem2: subcontent8
+        subitem3:
+            subsubitem1:
+                subsubcontent7
+        subitem4:
+            subsubitem5: subsubcontent5
+    item4: content4
+
+then the final config would be
+
+    item1: content1
+    item2: content9
+    item3:
+        subitem1: subcontent1
+        subitem2: subcontent8
+        subitem3:
+            subsubitem1:
+                subsubcontent7
+        subitem4:
+            subsubitem5: subsubcontent5
+    item4: content4
+
+The default B<ConfigReader> is C<Dancer2::ConfigReader::File::Simple>.
+
+You can also create your own custom B<ConfigReader> classes.
 
 If you want, you can also extend class C<Dancer2::ConfigReader::File::Simple>.
 Here is an example:
@@ -293,13 +337,7 @@ Here is an example:
         return $config;
     };
 
-
-Provides a C<config> attribute that - when accessing
-the first time - feeds itself by executing one or more
-B<ConfigReader> packages.
-
-Also provides a C<setting()> method which is supposed to be used by externals to
-read/write config entries.
+Another (more complex) example is in the file C<Dancer2::ConfigReader::File::Simple>.
 
 =head1 ATTRIBUTES
 
