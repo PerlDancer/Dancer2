@@ -144,7 +144,7 @@ sub _build_config_readers {
     my ($self) = @_;
 
     my @config_reader_names = $ENV{'DANCER_CONFIG_READERS'}
-                            ? (split qr{ [[:space:]]{1,} }msx, $ENV{'DANCER_CONFIG_READERS'})
+                            ? (split qr{ \s+ }msx, $ENV{'DANCER_CONFIG_READERS'})
                             : ( q{Dancer2::ConfigReader::File::Simple} );
 
     return [ map {
