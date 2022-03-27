@@ -18,10 +18,6 @@ use t::app::t1::lib::App1;
 
 my $app = Dancer2->runner->apps->[0];
 
-is_deeply $app->config_files,
-    [ File::Spec->rel2abs(File::Spec->catfile( 't', 'app', 't1', 'config.yml' )) ],
-    $app->name . ": config files found";
-
 is $app->config->{app}->{config}, 'ok',
     $app->name . ": config loaded properly";
 is $app->config->{dummy}->{dummy_subitem}, 2,
