@@ -1,3 +1,4 @@
+# ABSTRACT: Config reader for files
 package Dancer2::ConfigReader::File::Simple;
 
 use Moo;
