@@ -91,11 +91,13 @@ has global_triggers => (
             },
         };
 
-        no warnings 'once'; # Disable: Name "Dancer2::runner" used only once: possible typo
-        my $runner_config = defined $Dancer2::runner
-                            ? Dancer2->runner->config
-                            : {};
-        use warnings 'once';
+        my $runner_config;
+        {
+            no warnings 'once';
+            $runner_config = defined $Dancer2::runner
+                           ? Dancer2->runner->config
+                           : {};
+        }
 
         for my $global ( keys %$runner_config ) {
             next if exists $triggers->{$global};
