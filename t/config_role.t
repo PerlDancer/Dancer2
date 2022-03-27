@@ -76,36 +76,14 @@ my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
 }
 
 my $d = Dev->new();
-is_deeply $d->config_files,
-  [ path( $location, 'config.yml' ), ],
-  "config_files() only sees existing files";
 
 my $f = Prod->new;
 is $f->does('Dancer2::Core::Role::Config'), 1,
   "role Dancer2::Core::Role::Config is consumed";
 
-is_deeply $f->config_files,
-  [ path( $location, 'config.yml' ),
-    path( $location, 'environments', 'production.yml' ),
-  ],
-  "config_files() works";
-
-my $j = Staging->new;
-is_deeply $j->config_files,
-  [ path( $location, 'config.yml' ),
-    path( $location, 'environments', 'staging.json' ),
-  ],
-  "config_files() does JSON too!";
-
 note "bad YAML file";
 my $fail = Failure->new;
 is $fail->environment, 'failure';
-
-is_deeply $fail->config_files,
-  [ path( $location, 'config.yml' ),
-    path( $location, 'environments', 'failure.yml' ),
-  ],
-  "config_files() works";
 
 like(
     exception { $fail->config },
@@ -125,14 +103,6 @@ is_deeply $m->config->{application},
 
 {
     my $l = LocalConfig->new;
-
-    is_deeply $l->config_files,
-      [ path( $location2, 'config.yml' ),
-        path( $location2, 'config_local.yml' ),
-        path( $location2, 'environments', 'lconfig.yml' ),
-        path( $location2, 'environments', 'lconfig_local.yml' ),
-      ],
-      "config_files() with local config works";
 
     is_deeply $l->config->{application},
       { feature_1 => 'foo',

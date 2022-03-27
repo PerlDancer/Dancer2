@@ -59,13 +59,6 @@ has environment => (
     builder => '_build_environment',
 );
 
-has config_files => (
-    is      => 'ro',
-    lazy    => 1,
-    isa     => ArrayRef,
-    builder => '_build_config_files',
-);
-
 has config_readers => (
     is      => 'ro',
     lazy    => 1,
@@ -114,16 +107,6 @@ has global_triggers => (
 sub _build_default_config { +{} }
 
 sub _build_environment { 'development' }
-
-sub _build_config_files {
-    my ($self) = @_;
-
-    return [ map {
-            warn "Merging config_files from @{[ $_->name() ]}\n" if $ENV{DANCER_CONFIG_VERBOSE};
-            @{ $_->config_files() }
-        } @{ $self->config_readers }
-    ];
-}
 
 # The new config builder
 sub _build_config {
@@ -360,11 +343,6 @@ Returns the whole configuration.
 =attr environment
 
 Returns the name of the environment.
-
-=attr config_files
-
-List of all the configuration files. This information
-is queried from the B<ConfigReader> classes.
 
 =head1 METHODS
 

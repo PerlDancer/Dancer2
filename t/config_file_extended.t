@@ -19,11 +19,6 @@ use t::app::t_config_file_extended::lib::App1;
 
 my $app = Dancer2->runner->apps->[0];
 
-is_deeply $app->config_files,
-    [ File::Spec->rel2abs(File::Spec->catfile( 't', 'app',
-                't_config_file_extended', 'config.yml' )) ],
-    $app->name . ": config files found";
-
 is $app->config->{app}->{config}, 'ok',
     $app->name . ": config loaded properly";
 is $app->config->{extended}->{one}, 'Extended String',
