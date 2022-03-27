@@ -147,12 +147,12 @@ sub _build_config_readers {
                             ? (split qr{ \s+ }msx, $ENV{'DANCER_CONFIG_READERS'})
                             : ( q{Dancer2::ConfigReader::File::Simple} );
 
-    return [ map {
-        use_module($_)->new(
-            location => $self->location,
+    return [
+        map use_module($_)->new(
+            location    => $self->location,
             environment => $self->environment,
-            );
-    } @config_reader_names ];
+        ), @config_reader_names
+    ];
 }
 
 sub _set_config_entries {
