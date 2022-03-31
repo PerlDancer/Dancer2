@@ -46,7 +46,7 @@ the most recent version on CPAN.
 
 Create a web application using the dancer script:
 
-    $ dancer2 -a MyApp && cd MyApp
+    $ dancer2 gen -a MyApp && cd MyApp
     + MyApp
     + MyApp/config.yml
     + MyApp/Makefile.PL
@@ -90,7 +90,7 @@ a script to start it. A default skeleton is used to bootstrap the new
 application, but you can use the C<-s> option to provide another skeleton.
 For example:
 
-    $ dancer2 -a MyApp -s ~/mydancerskel
+    $ dancer2 gen -a MyApp -s ~/mydancerskel
 
 For an example of a skeleton directory check the default one available in
 the C<share/> directory of your Dancer2 distribution.
@@ -1868,7 +1868,7 @@ Carton builds them for you when you need it.
 
 First set up a new app:
 
-     $ dancer2 -a MyApp
+     $ dancer2 gen -a MyApp
      ...
 
 Delete the files that are not needed:
