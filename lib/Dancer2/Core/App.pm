@@ -1593,12 +1593,11 @@ sub build_request {
 
     # If we have an app, send the serialization engine
     my $request = Dancer2::Core::Request->new(
-          env             => $env,
-          is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
+        env => $env,
 
-          $self->has_serializer_engine
-              ? ( serializer => $self->serializer_engine )
-              : (),
+        $self->has_serializer_engine
+        ? ( serializer => $self->serializer_engine )
+        : (),
     );
 
     return $request;

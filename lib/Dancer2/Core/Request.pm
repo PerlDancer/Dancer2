@@ -44,7 +44,7 @@ our $XS_HTTP_COOKIES       = eval { require_module('HTTP::XSCookies'); 1; };
 
 our $_id = 0;
 
-# self->new( env => {}, serializer => $s, is_behind_proxy => 0|1 )
+# self->new( env => {}, serializer => $s  )
 sub new {
     my ( $class, @args ) = @_;
 
@@ -65,9 +65,8 @@ sub new {
     }
 
     # additionally supported attributes
-    $self->{'id'}              = ++$_id;
-    $self->{'vars'}            = {};
-    $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
+    $self->{'id'}   = ++$_id;
+    $self->{'vars'} = {};
 
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
@@ -566,8 +565,7 @@ sub _shallow_clone {
     $new_request->{headers}       = $self->headers;
 
     # Copy remaining settings
-    $new_request->{is_behind_proxy} = $self->{is_behind_proxy};
-    $new_request->{vars}            = $self->{vars};
+    $new_request->{vars}          = $self->{vars};
 
     # Clone any existing decoded & cached body params. (GH#1116 GH#1269)
     $new_request->{'body_parameters'} = $self->body_parameters->clone;

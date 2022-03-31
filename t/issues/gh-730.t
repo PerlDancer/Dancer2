@@ -8,7 +8,7 @@ use HTTP::Request::Common;
     package App;
     use Dancer2;
 
-    get '/' => sub { request->is_behind_proxy };
+    get '/' => sub { app->config->{'behind_proxy'} };
 }
 
 my $app = App->to_app;
