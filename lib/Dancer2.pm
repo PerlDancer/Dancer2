@@ -385,6 +385,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Shlomi Fish
     Slava Goltser
     Snigdha
+    Steve Bertrand
     Steve Dondley
     Tatsuhiko Miyagawa
     Timothy Alexis Vass
