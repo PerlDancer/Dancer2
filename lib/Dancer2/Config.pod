@@ -403,6 +403,12 @@ to use them.
 Sessions are configured with a corresponding L</Session engine> section, as
 shown below.
 
+=head3 show_errors (boolean)
+
+Deprecated configuration.
+
+Use C<show_stacktrace> described below instead.
+
 =head3 show_stacktrace (boolean)
 
 If set to true, Dancer2 will render a detailed debug screen whenever an

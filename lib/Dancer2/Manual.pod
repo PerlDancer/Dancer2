@@ -823,6 +823,9 @@ is set to true, in the case of a 500 error the static HTML page will not be
 shown, but will be replaced with a default error page containing more
 informative diagnostics. For more information see L<Dancer2::Config>.)
 
+(In older versions, B<show_errors> was used instead of B<show_stacktrace>.
+Both are supported, but B<show_errors> is deprecated.)
+
 =item * As default, render a generic error page on the fly.
 
 =back
