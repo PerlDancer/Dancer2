@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * PR #1247: Fix edge case in plugin compat (Sawyer X)
 
     [ ENHANCEMENTS ]
     * None
