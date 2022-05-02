@@ -4,7 +4,8 @@
     * PR #1247: Fix edge case in plugin compat (Sawyer X)
 
     [ ENHANCEMENTS ]
-    * None
+    * GH #769, PR #829, #1662: Rename show_errors as show_stacktrace
+      (Nuno Ramos Carvalho, Sawyer X)
 
     [ DOCUMENTATION ]
     * GH #1657: Fix the Dancer2::DeprecationPolicy abstract (Jason A. Crome)
