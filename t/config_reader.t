@@ -150,7 +150,7 @@ is_deeply $m->config->{application},
 
 note "config parsing";
 
-is $f->config->{show_errors}, 0;
+is $f->config->{show_stacktrace}, 0;
 is $f->config->{main},        1;
 is $f->config->{charset},     'utf-8', "normalized UTF-8 to utf-8";
 

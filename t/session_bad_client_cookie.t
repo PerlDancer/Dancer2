@@ -41,7 +41,7 @@ use HTTP::Cookies;
     };
 
     set session     => 'Simple';
-    set show_errors => 1;
+    set show_stacktrace => 1;
 
     get '/set_session/*' => sub {
         my ($name) = splat;

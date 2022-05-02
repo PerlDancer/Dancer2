@@ -13,9 +13,9 @@ subtest 'Core::Error serializer isa tests' => sub {
 
     is exception { Dancer2::Core::Error->new }, undef, "Error->new lived";
 
-    like exception { Dancer2::Core::Error->new(show_errors => []) },
+    like exception { Dancer2::Core::Error->new(show_stacktrace => []) },
     qr/Reference \Q[]\E did not pass type constraint "Bool"/i,
-      "Error->new(show_errors => []) died";
+      "Error->new(show_stacktrace => []) died";
 
     is exception {
         Dancer2::Core::Error->new(serializer => undef)
