@@ -12,6 +12,7 @@ recommends "HTTP::XSHeaders"         => "0";
 recommends "Math::Random::ISAAC::XS" => "0";
 recommends "MooX::TypeTiny"          => "0";
 recommends "Type::Tiny::XS"          => "0";
+recommends "Unicode::UTF8"           => "0";
 
 feature 'accelerate', 'Accelerate Dancer2 app performance with XS modules' => sub {
     requires "URL::Encode::XS"         => "0";
