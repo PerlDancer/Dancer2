@@ -11,7 +11,6 @@ use URI;
 use URI::Escape;
 use Safe::Isa;
 use Hash::MultiValue;
-use Module::Runtime 'require_module';
 use Ref::Util qw< is_ref is_arrayref is_hashref >;
 
 use Dancer2::Core::Types;
@@ -37,10 +36,20 @@ sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc "$_" ) } }
 1;
 _EVAL
 
+eval {
+    require Unicode::UTF8;
+    no warnings qw<redefine once>;
+    *__decode = sub { Unicode::UTF8::decode_utf8($_[0]) };
+    1;
+} or do {
+    no warnings qw<redefine once>;
+    *__decode = sub { decode( 'UTF-8', $_[0] ) };
+};
+
 # check presence of XS module to speedup request
-our $XS_URL_DECODE         = eval { require_module('URL::Encode::XS'); 1; };
-our $XS_PARSE_QUERY_STRING = eval { require_module('CGI::Deurl::XS');  1; };
-our $XS_HTTP_COOKIES       = eval { require_module('HTTP::XSCookies'); 1; };
+our $XS_URL_DECODE         = eval { require URL::Encode::XS; 1; };
+our $XS_PARSE_QUERY_STRING = eval { require CGI::Deurl::XS;  1; };
+our $XS_HTTP_COOKIES       = eval { require HTTP::XSCookies; 1; };
 
 our $_id = 0;
 
@@ -392,7 +401,7 @@ sub _decode {
     return if not defined $h;
 
     if ( !is_ref($h) && !utf8::is_utf8($h) ) {
-        return decode( 'UTF-8', $h );
+        return __decode($h);
     }
     elsif ( ref($h) eq 'Hash::MultiValue' ) {
         return Hash::MultiValue->from_mixed(_decode($h->as_hashref_mixed));

@@ -501,7 +501,7 @@ sub _find_consumer {
     #    or croak('Could not find Dancer2 app');
 
     return $class;
-};
+}
 
 # This has to be called for now at the end of every plugin package, in order to
 # map the keywords of the associated app to the plugin, so that these keywords
