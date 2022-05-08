@@ -47,6 +47,7 @@ sub _build_config_files {
     my ($self) = @_;
 
     my $location = $self->config_location;
+    warn "Searching config files in location: $location\n" if $ENV{DANCER_CONFIG_VERBOSE};
     # an undef location means no config files for the caller
     return [] unless defined $location;
 
@@ -81,6 +82,7 @@ sub _build_config_files {
         }
     }
 
+    warn "Found following config files: @files\n" if $ENV{DANCER_CONFIG_VERBOSE};
     return \@files;
 }
 
