@@ -63,7 +63,6 @@ has environment => (
 has config_readers => (
     is      => 'ro',
     lazy    => 1,
-    #isa     => ArrayRef[ InstanceOf['Dancer2::Core::Role::ConfigReader'] ],
     isa     => ArrayRef,
     builder => '_build_config_readers',
 );
@@ -73,7 +72,6 @@ sub _build_config {
     my ($self) = @_;
 
     my $default  = $self->default_config;
-    use Data::Dumper;
     my $config = Hash::Merge::Simple->merge(
         $default,
         map {

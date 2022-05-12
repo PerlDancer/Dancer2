@@ -77,18 +77,6 @@ sub _set_config_entry {
     $self->config->{$name} = $value;
 }
 
-# Who calls this method?
-# sub _compile_config {
-#     my ( $self, $config ) = @_;
-#
-#     foreach my $key ( keys %{$config} ) {
-#         my $value = $config->{$key};
-#         $config->{$key} =
-#           $self->_compile_config_entry( $key, $value, $config );
-#     }
-#     return $config;
-# }
-
 sub settings { shift->config }
 
 sub setting {
