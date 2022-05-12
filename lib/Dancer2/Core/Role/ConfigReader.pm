@@ -79,13 +79,19 @@ during creation:
 The name of the environment used, e.g.
 production, development, staging.
 
-==attr location
+=attr location
 
-Absolute path to the directory where the server started.
+The absolute path to the directory where the server started.
+
+=attr default_config
+
+A hash ref which contains the default values.
 
 These arguments are passed when the object is created by
-C<Dancer2::Core::Role::Config>. How the config
-reader applies them as it needs.
+C<Dancer2::Core::App>. 
+ConfigReader then passes C<environment> and C<location> forward to every
+config reader class when it instantiates them.
+How the config reader applies them, depend on its needs.
 
 Provides a C<config> attribute that - when accessing
 the first time - feeds itself by finding and parsing
