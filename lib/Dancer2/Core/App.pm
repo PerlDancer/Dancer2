@@ -445,17 +445,6 @@ sub _build_config {
     return $config;
 }
 
-# around _build_config => sub {
-#     my ( $orig, $self ) = @_;
-#     my $config          = $self->$orig;
-#
-#     if ( $config && $config->{'engines'} ) {
-#         $self->_validate_engine($_) for keys %{ $config->{'engines'} };
-#     }
-#
-#     return $config;
-# };
-
 sub _build_response {
     my $self = shift;
     return Dancer2::Core::Response->new(
