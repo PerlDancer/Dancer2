@@ -116,9 +116,7 @@ It reads the configuration files of C<Dancer2>.
 Please see C<Dancer2::Config> for more information.
 
 If you need to add additional functionality to the reading
-mechanism, you can extend this class. An example of this is
-in: B</t/lib/Dancer2/ConfigReader/File/Extended.pm>
-
+mechanism, you can extend this class.
 An example of this is providing the possibility to replace
 random parts of the file config with environmental variables:
 
@@ -193,7 +191,7 @@ random parts of the file config with environmental variables:
 
 =attr name
 
-The name of the class.
+The name of the Config Reader class: C<File::Simple>.
 
 =attr location
 
