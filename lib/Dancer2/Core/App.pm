@@ -1226,8 +1226,8 @@ sub add_route {
 
     my $route = Dancer2::Core::Route->new(
         type_library => $self->config->{type_library},
-        %route_attrs,
         prefix => $self->prefix,
+        %route_attrs,
     );
 
     my $method = $route->method;
