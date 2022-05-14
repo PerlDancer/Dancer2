@@ -129,6 +129,68 @@ for
     is $resp->[2][0], $path, 'got expected route';
 }
 
+note 'Check to ensure that add_route can override a prefix, even with undef. (gh-1663)';
+
+my @more_routes = (
+    {   method => 'get',
+        regexp => '/prefix_test',
+        code   => sub {'/prefix_test'},
+    },
+    {   method => 'get',
+        regexp => '/prefix_override_test',
+        prefix => '/prefixtest2',
+        code   => sub {'/prefix_override_test'},
+    },
+    {   method => 'get',
+        regexp => '/noprefix_test',
+        code   => sub {'/noprefix_test'},
+   prefix => undef,
+    },
+);
+$app->prefix('/prefixtest');
+
+for my $r (@more_routes) {
+   $app->add_route(%$r);
+}
+
+my $expected_retvals = {
+   '/prefix_test' => 404,
+   '/prefixtest/prefix_test' => 200,
+   '/prefixtest2/prefix_test' => 404,
+   '/prefix_override_test' => 404,
+   '/prefixtest/prefix_override_test' => 404,
+   '/prefixtest2/prefix_override_test' => 200,
+   '/noprefix_test' => 200,
+   '/prefixtest/noprefix_test' => 404,
+   '/prefixtest2/noprefix_test' => 404,
+};
+
+my $expected = {
+   '/prefix_test' => undef,
+   '/prefixtest/prefix_test' => '/prefix_test',
+   '/prefixtest2/prefix_test' => undef,
+   '/prefix_override_test' => undef,
+   '/prefixtest/prefix_override_test' => undef,
+   '/prefixtest2/prefix_override_test' => '/prefix_override_test',
+   '/noprefix_test' => '/noprefix_test',
+   '/prefixtest/noprefix_test' => undef,
+   '/prefixtest2/noprefix_test' => undef,
+};
+
+for my $path ( sort keys %$expected_retvals ) {
+   my $env = {
+       SERVER_PORT => 5000,
+       SERVER_NAME => 'test.local',
+       REQUEST_METHOD => 'GET',
+       PATH_INFO      => $path
+   };
+
+   my $resp = $dispatcher->dispatch($env);
+   is $resp->[0], $expected_retvals->{$path}, "got expected return value on $path";
+   next if $expected_retvals->{$path} == 404;
+   is $resp->[2][0], $expected->{$path}, 'got expected route';
+}
+
 note "test a failure in the callback of a lexical prefix";
 like(
     exception {
