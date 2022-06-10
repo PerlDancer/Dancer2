@@ -141,7 +141,7 @@ While you can start a Dancer2 web application in any directory structure,
 there is a recommended structure and an application (C<dancer2>) that
 will scaffold a directory using this structure:
 
-    dancer2 -a MyApp
+    dancer2 gen -a MyApp
 
 This will create a directory structure with the following important
 elements:
