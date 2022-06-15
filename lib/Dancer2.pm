@@ -311,7 +311,7 @@ There are four engine types.
 
 =item * B<Template>
 
-Providing rendering of templates to produce formatted data, usually HTML.
+Provides rendering of templates to produce formatted data, usually HTML.
 
 Dancer2 ships with the following template engines:
 
@@ -336,7 +336,7 @@ any class that starts with C<Dancer2::Template::> or write your own.
 
 =item * B<Logger>
 
-Making it trivial to log messages from the web application.
+Makes it trivial to log messages from the web application.
 
 Dancer2 ships with the following logging engines:
 
@@ -400,7 +400,7 @@ any class that starts with C<Dancer2::Logger::> or write your own.
 
 =item * B<Session>
 
-Making it easy to create a stateful web application by storing and
+Makes it easy to create a stateful web application by storing and
 retrieving stateful information.
 
 Dancer2 ships with the following session engines:
@@ -409,7 +409,7 @@ Dancer2 ships with the following session engines:
 
 =item * L<Dancer2::Session::Simple>
 
-A simple session engine with in-meomry storage. This is useful for
+A simple session engine with in-memory storage. This is useful for
 development that is run on a development server.
 
 There are two major disadvantages to using this session engine, even under
@@ -424,7 +424,7 @@ shared across these, so you will have inconsistent session data
 
 =back
 
-Think of it as: Good for small proof-of-concept session, but not enough
+This engine is good for small proof-of-concept sessions, but not enough
 when the app is no longer trivial.
 
 This session engine is B<not> suitable for production environments.
@@ -465,8 +465,8 @@ This serialization engine allows receiving requests and returning
 responses using the L<Data::Dumper> serialization format. This format
 supports not only structures but objects.
 
-B<NOTE:> You should not be using this for multiple reasons, from the
-format not being compatible between versions to possible security
+B<NOTE:> You should not be using this for multiple reasons. The
+format is not compatible between versions and contains possible security
 issues (depending on the version of L<Data::Dumper> you have).
 
 =item * L<Dancer2::Serializer::JSON>
@@ -480,13 +480,12 @@ able to deserialize input manually.
 
 =item * L<Dancer2::Serializer::Mutable>
 
-The mutable serializer attempts to deteremine which serialization format
-is requested base on the request path and use the appropriate serializer.
+The mutable serializer attempts to determine which serialization format
+is requested based on the request path then uses the appropriate serializer.
 
-The idea is for your application to manage input and output in different
-formats, allowing more freedom to the client (which might also be you
-or someone you work with) to interact in whatever format their system
-prefers.
+With this, your application manages input and output in different formats,
+allowing more freedom to the client (which might also be you or someone you
+work with) to interact in whatever format their system prefers.
 
 It currently supports C<Dumper>, C<JSON>, and C<YAML>. You can control
 these mappings, as explained in its documentation.
@@ -561,7 +560,7 @@ In this case, Dancer2 will not enable uninitialized warnings.
 
 =item * C<appname>
 
-Control the application class, allows merging into existing Apps.
+Controls the application class, allows merging into existing Apps.
 
 Please see below under the section I<Extending an application>.
 
@@ -770,23 +769,23 @@ The following keywords are available:
 
 =item * C<get>
 
-Handles reqeusts using a GET method.
+Handles requests using a GET method.
 
 =item * C<post>
 
-Handles reqeusts using a POST method.
+Handles requests using a POST method.
 
 =item * C<put>
 
-Handles reqeusts using a PUT method.
+Handles requests using a PUT method.
 
 =item * C<patch>
 
-Handles reqeusts using a PATCH method.
+Handles requests using a PATCH method.
 
 =item * C<del>
 
-Handles reqeusts using a DELETE method.
+Handles requests using a DELETE method.
 
 =item * C<any>
 
@@ -909,7 +908,7 @@ match. You only get an error if you match nothing - a 404 error.
     # /user/30  # ok
     # /user/foo # 404
 
-Regular expressiosn can also be used:
+Regular expressions can also be used:
 
     get '/book/:date[StrMatch[qr{\d\d\d\d-\d\d-\d\d}]]' => sub {
         # matches /book/2014-02-04
