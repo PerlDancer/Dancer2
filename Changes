@@ -2,6 +2,8 @@
 
     [ BUG FIXES ]
     * PR #1247: Fix edge case in plugin compat (Sawyer X)
+    * PR #1667: Remove failing module from GitHub Actions
+      config (Jason A. Crome)
 
     [ ENHANCEMENTS ]
     * GH #769, PR #829, #1662: Rename show_errors as show_stacktrace
