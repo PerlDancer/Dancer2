@@ -88,7 +88,7 @@ The absolute path to the directory where the server started.
 A hash ref which contains the default values.
 
 These arguments are passed when the object is created by
-C<Dancer2::Core::App>. 
+C<Dancer2::Core::App>.
 ConfigReader then passes C<environment> and C<location> forward to every
 config reader class when it instantiates them.
 How the config reader applies them, depend on its needs.
