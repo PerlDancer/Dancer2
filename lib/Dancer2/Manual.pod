@@ -187,8 +187,8 @@ requests.
 =head2 Route Handlers
 
 The route action is the code reference declared. It can access parameters
-through the specific L<route_parameters|/route_parameters>, 
-L<query_parameters|/query_parameters>, and  L<body_parameters|/body_parameters>
+through the specific L<route_parameters|Dancer2::Manual::Keywords/route_parameters>,
+L<query_parameters|Dancer2::Manual::Keywords/query_parameters>, and L<body_parameters|Dancer2::Manual::Keywords/body_parameters>
 keywords, which return a L<Hash::MultiValue> object. 
 This hashref is a merge of the route pattern matches and the request params.
 
@@ -521,7 +521,7 @@ This is done with the B<pass> keyword, like in the following example
 
 Hooks are code references (or anonymous subroutines) that are triggered at
 specific moments during the resolution of a request.  They are set up using the
-L<hook|/hook> keyword.
+L<hook|Dancer2::Manual::Keywords/hook> keyword.
 
 Many of them are provided by Dancer2's core, but plugins and engines can also
 define their own.
@@ -534,7 +534,7 @@ C<before> hooks are evaluated before each request within the context of the
 request and receives as argument the app (a L<Dancer2::Core::App> object).
 
 It's possible to define variables which will be accessible in the action
-blocks with the L<var keyword|/var>.
+blocks with the L<var keyword|Dancer2::Manual::Keywords/var>.
 
     hook before => sub {
         var note => 'Hi there';
