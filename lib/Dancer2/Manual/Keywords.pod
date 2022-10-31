@@ -957,7 +957,7 @@ choices).
 This keyword should be called at the very end of the script, once all routes
 are defined. At this point, Dancer2 takes over.
 
-L</to_app> is preferable to C<start>.
+Prefer L</to_app> instead of C<start>.
 
 =head2 status
 
