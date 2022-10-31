@@ -158,15 +158,15 @@ it is easier to change the C<content_type> setting instead.
 
 =head2 context
 
-Deprecated. Use L<app> instead.
+Deprecated. Use L</app> instead.
 
 =head2 dance
 
-Alias for the C<start> keyword. L<to_app> is preferable. 
+Alias for the C<start> keyword. L</to_app> is preferable.
 
 =head2 dancer_app
 
-Returns the app object. See L<app>.
+Returns the app object. See L</app>.
 
 =head2 dancer_version
 
@@ -252,7 +252,7 @@ Constant that returns a false value (0).
 
 =head2 flush
 
-Flush headers when streaming a response. Necessary when L<content> is called
+Flush headers when streaming a response. Necessary when L</content> is called
 multiple times.
 
 =head2 forward
@@ -375,11 +375,11 @@ Hence, it's not necessary anymore to use C<return> with halt.
 
 =head2 header
 
-Deprecated. Use L<response_header> instead.
+Deprecated. Use L</response_header> instead.
 
 =head2 headers
 
-Deprecated. Use L<response_headers> instead.
+Deprecated. Use L</response_headers> instead.
 
 =head2 hook
 
@@ -393,7 +393,7 @@ Adds a hook at some position. For example :
 There can be multiple hooks assigned to a given position, and each will be
 executed in order.
 
-See the L<HOOKS|/HOOKS> section for a list of available hooks.
+See L<Dancer2::Manual/HOOKS> for a list of available hooks.
 
 =head2 info
 
@@ -601,8 +601,8 @@ argument. If you close over it, you B<will> have a memory leak.
 
 =head2 psgi_app
 
-Provides the same functionality as L<to_app> but uses the deprecated
-Dispatcher engine. You should use L<to_app> instead.
+Provides the same functionality as L</to_app> but uses the deprecated
+Dispatcher engine. You should use L</to_app> instead.
 
 =head2 push_header
 
@@ -957,7 +957,7 @@ choices).
 This keyword should be called at the very end of the script, once all routes
 are defined. At this point, Dancer2 takes over.
 
-L<to_app> is preferable to L<dancer> or C<start>.
+L</to_app> is preferable to C<start>.
 
 =head2 status
 
