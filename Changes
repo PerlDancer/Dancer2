@@ -13,6 +13,7 @@
     [ DOCUMENTATION ]
     * GH #1657: Fix the Dancer2::DeprecationPolicy abstract (Jason A. Crome)
     * GH #1661: Add 'gen' command to 'dancer2' runs (Steve Bertrand)
+    * PR #1671: Fix broken links in POD; avoid passive voice (Tom Hukins)
 
 0.400000  2022-03-13 22:16:13-04:00 America/New_York
 
