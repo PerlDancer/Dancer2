@@ -10,7 +10,7 @@
     * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
 
     [ DOCUMENTATION ]
-    * None
+    * PR #1666: Fix spelling and grammar (Blaine Motsinger)
 
 0.301003  2021-06-03 09:24:33-04:00 America/New_York
 
