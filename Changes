@@ -1,8 +1,11 @@
 {{$NEXT}}
 
+0.400001  2023-02-05 18:41:48-05:00 America/New_York
+
     [ BUG FIXES ]
     * PR #1247: Fix edge case in plugin compat (Sawyer X)
-    * GH #1621: Fix recursion error in TT after longjump (Andy Beverley)
+    * GH #1621: Fix recursion error in TT after longjump (Andy Beverley,
+      Russell @veryrusty Jenkins)
     * PR #1667: Remove failing module from GitHub Actions
       config (Jason A. Crome)
 
