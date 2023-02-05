@@ -884,6 +884,19 @@ sub template {
         and $self->setup_session;
 
     # return content
+    if ($self->has_with_return) {
+        my $old_with_return = $self->with_return;
+        my $local_response;
+        $self->set_with_return( sub {
+            $local_response ||= shift;
+        });
+        my $content = $template->process( @_ );
+        $self->set_with_return($old_with_return);
+        if ($local_response) {
+            $self->with_return->($local_response);
+        }
+        return $content;
+    }
     return $template->process( @_ );
 }
 

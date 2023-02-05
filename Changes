@@ -2,6 +2,7 @@
 
     [ BUG FIXES ]
     * PR #1247: Fix edge case in plugin compat (Sawyer X)
+    * GH #1621: Fix recursion error in TT after longjump (Andy Beverley)
     * PR #1667: Remove failing module from GitHub Actions
       config (Jason A. Crome)
 
