@@ -348,6 +348,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Mateu X Hunter
     Matt Phillips
     Matt S Trout
+    mauke
     Maurice
     MaxPerl
     Ma_Sys.ma
