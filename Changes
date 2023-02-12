@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+
+    [ ENHANCEMENTS ]
+
+    [ DOCUMENTATION ]
+    * GH #1674: Fix POD for input_handle() (mauke)
+
 0.400001  2023-02-05 18:41:48-05:00 America/New_York
 
     [ BUG FIXES ]

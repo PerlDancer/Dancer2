@@ -807,7 +807,7 @@ Alias to C<input_handle> method below.
 
 =method input_handle
 
-Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
+Alias to the PSGI input handle (C<< request->env->{'psgi.input'} >>)
 
 =method is_ajax
 
