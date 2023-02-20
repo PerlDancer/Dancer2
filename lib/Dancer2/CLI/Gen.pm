@@ -154,7 +154,7 @@ sub run {
 
     my $vars = {
         appname          => $app_name,
-        appfile          => $app_file,
+        appfile          => $app_file->stringify,
         apppath          => $app_path,
         appdir           => File::Spec->rel2abs( $app_path ),
         apppath          => $app_path,
