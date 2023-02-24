@@ -185,7 +185,7 @@ sub deserialize {
     #   the whole 'multipart' section of the request is attempted
     #   starting with the boundary
     if (
-        $self->content_type =~ /^multipart\/form-data/ 
+        $self->content_type =~ /^multipart\/form-data/i 
         && $self->serializer
         ) {
         return;
