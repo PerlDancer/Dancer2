@@ -181,6 +181,15 @@ sub data { $_[0]->{'data'} ||= $_[0]->deserialize() }
 sub deserialize {
     my $self = shift;
 
+    # don't attempt to deserialize if the form is 'multipart/form-data'
+    if (
+        $self->content_type 
+        && $self->content_type =~ /^multipart\/form-data/i 
+        ) {
+        return;
+    }
+
+
     my $serializer = $self->serializer
         or return;
 
