@@ -307,6 +307,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Fayland Lam
     ferki
     Gabor Szabo
+    GeekRuthie
     geistteufel
     Gideon D'souza
     Gil Magno
