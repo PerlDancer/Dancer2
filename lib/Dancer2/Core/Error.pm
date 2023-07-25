@@ -475,7 +475,6 @@ __END__
 
 =head1 SYNOPSIS
 
-    # taken from send_file:
     use Dancer2::Core::Error;
 
     my $error = Dancer2::Core::Error->new(
@@ -483,7 +482,7 @@ __END__
         message => "No such file: `$path'"
     );
 
-    Dancer2::Core::Response->set($error->render);
+    $error->throw;
 
 =head1 DESCRIPTION
 
