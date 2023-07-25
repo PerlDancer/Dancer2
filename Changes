@@ -1,6 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #1663: Allow overriding of prefix in add_route (GeekRuthie)
 
     [ ENHANCEMENTS ]
 
