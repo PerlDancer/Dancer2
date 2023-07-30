@@ -2,6 +2,8 @@
 
     [ BUG FIXES ]
     * GH #1663: Allow overriding of prefix in add_route (GeekRuthie)
+    * GH #1675: Stringify VERSION_FROM correctly in Makefile.PL (Jason
+      A. Crome)
 
     [ ENHANCEMENTS ]
 
