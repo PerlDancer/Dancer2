@@ -212,9 +212,9 @@ this manual.
 
 =item * Git Guide
 
-The L<Git guide|GitGuide> describes how to set up your development environment to contribute
-to the development of Dancer2, Dancer2's Git workflow, submission guidelines, and
-various coding standards.
+The L<Git guide|https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md> describes
+how to set up your development environment to contribute to the development of Dancer2,
+Dancer2's Git workflow, submission guidelines, and various coding standards.
 
 =item * Deprecation Policy
 
