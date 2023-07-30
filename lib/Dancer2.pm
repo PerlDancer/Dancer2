@@ -196,6 +196,14 @@ how to convert a Dancer (1) based application to Dancer2.
 
 =over
 
+=item * Core and community policy, and standards of conduct
+
+The L<Dancer core and community policy, and standards of conduct> clearly explains
+what constitutes acceptable behavior in our community, what behavior is considered
+abusive and unacceptable, and what steps will be taken to remediate inappropriate
+and abusive behavior. By participating in any public forum for Dancer or its
+community, you are agreeing to the terms of this policy.
+
 =item * Git Guide
 
 The L<Git guide|GitGuide> describes how to set up your development environment to contribute
