@@ -204,6 +204,12 @@ abusive and unacceptable, and what steps will be taken to remediate inappropriat
 and abusive behavior. By participating in any public forum for Dancer or its
 community, you are agreeing to the terms of this policy.
 
+=item * GitHub Wiki
+
+Our L<GitHub wiki|https://github.com/PerlDancer/Dancer2/wiki> has community-contributed
+documentation, as well as other information that doesn't quite fit within
+this manual.
+
 =item * Git Guide
 
 The L<Git guide|GitGuide> describes how to set up your development environment to contribute
