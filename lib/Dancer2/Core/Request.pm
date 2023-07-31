@@ -181,13 +181,10 @@ sub data { $_[0]->{'data'} ||= $_[0]->deserialize() }
 sub deserialize {
     my $self = shift;
 
-    # if a serializer is used (JSON or Mutable) the deserialization of 
-    #   the whole 'multipart' section of the request is attempted
-    #   starting with the boundary
+    # don't attempt to deserialize if the form is 'multipart/form-data'
     if (
         $self->content_type 
         && $self->content_type =~ /^multipart\/form-data/i 
-        && $self->serializer
         ) {
         return;
     }
