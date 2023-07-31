@@ -207,7 +207,7 @@ community, you are agreeing to the terms of this policy.
 =item * GitHub Wiki
 
 Our L<GitHub wiki|https://github.com/PerlDancer/Dancer2/wiki> has community-contributed
-documentation, as well as other information that doesn't fit comfortably within
+documentation, as well as other information that doesn't quite fit within
 this manual.
 
 =item * Git Guide
