@@ -196,7 +196,7 @@ how to convert a Dancer (1) based application to Dancer2.
 
 =over
 
-=item * Core and community policy, and standards of conduct
+=item * Core and Community Policy, and Standards of Conduct
 
 The L<Dancer core and community policy, and standards of conduct> clearly explains
 what constitutes acceptable behavior in our community, what behavior is considered
