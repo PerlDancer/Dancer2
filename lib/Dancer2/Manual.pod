@@ -86,7 +86,11 @@ It creates a directory named after the name of the app, along with a
 configuration file, a views directory (where your templates and layouts
 will live), an environments directory (where environment-specific
 settings live), a module containing the actual guts of your application, and
-a script to start it. A default skeleton is used to bootstrap the new
+a script to start it. Finally, F<.dancer> indicates the root directory of
+your app, making it easier for Dancer2 to determine the various paths it
+needs for finding resources and code within your application.
+
+A default skeleton is used to bootstrap the new
 application, but you can use the C<-s> option to provide another skeleton.
 For example:
 
