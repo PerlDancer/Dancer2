@@ -317,6 +317,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Dinis Rebolo
     dtcyganov
     Elliot Holden
+    Emil Perhinschi
     Erik Smit
     Fayland Lam
     ferki
