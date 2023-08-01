@@ -1,4 +1,4 @@
-requires 'perl', 5.012005;
+requires 'perl', 5.014000;
 requires 'Attribute::Handlers';
 requires 'Carp';
 requires 'Clone';
