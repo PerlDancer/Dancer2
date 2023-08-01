@@ -4,6 +4,8 @@
     * GH #1663: Allow overriding of prefix in add_route (GeekRuthie)
     * GH #1675: Stringify VERSION_FROM correctly in Makefile.PL (Jason
       A. Crome)
+    * GH #1677: Don't deserialize multipart form data on post (Emil
+      Perhinschi)
 
     [ ENHANCEMENTS ]
     * PR #1682: Bump minimum version of Perl to 5.14 (Jason A. Crome)
