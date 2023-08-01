@@ -6,6 +6,7 @@
       A. Crome)
 
     [ ENHANCEMENTS ]
+    * PR #1682: Bump minimum version of Perl to 5.14 (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * GH #1669: Show correct usage of Dancer2::Core::Error (GeekRuthie)
