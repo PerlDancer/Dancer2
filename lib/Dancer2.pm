@@ -259,12 +259,12 @@ We are also on IRC: #dancer on irc.perl.org.
     Russell Jenkins
     Sawyer X
     Stefan Hornburg (Racke)
-    Steven Humphrey
     Yanick Champoux
 
 =head2 CORE DEVELOPERS EMERITUS
 
     David Golden
+    Steven Humphrey
 
 =head2 CONTRIBUTORS
 
@@ -404,6 +404,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Snigdha
     Steve Bertrand
     Steve Dondley
+    Steven Humphrey
     Tatsuhiko Miyagawa
     Timothy Alexis Vass
     Tina Müller
