@@ -75,11 +75,25 @@ complete outline on where to go for help.
 
 ### Other Documentation
 
+- Core and Community Policy, and Standards of Conduct
+
+    The ["Dancer core and community policy, and standards of conduct"](#dancer-core-and-community-policy-and-standards-of-conduct) defines
+    what constitutes acceptable behavior in our community, what behavior is considered
+    abusive and unacceptable, and what steps will be taken to remediate inappropriate
+    and abusive behavior. By participating in any public forum for Dancer or its
+    community, you are agreeing to the terms of this policy.
+
+- GitHub Wiki
+
+    Our [GitHub wiki](https://github.com/PerlDancer/Dancer2/wiki) has community-contributed
+    documentation, as well as other information that doesn't quite fit within
+    this manual.
+
 - Git Guide
 
-    The [Git guide](https://metacpan.org/pod/GitGuide) describes how to set up your development environment to contribute
-    to the development of Dancer2, Dancer2's Git workflow, submission guidelines, and
-    various coding standards.
+    The [Git guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md) describes
+    how to set up your development environment to contribute to the development of Dancer2,
+    Dancer2's Git workflow, submission guidelines, and various coding standards.
 
 - Deprecation Policy
 
@@ -179,10 +193,12 @@ We are also on IRC: #dancer on irc.perl.org.
     Dinis Rebolo
     dtcyganov
     Elliot Holden
+    Emil Perhinschi
     Erik Smit
     Fayland Lam
     ferki
     Gabor Szabo
+    GeekRuthie
     geistteufel
     Gideon D'souza
     Gil Magno
@@ -224,6 +240,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Mateu X Hunter
     Matt Phillips
     Matt S Trout
+    mauke
     Maurice
     MaxPerl
     Ma_Sys.ma

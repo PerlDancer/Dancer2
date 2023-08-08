@@ -15,6 +15,7 @@
     * GH #1674: Fix POD for input_handle() (mauke)
     * GH #1414: Add documentation resources to the doc map (Jason A.
       Crome, Yanick Champoux)
+    * PR #1684: Remove shumphrey from core developers (Steven Humphrey)
 
 0.400001  2023-02-05 18:41:48-05:00 America/New_York
 

@@ -264,6 +264,7 @@ We are also on IRC: #dancer on irc.perl.org.
 =head2 CORE DEVELOPERS EMERITUS
 
     David Golden
+    Steven Humphrey
 
 =head2 CONTRIBUTORS
 
