@@ -11,6 +11,7 @@
     * PR #1682: Bump minimum version of Perl to 5.14 (Jason A. Crome)
 
     [ DOCUMENTATION ]
+    * GH #1580: Document the purpose of the .dancer file (Jason A. Crome)
     * GH #1669: Show correct usage of Dancer2::Core::Error (GeekRuthie)
     * GH #1674: Fix POD for input_handle() (mauke)
     * GH #1414: Add documentation resources to the doc map (Jason A.
