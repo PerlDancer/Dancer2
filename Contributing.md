@@ -1,9 +1,4 @@
-# Git Guide
-
-This guide will help you to set up your environment to be able to work
-on the Dancer2's repository.
-
-## Contributing
+# Contributing
 
 This guide has been written to help anyone interested in contributing
 to the development of Dancer2.
