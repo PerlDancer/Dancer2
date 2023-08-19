@@ -89,9 +89,9 @@ complete outline on where to go for help.
     documentation, as well as other information that doesn't quite fit within
     this manual.
 
-- Git Guide
+- Contributing
 
-    The [Git guide](https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md) describes
+    The [contribution guidelines](https://github.com/PerlDancer/Dancer2/blob/master/Contributing.md) describe
     how to set up your development environment to contribute to the development of Dancer2,
     Dancer2's Git workflow, submission guidelines, and various coding standards.
 
@@ -141,6 +141,7 @@ We are also on IRC: #dancer on irc.perl.org.
 ## CORE DEVELOPERS EMERITUS
 
     David Golden
+    Steven Humphrey
 
 ## CONTRIBUTORS
 

@@ -210,9 +210,9 @@ Our L<GitHub wiki|https://github.com/PerlDancer/Dancer2/wiki> has community-cont
 documentation, as well as other information that doesn't quite fit within
 this manual.
 
-=item * Git Guide
+=item * Contributing
 
-The L<Git guide|https://github.com/PerlDancer/Dancer2/blob/master/GitGuide.md> describes
+The L<contribution guidelines|https://github.com/PerlDancer/Dancer2/blob/master/Contributing.md> describe
 how to set up your development environment to contribute to the development of Dancer2,
 Dancer2's Git workflow, submission guidelines, and various coding standards.
 
