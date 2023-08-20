@@ -250,6 +250,7 @@ We are also on IRC: #dancer on irc.perl.org.
 
     Alberto Simões
     Alexis Sukrieh
+    D Ruth Holloway (GeekRuthie)
     Damien Krotkine
     David Precious
     Franck Cuny
