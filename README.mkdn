@@ -77,7 +77,7 @@ complete outline on where to go for help.
 
 - Core and Community Policy, and Standards of Conduct
 
-    The ["Dancer core and community policy, and standards of conduct"](#dancer-core-and-community-policy-and-standards-of-conduct) defines
+    The [Dancer core and community policy, and standards of conduct](https://metacpan.org/pod/Dancer2%3A%3APolicy) defines
     what constitutes acceptable behavior in our community, what behavior is considered
     abusive and unacceptable, and what steps will be taken to remediate inappropriate
     and abusive behavior. By participating in any public forum for Dancer or its
