@@ -233,7 +233,7 @@ Returns the current runner. It is of type L<Dancer2::Core::Runner>.
 =head1 SECURITY REPORTS
 
 If you need to report a security vulnerability in Dancer2, send all pertinent
-information to L<mailto:dancer-security@dancer.pm>. These matters are taken
+information to L<dancer-security@dancer.pm|mailto:dancer-security@dancer.pm>. These matters are taken
 extremely seriously, and will be addressed in the earliest timeframe possible.
 
 =head1 SUPPORT
