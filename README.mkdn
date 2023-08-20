@@ -101,12 +101,6 @@ complete outline on where to go for help.
     broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
     for guiding and shaping future development of Dancer2.
 
-# FUNCTIONS
-
-## my $runner=runner();
-
-Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacpan.org/pod/Dancer2%3A%3ACore%3A%3ARunner).
-
 # SECURITY REPORTS
 
 If you need to report a security vulnerability in Dancer2, send all pertinent

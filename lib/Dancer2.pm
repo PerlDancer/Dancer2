@@ -224,12 +224,6 @@ for guiding and shaping future development of Dancer2.
 
 =back
 
-=func my $runner=runner();
-
-Returns the current runner. It is of type L<Dancer2::Core::Runner>.
-
-=cut
-
 =head1 SECURITY REPORTS
 
 If you need to report a security vulnerability in Dancer2, send all pertinent
