@@ -7,13 +7,42 @@ First of all - thank you for your interest in the project!  It's the
 community of helpful contributors who've helped Dancer grow
 phenomenally. Without the community we wouldn't be where we are today!
 
-Please read this guide before contributing to Dancer2, to avoid wasted
-effort and maximizing the chances of your contributions being used.
+Please read this guide before contributing to Dancer2 to avoid wasted
+or duplicated effort, and to maximize the chances of your contributions
+being used.
 
-There are many ways to contribute to the project. Dancer2 is a young
-yet active project and any kind of help is very much appreciated!
+There are many ways to contribute to the project beyond what is in this
+document. Dancer2 is an active project and any kind of help is very much
+appreciated!
 
-### Documentation
+### Asking Questions
+
+Yes, asking questions contributes to our overall community! Please use
+IRC or StackOverflow if possible. If these other options don't work for
+you, or it's taking too long to get an answer, you can leave a question on
+our [GitHub issues page](https://github.com/PerlDancer/Dancer2/issues).
+
+### Reporting Bugs
+
+We prefer to have all our bug reports on GitHub, in the
+[issues section](https://github.com/PerlDancer/Dancer2/issues).
+
+Please make sure the bug you're reporting does not yet exist. If in doubt
+please ask on IRC.
+
+When reporting an issue, please include the following information in
+your post:
+
+- Describe what you expected to happen.
+- Describe what actually happened.
+- If possible, include a minimal reproducible example of the problem to
+  help us identify and fix the issue. This also helps us make sure it's
+  not an issue with your code.
+- List the Perl and Dancer2 versions you are using. If you can, see if
+  this has already been reported and fixed with the latest code in
+  GitHub.
+
+### Improve Documentation
 
 We value documentation very much, but it's difficult to keep it
 up-to-date.  If you find a typo or an error in the documentation
@@ -21,11 +50,17 @@ please do let us know - ideally by submitting a patch (pull request)
 with your fix or suggestion (see
 [Patch Submission](#environment-and-patch-submission)).
 
-### Code
+### Writing Code
 
 You can write extensions (plugins) for Dancer2 extending core
 functionality or contribute to Dancer2's core code, see
 [Patch Submission](#environment-and-patch-submission) below.
+
+### Blog or Write Articles
+
+Some of the best ways to spread the word about Dancer2 is to blog or
+write articles. Consider DEV.to, Medium, your personal blog, or even the
+[Perl blogs site](https://blogs.perl.org).
 
 ## General Development Guidelines
 
@@ -35,34 +70,32 @@ below.
 
 ### Quality Assurance
 
-Dancer2 should be able to install for all Perl versions since 5.12, on
+Dancer2 should be able to install for all Perl versions since 5.14, on
 any platform for which Perl exists. We focus mainly on GNU/Linux (any
 distribution), \*BSD and Windows (native and Cygwin).
 
 We should avoid regressions as much as possible and keep backwards
-compatibility in mind when refactoring. Stable releases should not
-break functionality and new releases should provide an upgrade path
-and upgrade tips such as warning the user about deprecated
-functionality.
+compatibility in mind when refactoring. Just because the minimum
+supported version of Perl changes doesn't mean that existing code should
+immediately be rewritten to include new language features. For new code,
+or code that is being refactored for other reasons, it is acceptable to
+use language features that are new to the minimum supported version of
+Perl supported by the Dancer Core Team.
+
+Stable releases should not break functionality and new releases should
+provide an upgrade path and upgrade tips such as warning the user
+about deprecated functionality.
 
 ### Quality Supervision
 
 We can measure our quality using the
-[CPAN testers platform](http://www.cpantesters.org).
+[CPAN testers platform](https://www.cpantesters.org).
 
 A good way to help the project is to find a failing build log on the
-[CPAN testers](http://www.cpantesters.org/distro/D/Dancer2.html).
+[CPAN testers](https://www.cpantesters.org/distro/D/Dancer2.html).
 
 If you find a failing test report, feel free to report it as a
-[GitHub issue](http://github.com/PerlDancer/Dancer2/issues).
-
-### Reporting Bugs
-
-We prefer to have all our bug reports on GitHub, in the
-[issues section](http://github.com/PerlDancer/Dancer2/issues).
-
-Please make sure the bug you're reporting does not yet exist. If in doubt
-please ask on IRC.
+[GitHub issue](https://github.com/PerlDancer/Dancer2/issues).
 
 ## Environment and Patch Submission
 
@@ -96,7 +129,6 @@ It should list the available Perl versions, like this (incomplete) list:
     perl-5.17.1
     perl-5.16.0
     perl-5.14.2
-    perl-5.12.4
     ...
 
 Now run the init command for perlbrew. The init command initializes and controls
@@ -104,7 +136,6 @@ processes. The init command is run as the last step of any startup
 process.
 
     $ perlbrew init
-
 
 Then install a version inside perlbrew. We recommend you
 give a name to the installation (`--as` option), as well as compiling
@@ -124,7 +155,6 @@ Install cpanm on your brewed version of Perl.
 
     $ perlbrew install-cpanm
 
-
 ### Install various dependencies (required)
 
 Install Dist::Zilla
@@ -138,7 +168,7 @@ see below):
 
 Clone your fork to have a local copy using the following command:
 
-     $ git clone git://github.com/perldancer/Dancer2.git
+     $ git clone git://github.com/yourname/Dancer2.git
 
 The Dancer2 sources come with a `dist.ini`. That's the configuration
 file for _Dist::Zilla_, so that it knows how to build Dancer2. Let's
@@ -157,7 +187,6 @@ Dancer2:
 
      $ dzil build
      $ dzil test --no-author
-
 
 ### Running your modified version
 
@@ -185,26 +214,26 @@ these contributions and applying them much, much easier. This gives
 your contribution a much better chance of being integrated into
 Dancer2 quickly!
 
-**NOTE:** All active development is performed in the _master_ branch.
+**NOTE:** All active development is performed in the _main_ branch.
 Therefore, all your contribution work should be done in a fork of the
-_master_ branch.
+_main_ branch.
 
 Here is the workflow for submitting a patch:
 
-1. Fork the repository: http://github.com/PerlDancer/Dancer2 and click "Fork";
+1. Fork the repository: https://github.com/PerlDancer/Dancer2 and click "Fork";
 
 2. Clone your fork to have a local copy using the following command:
 
-        $ git clone git://github.com/myname/Dancer2.git
+        $ git clone git://github.com/yourname/Dancer2.git
 
-3. As a contributor, you should **always** work on the `master` branch of
+3. As a contributor, you should **always** work on the `main` branch of
    your clone.
 
         $ git remote add upstream https://github.com/PerlDancer/Dancer2.git
         $ git fetch upstream
 
-   This will create a local branch in your clone named _master_ and
-   that will track the official _master_ branch. That way, if you have
+   This will create a local branch in your clone named _main_ and
+   that will track the official _main_ branch. That way, if you have
    more or less commits than the upstream repo, you'll be immediately
    notified by git.
 
@@ -215,7 +244,7 @@ Here is the workflow for submitting a patch:
 
    To do that, first create a local branch to build your pull request:
 
-        # you should be in master here
+        # you should be in main here
         $ git checkout -b pr/$name
 
    Now you have created a local branch named _pr/$name_ where _$name_
@@ -230,7 +259,16 @@ Here is the workflow for submitting a patch:
 
    You are now ready to send a pull request.
 
-5. Send a _pull request_ via the GitHub interface. Make sure your pull
+5. Run the test suite! Pull requests with failing tests will not be
+   considered. You have two ways to run tests, either with prove:
+
+        $ prove -lvr t/
+
+   or via _Dist::Zilla_:
+
+        $ dzil test --all
+
+6. Send a _pull request_ via the GitHub interface. Make sure your pull
    request is based on the _pr/$name_ branch you've just pushed, so
    that it incorporates the appropriate commits only.
 
@@ -239,27 +277,42 @@ Here is the workflow for submitting a patch:
    is aware of it.
 
    You could also notify the core team on IRC, on `irc.perl.org`,
-   channel `#dancer` or via [web client](http://www.perldancer.org/irc).
+   channel `#dancer` or via [web client](https://www.perldancer.org/irc).
 
-6. When the core team reviews your pull request, it will either accept
-   (and then merge into _master_) or refuse your request.
+7. When the core team reviews your pull request, it will either accept
+   (and then merge into _main_) or refuse your request.
 
    If it's refused, try to understand the reasons explained by the
    team for the denial. Most of the time, communicating with the core
    team is enough to understand what the mistake was. Above all,
    please don't be offended.
 
-   If your pull request is merged into _master_, then all you have to
+   If your pull request is merged into _main_, then all you have to
    do is remove your local and remote _pr/$name_ branch:
 
-        $ git checkout master
+        $ git checkout main
         $ git branch -D pr/$name
         $ git push origin :pr/$name
 
    And then, of course, you need to sync your local devel branch with
    upstream:
 
-        $ git pull upstream master
-        $ git push origin master
+        $ git pull upstream main
+        $ git push origin main
 
    You're now ready to start working on a new pull request!
+
+### Pull Request Review Guidelines
+
+This is a non-exhaustive list of things that may cause the Dancer Core
+Team to request modifications to (or reject) your pull request:
+
+- Insufficient documentation
+- Failing tests in the test suite
+- Lack of tests provided covering new/changed functionality
+- Merge conflicts in git
+- Poor commit messages
+- Code or feature does not fit with the Core Team's vision or values for
+  Dancer
+- Code introduces new bugs, or does not completely resolve an issue
+
