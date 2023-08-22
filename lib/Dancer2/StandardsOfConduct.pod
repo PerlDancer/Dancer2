@@ -1,4 +1,4 @@
-package Dancer2::Policy;
+package Dancer2::StandardsOfConduct;
 # ABSTRACT: Dancer core and community policy and standards of conduct
 
 use strict;
