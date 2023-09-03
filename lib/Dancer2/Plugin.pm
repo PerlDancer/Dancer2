@@ -416,7 +416,8 @@ sub _exporter_plugin {
 
             sub register_hook { goto &plugin_hooks }
 
-            sub plugin_setting {};
+            sub plugin_setting { Carp::croak "DEPRECATED: Plugin DSL method 'plugin_setting'. "
+                . "Please use '\\\$self->config' instead\n" };
 
             sub plugin_args {
                 Carp::carp "Plugin DSL method 'plugin_args' is deprecated. "
@@ -433,35 +434,26 @@ END
 
             # FIXME: AUTOLOAD might pick up on this
             sub dancer_app {
-                Carp::carp "DEPRECATED: Plugin DSL method 'dancer_app'. "
+                Carp::croak "DEPRECATED: Plugin DSL method 'dancer_app'. "
                          . "Please use '\\\$self->app' instead'.\n";
-
-                \$_[0]->app;
             }
 
             # FIXME: AUTOLOAD might pick up on this
             sub request {
-                Carp::carp "DEPRECATED: Plugin DSL method 'request'. "
+                Carp::croak "DEPRECATED: Plugin DSL method 'request'. "
                          . "Please use '\\\$self->app->request' instead'.\n";
-
-                \$_[0]->app->request;
             }
 
             # FIXME: AUTOLOAD might pick up on this
             sub var {
-                Carp::carp "DEPRECATED: Plugin DSL method 'var'. "
+                Carp::croak "DEPRECATED: Plugin DSL method 'var'. "
                          . "Please use '\\\$self->app->request->var' instead'.\n";
-
-                shift->app->request->var(\@_);
             }
 
             # FIXME: AUTOLOAD might pick up on this
             sub hook {
-                Carp::carp "DEPRECATED: Plugin DSL method 'hook'. "
+                Carp::croak "DEPRECATED: Plugin DSL method 'hook'. "
                          . "Please use '\\\$self->app->add_hook' instead'.\n";
-
-                shift->app->add_hook(
-                    Dancer2::Core::Hook->new( name => shift, code => shift ) );
             }
 
         }
