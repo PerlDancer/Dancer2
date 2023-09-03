@@ -294,8 +294,7 @@ sub uri_base {
 }
 
 sub dispatch_path {
-    warn q{DEPRECATED: request->dispatch_path. Please use request->path instead};
-    return shift->path;
+    Carp::croak q{DEPRECATED: request->dispatch_path. Please use request->path instead};
 }
 
 sub uri_for {

@@ -56,7 +56,7 @@ our $NO_WARN = 0;
 # or can be fed a response (which is passed through without
 # any modification)
 sub dancer_response {
-    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
+    croak 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     _find_dancer_apps_for_dispatcher();
