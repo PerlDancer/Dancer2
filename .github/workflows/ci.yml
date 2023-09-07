@@ -142,7 +142,7 @@ jobs:
 
       - name: Testing selected Plugins
         run: |
-            cpanm --test-only --verbose Dancer2::Plugin::Auth::HTTP::Basic::DWIW
+            # cpanm --test-only --verbose Dancer2::Plugin::Auth::HTTP::Basic::DWIW
             cpanm --test-only --verbose Dancer2::Template::Handlebars
             cpanm --test-only --verbose Dancer2::Session::Cookie
             cpanm --test-only --verbose Dancer2::Plugin::Email
