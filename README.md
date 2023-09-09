@@ -77,7 +77,7 @@ complete outline on where to go for help.
 
 - Core and Community Policy, and Standards of Conduct
 
-    The ["Dancer core and community policy, and standards of conduct"](#dancer-core-and-community-policy-and-standards-of-conduct) defines
+    The [Dancer core and community policy, and standards of conduct](https://metacpan.org/pod/Dancer2%3A%3APolicy) defines
     what constitutes acceptable behavior in our community, what behavior is considered
     abusive and unacceptable, and what steps will be taken to remediate inappropriate
     and abusive behavior. By participating in any public forum for Dancer or its
@@ -101,16 +101,10 @@ complete outline on where to go for help.
     broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
     for guiding and shaping future development of Dancer2.
 
-# FUNCTIONS
-
-## my $runner=runner();
-
-Returns the current runner. It is of type [Dancer2::Core::Runner](https://metacpan.org/pod/Dancer2%3A%3ACore%3A%3ARunner).
-
 # SECURITY REPORTS
 
 If you need to report a security vulnerability in Dancer2, send all pertinent
-information to [mailto:dancer-security@dancer.pm](mailto:dancer-security@dancer.pm). These matters are taken
+information to [dancer-security@dancer.pm](mailto:dancer-security@dancer.pm). These matters are taken
 extremely seriously, and will be addressed in the earliest timeframe possible.
 
 # SUPPORT

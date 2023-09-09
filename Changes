@@ -17,6 +17,7 @@
     * GH #1414: Add documentation resources to the doc map (Jason A.
       Crome, Yanick Champoux)
     * PR #1684: Remove shumphrey from core developers (Steven Humphrey)
+    * PR #1688: Fixed various bugs/issues in Dancer2 Pod (Jason A. Crome)
     * PR #1691: Update the contribution guidelines (Jason A. Crome)
     * PR #1692: Change README extension .mkdn -> .md (Jason A. Crome)
     # PR #1693: Document the Dancer2 release process (Jason A. Crome)
