@@ -19,6 +19,7 @@
     * PR #1684: Remove shumphrey from core developers (Steven Humphrey)
     * PR #1691: Update the contribution guidelines (Jason A. Crome)
     * PR #1692: Change README extension .mkdn -> .md (Jason A. Crome)
+    # PR #1693: Document the Dancer2 release process (Jason A. Crome)
 
     [ MISC ]
     * GH #1659: Rename `master` branch to be `main` (Yanick Champoux)
