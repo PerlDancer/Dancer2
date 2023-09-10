@@ -22,6 +22,23 @@
     * PR #1692: Change README extension .mkdn -> .md (Jason A. Crome)
     # PR #1693: Document the Dancer2 release process (Jason A. Crome)
 
+    [ DEPRECATED ]
+    * GH #1645: Deprecated Dancer2::Test (Jason A. Crome)
+    * GH #1646: Deprecated keyword: push_header (Jason A. Crome)
+    * GH #1647: Deprecated keyword: header (Jason A. Crome)
+    * GH #1648: Deprecated keyword: headers (Jason A. Crome)
+    * GH #1649: Deprecated keyword: context (Jason A. Crome)
+    * GH #1650: Deprecated: splat/capture named placeholders (Jason A.
+      Crome)
+    * GH #1651: Deprecated core Request instance method:
+      request->dispatch_path (Jason A. Crome)
+    * GH #1652: Deprecated keyword in plugins: plugin_setting (Jason A.
+      Crome)
+    * GH #1653: Deprecated keyword in plugins: dancer_app (Jason A. Crome)
+    * GH #1654: Deprecated keyword in plugins: request (Jason A. Crome)
+    * GH #1655: Deprecated keyword in plugins: var (Jason A. Crome)
+    * GH #1656: Deprecated keyword in plugins: hook (Jason A. Crome)
+
     [ MISC ]
     * GH #1659: Rename `master` branch to be `main` (Yanick Champoux)
 
