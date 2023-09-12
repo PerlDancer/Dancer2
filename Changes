@@ -6,6 +6,7 @@
       A. Crome)
     * GH #1677: Don't deserialize multipart form data on post (Emil
       Perhinschi)
+    * GH #1694: Update JS assets in Dancer2 app skel (Jason A. Crome)
 
     [ ENHANCEMENTS ]
     * PR #1682: Bump minimum version of Perl to 5.14 (Jason A. Crome)
