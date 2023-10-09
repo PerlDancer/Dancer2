@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.0.0     2023-10-09 10:10:10-04:00 America/New_York
+
     [ BUG FIXES ]
     * GH #1663: Allow overriding of prefix in add_route (GeekRuthie)
     * GH #1675: Stringify VERSION_FROM correctly in Makefile.PL (Jason
