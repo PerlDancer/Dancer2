@@ -7,7 +7,6 @@ use Module::Runtime 'require_module';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
-use Plack::Builder qw();
 use Ref::Util qw< is_ref is_regexpref >;
 
 # Hashref of configurable items for the runner.

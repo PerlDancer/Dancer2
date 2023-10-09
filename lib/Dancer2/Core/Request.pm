@@ -53,7 +53,7 @@ our $XS_HTTP_COOKIES       = eval { require HTTP::XSCookies; 1; };
 
 our $_id = 0;
 
-# self->new( env => {}, serializer => $s, is_behind_proxy => 0|1 )
+# self->new( env => {}, serializer => $s  )
 sub new {
     my ( $class, @args ) = @_;
 
@@ -74,9 +74,8 @@ sub new {
     }
 
     # additionally supported attributes
-    $self->{'id'}              = ++$_id;
-    $self->{'vars'}            = {};
-    $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
+    $self->{'id'}   = ++$_id;
+    $self->{'vars'} = {};
 
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
@@ -139,40 +138,17 @@ sub _set_route_params {
 # XXX: incompatible with Plack::Request
 sub uploads { $_[0]->{'uploads'} }
 
-sub is_behind_proxy { $_[0]->{'is_behind_proxy'} || 0 }
-
 sub host {
-    my ($self) = @_;
-
-    if ( $self->is_behind_proxy and exists $self->env->{'HTTP_X_FORWARDED_HOST'} ) {
-        my @hosts = split /\s*,\s*/, $self->env->{'HTTP_X_FORWARDED_HOST'}, 2;
-        return $hosts[0];
-    } else {
-        return $self->env->{'HTTP_HOST'};
-    }
+    return shift->env->{'HTTP_HOST'};
 }
 
 # aliases, kept for backward compat
 sub agent                 { shift->user_agent }
 sub remote_address        { shift->address }
+
 sub forwarded_for_address { shift->env->{'HTTP_X_FORWARDED_FOR'} }
 sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
-
-# there are two options
-sub forwarded_protocol    {
-    $_[0]->env->{'HTTP_X_FORWARDED_PROTO'}    ||
-    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
-    $_[0]->env->{'HTTP_FORWARDED_PROTO'}
-}
-
-sub scheme {
-    my ($self) = @_;
-    my $scheme = $self->is_behind_proxy
-               ? $self->forwarded_protocol
-               : '';
-
-    return $scheme || $self->env->{'psgi.url_scheme'};
-}
+sub forwarded_protocol    { shift->env->{'HTTP_X_FORWARDED_PROTO'} }
 
 sub serializer { $_[0]->{'serializer'} }
 
@@ -606,8 +582,7 @@ sub _shallow_clone {
     $new_request->{headers}       = $self->headers;
 
     # Copy remaining settings
-    $new_request->{is_behind_proxy} = $self->{is_behind_proxy};
-    $new_request->{vars}            = $self->{vars};
+    $new_request->{vars}          = $self->{vars};
 
     # Clone any existing decoded & cached body params. (GH#1116 GH#1269)
     $new_request->{'body_parameters'} = $self->body_parameters->clone;

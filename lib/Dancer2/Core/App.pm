@@ -17,6 +17,7 @@ use Plack::Middleware::FixMissingBodyInRedirect;
 use Plack::Middleware::Head;
 use Plack::Middleware::Conditional;
 use Plack::Middleware::ConditionalGET;
+use Dancer2::Middleware::BehindProxy;
 
 use Dancer2::FileUtils 'path';
 use Dancer2::Core;
@@ -1432,10 +1433,15 @@ sub to_app {
 
     # Wrap with common middleware
     if ( ! $self->config->{'no_default_middleware'} ) {
+        # BehindProxy (this is not runtime configurable)
+        $self->config->{'behind_proxy'}
+            and $psgi = Dancer2::Middleware::BehindProxy->wrap($psgi);
+
         # FixMissingBodyInRedirect
-        $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap( $psgi );
+        $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap($psgi);
+
         # Apply Head. After static so a HEAD request on static content DWIM.
-        $psgi = Plack::Middleware::Head->wrap( $psgi );
+        $psgi = Plack::Middleware::Head->wrap($psgi);
     }
 
     return $psgi;
@@ -1600,12 +1606,11 @@ sub build_request {
 
     # If we have an app, send the serialization engine
     my $request = Dancer2::Core::Request->new(
-          env             => $env,
-          is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
+        env => $env,
 
-          $self->has_serializer_engine
-              ? ( serializer => $self->serializer_engine )
-              : (),
+        $self->has_serializer_engine
+        ? ( serializer => $self->serializer_engine )
+        : (),
     );
 
     return $request;
