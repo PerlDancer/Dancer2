@@ -30,8 +30,8 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
+          - '5.38'
           - '5.32'
-          - '5.30'
           - '5.20'
 
     container:
@@ -63,14 +63,14 @@ jobs:
             dzil test --author --release
 
       - name: Create release
-        if: ${{ matrix.perl-version == '5.32' }}
+        if: ${{ matrix.perl-version == '5.38' }}
         run: |
             # Increase the version number by 0.000001 so in the reports we can be sure we are using the code to be released.
             perl -i -p -e 's/^version\s*=\s*(\d+\.\d+)/"version = " . ($1 + 0.000001)/e' dist.ini
             dzil build
 
       - name: Archive artifacts
-        if: ${{ matrix.perl-version == '5.32' }}
+        if: ${{ matrix.perl-version == '5.38' }}
         uses: actions/upload-artifact@v2
         with:
           name: the-dancer
@@ -86,8 +86,8 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
-          - '5.32'
-          - "5.30"
+          - '5.38'
+          - "5.32"
           - "5.14"
 #          - "5.28"
 #          - "5.26"
@@ -122,7 +122,7 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
-          - '5.32'
+          - '5.38'
 
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}     # https://hub.docker.com/r/perldocker/perl-tester
@@ -166,7 +166,7 @@ jobs:
         # Will resolve and uncomment later.
         #runner: [ubuntu-latest, macos-latest, windows-latest]
         runner: [ubuntu-latest, macos-latest]
-        perl: [ '5.32' ]
+        perl: [ '5.38' ]
 
     runs-on: ${{matrix.runner}}
     name: Native on OS ${{matrix.runner}} Perl ${{matrix.perl}}
