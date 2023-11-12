@@ -5,7 +5,7 @@ package Dancer2::Core::DSL;
 use Moo;
 use Carp;
 use Module::Runtime 'require_module';
-use Ref::Util qw< is_arrayref >;
+use Ref::Util qw< is_arrayref is_hashref >;
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use Dancer2::Core::Response::Delayed;
@@ -250,13 +250,13 @@ sub _normalize_route {
     } elsif ( @_ == 2 ) {
         # @_ = ( REGEXP, CODE )
         # get '/foo', sub {...}
-        @args{qw<regexp options code>} = ( $_[0], {}, $_[1] );
+        @args{qw<regexp code>} = @_;
     } elsif ( @_ == 3 ) {
         # @_ = ( REGEXP, OPTIONS, CODE )
-        # get '/foo', { 'user_agent' => '...', sub {...}
+        # get '/foo', { 'user_agent' => '...' }, sub {...}
         # @_ = ( NAME, REGEXP, CODE )
         # get 'foo', '/foo',sub {...}
-        if (ref $_[1] eq 'HASH') {
+        if ( is_hashref( $_[1] ) ) {
             @args{qw<regexp options code>} = @_;
         } else {
             @args{qw<name regexp code>} = @_;

@@ -218,7 +218,7 @@ You can also provide routes with a name:
 
     get 'hi_to' => '/hello/:name' => sub {...};
 
-See C<uri_for_route> on how this can be used.
+See L<Dancer2::Manual::Keywords/uri_for_route> on how this can be used.
 
 =head3 Retrieving request parameters
 

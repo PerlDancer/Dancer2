@@ -12,8 +12,6 @@ use Type::Registry;
 
 our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
-my $count = 0;
-
 has name => (
     is        => 'ro',
     isa       => Str,

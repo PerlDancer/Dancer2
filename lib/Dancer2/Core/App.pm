@@ -10,7 +10,6 @@ use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
 use Module::Runtime    qw< require_module use_module >;
-use List::Util         ();
 use Ref::Util          qw< is_ref is_arrayref is_globref is_scalarref is_regexpref >;
 
 use Plack::App::File;

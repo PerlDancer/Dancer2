@@ -1182,7 +1182,7 @@ URL encoding via a third parameter:
 
 =head2 uri_for_route
 
-An enhanced version of C<uri_for> that utilizes their names.
+An enhanced version of C<uri_for> that utilizes routes' names.
 
     get 'view_entry' => '/entry/view/:id' => sub {...};
 
@@ -1229,7 +1229,7 @@ these being splat and megasplat args:
 
 =item * Mixed route parameters
 
-If you have a route that includes both, the plat and megasplat
+If you have a route that includes both, the splat and megasplat
 arguments need to be under the C<splat> key:
 
     patch 'test' => '/*/:id/*/:foo/*' => sub {1};
@@ -1267,18 +1267,34 @@ second argument:
 (Technically, only C<GET> requests should include query parameters, but
 C<uri_for_route> does not enforce this.)
 
-=item * Escaping
+=item * Disable URI escaping
 
-The final parameter determines whether the URI will be URI-escaped:
+The final parameter determines whether the URI will be URI-escaped or not:
 
     get 'show_entry' => '/view/:str_id' => sub {1};
     # ...
-    $path = uri_for_route( 'show_entry' => { 'str_id' => '!£%^@' }, {}, 1 );
-    # $path = http://localhost/view/!@%C3%82%C2%A3$%
+    $path = uri_for_route(
+        'show_entry',
+        { 'str_id' => '<javascript>...' },
+        {},
+    );
+    # $path = http://localhost/view/%3Cjavascript%3E...
 
 This is useful when your ID is not HTML-safe and might include HTML
 tags and Javascript code or include characters that interfere with the
 URI request string (like a forward slash).
+
+This is on by default, but you can disable it by setting this flag:
+
+    get 'show_entry' => '/view/:str_id' => sub {1};
+    # ...
+    $path = uri_for_route(
+        'show_entry',
+        { 'str_id' => '<javascript>...' },
+        {},
+        1,
+    );
+    # $path = http://localhost/view/<javascript>...
 
 =back
 
