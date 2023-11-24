@@ -1201,6 +1201,11 @@ create a URI for it:
 This works for every HTTP method, except C<HEAD> (which is
 effectively a C<GET>).
 
+It can also be used in templates:
+
+    <!-- some_template.tt -->
+    [% request.uri_for_route( 'my_route_name', { 'foo' => 'bar' }, { 'id' => 4 } ) %]
+
 There are multiple arguments options:
 
 =over 4
