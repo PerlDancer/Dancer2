@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * GH #33: Named routes; add uri_for_route keyword (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 1.0.0     2023-10-09 10:10:10-04:00 America/New_York
 
     [ BUG FIXES ]
