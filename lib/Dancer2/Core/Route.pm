@@ -12,6 +12,12 @@ use Type::Registry;
 
 our ( $REQUEST, $RESPONSE, $RESPONDER, $WRITER, $ERROR_HANDLER );
 
+has name => (
+    is        => 'ro',
+    isa       => Str,
+    predicate => 'has_name',
+);
+
 has method => (
     is       => 'ro',
     isa      => Dancer2Method,

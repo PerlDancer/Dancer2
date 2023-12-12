@@ -5,7 +5,7 @@ package Dancer2::Core::DSL;
 use Moo;
 use Carp;
 use Module::Runtime 'require_module';
-use Ref::Util qw< is_arrayref >;
+use Ref::Util qw< is_arrayref is_hashref >;
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use Dancer2::Core::Response::Delayed;
@@ -122,6 +122,7 @@ sub dsl_keywords {
         true                 => { is_global => 1 },
         upload               => { is_global => 0 },
         uri_for              => { is_global => 0 },
+        uri_for_route        => { is_global => 0 },
         var                  => { is_global => 0 },
         vars                 => { is_global => 0 },
         warning              => { is_global => 1 },
@@ -241,11 +242,26 @@ sub _normalize_route {
     my $methods = shift;
     my %args;
 
-    # Options are optional, deduce their presence from arg length.
-    # @_ = ( REGEXP, OPTIONS, CODE )
-    # or
-    # @_ = ( REGEXP, CODE )
-    @args{qw/regexp options code/} = @_ == 3 ? @_ : ( $_[0], {}, $_[1] );
+    # Options are optional, try to deduce their presence from arg length.
+    if ( @_ == 4 ) {
+        # @_ = ( NAME, REGEXP, OPTIONS, CODE )
+        # get 'foo', '/foo', { 'user_agent' => '...' }, sub {...}
+        @args{qw<name regexp options code>} = @_;
+    } elsif ( @_ == 2 ) {
+        # @_ = ( REGEXP, CODE )
+        # get '/foo', sub {...}
+        @args{qw<regexp code>} = @_;
+    } elsif ( @_ == 3 ) {
+        # @_ = ( REGEXP, OPTIONS, CODE )
+        # get '/foo', { 'user_agent' => '...' }, sub {...}
+        # @_ = ( NAME, REGEXP, CODE )
+        # get 'foo', '/foo',sub {...}
+        if ( is_hashref( $_[1] ) ) {
+            @args{qw<regexp options code>} = @_;
+        } else {
+            @args{qw<name regexp code>} = @_;
+        }
+    }
 
     return map $app->add_route( %args, method => $_ ), @{$methods};
 }
@@ -413,6 +429,8 @@ sub upload { shift; $Dancer2::Core::Route::REQUEST->upload(@_); }
 sub captures { $Dancer2::Core::Route::REQUEST->captures }
 
 sub uri_for { shift; $Dancer2::Core::Route::REQUEST->uri_for(@_); }
+
+sub uri_for_route { shift->app->uri_for_route(@_); }
 
 sub splat { $Dancer2::Core::Route::REQUEST->splat }
 

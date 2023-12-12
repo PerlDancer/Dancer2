@@ -200,6 +200,12 @@ Defines a route for HTTP B<DELETE> requests to the given URL:
 
     del '/resource' => sub { ... };
 
+You can also provide the route with a name:
+
+    del 'rec' => '/resource' => sub { ... };
+
+See C<uri_for_route> on how this can be used.
+
 =head2 delayed
 
 Stream a response asynchronously. For more information, please see 
@@ -348,6 +354,14 @@ Defines a route for HTTP B<GET> requests to the given path:
     }
 
 Note that a route to match B<HEAD> requests is automatically created as well.
+
+You can also provide the route with a name:
+
+    get 'index' => '/' => sub {
+        return "Hello world";
+    }
+
+See C<uri_for_route> on how this can be used.
 
 =head2 halt
 
@@ -516,6 +530,12 @@ Defines a route for HTTP B<PATCH> requests to the given URL:
 intended to work as a "partial-PUT", transferring just the changes; please
 see L<RFC5789|http://tools.ietf.org/html/rfc5789> for further details.)
 
+You can also provide the route with a name:
+
+    patch 'rec' => '/resource' => sub { ... };
+
+See C<uri_for_route> on how this can be used.
+
 =head2 path
 
 Concatenates multiple paths together, without worrying about the underlying
@@ -533,6 +553,14 @@ Defines a route for HTTP B<POST> requests to the given URL:
     post '/' => sub {
         return "Hello world";
     }
+
+You can also provide the route with a name:
+
+    post 'index' => '/' => sub {
+        return "Hello world";
+    }
+
+See C<uri_for_route> on how this can be used.
 
 =head2 prefix
 
@@ -624,6 +652,12 @@ name.
 Defines a route for HTTP B<PUT> requests to the given URL:
 
     put '/resource' => sub { ... };
+
+You can also provide the route with a name:
+
+    put 'rec' => '/resource' => sub { ... };
+
+See C<uri_for_route> on how this can be used.
 
 =head2 query_parameters
 
@@ -1145,6 +1179,129 @@ URL encoding via a third parameter:
 
     uri_for('/path', { foo => 'qux%3Dquo' }, 1);
     # would return http://localhost:5000/path?foo=qux%3Dquo
+
+=head2 uri_for_route
+
+An enhanced version of C<uri_for> that utilizes routes' names.
+
+    get 'view_entry' => '/entry/view/:id' => sub {...};
+
+Now that the route has a name we can use C<uri_for_route> to
+create a URI for it:
+
+    my $path = uri_for_route(
+        'view_entry',
+        { 'id'  => 3 },
+        { 'foo' => 'bar' },
+    );
+
+    # (assuming it's run on a local server in HTTP port 5000)
+    # $path = 'http://localhost:5000/entry/view/3?foo=bar'
+
+This works for every HTTP method, except C<HEAD> (which is
+effectively a C<GET>).
+
+It can also be used in templates:
+
+    <!-- some_template.tt -->
+    [% request.uri_for_route( 'my_route_name', { 'foo' => 'bar' }, { 'id' => 4 } ) %]
+
+There are multiple arguments options:
+
+=over 4
+
+=item * Route parameters
+
+The first argument controls the route parameters:
+
+    get 'test' => '/:foo/:bar' => sub {1};
+    # ...
+    $path = uri_for_route( 'test', { 'foo' => 'hello', 'bar' => 'world' } );
+    # $path = http://localhost:5000/hello/world
+
+=item * Splat route parameters
+
+If you provide an arrayref instead of hashref, it will assume on
+these being splat and megasplat args:
+
+    get 'test' => '/*/*/**' => sub {1};
+    # ...
+    $path = uri_for_route(
+        'test',
+        [ 'hello', 'world', [ 'myhello', 'myworld' ],
+    );
+    # $path = http://localhost:5000/hello/world/myhello/myworld
+
+=item * Mixed route parameters
+
+If you have a route that includes both, the splat and megasplat
+arguments need to be under the C<splat> key:
+
+    patch 'test' => '/*/:id/*/:foo/*' => sub {1};
+    # ...
+    $path = uri_for_route(
+        'test',
+        {
+            'id'    => 4,
+            'foo  ' => 'bar',
+            'splat' => [ 'hello', 'world' ],
+        }
+    );
+    # $path = http://localhost:5000/hello/4/world/bar
+
+=item * Query parameters
+
+If you want to create a path the query parameters, use the
+second argument:
+
+    get 'index'       => '/:foo' => sub {1};
+    get 'update_form' => '/update' => sub {1};
+
+    # ...
+
+    $path = uri_for_route(
+        'index',
+        { 'foo' => 'bar' },
+        { 'id'  => 1 },
+    );
+    # $path = http://localhost:5000/bar?id=1
+
+    $path = uri_for_route( 'update_form', {}, { 'id' => 2 } );
+    # $path = http://localhost:5000/update?id=2
+
+(Technically, only C<GET> requests should include query parameters, but
+C<uri_for_route> does not enforce this.)
+
+=item * Disable URI escaping
+
+The final parameter determines whether the URI will be URI-escaped or not:
+
+    get 'show_entry' => '/view/:str_id' => sub {1};
+    # ...
+    $path = uri_for_route(
+        'show_entry',
+        { 'str_id' => '<javascript>...' },
+        {},
+    );
+    # $path = http://localhost/view/%3Cjavascript%3E...
+
+This is useful when your ID is not HTML-safe and might include HTML
+tags and Javascript code or include characters that interfere with the
+URI request string (like a forward slash).
+
+This is on by default, but you can disable it by setting this flag:
+
+    get 'show_entry' => '/view/:str_id' => sub {1};
+    # ...
+    $path = uri_for_route(
+        'show_entry',
+        { 'str_id' => '<javascript>...' },
+        {},
+        1,
+    );
+    # $path = http://localhost/view/<javascript>...
+
+=back
 
 =head2 var
 
