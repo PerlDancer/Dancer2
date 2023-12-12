@@ -4,7 +4,7 @@ Dancer2 - Lightweight yet powerful web application framework
 
 # VERSION
 
-version 1.0.0
+version 1.1.0
 
 # DESCRIPTION
 
