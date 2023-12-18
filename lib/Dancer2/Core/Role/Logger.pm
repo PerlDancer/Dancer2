@@ -242,6 +242,10 @@ The possible values are:
 
 =over 4
 
+=item %a
+
+app name
+
 =item %h
 
 host emitting the request
