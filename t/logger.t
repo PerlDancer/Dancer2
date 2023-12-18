@@ -63,7 +63,7 @@ subtest 'log level and capture' => sub {
     is_deeply $trap->read, [];
 };
 
-subtest 'logger enging hooks' => sub {
+subtest 'logger engine hooks' => sub {
     # before hook can change log level or message.
     hook 'engine.logger.before' => sub {
         my $logger = shift; # @_ = ( $level, @message_args )
