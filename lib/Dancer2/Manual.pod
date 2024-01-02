@@ -682,6 +682,35 @@ for details on the following hooks:
 
 =back
 
+=head2 Logging
+
+Logging hooks do not allow you to alter log message content, but they do
+give you a place to perform extra actions. For example, if you want to send
+an email for error messages, but you don't want to use a heavier logger
+such as L<Log::Any> or L<Log::Log4perl>:
+
+    hook 'engine.logger.after' => sub {
+        my ( $logger, $level, $message ) = @_;
+
+        if( $level eq 'error' ) {
+            # Send an email with the message content
+        }
+    };
+
+There are two hooks available for logging:
+
+=over 4
+
+=item * engine.logger.before
+
+This hook is called before a log message is produced.
+
+=item * engine.logger.after
+
+This hook is called after a log message is produced.
+
+=back
+
 =head2 Serializers
 
 =over 4
