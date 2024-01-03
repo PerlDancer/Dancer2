@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * GH #33: Named routes; add uri_for_route keyword (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * PR #1706: Document missing logging hooks and log format option;
+      fix typo in logging test (Jason A. Crome)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 1.1.0     2023-12-11 20:28:26-05:00 America/New_York
 
     [ BUG FIXES ]
