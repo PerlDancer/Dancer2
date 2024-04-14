@@ -1,28 +1,38 @@
-# NAME
+<p align="center">
+  <a href="https://perldancer.org/">
+    <img src="https://crome-plated.com/images/dancer-logo.png" alt="Perl Dancer logo">
+  </a>
+</p>
 
-Dancer2 - Lightweight yet powerful web application framework
+<p align="center">
+  Dancer2 is a lightweight yet powerful web application framework
+  written in Perl.
+  <br>
+  <a href="https://metacpan.org/pod/Dancer2%3A%3ATutorial">Tutorial</a>
+  ·
+  <a href="https://metacpan.org/pod/Dancer2%3A%3AManual">Manual</a>
+  ·
+  <a href="https://github.com/PerlDancer/Dancer2/discussions">Discussion Forums</a>
+  ·
+  <a href="https://github.com/PerlDancer/Dancer2/wiki">Public Wiki</a>
+  ·
+  <a href="http://lists.preshweb.co.uk/mailman/listinfo/dancer-users">Mailing List</a>
+</p><br>
 
-# VERSION
-
-version 1.1.0
-
-# DESCRIPTION
-
-Dancer2 is the new generation of [Dancer](https://metacpan.org/pod/Dancer), the lightweight web-framework for
-Perl. Dancer2 is a complete rewrite based on [Moo](https://metacpan.org/pod/Moo).
+Dancer2 is the evolution of [Dancer](https://metacpan.org/pod/Dancer)
+and is based on on [Moo](https://metacpan.org/pod/Moo), a lightweight
+object framework for Perl.
 
 Dancer2 can optionally use XS modules for speed, but at its core remains
-fatpackable (packable by [App::FatPacker](https://metacpan.org/pod/App%3A%3AFatPacker)) so you could easily deploy Dancer2
-applications on hosts that do not support custom CPAN modules.
+fatpackable (via [App::FatPacker](https://metacpan.org/pod/App%3A%3AFatPacker)), allowing
+you to easily deploy Dancer2 applications in environments that do not support custom
+installations of CPAN modules.
 
 Dancer2 is easy and fun:
 
     use Dancer2;
     get '/' => sub { "Hello World" };
-    dance; 
-
-This is the main module for the Dancer2 distribution. It contains logic for
-creating a new Dancer2 application.
+    dance;
 
 ## Documentation Index
 
@@ -101,13 +111,13 @@ complete outline on where to go for help.
     broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
     for guiding and shaping future development of Dancer2.
 
-# SECURITY REPORTS
+# Security Reports
 
 If you need to report a security vulnerability in Dancer2, send all pertinent
 information to [dancer-security@dancer.pm](mailto:dancer-security@dancer.pm). These matters are taken
 extremely seriously, and will be addressed in the earliest timeframe possible.
 
-# SUPPORT
+# Support
 
 You are welcome to join our mailing list.
 For subscription information, mail address and archives see
@@ -115,9 +125,9 @@ For subscription information, mail address and archives see
 
 We are also on IRC: #dancer on irc.perl.org.
 
-# AUTHORS
+# Authors
 
-## CORE DEVELOPERS
+## Dancer Core Team
 
     Alberto Simões
     Alexis Sukrieh
@@ -133,12 +143,12 @@ We are also on IRC: #dancer on irc.perl.org.
     Stefan Hornburg (Racke)
     Yanick Champoux
 
-## CORE DEVELOPERS EMERITUS
+## Core Team Emeritus
 
     David Golden
     Steven Humphrey
 
-## CONTRIBUTORS
+## Contributors
 
     A. Sinan Unur
     Abdullah Diab
@@ -290,11 +300,11 @@ We are also on IRC: #dancer on irc.perl.org.
     xenu
     Yves Orton
 
-# AUTHOR
+# Author
 
 Dancer Core Developers
 
-# COPYRIGHT AND LICENSE
+# Copyright and License
 
 This software is copyright (c) 2023 by Alexis Sukrieh.
 
