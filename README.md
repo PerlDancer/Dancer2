@@ -1,76 +1,84 @@
-# NAME
+<p align="center">
+  <a href="https://perldancer.org/">
+    <img src="https://crome-plated.com/images/dancer-logo.png" alt="Perl Dancer logo">
+  </a>
+</p>
 
-Dancer2 - Lightweight yet powerful web application framework
+<p align="center">
+  Dancer2 is a lightweight yet powerful web application framework
+  written in Perl.
+  <br>
+  <a href="https://metacpan.org/pod/Dancer2%3A%3ATutorial">Tutorial</a>
+  ·
+  <a href="https://metacpan.org/pod/Dancer2%3A%3AManual">Manual</a>
+  ·
+  <a href="https://github.com/PerlDancer/Dancer2/discussions">Discussion Forums</a>
+  ·
+  <a href="https://github.com/PerlDancer/Dancer2/wiki">Public Wiki</a>
+  ·
+  <a href="http://lists.preshweb.co.uk/mailman/listinfo/dancer-users">Mailing List</a>
+</p><br>
 
-# VERSION
-
-version 1.1.0
-
-# DESCRIPTION
-
-Dancer2 is the new generation of [Dancer](https://metacpan.org/pod/Dancer), the lightweight web-framework for
-Perl. Dancer2 is a complete rewrite based on [Moo](https://metacpan.org/pod/Moo).
+Dancer2 is the evolution of [Dancer](https://metacpan.org/pod/Dancer)
+and is based on on [Moo](https://metacpan.org/pod/Moo), a lightweight
+object framework for Perl.
 
 Dancer2 can optionally use XS modules for speed, but at its core remains
-fatpackable (packable by [App::FatPacker](https://metacpan.org/pod/App%3A%3AFatPacker)) so you could easily deploy Dancer2
-applications on hosts that do not support custom CPAN modules.
+fatpackable (via [App::FatPacker](https://metacpan.org/pod/App%3A%3AFatPacker)), allowing
+you to easily deploy Dancer2 applications in environments that do not support custom
+installations of CPAN modules.
 
 Dancer2 is easy and fun:
 
     use Dancer2;
     get '/' => sub { "Hello World" };
-    dance; 
-
-This is the main module for the Dancer2 distribution. It contains logic for
-creating a new Dancer2 application.
+    dance;
 
 ## Documentation Index
 
-Documentation on Dancer2 is split into several sections. Below is a
-complete outline on where to go for help.
+Documentation for Dancer2 is split into several sections:
 
 - Dancer2 Tutorial
 
-    If you are new to the Dancer approach, you should start by reading
-    our [Dancer2::Tutorial](https://metacpan.org/pod/Dancer2%3A%3ATutorial).
+    If you've never danced before, you should start by reading
+    our [tutorial](https://metacpan.org/pod/Dancer2%3A%3ATutorial).
 
-- Dancer2 Manual
+- Manual
 
-    [Dancer2::Manual](https://metacpan.org/pod/Dancer2%3A%3AManual) is the reference for Dancer2. Here you will find
-    information on the concepts of Dancer2 application development and
-    a comprehensive reference to the Dancer2 domain specific
+    The [Dancer2::Manual](https://metacpan.org/pod/Dancer2%3A%3AManual) is the definitive reference for Dancer2. Here you will find
+    information on the concepts of Dancer2 application development and a comprehensive reference to the Dancer2 domain specific
     language.
 
-- Dancer2 Keywords
+- Keyword Guide
 
-    The keywords for Dancer2 can be found under [DSL Keywords](https://metacpan.org/pod/Dancer2%3A%3AManual#DSL-KEYWORDS).
+    The complete list of keywords for Dancer2 is documented in the [DSL Keywords](https://metacpan.org/pod/Dancer2%3A%3AManual#DSL-KEYWORDS)
+    guide.
 
-- Dancer2 Deployment
+- Deployment
 
     For configuration examples of different deployment solutions involving
-    Dancer2 and Plack, refer to [Dancer2::Manual::Deployment](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ADeployment).
+    Dancer2 and Plack, refer to [the deployment guide](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ADeployment).
 
-- Dancer2 Cookbook
+- Cookbook
 
     Specific examples of code for real-life problems and some 'tricks' for
-    applications in Dancer can be found in [Dancer2::Cookbook](https://metacpan.org/pod/Dancer2%3A%3ACookbook)
+    applications in Dancer2 can be found in [the Cookbook](https://metacpan.org/pod/Dancer2%3A%3ACookbook)
 
-- Dancer2 Config
+- Configuration
 
     For configuration file details refer to [Dancer2::Config](https://metacpan.org/pod/Dancer2%3A%3AConfig). It is a
     complete list of all configuration options.
 
-- Dancer2 Plugins
+- Plugins
 
-    Refer to [Dancer2::Plugins](https://metacpan.org/pod/Dancer2%3A%3APlugins) for a partial list of available Dancer2
-    plugins. Note that although we try to keep this list up to date we
-    expect plugin authors to tell us about new modules.
+    Refer to [Dancer2::Plugins](https://metacpan.org/pod/Dancer2%3A%3APlugins) for a curated list of Dancer2
+    plugins, or [search MetaCPAN](https://metacpan.org/search?q=Dancer2%3A%3APlugin) for a complete list.
 
     For information on how to author a plugin, see ["Writing the plugin" in Dancer2::Plugin](https://metacpan.org/pod/Dancer2%3A%3APlugin#Writing-the-plugin).
 
-- Dancer2 Migration guide
+- Dancer2 Migration Guide
 
-    [Dancer2::Manual::Migration](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AMigration) provides the most up-to-date instruction on
+    [The migration guide](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AMigration) provides the most up-to-date instructions on
     how to convert a Dancer (1) based application to Dancer2.
 
 ### Other Documentation
@@ -85,7 +93,7 @@ complete outline on where to go for help.
 
 - GitHub Wiki
 
-    Our [GitHub wiki](https://github.com/PerlDancer/Dancer2/wiki) has community-contributed
+    Our [wiki](https://github.com/PerlDancer/Dancer2/wiki) has community-contributed
     documentation, as well as other information that doesn't quite fit within
     this manual.
 
@@ -101,13 +109,14 @@ complete outline on where to go for help.
     broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
     for guiding and shaping future development of Dancer2.
 
-# SECURITY REPORTS
+# Security Reports
 
 If you need to report a security vulnerability in Dancer2, send all pertinent
-information to [dancer-security@dancer.pm](mailto:dancer-security@dancer.pm). These matters are taken
-extremely seriously, and will be addressed in the earliest timeframe possible.
+information to [dancer-security@dancer.pm](mailto:dancer-security@dancer.pm), or report it
+via the GitHub security tool. These reports will be addressed in the earliest possible
+timeframe.
 
-# SUPPORT
+# Support
 
 You are welcome to join our mailing list.
 For subscription information, mail address and archives see
@@ -115,9 +124,9 @@ For subscription information, mail address and archives see
 
 We are also on IRC: #dancer on irc.perl.org.
 
-# AUTHORS
+# Authors
 
-## CORE DEVELOPERS
+## Dancer Core Team
 
     Alberto Simões
     Alexis Sukrieh
@@ -133,12 +142,12 @@ We are also on IRC: #dancer on irc.perl.org.
     Stefan Hornburg (Racke)
     Yanick Champoux
 
-## CORE DEVELOPERS EMERITUS
+## Core Team Emeritus
 
     David Golden
     Steven Humphrey
 
-## CONTRIBUTORS
+## Contributors
 
     A. Sinan Unur
     Abdullah Diab
@@ -290,13 +299,13 @@ We are also on IRC: #dancer on irc.perl.org.
     xenu
     Yves Orton
 
-# AUTHOR
+# Author
 
 Dancer Core Developers
 
-# COPYRIGHT AND LICENSE
+# Copyright and License
 
-This software is copyright (c) 2023 by Alexis Sukrieh.
+This software is copyright (c) 2024 by Alexis Sukrieh.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

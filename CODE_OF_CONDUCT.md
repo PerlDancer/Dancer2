@@ -1,0 +1,74 @@
+# Overview
+
+This document describes various policies (most notably, the standards
+of conduct) for the Dancer core developers and broad community.
+
+This is what we expect from our community and ourselves and these are
+the standards of behavior we set forth in order to make sure the community
+remains a safe space for all of its members, without exception.
+
+# Standards of Conduct
+
+These standards apply anywhere the community comes together as a group.
+This includes, but is not limited to, the Dancer IRC channel, the Dancer
+mailing list, Dancer hackathons, and Dancer conferences.
+
+- Always be civil.
+- Heed the moderators.
+- Abuse is not tolerated.
+
+Civility is simple: stick to the facts while avoiding demeaning remarks and
+sarcasm. It is not enough to be factual. You must also be civil. Responding
+in kind to incivility is not acceptable.
+
+If the list moderators tell you that you are not being civil, carefully
+consider how your words have appeared before responding in any way. You may
+protest, but repeated protest in the face of a repeatedly reaffirmed decision
+is not acceptable.
+
+Unacceptable behavior will result in a public and clearly identified warning.
+Repeated unacceptable behavior will result in removal from the mailing list and
+revocation of any commit bit. The first removal is for one month. Subsequent
+removals will double in length. After six months with no warning, a user's ban
+length is reset. Removals, like warnings, are public.
+
+The list of moderators consists of all active core developers. This includes,
+in alphabetical order, Alberto Simões, David Precious, Jason Crome, Mickey
+Nasriachi, Peter Mottram, Russell Jenkins, Sawyer X, Stefan Hornburg (Racke),
+and Yanick Champoux.
+
+This list might additionally grow to active members of the community who have
+stepped up to help handle abusive behavior. If this should happen, this
+document would be updated to include their names.
+
+Additionally, it's important to understand the self-regulating nature we
+foster at the Dancer community. This means anyone and everyone in the
+community - in the channel, on the list, at an event - has the ability to
+call out unacceptable behavior and incivility to others in the community.
+
+Moderators are responsible for issuing warnings and take disciplinary actions,
+but anyone may - and is encouraged - to publicly make note of unacceptable
+treatment of others.
+
+As a core principle, abuse is never tolerated. One cannot berate, insult,
+debase, deride, put down, or vilify anyone, or act towards anyone in a way
+intending to hurt them.
+
+The community specifically considers as abuse any attempts to otherize anyone 
+by any individual characteristic, including, but not limited to, their 
+technical skill, knowledge or by their age, colour, disability, gender, 
+language, national or social origin, political or other opinion, race, 
+religion, sex, or sexual orientation.
+
+The community aims to maintain a safe space for everyone, in any forum it
+has. If you ever feel this core principle has been compromised, you are strongly
+urged to contact a moderator. We are always here.
+
+Remember, this is **your** community, as much as it is anyone else's.
+
+# CREDITS
+
+This policy has been adopted and adapted from the policy available for
+the Perl language development, provided by **p5p** (the Perl 5 Porters).
+
+The original inspiration policy document can be read at [perlpolicy](https://metacpan.org/pod/perlpolicy).
