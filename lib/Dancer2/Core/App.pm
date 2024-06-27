@@ -896,10 +896,16 @@ sub template {
         $self->set_with_return( sub {
             $local_response ||= shift;
         });
-        my $content = $template->process( @_ );
+        # Catch any exceptions that may happen during template processing
+        my $content = eval { $template->process( @_ ) };
         $self->set_with_return($old_with_return);
+        # If there was a previous response set before the exception (or set as
+        # part of the exception handling), then use that, otherwise throw the
+        # exception as normal
         if ($local_response) {
             $self->with_return->($local_response);
+        } elsif ($@) {
+            die $@;
         }
         return $content;
     }
@@ -972,7 +978,9 @@ sub send_as {
         $options->{charset} = $self->config->{charset} || 'UTF-8';
         my $content = Encode::encode( $options->{charset}, $data );
         $options->{content_type} ||= join '/', 'text', lc $type;
-        $self->send_file( \$content, %$options );     # returns from sub
+        # Explicit return needed here, as if we are currently rendering a
+        # template then with_return will not longjump
+        return $self->send_file( \$content, %$options );
     }
 
     # Try and load the serializer class
