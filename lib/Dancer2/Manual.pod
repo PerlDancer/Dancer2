@@ -20,22 +20,28 @@ way, easily.
 
 =head1 INSTALL
 
-Installation of Dancer2 is simple, using your favourite method to install from
-CPAN, e.g.:
+Installation of Dancer2 is simple, either by using CPAN or your operating
+system's package manager.
+
+=head2 Via CPAN
+
+Use your favourite method to install from CPAN:
 
     perl -MCPAN -e 'install Dancer2'
 
-Thanks to the magic of cpanminus, if you do not have CPAN.pm configured, or
-just want a quickfire way to get running, the following should work, at
-least on Unix-like systems:
+Or perhaps you prefer cpanminus:
 
     wget -O - http://cpanmin.us | sudo perl - Dancer2
 
 (If you don't have root access, omit the 'sudo', and cpanminus will install
 Dancer2 and prereqs into C<~/perl5>.)
 
-Dancer2 is also available as a package from the package repository of several
-distributions, for example on Debian/Ubuntu you should be able to just:
+=head2 Via OS Package Manager
+
+Dancer2 is also available as a package for a number of freely-available
+OSes, including most Linux distributions, FreeBSD, and OpenBSD.
+
+For example on Debian/Ubuntu you should be able to just:
 
     apt-get install libdancer2-perl
 
@@ -44,7 +50,7 @@ the most recent version on CPAN.
 
 =head1 BOOTSTRAPPING A NEW APP
 
-Create a web application using the dancer script:
+Create a web application using the C<dancer2> script:
 
     $ dancer2 gen -a MyApp && cd MyApp
     + MyApp
@@ -90,29 +96,34 @@ a script to start it. Finally, F<.dancer> indicates the root directory of
 your app, making it easier for Dancer2 to determine the various paths it
 needs for finding resources and code within your application.
 
-A default skeleton is used to bootstrap the new
-application, but you can use the C<-s> option to provide another skeleton.
-For example:
-
-    $ dancer2 gen -a MyApp -s ~/mydancerskel
-
-For an example of a skeleton directory check the default one available in
-the C<share/> directory of your Dancer2 distribution.
-
-(In what follows we will refer to the directory in which you have created your
-Dancer2 application -- I<e.g.,> what C<MyApp> was above -- as the
-C<appdir>.)
-
 Because Dancer2 is a L<PSGI> web application framework, you can use the
 C<plackup> tool (provided by L<Plack>) for launching the application:
 
-    plackup -p 5000 bin/app.psgi
+    plackup bin/app.psgi
 
 View the web application at:
 
     http://localhost:5000
 
 =head1 USAGE
+
+To create a new Dancer2 app, simply:
+
+    use Dancer2;
+
+Importing C<Dancer2> automatically activates C<strict>, C<warnings> and
+C<utf8> pragmas in your webapp, so your script doesn't need to.
+
+Next, you define one of more route handlers (often called routes). A route
+handler is made up of the following elements:
+
+=over
+
+=item * An HTTP Method (for example, get or post)
+
+=item * A path pattern, which specifies a URL path this route handles
+
+=item * A subroutine reference
 
 When Dancer2 is imported to a script, that script becomes a webapp, and at
 this point, all the script has to do is declare a list of B<routes>. A
