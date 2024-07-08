@@ -898,14 +898,15 @@ sub template {
         });
         # Catch any exceptions that may happen during template processing
         my $content = eval { $template->process( @_ ) };
+        my $eval_result = $@;
         $self->set_with_return($old_with_return);
         # If there was a previous response set before the exception (or set as
         # part of the exception handling), then use that, otherwise throw the
         # exception as normal
         if ($local_response) {
             $self->with_return->($local_response);
-        } elsif ($@) {
-            die $@;
+        } elsif ($eval_result) {
+            die $eval_result;
         }
         return $content;
     }
