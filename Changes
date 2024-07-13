@@ -4,7 +4,7 @@
     * GH #1712: Fix use of send_as in templates (Andy Beverley)
 
     [ ENHANCEMENTS ]
-    * GH #33: Named routes; add uri_for_route keyword (Sawyer X)
+    * None
 
     [ DOCUMENTATION ]
     * PR #1706: Document missing logging hooks and log format option;
