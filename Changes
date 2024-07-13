@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * GH #1712: Fix use of send_as in templates (Andy Beverley)
 
     [ ENHANCEMENTS ]
     * GH #33: Named routes; add uri_for_route keyword (Sawyer X)
