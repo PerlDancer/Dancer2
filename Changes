@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.1.1     2024-07-18 19:48:00-04:00 America/New_York
+
     [ BUG FIXES ]
     * GH #1712: Fix use of send_as in templates (Andy Beverley)
 
