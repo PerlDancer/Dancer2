@@ -141,54 +141,56 @@ creating a new Dancer2 application.
 
 =head2 Documentation Index
 
-Documentation on Dancer2 is split into several sections. Below is a
-complete outline on where to go for help.
+You have questions. We have answers.
 
 =over 4
 
 =item * Dancer2 Tutorial
 
-If you are new to the Dancer approach, you should start by reading
-our L<Dancer2::Tutorial>.
+Want to learn by example? The L<Dancer2::Tutorial> will take you from
+installation to a working application.
+
+item * Quick Start
+
+Want to get going faster? L<Quick Start> will help you install Dancer2
+and bootstrap a new application quickly.
 
 =item * Dancer2 Manual
 
-L<Dancer2::Manual> is the reference for Dancer2. Here you will find
-information on the concepts of Dancer2 application development and
-a comprehensive reference to the Dancer2 domain specific
-language.
+Want to gain understanding of Dancer2 so you can use it best? The
+L<Dancer2::Manual> is a comprehensive guide to the framework.
 
 =item * Dancer2 Keywords
 
-The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
-
-=item * Dancer2 Deployment
-
-For configuration examples of different deployment solutions involving
-Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
-
-=item * Dancer2 Cookbook
-
-Specific examples of code for real-life problems and some 'tricks' for
-applications in Dancer can be found in L<Dancer2::Cookbook>
+Looking for list of all the keywords? The L<DSL guide|Dancer2::Manual::Keywords>
+documents the entire Dancer2 DSL.
 
 =item * Dancer2 Config
 
-For configuration file details refer to L<Dancer2::Config>. It is a
-complete list of all configuration options.
+Need to fine tune your application? The L<configuration guide|Dancer2::Config>
+is the complete reference to all configuration options.
+
+=item * Dancer2 Deployment
+
+Ready to get your application off the ground? L<Deploying Dancer2 applications|Dancer2::Manual::Deployment>
+helps you deploy your application to a real-world host.
+
+=item * Dancer2 Cookbook
+
+How do I...? Our L<cookbook|Dancer2::Cookbook> comes with various recipes
+in many tasty flavors!
 
 =item * Dancer2 Plugins
 
-Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
-plugins. Note that although we try to keep this list up to date we
-expect plugin authors to tell us about new modules.
+Looking for add-on functionality for your application? The L<plugin guide|Dancer2::Plugins>
+contains our curated list of recommended plugins.
 
-For information on how to author a plugin, see L<Dancer2::Plugin/Writing the plugin>.
+For information on how to author a plugin, see L<the plugin author's guide|Dancer2::Plugin/Writing the plugin>.
 
 =item * Dancer2 Migration guide
 
-L<Dancer2::Manual::Migration> provides the most up-to-date instruction on
-how to convert a Dancer (1) based application to Dancer2.
+Starting from Dancer 1? Jump over to the L<migration guide|Dancer2::Manual::Migration>
+to learn how to make the smoothest transition to Dancer2.
 
 =back
 

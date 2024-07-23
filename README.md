@@ -36,50 +36,55 @@ Dancer2 is easy and fun:
 
 ## Documentation Index
 
-Documentation for Dancer2 is split into several sections:
+You have questions. We have answers.
 
 - Dancer2 Tutorial
 
-    If you've never danced before, you should start by reading
-    our [tutorial](https://metacpan.org/pod/Dancer2%3A%3ATutorial).
+    Want to learn by example? The [Dancer2 tutorial](https://metacpan.org/pod/Dancer2%3A%3ATutorial)
+    will take you from installation to a working application.
+
+- Quick Start
+
+    Want to get going faster? [Quick Start](https://somewhere) will help
+    you install Dancer2 and bootstrap a new application quickly.
 
 - Manual
 
-    The [Dancer2::Manual](https://metacpan.org/pod/Dancer2%3A%3AManual) is the definitive reference for Dancer2. Here you will find
-    information on the concepts of Dancer2 application development and a comprehensive reference to the Dancer2 domain specific
-    language.
+    Want to gain understanding of Dancer2 so you can use it best? The
+    [Dancer2::Manual](https://metacpan.org/pod/Dancer2%3A%3AManual) is a
+    comprehensive guide to the framework.
 
 - Keyword Guide
 
-    The complete list of keywords for Dancer2 is documented in the [DSL Keywords](https://metacpan.org/pod/Dancer2%3A%3AManual#DSL-KEYWORDS)
-    guide.
-
-- Deployment
-
-    For configuration examples of different deployment solutions involving
-    Dancer2 and Plack, refer to [the deployment guide](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ADeployment).
-
-- Cookbook
-
-    Specific examples of code for real-life problems and some 'tricks' for
-    applications in Dancer2 can be found in [the Cookbook](https://metacpan.org/pod/Dancer2%3A%3ACookbook)
+    Looking for a list of all the keywords? The [DSL guide](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AKeywords)
+    documents the entire Dancer2 DSL.
 
 - Configuration
 
-    For configuration file details refer to [Dancer2::Config](https://metacpan.org/pod/Dancer2%3A%3AConfig). It is a
-    complete list of all configuration options.
+    Need to fine tune your application? The [configuration guide](https://metacpan.org/pod/Dancer2%3A%3AConfig)
+    is a complete reference to all configuration options.
+
+- Deployment
+
+    Ready to get your application off the ground? [Deploying Dancer2 Applications](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ADeployment)
+    helps you deploy your application to a real-world host.
+
+- Cookbook
+
+    How do I...? Our [cookbook](https://metacpan.org/pod/Dancer2%3A%3ACookbook)
+    comes with various recipes in many tasty flavors!
 
 - Plugins
 
-    Refer to [Dancer2::Plugins](https://metacpan.org/pod/Dancer2%3A%3APlugins) for a curated list of Dancer2
-    plugins, or [search MetaCPAN](https://metacpan.org/search?q=Dancer2%3A%3APlugin) for a complete list.
+    Looking for add-on functionality for your application? The [plugin guide](https://metacpan.org/pod/Dancer2%3A%3APlugins)
+    contains our curated list of recommended plugins.
 
-    For information on how to author a plugin, see ["Writing the plugin" in Dancer2::Plugin](https://metacpan.org/pod/Dancer2%3A%3APlugin#Writing-the-plugin).
+    For information on how to author a plugin, see [the plugin author's guide](https://metacpan.org/pod/Dancer2%3A%3APlugin#Writing-the-plugin).
 
 - Dancer2 Migration Guide
 
-    [The migration guide](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AMigration) provides the most up-to-date instructions on
-    how to convert a Dancer (1) based application to Dancer2.
+    Starting from Dancer 1? Jump over to [the migration guide](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3AMigration)
+    to learn how to make the smoothest transition to Dancer2.
 
 ### Other Documentation
 
