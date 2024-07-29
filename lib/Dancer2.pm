@@ -161,7 +161,7 @@ installation to a working application.
 
 item * Quick Start
 
-Want to get going faster? L<Quick Start> will help you install Dancer2
+Want to get going faster? L<Quick Start:Dancer2::Manual::QuickStart> will help you install Dancer2
 and bootstrap a new application quickly.
 
 =item * Dancer2 Manual
