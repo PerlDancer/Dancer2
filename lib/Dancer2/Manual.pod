@@ -33,6 +33,128 @@ make sure to build your park:
 
     dancer2 gen -a Danceyland
 
+=head1 Routes: Different Attractions and Facilities
+
+Core to Dancer2 is the concept of routes. Each attraction in your theme
+park is like a route in your web application. Visitors (users) can
+navigate to different attractions, just as they would visit different
+routes in your app.
+
+Let's show some of the rides and facilities in our park:
+
+    # Defining routes for our theme park
+    get '/' => sub {
+        return "Welcome to Danceyland!";
+    };
+
+    get '/roller-coaster' => sub {
+        return "Enjoy the thrilling roller coaster ride!";
+    };
+
+    post '/buy-ticket' => sub {
+        my $ticket = body_parameters->get('ticket');
+        # Do something with ticket data
+        return "You bought a $ticket ticket!";
+    };
+
+=over
+
+=item The `/` route is like the main entrance to our theme park. Visitors are greeted with a welcome message.
+
+=item The `/roller-coaster` route is a thrilling ride. When visitors take this path, they get a special message.
+
+=item The `/buy-ticket` route is the ticket booth. Visitors buy their tickets here.
+
+=back
+
+=head2 New Keywords
+
+=over
+
+=item get
+
+This keyword defines a route that responds to HTTP GET requests. It
+takes two parameters: the route path and a subroutine that defines
+the response.
+
+    get '/path' => sub {
+        return "Response text";
+    };
+
+=item post
+
+This keyword defines a route that responds to HTTP POST requests. It
+works similarly to C<get>, but is used for actions like submitting forms
+or buying tickets.
+
+    post '/path' => sub {
+        my $param = body_parameters->get('param');
+        return "You submitted: $param";
+    };
+
+So exactly what are these HTTP requests, and what are they all about?
+
+=head2 HTTP Methods: Visitor Actions
+
+Think of HTTP methods as the different actions visitors can take in
+your theme park. Entering the park, buying tickets, updating ticket
+details, and leaving the park are all actions represented by C<GET>,
+C<POST>, C<PUT>, C<PATCH> and C<DELETE> methods respectively.
+
+Handling visitor actions in the park:
+
+    # Defining HTTP methods for visitor actions
+    get '/' => sub {
+        return "Welcome to Danceyland!";
+    };
+
+    post '/buy-ticket' => sub {
+        my $ticket = body_parameters->get('ticket');
+        return "You bought a $ticket ticket!";
+    };
+
+    put '/update-ticket' => sub {
+        my $new_ticket = body_parameters->get('new_ticket');
+        return "Your ticket has been updated to $new_ticket!";
+    };
+
+    delete '/leave-park' => sub {
+        return "Thank you for visiting! Please come again!";
+    };
+
+=over
+
+=item GET: Visitors enter the park and see a welcome message.
+
+=item POST: Visitors buy a ticket.
+
+=item PUT: Visitors update their ticket details.
+
+=item DELETE: Visitors leave the park.
+
+=back
+
+These are good conventions to follow, but you can make your route
+handlers do whatever makes the most sense for your application.
+
+=head2 Routes vs. Route Handlers
+
+You may hear other Dancer developers talk about "routes" and "route
+handlers". "Routes" describe the entire definition while "route
+handler" is only the handler (i.e., implementing code) itself.
+
+    get '/' => sub {...};
+
+=over
+
+=item The verb, path, and subroutine is a route.
+
+=item Only the subroutine (C<sub {...}>) is the route handler.
+
+=back
+
+Each route defines a path and route handler.
+
 =head1 USAGE
 
 To create a new Dancer2 app, simply:
