@@ -132,9 +132,18 @@ applications on hosts that do not support custom CPAN modules.
 
 Dancer2 is easy and fun:
 
+    #!/usr/bin/env perl
+
+    package HelloWorld;
     use Dancer2;
-    get '/' => sub { "Hello World" };
-    dance;
+
+    get '/' => sub {
+        return "Hello, world!";
+    };
+
+    true;
+
+    HelloWorld->to_app;
 
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
