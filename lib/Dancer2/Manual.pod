@@ -1,109 +1,37 @@
-# ABSTRACT: A gentle introduction to Dancer2
+# ABSTRACT: A guide to building web applications with Dancer2
+
 package Dancer2::Manual;
 
 =pod
 
 =encoding utf8
 
-=head1 DESCRIPTION
+=head1 Introduction to Dancer2: Managing Danceyland
 
-Dancer2 is a free and open source web application framework written in Perl.
+Welcome to Danceyland! As the new manager of this amazing park, you'll
+be maintaining and enhancing the experience for all your visitors.
+Imagine each attraction, food stall, and ticket booth as different
+locations in your web application. Let's explore how to manage these
+various components using Dancer2.
 
-It's a complete rewrite of L<Dancer>, based on L<Moo> and using a more
-robust and extensible fully-OO design.
+=head2 What is Dancer2?
 
-It's designed to be powerful and flexible, but also easy to use - getting up
-and running with your web app is trivial, and an ecosystem of adaptors for
-common template engines, session storage, logging methods, serializers, and
-plugins to make common tasks easy means you can do what you want to do, your
-way, easily.
+Dancer2 is a free and open-source web application framework written in
+Perl. It’s a complete rewrite of the original L<Dancer>, designed to be
+powerful and flexible, yet incredibly easy to use.
 
-=head1 INSTALL
+With Dancer2, getting your web app up and running is a breeze. It
+boasts a rich ecosystem of adapters for popular template engines,
+session storage solutions, logging methods, serializers, and plugins.
+This means you can build your app your way, effortlessly. In this
+guide, we'll leverage those strengths to build and manage Danceyland.
 
-Installation of Dancer2 is simple, either by using CPAN or your operating
-system's package manager.
+Before we learn the ins and outs of managing your park, make sure you
+head over to the L<quick start guide|Dancer2::Manual::QuickStart> and
+get your development machine set up with Dancer2. Once it's installed,
+make sure to build your park:
 
-=head2 Via CPAN
-
-Use your favourite method to install from CPAN:
-
-    perl -MCPAN -e 'install Dancer2'
-
-Or perhaps you prefer cpanminus:
-
-    wget -O - http://cpanmin.us | sudo perl - Dancer2
-
-(If you don't have root access, omit the 'sudo', and cpanminus will install
-Dancer2 and prereqs into C<~/perl5>.)
-
-=head2 Via OS Package Manager
-
-Dancer2 is also available as a package for a number of freely-available
-OSes, including most Linux distributions, FreeBSD, and OpenBSD.
-
-For example on Debian/Ubuntu you should be able to just:
-
-    apt-get install libdancer2-perl
-
-Do be aware, though, that distribution-packaged versions sometimes lag behind
-the most recent version on CPAN.
-
-=head1 BOOTSTRAPPING A NEW APP
-
-Create a web application using the C<dancer2> script:
-
-    $ dancer2 gen -a MyApp && cd MyApp
-    + MyApp
-    + MyApp/config.yml
-    + MyApp/Makefile.PL
-    + MyApp/MANIFEST.SKIP
-    + MyApp/.dancer
-    + MyApp/cpanfile
-    + MyApp/bin
-    + MyApp/bin/app.psgi
-    + MyApp/environments
-    + MyApp/environments/development.yml
-    + MyApp/environments/production.yml
-    + MyApp/lib
-    + MyApp/lib/MyApp.pm
-    + MyApp/public
-    + MyApp/public/favicon.ico
-    + MyApp/public/500.html
-    + MyApp/public/dispatch.cgi
-    + MyApp/public/404.html
-    + MyApp/public/dispatch.fcgi
-    + MyApp/public/css
-    + MyApp/public/css/error.css
-    + MyApp/public/css/style.css
-    + MyApp/public/images
-    + MyApp/public/images/perldancer.jpg
-    + MyApp/public/images/perldancer-bg.jpg
-    + MyApp/public/javascripts
-    + MyApp/public/javascripts/jquery.js
-    + MyApp/t
-    + MyApp/t/001_base.t
-    + MyApp/t/002_index_route.t
-    + MyApp/views
-    + MyApp/views/index.tt
-    + MyApp/views/layouts
-    + MyApp/views/layouts/main.tt
-
-It creates a directory named after the name of the app, along with a
-configuration file, a views directory (where your templates and layouts
-will live), an environments directory (where environment-specific
-settings live), a module containing the actual guts of your application, and
-a script to start it. Finally, F<.dancer> indicates the root directory of
-your app, making it easier for Dancer2 to determine the various paths it
-needs for finding resources and code within your application.
-
-Because Dancer2 is a L<PSGI> web application framework, you can use the
-C<plackup> tool (provided by L<Plack>) for launching the application:
-
-    plackup bin/app.psgi
-
-View the web application at:
-
-    http://localhost:5000
+    dancer2 gen -a Danceyland
 
 =head1 USAGE
 
