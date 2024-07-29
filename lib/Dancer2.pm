@@ -238,8 +238,9 @@ for guiding and shaping future development of Dancer2.
 =head1 SECURITY REPORTS
 
 If you need to report a security vulnerability in Dancer2, send all pertinent
-information to L<dancer-security@dancer.pm|mailto:dancer-security@dancer.pm>. These matters are taken
-extremely seriously, and will be addressed in the earliest timeframe possible.
+information to L<dancer-security@dancer.pm|mailto:dancer-security@dancer.pm>, or report it
+via the GitHub security tool. These reports will be addressed in the earliest possible
+timeframe.
 
 =head1 SUPPORT
 
