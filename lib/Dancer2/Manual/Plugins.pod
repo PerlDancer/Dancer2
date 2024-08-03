@@ -1,5 +1,5 @@
 package Dancer2::Plugins;
-# ABSTRACT: Recommended Dancer2 plugins
+# ABSTRACT: A curated list of recommended Dancer2 plugins
 
 =pod
 

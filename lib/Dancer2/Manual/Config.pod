@@ -1,5 +1,5 @@
 package Dancer2::Config;
-# ABSTRACT: Configure Dancer2 to suit your needs
+# ABSTRACT: Dancer2 Configuration Reference
 
 =head1 DESCRIPTION
 
