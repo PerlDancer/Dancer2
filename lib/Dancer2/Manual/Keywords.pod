@@ -1,4 +1,4 @@
-# ABSTRACT: Dancer2 DSL Keywords
+# ABSTRACT: Dancer2 DSL Keyword Reference
 package Dancer2::Manual::Keywords;
 
 =pod

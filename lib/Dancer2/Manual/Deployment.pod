@@ -1,5 +1,5 @@
 # PODNAME: Dancer2::Manual::Deployment
-# ABSTRACT: common ways to put your Dancer app into use
+# ABSTRACT: A non-exhaustive guide to put your Dancer2 app into production
 
 __END__
 
