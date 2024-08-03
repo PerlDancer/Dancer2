@@ -156,12 +156,12 @@ You have questions. We have answers.
 
 =item * Dancer2 Tutorial
 
-Want to learn by example? The L<Dancer2::Tutorial> will take you from
+Want to learn by example? The L<Dancer2::Manual::Tutorial> will take you from
 installation to a working application.
 
 item * Quick Start
 
-Want to get going faster? L<Quick Start:Dancer2::Manual::QuickStart> will help you install Dancer2
+Want to get going faster? L<Quick Start|Dancer2::Manual::QuickStart> will help you install Dancer2
 and bootstrap a new application quickly.
 
 =item * Dancer2 Manual
@@ -176,7 +176,7 @@ documents the entire Dancer2 DSL.
 
 =item * Dancer2 Config
 
-Need to fine tune your application? The L<configuration guide|Dancer2::Config>
+Need to fine tune your application? The L<configuration guide|Dancer2::Manual::Config>
 is the complete reference to all configuration options.
 
 =item * Dancer2 Deployment
@@ -186,12 +186,12 @@ helps you deploy your application to a real-world host.
 
 =item * Dancer2 Cookbook
 
-How do I...? Our L<cookbook|Dancer2::Cookbook> comes with various recipes
+How do I...? Our L<cookbook|Dancer2::Manual::Cookbook> comes with various recipes
 in many tasty flavors!
 
 =item * Dancer2 Plugins
 
-Looking for add-on functionality for your application? The L<plugin guide|Dancer2::Plugins>
+Looking for add-on functionality for your application? The L<plugin guide|Dancer2::Manual::Plugins>
 contains our curated list of recommended plugins.
 
 For information on how to author a plugin, see L<the plugin author's guide|Dancer2::Plugin/Writing the plugin>.
