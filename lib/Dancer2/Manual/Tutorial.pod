@@ -1,5 +1,5 @@
 package Dancer2::Tutorial;
-# ABSTRACT: An example to get you dancing
+# ABSTRACT: A step-by-step guide to get you dancing
 
 =encoding utf8
 
