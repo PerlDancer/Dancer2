@@ -14,6 +14,9 @@ Imagine each attraction, food stall, and ticket booth as different
 locations in your web application. Let's explore how to manage these
 various components using Dancer2.
 
+If you're not sure if you're at the correct spot in the park, the L<documentation map|Dancer2/Documentation Index>
+can help you find your way.
+
 =head2 What is Dancer2?
 
 Dancer2 is a free and open-source web application framework written in
