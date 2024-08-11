@@ -1873,7 +1873,34 @@ Currently this still demands the same appdir for both (default circumstance)
 but in a future version this will be easier to change while staying very
 simple to mount.
 
-=head1 EXPORTS
+=head1 Complete Guide to Keywords
+
+Dancer2 provides you with a DSL (Domain-Specific Language) which makes
+implementing your web application trivial.
+
+For example, take the following example:
+
+    use Dancer2;
+
+    get '/hello/:name' => sub {
+        my $name = route_parameters->get('name');
+    };
+    dance;
+
+C<get> and C<route_parameters> are keywords provided by Dancer2.
+
+See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
+keywords provided by Dancer2.
+
+=head1 Plugins
+
+TODO
+
+=head1 Advanced Topics
+
+TODO
+
+=head2 Exports
 
 By default, C<use Dancer2> exports all the DSL keywords and sets up the
 webapp under the name of the current package. The following tags control
@@ -1956,24 +1983,6 @@ want to pass the whole config object, it can be done like so:
 
 =back
 
-=head1 DSL KEYWORDS
-
-Dancer2 provides you with a DSL (Domain-Specific Language) which makes
-implementing your web application trivial.
-
-For example, take the following example:
-
-    use Dancer2;
-
-    get '/hello/:name' => sub {
-        my $name = route_parameters->get('name');
-    };
-    dance;
-
-C<get> and C<route_parameters> are keywords provided by Dancer2.
-
-See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
-keywords provided by Dancer2.
 
 =head1 Extending Dancer2
 
