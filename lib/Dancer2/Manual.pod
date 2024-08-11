@@ -827,85 +827,6 @@ response content produced. It receives the response object
 Whenever a page that matches an existing template needs to be served, the
 L<Dancer2::Handler::AutoPage> component is used.
 
-=head2 Writing your own
-
-A route handler is a class that consumes the L<Dancer2::Core::Role::Handler>
-role. The class must implement a set of methods: C<methods>, C<regexp> and
-C<code> which will be used to declare the route.
-
-Let's look at L<Dancer2::Handler::AutoPage> for example.
-
-First, the matching methods are C<get> and C<head>:
-
-    sub methods { qw(head get) }
-
-Then, the C<regexp> or the I<path> we want to match:
-
-    sub regexp { '/:page' }
-
-Anything will be matched by this route, since we want to check if there's
-a view named with the value of the C<page> token. If not, the route needs
-to C<pass>, letting the dispatching flow to proceed further.
-
-    sub code {
-        sub {
-            my $app = shift;
-            my $prefix = shift;
-
-            my $template = $app->template_engine;
-            if ( !defined $template ) {
-                $app->response->has_passed(1);
-                return;
-            }
-
-            my $page       = $app->request->path;
-            my $layout_dir = $template->layout_dir;
-            if ( $page =~ m{^/\Q$layout_dir\E/} ) {
-                $app->response->has_passed(1);
-                return;
-            }
-
-            # remove leading '/', ensuring paths relative to the view
-            $page =~ s{^/}{};
-            my $view_path = $template->view_pathname($page);
-
-            if ( ! $template->pathname_exists( $view_path ) ) {
-                $app->response->has_passed(1);
-                return;
-            }
-
-            my $ct = $template->process( $page );
-            return ( $app->request->method eq 'GET' ) ? $ct : '';
-        };
-    }
-
-The C<code> method passed the L<Dancer2::Core::App> object which provides
-access to anything needed to process the request.
-
-A C<register> is then implemented to add the route to the registry and if
-the C<auto_page setting> is off, it does nothing.
-
-    sub register {
-        my ($self, $app) = @_;
-
-        return unless $app->config->{auto_page};
-
-        $app->add_route(
-            method => $_,
-            regexp => $self->regexp,
-            code   => $self->code,
-        ) for $self->methods;
-    }
-
-The config parser looks for a C<route_handlers> section and any handler defined
-there is loaded. Thus, any random handler can be added to your app.
-For example, the default config file for any Dancer2 application is as follows:
-
-    route_handlers:
-      File:
-        public_dir: /path/to/public
-      AutoPage: 1
-
 
 =head1 ERRORS
 
@@ -1170,107 +1091,6 @@ you wouldn't store your users passwords in the clear, would you?)) follows:
 Get complete hash stored in session:
 
     my $hash = session;
-
-=head2 Writing a session engine
-
-In Dancer 2, a session backend consumes the role
-L<Dancer2::Core::Role::SessionFactory>.
-
-The following example using the Redis session demonstrates how session
-engines are written in Dancer 2.
-
-First thing to do is to create the class for the session engine,
-we'll name it C<Dancer2::Session::Redis>:
-
-     package Dancer2::Session::Redis;
-     use Moo;
-     with 'Dancer2::Core::Role::SessionFactory';
-
-we want our backend to have a handle over a Redis connection.
-To do that, we'll create an attribute C<redis>
-
-     use JSON;
-     use Redis;
-     use Dancer2::Core::Types; # brings helper for types
-
-     has redis => (
-         is => 'rw',
-         isa => InstanceOf['Redis'],
-         lazy => 1,
-         builder => '_build_redis',
-     );
-
-The lazy attribute says to Moo that this attribute will be
-built (initialized) only when called the first time. It means that
-the connection to Redis won't be opened until necessary.
-
-     sub _build_redis {
-         my ($self) = @_;
-         Redis->new(
-             server => $self->server,
-             password => $self->password,
-             encoding => undef,
-         );
-     }
-
-Two more attributes, C<server> and C<password> need to be created.
-We do this by defining them in the config file. Dancer2 passes anything
-defined in the config to the engine creation.
-
-     # config.yml
-     ...
-     engines:
-       session:
-         Redis:
-           server: foo.mydomain.com
-           password: S3Cr3t
-
-The server and password entries are now passed to the constructor
-of the Redis session engine and can be accessed from there.
-
-     has server => (is => 'ro', required => 1);
-     has password => (is => 'ro');
-
-Next, we define the subroutine C<_retrieve> which will return a session
-object for a session ID it has passed. Since in this case, sessions are
-going to be stored in Redis, the session ID will be the key, the session the value.
-So retrieving is as easy as doing a get and decoding the JSON string returned:
-
-     sub _retrieve {
-         my ($self, $session_id) = @_;
-         my $json = $self->redis->get($session_id);
-         my $hash = from_json( $json );
-         return bless $hash, 'Dancer2::Core::Session';
-     }
-
-The C<_flush> method is called by Dancer when the session needs to be stored in
-the backend. That is actually a write to Redis. The method receives a C<Dancer2::Core::Session>
-object and is supposed to store it.
-
-     sub _flush {
-         my ($self, $session) = @_;
-         my $json = encode_json( { %{ $session } } );
-         $self->redis->set($session->id, $json);
-     }
-
-For the C<_destroy> method which is supposed to remove a session from the backend,
-deleting the key from Redis is enough.
-
-     sub _destroy {
-         my ($self, $session_id) = @_;
-         $self->redis->del($session_id);
-     }
-
-The C<_sessions> method which is supposed to list all the session IDs currently
-stored in the backend is done by listing all the keys that Redis has.
-
-     sub _sessions {
-         my ($self) = @_;
-         my @keys = $self->redis->keys('*');
-         return \@keys;
-     }
-
-The session engine is now ready.
 
 =head3 The Session keyword
 
@@ -2053,13 +1873,6 @@ Currently this still demands the same appdir for both (default circumstance)
 but in a future version this will be easier to change while staying very
 simple to mount.
 
-=head1 PLUGINS
-
-=head2 Writing a plugin
-
-See L<Dancer2::Plugin/Writing the plugin> for information on how to author
-a new plugin for Dancer2.
-
 =head1 EXPORTS
 
 By default, C<use Dancer2> exports all the DSL keywords and sets up the
@@ -2143,7 +1956,6 @@ want to pass the whole config object, it can be done like so:
 
 =back
 
-
 =head1 DSL KEYWORDS
 
 Dancer2 provides you with a DSL (Domain-Specific Language) which makes
@@ -2162,3 +1974,209 @@ C<get> and C<route_parameters> are keywords provided by Dancer2.
 
 See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
 keywords provided by Dancer2.
+
+=head1 Extending Dancer2
+
+=head2 Why do reusable components make for a better app design?
+
+=head2 Writing your own extensions
+
+=head3 Template engines
+
+=head3 Session engines
+
+In Dancer 2, a session backend consumes the role
+L<Dancer2::Core::Role::SessionFactory>.
+
+The following example using the Redis session demonstrates how session
+engines are written in Dancer 2.
+
+First thing to do is to create the class for the session engine,
+we'll name it C<Dancer2::Session::Redis>:
+
+     package Dancer2::Session::Redis;
+     use Moo;
+     with 'Dancer2::Core::Role::SessionFactory';
+
+we want our backend to have a handle over a Redis connection.
+To do that, we'll create an attribute C<redis>
+
+     use JSON;
+     use Redis;
+     use Dancer2::Core::Types; # brings helper for types
+
+     has redis => (
+         is => 'rw',
+         isa => InstanceOf['Redis'],
+         lazy => 1,
+         builder => '_build_redis',
+     );
+
+The lazy attribute says to Moo that this attribute will be
+built (initialized) only when called the first time. It means that
+the connection to Redis won't be opened until necessary.
+
+     sub _build_redis {
+         my ($self) = @_;
+         Redis->new(
+             server => $self->server,
+             password => $self->password,
+             encoding => undef,
+         );
+     }
+
+Two more attributes, C<server> and C<password> need to be created.
+We do this by defining them in the config file. Dancer2 passes anything
+defined in the config to the engine creation.
+
+     # config.yml
+     ...
+     engines:
+       session:
+         Redis:
+           server: foo.mydomain.com
+           password: S3Cr3t
+
+The server and password entries are now passed to the constructor
+of the Redis session engine and can be accessed from there.
+
+     has server => (is => 'ro', required => 1);
+     has password => (is => 'ro');
+
+Next, we define the subroutine C<_retrieve> which will return a session
+object for a session ID it has passed. Since in this case, sessions are
+going to be stored in Redis, the session ID will be the key, the session the value.
+So retrieving is as easy as doing a get and decoding the JSON string returned:
+
+     sub _retrieve {
+         my ($self, $session_id) = @_;
+         my $json = $self->redis->get($session_id);
+         my $hash = from_json( $json );
+         return bless $hash, 'Dancer2::Core::Session';
+     }
+
+The C<_flush> method is called by Dancer when the session needs to be stored in
+the backend. That is actually a write to Redis. The method receives a C<Dancer2::Core::Session>
+object and is supposed to store it.
+
+     sub _flush {
+         my ($self, $session) = @_;
+         my $json = encode_json( { %{ $session } } );
+         $self->redis->set($session->id, $json);
+     }
+
+For the C<_destroy> method which is supposed to remove a session from the backend,
+deleting the key from Redis is enough.
+
+     sub _destroy {
+         my ($self, $session_id) = @_;
+         $self->redis->del($session_id);
+     }
+
+The C<_sessions> method which is supposed to list all the session IDs currently
+stored in the backend is done by listing all the keys that Redis has.
+
+     sub _sessions {
+         my ($self) = @_;
+         my @keys = $self->redis->keys('*');
+         return \@keys;
+     }
+
+The session engine is now ready.
+
+=head3 Logging engines
+
+TODO
+
+=head3 Serializers
+
+TODO
+
+=head3 Handlers
+
+A handler is a class that consumes the L<Dancer2::Core::Role::Handler>
+role. The class must implement a set of methods: C<methods>, C<regexp> and
+C<code> which will be used to declare the route.
+
+Let's look at L<Dancer2::Handler::AutoPage> for example.
+
+First, the matching methods are C<get> and C<head>:
+
+    sub methods { qw(head get) }
+
+Then, the C<regexp> or the I<path> we want to match:
+
+    sub regexp { '/:page' }
+
+Anything will be matched by this route, since we want to check if there's
+a view named with the value of the C<page> token. If not, the route needs
+to C<pass>, letting the dispatching flow to proceed further.
+
+    sub code {
+        sub {
+            my $app = shift;
+            my $prefix = shift;
+
+            my $template = $app->template_engine;
+            if ( !defined $template ) {
+                $app->response->has_passed(1);
+                return;
+            }
+
+            my $page       = $app->request->path;
+            my $layout_dir = $template->layout_dir;
+            if ( $page =~ m{^/\Q$layout_dir\E/} ) {
+                $app->response->has_passed(1);
+                return;
+            }
+
+            # remove leading '/', ensuring paths relative to the view
+            $page =~ s{^/}{};
+            my $view_path = $template->view_pathname($page);
+
+            if ( ! $template->pathname_exists( $view_path ) ) {
+                $app->response->has_passed(1);
+                return;
+            }
+
+            my $ct = $template->process( $page );
+            return ( $app->request->method eq 'GET' ) ? $ct : '';
+        };
+    }
+
+The C<code> method passed the L<Dancer2::Core::App> object which provides
+access to anything needed to process the request.
+
+A C<register> is then implemented to add the route to the registry and if
+the C<auto_page setting> is off, it does nothing.
+
+    sub register {
+        my ($self, $app) = @_;
+
+        return unless $app->config->{auto_page};
+
+        $app->add_route(
+            method => $_,
+            regexp => $self->regexp,
+            code   => $self->code,
+        ) for $self->methods;
+    }
+
+The config parser looks for a C<route_handlers> section and any handler defined
+there is loaded. Thus, any random handler can be added to your app.
+For example, the default config file for any Dancer2 application is as follows:
+
+    route_handlers:
+      File:
+        public_dir: /path/to/public
+      AutoPage: 1
+
+
+=head3 Plugins
+
+See L<Dancer2::Plugin/Writing the plugin> for information on how to author
+a new plugin for Dancer2.
+
+=head2 Middleware
+
+TODO
