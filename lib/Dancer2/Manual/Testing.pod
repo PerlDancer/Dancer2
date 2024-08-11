@@ -49,7 +49,103 @@ A basic test (which we also scaffold with L<dancer2>) looks like this:
 Read the documentation for L<HTTP::Request> and L<HTTP::Request::Common> to
 see the different options for sending parameters.
 
+=head3 Subtests
+
+Tests can be separated using L<Test::More>'s C<subtest> functionality,
+thus creating multiple self-contained tests that don't overwrite each other.
+
+Assuming we have a different app that has two states we want to test:
+
+     # MyApp.pm
+     package MyApp;
+     use Dancer2;
+     set serializer => 'JSON';
+
+     get '/:user' => sub {
+         my $user = route_parameters->get('user');
+
+         $user and return { user => $user };
+
+         return {};
+     };
+
+     1;
+
+This is a contrived example of a route that checks for a user
+parameter. If it exists, it returns it in a hash with the key
+'user'. If not, it returns an empty hash
+
+     # param.t
+     use strict;
+     use warnings;
+     use Test::More;
+     use Plack::Test;
+     use HTTP::Request::Common;
+     use MyApp;
+
+     my $test = Plack::Test->create( MyApp->to_app );
+
+     subtest 'A empty request' => sub {
+         my $res = $test->request( GET '/' );
+         ok( $res->is_success, 'Successful request' );
+         is( $res->content '{}', 'Empty response back' );
+     };
+
+     subtest 'Request with user' => sub {
+         my $res = $test->request( GET '/?user=sawyer_x' );
+         ok( $res->is_success, 'Successful request' );
+         is( $res->content '{"user":"sawyer_x"}', 'Empty response back' );
+     };
+
+     done_testing();
+
 =head1 Cookies
+
+To handle cookies, which are mostly used for maintaining sessions,
+the following modules can be used:
+
+=over 4
+
+=item * L<Test::WWW::Mechanize::PSGI>
+
+=item * L<LWP::Protocol::PSGI>
+
+=item * L<HTTP::Cookies>
+
+=back
+
+Taking the previous test, assuming it actually creates and uses
+cookies for sessions:
+
+     # ... all the use statements
+     use HTTP::Cookies;
+
+     my $jar  = HTTP::Cookies->new;
+     my $test = Plack::Test->create( MyApp->to_app );
+
+     subtest 'A empty request' => sub {
+         my $res = $test->request( GET '/' );
+         ok( $res->is_success, 'Successful request' );
+         is( $res->content '{}', 'Empty response back' );
+         $jar->extract_cookies($res);
+         ok( $jar->as_string, 'We have cookies!' );
+     };
+
+     subtest 'Request with user' => sub {
+         my $req = GET '/?user=sawyer_x';
+         $jar->add_cookie_header($req);
+         my $res = $test->request($req);
+         ok( $res->is_success, 'Successful request' );
+         is( $res->content '{"user":"sawyer_x"}', 'Empty response back' );
+         $jar->extract_cookies($res);
+
+         ok( ! $jar->as_string, 'All cookies deleted' );
+     };
+
+     done_testing();
+
+Here a cookie jar is created, all requests and responses, existing
+cookies, as well as cookies that were deleted by the response, are checked.
 
 If you don't want to use an entire user agent for this test, you can use
 L<HTTP::Cookies> to store cookies and then retrieve them:
@@ -93,6 +189,24 @@ L<HTTP::Cookies> to store cookies and then retrieve them:
 
 Please note that the request URL must include scheme and host for the call
 to L<HTTP::Cookies/add_cookie_header> to work.
+
+=head3 Accessing the configuration file
+
+By importing Dancer2 in the command line scripts, there is full
+access to the configuration using the imported keywords:
+
+     use strict;
+     use warnings;
+     use Test::More;
+     use Plack::Test;
+     use HTTP::Request::Common;
+     use MyApp;
+     use Dancer2;
+
+     my $appname = config->{'appname'};
+     diag "Testing $appname";
+
+     # ...
 
 =head1 Plugins
 
