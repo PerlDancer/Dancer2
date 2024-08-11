@@ -742,13 +742,13 @@ The following modules can be used to speed up an app in Dancer2:
 
 If you generated your application with C<dancer2 gen>, you can easily install
 these with the following command:
-    
+
     cpanm --installdeps . --with-feature=accelerate
 
 To build them, you will need access to a C compiler, and using these modules
 will prevent you from fatpacking your application.
 
-These modules are installed by default when building a Docker container 
+These modules are installed by default when building a Docker container
 containing your application.
 
 =head1 Packaging Dancer2 applications for CPAN
