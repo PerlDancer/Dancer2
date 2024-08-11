@@ -452,130 +452,6 @@ can use lexical prefix like this:
 
     get '/page1' => sub {}; # will match /page1
 
-=head2 Delayed responses (Async/Streaming)
-
-L<Dancer2> can provide delayed (otherwise known as I<asynchronous>) responses
-using the C<delayed> keyword. These responses are streamed, although you can
-set the content all at once, if you prefer.
-
-    get '/status' => sub {
-        delayed {
-            response_header 'X-Foo' => 'Bar';
-
-            # flush headers (in case of streaming)
-            flush;
-
-            # send content to the user
-            content 'Hello, world!';
-
-            # you can write more content
-            # all streaming
-            content 'Hello, again!';
-
-            # when done, close the connection
-            done;
-
-            # do whatever you want else, asynchronously
-            # the user socket closed by now
-            ...
-        };
-    };
-
-If you are streaming (calling C<content> several times), you must call
-C<flush> first. If you're sending only once, you don't need to call C<flush>.
-
-Here is an example of using delayed responses with L<AnyEvent>:
-
-    use Dancer2;
-    use AnyEvent;
-
-    my %timers;
-    my $count = 5;
-    get '/drums' => sub {
-        delayed {
-            print "Stretching...\n";
-            flush; # necessary, since we're streaming
-
-            $timers{'Snare'} = AE::timer 1, 1, delayed {
-                $timers{'HiHat'} ||= AE::timer 0, 0.5, delayed {
-                    content "Tss...\n";
-                };
-
-                content "Bap!\n";
-
-                if ( $count-- == 0 ) {
-                    %timers = ();
-                    content "Tugu tugu tugu dum!\n";
-                    done;
-
-                    print "<enter sound of applause>\n\n";
-                    $timers{'Applause'} = AE::timer 3, 0, sub {
-                        # the DSL will not available here
-                        # because we didn't call the "delayed" keyword
-                        print "<applause dies out>\n";
-                    };
-                }
-            };
-        };
-    };
-
-If an error happens during a write operation, a warning will be issued
-to the logger.
-
-You can handle the error yourself by providing an C<on_error> handler:
-
-    get '/' => sub {
-        delayed {
-            flush;
-            content "works";
-
-            # ... user disconnected here ...
-
-            content "fails";
-
-            # ... error triggered ...
-
-            done; # doesn't even get run
-        } on_error => sub {
-            # delayed{} not needed, DSL already available
-            my ($error) = @_;
-            # do something with $error
-        };
-    };
-
-Here is an example that asynchronously streams the contents of a CSV file:
-
-    use Dancer2;
-    use Text::CSV_XS  qw< csv >;
-    use Path::Tiny    qw< path >;
-    use JSON::MaybeXS qw< encode_json >;
-    # Create CSV parser
-    my $csv = Text::CSV_XS->new({
-        binary    => 1,
-        auto_diag => 1,
-    });
-    get '/' => sub {
-        # delayed response:
-        delayed {
-            # streaming content
-            flush;
-            # Read each row and stream it in JSON
-            my $fh = path('filename.csv')->openr_utf8;
-            while ( my $row = $csv->getline($fh) ) {
-                content encode_json $row;
-            }
-            # close user connection
-            done;
-        } on_error => sub {
-            my ($error) = @_;
-            warning 'Failed to stream to user: ' . request->remote_address;
-        };
-    };
-
-B<NOTE:> If you just want to send a file's contents asynchronously,
-use C<send_file($filename)> instead of C<delayed>, as it will
-automatically take advantage of any asynchronous capability.
-
 =head2 Action Skipping
 
 An action can choose not to serve the current request and ask Dancer2 to
@@ -591,211 +467,6 @@ This is done with the B<pass> keyword, like in the following example
     get '/say/:number' => sub {
         "I say a number: " . route_parameters->get('number');
     };
-
-=head1 HOOKS
-
-Hooks are code references (or anonymous subroutines) that are triggered at
-specific moments during the resolution of a request.  They are set up using the
-L<hook|Dancer2::Manual::Keywords/hook> keyword.
-
-Many of them are provided by Dancer2's core, but plugins and engines can also
-define their own.
-
-=over 4
-
-=item * C<before> hooks
-
-C<before> hooks are evaluated before each request within the context of the
-request and receives as argument the app (a L<Dancer2::Core::App> object).
-
-It's possible to define variables which will be accessible in the action
-blocks with the L<var keyword|Dancer2::Manual::Keywords/var>.
-
-    hook before => sub {
-        var note => 'Hi there';
-    };
-
-    get '/foo/*' => sub {
-        my ($match) = splat; # 'oversee';
-        vars->{note};        # 'Hi there'
-    };
-
-For another example, this can be used along with session support to easily
-give non-logged-in users a login page:
-
-    hook before => sub {
-        if (!session('user') && request->path !~ m{^/login}) {
-            # Pass the original path requested along to the handler:
-            forward '/login', { requested_path => request->path };
-        }
-    };
-
-The request keyword returns the current L<Dancer2::Core::Request> object
-representing the incoming request.
-
-=item * C<after> hooks
-
-C<after> hooks are evaluated after the response has been built by a route
-handler, and can alter the response itself, just before it's sent to the
-client.
-
-This hook runs after a request has been processed, but before the response
-is sent.
-
-It receives a L<Dancer2::Core::Response> object, which it can modify if it
-needs to make changes to the response which is about to be sent.
-
-The hook can use other keywords in order to do whatever it wants.
-
-    hook after => sub {
-        response->content(
-            q{The "after" hook can alter the response's content here!}
-        );
-    };
-
-=back
-
-=head2 Templates
-
-=over 4
-
-=item * C<before_template_render>
-
-C<before_template_render> hooks are called whenever a template is going to
-be processed, they are passed the tokens hash which they can alter.
-
-    hook before_template_render => sub {
-        my $tokens = shift;
-        $tokens->{foo} = 'bar';
-    };
-
-The tokens hash will then be passed to the template with all the
-modifications performed by the hook. This is a good way to setup some
-global vars you like to have in all your templates, like the name of the
-user logged in or a section name.
-
-=item * C<after_template_render>
-
-C<after_template_render> hooks are called after the view has been rendered.
-They receive as their first argument the reference to the content that has
-been produced. This can be used to post-process the content rendered by the
-template engine.
-
-    hook after_template_render => sub {
-        my $ref_content = shift;
-        my $content     = ${$ref_content};
-
-        # do something with $content
-        ${$ref_content} = $content;
-    };
-
-=item * C<before_layout_render>
-
-C<before_layout_render> hooks are called whenever the layout is going to be
-applied to the current content. The arguments received by the hook are the
-current tokens hashref and a reference to the current content.
-
-    hook before_layout_render => sub {
-        my ($tokens, $ref_content) = @_;
-        $tokens->{new_stuff} = 42;
-        $ref_content = \"new content";
-    };
-
-=item * C<after_layout_render>
-
-C<after_layout_render> hooks are called once the complete content of the
-view has been produced, after the layout has been applied to the content.
-The argument received by the hook is a reference to the complete content
-string.
-
-    hook after_layout_render => sub {
-        my $ref_content = shift;
-        # do something with ${ $ref_content }, which reflects directly
-        #   in the caller
-    };
-
-=back
-
-=head2 Error Handling
-
-Refer to L<Error Hooks|Dancer2::Manual/Error-Hooks>
-for details about the following hooks:
-
-=over 4
-
-=item * C<init_error>
-
-=item * C<before_error>
-
-=item * C<after_error>
-
-=item * C<on_route_exception>
-
-=back
-
-=head2 File Rendering
-
-Refer to L<File Handler|Dancer2::Manual/File-Handler>
-for details on the following hooks:
-
-=over 4
-
-=item * C<before_file_render>
-
-=item * C<after_file_render>
-
-=back
-
-=head2 Logging
-
-Logging hooks do not allow you to alter log message content, but they do
-give you a place to perform extra actions. For example, if you want to send
-an email for error messages, but you don't want to use a heavier logger
-such as L<Log::Any> or L<Log::Log4perl>:
-
-    hook 'engine.logger.after' => sub {
-        my ( $logger, $level, $message ) = @_;
-
-        if( $level eq 'error' ) {
-            # Send an email with the message content
-        }
-    };
-
-There are two hooks available for logging:
-
-=over 4
-
-=item * engine.logger.before
-
-This hook is called before a log message is produced.
-
-=item * engine.logger.after
-
-This hook is called after a log message is produced.
-
-=back
-
-=head2 Serializers
-
-=over 4
-
-=item * C<before_serializer> is called before serializing the content, and receives
-the content to serialize as an argument.
-
-  hook before_serializer => sub {
-    my $content = shift;
-    ...
-  };
-
-=item * C<after_serializer> is called after the payload has been serialized, and
-receives the serialized content as an argument.
-
-  hook after_serializer => sub {
-    my $serialized_content = shift;
-    ...
-  };
-
-=back
 
 
 =head1 HANDLERS
@@ -1414,120 +1085,6 @@ Environment-specific settings can also be defined in environment-specific
 files (for instance, you do not want to show error stacktraces in
 production, and might want extra logging in development).
 
-=head2 Serializers
-
-When writing a webservice, data serialization/deserialization is a common
-issue to deal with. Dancer2 can automatically handle that for you, via a
-serializer.
-
-When setting up a serializer, a new behaviour is authorized for any route
-handler you define: any non-scalar response will be rendered as a serialized
-string, via the current serializer.
-
-Here is an example of a route handler that will return a hashref:
-
-    use Dancer2;
-    set serializer => 'JSON';
-
-    get '/user/:id/' => sub {
-        { foo => 42,
-          number => 100234,
-          list => [qw(one two three)],
-        }
-    };
-
-Dancer2 will render the response via the current serializer.
-
-Hence, with the JSON serializer set, the route handler above would result in
-a content like the following:
-
-    {"number":100234,"foo":42,"list":["one","two","three"]}
-
-If you send a value which is validated serialized data, but is not in the
-form a key and value pair (such as a serialized string or a JSON array), the
-data will not be available in C<params> but will be available in
-C<< request->data >>.
-
-The following serializers are available, be aware they dynamically depend on
-Perl modules you may not have on your system.
-
-=over 4
-
-=item * B<JSON>
-
-Requires L<JSON>.
-
-=item * B<YAML>
-
-Requires L<YAML>,
-
-=item * B<XML>
-
-Requires L<XML::Simple>.
-
-=item * B<Mutable>
-
-Will try to find the appropriate serializer using the B<Content-Type> and
-B<Accept-type> header of the request.
-
-=back
-
-=head2 Importing using Appname
-
-An app in Dancer2 uses the class name (defined by the C<package> function) to
-define the App name. Thus separating the App to multiple files, actually means
-creating multiple applications. This means that any engine defined in an application,
-because the application is a complete separate scope, will not be available to a
-different application:
-
-     package MyApp::User {
-         use Dancer2;
-         set serializer => 'JSON';
-         get '/view' => sub {...};
-     }
-
-     package MyApp::User::Edit {
-         use Dancer2;
-         get '/edit' => sub {...};
-     }
-
-These are two different Dancer2 Apps. They have different scopes, contexts,
-and thus different engines. While C<MyApp::User> has a serializer defined,
-C<MyApp::User::Edit> will not have that configuration.
-
-By using the import option C<appname>, we can ask Dancer2 to extend an
-App without creating a new one:
-
-     package MyApp::User {
-         use Dancer2;
-         set serializer => 'JSON';
-         get '/view' => sub {...};
-     }
-
-     package MyApp::User::Edit {
-         use Dancer2 appname => 'MyApp::User'; # extending MyApp::User
-         get '/edit' => sub {...};
-     }
-
-The import option C<appname> allows you to seamlessly extend Dancer2 Apps
-without creating unnecessary additional applications or repeat any definitions.
-This allows you to spread your application routes across multiple files and allow
-ease of mind when developing it, and accommodate multiple developers working
-on the same codebase.
-
-     # app.pl
-     use MyApp::User;
-     use MyApp::User::Edit;
-
-     # single application composed of routes provided in multiple files
-     MyApp::User->to_app;
-
-This way only one class needs to be loaded while creating an app:
-
-     # app.pl:
-     use MyApp::User;
-     MyApp::User->to_app;
-
 =head1 LOGGING
 
 =head2 Configuring logging
@@ -1638,9 +1195,436 @@ It can now be tested:
 
      done_testing();
 
-=head1 MIDDLEWARES
+=head1 Complete Guide to Keywords
 
-=head2 Plack middlewares
+Dancer2 provides you with a DSL (Domain-Specific Language) which makes
+implementing your web application trivial.
+
+For example, take the following example:
+
+    use Dancer2;
+
+    get '/hello/:name' => sub {
+        my $name = route_parameters->get('name');
+    };
+    dance;
+
+C<get> and C<route_parameters> are keywords provided by Dancer2.
+
+See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
+keywords provided by Dancer2.
+
+=head1 Plugins
+
+TODO
+
+=head1 Advanced Topics
+
+TODO
+
+=head2 Growing your apps with appname
+
+An app in Dancer2 uses the class name (defined by the C<package> function) to
+define the App name. Thus separating the App to multiple files, actually means
+creating multiple applications. This means that any engine defined in an application,
+because the application is a complete separate scope, will not be available to a
+different application:
+
+     package MyApp::User {
+         use Dancer2;
+         set serializer => 'JSON';
+         get '/view' => sub {...};
+     }
+
+     package MyApp::User::Edit {
+         use Dancer2;
+         get '/edit' => sub {...};
+     }
+
+These are two different Dancer2 Apps. They have different scopes, contexts,
+and thus different engines. While C<MyApp::User> has a serializer defined,
+C<MyApp::User::Edit> will not have that configuration.
+
+By using the import option C<appname>, we can ask Dancer2 to extend an
+App without creating a new one:
+
+     package MyApp::User {
+         use Dancer2;
+         set serializer => 'JSON';
+         get '/view' => sub {...};
+     }
+
+     package MyApp::User::Edit {
+         use Dancer2 appname => 'MyApp::User'; # extending MyApp::User
+         get '/edit' => sub {...};
+     }
+
+The import option C<appname> allows you to seamlessly extend Dancer2 Apps
+without creating unnecessary additional applications or repeat any definitions.
+This allows you to spread your application routes across multiple files and allow
+ease of mind when developing it, and accommodate multiple developers working
+on the same codebase.
+
+     # app.pl
+     use MyApp::User;
+     use MyApp::User::Edit;
+
+     # single application composed of routes provided in multiple files
+     MyApp::User->to_app;
+
+This way only one class needs to be loaded while creating an app:
+
+     # app.pl:
+     use MyApp::User;
+     MyApp::User->to_app;
+
+=head2 Hooks
+
+Hooks are code references (or anonymous subroutines) that are triggered at
+specific moments during the resolution of a request.  They are set up using the
+L<hook|Dancer2::Manual::Keywords/hook> keyword.
+
+Many of them are provided by Dancer2's core, but plugins and engines can also
+define their own.
+
+=over 4
+
+=head3 Serializers
+
+When writing a webservice, data serialization/deserialization is a common
+issue to deal with. Dancer2 can automatically handle that for you, via a
+serializer.
+
+When setting up a serializer, a new behaviour is authorized for any route
+handler you define: any non-scalar response will be rendered as a serialized
+string, via the current serializer.
+
+Here is an example of a route handler that will return a hashref:
+
+    use Dancer2;
+    set serializer => 'JSON';
+
+    get '/user/:id/' => sub {
+        { foo => 42,
+          number => 100234,
+          list => [qw(one two three)],
+        }
+    };
+
+Dancer2 will render the response via the current serializer.
+
+Hence, with the JSON serializer set, the route handler above would result in
+a content like the following:
+
+    {"number":100234,"foo":42,"list":["one","two","three"]}
+
+If you send a value which is validated serialized data, but is not in the
+form a key and value pair (such as a serialized string or a JSON array), the
+data will not be available in C<params> but will be available in
+C<< request->data >>.
+
+The following serializers are available, be aware they dynamically depend on
+Perl modules you may not have on your system.
+
+=over 4
+
+=item * B<JSON>
+
+Requires L<JSON>.
+
+=item * B<YAML>
+
+Requires L<YAML>,
+
+=item * B<XML>
+
+Requires L<XML::Simple>.
+
+=item * B<Mutable>
+
+Will try to find the appropriate serializer using the B<Content-Type> and
+B<Accept-type> header of the request.
+
+=back
+
+=item * C<before> hooks
+
+C<before> hooks are evaluated before each request within the context of the
+request and receives as argument the app (a L<Dancer2::Core::App> object).
+
+It's possible to define variables which will be accessible in the action
+blocks with the L<var keyword|Dancer2::Manual::Keywords/var>.
+
+    hook before => sub {
+        var note => 'Hi there';
+    };
+
+    get '/foo/*' => sub {
+        my ($match) = splat; # 'oversee';
+        vars->{note};        # 'Hi there'
+    };
+
+For another example, this can be used along with session support to easily
+give non-logged-in users a login page:
+
+    hook before => sub {
+        if (!session('user') && request->path !~ m{^/login}) {
+            # Pass the original path requested along to the handler:
+            forward '/login', { requested_path => request->path };
+        }
+    };
+
+The request keyword returns the current L<Dancer2::Core::Request> object
+representing the incoming request.
+
+=item * C<after> hooks
+
+C<after> hooks are evaluated after the response has been built by a route
+handler, and can alter the response itself, just before it's sent to the
+client.
+
+This hook runs after a request has been processed, but before the response
+is sent.
+
+It receives a L<Dancer2::Core::Response> object, which it can modify if it
+needs to make changes to the response which is about to be sent.
+
+The hook can use other keywords in order to do whatever it wants.
+
+    hook after => sub {
+        response->content(
+            q{The "after" hook can alter the response's content here!}
+        );
+    };
+
+=back
+
+=head3 Templates
+
+=over 4
+
+=item * C<before_template_render>
+
+C<before_template_render> hooks are called whenever a template is going to
+be processed, they are passed the tokens hash which they can alter.
+
+    hook before_template_render => sub {
+        my $tokens = shift;
+        $tokens->{foo} = 'bar';
+    };
+
+The tokens hash will then be passed to the template with all the
+modifications performed by the hook. This is a good way to setup some
+global vars you like to have in all your templates, like the name of the
+user logged in or a section name.
+
+=item * C<after_template_render>
+
+C<after_template_render> hooks are called after the view has been rendered.
+They receive as their first argument the reference to the content that has
+been produced. This can be used to post-process the content rendered by the
+template engine.
+
+    hook after_template_render => sub {
+        my $ref_content = shift;
+        my $content     = ${$ref_content};
+
+        # do something with $content
+        ${$ref_content} = $content;
+    };
+
+=item * C<before_layout_render>
+
+C<before_layout_render> hooks are called whenever the layout is going to be
+applied to the current content. The arguments received by the hook are the
+current tokens hashref and a reference to the current content.
+
+    hook before_layout_render => sub {
+        my ($tokens, $ref_content) = @_;
+        $tokens->{new_stuff} = 42;
+        $ref_content = \"new content";
+    };
+
+=item * C<after_layout_render>
+
+C<after_layout_render> hooks are called once the complete content of the
+view has been produced, after the layout has been applied to the content.
+The argument received by the hook is a reference to the complete content
+string.
+
+    hook after_layout_render => sub {
+        my $ref_content = shift;
+        # do something with ${ $ref_content }, which reflects directly
+        #   in the caller
+    };
+
+=back
+
+=head3 Error Handling
+
+Refer to L<Error Hooks|Dancer2::Manual/Error-Hooks>
+for details about the following hooks:
+
+=over 4
+
+=item * C<init_error>
+
+=item * C<before_error>
+
+=item * C<after_error>
+
+=item * C<on_route_exception>
+
+=back
+
+=head2 File Rendering
+
+Refer to L<File Handler|Dancer2::Manual/File-Handler>
+for details on the following hooks:
+
+=over 4
+
+=item * C<before_file_render>
+
+=item * C<after_file_render>
+
+=back
+
+=head2 Logging
+
+Logging hooks do not allow you to alter log message content, but they do
+give you a place to perform extra actions. For example, if you want to send
+an email for error messages, but you don't want to use a heavier logger
+such as L<Log::Any> or L<Log::Log4perl>:
+
+    hook 'engine.logger.after' => sub {
+        my ( $logger, $level, $message ) = @_;
+
+        if( $level eq 'error' ) {
+            # Send an email with the message content
+        }
+    };
+
+There are two hooks available for logging:
+
+=over 4
+
+=item * engine.logger.before
+
+This hook is called before a log message is produced.
+
+=item * engine.logger.after
+
+This hook is called after a log message is produced.
+
+=back
+
+=head3 Serializers
+
+=over 4
+
+=item * C<before_serializer> is called before serializing the content, and receives
+the content to serialize as an argument.
+
+  hook before_serializer => sub {
+    my $content = shift;
+    ...
+  };
+
+=item * C<after_serializer> is called after the payload has been serialized, and
+receives the serialized content as an argument.
+
+  hook after_serializer => sub {
+    my $serialized_content = shift;
+    ...
+  };
+
+=back
+
+=head2 Exports
+
+By default, C<use Dancer2> exports all the DSL keywords and sets up the
+webapp under the name of the current package. The following tags control
+exports and webapp namespace.
+
+=over 4
+
+=item * B<!keyword>
+
+If you want to prevent Dancer2 from exporting specific keywords (perhaps you
+plan to implement them yourself in a different way, or they clash with
+another module you're loading), you can simply exclude them:
+
+    use Test::More;
+    use Dancer2 qw(!pass);
+
+The above would import all keywords as usual, with the exception of C<pass>.
+
+=item * B<appname>
+
+A larger application may split its source between several packages to aid
+maintainability. Dancer2 will create a separate application for each
+package, each having separate hooks, config and/or engines. You can force
+Dancer2 to collect the route and hooks into a single application with the
+C<appname> tag; e.g.
+
+    package MyApp;
+    use Dancer2;
+    get '/foo' => sub {...};
+
+    package MyApp::Private;
+    use Dancer2 appname => MyApp;
+    get '/bar' => sub {...};
+
+The above would add the C<bar> route to the MyApp application. Dancer2 will
+I<not> create an application with the name C<MyApp::Private>.
+
+=item * B<:nopragmas>
+
+By default L<Dancer2> will import three pragmas: L<strict>, L<warnings>,
+and L<utf8>. If you require control over the imported pragmas, you can add
+B<:nopragmas> to the importing flags, in which case Dancer2 will not import
+any pragmas:
+
+    use strict;
+    use warnings;
+    no warnings 'experimental::smartmatch'; # for example...
+    use Dancer2 ':nopragmas'; # do not touch the existing pragmas
+
+This way importing C<Dancer2> does not change the existing pragmas setup
+you have.
+
+=back
+
+When you C<use Dancer2>, you get an C<import> method added into the current
+package. This B<will> override previously declared import methods from other
+sources, such as L<Exporter>. Dancer2 applications support the following
+tags on import:
+
+=over 4
+
+=item * B<with>
+
+The C<with> tag allows an app to pass one or more config entries to another
+app, when it C<use>s it.
+
+    package MyApp;
+    use Dancer2;
+
+    BEGIN { set session => 'YAML' };
+    use Blog with => { session => engine('session') };
+
+In this example, the session engine is passed to the C<Blog> app. That way,
+anything done in the session will be shared between both apps.
+
+Anything that is defined in the config entry can be passed that way. If we
+want to pass the whole config object, it can be done like so:
+
+    use SomeApp with => { %{config()} };
+
+=back
+
+=head2 Middleware
 
 If you want to use Plack middlewares, you need to enable them using
 L<Plack::Builder> as such:
@@ -1733,7 +1717,7 @@ before and after enabling this middleware. Among other things, you should
 notice that the response is gzip or deflate encoded, and contains a header
 C<Content-Encoding> set to C<gzip> or C<deflate>.
 
-=head3 Running multiple apps with Plack::Builder
+=head2 Running multiple apps with Plack::Builder
 
 You can use L<Plack::Builder> to mount multiple Dancer2 applications on a
 L<PSGI> webserver like L<Starman>.
@@ -1757,116 +1741,129 @@ Currently this still demands the same appdir for both (default circumstance)
 but in a future version this will be easier to change while staying very
 simple to mount.
 
-=head1 Complete Guide to Keywords
+=head2 Async/Streaming/Delayed Responses
 
-Dancer2 provides you with a DSL (Domain-Specific Language) which makes
-implementing your web application trivial.
+L<Dancer2> can provide delayed (otherwise known as I<asynchronous>) responses
+using the C<delayed> keyword. These responses are streamed, although you can
+set the content all at once, if you prefer.
 
-For example, take the following example:
+    get '/status' => sub {
+        delayed {
+            response_header 'X-Foo' => 'Bar';
 
-    use Dancer2;
+            # flush headers (in case of streaming)
+            flush;
 
-    get '/hello/:name' => sub {
-        my $name = route_parameters->get('name');
+            # send content to the user
+            content 'Hello, world!';
+
+            # you can write more content
+            # all streaming
+            content 'Hello, again!';
+
+            # when done, close the connection
+            done;
+
+            # do whatever you want else, asynchronously
+            # the user socket closed by now
+            ...
+        };
     };
-    dance;
 
-C<get> and C<route_parameters> are keywords provided by Dancer2.
+If you are streaming (calling C<content> several times), you must call
+C<flush> first. If you're sending only once, you don't need to call C<flush>.
 
-See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
-keywords provided by Dancer2.
+Here is an example of using delayed responses with L<AnyEvent>:
 
-=head1 Plugins
-
-TODO
-
-=head1 Advanced Topics
-
-TODO
-
-=head2 Exports
-
-By default, C<use Dancer2> exports all the DSL keywords and sets up the
-webapp under the name of the current package. The following tags control
-exports and webapp namespace.
-
-=over 4
-
-=item * B<!keyword>
-
-If you want to prevent Dancer2 from exporting specific keywords (perhaps you
-plan to implement them yourself in a different way, or they clash with
-another module you're loading), you can simply exclude them:
-
-    use Test::More;
-    use Dancer2 qw(!pass);
-
-The above would import all keywords as usual, with the exception of C<pass>.
-
-=item * B<appname>
-
-A larger application may split its source between several packages to aid
-maintainability. Dancer2 will create a separate application for each
-package, each having separate hooks, config and/or engines. You can force
-Dancer2 to collect the route and hooks into a single application with the
-C<appname> tag; e.g.
-
-    package MyApp;
     use Dancer2;
-    get '/foo' => sub {...};
+    use AnyEvent;
 
-    package MyApp::Private;
-    use Dancer2 appname => MyApp;
-    get '/bar' => sub {...};
+    my %timers;
+    my $count = 5;
+    get '/drums' => sub {
+        delayed {
+            print "Stretching...\n";
+            flush; # necessary, since we're streaming
 
-The above would add the C<bar> route to the MyApp application. Dancer2 will
-I<not> create an application with the name C<MyApp::Private>.
+            $timers{'Snare'} = AE::timer 1, 1, delayed {
+                $timers{'HiHat'} ||= AE::timer 0, 0.5, delayed {
+                    content "Tss...\n";
+                };
 
-=item * B<:nopragmas>
+                content "Bap!\n";
 
-By default L<Dancer2> will import three pragmas: L<strict>, L<warnings>,
-and L<utf8>. If you require control over the imported pragmas, you can add
-B<:nopragmas> to the importing flags, in which case Dancer2 will not import
-any pragmas:
+                if ( $count-- == 0 ) {
+                    %timers = ();
+                    content "Tugu tugu tugu dum!\n";
+                    done;
 
-    use strict;
-    use warnings;
-    no warnings 'experimental::smartmatch'; # for example...
-    use Dancer2 ':nopragmas'; # do not touch the existing pragmas
+                    print "<enter sound of applause>\n\n";
+                    $timers{'Applause'} = AE::timer 3, 0, sub {
+                        # the DSL will not available here
+                        # because we didn't call the "delayed" keyword
+                        print "<applause dies out>\n";
+                    };
+                }
+            };
+        };
+    };
 
-This way importing C<Dancer2> does not change the existing pragmas setup
-you have.
+If an error happens during a write operation, a warning will be issued
+to the logger.
 
-=back
+You can handle the error yourself by providing an C<on_error> handler:
 
-When you C<use Dancer2>, you get an C<import> method added into the current
-package. This B<will> override previously declared import methods from other
-sources, such as L<Exporter>. Dancer2 applications support the following
-tags on import:
+    get '/' => sub {
+        delayed {
+            flush;
+            content "works";
 
-=over 4
+            # ... user disconnected here ...
 
-=item * B<with>
+            content "fails";
 
-The C<with> tag allows an app to pass one or more config entries to another
-app, when it C<use>s it.
+            # ... error triggered ...
 
-    package MyApp;
+            done; # doesn't even get run
+        } on_error => sub {
+            # delayed{} not needed, DSL already available
+            my ($error) = @_;
+            # do something with $error
+        };
+    };
+
+Here is an example that asynchronously streams the contents of a CSV file:
+
     use Dancer2;
+    use Text::CSV_XS  qw< csv >;
+    use Path::Tiny    qw< path >;
+    use JSON::MaybeXS qw< encode_json >;
+    # Create CSV parser
+    my $csv = Text::CSV_XS->new({
+        binary    => 1,
+        auto_diag => 1,
+    });
+    get '/' => sub {
+        # delayed response:
+        delayed {
+            # streaming content
+            flush;
+            # Read each row and stream it in JSON
+            my $fh = path('filename.csv')->openr_utf8;
+            while ( my $row = $csv->getline($fh) ) {
+                content encode_json $row;
+            }
+            # close user connection
+            done;
+        } on_error => sub {
+            my ($error) = @_;
+            warning 'Failed to stream to user: ' . request->remote_address;
+        };
+    };
 
-    BEGIN { set session => 'YAML' };
-    use Blog with => { session => engine('session') };
-
-In this example, the session engine is passed to the C<Blog> app. That way,
-anything done in the session will be shared between both apps.
-
-Anything that is defined in the config entry can be passed that way. If we
-want to pass the whole config object, it can be done like so:
-
-    use SomeApp with => { %{config()} };
-
-=back
-
+B<NOTE:> If you just want to send a file's contents asynchronously,
+use C<send_file($filename)> instead of C<delayed>, as it will
+automatically take advantage of any asynchronous capability.
 
 =head1 Extending Dancer2
 
