@@ -133,6 +133,8 @@ Handling visitor actions in the park:
 
 =item PUT: Visitors update their ticket details.
 
+=item PATCH: Visitors update their season patch information.
+
 =item DELETE: Visitors leave the park.
 
 =back
