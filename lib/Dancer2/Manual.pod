@@ -142,43 +142,140 @@ Handling visitor actions in the park:
 These are good conventions to follow, but you can make your route
 handlers do whatever makes the most sense for your application.
 
-=head2 Routes vs. Route Handlers
+=head2 Routes, Route Definitions, and Route Handlers
 
-You may hear other Dancer developers talk about "routes" and "route
-handlers". "Routes" describe the entire definition while "route
-handler" is only the handler (i.e., implementing code) itself.
+You may hear other Dancer developers talk about "routes",
+"route definitions", and "route handlers". "Route definitions" refers to
+the HTTP method and URL to respond to, while "route handler" is only the
+code implementing functionality for that definition. The two of these
+together make what's known as a route.
 
     get '/' => sub {...};
 
 =over
 
-=item The verb, path, and subroutine is a route.
+=item The verb, path, and subroutine is a route definition (AKA "route").
 
-=item Only the subroutine (C<sub {...}>) is the route handler.
+=item Only the subroutine reference (C<sub {...}>) is the route handler.
+
+=item The route definition I<and> the route handler collectively are the route.
 
 =back
 
-Each route defines a path and route handler.
+Each route requires a defintion and handler. The route needs to either return
+a string or Perl data structure to be rendered for the client. We'll learn
+more about rendering data structures later in our guide to Danceyland; for
+now, we're going to focus on returning strings, which will be rendered as
+HTML.
 
-=head1 USAGE
+=head3 Park attractions represented as routes
 
-To create a new Dancer2 app, simply:
-
-    use Dancer2;
-
-Importing C<Dancer2> automatically activates C<strict>, C<warnings> and
-C<utf8> pragmas in your webapp, so your script doesn't need to.
-
-Next, you define one of more route handlers (often called routes). A route
-handler is made up of the following elements:
+Provide examples for:
 
 =over
 
-=item * An HTTP Method (for example, get or post)
+=item GET: Visitors enter the park and see a welcome message.
 
-=item * A path pattern, which specifies a URL path this route handles
+=item POST: Visitors buy a ticket.
 
-=item * A subroutine reference
+=item PUT: Visitors update their ticket details.
+
+=item PATCH: Visitors update their season patch information.
+
+=item DELETE: Visitors leave the park.
+
+=back
+
+=head3 What if we want a single park location to respond to multiple request types?
+
+Route definitions can use C<any> to match all, or a specified list of HTTP methods.
+
+The following will match any HTTP request to the path C</myaction>:
+
+    any '/myaction' => sub {
+        # code
+    }
+
+The following will match GET or POST requests to C</myaction>:
+
+    any ['get', 'post'] => '/myaction' => sub {
+        # code
+    };
+
+=head2 Parameter Handling
+
+
+=head1 Templates: Displaying Information, and More!
+
+Templates in a web application help present information in a structured
+and visually appealing way, much like maps, schedules, and banners in a
+theme park.
+
+=head2 Why do we use templates?
+
+Templates help separate your display logic from your programming logic.
+The same code that sends JSON to satisfy an API quest could also be used
+to display an HTML page containing park information to a user. If the
+code needed to display HTML is intertwined with the code to gather the
+data needed, the code necessary to just produce JSON becomes unnecessarily
+complicated. Templates take the HTML out of your Perl code.
+
+Think of templates like mad lib games you played as a kid. You just need
+to fill in the blanks with the requested information, and the template
+makes the story come alive.
+
+=head2 Supported template engines
+
+TT, Mason, Xslate, Flute, and more.
+
+=head3 Changing opening and closing tags (supported template engines only)
+
+L<Template::Tiny> does not support this. Nor does Mason.
+
+=head2 Views: maps, schedules, banners
+
+=head2 Layouts: the boundaries of the park
+
+These are like the fences that keep you from wandering off into the
+alligator-infested swamp waters outside of the park property.
+
+=head3 Specifying the default layout
+
+When people think of Danceyland, what do they most think of? Think of this
+as your default layout. Common branding, etc.
+
+=head3 Using a different layout
+
+Going to a different park at the resort?
+
+=head2 Default template variables
+
+=over
+
+=item perl_version
+
+=item dancer_version
+
+=item settings
+
+=item request
+
+=item params
+
+=item vars
+
+=item session
+
+=back
+
+=head2 A note about encoding
+
+=head2 Want to build your own attraction? Create a new template engine!
+
+
+
+
+=head1 TODO find a spot for this, it's important
 
 When Dancer2 is imported to a script, that script becomes a webapp, and at
 this point, all the script has to do is declare a list of B<routes>. A
@@ -186,38 +283,7 @@ route handler is composed by an HTTP method, a path pattern and a code
 block. C<strict>, C<warnings> and C<utf8> pragmas are also imported with
 Dancer2.
 
-The code block given to the route handler has to return a string which will
-be used as the content to render to the client.
-
-Routes are defined for a given HTTP method. For each method supported, a
-keyword is exported by the module.
-
-=head2 HTTP Methods
-
-Here are some of the standard HTTP methods which you can use to define your
-route handlers.
-
-=over 4
-
-=item * B<GET> The GET method retrieves information, and is the most common
-
-GET requests should be used for typical "fetch" requests - retrieving
-information. They should not be used for requests which change data on the
-server or have other effects.
-
-When defining a route handler for the GET method, Dancer2 automatically
-defines a route handler for the HEAD method (in order to honour HEAD
-requests for each of your GET route handlers).
-
-To define a GET action, use the L<get|Dancer2::Manual/get> keyword.
-
-=item * B<POST> The POST method is used to create a resource on the server.
-
-To define a POST action, use the L<post|Dancer2::Manual/post> keyword.
-
 =item * B<PUT> The PUT method is used to replace an existing resource.
-
-To define a PUT action, use the L<put|Dancer2::Manual/put> keyword.
 
 a PUT request should replace the existing resource with that specified - for
 instance - if you wanted to just update an email address for a user, you'd
@@ -235,24 +301,10 @@ To define a DELETE action, use the L<del|Dancer2::Manual/del> keyword.
 
 =back
 
-=head3 Handling multiple HTTP request methods
-
-Routes can use C<any> to match all, or a specified list of HTTP methods.
-
-The following will match any HTTP request to the path C</myaction>:
-
-    any '/myaction' => sub {
-        # code
-    }
-
-The following will match GET or POST requests to C</myaction>:
-
-    any ['get', 'post'] => '/myaction' => sub {
-        # code
-    };
-
 For convenience, any route which matches GET requests will also match HEAD
 requests.
+
+=head1 END TODO
 
 =head2 Route Handlers
 
