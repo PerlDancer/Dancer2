@@ -358,6 +358,44 @@ Think of templates like mad lib games you played as a kid. You just need
 to fill in the blanks with the requested information, and the template
 makes the story come alive.
 
+=head3 Example: Displaying a welcome message on a pretty banner
+
+    get '/' => sub {
+        template 'welcome', { message => "Welcome to Danceyland!" };
+    };
+
+In this example, the C</> route uses a template to display a welcome message.
+
+=head3 Example: Displaying the park map
+
+    get '/map' => sub {
+        template 'map', { attractions => \@attractions };
+    };
+
+=head3 Example: Using templates to display various information
+
+    get '/info' => sub {
+        template 'info', {
+            title   => "Park Information",
+            content => "Here you can find all the information about Danceyland.",
+            hours   => "Open from 10 AM to 8 PM",
+            contact => "Call us at 123-456-7890",
+        };
+    };
+
+- The `/map` route uses a template to display the park's map.
+- The `/info` route uses a template to display various pieces of information about the park.
+
+=head2 New Keywords
+
+=head3 template
+
+The C<template> keyword renders a template file with the provided data.
+It takes two parameters: the template name and a hash reference of the
+data to pass to the template.
+
+    template 'template_name', { key1 => 'value1', key2 => 'value2' };
+
 =head2 Supported template engines
 
 TT, Mason, Xslate, Flute, and more.
@@ -388,17 +426,36 @@ Going to a different park at the resort?
 
 =item perl_version
 
+The version of Perl that's running Danceyland. This aligns with Perl's
+special C<$^V> variable.
+
 =item dancer_version
+
+The current version of Dancer2. Similar to C<< Dancer2->VERSION >>.
 
 =item settings
 
+This is a hash containing the configuration of Danceyland.
+
 =item request
+
+This represents the user's current request. Calling C<request> returns
+a L<Dancer2::Core::Request> object.
 
 =item params
 
+C<params> provides a hash reference of all parameters passed to Danceyland.
+
 =item vars
 
+This is the list of variables for this request. It is the same thing you
+would get if you used the C<vars> keyword in the application itself. We'll
+learn more about C<vars> in the L</Configuration> section.
+
 =item session
+
+This variable contains all information in the user's session, should one
+exist. We'll talk more about sessions in the next section.
 
 =back
 
