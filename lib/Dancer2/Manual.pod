@@ -463,8 +463,28 @@ exist. We'll talk more about sessions in the next section.
 
 =head2 Want to build your own attraction? Create a new template engine!
 
+=head1 Sessions: Multi-Day Passes
 
+Sessions are like multi-day or season passes for visitors. They allow
+visitors to return to the park multiple times without having to buy a
+new ticket each time.
 
+=head2 The importance of state
+
+HTTP and HTTPS are what's known as stateless protocols; a browser or
+client makes a request of a site over HTTP(S), providing any information
+the server needs to know to produce the desired response. The server then
+processes this request and returns its response, again over HTTP(S), and
+that's it. The next time the client makes a request, it remembers nothing
+about the last time this client made a request, and so all of that
+information must be sent again - the server has no concept of persistence
+or "state" - this is left up to the developer to implement.
+
+Many problems with this
+Repetitive
+inefficient - time and payload size
+
+=head2 Managing visitor sessions
 
 =head1 TODO find a spot for this, it's important
 
