@@ -84,6 +84,9 @@ the response.
         return "Response text";
     };
 
+Note that a route to match C<HEAD> requests is automatically created when
+you create a C<GET> route.
+
 =item post
 
 This keyword defines a route that responds to HTTP POST requests. It
@@ -102,7 +105,7 @@ So exactly what are these HTTP requests, and what are they all about?
 Think of HTTP methods as the different actions visitors can take in
 your theme park. Entering the park, buying tickets, updating ticket
 details, and leaving the park are all actions represented by C<GET>,
-C<POST>, C<PUT>, C<PATCH> and C<DELETE> methods respectively.
+C<POST>, C<PUT>, C<DEL>, C<OPTIONS>, and C<PATCH> methods respectively.
 
 Handling visitor actions in the park:
 
@@ -121,8 +124,18 @@ Handling visitor actions in the park:
         return "Your ticket has been updated to $new_ticket!";
     };
 
-    delete '/leave-park' => sub {
+    del '/leave-park' => sub {
         return "Thank you for visiting! Please come again!";
+    };
+
+    options '/park/info' => sub {
+        return "Allowed methods: GET, POST, PUT";
+    };
+
+    patch '/profile/:id' => sub {
+        my $user_id = route_parameters->get('id');
+        my $new_email = body_parameters->get('email');
+        return "Updated profile for user $user_id with email $new_email";
     };
 
 =over
@@ -133,9 +146,13 @@ Handling visitor actions in the park:
 
 =item PUT: Visitors update their ticket details.
 
-=item PATCH: Visitors update their season patch information.
-
 =item DELETE: Visitors leave the park.
+
+=item PATCH: Update part of a visitor's profile (in this case, email).
+
+=item OPTIONS: Describing the available operations on a specific route.
+
+Keep in mind, you would rarely implement this in your web application.
 
 =back
 
@@ -168,24 +185,6 @@ more about rendering data structures later in our guide to Danceyland; for
 now, we're going to focus on returning strings, which will be rendered as
 HTML.
 
-=head3 Park attractions represented as routes
-
-Provide examples for:
-
-=over
-
-=item GET: Visitors enter the park and see a welcome message.
-
-=item POST: Visitors buy a ticket.
-
-=item PUT: Visitors update their ticket details.
-
-=item PATCH: Visitors update their season patch information.
-
-=item DELETE: Visitors leave the park.
-
-=back
-
 =head3 What if we want a single park location to respond to multiple request types?
 
 Route definitions can use C<any> to match all, or a specified list of HTTP methods.
@@ -202,11 +201,142 @@ The following will match GET or POST requests to C</visitor-center>:
         # Write code to do something at the visitor center!
     };
 
+=head2 Organizing routes using prefix
+
+To organize your routes more effectively in Danceyland, you can use the
+C<prefix> DSL keyword to group related routes under specific sections of
+the park.
+
+=head3 Example: Using C<prefix> in Danceyland
+
+Imagine Danceyland has different sections, like the I<Zoo Kingdom> and
+I<Actionland>. You can use C<prefix> to organize these areas:
+
+    package MyApp;
+    use Dancer2;
+
+    # Prefix for Zoo Kingdom
+    prefix '/zoo-kingdom' => sub {
+        get '/animals' => sub {
+            return "Welcome to the Zoo Kingdom! Here you can find all the animals.";
+        };
+
+        get '/feed-schedule' => sub {
+            return "Feeding Schedule: 10 AM and 4 PM.";
+        };
+    };
+
+    # Prefix for Actionland
+    prefix '/actionland' => sub {
+        get '/thrill-rides' => sub {
+            return "Welcome to Actionland! Enjoy the thrill rides.";
+        };
+
+        get '/roller-coaster' => sub {
+            return "The best roller coaster in the park!";
+        };
+    };
+
+    MyApp->to_app();
+
+This example organizes routes by grouping all animal-related activities
+under C</zoo-kingdom> and all rides under C</actionland>.
+
+=head2 Controlling the flow with forward, redirect, and pass
+
+These DSL keywords in Dancer2 allow you to manage the flow of actions
+within your routes. Here’s how they work in Danceyland.
+
+=head3 forward
+
+C<forward> allows you to forward the current request to another route
+handler, as if it were redirected, but without sending a new HTTP request.
+Put another way, a different route than the one requested is processed,
+but the address in the user's browser's bar stays the same.
+
+=head4 Example
+
+    get '/guest-services' => sub {
+        forward '/info';  # Forwards to /info
+    };
+
+    get '/info' => sub {
+        return "Welcome to Guest Services. How can we help you today?";
+    };
+
+In this example, when a visitor goes to C</guest-services>, they are
+forwarded to the C</info> route internally, however, the vistor's browser
+still shows they are in C</guest-services>.
+
+=head3 redirect
+
+C<redirect> sends an HTTP redirect to the client, instructing their
+browser to make a new request to a different URL. At the end of the
+request, the user's browser will show a different URL than the one
+they originally navigated to.
+
+=head4 Example
+
+    get '/old-roller-coaster' => sub {
+        redirect '/new-roller-coaster';
+    };
+
+    get '/new-roller-coaster' => sub {
+        return "Welcome to the new and improved roller coaster!";
+    };
+
+When a visitor requests C</old-roller-coaster>, they are redirected to
+C</new-roller-coaster>. The browser's URL will now show C</new-roller-coaster>.
+
+=head3 pass
+
+C<pass> tells Dancer2 to skip the current route and continue looking for
+the next matching route.
+
+=head4 Example
+
+    get '/vip-area' => sub {
+        if (!session('is_vip')) {
+            pass;  # Skip to the next matching route if the user is not VIP
+        }
+        return "Welcome to the VIP area!";
+    };
+
+    get '/vip-area' => sub {
+        return "Access Denied. This area is for VIPs only.";
+    };
+
+In this example, if the session doesn’t indicate the user is a VIP, the
+request will skip to the next matching route, which denies access.
+
 =head2 Parameter Handling
 
 TODO: need an explanation here
 
 =head3 Keywords for working with parameters
+
+=head4 param and params (Not Recommended)
+
+The C<param> and C<params> keywords are legacy methods to access request parameters. While still functional, they are not recommended for new applications. Instead, you should use the more specific keywords like C<route_parameters>, C<query_parameters>, and C<body_parameters> for clarity and precision.
+
+=head4 Example: Using param (Not Recommended)
+
+    get '/submit' => sub {
+        # Please use query_parameters() shown below
+        my $name = param('name');
+        return "Submitted name: $name";
+    };
+
+=head4 Example: Using params (Not Recommended)
+
+    get '/all-params' => sub {
+        # Pleaase use query_parameters() shown below
+        my %all_params = params;
+        return "All parameters: " . join(', ', %all_params);
+    };
+
+C<param> and C<params> are included here for completeness but are not the
+preferred methods for handling parameters in Danceyland.
 
 =head4 body_parameters
 
@@ -233,6 +363,8 @@ Example of C<query_parameters> with multiple values:
         my $category = query_parameters->get('cat');
         return "Search query: $query in category: $category";
     };
+
+The above route would match the URL C</search?q=rides&cat=thrill>.
 
 =head4 route_parameters
 
