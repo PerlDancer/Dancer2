@@ -247,14 +247,14 @@ under C</zoo-kingdom> and all rides under C</actionland>.
 These DSL keywords in Dancer2 allow you to manage the flow of actions
 within your routes. Here’s how they work in Danceyland.
 
-=head2 forward
+=head3 forward
 
 C<forward> allows you to forward the current request to another route
 handler, as if it were redirected, but without sending a new HTTP request.
 Put another way, a different route than the one requested is processed,
 but the address in the user's browser's bar stays the same.
 
-=head3 Example
+=head4 Example
 
     get '/guest-services' => sub {
         forward '/info';  # Forwards to /info
@@ -268,14 +268,14 @@ In this example, when a visitor goes to C</guest-services>, they are
 forwarded to the C</info> route internally, however, the vistor's browser
 still shows they are in C</guest-services>.
 
-=head2 redirect
+=head3 redirect
 
 C<redirect> sends an HTTP redirect to the client, instructing their
 browser to make a new request to a different URL. At the end of the
 request, the user's browser will show a different URL than the one
 they originally navigated to.
 
-=head3 Example
+=head4 Example
 
     get '/old-roller-coaster' => sub {
         redirect '/new-roller-coaster';
@@ -288,12 +288,12 @@ they originally navigated to.
 When a visitor requests C</old-roller-coaster>, they are redirected to
 C</new-roller-coaster>. The browser's URL will now show C</new-roller-coaster>.
 
-=head2 pass
+=head3 pass
 
 C<pass> tells Dancer2 to skip the current route and continue looking for
 the next matching route.
 
-=head3 Example
+=head4 Example
 
     get '/vip-area' => sub {
         if (!session('is_vip')) {
@@ -314,6 +314,29 @@ request will skip to the next matching route, which denies access.
 TODO: need an explanation here
 
 =head3 Keywords for working with parameters
+
+=head4 param and params (Not Recommended)
+
+The C<param> and C<params> keywords are legacy methods to access request parameters. While still functional, they are not recommended for new applications. Instead, you should use the more specific keywords like C<route_parameters>, C<query_parameters>, and C<body_parameters> for clarity and precision.
+
+=head4 Example: Using param (Not Recommended)
+
+    get '/submit' => sub {
+        # Please use query_parameters() shown below
+        my $name = param('name');
+        return "Submitted name: $name";
+    };
+
+=head4 Example: Using params (Not Recommended)
+
+    get '/all-params' => sub {
+        # Pleaase use query_parameters() shown below
+        my %all_params = params;
+        return "All parameters: " . join(', ', %all_params);
+    };
+
+C<param> and C<params> are included here for completeness but are not the
+preferred methods for handling parameters in Danceyland.
 
 =head4 body_parameters
 
@@ -340,6 +363,8 @@ Example of C<query_parameters> with multiple values:
         my $category = query_parameters->get('cat');
         return "Search query: $query in category: $category";
     };
+
+The above route would match the URL C</search?q=rides&cat=thrill>.
 
 =head4 route_parameters
 
