@@ -65,7 +65,6 @@ recommends 'Math::Random::ISAAC::XS';
 recommends 'MooX::TypeTiny';
 recommends 'Pod::Simple::Search';
 recommends 'Pod::Simple::SimpleTree';
-recommends 'Scope::Upper';
 recommends 'Type::Tiny::XS';
 recommends 'URL::Encode::XS';
 recommends 'YAML::XS';
