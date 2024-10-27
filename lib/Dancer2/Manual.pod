@@ -201,11 +201,319 @@ The following will match GET or POST requests to C</visitor-center>:
         # Write code to do something at the visitor center!
     };
 
-=head2 Organizing routes using prefix
+=head2 URI Generation
+
+TODO: describe why
+
+=head3 uri_for
+
+The C<uri_for> keyword is used to generate a URI for a given path within
+your application, including query parameters. It's especially useful
+when you want to construct URLs dynamically inside your routes.
+
+=head4 Example: Generating a URI in Danceyland
+
+    get '/ride/:name' => sub {
+        my $ride_name = route_parameters->get('name');
+        return 'Enjoy the ride at ' . uri_for("/ride/$ride_name");
+    };
+
+In this example, C<uri_for> generates a full URI for the ride name in
+Danceyland.
+
+=head3 uri_for_route
+
+The C<uri_for_route> keyword creates a URL for a named route. In
+Danceyland, it can be used to generate a URL to any part of the park
+that has a named route.
+
+For more information, see L<Dancer2::Manual::Keywords/uri_for_route>.
+
+=head3 Example 1: Basic Usage
+
+    get 'animals' => '/zoo-kingdom/animals' => sub {
+        return "Visit the animals at " . uri_for_route('animals');
+    };
+
+In this example, the route is named C<animals>, and C<uri_for_route>
+generates a URL pointing to it.
+
+=head3 Example 2: Using Route Parameters
+
+    get 'ride' => '/ride/:name' => sub {
+        my $ride_name = route_parameters->get('name');
+        return "Ride details: " . uri_for_route('ride', { name => $ride_name });
+    };
+
+This example uses C<uri_for_route> to generate a URL that includes the
+named route parameter C<name>.
+
+=head3 Example 3: Including Query Parameters
+
+    get 'search' => '/search' => sub {
+        return uri_for_route('search', { q => 'roller coaster' });
+    };
+
+    get '/search' => sub {
+        my $query = query_parameters->get('q');
+        return "Search results for: $query";
+    };
+
+In this example, C<uri_for_route> generates a URL for the named route
+C<search> with the query parameter C<q> set to "roller coaster".
+
+=head2 Parameter Handling
+
+TODO: need an explanation here
+Parameters are how visitors of Danceyland communicate information to park staff.
+
+=head3 Keywords for working with parameters
+
+=head4 param and params (Not Recommended)
+
+The C<param> and C<params> keywords are legacy methods to access request parameters. While still functional, they are not recommended for new applications. Instead, you should use the more specific keywords like C<route_parameters>, C<query_parameters>, and C<body_parameters> for clarity and precision.
+
+=head4 Example: Using param (Not Recommended)
+
+    get '/submit' => sub {
+        # Please use query_parameters() shown below
+        my $name = param('name');
+        return "Submitted name: $name";
+    };
+
+=head4 Example: Using params (Not Recommended)
+
+    get '/all-params' => sub {
+        # Pleaase use query_parameters() shown below
+        my %all_params = params;
+        return "All parameters: " . join(', ', %all_params);
+    };
+
+C<param> and C<params> are included here for completeness but are not the
+preferred methods for handling parameters in Danceyland.
+
+=head4 body_parameters
+
+This keyword retrieves parameters from the body of the request, typically
+used in POST requests.
+
+Example of C<body_parameters> with multiple values:
+
+    post '/submit' => sub {
+        my $name  = body_parameters->get('name');
+        my $email = body_parameters->get('email');
+        return "Submitted name: $name, email: $email";
+    };
+
+=head4 query_parameters
+
+This keyword retrieves parameters from the query string of the request
+URL:
+
+    # Matches URL: /search?q=rides&cat=thrill
+    get '/search' => sub {
+        my $query    = query_parameters->get('q');
+        my $category = query_parameters->get('cat');
+        return "Search query: $query in category: $category";
+    };
+
+The above route would match the URL C</search?q=rides&cat=thrill>.
+
+=head4 route_parameters
+
+This keyword retrieves named parameters from the route declaration:
+
+    # Matches URL: /user/123
+    get '/user/:id' => sub {
+        my $user_id = route_parameters->get('id');
+        return "User ID: $user_id";
+    };
+
+=head4 get_all
+
+This method works for all of the above parameter-fetching keywords. If
+you have a parameter that may contain more than one value, C<get_all>
+will return an array reference containing all selected values, even if
+there is only a single value returned.
+
+Example of C<get_all>:
+
+    # Matches URL: /all-params?name=John&age=30
+    get '/all-params' => sub {
+        my $params = query_parameters->get_all();
+        return "All query parameters: " . join(', ', %$params);
+    };
+
+=head3 Named Route Parameters
+
+Named route parameters allow you to capture specific segments of the URL
+and use them in your route handler:
+
+    # Matches URL: /ride/roller-coaster
+    get '/ride/:name' => sub {
+        my $ride_name = route_parameters->get('name');
+        return "Welcome to the $ride_name ride!";
+    };
+
+Named route parameters are retrieved with the L</route_parameters>
+keyword.
+
+=head3 Wildcard Route Parameters
+
+Wildcard route parameters allow you to capture arbitrary parts of the URL.
+There are two types: C<splat> and C<megasplat>. C<splat> is represented by
+a single asterisk (C<*>), and megaspat is represented by a double asterisk
+(C<**>).
+
+Examples of wildcard route parameters include:
+
+=over
+
+=item splat: Captures one segment of the URL
+
+    # Matches URL: /files/document.txt
+    get '/files/*' => sub {
+        my ($file) = splat;
+        return "You requested the file: $file";
+    };
+
+=item megasplat: Captures multiple segments of the URL
+
+    # Matches URL: /files/documents/reports/2023/summary.txt
+    get '/files/**' => sub {
+        my @files = splat;
+        return "You requested the files: " . join(', ', @files);
+    };
+
+=head3 Combining named and wildcard parameters
+
+You can combine named and wildcard parameters in your routes to capture
+both specific and arbitrary segments of the URL.
+
+Example combining named and wildcard parameters:
+
+    # Matches URL: /user/123/files/documents/reports/2023/summary.txt
+    get '/user/:id/files/**' => sub {
+        my $user_id = route_parameters->get('id');
+        my @files = splat;
+        return "User ID: $user_id requested the files: " . join(', ', @files);
+    };
+
+=head3 Named parameters with type constraints
+
+TODO: more examples from existing manual
+
+Type constraints allow you to enforce specific types for named
+parameters, ensuring that the parameters meet certain criteria.
+
+Dancer2 natively supports named parameters with type constraints
+without needing to rely on external plugins. Here’s how to declare
+and use type constraints for named route parameters in Dancer2:
+
+    use Dancer2;
+
+    get '/ride/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        return "Ride ID: $id";
+    };
+
+    get '/guest/:name[Str]' => sub {
+        my $name = route_parameters->get('name');
+        return "Guest Name: $name";
+    };
+
+    MyApp->to_app();
+
+=over 4
+
+=item *
+
+B<Int>: This constraint ensures that the C<id> parameter must be an integer.
+
+=item *
+
+B<Str>: This ensures that the C<name> parameter must be a string.
+
+=back
+
+Note: For more complex parameter types, the C<Dancer2::Plugin::ParamTypes>
+module provides additional constraints and validation for all parameter
+types.
+
+=head3 Wildcard Parameters with Type Constraints
+
+TODO: examples seem broken
+
+You can also enforce type constraints on wildcard parameters:
+
+    # Matches URL: /images/photo.jpg
+    get '/images/*.*' => sub {
+        my ($filename, $extension) = splat;
+        return "Filename: $filename, Extension: $extension";
+    } => sub {
+        params({
+            splat => ArrayRef[Str],
+        });
+    };
+
+    # Matches URL: /documents/folder/subfolder/file.txt
+    get '/documents/**' => sub {
+        my @path = splat;
+        return "Document path: " . join('/', @path);
+    } => sub {
+        params({
+            splat => ArrayRef[Str],
+        });
+    };
+
+=head3 Regex Route Matching
+
+Regex route matching allows you to define routes using regular
+expressions, providing more flexibility in matching URLs:
+
+    # Matches URL: /product/12345
+    get qr{/product/(\d+)} => sub {
+        my ($product_id) = splat;
+        return "Product ID: $product_id";
+    };
+
+    # Matches URL: /category/electronics
+    get qr{/category/(\w+)} => sub {
+        my ($category_name) = splat;
+        return "Category: $category_name";
+    };
+
+=head3 Combining Examples
+
+TODO: fix examples
+
+    # Matches URL: /item/42/specifications
+    get '/item/:id/*' => sub {
+        my $item_id = route_parameters->get('id');
+        my ($detail) = splat;
+        return "Item ID: $item_id, Detail: $detail";
+    } => sub {
+        params({
+            id => Int,
+            splat => ArrayRef[Str],
+        });
+    };
+
+    # Matches URL: /archive/2023/07/10
+    get qr{/archive/(\d{4})/(\d{2})/(\d{2})} => sub {
+        my ($year, $month, $day) = splat;
+        return "Archive for: $year-$month-$day";
+    };
+
+=head2 Organizing routes and growing your app using prefix
 
 To organize your routes more effectively in Danceyland, you can use the
 C<prefix> DSL keyword to group related routes under specific sections of
 the park.
+
+C<prefix> helps you to grow Danceyland as well. You can create additional
+application modules that represent different areas of the park, each of
+which is declared with its own C<prefix>.
 
 =head3 Example: Using C<prefix> in Danceyland
 
@@ -308,168 +616,6 @@ the next matching route.
 
 In this example, if the session doesn’t indicate the user is a VIP, the
 request will skip to the next matching route, which denies access.
-
-=head2 Parameter Handling
-
-TODO: need an explanation here
-
-=head3 Keywords for working with parameters
-
-=head4 param and params (Not Recommended)
-
-The C<param> and C<params> keywords are legacy methods to access request parameters. While still functional, they are not recommended for new applications. Instead, you should use the more specific keywords like C<route_parameters>, C<query_parameters>, and C<body_parameters> for clarity and precision.
-
-=head4 Example: Using param (Not Recommended)
-
-    get '/submit' => sub {
-        # Please use query_parameters() shown below
-        my $name = param('name');
-        return "Submitted name: $name";
-    };
-
-=head4 Example: Using params (Not Recommended)
-
-    get '/all-params' => sub {
-        # Pleaase use query_parameters() shown below
-        my %all_params = params;
-        return "All parameters: " . join(', ', %all_params);
-    };
-
-C<param> and C<params> are included here for completeness but are not the
-preferred methods for handling parameters in Danceyland.
-
-=head4 body_parameters
-
-This keyword retrieves parameters from the body of the request, typically
-used in POST requests.
-
-Example of C<body_parameters> with multiple values:
-
-    post '/submit' => sub {
-        my $name  = body_parameters->get('name');
-        my $email = body_parameters->get('email');
-        return "Submitted name: $name, email: $email";
-    };
-
-=head4 query_parameters
-
-This keyword retrieves parameters from the query string of the request URL.
-
-Example of C<query_parameters> with multiple values:
-
-    # Matches URL: /search?q=rides&cat=thrill
-    get '/search' => sub {
-        my $query    = query_parameters->get('q');
-        my $category = query_parameters->get('cat');
-        return "Search query: $query in category: $category";
-    };
-
-The above route would match the URL C</search?q=rides&cat=thrill>.
-
-=head4 route_parameters
-
-This keyword retrieves parameters from the route pattern.
-
-Example of C<route_parameters>:
-
-    # Matches URL: /user/123
-    get '/user/:id' => sub {
-        my $user_id = route_parameters->get('id');
-        return "User ID: $user_id";
-    };
-
-=head4 get_all
-
-This method works for all of the above parameter-fetching keywords. If
-you have a parameter that may contain more than one value, C<get_all>
-will return an array reference containing all selected values, even if
-there is only a single value returned.
-
-Example of C<get_all>:
-
-    # Matches URL: /all-params?name=John&age=30
-    get '/all-params' => sub {
-        my $params = query_parameters->get_all();
-        return "All query parameters: " . join(', ', %$params);
-    };
-
-=head3 Named Route Parameters
-
-Named route parameters allow you to capture specific segments of the URL
-and use them in your route handler.
-
-Example of named route parameters:
-
-    # Matches URL: /ride/roller-coaster
-    get '/ride/:name' => sub {
-        my $ride_name = route_parameters->get('name');
-        return "Welcome to the $ride_name ride!";
-    };
-
-=head3 Wildcard Route Parameters
-
-Wildcard route parameters allow you to capture arbitrary parts of the URL.
-There are two types: C<splat> and C<megasplat>. C<splat> is represented by
-a single asterisk (C<*>), and megaspat is represented by a double asterisk
-(C<**>).
-
-Examples of wildcard route parameters include:
-
-=over
-
-=item splat: Captures one segment of the URL
-
-    # Matches URL: /files/document.txt
-    get '/files/*' => sub {
-        my ($file) = splat;
-        return "You requested the file: $file";
-    };
-
-=item megasplat: Captures multiple segments of the URL
-
-    # Matches URL: /files/documents/reports/2023/summary.txt
-    get '/files/**' => sub {
-        my @files = splat;
-        return "You requested the files: " . join(', ', @files);
-    };
-
-=head3 Combining named and wildcard parameters
-
-You can combine named and wildcard parameters in your routes to capture
-both specific and arbitrary segments of the URL.
-
-Example combining named and wildcard parameters:
-
-    # Matches URL: /user/123/files/documents/reports/2023/summary.txt
-    get '/user/:id/files/**' => sub {
-        my $user_id = route_parameters->get('id');
-        my @files = splat;
-        return "User ID: $user_id requested the files: " . join(', ', @files);
-    };
-
-=head3 Named parameters with type constraints
-
-TODO/re-do
-
-=head3 Wildcard Parameters with Type Constraints
-
-TODO/re-do
-
-=head3 Regex Route Matching
-
-TODO/re-do
-
-=head3 Combining Examples
-
-TODO/re-do
-
-=head2 Simplifying Route Declarations with prefix
-
-TODO
-
-=head2 Skipping Routes and Actions
-
-TODO
 
 =head1 Templates: Displaying Information, and More!
 
@@ -673,7 +819,6 @@ coderef to execute, which returns the response.
 
 The above route specifies that, for GET requests to C</hello/...>, the code
 block provided should be executed.
-
 
 You can also provide routes with a name:
 
