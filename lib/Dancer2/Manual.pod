@@ -636,6 +636,27 @@ Think of templates like mad lib games you played as a kid. You just need
 to fill in the blanks with the requested information, and the template
 makes the story come alive.
 
+=head2 Views
+
+In Dancer2, "views" refer to the template files that define the structure
+of the content presented to the users. Views are typically HTML files
+with embedded placeholders that are dynamically filled with data when
+rendered.
+
+=head3 How Views Work
+
+Suppose you have a template file called C<views/ride.tt>:
+
+    <h1>[% ride_name %] Ride</h1>
+    <p>Enjoy the thrilling [% ride_name %] ride at Danceyland!</p>
+
+You can use this view in your route handler:
+
+    get '/ride/:name' => sub {
+        my $ride_name = route_parameters->get('name');
+        template 'ride' => { ride_name => $ride_name };
+    };
+
 =head3 Example: Displaying a welcome message on a pretty banner
 
     get '/' => sub {
@@ -661,8 +682,21 @@ In this example, the C</> route uses a template to display a welcome message.
         };
     };
 
-- The `/map` route uses a template to display the park's map.
-- The `/info` route uses a template to display various pieces of information about the park.
+=over 4
+
+=item *
+
+The C</> route uses a template to display a welcome message.
+
+=item *
+
+The C</map> route uses a template to display the park's map.
+
+=item *
+
+The C</info> route uses a template to display various pieces of information about the park.
+
+=back
 
 =head2 New Keywords
 
@@ -674,29 +708,125 @@ data to pass to the template.
 
     template 'template_name', { key1 => 'value1', key2 => 'value2' };
 
-=head2 Supported template engines
+=head2 Layouts
 
-TT, Mason, Xslate, Flute, and more.
+Layouts in Dancer2 allow you to wrap views with a common structure, such
+as a header, footer, or navigation bar, that remains consistent across
+Danceyland. A layout is just another template that wraps around your page
+content; it allows you to maintain a consistent look and feel across
+multiple pages while rendering the dynamic content of each page within
+the layout.
 
-=head3 Changing opening and closing tags (supported template engines only)
+=head3 Example: Implementing Layouts in Danceyland
 
-L<Template::Tiny> does not support this. Nor does Mason.
+Consider Danceyland having a consistent navigation bar across all sections
+of the site. You can use a layout for this.
 
-=head2 Views: maps, schedules, banners
+    # views/layouts/main.tt
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Danceyland</title>
+    </head>
+    <body>
+        <header>
+            <h1>Welcome to Danceyland</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/zoo-kingdom/animals">Zoo Kingdom</a>
+                <a href="/actionland/thrill-rides">Actionland</a>
+            </nav>
+        </header>
 
-=head2 Layouts: the boundaries of the park
+        <section>
+            [% content %]  <!-- This is where the view content gets inserted -->
+        </section>
 
-These are like the fences that keep you from wandering off into the
-alligator-infested swamp waters outside of the park property.
+        <footer>
+            <p>© 2024 Danceyland</p>
+        </footer>
+    </body>
+    </html>
 
-=head3 Specifying the default layout
+C<content> is a special variable for layouts; it is replaced by the
+output from the C<template> keyword.
 
-When people think of Danceyland, what do they most think of? Think of this
-as your default layout. Common branding, etc.
+=head4 Route Implementation Using the Layout
 
-=head3 Using a different layout
+If you have a separate layouts for park employees and park guests, you
+can explicitly choose which layout should be used to wrap page content:
 
-Going to a different park at the resort?
+    get '/food-court/burger-stand' => sub {
+        template items => {
+            foods => \@foods,
+            drinks => \@drinks,
+        }, { layout => 'main' };
+    };
+
+    get '/zoo-kingdom/feed-and-bathe' => sub {
+        template animals => { animals => \@animals }, { layout => 'employee' };
+    };
+
+    get '/actionland/thrill-rides' => sub {
+        template rides => { rides => \@rides }, { layout => 'visitor' };
+    };
+
+In this example:
+
+=over 4
+
+=item *
+
+Employees and guests both choose from the same menu, so in the food court,
+they should be presented with the same standard page elements and options.
+
+=item *
+
+Guests of Zoo Kingdom aren't required to feed and bathe the animals, but
+park employees are. By specifying a layout of C<employee.tt>, they will
+get a special look and set of options appropriate to park workers. The
+route renders a template (C<animals.tt>) within that layout.
+
+=item *
+
+Park visitors interact with rides differently than employees. By
+displaying the C<rides.tt> template within the C<visitor.tt> layout, we
+can help guests board and get off rides with consistent messaging and
+instructions.
+
+=back
+
+This helps maintain consistency across different pages in Danceyland by
+reusing the layout and changing only the dynamic content for each route.
+
+=head3 Default Layout
+
+When no layout is explicitly specified in a route, Dancer2 will use the
+C<main> layout as the default:
+
+    get '/home' => sub {
+        template 'homepage';
+    };
+
+In this case, Dancer2 renders C<homepage.tt> within the default layout
+C<main.tt>.
+
+=head3 Disabling Layouts
+
+If you want to render a view without a layout, you can pass
+C<< { layout => undef } >> to the C<template> keyword:
+
+    get '/payment-options' => sub {
+        template 'payment-options', { }, { layout => undef };
+    };
+
+This route renders the C<payment-options.tt> template without using the
+default or any specified layout.
+
+=head4 Why disable the use of a layout?
+
+TODO
 
 =head2 Default template variables
 
@@ -737,9 +867,109 @@ exist. We'll talk more about sessions in the next section.
 
 =back
 
-=head2 A note about encoding
+=head2 Configuring the Template Engine
 
-=head2 Want to build your own attraction? Create a new template engine!
+You can configure the template engine in Dancer2 to customize aspects
+such as the open and closing tags used for placeholders.
+
+=head3 Changing Open and Closing Tags
+
+TODO: change template tags above this point
+
+In your configuration file (e.g., C<config.yml>), you can set the
+C<start_tag> and C<stop_tag> options:
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          start_tag: '[%'
+          stop_tag: '%]'
+
+Dancer2 defaults placeholder tags to C<< <% %> >>. The above configuration
+restores the Template toolkit defaults of C<< [% %] >>. Your template
+variables will now look like this:
+
+    <h1>[% title %]</h1>
+    <p>Welcome to Danceyland!</p>
+
+=head2 Encoding in Templates
+
+Dancer2 supports encoding for templates to ensure that the content is
+correctly displayed, especially when dealing with non-ASCII characters:
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          encoding: 'utf-8'
+
+This configuration ensures that the templates are processed using UTF-8
+encoding. This is particularly important if your templates contain
+special characters, such as international text or symbols.
+
+=head2 Comparison of Supported Template Engines
+
+Dancer2 supports various template engines to give you flexibility in how
+you render views. Here's a brief comparison of the available engines:
+
+=over 4
+
+=item Dancer2::Template::TemplateToolkit (L<Template> Toolkit, TT)
+
+A powerful and flexible templating system with extensive features like
+loops, conditions, macros, and plugins. Suitable for complex templating
+needs.
+
+=item Dancer2::Template::Mason (L<Mason>)
+
+A component-based templating system that allows embedding Perl code
+within templates. Ideal for complex web applications that require
+reusable components.
+
+=item Dancer2::Template::Xslate (L<Xslate>)
+
+A high-performance templating engine that offers a mix of syntax styles.
+Great for applications requiring speed and flexibility.
+
+=item Dancer2::Template::TemplateFlute (L<Flute>)
+
+A template engine focused on separating logic from presentation.
+Templates contain no logic and are designer-friendly.
+
+=item Dancer2::Template::Tiny (L<Template::Tiny>)
+
+A minimalistic template engine with limited features. Suitable for small
+projects or when you need a simple, lightweight option.
+
+=item Dancer2::Template::Simple
+
+A basic and straightforward templating engine. Not recommended unless you
+are migrating applications from Dancer 1 built with L<Dancer::Template::Simple>.
+
+=item Dancer2::Template::Mustache (L<Mustache:https://mustache.github.io/>, L<Dancer2::Template::Mustache>)
+
+A logic-less template engine with a strong emphasis on separation of
+logic and presentation. Great for consistent rendering across different
+languages and platforms.
+
+=item Dancer2::Template::Handlebars (L<Handlebars|>, L<Text::Handlebars>)
+
+An extension of Mustache with additional features like helpers and more
+expressive templates. Ideal for complex templates that still maintain a
+clean and readable structure.
+
+=item B<Dancer2::Template::Haml> (L<HAML|https://haml.info/>, L<Text::Haml>)
+
+A clean and concise templating system that uses indentation to define
+HTML elements. Perfect for those who prefer a more human-readable
+approach to HTML templating.
+
+=back
+
+Choose a template engine based on the complexity and requirements of your
+Danceyland application.
+
 
 =head1 Sessions: Multi-Day Passes
 
