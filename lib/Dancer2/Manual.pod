@@ -983,16 +983,235 @@ HTTP and HTTPS are what's known as stateless protocols; a browser or
 client makes a request of a site over HTTP(S), providing any information
 the server needs to know to produce the desired response. The server then
 processes this request and returns its response, again over HTTP(S), and
-that's it. The next time the client makes a request, it remembers nothing
-about the last time this client made a request, and so all of that
-information must be sent again - the server has no concept of persistence
-or "state" - this is left up to the developer to implement.
-
-Many problems with this
-Repetitive
-inefficient - time and payload size
+that's it. The next time the client makes a request of the server, it
+remembers nothing about the last time this client made a request, and so
+all of that information must be sent again - the server has no concept
+of persistence or "state" - this is left up to the developer to
+implement.
 
 =head2 Managing visitor sessions
+
+To create or update a session, use the C<session> keyword. Sessions store
+data across multiple requests using a unique session ID.
+
+    set session => 'Simple';
+
+    get '/login' => sub {
+        session user => 'John Doe';
+        return "Welcome back, John Doe!";
+    };
+
+    get '/profile' => sub {
+        my $user = session('user');
+        return "User profile for: $user";
+    };
+
+=over 4
+
+=item *
+
+A session stores the user information once they log in.
+
+=item *
+
+The C</login> route initiates a session for the user.
+
+=item *
+
+The C</profile> route retrieves the user information from the session.
+
+=back
+
+=head3 New Keywords
+
+=over 4
+
+=item set
+
+This keyword is used to configure settings for your application, like setting the session engine:
+
+    set session => 'Simple';
+
+=item session
+
+This keyword is used to store and retrieve session data:
+
+    session user => 'John Doe';  # Store data
+    my $user = session('user');  # Retrieve data
+
+=back
+
+=head3 Changing the Session ID
+
+For security reasons, you might want to change the session ID, especially
+after a user logs in. This can help prevent L<session fixation attacks|https://owasp.org/www-community/attacks/Session_fixation>.
+
+    get '/secure-login' => sub {
+        my $username = body_parameters->get( 'username' );
+        session user => $username;
+        app->change_session_id;  # Change the session ID
+        return "Welcome back, $username!";
+    };
+
+=head3 Destroying Sessions
+
+To log the user out and destroy the session, use the C<< app->destroy_session >>.
+
+    get '/logout' => sub {
+        app->destroy_session;
+        return "You have been logged out.";
+    };
+
+=head2 Configuring the Session Engine
+
+Dancer2 supports various session engines that determine how and where
+session data is stored. You can configure the session engine in the
+C<config.yml> file:
+
+    session: "Simple"
+    session_options:
+      cookie_name: "danceyland_session"
+      expires: 3600
+
+This configuration uses the C<Simple> session engine, storing session
+data in memory, and sets the session to expire in one hour.
+
+=head2 Session Storage Backends
+
+Dancer2 supports multiple session storage backends, allowing you to
+choose how and where to store session data.
+
+=over 4
+
+=item Dancer2::Session::Simple
+
+Stores session data in memory. Suitable for development and testing but
+not recommended for production due to its non-persistent nature.
+
+=item Dancer2::Session::JSON
+
+Stores session data in a YAML file. It's useful for development and
+debugging, but not well suited for production.
+
+=item Dancer2::Session::JSON
+
+Stores session data in a JSON file. Similar restrictions to the YAML
+session engine.
+
+=item Dancer2::Session::Cookie
+
+Stores session data within the user's browser as a cookie. Data is not
+stored server-side. Good for lightweight sessions.
+
+=item Dancer2::Session::PSGI
+
+Leverages PSGI's built-in session management. Useful if you want to
+delegate session handling to the PSGI server, or if you are sharing
+session data with non-Dancer2 applications.
+
+=item Dancer2::Session::DBI
+
+Stores session data in a database using L<DBI>. Ideal for larger
+applications that require a robust and scalable storage solution.
+
+=item Dancer2::Session::Redis
+
+Stores session data in a Redis database. Suitable for high-performance,
+distributed, and scalable session storage.
+
+=item Dancer2::Session::Sereal
+
+TODO: this could be improved
+Uses Sereal for fast, compact session serialization. Suitable for
+high-performance applications requiring efficient serialization.
+
+=item Dancer2::Session::CHI
+
+Uses the L<CHI> caching framework for session storage. Flexible and
+supports various caching backends like memory, file, and databases.
+
+=item Dancer2::Session::Memcached
+
+Stores session data in a Memcached server. Suitable for distributed
+environments requiring quick access to session data.
+
+=item Dancer2::Session::MongoDB
+
+Stores session data in a MongoDB database. Ideal for applications
+requiring a NoSQL storage solution.
+
+=back
+
+Choose a session backend based on the complexity and storage needs of
+your Danceyland application.
+
+=head1 Cookies
+
+Cookies are small pieces of data stored on the client's browser, not just
+goodies available for purchase in Danceyland. They are often used to keep
+track of session information and user preferences.
+
+Sessions in Dancer2 use cookies to store the session ID on the client's
+browser.
+
+=head2 Setting and Updating Cookies
+
+You can set a cookie using the C<cookie> keyword. To update a cookie,
+simply set it again with a new value:
+
+    get '/set-cookie' => sub {
+        cookie 'visitor' => 'regular';
+        return "Cookie has been set!";
+    };
+
+This route sets a cookie named C<visitor> with the value C<regular>.
+
+=head2 Retrieving Cookies
+
+To retrieve a cookie, use the C<cookie> keyword with the cookie's name:
+
+    get '/get-cookie' => sub {
+        my $visitor_type = cookie('visitor');
+        return "Visitor type: $visitor_type";
+    };
+
+This route retrieves the value of the C<visitor> cookie.
+
+To retrieve all cookies, use the C<cookies> keyword:
+
+    get '/check-cookies' => sub {
+        my $cookies = cookies;
+        for my $name ( keys $cookies->%* ) {
+            debug "You have a cookie named $name";
+            # Do other stuff...
+        }
+    }
+
+=head2 Deleting Cookies
+
+To delete a cookie, set it with an expiration time in the past:
+
+    get '/delete-cookie' => sub {
+        cookie 'visitor' => 'expired', expires => '-1d';
+        return "Cookie has been deleted.";
+    };
+
+This route deletes the C<visitor> cookie by setting its expiration date
+to a past date.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 =head1 TODO find a spot for this, it's important
 
