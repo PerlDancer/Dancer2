@@ -647,8 +647,8 @@ rendered.
 
 Suppose you have a template file called C<views/ride.tt>:
 
-    <h1>[% ride_name %] Ride</h1>
-    <p>Enjoy the thrilling [% ride_name %] ride at Danceyland!</p>
+    <h1><% ride_name %> Ride</h1>
+    <p>Enjoy the thrilling <% ride_name %> ride at Danceyland!</p>
 
 You can use this view in your route handler:
 
@@ -740,7 +740,7 @@ of the site. You can use a layout for this.
         </header>
 
         <section>
-            [% content %]  <!-- This is where the view content gets inserted -->
+            <% content %>  <!-- This is where the view content gets inserted -->
         </section>
 
         <footer>
@@ -826,7 +826,17 @@ default or any specified layout.
 
 =head4 Why disable the use of a layout?
 
-TODO
+If you have built a single-page application, or other construct where
+it is unnecessary to return a full HTML page, disabling a layout will
+prevent Dancer2 from wrapping your page content. If you are building
+modern interfaces with toolkits like L<htmx|https://htmx.org/> or
+L<Turbo|https://turbo.hotwired.dev/>, it's important to only return
+your page snippet.
+
+If you need a route handler to return JSON, XML, or other serialized
+data, you should look ahead to the L</Serialization> section. There
+are special keywords and functionality built into Dancer2 to assist
+with this that are better suited than the C<template> keyword.
 
 =head2 Default template variables
 
@@ -874,8 +884,6 @@ such as the open and closing tags used for placeholders.
 
 =head3 Changing Open and Closing Tags
 
-TODO: change template tags above this point
-
 In your configuration file (e.g., C<config.yml>), you can set the
 C<start_tag> and C<stop_tag> options:
 
@@ -892,6 +900,9 @@ variables will now look like this:
 
     <h1>[% title %]</h1>
     <p>Welcome to Danceyland!</p>
+
+Most template engines support this functionality, but some (such as
+L<Dancer2::Template::Tiny>) do not.
 
 =head2 Encoding in Templates
 
@@ -969,7 +980,6 @@ approach to HTML templating.
 
 Choose a template engine based on the complexity and requirements of your
 Danceyland application.
-
 
 =head1 Sessions: Multi-Day Passes
 
