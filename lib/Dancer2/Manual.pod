@@ -1209,6 +1209,70 @@ To delete a cookie, set it with an expiration time in the past:
 This route deletes the C<visitor> cookie by setting its expiration date
 to a past date.
 
+=head1 Error Handling: Managing Ride Breakdowns and Other Park Issues
+
+TODO: cover status keyword
+
+Just like managing ride breakdowns or out-of-stock concessions in a theme
+park, error handling in a web application involves dealing with unexpected
+issues gracefully.
+
+=head2 Why should we fail gracefully?
+
+TODO
+
+=head3 500 - the error of last resort
+
+TODO
+
+=head3 Handling Errors When a Ride is Closed
+
+    get '/roller-coaster' => sub {
+        status 'service_unavailable';
+        return "Sorry, the roller coaster is currently closed for maintenance.";
+    };
+
+This route catches the request to the roller coaster when it's closed
+and returns a friendly error message.
+
+=head2 Error Pages
+
+You can define custom error pages to provide a friendly message to your
+users when something goes wrong.
+
+To create a custom error page, place a template in the C<views> directory
+named after the error code, like C<views/404.tt>:
+
+    <h1>Oops! Page Not Found</h1>
+    <p>The page you are looking for does not exist in Danceyland.</p>
+
+This custom page will be displayed whenever a 404 error occurs.
+
+=head2 halt
+
+The C<halt> keyword immediately stops the processing of the current route
+and sends a response back to the client:
+
+    get '/restricted' => sub {
+        halt "Access denied!" unless session('is_admin');
+        return "Welcome to the restricted area.";
+    };
+
+In this example, if the visitor is not an admin, C<halt> stops execution
+and returns C<Access denied!>.
+
+=head2 send_error
+
+The C<send_error> keyword sends an error response with a specific status
+code:
+
+    get '/data' => sub {
+        my $data = fetch_data();
+        send_error "Data not found", 404 unless $data;
+        return $data;
+    };
+
+This example sends a 404 error response if the data is not found.
 
 
 
