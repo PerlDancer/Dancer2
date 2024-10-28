@@ -1047,7 +1047,8 @@ This keyword is used to configure settings for your application, like setting th
 This keyword is used to store and retrieve session data:
 
     session user => 'John Doe';  # Store data
-    my $user = session('user');  # Retrieve data
+    my $user_1 = session('user');  # Retrieve data
+    my $user_2 = session->read('user');  # Also retrieves data
 
 =back
 
@@ -1208,6 +1209,100 @@ To delete a cookie, set it with an expiration time in the past:
 
 This route deletes the C<visitor> cookie by setting its expiration date
 to a past date.
+
+=head1 Error Handling: Managing Ride Breakdowns and Other Park Issues
+
+Just like managing ride breakdowns or out-of-stock concessions in a theme
+park, error handling in a web application involves dealing with unexpected
+issues gracefully.
+
+=head2 Why should we fail gracefully?
+
+Regardless if a problem is one we can control or not, not handling a problem
+
+Whether or not a problem is one we can predict, handing errors in a poor
+or disruptive way can really ruin a visitor's day at the park. It may not
+be as rude as the pretzel vendor that yells at you for not leaving a tip,
+but it can certainly sour a vistor for future visits.
+
+Errors happen. Handling errors in a predictable, friendly manner can make
+all the difference. Give visitors a friendly message that explains what
+went wrong, and if you can still provide them with some limited park
+functionality, then do so.
+
+=head3 500 - the error of last resort
+
+When a 500 error occurs, either it means the park operators didn't think
+to check for a particular error, or something absolutely unpredictable
+happened (a gust of wind knocked a tree branch across a park walkway).
+
+When issuing a 500 error, try not to give away too much information (such
+as a stack trace) so as to not give a potential attacker too much
+information.
+
+Try to catch as many things as you can. Sending a 500 error isn't the
+end of park operations, but they should show up sparingly, at worst.
+
+=head3 Handling Errors When a Ride is Closed
+
+    get '/roller-coaster' => sub {
+        status 'service_unavailable';
+        return "Sorry, the roller coaster is currently closed for maintenance.";
+    };
+
+This route catches the request to the roller coaster when it's closed
+and returns a friendly error message.
+
+=head2 Error Pages
+
+You can define custom error pages to provide a friendly message to your
+users when something goes wrong.
+
+To create a custom error page, place a template in the C<views> directory
+named after the error code, like C<views/404.tt>:
+
+    <h1>Oops! Page Not Found</h1>
+    <p>The page you are looking for does not exist in Danceyland.</p>
+
+This custom page will be displayed whenever a 404 error occurs.
+
+=head2 New Keywords
+
+=over 4
+
+=item status
+
+Status sets the HTTP status code that is returned by response from
+Dancer2. It can be specified as either a number (`status 404`), or
+its lower-case name (`status 'not_found'`).
+
+=item halt
+
+The C<halt> keyword immediately stops the processing of the current route
+and sends a response back to the client:
+
+    get '/restricted' => sub {
+        halt "Access denied!" unless session('is_admin');
+        return "Welcome to the restricted area.";
+    };
+
+In this example, if the visitor is not an admin, C<halt> stops execution
+and returns C<Access denied!>.
+
+=item send_error
+
+The C<send_error> keyword sends an error response with a specific status
+code:
+
+    get '/data' => sub {
+        my $data = fetch_data();
+        send_error "Data not found", 404 unless $data;
+        return $data;
+    };
+
+This example sends a 404 error response if the data is not found.
+
+=back
 
 
 
