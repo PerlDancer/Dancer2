@@ -13,8 +13,11 @@
     * None
 
     [ MISC ]
+    * PR #1715: Update deprecated download-artifact (dependabot)
     * GH #1716: Remove Scope::Upper from list of recommended deps
       (Russell @veryrusty Jenkins)
+    * PR #1718: Add Module::Pluggable as a requirement, excluding
+      broken versions (Russell @veryrusty Jenkins)
 
 1.1.1     2024-07-18 19:48:00-04:00 America/New_York
 

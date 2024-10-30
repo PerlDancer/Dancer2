@@ -47,6 +47,12 @@ requires 'File::Which';
 requires 'Role::Tiny', '2.000000';
 conflicts 'Role::Tiny', '== 2.000007';
 
+# Module::Pluggable 6.1 and 6.2 fail their test suite when run as root,
+# such as under docker in a github action
+requires 'Module::Pluggable';
+conflicts 'Module::Pluggable', '== 6.1';
+conflicts 'Module::Pluggable', '== 6.2';
+
 # Minimum version of YAML is needed due to:
 # - https://github.com/PerlDancer/Dancer2/issues/899
 # Excluded 1.16 is needs due to:
