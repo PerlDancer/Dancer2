@@ -22,6 +22,7 @@ requires 'Import::Into';
 requires 'JSON::MaybeXS';
 requires 'List::Util', '1.29';   # 1.29 has the pair* functions
 requires 'MIME::Base64', '3.13'; # 3.13 has the URL safe variants
+requires 'Module::Pluggable', '!= 6.1, != 6.2'; # 6.1 and 6.2 fail their test suite when run as root
 requires 'Module::Runtime';
 requires 'Moo', '2.000000';
 requires 'Moo::Role';
