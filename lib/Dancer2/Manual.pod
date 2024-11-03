@@ -1533,6 +1533,87 @@ Retrieves configuration values.
 
 =back
 
+=head1 Logging
+
+Just like monitoring the lines for the roller coasters, logging helps
+you keep track of what’s happening in your Dancer2 app.
+
+=head2 Why Should We Log?
+
+Logging is important for tracking errors, performance, and overall
+activity in your app. It helps you understand what’s going right (or
+wrong) in Danceyland.
+
+=head3 What Types of Things Might We Want to Log?
+
+=over 4
+
+=item *
+
+Errors (e.g., a ride breaking down)
+
+=item *
+
+Important events (e.g., a new guest registering)
+
+=item *
+
+Debug information (e.g., the details of a request)
+
+=back
+
+=head2 Configuring Logging in Your Dancer2 App
+
+You can configure logging in your C<config.yml> file:
+
+    logger: "console"
+    log: "debug"
+
+This configuration sends logs to the console and logs all messages at
+the C<debug> level or higher.
+
+=head2 Logging Your Own Messages
+
+You can log your own messages using the logging keywords:
+
+    debug "This is a debug message.";
+    info "A new user has registered.";
+    warning "The ride is slowing down!";
+    error "The roller coaster broke down!";
+
+=head2 Link to Extending Section
+
+For more information on extending the logger or creating custom loggers,
+refer to the Extending section.
+
+=head2 Keywords Covered
+
+=over 4
+
+=item debug
+
+Logs a debug-level message.
+
+=item info
+
+Logs an info-level message.
+
+=item warning
+
+Logs a warning-level message.
+
+=item error
+
+Logs an error-level message.
+
+=item log
+
+Logs a message at the specified log level:
+
+    log( debug => 'This is a debug message' );
+
+=back
+
 
 
 
@@ -2088,7 +2169,11 @@ It can now be tested:
      ok( $response->is_success, '[GET /] Successful request' );
      is( $response->content, 'OK', '[GET /] Correct content' );
 
-     done_testing();
+When Dancer2 is imported to a script, that script becomes a webapp, and at
+this point, all the script has to do is declare a list of B<routes>. A
+route handler is composed by an HTTP method, a path pattern and a code
+block. C<strict>, C<warnings> and C<utf8> pragmas are also imported with
+Dancer2.
 
 =head1 Complete Guide to Keywords
 
