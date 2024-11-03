@@ -1273,8 +1273,8 @@ This custom page will be displayed whenever a 404 error occurs.
 =item status
 
 Status sets the HTTP status code that is returned by response from
-Dancer2. It can be specified as either a number (`status 404`), or
-its lower-case name (`status 'not_found'`).
+Dancer2. It can be specified as either a number (C<status 404>), or
+its lower-case name (C<status 'not_found'>).
 
 =item halt
 
@@ -1301,6 +1301,117 @@ code:
     };
 
 This example sends a 404 error response if the data is not found.
+
+=back
+
+=head1 Static Files and File Uploads
+
+In Danceyland, we don't just offer thrilling rides; we also serve files!
+Whether you’re providing a downloadable park map or processing guest
+photo uploads, Dancer2 has you covered.
+
+=head2 Serving Static Files from Dancer2
+
+Sometimes you want to make certain information (in the form of files)
+available to visitors without asking them to stand in line. Dancer2 makes
+serving static files easy.
+
+=head3 From a Directory
+
+By default, Dancer2 serves static files from the C<public> directory in
+your app. Just place your files (like images or PDFs) in the C<public>
+folder, and they’ll be accessible at C</static/path>:
+
+    # Access the file public/images/logo.png via
+    http://danceyland.local/static/images/logo.png
+
+=head3 Sending Static Files from a Route Handler
+
+You can also serve static files programmatically from a route handler
+using C<send_file>:
+
+    get '/download-map' => sub {
+        send_file 'park-map.pdf', content_type => 'application/pdf';
+    };
+
+Using C<send_file> immediately exits the current route.
+
+=head3 When Might You Not Want to Serve Static Files?
+
+While serving static files is convenient, there are times when you may
+not want to do it directly:
+
+=over 4
+
+=item *
+
+You want to offload static content delivery to a CDN (Content Delivery
+Network) for performance.
+
+=item *
+
+You need fine-grained access control on your files.
+
+=item *
+
+Your static content is large or frequently changing, and you'd prefer a
+more scalable solution.
+
+=back
+
+=head3 How to Disable Static File Serving
+
+If you'd prefer not to serve static files from your Dancer2 app, you can
+disable it in your C<config.yml> file:
+
+    static: 0
+
+Now, all file requests will be routed through your handlers or passed
+to another service.
+
+=head2 Using C<send_file> to Deliver Files from Memory
+
+You’re not limited to files on disk! You can use C<send_file> to deliver
+files created or stored in memory:
+
+    get '/dynamic-file' => sub {
+        my $data = "This is a dynamically generated file.";
+        return send_file(\$data, content_type => 'text/plain', filename => 'dynamic.txt');
+    };
+
+In this example, we generate a file on-the-fly and send it back to the user.
+
+=head2 Handling File Uploads
+
+If guests are submitting photos or other files at Danceyland, you'll
+need to handle file uploads. Dancer2 makes it easy with the C<upload> keyword:
+
+    post '/upload-photo' => sub {
+        my $upload = upload('photo');
+        return "No file uploaded" unless $upload;
+
+        my $filename = $upload->filename;
+        my $filehandle = $upload->file_handle;
+        open my $out, '>', "/uploads/$filename" or die "Failed to open: $!";
+        while (<$filehandle>) {
+            print $out $_;
+        }
+        close $out;
+
+        return "Uploaded $filename successfully!";
+    };
+
+=head2 Keywords Covered
+
+=over 4
+
+=item upload
+
+Used to retrieve an uploaded file.
+
+=item send_file
+
+Used to send a file, either from disk or memory, to the client.
 
 =back
 
