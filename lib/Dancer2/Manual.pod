@@ -1415,6 +1415,124 @@ Used to send a file, either from disk or memory, to the client.
 
 =back
 
+=head1 Configuration
+
+Danceyland needs its rides and attractions to work just right, and so
+does your Dancer2 app. Configuration is key to ensuring your app runs
+smoothly in every environment.
+
+=head2 How Do Environments Help Us Configure Our Applications?
+
+Dancer2 uses environments (such as C<development> or C<production>) to
+customize configuration depending on where the app is running. This
+allows you to tweak things like logging, error reporting, or even
+database connections, based on your environment.
+
+    environments:
+      development:
+        logger: "console"
+        show_errors: 1
+      production:
+        logger: "file"
+        show_errors: 0
+
+All of your applications will use F<config.yml>, which is the base
+configuration across B<all> of your application's environments. It is
+here where you will configure such things as your template engine and
+other extensions/settomgs that do not change across environments.
+
+=head2 Using Environment-Specific Config Files
+
+You can create environment-specific config files, like C<production.yml>
+and C<development.yml>, in the F<environments> directory. Dancer2 will
+load the environment-specific file after the main config, applying those
+settings last.
+
+You are not limited to the environment names used; different projects and
+companies will have different requirements and different environments.
+
+Applications are not limited to YAML-based configuration files. Dancer2
+supports config files in any format supported by L<Config::Any>, including
+JSON and Apache-style configs.
+
+=head2 Config File Resolution Order
+
+Dancer2 resolves configuration in the following order:
+
+=over 4
+
+=item *
+
+C<config.yml>
+
+=item *
+
+Environment-specific config (e.g., C<environments/development.yml>)
+
+=item *
+
+Settings in the environment or explicitly set during runtime (using the
+C<set> keyword)
+
+=back
+
+=head2 Accessing Configuration Information
+
+You can access configuration values in your app using the C<config> keyword.
+
+Example:
+
+    get '/info' => sub {
+        my $app_name = config->{'appname'};
+        return "Welcome to $app_name!";
+    };
+
+=head2 Using C<set> Explicitly
+
+You can explicitly set configuration values using the C<set> keyword.
+
+Example:
+
+    set session => 'Simple';
+    set logger => 'console';
+
+=head2 Plugin Configuration
+
+You can configure plugins in your C<config.yml> file under the C<plugins> section.
+
+Example:
+
+    plugins:
+      Database:
+        driver: 'SQLite'
+        database: 'danceyland.db'
+
+=head2 New Keywords
+
+=over 4
+
+=item setting
+
+Returns the value of the specified config setting.
+
+=item set
+
+Explicitly sets configuration options.
+
+=item var
+
+Set and retrieve a temporary named value within your application.
+
+=item vars
+
+Returns a hashref or all temporary variables/values in your application.
+
+=item config
+
+Retrieves configuration values.
+
+=back
+
 
 
 
