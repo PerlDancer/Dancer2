@@ -2169,7 +2169,11 @@ It can now be tested:
      ok( $response->is_success, '[GET /] Successful request' );
      is( $response->content, 'OK', '[GET /] Correct content' );
 
-     done_testing();
+When Dancer2 is imported to a script, that script becomes a webapp, and at
+this point, all the script has to do is declare a list of B<routes>. A
+route handler is composed by an HTTP method, a path pattern and a code
+block. C<strict>, C<warnings> and C<utf8> pragmas are also imported with
+Dancer2.
 
 =head1 Complete Guide to Keywords
 
