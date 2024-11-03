@@ -1047,7 +1047,8 @@ This keyword is used to configure settings for your application, like setting th
 This keyword is used to store and retrieve session data:
 
     session user => 'John Doe';  # Store data
-    my $user = session('user');  # Retrieve data
+    my $user_1 = session('user');  # Retrieve data
+    my $user_2 = session->read('user');  # Also retrieves data
 
 =back
 
@@ -1084,7 +1085,8 @@ C<config.yml> file:
       expires: 3600
 
 This configuration uses the C<Simple> session engine, storing session
-data in memory, and sets the session to expire in one hour.
+data in memory, and sets the session to expire in one hour. Expiration
+times are always set in seconds.
 
 =head2 Session Storage Backends
 
