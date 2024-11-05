@@ -2084,3 +2084,4 @@ For a deeper dive, check out these fantastic articles on async programming
 in Dancer2: L<https://advent.perldancer.org/2020/22> and
 L<https://advent.perldancer.org/2020/23>.
 
+=cut
