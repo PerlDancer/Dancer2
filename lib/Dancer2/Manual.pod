@@ -1715,6 +1715,392 @@ that provide even greater functionality.
 See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
 keywords provided by Dancer2.
 
+=head1 Advanced Topics
+
+Danceyland isn’t just for beginners—there’s always more to explore. Here
+are some advanced features of Dancer2 that will take your app to the
+next level.
+
+=head2 Composing an App with C<appname>
+
+In a theme park as vast as Danceyland, sometimes you need different
+sections, like the Magical Kingdom or Actionland. Similarly, Dancer2
+allows you to build separate applications, but unite them together under
+a single name using the C<appname> keyword, so each section can have its
+own unique routing and logic.
+
+=head3 Example: Composing multiple apps with C<appname> into one app
+
+Using C<appname>, you can compose different apps within one big web app.
+Each package can have its own Perl namespace but uses the same Dancer2
+namespace, so the routes are all available in the one application.
+
+    # In file MagicApp.pm
+    package MagicApp;
+    use Dancer2 appname => 'MainApp';
+
+    get '/wand-shop' => sub {
+        return "Welcome to the Wand Shop in the Magic Kingdom!";
+    };
+
+    # In file ActionApp.pm
+    package ActionApp;
+    use Dancer2 appname => 'MainApp';
+
+    get '/thrill-rides' => sub {
+        return "Ready for the thrill rides in Actionland?";
+    };
+
+    # in MainApp.pm
+    package MainApp;
+    use Dancer2;
+    use MagicApp;
+    use ActionApp;
+
+    # In the handler
+    use MainApp;
+    MainApp->to_app();
+
+In this example, the C<MagicApp> package defines routes for the Magical
+Kingdom, and the C<ActionApp> package defines routes for Actionland -
+both using C<< appname => 'MainApp' >>.
+
+=head2 Automatic Serializing and Deserializing Data
+
+In Danceyland, sometimes we need to provide data to our visitors in
+different formats, like JSON, YAML, or XML. Dancer2 makes serializing
+data a breeze. You can even configure Dancer2 to automatically serialize
+your responses based on the content type requested by the client.
+
+=head3 Example: Serializing JSON for output
+
+    set serializer => 'JSON';
+
+    get '/ride-info' => sub {
+        return { name => 'Roller Coaster', status => 'Open' };
+    };
+
+With this setup, the response will automatically be serialized to JSON
+when requested.
+
+=head3 Example: Deserializing JSON from input
+
+Dancer2 can also deserialize incoming requests automatically when a
+serializer is enabled. If the client sends JSON data, it will be
+automatically parsed.
+
+    post '/update-ride' => sub {
+        my $data = request->data;  # Automatically deserialized JSON input
+        return "Ride updated: " . $data->{name};
+    };
+
+Here, the incoming request body is JSON, and Dancer2 deserializes it
+into a Perl data structure that you can access through C<< request->data >>.
+
+=head2 Manual Serializing and Deserializing
+
+Dancer2 also provides manual serialization methods for specific use cases
+where automatic serialization isn't enough, or can't be used.
+
+=head3 C<send_as>
+
+C<send_as> allows you to manually serialize your response in a specific
+format like JSON or YAML. This is useful when you need explicit control
+over the response format:
+
+    get '/info' => sub {
+        return send_as JSON => { name => 'Danceyland', status => 'open' };
+    };
+
+Here, C<send_as> explicitly returns the response as JSON.
+
+=head3 C<to_json>
+
+C<to_json> converts a Perl data structure to a JSON string. It's useful
+when you want to manually prepare JSON data before sending it:
+
+    my $json_string = to_json({ name => 'Danceyland', status => 'open' });
+
+=head3 C<from_json>
+
+C<from_json> does the reverse, converting a JSON string into a Perl data
+structure:
+
+    my $perl_data = from_json('{"name":"Danceyland", "status":"open"}');
+
+Use this when you need to decode incoming JSON data.
+
+=head2 Hooks
+
+Hooks are like special backstage passes at Danceyland. They give you
+special access by allowing you to execute code at specific points in the
+request/response cycle. You can use them to modify requests, responses,
+or even add your own logic before or after routes are processed.
+
+=head3 Using Hooks with C<vars>
+
+Sometimes you want to share information across routes. You can use hooks
+to store data using C<vars>, making it available for later routes:
+
+    hook before => sub {
+        my $request = request;
+        vars->{visitor_id} = "VIP-" . $request->address;
+    };
+
+    get '/vip-area' => sub {
+        return "Welcome, " . vars->{visitor_id} . "!";
+    };
+
+In this example, we store the visitor’s ID (based on their IP address)
+in the C<vars> keyword during the C<before> hook. That value is later
+used in the C</vip-area> route to personalize the response.
+
+=head3 Template Hooks
+
+Template hooks allow you to manipulate data before or after templates
+are rendered:
+
+    hook before_template_render => sub {
+        my $tokens = shift;
+        $tokens->{footer_note} = "Thanks for visiting Danceyland!";
+    };
+
+In this example, the C<footer_note> is added to the template tokens
+before it gets rendered. That token is available in the template as
+C<[% footer_note %]>.
+
+=head3 Error Handling Hooks
+
+Error hooks let you modify how errors are handled:
+
+    hook on_handler_exception => sub {
+        my $error = shift;
+        warning "Oops! We encountered an error: $error";
+    };
+
+This hook runs when an exception occurs in a route handler, logging the
+error.
+
+=head3 File Rendering Hooks
+
+File rendering hooks are triggered when static files are served:
+
+    hook before_file_render => sub {
+        my $file_path = shift;
+        debug "Starting to serve file: $file_path";
+    };
+
+    hook after_file_render => sub {
+        my $response = shift;
+        debug "Finished serving file.";
+    };
+
+=head3 Logging Hooks
+
+You can customize logging behavior using hooks:
+
+    hook before_logger => sub {
+        my $level = shift;
+        debug "A log message at level $level is about to be written.";
+    };
+
+=head3 Serializer Hooks
+
+Serializer hooks allow you to manipulate serialized data before it’s
+sent to the client:
+
+    hook before_serialize => sub {
+        my $data = shift;
+        debug "Serializing this data: " . to_json($data);
+    };
+
+=head2 Handlers
+
+Handlers are the rides that keep Danceyland running. Dancer2 provides
+several built-in handlers to manage files, pages, and routes. You can
+also create your own handlers to extend the park’s offerings.
+
+=head2 File Handler
+
+The L<Dancer2::Handler::File> component is used to serve static files,
+like images and stylesheets, from the C<public> directory. It comes with
+two hooks:
+
+=over 4
+
+=item before_file_render
+
+Called before the file is served:
+
+    hook before_file_render => sub {
+        my $path = shift;
+        debug "Serving file: $path";
+    };
+
+=item C<after_file_render>
+
+Called after the file is served:
+
+    hook after_file_render => sub {
+        my $response = shift;
+        debug "File served, status: " . $response->status;
+    };
+
+=back
+
+=head2 Auto Page Handler
+
+When a template matches a request, the L<Dancer2::Handler::AutoPage>
+component is used. It automatically renders a template if one exists for
+the requested path.
+
+If someone visits C</about> and there is a template called C<about.tt>,
+the auto page handler will automatically render that template.
+
+=head2 Writing Your Own Handlers
+
+You can create your own handler by consuming the L<Dancer2::Core::Role::Handler>
+role. This allows you to define your own logic for processing routes:
+
+    package MyHandler;
+    use Moo;
+    with 'Dancer2::Core::Role::Handler';
+
+    sub methods { qw(GET) }
+
+    sub regexp { '/custom/:page' }
+
+    sub code {
+        return sub {
+            my $app = shift;
+            my $page = $app->request->params->{page};
+            return "You requested the custom page: $page";
+        };
+    }
+
+    sub register {
+        my ($self, $app) = @_;
+        $app->add_route(
+            method => $_,
+            regexp => $self->regexp,
+            code   => $self->code,
+        ) for $self->methods;
+    }
+
+=head2 Middleware
+
+Middleware in Dancer2 is like the behind-the-scenes magic at Danceyland,
+like security or cleaning staff at Danceyland. It handles tasks between
+the request and response cycles, allowing you to modify or inspect the
+request/response without changing your app code.
+
+You can easily add middleware using Plack, Dancer2’s underlying engine.
+
+=head2 Why Use Middleware Instead of App Logic?
+
+You could, in theory, implement directly in your code everything that a
+middleware does. So why use middlewares? Middlewares allow you to modify
+the request/response cycle without changing your app’s core code. It’s
+useful for:
+
+=over 4
+
+=item *
+
+Managing sessions and cookies.
+
+=item *
+
+Handling authentication.
+
+=item *
+
+Compressing responses or managing headers.
+
+=back
+
+Middleware operates in-between the client’s request and the app’s
+response, providing flexibility and reducing duplication in your
+application logic.
+
+Additionally, you can use middlewares across different code-bases. Given
+best practices, they would not be tied to a particular web application.
+
+=head3 Adding Middlewares
+
+    builder {
+        enable 'Session';
+        enable 'Static', path => qr{^/(images|css)/}, root => './public';
+        app;
+    };
+
+This example uses Plack middleware to manage sessions and serve static files.
+
+=head2 Asynchronous Programming
+
+In Danceyland, we never want our visitors to wait in line! Sometimes, a
+task can take a long time, like fetching data from an external service.
+Asynchronous programming allows you to handle these tasks in the
+background, keeping your app responsive.
+
+Dancer2 supports asynchronous programming to help you manage I/O-bound
+operations more efficiently.
+
+=head2 Why Choose Async Over Blocking?
+
+With async programming, you can handle long-running tasks without
+blocking the rest of your app. This is useful for:
+
+=over 4
+
+=item *
+
+Fetching data from an external API.
+
+=item *
+
+Handling large uploads or downloads.
+
+=item *
+
+Sending notifications or emails.
+
+=back
+
+=head2 Choosing the Right PSGI Server
+
+To use asynchronous programming in Dancer2, your app must be running on
+a PSGI server that supports event loops, like L<Twiggy>. Such servers can
+handle async tasks, unlike traditional PSGI servers that utilize forking
+to handle multiple parallel tasks.
+
+=head3 Example: Asynchronous HTTP Request
+
+Here’s how you can fetch data asynchronously in Dancer2. Instead of
+waiting for a response, the request runs in the background and delivers
+the result when it’s ready:
+
+    use Future::HTTP;
+
+    get '/fetch-ride-status' => sub {
+        delayed {
+            my $resume = shift;
+            http_get('http://ride-status.com/api/roller-coaster')->on_done(sub {
+                my ($response) = @_;
+                $resume->( $response->content );
+            });
+        };
+    };
+
+In this example, we fetch the status of a ride asynchronously using
+C<http_get>. The C<delayed> keyword defers the response until the
+background request completes. The C<$resume> callback is used to send
+the content back to the visitor once the request finishes.
+
+For a deeper dive, check out these fantastic articles on async programming
+in Dancer2: L<https://advent.perldancer.org/2020/22> and
+L<https://advent.perldancer.org/2020/23>.
+
 
 
 
