@@ -1,0 +1,426 @@
+# ABSTRACT: A guide to extending Dancer2 via engines and plugins
+
+package Dancer2::Manual::Extending;
+
+=pod
+
+=encoding utf8
+
+=head1 Name
+
+Dancer2::Extending - How to Extend Dancer2 by Writing Your Own Engines, Handlers, and Plugins
+
+=head1 Introduction
+
+Dancer2 is designed to be flexible and extensible. Whether you need a
+custom template engine, session engine, serializer, or file handler,
+Dancer2 provides a clean API that makes it easy to extend its core
+functionality.
+
+In this document, we’ll cover how to write your own engines, handlers,
+and plugins for Dancer2. The goal is to give you the tools you need to
+build custom components that integrate seamlessly into your Dancer2
+applications.
+
+=head1 Writing Your Own EnginE
+
+In Dancer2, engines are used to handle various aspects of your
+application, such as templates, sessions, serializers, and loggers. Each
+engine follows a standard interface, making it easy to plug in new
+implementations.
+
+=head2 Writing a Template Engine
+
+A custom template engine must implement the L<Dancer2::Core::Role::Template>
+role. This role defines the basic methods that any template engine needs
+to implement.
+
+=head3 Example: Custom Template Engine
+
+    package Dancer2::Template::MyTemplateEngine;
+    use Moo;
+    with 'Dancer2::Core::Role::Template';
+
+    # Define the required methods
+    # ...
+
+    sub render {
+        my ($self, $template, $tokens) = @_;
+
+        # Your rendering logic here
+        return "<html><body>Welcome to Danceyland, $tokens->{'visitor_name'}!</body></html>";
+    }
+
+    1;
+
+In this example, C<render> is the method responsible for processing the
+template and returning the final output.
+
+To use your custom engine, configure it in your C<config.yml> file:
+
+    template: "MyTemplateEngine"
+
+=head2 Writing a Session Engine
+
+Session engines handle storing and retrieving session data. All session
+engines must implement the L<Dancer2::Core::Role::SessionFactory> role.
+
+=head3 Example: Custom Session Engine
+
+    package Dancer2::Session::MySessionEngine;
+    use Moo;
+    with 'Dancer2::Core::Role::SessionFactory';
+
+    sub retrieve {
+        my ($self, $id) = @_;
+        # Fetch session data based on session ID
+    }
+
+    sub create {
+        my ($self, $data) = @_;
+        # Create a new session
+    }
+
+    sub destroy {
+        my ($self, $id) = @_;
+        # Destroy the session identified by $id
+    }
+
+    sub flush {
+        my ($self, $id, $data) = @_;
+        # Save session data
+    }
+
+    1;
+
+This engine defines the basic methods to manage session data.
+
+=head2 Writing a Serializer Engine
+
+Serializer engines handle serializing and deserializing data between
+Perl data structures and different formats like JSON, YAML, or XML.
+
+All serializer engines must implement the L<Dancer2::Core::Role::Serializer>
+role.
+
+=head3 Example: Custom Serializer Engine
+
+    package Dancer2::Serializer::MySerializer;
+    use Moo;
+    with 'Dancer2::Core::Role::Serializer';
+
+    sub serialize {
+        my ($self, $content) = @_;
+        # Convert $content to a custom format
+    }
+
+    sub deserialize {
+        my ($self, $content) = @_;
+        # Convert custom format back to Perl data structure
+    }
+
+    sub content_type {
+        return 'application/custom';
+    }
+
+    1;
+
+This engine defines the methods needed to serialize and deserialize data.
+
+=head2 Writing a Logger Engine
+
+Logger engines are responsible for handling log messages in your
+application. All logger engines must implement the
+L<Dancer2::Core::Role::Logger> role.
+
+=head3 Example: Custom Logger Engine
+
+    package Dancer2::Logger::MyLogger;
+    use Moo;
+    with 'Dancer2::Core::Role::Logger';
+
+    sub log {
+        my ($self, $level, $message) = @_;
+        # Custom logging logic here
+        warn "[$level] $message";
+    }
+
+    1;
+
+This logger will output log messages to C<warn>, and you can configure
+it in your C<config.yml> file:
+
+    logger: "MyLogger"
+
+=head1 Writing Your Own File Handler
+
+File handlers in Dancer2 are responsible for serving static files from
+disk. If you need custom logic for serving files (such as restricting
+access or adding dynamic features), you can create your own file handler
+by consuming the L<Dancer2::Core::Role::Handler> role.
+
+=head2 Example: Custom File Handler
+
+    package Dancer2::Handler::MyFileHandler;
+    use Moo;
+    with 'Dancer2::Core::Role::Handler';
+
+    sub methods { qw(GET) }
+
+    sub regexp { '/static/:file' }
+
+    sub code {
+        return sub {
+            my $app = shift;
+            my $file = $app->request->params->{file};
+
+            # Add custom logic for serving files
+            my $file_path = "/path/to/static/files/$file";
+            if (-e $file_path) {
+                $app->send_file($file_path);
+            } else {
+                $app->send_error('File not found', 404);
+            }
+        };
+    }
+
+    sub register {
+        my ($self, $app) = @_;
+        $app->add_route(
+            method => $_,
+            regexp => $self->regexp,
+            code   => $self->code,
+        ) for $self->methods;
+    }
+
+    1;
+
+This handler will serve static files from the specified directory, but
+it also checks if the file exists before serving it.
+
+=head1 Writing A Dancer2 Plugin
+
+Plugins in Dancer2 are reusable components that extend your app's
+functionality. They are often used for tasks like authentication,
+database management, or form validation.
+
+All plugins must consume the L<Dancer2::Core::Role::Plugin> role.
+
+=head2 Example: Custom Dancer2 Plugin
+
+    package Dancer2::Plugin::MyPlugin;
+    use Dancer2::Plugin;
+
+    register 'greet' => sub {
+        my ($dsl, $name) = @_;
+        return "Hello, $name! Welcome to Danceyland!";
+    };
+
+    register_plugin;
+
+In this example, a C<greet> keyword is created, and can be called within
+any Dancer2 route to display a greeting. To use the plugin, just include
+it in your app:
+
+    use Dancer2::Plugin::MyPlugin;
+
+    get '/hello/:name' => sub {
+        return greet( route_parameters->get('name') );
+    };
+
+=head1 Custom Session Storage Mechanisms
+
+Dancer2 allows you to define your own custom session storage mechanism
+by implementing the L<Dancer2::Core::Role::SessionFactory> role. This
+is useful if you need to store session data in a format or storage medium
+that isn’t supported out-of-the-box, such as a proprietary database or
+external service.
+
+=head2 Example: Custom Session Storage
+
+Here’s how you can create a custom session storage engine that stores
+session data in a simple hash in memory. In practice, you’d likely store
+data in a more robust medium like a database or external cache.
+
+    package Dancer2::Session::MySessionStorage;
+    use Moo;
+    with 'Dancer2::Core::Role::SessionFactory';
+
+    # Simple in-memory session store (not suitable for production use)
+    my %session_store;
+
+    sub retrieve {
+        my ($self, $id) = @_;
+        return $session_store{$id};
+    }
+
+    sub create {
+        my ($self, $data) = @_;
+        my $session_id = $self->generate_session_id;
+        $session_store{$session_id} = $data;
+        return $session_id;
+    }
+
+    sub destroy {
+        my ($self, $id) = @_;
+        delete $session_store{$id};
+    }
+
+    sub flush {
+        my ($self, $id, $data) = @_;
+        $session_store{$id} = $data;
+    }
+
+    1;
+
+=head3 Using the Custom Session Storage
+
+To use your custom session storage mechanism, configure it in your
+F<config.yml> file:
+
+    session: "MySessionStorage"
+
+This simple example uses an in-memory hash to store sessions, but you
+can adapt it to any storage medium, such as Redis, MongoDB, or a
+relational database. Be sure to implement locking mechanisms and
+persistence for production usage.
+
+=head1 Custom Middleware
+
+Middleware is code that runs before or after the core request handler in
+Dancer2. It allows you to intercept, modify, or even short-circuit the
+request/response cycle before it reaches your app’s route handlers or
+after they return a response.
+
+=head2 How Middleware Works
+
+When a request is received, middleware runs in a predefined order:
+
+=over 4
+
+=item 1.
+
+Before the app handler is executed (C<before> stage).
+
+=item 2.
+
+The app's route handlers process the request.
+
+=item 3.
+
+After the app handler processes the request and returns a response
+(C<after> stage).
+
+=back
+
+Middleware gives you the ability to modify the request before it's passed
+to the app handler, or to change the response after it has been generated.
+You can also prevent the app handler from running altogether and return a
+custom response directly from the middleware.
+
+=head2 Example: Custom Middleware
+
+Here’s an example of custom middleware that runs before and after the app
+handler. It logs the incoming request, processes the app’s routes, and
+then modifies the response by appending a footer message.
+
+    package Dancer2::Middleware::MyCustomMiddleware;
+    use Plack::Middleware;
+    use parent 'Plack::Middleware';
+
+    sub call {
+        my ($self, $env) = @_;
+
+        # BEFORE the app handler: Log the request method and path
+        warn "Incoming request: $env->{REQUEST_METHOD} $env->{PATH_INFO}";
+
+        # Call the app handler (if you want the app to continue processing)
+        my $res = $self->app->($env);
+
+        # AFTER the app handler: Modify the response (e.g., add a footer)
+        return sub {
+            my $respond = shift;
+            my $writer = $respond->(
+                [
+                    $res->[0],    # HTTP status code
+                    $res->[1],    # HTTP headers
+                    $res->[2],    # HTTP body
+                ]
+            );
+
+            # Append a footer to the response body
+            $writer->write("\n-- Thank you for visiting Danceyland!");
+            $writer->close;
+        };
+    }
+
+    1;
+
+=head2 Using the Custom Middleware
+
+To enable this middleware, modify your F<app.psgi> file to use it with
+Dancer2’s built-in support for Plack middleware:
+
+    use Dancer2;
+    use MyApp;
+
+    builder {
+        enable 'Dancer2::Middleware::MyCustomMiddleware';
+        MyApp->to_app;
+    };
+
+=head3 How Middleware Can Control the Flow
+
+In the example above, the middleware logs the request before it reaches
+the app and modifies the response after the app handler runs. However,
+if you don’t want to call the app handler (for example, to short-circuit
+the request and return a custom response), you can skip the call to
+C<< $self->app->($env) >> and return a response directly from the
+middleware:
+
+    sub call {
+        my ($self, $env) = @_;
+
+        # If the request matches a certain condition, bypass the app handler
+        if ($env->{PATH_INFO} =~ m{/secret}) {
+            return [403, ['Content-Type' => 'text/plain'], ["Forbidden"]];
+        }
+
+        # Otherwise, continue to the app handler
+        my $res = $self->app->($env);
+
+        # Modify the response as needed
+        ...
+    }
+
+In this case, if the request path contains C</secret>, the middleware
+returns a 403 Forbidden response, skipping the app handler entirely.
+
+=head3 Order of Operations
+
+Middleware executes in the following order:
+
+=over 4
+
+=item *
+
+Any code in the C<before> stage is executed before your app processes the
+request. You can modify or reject the request here.
+
+=item *
+
+Your app processes the request and generates a response.
+
+=item *
+
+Any code in the C<after> stage is executed after the response has been
+generated. You can modify or append to the response here before it’s
+sent to the client.
+
+=back
+
+Custom middleware provides great flexibility for pre- and post-processing
+requests and responses in your Dancer2 app.
+
+=cut
+
