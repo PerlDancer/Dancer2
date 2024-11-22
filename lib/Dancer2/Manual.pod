@@ -234,8 +234,8 @@ For more information, see L<Dancer2::Manual::Keywords/uri_for_route>.
 
 =head3 Example 1: Basic Usage
 
-    get 'animals' => '/zoo-kingdom/animals' => sub {
-        return "Visit the animals at " . uri_for_route('animals');
+    get 'films' => '/cinemaland/film-gallery' => sub {
+        return "See the films at " . uri_for_route('films');
     };
 
 In this example, the route is named C<animals>, and C<uri_for_route>
@@ -493,30 +493,21 @@ expressions, providing more flexibility in matching URLs:
 
 =head2 Organizing routes and growing your app using prefix
 
-To organize your routes more effectively in Danceyland, you can use the
-C<prefix> DSL keyword to group related routes under specific sections of
-the park.
-
-C<prefix> helps you to grow Danceyland as well. You can create additional
-application modules that represent different areas of the park, each of
-which is declared with its own C<prefix>.
-
-=head3 Example: Using C<prefix> in Danceyland
-
-Imagine Danceyland has different sections, like the I<Zoo Kingdom> and
-I<Actionland>. You can use C<prefix> to organize these areas:
+The prefix DSL keyword helps you group related routes. For example, you
+can organize all the routes of a given section in Danceyland with the
+C<prefix> keyword as such:
 
     package MyApp;
     use Dancer2;
 
-    # Prefix for Zoo Kingdom
-    prefix '/zoo-kingdom' => sub {
-        get '/animals' => sub {
-            return "Welcome to the Zoo Kingdom! Here you can find all the animals.";
+    # Prefix for Cinemaland
+    prefix '/cinemaland' => sub {
+        get '/film-gallery' => sub {
+            return "Welcome to Cinemaland! Here you can learn about famous movies.";
         };
 
-        get '/feed-schedule' => sub {
-            return "Feeding Schedule: 10 AM and 4 PM.";
+        get '/movie-schedule' => sub {
+            return "Movie Schedule: 10 AM and 4 PM.";
         };
     };
 
@@ -533,8 +524,8 @@ I<Actionland>. You can use C<prefix> to organize these areas:
 
     MyApp->to_app();
 
-This example organizes routes by grouping all animal-related activities
-under C</zoo-kingdom> and all rides under C</actionland>.
+This example organizes routes by grouping all cinema-related activities
+under C</cinemaland> and all rides under C</actionland>.
 
 =head2 Controlling the flow with forward, redirect, and pass
 
@@ -617,10 +608,6 @@ to display an HTML page containing park information to a user. If the
 code needed to display HTML is intertwined with the code to gather the
 data needed, the code necessary to just produce JSON becomes unnecessarily
 complicated. Templates take the HTML out of your Perl code.
-
-Think of templates like mad lib games you played as a kid. You just need
-to fill in the blanks with the requested information, and the template
-makes the story come alive.
 
 =head2 Views
 
@@ -720,7 +707,7 @@ of the site. You can use a layout for this.
             <h1>Welcome to Danceyland</h1>
             <nav>
                 <a href="/">Home</a>
-                <a href="/zoo-kingdom/animals">Zoo Kingdom</a>
+                <a href="/cinemaland/film-gallery">Cinemaland</a>
                 <a href="/actionland/thrill-rides">Actionland</a>
             </nav>
         </header>
@@ -750,8 +737,8 @@ can explicitly choose which layout should be used to wrap page content:
         }, { layout => 'main' };
     };
 
-    get '/zoo-kingdom/feed-and-bathe' => sub {
-        template animals => { animals => \@animals }, { layout => 'employee' };
+    get '/cinemaland/change-film-reels' => sub {
+        template films => { films => \@films }, { layout => 'employee' };
     };
 
     get '/actionland/thrill-rides' => sub {
@@ -769,10 +756,10 @@ they should be presented with the same standard page elements and options.
 
 =item *
 
-Guests of Zoo Kingdom aren't required to feed and bathe the animals, but
-park employees are. By specifying a layout of C<employee.tt>, they will
-get a special look and set of options appropriate to park workers. The
-route renders a template (C<animals.tt>) within that layout.
+Guests of Cinemaland aren't required to change the film reels between
+showings, but park employees are. By specifying a layout of C<employee.tt>,
+they will get a special look and set of options appropriate to park
+workers. The route renders a template (C<films.tt>) within that layout.
 
 =item *
 
@@ -810,19 +797,56 @@ C<< { layout => undef } >> to the C<template> keyword:
 This route renders the C<payment-options.tt> template without using the
 default or any specified layout.
 
-=head4 Why disable the use of a layout?
+=head4 When should I use a layout, and when shouldn't I?
 
-If you have built a single-page application, or other construct where
-it is unnecessary to return a full HTML page, disabling a layout will
-prevent Dancer2 from wrapping your page content. If you are building
-modern interfaces with toolkits like L<htmx|https://htmx.org/> or
+There are three different ways to return data from a Dancer2 app:
+
+=over
+
+=item *
+
+Returning HTML content that represents the entire content of the page
+(and allowing the browser to render it)
+
+=item *
+
+HTML content for only a portion of the page (using JS to insert that HTML
+dynamically in the page, and the browser then takes over rendering it)
+
+=item *
+
+JSON/XML/etc. content that the JS decides what to do with, possibly
+rendering some front-end template and updating the DOM nodes
+
+=back
+
+For option 1, you would use a layout to ensure a full HTML page is
+returned. For option 2, you would disable the layout. In option 3,
+you would serialize a data structure returned from a route.
+
+The benefit of returning a part of a HTML page (option 2) is when:
+
+=over
+
+=item *
+
+You don't want to render the entire page in the backend
+
+=item *
+
+You don't want to fetch all the data for the entire page (imagine menus,
+headers, etc.)
+
+=item *
+
+You prefer to inject the HTML directly to an element, reducing front-end
+complexity
+
+=back
+
+If you are building interfaces with toolkits like L<htmx|https://htmx.org/> or
 L<Turbo|https://turbo.hotwired.dev/>, it's important to only return
-your page snippet.
-
-If you need a route handler to return JSON, XML, or other serialized
-data, you should look ahead to the L</Serialization> section. There
-are special keywords and functionality built into Dancer2 to assist
-with this that are better suited than the C<template> keyword.
+a partial page.
 
 =head2 Default template variables
 
@@ -975,15 +999,24 @@ new ticket each time.
 
 =head2 The importance of state
 
-HTTP and HTTPS are what's known as stateless protocols; a browser or
-client makes a request of a site over HTTP(S), providing any information
-the server needs to know to produce the desired response. The server then
-processes this request and returns its response, again over HTTP(S), and
-that's it. The next time the client makes a request of the server, it
-remembers nothing about the last time this client made a request, and so
-all of that information must be sent again - the server has no concept
-of persistence or "state" - this is left up to the developer to
-implement.
+HTTP and HTTPS are stateless protocols, meaning each request from a
+client to a server is independent. The server processes each request
+and responds, but it doesn’t remember past interactions. Therefore, each
+new request must include all necessary information, as the server doesn’t
+retain any “state” between requests — this is something developers must
+implement if needed.
+
+This lack of memory between requests is why web frameworks use B<session
+management>. Sessions allow servers to remember users' actions across
+multiple requests, creating a sense of continuity, or "state." To do
+this, web frameworks often rely on B<cookies> — small pieces of data stored
+in the browser. When a client connects, the server assigns a unique
+session ID stored in a cookie, which the browser sends with each request.
+This session ID allows the server to "remember" the user's previous
+interactions, making it possible to build personalized and seamless web
+experiences.
+
+The following section explains how to manage sessions with Dancer2.
 
 =head2 Managing visitor sessions
 
