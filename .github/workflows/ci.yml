@@ -44,6 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
             perl -v
+            cpanm --notest --force Module::Pluggable
             dzil authordeps --missing | cpanm --notest
             dzil listdeps --author --missing | cpanm --notest
 
@@ -111,6 +112,7 @@ jobs:
       - name: Install Dancer
         run: |
             perl -v
+            cpanm --notest --force Module::Pluggable
             cpanm Dancer2-*.tar.gz
             perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
 
@@ -138,6 +140,7 @@ jobs:
       - name: Install Dancer
         run: |
             perl -v
+            cpanm --notest --force Module::Pluggable
             cpanm Dancer2-*.tar.gz
             perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
 
@@ -189,6 +192,8 @@ jobs:
         run: |
             perl -v
 
+            cpanm --notest --force Module::Pluggable
+
             # Unclear why Test::TCP fails on GitHub Actions on Windows, but this seems to be related:
             # https://github.com/tokuhirom/Test-TCP/pull/99
             cpanm --notest Test::TCP
@@ -204,6 +209,7 @@ jobs:
       - name: Install Dancer on Linux and OSX
         if: ${{ ! startsWith( matrix.runner, 'windows-' )  }}
         run: |
+            cpanm --notest --force Module::Pluggable
             cpanm Dancer2-*.tar.gz
             perl -MDancer2 -e 'print qq{$Dancer2::VERSION\n}'
 
