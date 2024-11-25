@@ -343,37 +343,33 @@ Or you can override them directly in the script (less recommended):
 
 =head1 Database Recipes
 
-TODO: Review this
-
 =head2 Using DBIx::Class
 
 L<DBIx::Class>, also known as DBIC, is one of the many Perl ORM
-(I<Object Relational Mapper>). It is easy to use DBIC in Dancer2 using the
-L<Dancer2::Plugin::DBIC>.
-
-=head3 An example
+(I<Object Relational Mapper>) frameworks. It is easy to use DBIC in Dancer2
+using L<Dancer2::Plugin::DBIx::Class>.
 
 This example demonstrates a simple Dancer2 application that allows one to search
-for authors or books. The application is connected to a database, that contains
-authors, and their books. The website will have one single page with a form,
-that allows one to query books or authors, and display the results.
+for authors or books. The application is connected to a database that contains
+authors and their books. The website will have a single page with a form
+that allows one to query books or authors and display the results.
 
-=head4 Creating the application
+=head3 Creating the application
 
-    $ dancer2 -a bookstore
+    $ dancer2 gen -a bookstore
 
-To use the Template Toolkit as the template engine, we specify it in the
+To use the Template Toolkit as the template engine, specify it in the
 configuration file:
 
     # add in bookstore/config.yml
     template: template_toolkit
 
-=head4 Creating the view
+=head3 Creating the view
 
-We need a view to display the search form, and below, the results, if any. The
+We need a view to display the search form and the results, if any. The
 results will be fed by the route to the view as an arrayref of results. Each
-result is a I<hashref>, with a author key containing the name of the author, and
-a books key containing an I<arrayref> of strings : the books names.
+result is a hashref, with a author key containing the name of the author, and
+a books key containing an arrayref of strings: the books' names.
 
     # example of a list of results
     [ { author => 'author 1',
@@ -384,7 +380,6 @@ a books key containing an I<arrayref> of strings : the books names.
       }
     ]
 
-
     # bookstore/views/search.tt
     <p>
     <form action="/search">
@@ -393,8 +388,7 @@ a books key containing an I<arrayref> of strings : the books names.
     </p>
     <br>
 
-
-An example of the view, displaying the search form, and the results, if any:
+An example of the view displaying the search form and results, if any:
 
     <% IF query.length %>
       <p>Search query was : <% query %>.</p>
@@ -414,11 +408,11 @@ An example of the view, displaying the search form, and the results, if any:
       <% END %>
     <% END %>
 
-=head4 Creating a Route
+=head3 Creating a Route
 
-A simple route, to be added in the I<bookstore.pm> module:
+A simple route, to be added in the C<Bookstore.pm> module:
 
-    # add in bookstore/lib/bookstore.pm
+    # add in bookstore/lib/Bookstore.pm
     get '/search' => sub {
         my $query   = query_parameters->get('query');
         my @results = ();
@@ -433,20 +427,22 @@ A simple route, to be added in the I<bookstore.pm> module:
         };
     };
 
-=head4 Creating a database
+=head3 Creating a database
 
 We create a SQLite file database:
 
     $ sqlite3 bookstore.db
     CREATE TABLE author(
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      firstname text default '' not null,
-      lastname text not null);
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        firstname text default '' not null,
+        lastname text not null
+    );
 
     CREATE TABLE book(
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      author INTEGER REFERENCES author (id),
-      title text default '' not null );
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        author INTEGER REFERENCES author (id),
+        title text default '' not null
+    );
 
 Now, to populate the database with some data, we use L<DBIx::Class>:
 
@@ -456,34 +452,34 @@ Now, to populate the database with some data, we use L<DBIx::Class>:
     package main;
     my $schema = My::Bookstore::Schema->connect('dbi:SQLite:dbname=bookstore.db');
     $schema->populate('Author', [
-      [ 'firstname', 'lastname'],
-      [ 'Ian M.',    'Banks'   ],
-      [ 'Richard',   'Matheson'],
-      [ 'Frank',     'Herbert' ],
+        [ 'firstname', 'lastname'],
+        [ 'Ian M.',    'Banks'   ],
+        [ 'Richard',   'Matheson'],
+        [ 'Frank',     'Herbert' ],
     ]);
     my @books_list = (
-      [ 'Consider Phlebas',    'Banks'    ],
-      [ 'The Player of Games', 'Banks'    ],
-      [ 'Use of Weapons',      'Banks'    ],
-      [ 'Dune',                'Herbert'  ],
-      [ 'Dune Messiah',        'Herbert'  ],
-      [ 'Children of Dune',    'Herbert'  ],
-      [ 'The Night Stalker',   'Matheson' ],
-      [ 'The Night Strangler', 'Matheson' ],
+        [ 'Consider Phlebas',    'Banks'    ],
+        [ 'The Player of Games', 'Banks'    ],
+        [ 'Use of Weapons',      'Banks'    ],
+        [ 'Dune',                'Herbert'  ],
+        [ 'Dune Messiah',        'Herbert'  ],
+        [ 'Children of Dune',    'Herbert'  ],
+        [ 'The Night Stalker',   'Matheson' ],
+        [ 'The Night Strangler', 'Matheson' ],
     );
     # transform author names into ids
     $_->[1] = $schema->resultset('Author')->find({ lastname => $_->[1] })->id
-      foreach (@books_list);
+        foreach (@books_list);
     $schema->populate('Book', [
-      [ 'title', 'author' ],
-      @books_list,
+        [ 'title', 'author' ],
+        @books_list,
     ]);
 
-Then run it in the directory where I<bookstore.db> sits:
+Then run it in the directory where F<bookstore.db> sits:
 
     perl populate_database.db
 
-=head4 Using Dancer2::Plugin::DBIC
+=head3 Using Dancer2::Plugin::DBIx::Class
 
 There are 2 ways of configuring DBIC to understand how the data is organized
 in your database:
@@ -493,36 +489,36 @@ in your database:
 =item * Use auto-detection
 
 The configuration file needs to be updated to indicate the use of the
-Dancer2::Plugin::DBIC plugin, define a new DBIC schema called I<bookstore> and
+Dancer2::Plugin::DBIx::Class plugin, define a new DBIC schema called C<Bookstore> and
 to indicate that this schema is connected to the SQLite database we created.
 
     # add in bookstore/config.yml
     plugins:
       DBIC:
-        bookstore:
+        Bookstore:
           dsn:  "dbi:SQLite:dbname=bookstore.db"
 
-Now, C<_perform_search> can be implemented using L<Dancer2::Plugin::DBIC>. The
+Now, C<_perform_search> can be implemented using L<Dancer2::Plugin::DBIx::Class>. The
 plugin gives you access to an additional keyword called B<schema>, which you
 give the name of schema you want to retrieve. It returns a C<DBIx::Class::Schema::Loader>
 which can be used to get a resultset and perform searches, as per standard
 usage of DBIX::Class.
 
-    # add in bookstore/lib/bookstore.pm
+    # add in bookstore/lib/Bookstore.pm
     sub _perform_search {
         my ($query) = @_;
-        my $bookstore_schema = schema 'bookstore';
+        my $bookstore_schema = schema 'Bookstore';
         my @results;
         # search in authors
         my @authors = $bookstore_schema->resultset('Author')->search({
-          -or => [
-            firstname => { like => "%$query%" },
-            lastname  => { like => "%$query%" },
+            -or => [
+                firstname => { like => "%$query%" },
+                lastname  => { like => "%$query%" },
           ]
         });
         push @results, map {
             { author => join(' ', $_->firstname, $_->lastname),
-              books => [],
+                books => [],
             }
         } @authors;
         my %book_results;
@@ -546,9 +542,9 @@ usage of DBIX::Class.
 
 The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes
 using L<Moose>. The schema classes should be put in a place that Dancer2
-will find. A good place is in I<bookstore/lib/>.
+will find. A good place is in F<bookstore/lib/>.
 
-Once your schema classes are in place, all you need to do is modify I<config.yml>
+Once your schema classes are in place, all you need to do is modify F<config.yml>
 to specify that you want to use them, instead of the default auto-detection method:
 
     # change in bookstore/config.yml
@@ -558,27 +554,22 @@ to specify that you want to use them, instead of the default auto-detection meth
           schema_class: My::Bookstore::Schema
           dsn: "dbi:SQLite:dbname=bookstore.db"
 
-B<Starting the application>:
+=back
+
 Our bookstore lookup application can now be started using the built-in server:
 
     # start the web application
     plackup bin/app.psgi
 
-=back
-
 =head1 Authentication Recipes
-
-TODO: Review content
-
-=head2 Authentication
 
 Writing a form for authentication is simple: we check the user credentials
 on a request and decide whether to continue or redirect them to a form.
-The form allows them to submit their username and password and we save that
-and create a session for them so when they now try the original request,
-we recognize them and allow them in.
+The form allows them to submit their username and password; we save that
+and create a session for them so when they try the original request,
+we recognize the user and allow them in.
 
-=head3 Basic Application
+=head2 Basic Application
 
 The application is fairly simple. We have a route that needs authentication,
 we have a route for showing the login page, and we have a route for posting
@@ -610,7 +601,7 @@ login information and creating a session.
          redirect $redir_url;
      };
 
-=head3 Tiny Authentication Helper
+=head2 Tiny Authentication Helper
 
 L<Dancer2::Plugin::Auth::Tiny> allows you to abstract away not only the
 part that checks whether the session exists, but to also generate a
@@ -633,7 +624,7 @@ it to I</login>, in which we would render a form for the user to send a login re
 Auth::Tiny even provides a new parameter, C<return_url>, which can be used to send
 the user back to their original requested path.
 
-=head3 Password Hashing
+=head2 Password Hashing
 
 L<Dancer2::Plugin::Passphrase> provides a simple passwords-as-objects interface with
 sane defaults for hashed passwords which you can use in your web application. It uses
@@ -646,8 +637,8 @@ Assuming we have the original user-creation form submitting a username and passw
      use Dancer2::Plugin::Passphrase;
      post '/register' => sub {
          my $username = query_parameters->get('username');
-         my $password = passphrase( 
-             query_parameters->get('password') 
+         my $password = passphrase(
+             query_parameters->get('password')
          )->generate;
 
          # $password is now a hashed password object
@@ -673,8 +664,6 @@ We can now add the B<POST> method for verifying that username and password:
      };
 
 =head1 JSON/Serialization/API Recipes
-
-TODO: Review
 
 =head2 Writing a REST application
 
@@ -713,14 +702,14 @@ requests will be automatically deserialized.
     };
 
 It's possible to let the client choose which serializer to use. For
-this, use the C<mutable> serializer, and an appropriate serializer will be
+this, use L<Dancer2::Serializer::Mutable>, and an appropriate serializer will be
 chosen from the C<Content-Type> header.
 
 It's also possible to return a custom error using the
-L<send_error|Dancer2::Manual/send_error> keyword. When you don't use a serializer,
-the C<send_error> function will take a string as first parameter (the
-message), and an optional HTTP code. When using a serializer, the message
-can be a string, an arrayref or a hashref:
+L<send_error|Dancer2::Manual::Keywords/send_error> keyword. When you don't
+use a serializer, the C<send_error> function will take a string as first
+parameter (the message), and an optional HTTP code. When using a serializer,
+the message can be a string, an arrayref or a hashref:
 
     get '/hello/:name' => sub {
         if (...) {
@@ -794,7 +783,7 @@ We can now make a serialized request:
 
      $ curl -X POST http://ourdomain/person/16 -d '{"user":"sawyer_x"}'
 
-=head3 App-specific feature
+=head3 Supporting both serialized and non-serialized routes
 
 Serializers are engines. They affect a Dancer Application, which means
 that once you've set a serializer, B<all> routes within that package
@@ -924,52 +913,13 @@ All that is left now is to render it:
 
      template index => { metrics => $metrics };
 
-=head2 Simplifying AJAX queries with the Ajax plugin
-
-As an AJAX query is just an HTTP query, it's similar to a GET or POST route.
-You may ask yourself why you may want to use the C<ajax> keyword (from the
-L<Dancer2::Plugin::Ajax> plugin) instead of a simple C<get>.
-
-Let's say you have a path like C</user/:user> in your application. You may
-want to be able to serve this page with a layout and HTML content. But you
-may also want to be able to call this same url from a javascript query using
-AJAX.
-
-So, instead of having the following code:
-
-    get '/user/:user' => sub {
-         if ( request->is_ajax ) {
-             # create xml, set headers to text/xml, blablabla
-              header( 'Content-Type'  => 'text/xml' );
-              header( 'Cache-Control' =>  'no-store, no-cache, must-revalidate' );
-              to_xml({...})
-         } else {
-             template users => {...}
-         }
-    };
-
-you can have
-
-    ajax '/user/:user' => sub {
-         to_xml( {...}, RootName => undef );
-    }
-
-and
-
-    get '/user/:user' => sub {
-        template users => {...}
-    }
-
-Because it's an AJAX query, you know you need to return XML content, so
-the content type of the response is set for you.
-
 =head3 Example: Feeding graph data through AJAX
 
 Let us assume we are building an application that uses a plotting library
 to generate a graph and expects to get its data, which is in the form
 of word count from an AJAX call.
 
-For the graph, we need the url I</data> to return a JSON representation
+For the graph, we need the url C</data> to return a JSON representation
 of the word count data. Dancer in fact has a C<encode_json()> function that takes
 care of the JSON encapsulation.
 
@@ -1014,14 +964,8 @@ care of the JSON encapsulation.
 
          };
 
-         encode_json( \@json );
+         send_as JSON => \@json ;
      };
-
-For more serious AJAX interaction, there's also L<Dancer2::Plugin::Ajax>
-that adds an I<ajax> route handler to the mix.
-
-Because it's an AJAX query, you know you need to return XML content, so
-the content type of the response is set for you.
 
 =head1 Dessert Recipes
 
