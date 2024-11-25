@@ -18,6 +18,8 @@
       (Russell @veryrusty Jenkins)
     * PR #1718: Add Module::Pluggable as a requirement, excluding
       broken versions (Russell @veryrusty Jenkins)
+    * PR #1719: Force install of Module::Pluggable so CI can successfully
+      run (Jason A. Crome, Russell @veryrusty Jenkins)
 
 1.1.1     2024-07-18 19:48:00-04:00 America/New_York
 
