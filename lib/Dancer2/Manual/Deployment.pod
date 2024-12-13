@@ -231,4 +231,3 @@ FastCGI is a more efficient alternative to CGI. Install a PSGI-to-FastCGI adapte
 
 =cut
 
-# TODO: CPAN?
