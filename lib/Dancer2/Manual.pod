@@ -276,7 +276,11 @@ different types of parameters.
 
 =head4 param and params (Not Recommended)
 
-The C<param> and C<params> keywords are legacy methods to access request parameters. While still functional, they are not recommended for new applications. Instead, you should use the more specific keywords like C<route_parameters>, C<query_parameters>, and C<body_parameters> for clarity and precision.
+The C<param> and C<params> keywords are legacy methods to access request
+parameters. While still functional, they are not recommended for new
+applications. Instead, you should use the more specific keywords like
+C<route_parameters>, C<query_parameters>, and C<body_parameters> for
+clarity and precision.
 
 =head4 Example: Using param (Not Recommended)
 
@@ -1728,7 +1732,7 @@ it easy to implement, maintain, and extend your applications. You've
 already learned many of these keywords, but there are additional ones
 that provide even greater functionality.
 
-See L<Dancer2::Manual::Keywords/DSL Keywords manual> for a complete list of
+See L<the keyword guide|Dancer2::Manual::Keywords> for a complete list of
 keywords provided by Dancer2.
 
 =head1 Advanced Topics
