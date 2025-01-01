@@ -5,1438 +5,1067 @@ package Dancer2::Tutorial;
 
 =pod
 
-=head1 Tutorial Overview
+=head1 Dancer2 Tutorial
 
-This tutorial is has three parts. Since they build on one another, each part is
-meant to be gone through in sequential order.
+The point is to gradually build up from simple examples and demonstrations
+of techniques and end up with a working blog application.
 
-B<Part I>, the longest part of this tutorial, will focus on the basics of Dancer2
-development by building a simple yet functional blog app, called C<dancr>, that
-you can use to impress your friends, mates, and family.
+=head1 Introduction - the Danceyland Blog
 
-In B<Part II>, you'll learn about the preferred way to get your own web apps up
-and running by using the C<dancer2> utility. We will take the script written in
-Part I and convert it into a proper Dancer2 app, called C<Dancr2>, to help you
-gain an understanding of what the C<dancer2> utility does for you.
+=head2 What You'll Learn
 
-Finally, in B<Part III>, we give you a taste of the power of plugins that other
-developers have written and will show you how to modify the C<Dancr2> app to use
-a database plugin.
+=head2 Prerequisites
 
-This tutorial assumes you have some familiarity with Perl and that you know how
-to create and execute a Perl script on your computer. Some experience with web
-development is also greatly helpful but not entirely necessary. This tutorial is
-mostly geared toward developers but website designers can get something out of
-it as well since the basics of templating are covered plus it might be
-good for a designer to have a decent idea of how Dancer2 works.
+Linux, BSD, or Windows with WSL and a Linux distribution installed.
 
-=head1 Part I: Let's Get Dancing!
+Windows with Stawberry Perl may work, but is not guaranteed.
 
-Part I covers many of the basic concepts you'll need to know to lay a good
-foundation for your future development work with Dancer2 by building a simple
-micro-blogging app.
+You'll also need SQLite 3, installed via your operating system's package
+manager.
 
-=head2 What is Dancer2?
+=head1 Setting Up Your Environment
 
-Dancer2 is a micro-web framework, written in the Perl programming language, and is
-modeled after a Ruby web application framework called L<Sinatra|http://www.sinatrarb.com>.
+=head2 Installing Dancer2
 
-When we say "micro" framework, we mean that Dancer2 aims to maximize your freedom
-and control by getting out of your way. "Micro" doesn't mean Dancer2
-is only good for creating small apps. Instead, it means that Dancer2's primary
-focus is on taking care of a lot of the boring, technical details of your app
-for you and by creating an easy, clean routing layer on top of your app's
-code. It also means you have almost total control over the app's functionality
-and how you create and present your content. You will not confined to someone
-else's approach to creating a website or app.
+    cpan Dancer2
 
-With Dancer2, you can build anything from a specialized content management
-system to providing a simple API for querying a database over the web. But you
-don't have to reinvent the wheel, either. Dancer2 has hundreds of plugins that
-you can take advantage of. You can add only the capabilities your app needs to
-keep complexity to a minimum.
+or
 
-As a framework, Dancer2 provides you with the tools and infrastructure you can
-leverage to deliver content on the web quickly, easily and securely. The tools,
-Dancer2 provides, called "keywords," are commands that you use to build your app,
-access the data inside of it, and deliver it on the internet in many
-different formats.
+    cpanm Dancer2
 
-Dancer2's keywords provide what is called a B<Domain Specific Language> (DSL)
-designed specifically for the task of building apps. But don't let the
-technical jargon scare you off. Things will become clearer in our first code
-example which we will look at shortly.
+=head2 Creating Your First App
 
-=head3 Getting Dancer2 installed
+    dancer2 -a DLBlog
 
-First, we need to make sure you have Dancer2 installed. Typically, you will do
-that with one of the following two commands:
+Output:
 
-    cpan Dancer2  # requires the cpan command to be installed and configured
-    cpanm Dancer2 # requires you have cpanminus installed
+    + DLBlog
+    + DLBlog/.dancer
+    + DLBlog/config.yml
+    + DLBlog/cpanfile
+    + DLBlog/Makefile.PL
+    + DLBlog/MANIFEST.SKIP
+    + DLBlog/t
+    + DLBlog/t/002_index_route.t
+    + DLBlog/t/001_base.t
+    + DLBlog/environments
+    + DLBlog/environments/production.yml
+    + DLBlog/environments/development.yml
+    + DLBlog/bin
+    + DLBlog/bin/app.psgi
+    + DLBlog/views
+    + DLBlog/views/index.tt
+    + DLBlog/public
+    + DLBlog/public/dispatch.cgi
+    + DLBlog/public/404.html
+    + DLBlog/public/favicon.ico
+    + DLBlog/public/500.html
+    + DLBlog/public/dispatch.fcgi
+    + DLBlog/lib
+    + DLBlog/lib/DLBlog.pm
+    + DLBlog/views/layouts
+    + DLBlog/views/layouts/main.tt
+    + DLBlog/public/images
+    + DLBlog/public/images/perldancer.jpg
+    + DLBlog/public/images/perldancer-bg.jpg
+    + DLBlog/public/javascripts
+    + DLBlog/public/javascripts/jquery.js
+    + DLBlog/public/css
+    + DLBlog/public/css/style.css
+    + DLBlog/public/css/error.css
 
-If you aren't familiar with installing Perl modules on your machine, you should
-L<read this guide|https://www.cpan.org/modules/INSTALL.html>. You may also want
-to consult your OS's documentation or a knowledgeable expert. And, of course,
-your search engine of choice is always there for you, as well.
+    Your new application is ready! To run it:
 
-=head3 Your first Dancer2 "Hello World!" app
+        cd DLBlog
+        plackup bin/app.psgi
 
-Now that you have Dancer2 installed, open up your favorite text editor and copy
-and paste the following lines of Perl code into it and save it to a file
-called C<dancr.pl>:
+    To access your application, point your browser to http://localhost:5000
 
-    #!/usr/bin/env perl
-    use Dancer2;
+    If you need community assistance, the following resources are available:
+    - Dancer website: https://perldancer.org
+    - Twitter: https://twitter.com/PerlDancer/
+    - GitHub: https://github.com/PerlDancer/Dancer2/
+    - Mailing list: https://lists.perldancer.org/mailman/listinfo/dancer-users
+    - IRC: irc.perl.org#dancer
 
-    get '/' => sub {
-        return 'Hello World!';
-    };
+    Happy Dancing!
 
-    start;
+Make sure to change to your new project directory to begin work:
 
-If you make this script executable and run it, it will fire up a simple,
-standalone web server that will display "Hello World!" when you point your
-browser to L<http://localhost:3000>. Cool!
+    cd DLBlog
 
-B<Important note:> We want to emphasize that writing a script file like
-this with a C<start> command is B<not> how you would typically begin writing a
-Dancer2 app. Part II of this tutorial will show you the recommended approach
-using the C<dancer2> utility. For now, we want to stay focused on the
-fundamentals.
+=head2 Understanding Directory Structure
 
-So, though our example app is very simple, there is a lot going on under the hood
-when we invoke C<use Dancer2;> in our first line of code. We won't go into the
-gory details of how it all works. For now, it's enough for you to know that the
-Dancer2 module infuses your script with the ability to use Dancer2 keywords for
-building apps. Getting comfortable with the concept of keywords is probably the
-most important step you can take as a budding Dancer2 developer and this
-tutorial will do its best to help foster your understanding of them.
+Your application directory now contains several subdirectories:
 
-The next line of code in our example (which spans three lines to make it more
-readable) is the B<route handler>. Let's examine this line closely, because
-route handlers are at the core of how to build an app with Dancer2.
+=over
 
-The syntax of a Dancer2 C<route handler> has three parts:
+=item bin
+
+Contains the PSGI file that starts your application. Can be used for
+other utilities and scripts for your application.
+
+=item environments
+
+Configuration information. One file per environment (such as C<development>
+and C<production>)
+
+=item lib
+
+Your core application code. This is where you'll put your models,
+controllers, and other code.
+
+=item public
+
+Contains static files such as images, CSS, and JavaScript. Also contains
+instance scripts for CGI and FastCGI.
+
+=item t
+
+Tests for your application.
+
+=item views
+
+Contains templates and layouts.
+
+=back
+
+=head2 Using Plackup for Development
+
+    plackup -r bin/app.psgi
+
+This autorestarts your application when changes are made to your code.
+This is ideal during development, but should not be used in a production
+setting.
+
+=head1 Configuring Our Application
+
+By default, new Dancer2 applications use L<Dancer2::Template::Simple>.
+While this works well for the simplest of apps, it's not well suited to
+applications like the Danceyland Blog. Instead, we'll configure this
+application to use L<Template::Toolkit>, a mainstay of Perl templating.
+
+To enable Template Toolkit, you'll need to edit your F<config.yml>:
+
+    # template engine
+    # simple: default and very basic template engine
+    # template_toolkit: TT
+
+    #template: "simple"
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          # Note: start_tag and end_tag are regexes
+          start_tag: '<%'
+          end_tag:   '%>'
+
+YAML files, such as your application config, support the same comment
+characters as Perl. L<Dancer2::Template::Simple> is disabled by commenting
+that line in your config file, and the default TT config is used by
+uncommenting the C<template> and C<engines> configuration.
+
+This tells Dancer2 to:
+
+=over
+
+=item Load the Template Toolkit template engine
+
+=item Specify Template Toolkit as the template engine to use
+
+=item Passes configuration to the TT engine (C<start_tag, end_tag>)
+
+=back
+
+We'll visit this file regularly throughout the tutorial.
+
+F<config.yml> is the right place to set configuration common to all
+environments (dev, production, etc.), such as the template engine to use.
+Later, we'll see how to use different configuration parameters in
+different environments.
+
+=head1 CRUD Routes
+
+CRUD is an acronym for Create, Read, Update, and Delete. These are the
+basic operations for any database-driven application, such as the
+Danceyland Blog.
+
+=head2 What Routes are Needed?
+
+Blogs contain one or more entries, which we need to be able to Create,
+Read, Update, and Delete. We'll need the following routes:
 
 =over
 
 =item *
-an B<http method> or B<http verb>; in this example, we use the C<get> keyword
-to tell Dancer2 that this route should apply to GET http requests. C<get> is the
-first of many keywords that Dancer2 provides that we will cover in this tutorial.
-Those familiar with web development will know that a GET request is what we use
-to fetch information from a website.
+
+Create a blog entry. This corresponds to the HTTP C<POST> method. It also
+requires a form to input the data, which is displayed using the HTTP C<GET>
+method.
 
 =item *
-the B<route pattern>; this is the bit of code that appears immediately after
-our C<get> keyword. In this example it is a forward slash (C</>), wrapped in
-single quotes, and it represents the pattern we wish to match against the URL
-that the browser, or client, has requested. Web developers will immediately
-recognize that the forward slash symbolizes the root directory of our website.
-Experienced Perl programmers will pick up on the fact that the route pattern is
-nothing more than an argument for our C<get> keyword.
+
+Read (i.e., display) a blog entry. This corresponds to the HTTP C<GET>
+method.
 
 =item *
-the B<route action>; this is the subroutine that returns our data. More
-precisely, it is a subroutine reference. The route action in our example returns
-a simple string, C<Hello World!>. Like the route pattern, the route action is
-nothing more than an argument to our C<get> keyword.
 
-Note that convention has us use the fat comma (C<< => >>) operator between the
-route pattern and the action to to make our code more readable. But we
-could just as well have used a regular old comma to separate these argument to
-our C<get> method. Gotta love Perl for its flexibility.
+Update a blog entry. If we were building an API or single-page application,
+this would correspond to the HTTP C<PUT> or C<PATCH> methods. In a
+traditional CRUD-based web application, this will use the C<POST> method.
+
+There is a UI component to this as well, which will use the HTTP C<GET>
+method.
+
+=item *
+
+Delete a blog entry. If we were building an API or single-page application,
+this would correspond to the HTTP C<DELETE> method. However, for simplicity,
+we'll use the HTTP C<GET> method to prompt the user for confirmation, and a
+C<POST> route to actually perform the deletion.
 
 =back
 
-So to put our route pattern in the example into plain English, we are telling
-our app, "If the root directory is requested with the GET http method, send
-the string 'Hello World!' back in our response." Of course, since this is a web
-app, we also have to send back headers with our response. This is quitely taken
-care of for us by Dancer2 so we don't have to think about it.
+We'll also need a route to see the list of all blog entries. This will use
+the HTTP C<GET> method.
 
-The syntax for route handlers might seem a bit foreign for newer Perl developers.
-But rest assured there is nothing magical about it and it is all just plain
-old Perl under the hood. If you keep in mind that the keyword is a subroutine
-(or more precisely, a method) and that the pattern and action are arguments to
-the keyword, you'll pick it up in no time. Thinking of these keywords as
-"built-ins" to the Dancer2 framework might also eliminate any initial confusion
-about them.
+TODO: can/should we combine the routes below with the CRUD explanation
+above?
 
-The most important takeaway here is that we build our app by adding route
-handlers which are nothing more than a collection of, HTTP verbs, URL patterns,
-and actions.
+=head3 Add an Entry (Create)
 
-=head2 How about a little more involved example?
+This requires two routes: one to display the create form, and another to
+process the input and create the entry.
 
-While investigating some Python web frameworks like L<Flask|http://flask.pocoo.org/>
-or L<Bottle|https://bottlepy.org/docs/dev/>, I enjoyed the way they explained
-step-by-step how to build an example application which was a little more involved
-than a trivial example. This tutorial is modeled after them.
+To display the entry form:
 
-Using the
-L<Flaskr|https://github.com/pallets/flask>
-sample application as my inspiration (OK, shamelessly plagiarised) I
-translated that application to the Dancer2 framework so I could better
-understand how Dancer2 worked. (I'm learning it too!)
+    get '/create' => sub {
+        return "Show the entry form";
+    };
 
-So "dancr" was born.
+To process the input and create the blog entry:
 
-dancr is a simple "micro" blog which uses the
-L<SQLite|http://www.sqlite.org> database engine for simplicity's sake.
-You'll need to install sqlite on your server if you don't have it
-installed already. Consult your OS documentation for getting SQLite
-installed on your machine.
+    post '/create' => sub {
+        return "Creates the new blog entry";
+    };
 
-=head3 Required Perl modules
+=head3 Display an Entry (Read)
 
-Obviously you need L<Dancer2> installed. You'll also need the
-L<Template Toolkit|Template>, L<File::Slurper>, and L<DBD::SQLite> modules.
-These all can be installed using your CPAN client with the following command:
+This route is similar to the one needed to display the creation form:
 
-    cpan Template File::Slurper DBD::SQLite
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Showing entry ID $id";
+    };
 
-=head2 The database code
+The route declaration contains a parameter this time: the id of the
+blog entry we wish to view. The C<route_parameters> keyword is used to
+fetch the ID passed to our application.
 
-We're not going to spend a lot of time on the database, as it's not really the
-point of this particular tutorial. Try not to dwell on this section too much
-if you don't understand all of it.
+=head3 Update an Entry (Update)
 
-Open your favorite L<text editor|http://www.vim.org> and create a schema
-definition called 'schema.sql' with the following content:
+As with adding an entry, this requires two routes: one to dosplay the
+entry form, and another to process the changes:
 
-    create table if not exists entries (
-        id integer primary key autoincrement,
-        title string not null,
-        text string not null
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the update form for entry id $id";
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Updates the specified blog entry";
+    };
+
+Again, the entry ID is provided to our Dancer2 application as a route
+parameter.
+
+=head3 Delete an Entry (Delete)
+
+This also needs two routes: one to confirm the user wants to delete the
+blog entry, and another to actually delete it:
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the delete confirmation for entry id $id";
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Deletes the specified blog entry";
+    };
+
+=head3 Displaying the Entry List
+
+Finally, we need a route to display the list of all blog entries:
+
+    get '/' => sub {
+        return "Show the list of blog entries";
+    };
+
+=head2 Putting it all Together
+
+So far, F<lib/DLBlog.pm> should look like this:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        return "Show the list of blog entries";
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Showing entry ID $id";
+    };
+
+    get '/create' => sub {
+        return "Show the entry form";
+    };
+
+    post '/create' => sub {
+        return "Creates the new blog entry";
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the update form for entry id $id";
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Updates the specified blog entry";
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the delete confirmation for entry id $id";
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Deletes the specified blog entry";
+    };
+
+    true;
+
+=head3 Run your application!
+
+Let's see how it works. From the shell:
+
+    plackup -r bin/app.psgi
+
+Then open your browser and test your GET routes (we have nothing to post
+yet!):
+
+    L<http://localhost:5000/>
+    L<http://localhost:5000/entry/1>
+    L<http://localhost:5000/create>
+    L<http://localhost:5000/update/1>
+    L<http://localhost:5000/delete/1>
+
+=head1 Setting Up Views
+
+=head2 Layout
+
+Let's replace F<views/layouts/main.tt> with simple HTML5 boilerplate:
+
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="<% settings.charset %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title><% title %></title>
+        <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+      </head>
+      <body>
+        <% content %>
+        <div id="footer">
+        Powered by <a href="https://perldancer.org/">Dancer2</a> <% dancer_version %>
+        </div>
+      </body>
+    </html>
+
+This gives us a barebones framework to build our blog into. It sets proper
+encoding of characters, an application title, adds a stylesheet, and adds
+a footer containing the version of Dancer2 powering the blog.
+
+=head2 Templates
+
+The special C<< <% content %> >> variable above is where templates used
+by our routes will display. Instead of returning a string from the routes
+defined above, let's create some templates that will contain the UI
+necessary to interact with the blog, along with some business logic to
+display them at the right time.
+
+=head3 The Index Route (C</>)
+
+Replace the existing F<views/index.tt> with the following:
+
+    <div id="entries">
+    <% IF entries.size %>
+        <dl>
+        <% FOREACH entry IN entries %>
+            <dt><a href="/entry/<% entry.id %>"><% entry.title | html_entity %></a>
+                (created at <% entry.created_at | html_entity %>)</dt>
+            <dd><% entry.summary | html_entity %></dd>
+        <% END %>
+        </dl>
+    <% ELSE %>
+        <p>No entries found.</p>
+    <% END %>
+    </div>
+
+This list will be populated when we read entries from the database later
+in this tutorial.
+
+What's with all these C<html_entity> things? The C<|> is Template Toolkit
+syntax for a filter, and C<html_entity> represents the filter we are using.
+This particular filter properly excapes characters like ampersands when
+displaying them as HTML.
+
+To use this template in our app, we'll use the C<template> keyword to plug
+this into our route:
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', { entries => \@entries };
+    };
+
+=head3 The View Entry Route C</entry/:id>
+
+We'll create a new template, F<views/entry.tt>, that contains everything
+we think we'll need to show a blog entry:
+
+    <% IF entry %>
+    <div id="sidebar">
+        <h1>Posted at</h1>
+        <p><% entry.created_at | html_entity %></p>
+        <h1>Summary</h1>
+        <p><% entry.summary | html_entity %></p>
+    </div>
+    <div id="content">
+        <h2><% entry.title | html_entity %></h2>
+        <p><% entry.body | html_entity %></p>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+
+C<entry> is a hashref that has the contents of our blog post.  If a valid
+entry ID isn't provided, we give the user a message explaining so.
+Otherwise, we'll provide a two column layout with metadata in the sidebar,
+and blog content on the main part of the page.
+
+This is going to be ugly as written; we'll add some styling at the end to
+make things look nicer.
+
+Let's modify our route for viewing entries to use this template:
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+=head3 The Create Entry Routes C</create>
+
+This is just a simple form to create a new blog entry. Create
+F<views/create.tt> with the following:
+
+    <div id="create">
+        <form method="post" action="<% request.uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title"><br>
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary"><br>
+            <label for="content">Content</label>
+            <textarea name="body" id="body" cols="50" rows="10"></textarea><br>
+            <input type="submit">
+        </form>
+    </div>
+
+Using C<uri_for> when specifying the POST URL allows Dancer2 to create a
+proper URL no matter where your app is running from.
+
+This can be added to the create route:
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+There is no template when POSTing to C</create>. There are two possible
+outcomes when creating a blog entry:
+
+=over
+
+=item Creation was successful, so we redirect somewhere sensible
+
+=item Creation failed, so we redisplay the filled in form and show an error
+
+=back
+
+We'll show how to do both of these in the implementation section later.
+For now:
+
+    post '/create' => sub {
+        my $new_id = 1;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+=head3 The Update Entry Routes (C</update/:id>)
+
+Showing the UI for updating a blog entry is similar to what we did in
+create above, except that we will need to display the existing values
+of an entry in the form (we don't want to make the user re-enter
+everything when updating, do we?). Since we have no values to show right
+now, we will implement this latter part in the implementation section
+below.
+
+For now, let's just return the existing create form:
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+We don't need a special template for displaying the results of an update,
+we just need to show the resulting entry. Don't we already have a route
+that does that though? Why should we do that work again here? We shouldn't!
+
+Dancer2 will let you change the flow of your application using the
+C<forward> or C<redirect> keywords. But which should we choose?
+
+=over
+
+=item C<forward> is an internal redirect
+
+This lets you perform the functionality contained in another route, but
+it's done internally, which means that the URL shown to the user in their
+browser's address bar looks like the one they requested. In the case of
+our update, the browser bar will show C<http://localhost:5000/update/1>,
+but what they would be seeing is the output from C<http://localhost:5000/entry/1>.
+This is not desirable, as it is confusing for a user to look at.
+
+=item C<redirect> is an external redirect
+
+External redirects sends the user to a different URL by sending a redirect
+response from Dancer2. Even though the user is executing a POST to
+C<http://localhost:5000/update/1>, upon completion, they're browser bar
+will show C<http://localhost:5000/entry/1>. This is a better option, as
+when an update completes successfully, the URL will match what the user sees
+in their browser.
+
+To do this, let's use the redirect keyword:
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id"; # redirect does not need a return
+    };
+
+We will show how to update an existing entry later in the tutorial.
+
+=back
+
+=head3 The Delete Routes
+
+It's wouldn't be kind to the user to simply delete an entry without giving
+them the option to change their mind, and that's what the GET route for
+deletion is intended to do.
+
+Let's give the user a simple confirmation form. Create F<views/delete.tt>:
+
+    <div id="delete">
+        <form method="post" action="<% request.uri_for('/delete/' _ id) %>">
+            <p>Delete entry <% id %>. Are you sure?</p>
+            <p>
+                <input type="radio" id="yes" name="delete_it" value="yes">
+                <label for="yes">Yes</label>
+            </p>
+            <p>
+                <input type="radio" id="no" name="delete_it" value="no">
+                <label for="no">No</label>
+            </p>
+            <input type="submit">
+        </form>
+    </div>
+
+Our GET route for delete will need to change:
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+Similar to create and update, there's no need to create another template
+to show the results of a delete. We'll just send the user back to the
+list of blog entries:
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+Notice the addition of the C<body_parameters>? This is to get the value
+of the radio button the user selected. This is important to decide if
+the user actually wants to delete or not.
+
+=head2 Reviewing our Application Code
+
+F<lib/DLBlog.pm> should now look like this:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', { entries => \@entries };
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+    post '/create' => sub {
+        my $new_id = 1;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id";
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+    true;
+
+=head2 Adding Utility to our Views
+
+This is all well and good, but it's not the most functional for our users.
+A basic menu of available options would help users to understand what
+actions can be performed in the Danceyland Blog.
+
+=head3 Adding a Menu to our Layout
+
+Let's edit our layout so users can see the same list of options across all
+pages. By adding the menu once to the layout, we don't have to reproduce
+this in the list, create, update, and delete templates.
+
+Our menu will look like this:
+
+    <div id="menu">
+        <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+        <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+    </div>
+
+Now, let's add it to the top of our layout. The end result looks like:
+
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="<% settings.charset %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title><% title %></title>
+        <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+      </head>
+      <body>
+        <div id="menu">
+            <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+            <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+        </div>
+        <% content %>
+        <div id="footer">
+        Powered by <a href="https://perldancer.org/">Dancer2</a> <% dancer_version %>
+        </div>
+      </body>
+    </html>
+
+Refresh your browser to see the menu appear at the top of your page.
+
+=head3 Adding Messages to our Layout
+
+It's easy to tell if create was successful, but what about update and
+delete? Wouldn't it be nice to receive some confirmation that an update
+or delete worked as intended? To do this, let's add the ability to
+display a message via our layout.
+
+Let's create a simple message display to add to our layout:
+
+    <% IF message %>
+    <div id="message">
+        <b><% message | html_entity %></b>
+    </div>
+    <% END %>
+
+The C<IF> around the message C<div> makes it so this only is added to the
+resulting page if there is a message to show the user. After adding this
+to F<views/layouts/main.tt>, the layout should look like:
+
+If you want to see the message show up in your application, just pass a
+parameter named C<message> to your template. Let's add a friendly message
+temporarily when looking at the list of blog entries (we'll remove this
+later):
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', {
+            entries => \@entries,
+            message => 'Welcome to the Danceyland Blog!',
+        };
+    };
+
+We'll add some styling later to make this stand out more.
+
+This works well if we need to generate a message and display it on a
+template in our route, but what if we need to show that message on
+another request? We'll need to save that message somewhere so it can
+get picked up by the next request.
+
+=head1 Sessions
+
+Sessions allow us to introduce persistence in our web applications. This
+manifests itself in many different ways, be it remembering the currently
+logged in user, or remembering form entries between pages on a multi-page
+form. Sessions give us a mechanism for "remembering" things.
+
+Sessions require a storage mechanism to power them. Some common storage
+engines for sessions include memory caches, files, and databases (SQL and
+NoSQL both).
+
+While sessions are generally managed server side, but can also be found
+client side in secure cookies and browser local storage.
+
+For purposes of this tutorial, we're going to use Dancer2's YAML session
+engine, L<Dancer2::Session::YAML>. By keeping our sessions in YAML, it's
+easy to look at the contents of a session while we are developing and
+debugging the blog.
+
+=head2 Setting Up a Session Engine
+
+Session engines work much like template engines; there require a little
+bit of setup in your application's config file, and then they are available
+for use throughout the application.
+
+To set up the YAML session engine, add the following to your F<config.yml>:
+
+    session: "YAML"
+
+    engines:
+      session:
+        YAML:
+          cookie_name: dlblog.session
+
+You can only have one C<engines> section, so this should be combined with
+your existing template configuration. The section should now look like:
+
+    template: "template_toolkit"
+    session: "YAML"
+    engines:
+      template:
+        template_toolkit:
+          # Note: start_tag and end_tag are regexes
+          start_tag: '<%'
+          end_tag:   '%>'
+      session:
+        YAML:
+          cookie_name: dlblog.session
+
+=head2 Storing and Retrieving Session Data
+
+We can use our session to store messages to be displayed across requests.
+
+Store session data with the C<session> keyword:
+
+    session message => "Deleted entry $id";
+
+Retrieving session data can also be done with the C<session> keyword:
+
+    my $message = session 'message';
+
+Let's add a message to our delete route:
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            session message => "Deleted entry $id";
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+And display it at the top of our list of entries:
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', {
+            entries => \@entries,
+            message => session 'message',
+        };
+    };
+
+Now confirm you want to delete an entry here:
+
+    L<http://localhost:5000/delete/1>
+
+You can verify the message was written to the session by looking at the
+session file created on disk. If you look in your project directory, you'll
+notice a new F<sessions/> directory. There should now be exactly one file
+there: your current session. Run the following:
+
+    $ cat sessions/<some session id>.yml
+
+You'll have a file that looks like:
+
+    ---
+    message: Deleted entry 1
+
+YAML files are great for sessions while developing, but they are not a
+good choice for production. We'll examine some other options when we
+discuss deploying to production later in this tutorial.
+
+Now, refresh the current page. Did you spot the problem? That message now
+shows on I<every> request! We need a way to clear messages once they are
+displayed. This is where hooks can be useful. We'll learn more about them
+later in the tutorial.
+
+For a more robust solution for persisting data one-time across requests,
+check out L<Dancer2::Plugin::Deferred>.
+
+=head2 Our Application So Far
+
+Your application module should now look like:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', {
+            entries => \@entries,
+            message => session 'message',
+        };
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+    post '/create' => sub {
+        my $new_id = 1;
+        session entry_id => $new_id;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id";
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            session message => "Deleted entry $id";
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+    true;
+
+=head1 The Danceyland Database
+
+We need some way to persist the blog entries, and relational databases
+excel at this. We'll use SQLite for this tutorial, but you can use any
+database supported by L<Dancer2::Plugin::Database> and L<DBI>.
+
+L<SQLite|https://sqlite.org> is a lightweight, single file database that
+makes it easy to add relational database functionality to a low-concurrency
+web application.
+
+=head2 Setting Up the Database
+
+At minimum, we need to create a table to contain our blog entries. Create
+a new directory for your database and SQL files:
+
+    $ mkdir db
+
+Then create a new file, F<db/entries.sql>, with the following:
+
+    CREATE TABLE entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        summary TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-Here we have a single table with three columns: id, title, and text. The
-'id' field is the primary key and will automatically get an ID assigned by
-the database engine when a row is inserted.
+Later, we'll add an additional table for users.
 
-We want our application to initialize the database automatically for us when
-we start it. So, let's edit the 'dancr.pl' file we created earlier and give it
-the ability to talk to our database with the following subroutines: (Or, if you
-prefer, you can copy and paste the finished dancr.pl script, found near the end
-of Part I in this tutorial, into the file all at once and then just follow along
-with the tutorial.)
+Let's create our blog database with the above table. From our project
+directory:
 
-    sub connect_db {
-        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
-            or die $DBI::errstr;
+    $ sqlite3 db/dlblog.db < db/entries.sql
 
-        return $dbh;
-    }
+=head2 Using Dancer2::Plugin::Database
 
-    sub init_db {
-        my $db     = connect_db();
-        my $schema = read_text('./schema.sql');
-        $db->do($schema)
-            or die $db->errstr;
-    }
+L<Dancer2::Plugin::Database> is a plugin that provides a simple interface
+to a database via L<DBI>. It allows you to connect to a database and execute
+SQL queries. The plugin also provides some additional syntax to make it
+easier to perform database queries from inside Dancer2 applications.
 
-Nothing too fancy in here, I hope. It's standard DBI except for the
-C<setting('database')> thing, more on that in a bit. For now, just assume
-that the expression evaluates to the location of the database file.
+You'll also need to install two other dependencies, L<DBI> (a universal
+database interface) and L<DBD::SQLite> (the SQLite database driver).
+Install them using C<cpan> or C<cpanm>:
 
-In Part III of the tutorial, we will show you how to use the
-L<Dancer2::Plugin::Database> module for an easier way to configure and manage
-database connections for your Dancer2 apps.
+    cpanm DBI DBD::SQLite Dancer2::Plugin::Database
 
-=head2 Our first route handler
-
-Ok, let's get back to the business of learning Dancer2 by creating our app's
-first route handler for the root URL.  Replace the route handler in our
-simple example above with this one:
-
-    get '/' => sub {
-        my $db  = connect_db();
-        my $sql = 'select id, title, text from entries order by id desc';
-
-        my $sth = $db->prepare($sql)
-            or die $db->errstr;
-
-        $sth->execute
-            or die $sth->errstr;
-
-        template 'show_entries.tt', {
-            msg           => get_flash(),
-            add_entry_url => uri_for('/add'),
-            entries       => $sth->fetchall_hashref('id'),
-        };
-    };
-
-Our new route handler is the same as the one in our first example except that
-our route action does a lot more work.
-
-Something you might not have noticed right away is the semicolon at the end of
-the route handler. This might confuse newer Perl coders and is a source of bugs
-for more experienced ones who forget to add it. We need the semicolon there
-because we are creating a reference to a subroutine and because that's just what
-the Perl compiler demands and we must obey if we want our code to run.
-
-Alright, let's take a closer look at this route's action. The first few lines are
-standard DBI. The important bit related to Dancer2 is the C<template> keyword
-at the end of the action. That tells Dancer2 to process the output through one
-of its templating engines. There are many template engines available for use with
-Dancer2. In this tutorial, we're using L<Template Toolkit|Template>
-which offers a lot more flexibility than the simple default Dancer2
-template engine.
-
-Templates all go into a C<views/> directory which located in the same
-directory as our dancr.pl script. Optionally, you can create a "layout" template
-which provides a consistent look and feel for all of your views. We'll construct
-our own layout template, cleverly named F<main.tt>, a little later in
-this tutorial.
-
-So what's going on with the hashref as the second argument to the template
-directive? Those are all of the parameters we want to pass into our
-template. We have a C<msg> field which displays a message to the user when
-an event happens like a new entry is posted, or the user logs in or out.
-It's called a "flash" message because we only want to display it one time,
-not every time the C</> URL is rendered.
-
-The C<uri_for> directive tells Dancer2 to provide a URI for that specific
-route, in this case, it is the route to post a new entry into the database.
-You might ask why we don't simply hardcode the C</add> URI in our
-application or templates.  The best reason B<not> to do that is because it
-removes a layer of flexibility as to where to "mount" the web application.
-Although the application is coded to use the root URL C</> it might be
-better in the future to locate it under its own URL route (maybe C</dancr>?)
-- at that point we'd have to go through our application and the templates
-and update the URLs and hope we didn't miss any of them.  By using the
-C<uri_for> Dancer2 method, we can easily load the application wherever we
-like and not have to modify the application at all.
-
-Finally, the C<entries> field contains a hashref with the results from our
-database query.  Those results will be rendered in the template itself, so
-we just pass them in.
-
-So what does the F<show_entries.tt> template look like? This:
-
-  [% IF session.logged_in %]
-    <form action="[% add_entry_url %]" method=post class=add-entry>
-      <dl>
-        <dt>Title:
-        <dd><input type=text size=30 name=title>
-        <dt>Text:
-        <dd><textarea name=text rows=5 cols=40></textarea>
-        <dd><input type=submit value=Share>
-      </dl>
-    </form>
-  [% END %]
-  <ul class=entries>
-  [% IF entries.size %]
-    [% FOREACH id IN entries.keys.nsort %]
-      <li><h2>[% entries.$id.title | html %]</h2>[% entries.$id.text | html %]
-    [% END %]
-  [% ELSE %]
-    <li><em>Unbelievable. No entries here so far</em>
-  [% END %]
-  </ul>
-
-Go ahead and create a C<views/> directory in the same directory as the script
-and add this file to it.
-
-Again, since this isn't a tutorial about Template Toolkit, we'll gloss
-over the syntax here and just point out the section which starts with
-C<< <ul class=entries> >>. This is the section where the database query
-results are displayed. You can also see at the very top some discussion about a
-session, more on that soon.
-
-The only other Template Toolkit related thing that has to be mentioned here is
-the C<| html> in C<[% entries.$id.title | html %]>. That's
-L<a filter|http://www.template-toolkit.org/docs/manual/Filters.html#section_html>
-to convert characters like C<< < >> and C<< > >> to C<&lt;> and C<&gt;>. This
-way they will be displayed by the browser as content on the page rather than
-just included. If we did not do this, the browser might interpret content as
-part of the page, and a malicious user could smuggle in all kinds of bad code
-that would then run in another user's browser. This is called
-L<Cross Site Scripting|https://en.wikipedia.org/wiki/Cross-site_scripting> or
-XSS and you should make sure to avoid it by always filtering data that came
-in from the web when you display it in a template.
-
-=head2 Other HTTP verbs
-
-There are 8 defined HTTP verbs defined in L<RFC
-2616|http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9>: OPTIONS,
-GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT.  Of these, the majority of web
-applications focus on the verbs which closely map to the CRUD (Create,
-Retrieve, Update, Delete) operations most database-driven applications need
-to implement.
-
-In addition, the C<PATCH> verb was defined in
-L<RFC5789|http://tools.ietf.org/html/rfc5789>, and is intended as a "partial
-PUT", sending just the changes required to the entity in question.  How
-this would be handled is down to your app, it will vary depending on the
-type of entity in question and the serialization in use.
-
-Dancer2's keywords currently supports GET, PUT/PATCH, POST, DELETE, OPTIONS which
-map to Retrieve, Update, Create, Delete respectively.  Let's take a look now at
-the C</add> route handler which handles a POST operation.
-
-    post '/add' => sub {
-        if ( not session('logged_in') ) {
-            send_error("Not logged in", 401);
-        }
-
-        my $db = connect_db();
-        my $sql = 'insert into entries (title, text) values (?, ?)';
-        my $sth = $db->prepare($sql)
-            or die $db->errstr;
-
-        $sth->execute(
-            body_parameters->get('title'),
-            body_parameters->get('text')
-        ) or die $sth->errstr;
-
-        set_flash('New entry posted!');
-        redirect '/';
-    };
-
-As before, the HTTP verb begins the handler, followed by the route, and a
-subroutine to do something; in this case it will insert a new entry into
-the database.
-
-The first check in the subroutine is to make sure the user sending the data
-is logged in. If not, the application returns an error and stops
-processing. Otherwise, we have standard DBI stuff. Let me insert (heh, heh)
-a blatant plug here for always, always using parameterized INSERTs in your
-application SQL statements. It's the only way to be sure your application
-won't be vulnerable to SQL injection. (See L<http://www.bobby-tables.com>
-for correct INSERT examples in multiple languages.) Here we're using the
-C<body_parameters> convenience method to pull in the parameters in the current HTTP
-request. (You can see the 'title' and 'text' form parameters in the
-F<show_entries.tt> template above.) Those values are inserted into the
-database, then we set a flash message for the user and redirect her back to
-the root URL.
-
-It's worth mentioning that the "flash message" is not part of Dancer2, but a
-part of this specific application. We need to implement it ourself.
-
-=head2 Logins and sessions
-
-Dancer2 comes with a simple in-memory session manager out of the box. It
-supports a bunch of other session engines including YAML, memcached, browser
-cookies and others. We'll just stick with the in-memory model which works great
-for development and tutorials, but won't persist across server restarts or
-scale very well in "real world" production scenarios.
-
-=head3 Configuration options
-
-To use sessions in our application, we have to tell Dancer2 to activate the
-session handler and initialize a session manager. To do that, we add some
-configuration directives toward the top of our 'dancr.pl' file.  But there are
-more options than just the session engine we want to set.
-
-    set 'database'        => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-    set 'session'         => 'Simple';
-    set 'template'        => 'template_toolkit';
-    set 'logger'          => 'console';
-    set 'log'             => 'debug';
-    set 'show_stacktrace' => 1;
-    set 'startup_info'    => 1;
-
-Hopefully these are fairly self-explanatory. We want the Simple session
-engine, the Template Toolkit template engine, logging enabled (at the
-'debug' level with output to the console instead of a file), we want to show
-errors to the web browser and prints a banner at the server start with
-information such as versions and the environment.
-
-Dancer2 doesn't impose any limits on what parameters you can set using the
-C<set> syntax. For this application we're going to embed our single username
-and password into the application itself:
-
-    set 'username' => 'admin';
-    set 'password' => 'password';
-
-Hopefully no one will ever guess our clever password!  Obviously, you will
-want a more sophisticated user authentication scheme in any sort of
-non-tutorial application but this is good enough for our purposes.
-
-In Part II of our tutorial, we will show you how to use Dancer2's configuration
-files to manage these options and set up different environments for your app
-using different configuration files. For now, we're going to keep it simple and
-leave that discussion for later.
-
-=head3 Logging in
-
-Now that dancr is configured to handle sessions, let's take a look at the
-URL handler for the C</login> route.
-
-    any ['get', 'post'] => '/login' => sub {
-        my $err;
-
-        if ( request->method() eq "POST" ) {
-            # process form input
-            if ( body_parameters->get('username') ne setting('username') ) {
-                $err = "Invalid username";
-            }
-            elsif ( body_parameters->get('password') ne setting('password') ) {
-                $err = "Invalid password";
-            }
-            else {
-                session 'logged_in' => true;
-                set_flash('You are logged in.');
-                return redirect '/';
-            }
-        }
-
-        # display login form
-        template 'login.tt', {
-            err => $err,
-        };
-    };
-
-This is the first handler which accepts two different verb types, a GET for
-a human browsing to the URL and a POST for the browser to submit the user's
-input to the web application.  Since we're handling two different verbs, we
-check to see what verb is in the request.  If it's B<not> a POST, we drop
-down to the C<template> directive and display the F<login.tt> template:
-
-  <h2>Login</h2>
-  [% IF err %]<p class=error><strong>Error:</strong> [% err %][% END %]
-  <form action="[% login_url %]" method=post>
-    <dl>
-      <dt>Username:
-      <dd><input type=text name=username>
-      <dt>Password:
-      <dd><input type=password name=password>
-      <dd><input type=submit value=Login>
-    </dl>
-  </form>
-
-This is even simpler than our F<show_entries.tt> template–but wait– there's a
-C<login_url> template parameter and we're only passing in the
-C<err> parameter. Where's the missing parameter? It's being generated and
-sent to the template in a C<before_template_render> directive, we'll come
-back to that in a moment or two.
-
-So the user fills out the F<login.tt> template and submits it back to the
-C</login> route handler.  We now check the user input against our
-application settings and if the input is incorrect, we alert the user, otherwise
-the application starts a session and sets the C<logged_in> session parameter
-to the C<true()> value. Dancer2 exports both a C<true()> and C<false()>
-convenience method which we use here.  After that, it's another flash
-message and back to the root URL handler.
-
-=head3 Logging out
-
-And finally, we need a way to clear our user's session with the customary
-logout procedure.
-
-    get '/logout' => sub {
-        app->destroy_session;
-        set_flash('You are logged out.');
-        redirect '/';
-    };
-
-C<< app->destroy_session; >> is Dancer2's way to remove a stored session.
-We notify the user she is logged out and route her back to the root URL once
-again.
-
-You might wonder how we can then set a value in the session in C<set_flash>,
-because we just destroyed the session.
-
-Destroying the session has removed the data from the persistence layer (which
-is the memory of our running application, because we are using the C<simple>
-session engine). If we write to I<the session> now, it will actually create
-a completely new session for our user. This new, empty session will have a new
-I<session ID>, which Dancer2 tells the user's browser about in the response.
-When the browser requests the root URL, it will send this new session ID to our
-application.
-
-=head2 Layout and static files
-
-We still have a missing puzzle piece or two. First, how can we use Dancer2
-to serve our CSS stylesheet? Second, where are flash messages displayed?
-Third, what about the C<before_template_render> directive?
-
-=head3 Serving static files
-
-In Dancer2, static files should go into the C<public/> directory, but in the
-application itself be sure to omit the C<public/> element from the path.  For
-example, the stylesheet for dancr lives in C<dancr/public/css/style.css> but
-is served from L<http://localhost:3000/css/style.css>.
-
-If you wanted to build a mostly static web site you could simply write route
-handlers like this one:
-
-    get '/' => sub {
-        send_file 'index.html';
-    };
-
-where index.html would live in your C<public/> directory.
-
-C<send_file> does exactly what it says: it loads a static file, then sends
-the contents of that file to the user.
-
-Let's go ahead and create our style sheet. In the same directory as your dancr.pl
-script, issue the following commands:
-
-    mkdir public && mkdir public/css && touch public/css/style.css
-
-Next add the following css to the C<public/css/style.css> file you just created:
-
-    body            { font-family: sans-serif; background: #eee; }
-    a, h1, h2       { color: #377ba8; }
-    h1, h2          { font-family: 'Georgia', serif; margin: 0; }
-    h1              { border-bottom: 2px solid #eee; }
-    h2              { font-size: 1.2em; }
-
-    .page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
-                      padding: 0.8em; background: white; }
-    .entries        { list-style: none; margin: 0; padding: 0; }
-    .entries li     { margin: 0.8em 1.2em; }
-    .entries li h2  { margin-left: -1em; }
-    .add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
-    .add-entry dl   { font-weight: bold; }
-    .metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
-                      margin-bottom: 1em; background: #fafafa; }
-    .flash          { background: #cee5F5; padding: 0.5em;
-                      border: 1px solid #aacbe2; }
-    .error          { background: #f0d6d6; padding: 0.5em; }
-
-Be sure to save the file.
-
-=head3 Layouts
-
-I mentioned earlier in the tutorial that it is possible to
-create a C<layout> template. In dancr, that layout is called C<main> and
-it's set up by putting in a directive like this:
-
-    set layout => 'main';
-
-near the top of your web application.  This tells Dancer2's template
-engine that it should look for a file called F<main.tt> in
-C<views/layouts/> and insert the calls from the C<template> directive
-into a template parameter called C<content>.
-
-Here is the simple layout file we will use for this web application. Go ahead
-and add this the F<main.tt> file to the C<views/layouts/> directory.
-
-  <!doctype html>
-  <html>
-  <head>
-    <title>dancr</title>
-    <link rel=stylesheet type=text/css href="[% css_url %]">
-  </head>
-  <body>
-    <div class=page>
-    <h1>dancr</h1>
-       <div class=metanav>
-       [% IF not session.logged_in %]
-         <a href="[% login_url %]">log in</a>
-       [% ELSE %]
-         <a href="[% logout_url %]">log out</a>
-       [% END %]
-    </div>
-    [% IF msg %]
-      <div class=flash> [% msg %] </div>
-    [% END %]
-    [% content %]
-  </div>
-  </body>
-  </html>
-
-Aha! You now see where the flash message C<msg> parameter gets rendered. You
-can also see where the content from the specific route handlers is inserted
-(the fourth line from the bottom in the C<content> template parameter).
-
-But what about all those other C<*_url> template parameters?
-
-=head3 Using C<before_template_render>
-
-Dancer2 has a way to manipulate the template parameters before they're
-passed to the engine for processing. It's C<before_template_render>. Using
-this keyword, you can generate and set the URIs for the C</login> and
-C</logout> route handlers and the URI for the stylesheet. This is handy for
-situations like this where there are values which are re-used consistently
-across all (or most) templates. This cuts down on code-duplication and
-makes your app easier to maintain over time since you only need to update
-the values in this one place instead of everywhere you render a template.
-
-    hook before_template_render => sub {
-        my $tokens = shift;
-
-        $tokens->{'css_url'}    = request->base . 'css/style.css';
-        $tokens->{'login_url'}  = uri_for('/login');
-        $tokens->{'logout_url'} = uri_for('/logout');
-    };
-
-Here again I'm using C<uri_for> instead of hardcoding the routes.  This code
-block is executed before any of the templates are processed so that the
-template parameters have the appropriate values before being rendered.
-
-=head2 Putting it all together
-
-Here's the complete 'dancr.pl' script from start to finish.
-
-    use Dancer2;
-    use DBI;
-    use File::Spec;
-    use File::Slurper qw/ read_text /;
-    use Template;
-
-    set 'database'        => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-    set 'session'         => 'Simple';
-    set 'template'        => 'template_toolkit';
-    set 'logger'          => 'console';
-    set 'log'             => 'debug';
-    set 'show_stacktrace' => 1;
-    set 'startup_info'    => 1;
-    set 'username'        => 'admin';
-    set 'password'        => 'password';
-    set 'layout'          => 'main';
-
-    sub set_flash {
-        my $message = shift;
-
-        session flash => $message;
-    }
-
-    sub get_flash {
-        my $msg = session('flash');
-        session->delete('flash');
-
-        return $msg;
-    }
-
-    sub connect_db {
-        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
-            or die $DBI::errstr;
-
-        return $dbh;
-    }
-
-    sub init_db {
-        my $db     = connect_db();
-        my $schema = read_text('./schema.sql');
-        $db->do($schema)
-            or die $db->errstr;
-    }
-
-    hook before_template_render => sub {
-        my $tokens = shift;
-
-        $tokens->{'css_url'}    = request->base . 'css/style.css';
-        $tokens->{'login_url'}  = uri_for('/login');
-        $tokens->{'logout_url'} = uri_for('/logout');
-    };
-
-    get '/' => sub {
-        my $db  = connect_db();
-        my $sql = 'select id, title, text from entries order by id desc';
-
-        my $sth = $db->prepare($sql)
-            or die $db->errstr;
-
-        $sth->execute
-            or die $sth->errstr;
-
-        template 'show_entries.tt', {
-            msg           => get_flash(),
-            add_entry_url => uri_for('/add'),
-            entries       => $sth->fetchall_hashref('id'),
-        };
-    };
-
-    post '/add' => sub {
-        if ( not session('logged_in') ) {
-            send_error("Not logged in", 401);
-        }
-
-        my $db  = connect_db();
-        my $sql = 'insert into entries (title, text) values (?, ?)';
-
-        my $sth = $db->prepare($sql)
-            or die $db->errstr;
-
-        $sth->execute(
-            body_parameters->get('title'),
-            body_parameters->get('text')
-        ) or die $sth->errstr;
-
-        set_flash('New entry posted!');
-        redirect '/';
-    };
-
-    any ['get', 'post'] => '/login' => sub {
-        my $err;
-
-        if ( request->method() eq "POST" ) {
-            # process form input
-            if ( body_parameters->get('username') ne setting('username') ) {
-                $err = "Invalid username";
-            }
-            elsif ( body_parameters->get('password') ne setting('password') ) {
-                $err = "Invalid password";
-            }
-            else {
-                session 'logged_in' => true;
-                set_flash('You are logged in.');
-                return redirect '/';
-            }
-        }
-
-        # display login form
-        template 'login.tt', {
-            err => $err,
-        };
-
-    };
-
-    get '/logout' => sub {
-        app->destroy_session;
-        set_flash('You are logged out.');
-        redirect '/';
-    };
-
-    init_db();
-    start;
-
-=head3 Advanced route moves
-
-There's a lot more to route matching than shown here. For example, you can
-match routes with regular expressions, or you can match pieces of a route
-like C</hello/:name> where the C<:name> piece magically turns into a named
-parameter in your handler for manipulation.
-
-You can explore this and other advanced concepts by reading the L<Dancer2::Manual>.
-
-=head1 Part II: Taking Advantage of the C<dancer2> Utility to Set Up New Apps
-
-In Part I, we took an ordinary Perl script and turned it into a simple web
-app to teach you basic Dancer2 concepts. While starting with a simple script
-like this helped make it easier to teach these concepts, it did not demonstrate
-how a typical app is built by a Dancer2 developer. So let's show you how things
-really get done.
-
-=head2 Creating a new app
-
-So now that you have a better idea of what goes into building an app with
-Dancer2, it's time to cha-cha with the C<dancer2> utility which will save you a
-lot of time and effort by setting up directories, files, and default
-configuration settings for you.
-
-The C<dancer2> utility was installed on your machine when you installed the
-Dancer2 distribution. Hop over to the command line into a directory you have
-permission to write to and issue the following command:
-
-    dancer2 gen -a Dancr2
-
-That command should output something like the following to the console:
-
-    + Dancr2
-    + Dancr2/config.yml
-    + Dancr2/Makefile.PL
-    + Dancr2/MANIFEST.SKIP
-    + Dancr2/.dancer
-    + Dancr2/cpanfile
-    + Dancr2/bin
-    + Dancr2/bin/app.psgi
-    + Dancr2/environments
-    + Dancr2/environments/development.yml
-    + Dancr2/environments/production.yml
-    + Dancr2/lib
-    + Dancr2/lib/Dancr2.pm
-    + Dancr2/public
-    + Dancr2/public/favicon.ico
-    + Dancr2/public/500.html
-    + Dancr2/public/dispatch.cgi
-    + Dancr2/public/404.html
-    + Dancr2/public/dispatch.fcgi
-    + Dancr2/public/css
-    + Dancr2/public/css/error.css
-    + Dancr2/public/css/style.css
-    + Dancr2/public/images
-    + Dancr2/public/images/perldancer.jpg
-    + Dancr2/public/images/perldancer-bg.jpg
-    + Dancr2/public/javascripts
-    + Dancr2/public/javascripts/jquery.js
-    + Dancr2/t
-    + Dancr2/t/001_base.t
-    + Dancr2/t/002_index_route.t
-    + Dancr2/views
-    + Dancr2/views/index.tt
-    + Dancr2/views/layouts
-    + Dancr2/views/layouts/main.tt
-
-What you just did was create a fully functional app in Dancer2 with just one
-command! The new app, named "Dancr2," won't do anything particularly useful until
-you add your own routes to it, but it does take care of many of the tedious tasks
-of setting up an app for you.
-
-The files and folders that were generated and that you see listed above provide
-a convenient scaffolding, or B<skeleton>, upon which you can build your app. The
-default skelelton provides you with basic error pages, css, javascript,
-graphics, tests, templates and other files which you are free to modify and
-customize to your liking.
-
-If you don't like the default skeleton provided to you by Dancer, the C<dancer2>
-command allows you to generate your own custom skeletons. Consult
-L<Dancer2::Manual/BOOTSTRAPPING-A-NEW-APP> for further details on this and other
-capabilities of the C<dancer2>) utility.
-
-=head2 Getting the new app up and running with Plack
-
-In Part I, we used the C<start> command in our script to launch a
-server to serve our app. Things are a little different when using C<dancer2>,
-however. You'll notice that the C<dancer2> utility created a C<bin/> directory
-with a file in it called C<app.psgi>. This is the file we use to get our
-app up and running.
-
-Let's see how to to do that by first changing into the Dancr2 directory and
-then starting the server using the C<plackup> command:
-
-    cd Dancr2;
-    plackup -p 5000 bin/app.psgi
-
-If all went well, you'll be able to see the Dancr2 home page by visiting:
-
-    http://localhost:5000
-
-The web page you see there gives you some very basic advice for tuning and
-modifying your app and where you can go for more information to learn about
-developing apps with Dancer2 (like this handy tutorial!).
-
-Our Dancr2 app is served on a simple web server provided by Plack. Plack is 
-PSGI compliant software, hence the C<psgi> extension for our file in the C<bin/>
-directory. Plack and PSGI is beyond the scope of this tutorial but you can learn
-more by visiting the L<Plack website|http://plackperl.org/>.
-
-For now, all you need to know is that if you are deploying an app for use by
-just yourself or a handful of people on a local network, Plack alone may do the
-trick. More typically, you would use Plack in conjunction with other server
-software to make your app much more robust. But in the early stages of your app's
-development, a simple Plack server is more than likely all you need.
-
-To learn more about the different ways for deploying your app, see the
-L<Dancer2 Deployment Manual|Dancer2::Manual::Deployment>
-
-=head2 Porting dancr.pl over to the new Dancr2 app
-
-Ok, so now that we've got our new Dancr2 app up and running, it's time to learn
-how to take advantage of what the C<dancer2> utility set up for us by porting
-our dancr.pl script created in Part I into Dancr2.
-
-=head3 The C<lib/> directory
-
-The C<lib/> directory in our Dancr2 app is where our C<app.psgi> file will
-expect our code to live. So let's take a peek at the file generated for us
-in there:
-
-    cat lib/Dancr2.pm
-
-You'll see something like the following bit of code which provides a single
-route to our app's home page and loads the index template:
-
-    package Dancr2;
-    use Dancer2;
-
-    our $VERSION = '0.1';
-
-    get '/' => sub {
-        template 'index' => { title => 'Dancr2' };
-    };
-
-    true;
-
-The first thing you'll notice is that instead of a script, we are using a module,
-C<Dancr2> to package our code. Modules make it easer to pull off many powerful
-tricks like packaging our app across several discrete modules. We'll let the
-L<manual|Dancer2::Manual/Importing-using-Appname> explain this more
-advanced technique.
-
-=head3 Updating the Dancr2 module
-
-Now that we know where to put our code, let's update the C<Dancr2.pm> module
-with our original C<dancr.pl> code. Remove the existing sample route in
-C<Dancr2.pm> and replace it with the code from our C<dancr.pl> file. You'll have
-to make a couple of adjustments to the C<dancr.pl> code like removing the
-C<use Dancer2;> line since it's already provided by our module. You'll also want
-to be sure to remove the C<start;> line as well from the end of the file.
-
-When you're done, C<Dancr2.pm> should look something close to this:
-
-    package Dancr2;
-    use Dancer2;
-
-    our $VERSION = '0.1';
-
-    # Our original dancr.pl code with some minor tweaks
-    use DBI;
-    use File::Spec;
-    use File::Slurper qw/ read_text /;
-    use Template;
-
-    set 'database' => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-    set 'session'  => 'YAML';
-    ...
-
-    <snip> # The rest of the stuff </snip>
-
-    ...
-
-    sub init_db {
-        my $schema = read_text('./schema.sql');
-        $db->do($schema)
-            or die $db->errstr;
-    }
-
-    get '/logout' => sub {
-        app->destroy_session;
-        set_flash('You are logged out.');
-        redirect '/';
-    };
-
-    init_db();
-
-Finally, to avoid getting an error in the C<init_db>) subroutine when it tries to
-load our schema file, copy over the C<schema.db> file to the root directory of
-the Dancr2 app:
-
-    cp /path/to/dancr.pl/schema.db /path/to/Dancr2;
-
-Ok, now that we've got the code moved over, let's move the assets from dancr.pl
-to our new app.
-
-=head3 The C<public/> directory
-
-As mentioned in Part I, our static assets go into our C<public/> directory. If
-you followed along with the tutorial in Part I, you should have a C<public/>
-directory with a C<public/css> subdirectory and a file called C<style.css>
-within that.
-
-Dancer2 has conveniently generated the C<public/css> directory for us which has 
-a default css file. Let's copy the style sheet from our original app so our new
-app can use it:
-
-    # Note: This command overwrites the default style sheet. Move it or copy
-    # it if you wish to preserve it.
-
-    cp /path/to/dancr.pl/public/css/style.css /path/to/Dancr2/public/css;
-
-=head3 The C<views> directory
-
-Along with our C<public/> directory, Dancer has also provided a C<views/> directory,
-which as we covered, serves as the a home for our templates. Let's get those
-copied over now:
-
-    # NOTE: This command will overwrite the default main.tt tempalte file. Move
-    # it or copy it if you wish to preserve it.
-
-    cp -r /path/to/dancr.pl/views/* /path/to/Dancr2/views;
-
-=head3 Does it work?
-
-If you followed the instructions here closely, your Dancr2 app should be working.
-Shut down any running Plack servers and then issue the same plackup command to
-see if it runs:
-
-    cd /path/to/Dancr2
-    plackup -p 5000 bin/app.psgi
-
-If you see any errors, get them resolved until the app loads.
-
-=head2 Configuring Your App
-
-In Part I, you configured your app with a series of C<set> statements near the
-top of your file. Now we will show you a better way to configure your app using
-Dancer2's configuration files.
-
-Your skeleton provides your app with three different configuration files. The
-first two files we'll discuss, found in the C<environments/> folder of
-your app, are C<development.yml> and C<production.yml>. As you can probably
-guess, the C<development.yml> file has settings intended to be used while
-developing the app. The C<production.yml> file has settings more appropriate
-for running your app when used by others. The third configuration file is found
-in the root directory of your app and is named C<config.yml>. This file has the
-settings that are common to all environments but that can be overridden by the
-environment configuration files. You can still override any configuration file
-settings in your modules using the C<set> command.
-
-We will take a look at the C<development.yml> file first. Open that file in
-your text editor and take a look inside. It has a bunch of helpful comments and
-the following five settings sprinkled throughout:
-
-    logger: "console"
-    log: "core"
-    show_stacktrace: 1
-    startup_info: 1
-
-The first four settings duplicate many of the settings in our new Dancr2 app. So
-in the spirit of DRY (don't repeat yourself), edit your Dancr2 module and delete
-the four lines that correspond to these four settings.
-
-Then, in the configuration file, be sure to change the value for the C<log>
-setting from "core" to "debug" so it matches the value we had in our module.
-
-We will leave it up to you what you want to do with the fourth setting,
-C<startup_info>. You can read about that setting, along with all the other
-settings, in the L<configuration manual|Dancer2::Config/"startup_info-(boolean)">.
-
-Finally, let's add a new setting to the configuration file for C<session> with
-the following line:
-
-    session: "Simple"
-
-Then delete the corresponding setting from your Dancr2 module.
-
-Alright, our Dancr2 app is a little leaner and meaner. Now open the main
-C<config.yml> file and look for the settings in there that are also duplicated in
-our app's module. There are two:
-
-    layout: "main"
-    template: "simple"
-
-Leave C<layout> as is but change the template setting to "template_toolkit".
-Then edit your Dancr2 module file and delete these two settings.
-
-Finally, add the following configuration settings to the .yml file:
-
-    username: "admin"
-    password: "password"
-
-Then you delete these two settings from the Dancr2 module, as well.
-
-So, if you have been following along, you now have only the following C<set>
-command in your Dancr2 module, related to the database configuration:
-
-    set 'database' => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-
-We will get rid of this setting in Part III of the tutorial. All the rest of the
-settings have been transferred to our configuration files. Nice!
-
-We still have a little more cleanup we can do. Now that Dancer2 knows we are
-using Template::Toolkit, we can delete the C<use Template;> line from our
-module.
-
-Now start the app C<plackup> command and check to see that everything works. By
-default, Dancer2 will load the development environment configuration. When it
-comes time to put your app into production, you can load the C<production.yml>
-file configuration with plackup's C<--env> switch like so:
-
-    plackup -p 5000 --env production bin/app.psgi
-
-=head2 Keep on Dancing!
-
-This concludes Part II of our tutorial where we showed you how to take advantage
-of the C<dancer2> utility to set up a app skeleton to make it really easy to get
-started developing your own apps.
-
-Part III will refine our app a little further by showing you how to use plugins
-so you can start capitalizing on all the great work contributed by other
-Dancer2 developers.
-
-=head1 Part III: Plugins, Your Many Dancing Partners
-
-Dancer2 takes advantage of the open source software revolution by making it
-exceedingly easy to use plugins that you can mix into your app to give it new
-functionality. In Part III of this tutorial, we will update our new Dancr2 app
-to use the L<Dancer2::Plugin::Database> to give you enough skills to go out and
-explore other plugins on your own.
-
-=head2 Installing plugins
-
-Like Dancer2 itself, Dancer2 plugins can be found on the CPAN. Use your
-favorite method for downloading and installing the L<Dancer2::Plugin::Database>
-module on your machine. We recommend using C<cpanminus> like so:
-
-    cpanm Dancer2::Plugin::Database
-
-=head2 Using plugins
-
-Using a plugin couldn't be easier. Simply add the following line to your Dancr2
-module below the C<use Dancer2;> line in your module:
+And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
 
     use Dancer2::Plugin::Database;
 
-=head2 Configuring plugins
-
-Plugins can be configured with the YAML configuration files mentioned in Part II
-of this tutorial. Let's edit the C<development.yml> file and add our database
-configuration there. Below the last line in that file, add the following lines,
-being careful to keep the indentation as you see it here:
-
-  plugins:                 # all plugin configuration settings go in this section
-    Database:              # the name of our plugin
-      driver: "SQLite"     # driver we want to use
-      database: "dancr.db" # where the database will go in our app
-                           # run a query when connecting to the datbase:
-      on_connect_do: [ "create table if not exists entries (id integer primary key autoincrement, title string not null, text string not null)" ]
-
-Here, we direct our database plugin to use the "SQLite" driver and to
-place the database in the root directory of our Dancr2. The C<on_connect_db>
-setting tells the plugin to run an SQL query when it connects with the database
-to create a table for us if it doesn't already exist.
-
-=head2 Modifying our database code in the Dancr2 module
-
-Now it's time to modify our Dancr2 module so it will use the plugin to query the
-database instead of our own code. There are a few things to do. First, we will
-delete the code we no longer need.
-
-Since our configuration file tells the plugin where our database is, we can
-delete this line:
-
-    set 'database' => File::Spec->catfile(File::Spec->tmpdir(), 'dancr.db');
-
-And since the database plugin will create our database connection and initialize
-our database for us, we can scrap the following two subroutines and line from our
-module:
-
-    sub connect_db {
-        my $dbh = DBI->connect("dbi:SQLite:dbname=".setting('database'))
-            or die $DBI::errstr;
-
-        return $dbh;
-    }
-
-    sub init_db {
-        my $db = connect_db();
-        my $schema = read_text('./schema.sql');
-        $db->do($schema)
-            or die $db->errstr;
-    }
-
-    init_db(); # Found at the bottom of our file
-
-With that done, let's now take advantage of a hook the plugin provides us that
-we can use to handle certain events by adding the following command to our
-module to handle database errors:
-
-    hook 'database_error' => sub {
-        my $error = shift;
-        die $error;
-    };
-
-Now let's make a few adjustments to the bits of code that make the
-database queries. In our C<get '/'> route, change all instances of C<$db> with
-C<database> and remove all the C<die> calls since we now have a hook to
-handle the errors for us. When you are done, your route should look something
-like this:
-
-    get '/' => sub {
-        my $sql = 'select id, title, text from entries order by id desc';
-        my $sth = database->prepare($sql);
-        $sth->execute;
-        template 'show_entries.tt', {
-            msg           => get_flash(),
-            add_entry_url => uri_for('/add'),
-            entries       => $sth->fetchall_hashref('id'),
-        };
-    };
-
-Make the same changes to the C<post '/add'> route to transform it into this:
-
-    post '/add' => sub {
-        if ( not session('logged_in') ) {
-            send_error("Not logged in", 401);
-        }
-
-        my $sql = 'insert into entries (title, text) values (?, ?)';
-        my $sth = database->prepare($sql);
-        $sth->execute(
-            body_parameters->get('title'),
-            body_parameters->get('text')
-        );
-
-        set_flash('New entry posted!');
-        redirect '/';
-    };
-
-Our last step is to get rid of the following lines which we no longer need,
-thanks to our plugin:
-
-  use DBI;
-  use File::Spec;
-  use File::Slurper qw/ read_text /;
-
-That's it! Now start your app with C<plackup> to make sure you don't get any
-errors and then point your browser to test the app to make sure it works as
-expected. If it doesn't, double and triple check your configuration settings and
-your module's code which should now look like this:
-
-    package Dancr2;
-    use Dancer2;
-    use Dancer2::Plugin::Database;
-
-    our $VERSION = '0.1';
-
-    my $flash;
-
-    sub set_flash {
-        my $message = shift;
-
-        $flash = $message;
-    }
-
-    sub get_flash {
-        my $msg = $flash;
-        $flash  = "";
-
-        return $msg;
-    }
-
-    hook before_template_render => sub {
-        my $tokens = shift;
-
-        $tokens->{'css_url'}    = request->base . 'css/style.css';
-        $tokens->{'login_url'}  = uri_for('/login');
-        $tokens->{'logout_url'} = uri_for('/logout');
-    };
-
-    hook 'database_error' => sub {
-        my $error = shift;
-        die $error;
-    };
-
-    get '/' => sub {
-        my $sql = 'select id, title, text from entries order by id desc';
-        my $sth = database->prepare($sql);
-        $sth->execute;
-        template 'show_entries.tt', {
-            msg           => get_flash(),
-            add_entry_url => uri_for('/add'),
-            entries       => $sth->fetchall_hashref('id'),
-        };
-    };
+=head1 Implementing the Danceyland Blog
 
-    post '/add' => sub {
-        if ( not session('logged_in') ) {
-            send_error("Not logged in", 401);
-        }
+Let's start by creating an entry and saving it to the database; all other
+routes rely on us having at least one entry (in some form).
 
-        my $sql = 'insert into entries (title, text) values (?, ?)';
-        my $sth = database->prepare($sql);
-        $sth->execute(
-            body_parameters->get('title'),
-            body_parameters->get('text')
-        );
+add some logging
+Deliberately introduce an error that could be caught by logging
+Log the details, but don't give too much information in the web ui!
+For good measure, redirect to the new entry once it has been created.
+Show some input sanitation (id, for example). Show how typed params can help here.
 
-        set_flash('New entry posted!');
-        redirect '/';
-    };
+TODO: C<forward> accepts parameters for messaging
 
-    any ['get', 'post'] => '/login' => sub {
-        my $err;
+TODO:
+Update to create. Same form, with values filled in
+Make form another template to include
+Macro for displaying a value if one present
 
-        if ( request->method() eq "POST" ) {
-            # process form input
-            if ( params->{'username'} ne setting('username') ) {
-                $err = "Invalid username";
-            }
-            elsif ( params->{'password'} ne setting('password') ) {
-                $err = "Invalid password";
-            }
-            else {
-                session 'logged_in' => true;
-                set_flash('You are logged in.');
-                return redirect '/';
-            }
-        }
+=head2 Performing Queries
 
-        # display login form
-        template 'login.tt', {
-            err => $err,
-        };
+It is generally considered bad practice to issue C<SELECT *> in production
+applications. For example, if your application is expecting columns in a
+certain order, and the DBA makes a change that introduces new columns in
+the middle of a table, suddenly your application has a bug that needs to be
+fixed.
 
-    };
+It is considered better practice to explicitly list the columns you need
+to use when performing a query. This protects your application, and
+potentially your users, from unexpected changes outside of your application.
 
-    get '/logout' => sub {
-        app->destroy_session;
-        set_flash('You are logged out.');
-        redirect '/';
-    };
+=head2 Displaying Blog Data
 
-    true;
+=head2 Maintaining State
 
-=head2 Next steps
+Congratulations! You've added all the basic functionality! Now, let's secure.
 
-Congrats! You are now using the database plugin like a boss. The database plugin
-does a lot more than what we showed you here. We'll leave it up to you to consult
-the L<Dancer2::Plugin::Database|documentation> to unlock its full potential.
+=head1 Authentication
 
-There are many more plugins for you to explore. You now know enough to install
-and experiment with them. Some of the more popular and useful plugins are listed
-at L<Dancer2::Plugins>. You can also search CPAN with "Dancer2::Plugin" for a
-more comprehensive listing.
+=head2 Dancer2::Plugin::Auth::Tiny
 
-If you are feeling really inspired, you can learn how to extend Dancer2 with
-your own plugins by reading L<Dancer2::Plugin>.
+=head2 Changing Session ID
 
-=head1 Happy dancing!
+=head2 Using Hooks
 
-I hope these tutorials have been helpful and interesting enough to get you
-exploring Dancer2 on your own. The framework is still under development but
-it's definitely mature enough to use in a production project.
+=head1 Adding File Uploads
 
-Happy dancing!
+=head2 Setting Up Routes for Uploads
 
-=head2 One more thing: Test!
+=head2 Saving and Displaying Uploaded Files
 
-Before we go, we want to mention that Dancer2 makes it very easy to
-run automated tests on your app to help you find bugs. If you are new to
-testing, we encourage you to start learning how. Your future self will thank you.
-The effort you put into creating tests for your app will save you many hours of
-frustration in the long run. Unfortunately, until we get Part IV of this tutorial
-written, you'll have to consult the L<Dancer2 testing documentation|Dancer2::Manual/TESTING>
-for more details on how to test your app.
+=head1 Finishing Touches
 
-Enjoy!
+=head2 Adding Middleware
 
-=head1 SEE ALSO
+=head2 Error Handling and Custom Error Pages
 
-=over 4
+=head1 Testing Your Application
 
-=item *
+=head2 Using Test::WWW::Mechanize::PSGI
 
-L<http://perldancer.org>
+=head1 Deployment
 
-=item *
+=head2 Creating Production Configuration
 
-L<http://github.com/PerlDancer/Dancer2>
+=head2 Deploying with a PSGI Server
 
-=item *
+=head2 Configuring Reverse Proxy with NGINX
 
-L<Dancer2::Plugins>
+=head2 What You've Built
 
-=back
+=head2 Where to Go Next
 
-=head1 CSS COPYRIGHT AND LICENSE
-
-The CSS stylesheet is copied verbatim from the Flaskr example application
-and is subject to their license:
-
-Copyright (c) 2010, 2013 by Armin Ronacher and contributors.
-
-Some rights reserved.
-
-Redistribution and use in source and binary forms of the software as well as
-documentation, with or without modification, are permitted provided that the
-following conditions are met:
-
-=over 4
-
-=item *
-
-Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
-
-=item *
-
-Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
-
-=item *
-
-The names of the contributors may not be used to endorse or promote products
-derived from this software without specific prior written permission.
-
-=back
+# mention liteblog
 
 =cut
