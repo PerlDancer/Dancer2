@@ -15,7 +15,7 @@ package Dancer2::Manual::Keywords;
 
 This guide categorizes all Dancer2 keywords with descriptions, usage
 guidance, and relationships with other keywords. Each entry links to the
-relevant section in the L<Dancer2 Manual>.
+relevant section in the L<Dancer2 Manual|Dancer2::Manual>.
 
 =head1 Routing Keywords
 
