@@ -428,13 +428,14 @@ This is just a simple form to create a new blog entry. Create
 F<views/create.tt> with the following:
 
     <div id="create">
-        <form method="post" action="<% uri_for('/create') %>">
+        <form method="post" action="<% request.uri_for('/create') %>">
             <label for="title">Title</label>
-            <input type="text" name="title" id="title">
+            <input type="text" name="title" id="title"><br>
             <label for="summary">Summary</label>
-            <input type="text" name="summary" id="summary">
+            <input type="text" name="summary" id="summary"><br>
             <label for="content">Content</label>
-            <textarea name="body" id="body" cols="50" rows="10"></textarea>
+            <textarea name="body" id="body" cols="50" rows="10"></textarea><br>
+            <input type="submit">
         </form>
     </div>
 
@@ -459,6 +460,12 @@ outcomes when creating a blog entry:
 =back
 
 We'll show how to do both of these in the implementation section later.
+For now:
+
+    post '/create' => sub {
+        my $new_id = 1;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
 
 =head3 The Update Entry Routes (C</update/:id>)
 
@@ -523,7 +530,7 @@ deletion is intended to do.
 Let's give the user a simple confirmation form. Create F<views/delete.tt>:
 
     <div id="delete">
-        <form method="post" action="<% uri_for('/delete/$id') %>">
+        <form method="post" action="<% request.uri_for('/delete/' _ id) %>">
             <p>Delete entry <% id %>. Are you sure?</p>
             <p>
                 <input type="radio" id="yes" name="delete_it" value="yes">
@@ -533,6 +540,7 @@ Let's give the user a simple confirmation form. Create F<views/delete.tt>:
                 <input type="radio" id="no" name="delete_it" value="no">
                 <label for="no">No</label>
             </p>
+            <input type="submit">
         </form>
     </div>
 
@@ -569,6 +577,61 @@ the user actually wants to delete or not.
 =head2 Reviewing our Application Code
 
 F<lib/DLBlog.pm> should now look like this:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', { entries => \@entries };
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+    post '/create' => sub {
+        my $new_id = 1;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id"; # redirect does not need a return
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+    true;
 
 =head2 Adding Utility to our Views
 
