@@ -1,128 +1,257 @@
 # ABSTRACT: Dancer2 DSL Keyword Reference
 package Dancer2::Manual::Keywords;
 
+# TODO: make section order match manual
+# TODO: review verbiage
+# TODO: some (like content_type) are not linked
+# TODO: some should be noted as discouraged or obsolete
+
 =pod
+
+# TODO: still missing:
+# * app
+# * encode_json
+# * dirname
+# * dancer_version
+# * decode_json
+# * context
+# * flush
+# * push_response_header
+# * from_yaml
+# * dance
+# * psgi_app
+# * mime
+# * engine
+# * headers
+# * path
+# * dancer_app
+# * from_dumper
+# * delayed
+# * done
+# * prepare_app
+# * dancer_major_version
 
 =encoding utf8
 
-=head1 DSL KEYWORDS
+=head1 Dancer2 Keyword Guide
 
-Dancer2 provides you with a DSL (Domain-Specific Language) which makes
-implementing your web application trivial.
+This guide categorizes all Dancer2 keywords with descriptions, usage
+guidance, and relationships with other keywords. Each entry links to the
+relevant section in the L<Dancer2 Manual|Dancer2::Manual>.
 
-For example, take the following example:
+=head1 Routing Keywords
 
-    use Dancer2;
+=head2 L<any|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
-    get '/hello/:name' => sub {
-        my $name = route_parameters->get('name');
-    };
-    true;
+Defines a route that responds to any HTTP method.
 
-C<get> and C<route_parameters> are keywords provided by Dancer2.
+B<When to use>: Handle routes that accept multiple methods (e.g., C<GET>
+and C<POST>).
 
-This document lists all keywords provided by Dancer2. It does not cover
-additional keywords which may be provided by loaded plugins; see the
-documentation for plugins you use to see which additional keywords they make
-available to you.
+B<Related Keywords>: All HTTP methods.
 
-=head2 any
+=head2 L<del|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
-Defines a route for multiple HTTP methods at once:
+Defines a route that responds to HTTP C<DELETE> requests.
 
-    any ['get', 'post'] => '/myaction' => sub {
-        # code
-    };
+B<When to use>: Delete resources.
 
-Or even, a route handler that would match any HTTP methods:
+B<Related Keywords>: C<get>, C<post>, C<put>, C<patch>, C<options>, C<any>.
 
-    any '/myaction' => sub {
-        # code
-    };
+=head2 L<get|Dancer2::Manual/get>
 
-=head2 app
+Defines a route that responds to HTTP C<GET> requests. Automatically
+creates a C<HEAD> route.
 
-Returns an instance of the app. App is a L<Dancer2::Core::App>.
+B<When to use>: Fetch static resources or perform read-only actions.
 
-=head2 body_parameters
+B<Related Keywords>: C<post>, C<put>, C<del>, C<patch>, C<options>, C<any>.
 
-Returns a L<Hash::MultiValue> object from the body parameters.
+=head2 L<options|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
-    post '/' => sub {
-        my $last_name = body_parameters->get('name');
-        my @all_names = body_parameters->get_all('name');
-    };
+Defines a route that responds to HTTP C<OPTIONS> requests.
 
-=head2 captures
+B<When to use>: Check available HTTP methods for a resource.
 
-Returns a reference to a copy of C<%+>, if there are named captures in the
-route's regular expression.
+B<Related Keywords>: All HTTP methods.
 
-    get qr{
-        / (?<object> user   | ticket | comment )
-        / (?<action> delete | find )
-        / (?<id> \d+ )
-        /?$
-    }x
-    , sub {
-        my $value_for = captures;
-        "i don't want to $value_for->{action} " . 
-            "the $value_for->{object} $value_for->{id} !"
-    };
+=head2 L<patch|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
-=head2 cookie
+Defines a route that responds to HTTP C<PATCH> requests, often for partial
+updates.
 
-Accesses a cookie value (or sets it). Note that this method will eventually
-be preferred over C<set_cookie>.
+B<When to use>: Partially update existing resources.
 
-    cookie lang => "fr-FR";              # set a cookie and return its value
-    cookie lang => "fr-FR", expires => "2 hours";   # extra cookie info
-    cookie "lang"                        # return a cookie value
+B<Related Keywords>: C<get>, C<post>, C<put>, C<del>, C<options>, C<any>.
 
-If your cookie value is a key/value URI string, like
+=head2 L<post|Dancer2::Manual/post>
 
-    token=ABC&user=foo
+Defines a route that responds to HTTP C<POST> requests, typically for form
+submissions or resource creation.
 
-C<cookie> will only return the first part (C<token=ABC>) if called in scalar
-context. Use list context to fetch them all:
+B<When to use>: Submit forms, upload files, or create resources.
 
-    my @values = cookie "name";
+B<Related Keywords>: C<get>, C<put>, C<del>, C<patch>, C<options>, C<any>.
 
-=head2 cookies
+=head2 L<prefix|Dancer2::Manual/"Organizing routes and growing your app using prefix">
 
-Accesses cookies values, it returns a hashref of L<Dancer2::Core::Cookie>
-objects:
+Defines a common path prefix for grouped routes.
 
-    get '/some_action' => sub {
-        my $cookie = cookies->{name};
-        return $cookie->value;
-    };
+B<When to use>: Organize routes logically under a shared prefix.
 
-In case you have stored something other than a scalar in your cookie:
+B<Related Keywords>: All HTTP methods.
 
-    get '/some_action' => sub {
-        my $cookie = cookies->{oauth};
-        my %values = $cookie->value;
-        return ($values{token}, $values{token_secret});
-    };
+=head2 L<put|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
-=head2 config
+Defines a route that responds to HTTP C<PUT> requests, often for updating
+resources.
 
-Accesses the configuration of the application:
+B<When to use>: Update existing resources in an idempotent way.
 
-    get '/appname' => sub {
-        return "This is " . config->{appname};
-    };
+B<Related Keywords>: C<get>, C<post>, C<del>, C<patch>, C<options>, C<any>.
 
-=head2 content
+=head2 L<splat|https://metacpan.org/pod/Dancer2::Manual/"Wildcard Route Parameters">
 
-Sets the content for the response. This B<only> works within a delayed
+Retrieves a list value captured by a wildcard parameter in routes.
+
+B<When to use>: Use with wildcard routes to capture arbitrary path segments.
+
+B<Related Keywords>: C<captures>.
+
+=head1 URL and Route Helper Keywords
+
+=head2 L<uri_for|Dancer2::Manual/uri_for>
+
+Constructs a URI for a given path and query parameters.
+
+B<When to use>: Generate URLs for links and redirects.
+
+B<Related Keywords>: C<uri_for_route>.
+
+=head2 L<uri_for_route|Dancer2::Manual/uri_for_route>
+
+Constructs a URI for a named route.
+
+B<When to use>: Generate URLs based on route names and parameters.
+
+B<Best Practice>: Use C<uri_for_route> with named routes to ensure
+consistency even if route paths change.
+
+B<Related Keywords>: C<uri_for>.
+
+=head1 Request Handling Keywords
+
+=head2 L<body_parameters|Dancer2::Manual/body_parameters>
+
+Retrieves parameters specifically from the request body.
+
+B<When to use>: Handle C<POST> or C<PUT> data.
+
+B<Related Keywords>: C<query_parameters>, C<route_parameters>, C<params>.
+
+=head2 L<captures|https://metacpan.org/pod/Dancer2::Manual/"Regex Route Matching">
+
+Accesses all regex capture groups from a route pattern.
+
+B<When to use>: Extract parts of a URL matched by a regex route.
+
+B<Related Keywords>: C<splat>.
+
+=head2 L<param|Dancer2::Manual/"param and params (Not Recommended)">
+
+Retrieves a parameter from the request (query, body, or route parameters).
+
+B<When to use>: Not recommended. Use C<query_parameters>, C<body_parameters>,
+or C<route_parameters> for clarity.
+
+B<Best Practice>: Avoid using C<param> in new code to prevent confusion
+between parameter sources. Instead, use more specific keywords.
+
+B<Related Keywords>: C<params>, C<query_parameters>, C<body_parameters>, C<route_parameters>.
+
+=head2 L<params|Dancer2::Manual/"param and params (Not Recommended)">
+
+Returns all parameters from the request as a hash reference.
+
+B<When to use>: Retrieve all request parameters at once.
+
+B<Best Practice>: Prefer specific keywords like C<query_parameters> for
+clarity in code.
+
+B<Related Keywords>: C<param>, C<query_parameters>, C<body_parameters>, C<route_parameters>.
+
+=head2 L<query_parameters|Dancer2::Manual/query_parameters>
+
+Retrieves parameters specifically from the query string.
+
+B<When to use>: Handle parameters in the query string (e.g., for searches).
+
+B<Related Keywords>: C<body_parameters>, C<route_parameters>, C<params>.
+
+=head2 L<request|Dancer2::Core::Request>
+
+Provides access to the current HTTP request object.
+
+B<When to use>: Get details about the incoming request (headers, method,
+path).
+
+B<Related Keywords>: C<response>, C<params>, C<header>.
+
+=head2 L<request_data|https://metacpan.org/pod/Dancer2::Manual#request_data>
+# TODO
+
+Retrieves the raw data from the request body.
+
+B<When to use>: Access the unprocessed body content of the request, especially
+when dealing with custom or non-standard payloads.
+
+B<Related Keywords>: C<request>, C<body_parameters>, C<params>.
+
+=head2 L<request_header|https://metacpan.org/pod/Dancer2::Manual#request_header>
+
+Fetches the value of a specific header from the incoming request.
+
+B<When to use>: Obtain information from request headers, such as 'User-Agent'
+or 'Authorization'.
+
+B<Related Keywords>: C<headers>, C<response_header>.
+
+=head2 L<route_parameters|Dancer2::Manual/route_parameters>
+
+Retrieves parameters from the route pattern.
+
+B<When to use>: Handle named or wildcard route parameters.
+
+B<Related Keywords>: C<query_parameters>, C<body_parameters>, C<params>.
+
+=head2 L<upload|https://metacpan.org/pod/Dancer2::Manual#upload>
+# TODO
+
+Retrieves an uploaded file object by its field name.
+
+B<When to use>: Handle file uploads from client requests.
+
+B<Related Keywords>: C<uploads>, C<request>.
+
+=head2 L<uploads|https://metacpan.org/pod/Dancer2::Manual#uploads>
+# TODO
+
+Returns a hash reference of all uploaded files, keyed by their field names.
+
+B<When to use>: Access multiple file uploads in a single request.
+
+B<Related Keywords>: C<upload>, C<request>.
+
+=head1 Response Handling Keywords
+
+=head2 L<content|Dancer2::Manual/"Asynchronous Programming">
+
+Sets the content of the response. This B<only> works within a delayed
 response.
 
 This will crash:
 
     get '/' => sub {
-        # THIS WILL CRASH
         content 'Hello, world!';
     };
 
@@ -131,1210 +260,375 @@ But this will work just fine:
     get '/' => sub {
         delayed {
             content 'Hello, world!';
-            ...
         };
     };
 
+B<When to use>: Directly set content of an asynchronous response.
+
+B<Related Keywords>: C<response>.
+
 =head2 content_type
 
-Sets the B<content-type> rendered, for the current route handler:
+Sets the `Content-Type` header of the response.
 
-    get '/cat/:txtfile' => sub {
-        content_type 'text/plain';
+B<When to use>: Specify the MIME type of the response.
 
-        # here we can dump the contents of route_parameters->get('txtfile')
-    };
+B<Related Keywords>: C<header>.
 
-You can use abbreviations for content types. For instance:
+=head2 L<forward|Dancer2::Manual/forward>
 
-    get '/svg/:id' => sub {
-        content_type 'svg';
+Forwards the request to another route handler.
 
-        # here we can dump the image with id route_parameters->get('id')
-    };
+B<When to use>: Internally redirect to another route within the app.
 
-Note that if you want to change the default content-type for every route,
-it is easier to change the C<content_type> setting instead.
+B<Related Keywords>: C<pass>.
 
-=head2 context
+=head2 L<from_json|Dancer2::Manual/from_json>
 
-Deprecated. Use L</app> instead.
+Deserializes a JSON string into a Perl data structure.
 
-=head2 dance
+B<When to use>: Decode JSON data from the client.
 
-Alias for the C<start> keyword. L</to_app> is preferable.
+B<Related Keywords>: C<to_json>.
 
-=head2 dancer_app
+=head2 L<halt|Dancer2::Manual/halt>
 
-Returns the app object. See L</app>.
+Halts request processing and sends a response immediately.
 
-=head2 dancer_version
+B<When to use>: Stop processing and return a response early.
 
-Returns the version of Dancer. If you need the major version, do something
-like:
+B<Best Practice>: Combine C<halt> with C<status> to ensure appropriate
+HTTP response codes are sent.
 
-    int(dancer_version);
+B<Related Keywords>: C<status>, C<send_error>.
 
-or (better), call C<dancer_major_version>.
+=head2 L<header|Dancer2::Manual/header>
 
-=head2 dancer_major_version
+Sets an HTTP header in the response.
 
-Returns the major version of Dancer.
+B<When to use>: Add or modify response headers.
 
-=head2 debug
+B<Related Keywords>: C<content_type>, C<status>.
 
-Logs a message of debug level:
+=head2 L<pass|Dancer2::Manual/pass>
 
-    debug "This is a debug message";
+Passes control to the next matching route.
 
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log
-messages go.
+B<When to use>: Skip the current route and try the next one.
 
-=head2 decode_json ($string)
+B<Related Keywords>: C<forward>.
 
-Deserializes a JSON structure from an UTF-8 binary string.
+=head2 L<push_header|https://metacpan.org/pod/Dancer2::Manual#push_header>
 
-=head2 del
+Adds a new value to an existing response header without replacing its current value.
 
-Defines a route for HTTP B<DELETE> requests to the given URL:
+B<When to use>: Append additional values to headers like 'Set-Cookie' or 'X-Forwarded-For'.
 
-    del '/resource' => sub { ... };
+B<Related Keywords>: C<header>, C<response_header>.
 
-You can also provide the route with a name:
+=head2 L<redirect|Dancer2::Manual/redirect>
 
-    del 'rec' => '/resource' => sub { ... };
+Redirects the client to a different location.
 
-See C<uri_for_route> on how this can be used.
+B<When to use>: Redirect users to another route or external URL.
 
-=head2 delayed
+B<Related Keywords>: C<status>.
 
-Stream a response asynchronously. For more information, please see 
-L<Dancer2::Manual/Delayed responses (Async/Streaming)>, or 
-L<this article|https://advent.perldancer.org/2020/22> in the 2020 Dancer 
-Advent Calendar.
+=head2 L<response|Dancer2::Core::Response>
 
-=head2 dirname
+Provides access to the current response object.
 
-Returns the dirname of the path given:
+B<When to use>: Manipulate the outgoing response (headers, status, content).
 
-    my $dir = dirname($some_path);
+B<Related Keywords>: C<request>, C<header>, C<content>.
 
-=head2 done
+=head2 L<response_header|https://metacpan.org/pod/Dancer2::Manual#response_header>
 
-Close the streaming connection. Can only be called within a streaming 
-response callback.
+Sets or retrieves a specific header in the outgoing response.
+
+B<When to use>: Modify or access response headers before sending them to the client.
+
+B<Related Keywords>: C<header>, C<response_headers>.
+
+=head2 L<response_headers|https://metacpan.org/pod/Dancer2::Manual#response_headers>
+
+Returns a hash reference of all headers set in the response.
+
+B<When to use>: Inspect or manipulate multiple response headers simultaneously.
+
+B<Related Keywords>: C<response_header>, C<header>.
+
+=head2 L<send_as|Dancer2::Manual/send_as>
+
+Manually serializes and sends the response in a specific format.
+
+B<When to use>: Control response serialization explicitly.
+
+B<Related Keywords>: C<to_json>, C<from_json>.
+
+=head2 L<send_error|Dancer2::Manual/send_error>
+
+Immediately halts processing and sends an error response with a specific
+status code.
+
+B<When to use>: To send a custom error response.
+
+B<Related Keywords>: C<halt>, C<status>.
+
+=head2 L<send_file|Dancer2::Manual/"Sending Static Files from a Route Handler">
+
+Sends a file to the client.
+
+B<When to use>: Send files from disk or in-memory data as a file.
+
+B<Related Keywords>: C<send_as>.
+
+=head2 L<status|Dancer2::Manual/status>
+
+Sets the HTTP status code for the response.
+
+B<When to use>: Specify response codes (e.g., 200, 404).
+
+B<Best Practice>: Combine C<status> with C<halt> for clearer error handling
+when sending error responses.
+
+B<Related Keywords>: C<halt>, C<send_error>.
+
+=head2 L<to_json|Dancer2::Manual/to_json>
+
+Serializes a Perl data structure to JSON.
+
+B<When to use>: Encode data to JSON format.
+
+B<Related Keywords>: C<from_json>, C<send_as>.
+
+=head1 Session and Cookie Keywords
+
+=head2 L<cookie|Dancer2::Manual/"Setting and Updating Cookies">
+
+Retrieves the value of a specific cookie from the request.
+
+B<When to use>: Access individual cookies.
+
+B<Related Keywords>: C<cookies>, C<session>.
+
+=head2 L<cookies|Dancer2::Manual/"Retrieving Cookies">
+
+Retrieves all cookies from the request as a hash reference.
+
+B<When to use>: Inspect or manage multiple cookies.
+
+B<Related Keywords>: C<cookie>.
+
+=head2 L<session|Dancer2::Manual/session>
+
+Stores, retrieves, or removes data from the session.
+
+B<When to use>: Persist user-specific data between requests.
+
+B<Related Keywords>: C<cookie>, C<cookies>.
+
+=head1 Application Configuration Keywords
+
+=head2 L<config|Dancer2::Manual/config>
+
+Retrieves the entire application configuration as a hash reference.
+
+B<When to use>: Access or inspect all configuration settings.
+
+B<Related Keywords>: C<set>, C<setting>.
+
+=head2 L<runner|https://metacpan.org/pod/Dancer2::Manual#runner>
+
+Provides access to the Dancer2 runner object, which manages the application's execution.
+
+B<When to use>: Control or inspect the application's runtime environment.
+
+B<Related Keywords>: C<app>, C<config>.
+
+=head2 L<set|Dancer2::Manual/set>
+
+Sets a configuration value for the application.
+
+B<When to use>: Change configuration dynamically at runtime.
+
+B<Related Keywords>: C<setting>, C<config>.
+
+=head2 L<setting|Dancer2::Manual/setting>
+
+Retrieves a configuration value.
+
+B<When to use>: Access app configuration values.
+
+B<Related Keywords>: C<set>, C<config>.
+
+=head2 L<start|https://metacpan.org/pod/Dancer2::Manual#start>
+
+Initiates the Dancer2 application; typically called internally.
+
+B<When to use>: Rarely used directly; C<dance> is preferred to start the application.
+
+B<Related Keywords>: C<dance>, C<psgi_app>.
+
+=head2 L<var|Dancer2::Manual/var>
+
+Sets a variable in the application context.
+
+B<When to use>: Store temporary data accessible in routes and templates.
+
+B<Related Keywords>: C<vars>.
+
+=head2 L<vars|Dancer2::Manual/vars>
+
+Retrieves the application context variables.
+
+B<When to use>: Access data stored with C<var>.
+
+B<Related Keywords>: C<var>.
+
+=head1 Hooks
+
+=head2 L<hook|Dancer2::Manual/Hooks>
+
+Declares a hook to run custom code at specific stages in the request/response lifecycle.
+
+B<When to use>: Modify requests or responses, or perform actions at predefined lifecycle points.
+
+B<Related Keywords>: C<var>, C<vars>.
+
+=head1 Template Keywords
+
+=head2 L<template|Dancer2::Manual/template>
+
+Renders a view with the provided data.
+
+B<When to use>: Generate HTML or other formats dynamically.
+
+B<Related Keywords>: C<vars>.
+
+=head1 Logging Keywords
+
+=head2 L<debug|Dancer2::Manual/debug>
+
+Logs a message at the debug level.
+
+B<When to use>: Detailed diagnostic messages.
+
+B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
+
+B<Related Keywords>: C<info>, C<warning>, C<error>, C<log>.
+
+=head2 L<error|Dancer2::Manual/error>
+
+Logs a message at the error level.
+
+B<When to use>: Errors that need immediate attention.
+
+B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
+
+B<Related Keywords>: C<debug>, C<info>, C<warning>, C<log>.
+
+=head2 L<info|Dancer2::Manual/info>
+
+Logs a message at the info level.
+
+B<When to use>: General informational messages.
+
+B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
+
+B<Related Keywords>: C<debug>, C<warning>, C<error>, C<log>.
+
+=head2 L<log|Dancer2::Manual/log>
+
+Logs a message at a specified level.
+
+B<When to use>: Log messages with custom or dynamic levels.
+
+B<Related Keywords>: C<debug>, C<info>, C<warning>, C<error>.
+
+=head2 L<logger|Dancer2::Manual/Logging>
+
+Provides access to the logger object.
+
+B<When to use>: Advanced logging scenarios.
+
+B<Related Keywords>: C<log>, C<debug>, C<info>, C<warning>, C<error>.
+
+=head2 L<warning|Dancer2::Manual/warning>
+
+Logs a message at the warning level.
+
+B<When to use>: Non-critical issues that may need attention.
+
+B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
+
+B<Related Keywords>: C<debug>, C<info>, C<error>, C<log>.
+
+=head1 Miscellaneous Keywords
 
 =head2 dsl
 
-Allows access to the DSL within your plugin/application. Is an instance of
-L<Dancer2::Core::DSL>.
+Provides access to the DSL (Domain Specific Language) object.
 
-=head2 encode_json ($structure)
+B<When to use>: When writing plugins or extending Dancer2's capabilities.
 
-Serializes a structure to a UTF-8 binary JSON string.
+B<Related Keywords>: None.
 
-Calling this function will B<not> trigger the serialization's hooks.
+=head2 L<false|https://metacpan.org/pod/Dancer2::Manual#false>
 
-=head2 engine
+Returns a false value.
 
-Given a namespace, returns the current engine object
+B<When to use>: Explicitly return a false value in your application.
 
-    my $template_engine = engine 'template';
-    my $html = $template_engine->apply_renderer(...);
-    $template_engine->apply_layout($html);
+B<Related Keywords>: C<true>.
 
-=head2 error
+=head2 L<to_app|https://metacpan.org/pod/Dancer2::Manual#to_app>
 
-Logs a message of error level:
+Returns the PSGI application code reference for the current Dancer2 app.
 
-    error "This is an error message";
+B<When to use>: Integrate the Dancer2 application with other PSGI-compatible frameworks or servers.
 
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log
-messages go.
+B<Related Keywords>: C<psgi_app>, C<dance>.
 
-=head2 false
+=head2 L<to_dumper|https://metacpan.org/pod/Dancer2::Manual#to_dumper>
 
-Constant that returns a false value (0).
+Serializes a Perl data structure into a string using Data::Dumper.
 
-=head2 flush
+B<When to use>: Convert complex data structures into a readable string format for debugging.
 
-Flush headers when streaming a response. Necessary when L</content> is called
-multiple times.
+B<Related Keywords>: C<from_dumper>, C<to_yaml>, C<to_json>.
 
-=head2 forward
+=head2 L<to_yaml|https://metacpan.org/pod/Dancer2::Manual#to_yaml>
 
-Runs an "internal redirect" of the current route to another route. More
-formally; when C<forward> is executed, the current dispatch of the route is
-aborted, the request is modified (altering query params or request method),
-and the modified request following a new route is dispatched again. Any
-remaining code (route and hooks) from the current dispatch will never be run
-and the modified route's dispatch will execute hooks for the new route normally.
+Serializes a Perl data structure into a YAML string.
 
-It effectively lets you chain routes together in a clean manner.
+B<When to use>: Convert data structures into YAML format for configuration or interoperability.
 
-    get '/demo/articles/:article_id' => sub {
+B<Related Keywords>: C<from_yaml>, C<to_json>, C<to_dumper>.
 
-        # you'll have to implement this next sub yourself :)
-        change_the_main_database_to_demo();
+=head2 L<true|https://metacpan.org/pod/Dancer2::Manual#true>
 
-        forward "/articles/" . route_parameters->get('article_id');
-    };
+Returns a true value.
 
-In the above example, the users that reach I</demo/articles/30> will
-actually reach I</articles/30> but we've changed the database to demo
-before.
+B<When to use>: Explicitly return a true value in your application.
 
-This is pretty cool because it lets us retain our paths and offer a demo
-database by merely going to I</demo/...>.
+B<Related Keywords>: C<false>.
 
-You'll notice that in the example we didn't indicate whether it was B<GET>
-or B<POST>. That is because C<forward> chains the same type of route the
-user reached. If it was a B<GET>, it will remain a B<GET> (but if you do
-need to change the method, you can do so; read on below for details.)
+=head2 L<var|https://metacpan.org/pod/Dancer2::Manual#var>
 
-Also notice that C<forward> only redirects to a new route. It does not redirect
-the requests involving static files. This is because static files are handled
-before L<Dancer2> tries to match the request to a route - static files take
-higher precedence.
+Sets a variable in the application's context.
 
-This means that you will not be able to C<forward> to a static file. If you
-wish to do so, you have two options: either redirect (asking the browser to
-make another request, but to a file path instead) or use C<send_file> to
-provide a file.
+B<When to use>: Store temporary data accessible across routes and templates during a single request.
 
-B<WARNING:> Any code after a C<forward> is ignored, until the end of the
-route. It's not necessary to use C<return> with C<forward> anymore.
+B<Related Keywords>: C<vars>, C<app>.
 
-    get '/foo/:article_id' => sub {
-        if ($condition) {
-            forward "/articles/" . route_parameters->get('article_id');
-            # The following code WILL NOT BE executed
-            do_stuff();
-        }
+=head2 L<vars|https://metacpan.org/pod/Dancer2::Manual#vars>
 
-        more_stuff();
-    };
+Retrieves all variables set in the application's context as a hash reference.
 
-Note that C<forward> doesn't parse GET arguments. So, you can't use
-something like:
+B<When to use>: Access all context variables within the current request.
 
-    forward '/home?authorized=1';
+B<Related Keywords>: C<var>, C<app>.
 
-But C<forward> supports an optional hashref with parameters to be added to
-the actual parameters:
+=cut
 
-    forward '/home', { authorized => 1 };
-
-Finally, you can add some more options to the C<forward> method, in a third
-argument, also as a hashref. That option is currently only used to change
-the method of your request. Use with caution.
-
-    forward '/home', { auth => 1 }, { method => 'POST' };
-
-=head2 from_dumper ($structure)
-
-Deserializes a Data::Dumper structure.
-
-=head2 from_json ($string, \%options)
-
-Deserializes a JSON structure from a string. You should probably use
-C<decode_json> which expects a UTF-8 encoded binary string and
-handles decoding it for you.
-
-=head2 from_yaml ($structure)
-
-Deserializes a YAML structure.
-
-=head2 get
-
-Defines a route for HTTP B<GET> requests to the given path:
-
-    get '/' => sub {
-        return "Hello world";
-    }
-
-Note that a route to match B<HEAD> requests is automatically created as well.
-
-You can also provide the route with a name:
-
-    get 'index' => '/' => sub {
-        return "Hello world";
-    }
-
-See C<uri_for_route> on how this can be used.
-
-=head2 halt
-
-Sets a response object with the content given.
-
-When used as a return value from a hook, this breaks the execution flow and
-renders the response immediately:
-
-    hook before => sub {
-        if ($some_condition) {
-            halt("Unauthorized");
-
-            # this code is not executed
-            do_stuff();
-        }
-    };
-
-    get '/' => sub {
-        "hello there";
-    };
-
-B<WARNING:> Issuing a halt immediately exits the current route, and performs
-the halt. Thus, any code after a halt is ignored, until the end of the route.
-Hence, it's not necessary anymore to use C<return> with halt.
-
-=head2 header
-
-Deprecated. Use L</response_header> instead.
-
-=head2 headers
-
-Deprecated. Use L</response_headers> instead.
-
-=head2 hook
-
-Adds a hook at some position. For example :
-
-  hook before_serializer => sub {
-    my $content = shift;
-    ...
-  };
-
-There can be multiple hooks assigned to a given position, and each will be
-executed in order.
-
-See L<Dancer2::Manual/HOOKS> for a list of available hooks.
-
-=head2 info
-
-Logs a message of C<info> level:
-
-    info "This is an info message";
-
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log
-messages go.
-
-=head2 log
-
-Logs messages at the specified level. For example:
-
-    log( debug => "This is a debug message." );
-
-=head2 mime
-
-Shortcut to access the instance object of L<Dancer2::Core::MIME>. You should
-read the L<Dancer2::Core::MIME> documentation for full details, but the most
-commonly-used methods are summarized below:
-
-    # set a new mime type
-    mime->add_type( foo => 'text/foo' );
-
-    # set a mime type alias
-    mime->add_alias( f => 'foo' );
-
-    # get mime type for an alias
-    my $m = mime->for_name( 'f' );
-
-    # get mime type for a file (based on extension)
-    my $m = mime->for_file( "foo.bar" );
-
-    # get current defined default mime type
-    my $d = mime->default;
-
-    # set the default mime type using config.yml
-    # or using the set keyword
-    set default_mime_type => 'text/plain';
-
-=head2 options
-
-Defines a route for HTTP B<OPTIONS> requests to the given URL:
-
-    options '/resource' => sub { ... };
-
-=head2 param
-
-I<This method should be called from a route handler>.
-This method is an accessor to the parameters hash table.
-
-   post '/login' => sub {
-       my $username = param "user";
-       my $password = param "pass";
-       # ...
-   };
-
-We now recommend using one of the specific keywords for parameters
-(C<route_parameters>, C<query_parameters>, and C<body_parameters>)
-instead of C<params> or C<param>.
-
-=head2 params
-
-I<This method should be called from a route handler>.
-It's an alias for the L<Dancer2::Core::Request params
-accessor|Dancer2::Core::Request/"params($source)">. It returns a hash (in
-list context) or a hash reference (in scalar context) to all defined
-parameters. Check C<param> below to access quickly to a single parameter
-value.
-
-    post '/login' => sub {
-        # get all parameters as a single hash
-        my %all_parameters = params;
-
-        // request all parmameters from a specific source: body, query, route
-        my %body_parameters  = params('body');
-        my %route_parameters = params('route');
-        my %query_parameters = params('query');
-
-        # any $source that is not body, query, or route generates an exception
-        params('fake_source'); // Unknown source params "fake_source"
-    };
-
-We now recommend using one of the specific keywords for parameters
-(C<route_parameters>, C<query_parameters>, and C<body_parameters>)
-instead of C<params> or C<param>.
-
-=head2 pass
-
-I<This method should be called from a route handler>.
-Tells Dancer2 to pass the processing of the request to the next matching
-route.
-
-B<WARNING:> Issuing a pass immediately exits the current route, and performs
-the pass. Thus, any code after a pass is ignored, until the end of the
-route. Hence, it's not necessary anymore to use C<return> with pass.
-
-    get '/some/route' => sub {
-        if (...) {
-            # we want to let the next matching route handler process this one
-            pass(...);
-
-            # this code will be ignored
-            do_stuff();
-        }
-    };
-
-B<WARNING:> You cannot set the content before passing and have it remain,
-even if you use the C<content> keyword or set it directly in the response
-object.
-
-=head2 patch
-
-Defines a route for HTTP B<PATCH> requests to the given URL:
-
-    patch '/resource' => sub { ... };
-
-(C<PATCH> is a relatively new and not-yet-common HTTP verb, which is
-intended to work as a "partial-PUT", transferring just the changes; please
-see L<RFC5789|http://tools.ietf.org/html/rfc5789> for further details.)
-
-You can also provide the route with a name:
-
-    patch 'rec' => '/resource' => sub { ... };
-
-See C<uri_for_route> on how this can be used.
-
-=head2 path
-
-Concatenates multiple paths together, without worrying about the underlying
-operating system:
-
-    my $path = path(dirname($0), 'lib', 'File.pm');
-
-It also normalizes (cleans) the path aesthetically. It does not verify whether
-the path exists, though.
-
-=head2 post
-
-Defines a route for HTTP B<POST> requests to the given URL:
-
-    post '/' => sub {
-        return "Hello world";
-    }
-
-You can also provide the route with a name:
-
-    post 'index' => '/' => sub {
-        return "Hello world";
-    }
-
-See C<uri_for_route> on how this can be used.
-
-=head2 prefix
-
-Defines a prefix for each route handler, like this:
-
-    prefix '/home';
-
-From here, any route handler is defined to /home/*:
-
-    get '/page1' => sub {}; # will match '/home/page1'
-
-You can unset the prefix value:
-
-    prefix undef;
-    get '/page1' => sub {}; # will match /page1
-
-For a safer alternative you can use lexical prefix like this:
-
-    prefix '/home' => sub {
-        ## Prefix is set to '/home' here
-
-        get ...;
-        get ...;
-    };
-    ## prefix reset to the previous version here
-
-This makes it possible to nest prefixes:
-
-   prefix '/home' => sub {
-       ## some routes
-
-      prefix '/private' => sub {
-         ## here we are under /home/private...
-
-         ## some more routes
-      };
-      ## back to /home
-   };
-   ## back to the root
-
-B<Notice:> Once you have a prefix set, do not add a caret to the regex:
-
-    prefix '/foo';
-    get qr{^/bar} => sub { ... } # BAD BAD BAD
-    get qr{/bar}  => sub { ... } # Good!
-
-=head2 prepare_app
-
-You can introduce code you want to run when your app is loaded, similar to the
-C<prepare_app> in L<Plack::Middleware>.
-
-    prepare_app {
-        my $app = shift;
-
-        ... # do your thing
-    };
-
-You should not close over the App instance, since you receive it as a first
-argument. If you close over it, you B<will> have a memory leak.
-
-    my $app = app();
-
-    prepare_app {
-        do_something_with_app($app); # MEMORY LEAK
-    };
-
-=head2 psgi_app
-
-Provides the same functionality as L</to_app> but uses the deprecated
-Dispatcher engine. You should use L</to_app> instead.
-
-=head2 push_header
-
-Deprecated. Use C<push_response_header> instead.
-
-=head2 push_response_header
-
-Do the same as C<response_header>, but allow for multiple headers with the same
-name.
-
-    get '/send/header', sub {
-        push_response_header 'x-my-header' => '1';
-        push_response_header 'x-my-header' => '2';
-        # will result in two headers "x-my-header" in the response
-    }
-
-=head2 put
-
-Defines a route for HTTP B<PUT> requests to the given URL:
-
-    put '/resource' => sub { ... };
-
-You can also provide the route with a name:
-
-    put 'rec' => '/resource' => sub { ... };
-
-See C<uri_for_route> on how this can be used.
-
-=head2 query_parameters
-
-Returns a L<Hash::MultiValue> object from the request parameters.
-
-    /?foo=hello
-    get '/' => sub {
-        my $name = query_parameters->get('foo');
-    };
-
-    /?name=Alice&name=Bob
-    get '/' => sub {
-        my @names = query_parameters->get_all('name');
-    };
-
-=head2 redirect
-
-Generates a HTTP redirect (302). You can either redirect to a complete
-different site or within the application:
-
-    get '/twitter', sub {
-        redirect 'http://twitter.com/me';
-        # Any code after the redirect will not be executed.
-    };
-
-B<WARNING:> Issuing a C<redirect> immediately exits the current route.
-Thus, any code after a C<redirect> is ignored, until the end of the route.
-Hence, it's not necessary anymore to use C<return> with C<redirect>.
-
-You can also force Dancer to return a specific 300-ish HTTP response code:
-
-    get '/old/:resource', sub {
-        redirect '/new/' . route_parameters->get('resource'), 301;
-    };
-
-=head2 request
-
-Returns a L<Dancer2::Core::Request> object representing the current request.
-
-See the L<Dancer2::Core::Request> documentation for the methods you can
-call, for example:
-
-    request->referer;         # value of the HTTP referer header
-    request->remote_address;  # user's IP address
-    request->user_agent;      # User-Agent header value
-
-=head2 request_data
-
-Returns the request's body in data form
-(in case a serializer is set, it will be in deserialized).
-
-This allows us to distinguish between C<body_parameters>, a representation
-of request parameters (L<Hash::MultiValue>) and other forms of content.
-
-=head2 request_header
-
-Returns request header(s).
-
-    get '/get/headers' => sub {
-        my $xfoo = request_header 'X-Foo';
-        ...
-    };
-
-=head2 response
-
-Returns the current response object, which is of type 
-L<Dancer2::Core::Route::REQUEST>.
-
-=head2 response_header
-
-Adds a custom header to response:
-
-    get '/send/header', sub {
-        response_header 'x-my-header' => 'shazam!';
-    }
-
-Note that it will overwrite the old value of the header, if any. To avoid
-that, see L</push_response_header>.
-
-=head2 response_headers
-
-Adds custom headers to response:
-
-    get '/send/headers', sub {
-        response_headers 'X-Foo' => 'bar', 'X-Bar' => 'foo';
-    }
-
-=head2 route_parameters
-
-Returns a L<Hash::MultiValue> object from the route parameters.
-
-    # /hello
-    get '/:foo' => sub {
-        my $foo = route_parameters->get('foo');
-    };
-
-=head2 runner
-
-Returns the runner singleton. Type is L<Dancer2::Core::Runner>.
-
-=head2 send_as
-
-Allows the current route handler to return specific content types to the
-client using either a specified serializer or as html.
-
-Any Dancer2 serializer may be used. The specified serializer class will
-be loaded if required, or an error generated if the class can not be found.
-Serializer configuration may be added to your apps C<engines> configuration.
-
-If C<html> is specified, the content will be returned assuming it is HTML with
-appropriate C<Content-Type> headers and encoded using the apps configured
-C<charset> (or UTF-8).
-
-    set serializer => 'YAML';
-    set template   => 'TemplateToolkit';
-
-    # returns html (not YAML)
-    get '/' => sub { send_as html => template 'welcome.tt' };
-
-    # return json (not YAML)
-    get '/json' => sub {
-        send_as JSON => [ some => { data => 'structure' } ];
-    };
-
-C<send_as> uses L</send_file> to return the content immediately. You may
-pass any option C<send_file> supports as an extra option. For example:
-
-    # return json with a custom content_type header
-    get '/json' => sub {
-        send_as JSON => [ some => { data => 'structure' } ],
-                { content_type => 'application/json; charset=UTF-8' },
-    };
-
-B<WARNING:> Issuing a send_as immediately exits the current route, and
-performs the C<send_as>. Thus, any code after a C<send_as> is ignored,
-until the end of the route. Hence, it's not necessary to use C<return>
-with C<send_as>.
-
-    get '/some/route' => sub {
-        if (...) {
-            send_as JSON => $some_data;
-
-            # this code will be ignored
-            do_stuff();
-        }
-    };
-
-=head2 send_error
-
-Returns a HTTP error. By default the HTTP code returned is 500:
-
-    get '/photo/:id' => sub {
-        if (...) {
-            send_error("Not allowed", 403);
-        } else {
-           # return content
-        }
-    }
-
-B<WARNING:> Issuing a send_error immediately exits the current route, and
-performs the C<send_error>. Thus, any code after a C<send_error> is ignored,
-until the end of the route. Hence, it's not necessary anymore to use C<return>
-with C<send_error>.
-
-    get '/some/route' => sub {
-        if (...) {
-            # Something bad happened, stop immediately!
-            send_error(..);
-
-            # this code will be ignored
-            do_stuff();
-        }
-    };
-
-=head2 send_file
-
-Lets the current route handler send a file to the client. Note that the path
-of the file must be relative to the B<public> directory unless you use the
-C<system_path> option (see below).
-
-    get '/download/:file' => sub {
-        return send_file(route_parameters->get('file'));
-    }
-
-B<WARNING:> Issuing a C<send_file> immediately exits the current route, and
-performs the C<send_file>. Thus, any code after a C<send_file> is ignored,
-until the end of the route. Hence, it's not necessary anymore to use C<return>
-with C<send_file>.
-
-    get '/some/route' => sub {
-        if (...) {
-            # OK, send her what she wants...
-            send_file(...);
-
-            # this code will be ignored
-            do_stuff();
-        }
-    };
-
-C<send_file> will use PSGI streaming if the server supports it (most, if
-not all, do). You can explicitly disable streaming by passing
-C<streaming =E<gt> 0> as an option to C<send_file>.
-
-    get '/download/:file' => sub {
-        send_file( route_parameters->get('file'), streaming => 0 );
-    }
-
-
-The content-type will be set depending on the current MIME types definition
-(see C<mime> if you want to define your own).
-
-If your filename does not have an extension, you are passing in a filehandle,
-or you need to force a specific mime type, you can pass it to C<send_file>
-as follows:
-
-    send_file(route_parameters->get('file'), content_type => 'image/png');
-    send_file($fh, content_type => 'image/png');
-
-Also, you can use your aliases or file extension names on C<content_type>,
-like this:
-
-    send_file(route_parameters->get('file'), content_type => 'png');
-
-The encoding of the file or filehandle may be specified by passing both
-the C<content_type> and C<charset> options. For example:
-
-    send_file($fh, content_type => 'text/csv', charset => 'utf-8' );
-
-For files outside your B<public> folder, you can use the C<system_path>
-switch. Just bear in mind that its use needs caution as it can be dangerous.
-
-   send_file('/etc/passwd', system_path => 1);
-
-If you have your data in a scalar variable, C<send_file> can be useful as
-well. Pass a reference to that scalar, and C<send_file> will behave as if
-there was a file with that contents:
-
-   send_file( \$data, content_type => 'image/png' );
-
-Note that Dancer is unable to guess the content type from the data contents.
-Therefore you might need to set the C<content_type> properly. For this kind
-of usage an attribute named C<filename> can be useful. It is used as the
-Content-Disposition header, to hint the browser about the filename it should
-use.
-
-   send_file( \$data, content_type => 'image/png'
-                      filename     => 'onion.png' );
-
-By default the Content-Disposition header uses the "attachment" type, which
-triggers a "Save" dialog in some browsers. Supply a C<content_disposition>
-attribute of "inline" to have the file displayed inline by the browser.
-
-=head2 session
-
-Provides access to all data stored in the user's session (if any).
-
-It can also be used as a setter to store data in the session:
-
-    # getter example
-    get '/user' => sub {
-        if (session('user')) {
-            return "Hello, ".session('user')->name;
-        }
-    };
-
-    # setter example
-    post '/user/login' => sub {
-        ...
-        if ($logged_in) {
-            session user => $user;
-        }
-        ...
-    };
-
-You may also need to clear a session:
-
-    # destroy session
-    get '/logout' => sub {
-        ...
-        app->destroy_session;
-        ...
-    };
-
-If you need to fetch the session ID being used for any reason:
-
-    my $id = session->id;
-
-=head2 set
-
-Defines a setting:
-
-    set something => 'value';
-
-You can set more than one value at once:
-
-    set something => 'value', otherthing => 'othervalue';
-
-=head2 setting
-
-Returns the value of a given setting:
-
-    setting('something'); # 'value'
-
-=head2 splat
-
-Returns the list of captures made from a route handler with a route pattern
-which includes wildcards:
-
-    get '/file/*.*' => sub {
-        my ($file, $extension) = splat;
-        ...
-    };
-
-There is also the extensive splat (A.K.A. "megasplat"), which allows
-extensive greedier matching, available using two asterisks. The additional
-path is broken down and returned as an arrayref:
-
-    get '/entry/*/tags/**' => sub {
-        my ( $entry_id, $tags ) = splat;
-        my @tags = @{$tags};
-    };
-
-The C<splat> keyword in the above example for the route F</entry/1/tags/one/two>
-would set C<$entry_id> to C<1> and C<$tags> to C<['one', 'two']>.
-
-=head2 start
-
-Starts the application or the standalone server (depending on the deployment
-choices).
-
-This keyword should be called at the very end of the script, once all routes
-are defined. At this point, Dancer2 takes over.
-
-Prefer L</to_app> instead of C<start>.
-
-=head2 status
-
-Changes the status code provided by an action. By default, an action will
-produce an C<HTTP 200 OK> status code, meaning everything is OK:
-
-    get '/download/:file' => {
-        if (! -f route_parameters->get('file')) {
-            status 'not_found';
-            return "File does not exist, unable to download";
-        }
-        # serving the file...
-    };
-
-In that example, Dancer will notice that the status has changed, and will
-render the response accordingly.
-
-The C<status> keyword receives either a numeric status code or its name in
-lower case, with underscores as a separator for blanks - see the list in
-L<Dancer2::Core::HTTP/"HTTP CODES">. As an example, The above call translates
-to setting the code to C<404>.
-
-=head2 template
-
-Returns the response of processing the given template with the given
-parameters (and optional settings), wrapping it in the default or specified
-layout too, if layouts are in use.
-
-An example of a  route handler which returns the result of using template to
-build a response with the current template engine:
-
-    get '/' => sub {
-        ...
-        return template 'some_view', { token => 'value'};
-    };
-
-Note that C<template> simply returns the content, so when you use it in a
-route handler, if execution of the route handler should stop at that point,
-make sure you use C<return> to ensure your route handler returns the content.
-
-Since C<template> just returns the result of rendering the template, you can
-also use it to perform other templating tasks, e.g. generating emails:
-
-    post '/some/route' => sub {
-        if (...) {
-            email {
-                to      => 'someone@example.com',
-                from    => 'foo@example.com',
-                subject => 'Hello there',
-                msg     => template('emails/foo', { name => body_parameters->get('name') }),
-            };
-
-            return template 'message_sent';
-        } else {
-            return template 'error';
-        }
-    };
-
-Compatibility notice: C<template> was changed in version 1.3090 to
-immediately interrupt execution of a route handler and return the content,
-as it's typically used at the end of a route handler to return content.
-However, this caused issues for some people who were using C<template> to
-generate emails etc, rather than accessing the template engine directly, so
-this change has been reverted in 1.3091.
-
-The first parameter should be a template available in the views directory,
-the second one (optional) is a hashref of tokens to interpolate, and the
-third (again optional) is a hashref of options.
-
-For example, to disable the layout for a specific request:
-
-    get '/' => sub {
-        template 'index', {}, { layout => undef };
-    };
-
-Or to request a specific layout, of course:
-
-    get '/user' => sub {
-        template 'user', {}, { layout => 'user' };
-    };
-
-Some tokens are automatically added to your template (C<perl_version>,
-C<dancer_version>, C<settings>, C<request>, C<vars> and, if you
-have sessions enabled, C<session>). Check L<Default Template
-Variables|Dancer2::Manual/Default-Template-Variables>
-for further details.
-
-=head2 to_app
-
-Returns the PSGI coderef for the current (and only the current) application.
-
-You can call it as a method on the class or as a DSL:
-
-    my $app = MyApp->to_app;
-
-    # or
-
-    my $app = to_app;
-
-There is a
-L<Dancer Advent Calendar article|http://advent.perldancer.org/2014/9> covering
-this keyword and its usage further.
-
-=head2 to_dumper ($structure)
-
-Serializes a structure with Data::Dumper.
-
-Calling this function will B<not> trigger the serialization's hooks.
-
-=head2 to_json ($structure, \%options)
-
-Serializes a structure to JSON. You should probably use C<encode_json> instead
-which handles encoding the result for you.
-
-=head2 to_yaml ($structure)
-
-Serializes a structure to YAML.
-
-Calling this function will B<not> trigger the serialization's hooks.
-
-=head2 true
-
-Constant that returns a true value (1).
-
-=head2 upload
-
-Provides access to file uploads. Any uploaded file is accessible as a
-L<Dancer2::Core::Request::Upload> object. You can access all parsed uploads
-via:
-
-    post '/some/route' => sub {
-        my $file = upload('file_input_foo');
-        # $file is a Dancer2::Core::Request::Upload object
-    };
-
-If you named multiple inputs of type "file" with the same name, the C<upload>
-keyword would return an Array of L<Dancer2::Core::Request::Upload> objects:
-
-    post '/some/route' => sub {
-        my ($file1, $file2) = upload('files_input');
-        # $file1 and $file2 are Dancer2::Core::Request::Upload objects
-    };
-
-You can also access the raw hashref of parsed uploads via the current
-C<request> object:
-
-    post '/some/route' => sub {
-        my $all_uploads = request->uploads;
-        # $all_uploads->{'file_input_foo'} is a Dancer2::Core::Request::Upload object
-        # $all_uploads->{'files_input'} is an arrayref of Dancer2::Core::Request::Upload objects
-    };
-
-Note that you can also access the filename of the upload received via the
-C<body_parameters> keyword:
-
-    post '/some/route' => sub {
-        # body_parameters->get('files_input') is the filename of the file uploaded
-    };
-
-See L<Dancer2::Core::Request::Upload> for details about the interface provided.
-
-=head2 uri_for
-
-Returns a fully-qualified URI for the given path:
-
-    get '/' => sub {
-        redirect uri_for('/path');
-        # can be something like: http://localhost:5000/path
-    };
-
-Query string parameters can be provided by passing a hashref as a second param:
-
-
-    uri_for('/path', { foo => 'bar' });
-    # would return e.g. http://localhost:5000/path?foo=bar
-
-By default, the parameters will be URL encoded:
-
-    uri_for('/path', { foo => 'hope;faith' });
-    # would return http://localhost:5000/path?foo=hope%3Bfaith
-
-If desired (for example, if you've already encoded your query
-parameters and you want to prevent double encoding) you can disable
-URL encoding via a third parameter:
-
-    uri_for('/path', { foo => 'qux%3Dquo' }, 1);
-    # would return http://localhost:5000/path?foo=qux%3Dquo
-
-=head2 uri_for_route
-
-An enhanced version of C<uri_for> that utilizes routes' names.
-
-    get 'view_entry' => '/entry/view/:id' => sub {...};
-
-Now that the route has a name we can use C<uri_for_route> to
-create a URI for it:
-
-    my $path = uri_for_route(
-        'view_entry',
-        { 'id'  => 3 },
-        { 'foo' => 'bar' },
-    );
-
-    # (assuming it's run on a local server in HTTP port 5000)
-    # $path = 'http://localhost:5000/entry/view/3?foo=bar'
-
-This works for every HTTP method, except C<HEAD> (which is
-effectively a C<GET>).
-
-It can also be used in templates:
-
-    <!-- some_template.tt -->
-    [% request.uri_for_route( 'my_route_name', { 'foo' => 'bar' }, { 'id' => 4 } ) %]
-
-There are multiple arguments options:
-
-=over 4
-
-=item * Route parameters
-
-The first argument controls the route parameters:
-
-    get 'test' => '/:foo/:bar' => sub {1};
-    # ...
-    $path = uri_for_route( 'test', { 'foo' => 'hello', 'bar' => 'world' } );
-    # $path = http://localhost:5000/hello/world
-
-=item * Splat route parameters
-
-If you provide an arrayref instead of hashref, it will assume on
-these being splat and megasplat args:
-
-    get 'test' => '/*/*/**' => sub {1};
-    # ...
-    $path = uri_for_route(
-        'test',
-        [ 'hello', 'world', [ 'myhello', 'myworld' ],
-    );
-    # $path = http://localhost:5000/hello/world/myhello/myworld
-
-=item * Mixed route parameters
-
-If you have a route that includes both, the splat and megasplat
-arguments need to be under the C<splat> key:
-
-    patch 'test' => '/*/:id/*/:foo/*' => sub {1};
-    # ...
-    $path = uri_for_route(
-        'test',
-        {
-            'id'    => 4,
-            'foo  ' => 'bar',
-            'splat' => [ 'hello', 'world' ],
-        }
-    );
-    # $path = http://localhost:5000/hello/4/world/bar
-
-=item * Query parameters
-
-If you want to create a path the query parameters, use the
-second argument:
-
-    get 'index'       => '/:foo' => sub {1};
-    get 'update_form' => '/update' => sub {1};
-
-    # ...
-
-    $path = uri_for_route(
-        'index',
-        { 'foo' => 'bar' },
-        { 'id'  => 1 },
-    );
-    # $path = http://localhost:5000/bar?id=1
-
-    $path = uri_for_route( 'update_form', {}, { 'id' => 2 } );
-    # $path = http://localhost:5000/update?id=2
-
-(Technically, only C<GET> requests should include query parameters, but
-C<uri_for_route> does not enforce this.)
-
-=item * Disable URI escaping
-
-The final parameter determines whether the URI will be URI-escaped or not:
-
-    get 'show_entry' => '/view/:str_id' => sub {1};
-    # ...
-    $path = uri_for_route(
-        'show_entry',
-        { 'str_id' => '<javascript>...' },
-        {},
-    );
-    # $path = http://localhost/view/%3Cjavascript%3E...
-
-This is useful when your ID is not HTML-safe and might include HTML
-tags and Javascript code or include characters that interfere with the
-URI request string (like a forward slash).
-
-This is on by default, but you can disable it by setting this flag:
-
-    get 'show_entry' => '/view/:str_id' => sub {1};
-    # ...
-    $path = uri_for_route(
-        'show_entry',
-        { 'str_id' => '<javascript>...' },
-        {},
-        1,
-    );
-    # $path = http://localhost/view/<javascript>...
-
-=back
-
-=head2 var
-
-Provides an accessor for variables shared between hooks and route
-handlers. Given a key/value pair, it sets a variable:
-
-    hook before => sub {
-        var foo => 42;
-    };
-
-Later, route handlers and other hooks will be able to read that variable:
-
-    get '/path' => sub {
-        my $foo = var 'foo';
-        ...
-    };
-
-=head2 vars
-
-Returns the hashref of all shared variables set during the hook/route
-chain with the C<var> keyword:
-
-    get '/path' => sub {
-        if (vars->{foo} eq 42) {
-            ...
-        }
-    };
-
-=head2 warning
-
-Logs a warning message through the current logger engine:
-
-    warning "This is a warning";
-
-See L<Dancer2::Core::Role::Logger> for details on how to configure where log
-messages go.
