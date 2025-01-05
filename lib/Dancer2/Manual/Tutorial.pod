@@ -138,6 +138,53 @@ This autorestarts your application when changes are made to your code.
 This is ideal during development, but should not be used in a production
 setting.
 
+=head1 Configuring Our Application
+
+By default, new Dancer2 applications use L<Dancer2::Template::Simple>.
+While this works well for the simplest of apps, it's not well suited to
+applications like the Danceyland Blog. Instead, we'll configure this
+application to use L<Template::Toolkit>, a mainstay of Perl templating.
+
+To enable Template Toolkit, you'll need to edit your F<config.yml>:
+
+    # template engine
+    # simple: default and very basic template engine
+    # template_toolkit: TT
+
+    #template: "simple"
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          # Note: start_tag and end_tag are regexes
+          start_tag: '<%'
+          end_tag:   '%>'
+
+YAML files, such as your application config, support the same comment
+characters as Perl. L<Dancer2::Template::Simple> is disabled by commenting
+that line in your config file, and the default TT config is used by
+uncommenting the C<template> and C<engines> configuration.
+
+This tells Dancer2 to:
+
+=over
+
+=item Load the Template Toolkit template engine
+
+=item Specify Template Toolkit as the template engine to use
+
+=item Passes configuration to the TT engine (C<start_tag, end_tag>)
+
+=back
+
+We'll visit this file regularly throughout the tutorial.
+
+F<config.yml> is the right place to set configuration common to all
+environments (dev, production, etc.), such as the template engine to use.
+Later, we'll see how to use different configuration parameters in
+different environments.
+
 =head1 CRUD Routes
 
 CRUD is an acronym for Create, Read, Update, and Delete. These are the
