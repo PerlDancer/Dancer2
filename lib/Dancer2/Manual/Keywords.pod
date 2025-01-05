@@ -1,13 +1,35 @@
 # ABSTRACT: Dancer2 DSL Keyword Reference
 package Dancer2::Manual::Keywords;
 
-# TODO: splats
-# TODO: captures
-# TODO: Order keywords as they are in manual?
 # TODO: make section order match manual
 # TODO: review verbiage
+# TODO: some (like content_type) are not linked
+# TODO: some should be noted as discouraged or obsolete
 
 =pod
+
+# TODO: still missing:
+# * app
+# * encode_json
+# * dirname
+# * dancer_version
+# * decode_json
+# * context
+# * flush
+# * push_response_header
+# * from_yaml
+# * dance
+# * psgi_app
+# * mime
+# * engine
+# * headers
+# * path
+# * dancer_app
+# * from_dumper
+# * delayed
+# * done
+# * prepare_app
+# * dancer_major_version
 
 =encoding utf8
 
@@ -19,6 +41,23 @@ relevant section in the L<Dancer2 Manual|Dancer2::Manual>.
 
 =head1 Routing Keywords
 
+=head2 L<any|Dancer2::Manual/"HTTP Methods: Visitor Actions">
+
+Defines a route that responds to any HTTP method.
+
+B<When to use>: Handle routes that accept multiple methods (e.g., C<GET>
+and C<POST>).
+
+B<Related Keywords>: All HTTP methods.
+
+=head2 L<del|Dancer2::Manual/"HTTP Methods: Visitor Actions">
+
+Defines a route that responds to HTTP C<DELETE> requests.
+
+B<When to use>: Delete resources.
+
+B<Related Keywords>: C<get>, C<post>, C<put>, C<patch>, C<options>, C<any>.
+
 =head2 L<get|Dancer2::Manual/get>
 
 Defines a route that responds to HTTP C<GET> requests. Automatically
@@ -28,31 +67,13 @@ B<When to use>: Fetch static resources or perform read-only actions.
 
 B<Related Keywords>: C<post>, C<put>, C<del>, C<patch>, C<options>, C<any>.
 
-=head2 L<post|Dancer2::Manual/post>
+=head2 L<options|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
-Defines a route that responds to HTTP C<POST> requests, typically for form
-submissions or resource creation.
+Defines a route that responds to HTTP C<OPTIONS> requests.
 
-B<When to use>: Submit forms, upload files, or create resources.
+B<When to use>: Check available HTTP methods for a resource.
 
-B<Related Keywords>: C<get>, C<put>, C<del>, C<patch>, C<options>, C<any>.
-
-=head2 L<put|Dancer2::Manual/"HTTP Methods: Visitor Actions">
-
-Defines a route that responds to HTTP C<PUT> requests, often for updating
-resources.
-
-B<When to use>: Update existing resources in an idempotent way.
-
-B<Related Keywords>: C<get>, C<post>, C<del>, C<patch>, C<options>, C<any>.
-
-=head2 L<del|Dancer2::Manual/"HTTP Methods: Visitor Actions">
-
-Defines a route that responds to HTTP C<DELETE> requests.
-
-B<When to use>: Delete resources.
-
-B<Related Keywords>: C<get>, C<post>, C<put>, C<patch>, C<options>, C<any>.
+B<Related Keywords>: All HTTP methods.
 
 =head2 L<patch|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
@@ -63,22 +84,14 @@ B<When to use>: Partially update existing resources.
 
 B<Related Keywords>: C<get>, C<post>, C<put>, C<del>, C<options>, C<any>.
 
-=head2 L<options|Dancer2::Manual/"HTTP Methods: Visitor Actions">
+=head2 L<post|Dancer2::Manual/post>
 
-Defines a route that responds to HTTP C<OPTIONS> requests.
+Defines a route that responds to HTTP C<POST> requests, typically for form
+submissions or resource creation.
 
-B<When to use>: Check available HTTP methods for a resource.
+B<When to use>: Submit forms, upload files, or create resources.
 
-B<Related Keywords>: All HTTP methods.
-
-=head2 L<any|Dancer2::Manual/"HTTP Methods: Visitor Actions">
-
-Defines a route that responds to any HTTP method.
-
-B<When to use>: Handle routes that accept multiple methods (e.g., C<GET>
-and C<POST>).
-
-B<Related Keywords>: All HTTP methods.
+B<Related Keywords>: C<get>, C<put>, C<del>, C<patch>, C<options>, C<any>.
 
 =head2 L<prefix|Dancer2::Manual/"Organizing routes and growing your app using prefix">
 
@@ -87,6 +100,23 @@ Defines a common path prefix for grouped routes.
 B<When to use>: Organize routes logically under a shared prefix.
 
 B<Related Keywords>: All HTTP methods.
+
+=head2 L<put|Dancer2::Manual/"HTTP Methods: Visitor Actions">
+
+Defines a route that responds to HTTP C<PUT> requests, often for updating
+resources.
+
+B<When to use>: Update existing resources in an idempotent way.
+
+B<Related Keywords>: C<get>, C<post>, C<del>, C<patch>, C<options>, C<any>.
+
+=head2 L<splat|https://metacpan.org/pod/Dancer2::Manual/"Wildcard Route Parameters">
+
+Retrieves a list value captured by a wildcard parameter in routes.
+
+B<When to use>: Use with wildcard routes to capture arbitrary path segments.
+
+B<Related Keywords>: C<captures>.
 
 =head1 URL and Route Helper Keywords
 
@@ -110,6 +140,22 @@ consistency even if route paths change.
 B<Related Keywords>: C<uri_for>.
 
 =head1 Request Handling Keywords
+
+=head2 L<body_parameters|Dancer2::Manual/body_parameters>
+
+Retrieves parameters specifically from the request body.
+
+B<When to use>: Handle C<POST> or C<PUT> data.
+
+B<Related Keywords>: C<query_parameters>, C<route_parameters>, C<params>.
+
+=head2 L<captures|https://metacpan.org/pod/Dancer2::Manual/"Regex Route Matching">
+
+Accesses all regex capture groups from a route pattern.
+
+B<When to use>: Extract parts of a URL matched by a regex route.
+
+B<Related Keywords>: C<splat>.
 
 =head2 L<param|Dancer2::Manual/"param and params (Not Recommended)">
 
@@ -142,22 +188,6 @@ B<When to use>: Handle parameters in the query string (e.g., for searches).
 
 B<Related Keywords>: C<body_parameters>, C<route_parameters>, C<params>.
 
-=head2 L<body_parameters|Dancer2::Manual/body_parameters>
-
-Retrieves parameters specifically from the request body.
-
-B<When to use>: Handle C<POST> or C<PUT> data.
-
-B<Related Keywords>: C<query_parameters>, C<route_parameters>, C<params>.
-
-=head2 L<route_parameters|Dancer2::Manual/route_parameters>
-
-Retrieves parameters from the route pattern.
-
-B<When to use>: Handle named or wildcard route parameters.
-
-B<Related Keywords>: C<query_parameters>, C<body_parameters>, C<params>.
-
 =head2 L<request|Dancer2::Core::Request>
 
 Provides access to the current HTTP request object.
@@ -167,110 +197,52 @@ path).
 
 B<Related Keywords>: C<response>, C<params>, C<header>.
 
+=head2 L<request_data|https://metacpan.org/pod/Dancer2::Manual#request_data>
+# TODO
+
+Retrieves the raw data from the request body.
+
+B<When to use>: Access the unprocessed body content of the request, especially
+when dealing with custom or non-standard payloads.
+
+B<Related Keywords>: C<request>, C<body_parameters>, C<params>.
+
+=head2 L<request_header|https://metacpan.org/pod/Dancer2::Manual#request_header>
+
+Fetches the value of a specific header from the incoming request.
+
+B<When to use>: Obtain information from request headers, such as 'User-Agent'
+or 'Authorization'.
+
+B<Related Keywords>: C<headers>, C<response_header>.
+
+=head2 L<route_parameters|Dancer2::Manual/route_parameters>
+
+Retrieves parameters from the route pattern.
+
+B<When to use>: Handle named or wildcard route parameters.
+
+B<Related Keywords>: C<query_parameters>, C<body_parameters>, C<params>.
+
+=head2 L<upload|https://metacpan.org/pod/Dancer2::Manual#upload>
+# TODO
+
+Retrieves an uploaded file object by its field name.
+
+B<When to use>: Handle file uploads from client requests.
+
+B<Related Keywords>: C<uploads>, C<request>.
+
+=head2 L<uploads|https://metacpan.org/pod/Dancer2::Manual#uploads>
+# TODO
+
+Returns a hash reference of all uploaded files, keyed by their field names.
+
+B<When to use>: Access multiple file uploads in a single request.
+
+B<Related Keywords>: C<upload>, C<request>.
+
 =head1 Response Handling Keywords
-
-=head2 L<send_as|Dancer2::Manual/send_as>
-
-Manually serializes and sends the response in a specific format.
-
-B<When to use>: Control response serialization explicitly.
-
-B<Related Keywords>: C<to_json>, C<from_json>.
-
-=head2 L<status|Dancer2::Manual/status>
-
-Sets the HTTP status code for the response.
-
-B<When to use>: Specify response codes (e.g., 200, 404).
-
-B<Best Practice>: Combine C<status> with C<halt> for clearer error handling
-when sending error responses.
-
-B<Related Keywords>: C<halt>, C<send_error>.
-
-=head2 L<halt|Dancer2::Manual/halt>
-
-Halts request processing and sends a response immediately.
-
-B<When to use>: Stop processing and return a response early.
-
-B<Best Practice>: Combine C<halt> with C<status> to ensure appropriate
-HTTP response codes are sent.
-
-B<Related Keywords>: C<status>, C<send_error>.
-
-=head2 L<send_error|Dancer2::Manual/send_error>
-
-Immediately halts processing and sends an error response with a specific
-status code.
-
-B<When to use>: To send a custom error response.
-
-B<Related Keywords>: C<halt>, C<status>.
-
-=head2 L<header|Dancer2::Manual/header>
-
-Sets an HTTP header in the response.
-
-B<When to use>: Add or modify response headers.
-
-B<Related Keywords>: C<content_type>, C<status>.
-
-=head2 L<redirect|Dancer2::Manual/redirect>
-
-Redirects the client to a different location.
-
-B<When to use>: Redirect users to another route or external URL.
-
-B<Related Keywords>: C<status>.
-
-=head2 content_type
-
-Sets the `Content-Type` header of the response.
-
-B<When to use>: Specify the MIME type of the response.
-
-B<Related Keywords>: C<header>.
-
-=head2 L<pass|Dancer2::Manual/pass>
-
-Passes control to the next matching route.
-
-B<When to use>: Skip the current route and try the next one.
-
-B<Related Keywords>: C<forward>.
-
-=head2 L<forward|Dancer2::Manual/forward>
-
-Forwards the request to another route handler.
-
-B<When to use>: Internally redirect to another route within the app.
-
-B<Related Keywords>: C<pass>.
-
-=head2 L<send_file|Dancer2::Manual/"Sending Static Files from a Route Handler">
-
-Sends a file to the client.
-
-B<When to use>: Send files from disk or in-memory data as a file.
-
-B<Related Keywords>: C<send_as>.
-
-=head2 L<to_json|Dancer2::Manual/to_json>
-
-Serializes a Perl data structure to JSON.
-
-B<When to use>: Encode data to JSON format.
-
-B<Related Keywords>: C<from_json>, C<send_as>.
-
-=head2 L<from_json|Dancer2::Manual/from_json>
-
-Deserializes a JSON string into a Perl data structure.
-
-B<When to use>: Decode JSON data from the client.
-
-B<Related Keywords>: C<to_json>.
 
 =head2 L<content|Dancer2::Manual/"Asynchronous Programming">
 
@@ -295,6 +267,73 @@ B<When to use>: Directly set content of an asynchronous response.
 
 B<Related Keywords>: C<response>.
 
+=head2 content_type
+
+Sets the `Content-Type` header of the response.
+
+B<When to use>: Specify the MIME type of the response.
+
+B<Related Keywords>: C<header>.
+
+=head2 L<forward|Dancer2::Manual/forward>
+
+Forwards the request to another route handler.
+
+B<When to use>: Internally redirect to another route within the app.
+
+B<Related Keywords>: C<pass>.
+
+=head2 L<from_json|Dancer2::Manual/from_json>
+
+Deserializes a JSON string into a Perl data structure.
+
+B<When to use>: Decode JSON data from the client.
+
+B<Related Keywords>: C<to_json>.
+
+=head2 L<halt|Dancer2::Manual/halt>
+
+Halts request processing and sends a response immediately.
+
+B<When to use>: Stop processing and return a response early.
+
+B<Best Practice>: Combine C<halt> with C<status> to ensure appropriate
+HTTP response codes are sent.
+
+B<Related Keywords>: C<status>, C<send_error>.
+
+=head2 L<header|Dancer2::Manual/header>
+
+Sets an HTTP header in the response.
+
+B<When to use>: Add or modify response headers.
+
+B<Related Keywords>: C<content_type>, C<status>.
+
+=head2 L<pass|Dancer2::Manual/pass>
+
+Passes control to the next matching route.
+
+B<When to use>: Skip the current route and try the next one.
+
+B<Related Keywords>: C<forward>.
+
+=head2 L<push_header|https://metacpan.org/pod/Dancer2::Manual#push_header>
+
+Adds a new value to an existing response header without replacing its current value.
+
+B<When to use>: Append additional values to headers like 'Set-Cookie' or 'X-Forwarded-For'.
+
+B<Related Keywords>: C<header>, C<response_header>.
+
+=head2 L<redirect|Dancer2::Manual/redirect>
+
+Redirects the client to a different location.
+
+B<When to use>: Redirect users to another route or external URL.
+
+B<Related Keywords>: C<status>.
+
 =head2 L<response|Dancer2::Core::Response>
 
 Provides access to the current response object.
@@ -303,15 +342,67 @@ B<When to use>: Manipulate the outgoing response (headers, status, content).
 
 B<Related Keywords>: C<request>, C<header>, C<content>.
 
+=head2 L<response_header|https://metacpan.org/pod/Dancer2::Manual#response_header>
+
+Sets or retrieves a specific header in the outgoing response.
+
+B<When to use>: Modify or access response headers before sending them to the client.
+
+B<Related Keywords>: C<header>, C<response_headers>.
+
+=head2 L<response_headers|https://metacpan.org/pod/Dancer2::Manual#response_headers>
+
+Returns a hash reference of all headers set in the response.
+
+B<When to use>: Inspect or manipulate multiple response headers simultaneously.
+
+B<Related Keywords>: C<response_header>, C<header>.
+
+=head2 L<send_as|Dancer2::Manual/send_as>
+
+Manually serializes and sends the response in a specific format.
+
+B<When to use>: Control response serialization explicitly.
+
+B<Related Keywords>: C<to_json>, C<from_json>.
+
+=head2 L<send_error|Dancer2::Manual/send_error>
+
+Immediately halts processing and sends an error response with a specific
+status code.
+
+B<When to use>: To send a custom error response.
+
+B<Related Keywords>: C<halt>, C<status>.
+
+=head2 L<send_file|Dancer2::Manual/"Sending Static Files from a Route Handler">
+
+Sends a file to the client.
+
+B<When to use>: Send files from disk or in-memory data as a file.
+
+B<Related Keywords>: C<send_as>.
+
+=head2 L<status|Dancer2::Manual/status>
+
+Sets the HTTP status code for the response.
+
+B<When to use>: Specify response codes (e.g., 200, 404).
+
+B<Best Practice>: Combine C<status> with C<halt> for clearer error handling
+when sending error responses.
+
+B<Related Keywords>: C<halt>, C<send_error>.
+
+=head2 L<to_json|Dancer2::Manual/to_json>
+
+Serializes a Perl data structure to JSON.
+
+B<When to use>: Encode data to JSON format.
+
+B<Related Keywords>: C<from_json>, C<send_as>.
+
 =head1 Session and Cookie Keywords
-
-=head2 L<session|Dancer2::Manual/session>
-
-Stores, retrieves, or removes data from the session.
-
-B<When to use>: Persist user-specific data between requests.
-
-B<Related Keywords>: C<cookie>, C<cookies>.
 
 =head2 L<cookie|Dancer2::Manual/"Setting and Updating Cookies">
 
@@ -329,8 +420,31 @@ B<When to use>: Inspect or manage multiple cookies.
 
 B<Related Keywords>: C<cookie>.
 
+=head2 L<session|Dancer2::Manual/session>
+
+Stores, retrieves, or removes data from the session.
+
+B<When to use>: Persist user-specific data between requests.
+
+B<Related Keywords>: C<cookie>, C<cookies>.
 
 =head1 Application Configuration Keywords
+
+=head2 L<config|Dancer2::Manual/config>
+
+Retrieves the entire application configuration as a hash reference.
+
+B<When to use>: Access or inspect all configuration settings.
+
+B<Related Keywords>: C<set>, C<setting>.
+
+=head2 L<runner|https://metacpan.org/pod/Dancer2::Manual#runner>
+
+Provides access to the Dancer2 runner object, which manages the application's execution.
+
+B<When to use>: Control or inspect the application's runtime environment.
+
+B<Related Keywords>: C<app>, C<config>.
 
 =head2 L<set|Dancer2::Manual/set>
 
@@ -348,13 +462,13 @@ B<When to use>: Access app configuration values.
 
 B<Related Keywords>: C<set>, C<config>.
 
-=head2 L<config|Dancer2::Manual/config>
+=head2 L<start|https://metacpan.org/pod/Dancer2::Manual#start>
 
-Retrieves the entire application configuration as a hash reference.
+Initiates the Dancer2 application; typically called internally.
 
-B<When to use>: Access or inspect all configuration settings.
+B<When to use>: Rarely used directly; C<dance> is preferred to start the application.
 
-B<Related Keywords>: C<set>, C<setting>.
+B<Related Keywords>: C<dance>, C<psgi_app>.
 
 =head2 L<var|Dancer2::Manual/var>
 
@@ -392,7 +506,7 @@ B<When to use>: Generate HTML or other formats dynamically.
 
 B<Related Keywords>: C<vars>.
 
-=head2 Logging Keywords
+=head1 Logging Keywords
 
 =head2 L<debug|Dancer2::Manual/debug>
 
@@ -404,26 +518,6 @@ B<Best Practice>: Use appropriate logging levels to maintain clear and actionabl
 
 B<Related Keywords>: C<info>, C<warning>, C<error>, C<log>.
 
-=head2 L<info|Dancer2::Manual/info>
-
-Logs a message at the info level.
-
-B<When to use>: General informational messages.
-
-B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
-
-B<Related Keywords>: C<debug>, C<warning>, C<error>, C<log>.
-
-=head2 L<warning|Dancer2::Manual/warning>
-
-Logs a message at the warning level.
-
-B<When to use>: Non-critical issues that may need attention.
-
-B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
-
-B<Related Keywords>: C<debug>, C<info>, C<error>, C<log>.
-
 =head2 L<error|Dancer2::Manual/error>
 
 Logs a message at the error level.
@@ -433,6 +527,16 @@ B<When to use>: Errors that need immediate attention.
 B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
 
 B<Related Keywords>: C<debug>, C<info>, C<warning>, C<log>.
+
+=head2 L<info|Dancer2::Manual/info>
+
+Logs a message at the info level.
+
+B<When to use>: General informational messages.
+
+B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
+
+B<Related Keywords>: C<debug>, C<warning>, C<error>, C<log>.
 
 =head2 L<log|Dancer2::Manual/log>
 
@@ -450,11 +554,19 @@ B<When to use>: Advanced logging scenarios.
 
 B<Related Keywords>: C<log>, C<debug>, C<info>, C<warning>, C<error>.
 
-=head2 Miscellaneous Keywords
+=head2 L<warning|Dancer2::Manual/warning>
 
-# TODO: Fix link!
+Logs a message at the warning level.
 
-=head3 dsl
+B<When to use>: Non-critical issues that may need attention.
+
+B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
+
+B<Related Keywords>: C<debug>, C<info>, C<error>, C<log>.
+
+=head1 Miscellaneous Keywords
+
+=head2 dsl
 
 Provides access to the DSL (Domain Specific Language) object.
 
@@ -462,6 +574,61 @@ B<When to use>: When writing plugins or extending Dancer2's capabilities.
 
 B<Related Keywords>: None.
 
-=cut
+=head2 L<false|https://metacpan.org/pod/Dancer2::Manual#false>
 
+Returns a false value.
+
+B<When to use>: Explicitly return a false value in your application.
+
+B<Related Keywords>: C<true>.
+
+=head2 L<to_app|https://metacpan.org/pod/Dancer2::Manual#to_app>
+
+Returns the PSGI application code reference for the current Dancer2 app.
+
+B<When to use>: Integrate the Dancer2 application with other PSGI-compatible frameworks or servers.
+
+B<Related Keywords>: C<psgi_app>, C<dance>.
+
+=head2 L<to_dumper|https://metacpan.org/pod/Dancer2::Manual#to_dumper>
+
+Serializes a Perl data structure into a string using Data::Dumper.
+
+B<When to use>: Convert complex data structures into a readable string format for debugging.
+
+B<Related Keywords>: C<from_dumper>, C<to_yaml>, C<to_json>.
+
+=head2 L<to_yaml|https://metacpan.org/pod/Dancer2::Manual#to_yaml>
+
+Serializes a Perl data structure into a YAML string.
+
+B<When to use>: Convert data structures into YAML format for configuration or interoperability.
+
+B<Related Keywords>: C<from_yaml>, C<to_json>, C<to_dumper>.
+
+=head2 L<true|https://metacpan.org/pod/Dancer2::Manual#true>
+
+Returns a true value.
+
+B<When to use>: Explicitly return a true value in your application.
+
+B<Related Keywords>: C<false>.
+
+=head2 L<var|https://metacpan.org/pod/Dancer2::Manual#var>
+
+Sets a variable in the application's context.
+
+B<When to use>: Store temporary data accessible across routes and templates during a single request.
+
+B<Related Keywords>: C<vars>, C<app>.
+
+=head2 L<vars|https://metacpan.org/pod/Dancer2::Manual#vars>
+
+Retrieves all variables set in the application's context as a hash reference.
+
+B<When to use>: Access all context variables within the current request.
+
+B<Related Keywords>: C<var>, C<app>.
+
+=cut
 
