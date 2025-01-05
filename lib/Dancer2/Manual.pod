@@ -480,6 +480,14 @@ expressions, providing more flexibility in matching URLs:
         return "Category: $category_name";
     };
 
+It is also possible to use named captures in regular expressions:
+
+    # Matches URL: /product/12345
+    get qr{/product/(?<product_id>\d+)} => sub {
+        my $product_id = captures->{'product_id'};
+        return "Product ID: $product_id";
+    };
+
 =head3 Combining Examples
 
     # Matches URL: /item/42/specifications
