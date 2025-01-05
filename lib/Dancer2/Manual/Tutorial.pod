@@ -1,6 +1,5 @@
 package Dancer2::Tutorial;
 # ABSTRACT: A step-by-step guide to get you dancing
-# TODO: retab!
 
 =encoding utf8
 
@@ -10,9 +9,6 @@ package Dancer2::Tutorial;
 
 The point is to gradually build up from simple examples and demonstrations
 of techniques and end up with a working blog application.
-
-# TODO: mention liteblog
-# TODO: add notes, then share
 
 =head1 Introduction - the Danceyland Blog
 
@@ -307,6 +303,21 @@ So far, F<lib/DLBlog.pm> should look like this:
 
     true;
 
+=head3 Run your application!
+
+Let's see how it works. From the shell:
+
+    plackup -r bin/app.psgi
+
+Then open your browser and test your GET routes (we have nothing to post
+yet!):
+
+    http://localhost:5000/
+    http://localhost:5000/entry/1
+    http://localhost:5000/create
+    http://localhost:5000/update/1
+    http://localhost:5000/delete/1
+
 =head1 Setting Up Views
 
 =head2 Layout
@@ -337,25 +348,190 @@ a footer containing the version of Dancer2 powering the blog.
 
 The special C<< <% content %> >> variable above is where templates used
 by our routes will display. Instead of returning a string from the routes
-defined above, let's create some templates that will later contain the
-UI necessary to interact with the blog.
+defined above, let's create some templates that will contain the UI
+necessary to interact with the blog, along with some business logic to
+display them at the right time.
 
 =head3 The Index Route (C</>)
 
 Replace the existing F<views/index.tt> with the following:
 
+    <div id="entries">
     <% IF entries.size %>
+        <dl>
         <% FOREACH entry IN entries %>
-            <h2><a href="/entry/[% entry.id %]">[% entry.title %]</a></h2>
-            <p>[% entry.body %]</p>
-            <p>Created at: [% entry.created_at %]</p>
+            <dt><a href="/entry/<% entry.id %>"><% entry.title | html_entity %></a>
+                (created at <% entry.created_at | html_entity %>)</dt>
+            <dd><% entry.summary | html_entity %></dd>
         <% END %>
+        </dl>
     <% ELSE %>
         <p>No entries found.</p>
     <% END %>
+    </div>
 
 This list will be populated when we read entries from the database later
 in this tutorial.
+
+What's with all these C<html_entity> things? The C<|> is Template Toolkit
+syntax for a filter, and C<html_entity> represents the filter we are using.
+This particular filter properly excapes characters like ampersands when
+displaying them as HTML.
+
+To use this template in our app, we'll use the C<template> keyword to plug
+this into our route:
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', { entries => \@entries };
+    };
+
+=head3 The View Entry Route C</entry/:id>
+
+We'll create a new template, F<views/entry.tt>, that contains everything
+we think we'll need to show a blog entry:
+
+    <% IF entry %>
+    <div id="sidebar">
+        <h1>Posted at</h1>
+        <p><% entry.created_at | html_entity %></p>
+        <h1>Summary</h1>
+        <p><% entry.summary | html_entity %></p>
+    </div>
+    <div id="content">
+        <h2><% entry.title | html_entity %></h2>
+        <p><% entry.body | html_entity %></p>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+
+C<entry> is a hashref that has the contents of our blog post.  If a valid
+entry ID isn't provided, we give the user a message explaining so.
+Otherwise, we'll provide a two column layout with metadata in the sidebar,
+and blog content on the main part of the page.
+
+This is going to be ugly as written; we'll add some styling at the end to
+make things look nicer.
+
+Let's modify our route for viewing entries to use this template:
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+=head3 The Create Entry Routes C</create>
+
+This is just a simple form to create a new blog entry. Create
+F<views/create.tt> with the following:
+
+    <div id="create">
+        <form method="post" action="<% uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title">
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary">
+            <label for="content">Content</label>
+            <textarea name="body" id="body" cols="50" rows="10"></textarea>
+        </form>
+    </div>
+
+Using C<uri_for> when specifying the POST URL allows Dancer2 to create a
+proper URL no matter where your app is running from.
+
+This can be added to the create route:
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+There is no template when POSTing to C</create>. There are two possible
+outcomes when creating a blog entry:
+
+=over
+
+=item Creation was successful, so we redirect somewhere sensible
+
+=item Creation failed, so we redisplay the filled in form and show an error
+
+=back
+
+We'll show how to do both of these in the implementation section later.
+
+=head3 The Update Entry Routes (C</update/:id>)
+
+Showing the UI for updating a blog entry is similar to what we did in
+create above, except that we will need to display the existing values
+of an entry in the form (we don't want to make the user re-enter
+everything when updating, do we?). Since we have no values to show right
+now, we will implement this latter part in the implementation section
+below.
+
+For now, let's just return the existing create form:
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+We don't need a special template for displaying the results of an update,
+we just need to show the resulting entry. Don't we already have a route
+that does that though? Why should we do that work again here? We shouldn't!
+
+Dancer2 will let you change the flow of your application using the
+C<forward> or C<redirect> keywords. But which should we choose?
+
+=over
+
+=item C<forward> is an internal redirect
+
+This lets you perform the functionality contained in another route, but
+it's done internally, which means that the URL shown to the user in their
+browser's address bar looks like the one they requested. In the case of
+our update, the browser bar will show C<http://localhost:5000/update/1>,
+but what they would be seeing is the output from C<http://localhost:5000/entry/1>.
+This is not desirable, as it is confusing for a user to look at.
+
+=item C<redirect> is an external redirect
+
+External redirects sends the user to a different URL by sending a redirect
+response from Dancer2. Even though the user is executing a POST to
+C<http://localhost:5000/update/1>, upon completion, they're browser bar
+will show C<http://localhost:5000/entry/1>. This is a better option, as
+when an update completes successfully, the URL will match what the user sees
+in their browser.
+
+To do this, let's use the redirect keyword:
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id"; # redirect does not need a return
+    };
+
+We will show how to update an existing entry later in the tutorial.
+
+=back
+
+=head3 The Delete Routes
+
+It's wouldn't be kind to the user to simply delete an entry without giving
+them the option to change their mind, and that's what the GET route for
+deletion is intended to do.
+
+Similar to create and update, there's no need to create another template
+to show the results of a delete. We'll just send the user back to the
+list of blog entries:
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id"; # redirect does not need a return
+    };
+
+=head2 Reviewing our Application Code
+
+F<lib/DLBlog.pm> should now look like this:
 
 =head2 Adding Utility to our Views
 
@@ -363,8 +539,17 @@ This is all well and good, but it's not the most functional for our users.
 A basic menu of available options would help users to understand what
 actions can be performed in the Danceyland Blog.
 
+=head3 Adding a Menu to our Layout
+
 Let's edit our layout so users can see the same list of options across all
 pages:
+
+=head3 Adding Messages to our Layout
+
+It's easy to tell if create was successful, but what about update and
+delete? Wouldn't it be nice to receive some confirmation that an update
+or delete worked as intended? To do this, let's add the ability to
+display a message via our layout.
 
 =head1 Sessions
 
@@ -394,6 +579,7 @@ Then create a new file, F<db/entries.sql>, with the following:
     CREATE TABLE entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
+        summary TEXT NOT NULL,
         body TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -412,9 +598,11 @@ to a database via L<DBI>. It allows you to connect to a database and execute
 SQL queries. The plugin also provides some additional syntax to make it
 easier to perform database queries from inside Dancer2 applications.
 
-Install is using C<cpan> or C<cpanm>:
+You'll also need to install two other dependencies, L<DBI> (a universal
+database interface) and L<DBD::SQLite> (the SQLite database driver).
+Install them using C<cpan> or C<cpanm>:
 
-    cpanm Dancer2::Plugin::Database
+    cpanm DBI DBD::SQLite Dancer2::Plugin::Database
 
 And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
 
@@ -427,6 +615,13 @@ Deliberately introduce an error that could be caught by logging
 Log the details, but don't give too much information in the web ui!
 For good measure, redirect to the new entry once it has been created.
 Show some input sanitation (id, for example). Show how typed params can help here.
+
+TODO: C<forward> accepts parameters for messaging
+
+TODO:
+Update to create. Same form, with values filled in
+Make form another template to include
+Macro for displaying a value if one present
 
 =head2 Performing Queries
 
@@ -481,5 +676,7 @@ Congratulations! You've added all the basic functionality! Now, let's secure.
 =head2 What You've Built
 
 =head2 Where to Go Next
+
+# mention liteblog
 
 =cut
