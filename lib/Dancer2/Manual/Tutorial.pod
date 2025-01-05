@@ -520,14 +520,51 @@ It's wouldn't be kind to the user to simply delete an entry without giving
 them the option to change their mind, and that's what the GET route for
 deletion is intended to do.
 
+Let's give the user a simple confirmation form. Create F<views/delete.tt>:
+
+    <div id="delete">
+        <form method="post" action="<% uri_for('/delete/$id') %>">
+            <p>Delete entry <% id %>. Are you sure?</p>
+            <p>
+                <input type="radio" id="yes" name="delete_it" value="yes">
+                <label for="yes">Yes</label>
+            </p>
+            <p>
+                <input type="radio" id="no" name="delete_it" value="no">
+                <label for="no">No</label>
+            </p>
+        </form>
+    </div>
+
+Our GET route for delete will need to change:
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
 Similar to create and update, there's no need to create another template
 to show the results of a delete. We'll just send the user back to the
 list of blog entries:
 
-    post '/update/:id' => sub {
+    post '/delete/:id' => sub {
         my $id = route_parameters->get('id');
-        redirect uri_for "/entry/$id"; # redirect does not need a return
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
     };
+
+Notice the addition of the C<body_parameters>? This is to get the value
+of the radio button the user selected. This is important to decide if
+the user actually wants to delete or not.
 
 =head2 Reviewing our Application Code
 
