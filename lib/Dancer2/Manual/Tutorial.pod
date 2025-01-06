@@ -359,11 +359,11 @@ Let's see how it works. From the shell:
 Then open your browser and test your GET routes (we have nothing to post
 yet!):
 
-    http://localhost:5000/
-    http://localhost:5000/entry/1
-    http://localhost:5000/create
-    http://localhost:5000/update/1
-    http://localhost:5000/delete/1
+    L<http://localhost:5000/>
+    L<http://localhost:5000/entry/1>
+    L<http://localhost:5000/create>
+    L<http://localhost:5000/update/1>
+    L<http://localhost:5000/delete/1>
 
 =head1 Setting Up Views
 
@@ -655,7 +655,7 @@ F<lib/DLBlog.pm> should now look like this:
 
     post '/update/:id' => sub {
         my $id = route_parameters->get('id');
-        redirect uri_for "/entry/$id"; # redirect does not need a return
+        redirect uri_for "/entry/$id";
     };
 
     get '/delete/:id' => sub {
@@ -689,7 +689,39 @@ actions can be performed in the Danceyland Blog.
 =head3 Adding a Menu to our Layout
 
 Let's edit our layout so users can see the same list of options across all
-pages:
+pages. By adding the menu once to the layout, we don't have to reproduce
+this in the list, create, update, and delete templates.
+
+Our menu will look like this:
+
+    <div id="menu">
+        <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+        <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+    </div>
+
+Now, let's add it to the top of our layout. The end result looks like:
+
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="<% settings.charset %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title><% title %></title>
+        <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+      </head>
+      <body>
+        <div id="menu">
+            <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+            <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+        </div>
+        <% content %>
+        <div id="footer">
+        Powered by <a href="https://perldancer.org/">Dancer2</a> <% dancer_version %>
+        </div>
+      </body>
+    </html>
+
+Refresh your browser to see the menu appear at the top of your page.
 
 =head3 Adding Messages to our Layout
 
@@ -698,11 +730,218 @@ delete? Wouldn't it be nice to receive some confirmation that an update
 or delete worked as intended? To do this, let's add the ability to
 display a message via our layout.
 
+Let's create a simple message display to add to our layout:
+
+    <% IF message %>
+    <div id="message">
+        <b><% message | html_entity %></b>
+    </div>
+    <% END %>
+
+The C<IF> around the message C<div> makes it so this only is added to the
+resulting page if there is a message to show the user. After adding this
+to F<views/layouts/main.tt>, the layout should look like:
+
+If you want to see the message show up in your application, just pass a
+parameter named C<message> to your template. Let's add a friendly message
+temporarily when looking at the list of blog entries (we'll remove this
+later):
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', {
+            entries => \@entries,
+            message => 'Welcome to the Danceyland Blog!',
+        };
+    };
+
+We'll add some styling later to make this stand out more.
+
+This works well if we need to generate a message and display it on a
+template in our route, but what if we need to show that message on
+another request? We'll need to save that message somewhere so it can
+get picked up by the next request.
+
 =head1 Sessions
+
+Sessions allow us to introduce persistence in our web applications. This
+manifests itself in many different ways, be it remembering the currently
+logged in user, or remembering form entries between pages on a multi-page
+form. Sessions give us a mechanism for "remembering" things.
+
+Sessions require a storage mechanism to power them. Some common storage
+engines for sessions include memory caches, files, and databases (SQL and
+NoSQL both).
+
+While sessions are generally managed server side, but can also be found
+client side in secure cookies and browser local storage.
+
+For purposes of this tutorial, we're going to use Dancer2's YAML session
+engine, L<Dancer2::Session::YAML>. By keeping our sessions in YAML, it's
+easy to look at the contents of a session while we are developing and
+debugging the blog.
 
 =head2 Setting Up a Session Engine
 
+Session engines work much like template engines; there require a little
+bit of setup in your application's config file, and then they are available
+for use throughout the application.
+
+To set up the YAML session engine, add the following to your F<config.yml>:
+
+    session: "YAML"
+
+    engines:
+      session:
+        YAML:
+          cookie_name: dlblog.session
+
+You can only have one C<engines> section, so this should be combined with
+your existing template configuration. The section should now look like:
+
+    template: "template_toolkit"
+    session: "YAML"
+    engines:
+      template:
+        template_toolkit:
+          # Note: start_tag and end_tag are regexes
+          start_tag: '<%'
+          end_tag:   '%>'
+      session:
+        YAML:
+          cookie_name: dlblog.session
+
 =head2 Storing and Retrieving Session Data
+
+We can use our session to store messages to be displayed across requests.
+
+Store session data with the C<session> keyword:
+
+    session message => "Deleted entry $id";
+
+Retrieving session data can also be done with the C<session> keyword:
+
+    my $message = session 'message';
+
+Let's add a message to our delete route:
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            session message => "Deleted entry $id";
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+And display it at the top of our list of entries:
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', {
+            entries => \@entries,
+            message => session 'message',
+        };
+    };
+
+Now confirm you want to delete an entry here:
+
+    L<http://localhost:5000/delete/1>
+
+You can verify the message was written to the session by looking at the
+session file created on disk. If you look in your project directory, you'll
+notice a new F<sessions/> directory. There should now be exactly one file
+there: your current session. Run the following:
+
+    $ cat sessions/<some session id>.yml
+
+You'll have a file that looks like:
+
+    ---
+    message: Deleted entry 1
+
+YAML files are great for sessions while developing, but they are not a
+good choice for production. We'll examine some other options when we
+discuss deploying to production later in this tutorial.
+
+Now, refresh the current page. Did you spot the problem? That message now
+shows on I<every> request! We need a way to clear messages once they are
+displayed. This is where hooks can be useful. We'll learn more about them
+later in the tutorial.
+
+For a more robust solution for persisting data one-time across requests,
+check out L<Dancer2::Plugin::Deferred>.
+
+=head2 Our Application So Far
+
+Your application module should now look like:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', {
+            entries => \@entries,
+            message => session 'message',
+        };
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+    post '/create' => sub {
+        my $new_id = 1;
+        session entry_id => $new_id;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id";
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            session message => "Deleted entry $id";
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+    true;
 
 =head1 The Danceyland Database
 
@@ -756,6 +995,9 @@ And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
     use Dancer2::Plugin::Database;
 
 =head1 Implementing the Danceyland Blog
+
+Let's start by creating an entry and saving it to the database; all other
+routes rely on us having at least one entry (in some form).
 
 add some logging
 Deliberately introduce an error that could be caught by logging
