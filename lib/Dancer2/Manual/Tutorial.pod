@@ -994,25 +994,68 @@ And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
 
     use Dancer2::Plugin::Database;
 
+We need to add configuration to tell our plugin where to find the SQLite
+database. For this project, it's sufficient to put configuration for
+the database in F<config.yml>. In a production application, you'd
+have different database credentials in your development and staging
+environments than you would in your production environment (we'd hope you
+would anyhow!). And this is where environment config files are handy.
+
+By default, Dancer2 runs your application in the development environment.
+To that end, we'll add plugin configuration appropriately. Add the following
+to your F<environments/development.yml> file:
+
+    plugins:
+      Database:
+        driver: "SQLite"
+        database: "db/dlblog.db"
+        dbi_params:
+          RaiseError: 1
+          AutoCommit: 1
+
+Note that we only provided C<Database> for the plugin name; Dancer2
+automatically infers the C<Dancer2::Plugin::> prefix.
+
+As SQLite databases are a local file, we don't need to provide login
+credentials for the database. The two settings in the C<dbi_params>
+section tell L<DBI> (the underlying database interface) to raise an error
+automatically to our code (should one occur), and to automatically manage
+transactions for us (so we don't have to).
+
 =head1 Implementing the Danceyland Blog
 
 Let's start by creating an entry and saving it to the database; all other
 routes rely on us having at least one entry (in some form).
 
-add some logging
-Deliberately introduce an error that could be caught by logging
-Log the details, but don't give too much information in the web ui!
-For good measure, redirect to the new entry once it has been created.
-Show some input sanitation (id, for example). Show how typed params can help here.
+=head2 Performing Queries
 
-TODO: C<forward> accepts parameters for messaging
+L<Dancer2::Plugin::Database> lets us perform SQL queries against a database
+of our choosing. There are a few convenience methods available to help
+reduce the amount of raw SQL to write.
+
+For example, let's use a convenience method to create a new blog entry.
+Here's the form we created for entering a blog post:
+
+We can take values submitted via this form and turn them into a row in
+the database:
+
+    post '/create' => sub {
+        my $new_id = 1;
+        session entry_id => $new_id;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
 
 TODO:
-Update to create. Same form, with values filled in
-Make form another template to include
-Macro for displaying a value if one present
+try::tiny
+add some logging
+Log the details, but don't give too much information in the web ui!
 
-=head2 Performing Queries
+=head2 Displaying Blog Data
+
+Trust your users, don't trust what they enter
+Show some input sanitation (id, for example). Show how typed params can help here.
+
+=head3 A note about C<SELECT *>
 
 It is generally considered bad practice to issue C<SELECT *> in production
 applications. For example, if your application is expecting columns in a
@@ -1024,11 +1067,15 @@ It is considered better practice to explicitly list the columns you need
 to use when performing a query. This protects your application, and
 potentially your users, from unexpected changes outside of your application.
 
-=head2 Displaying Blog Data
+=head2 Updating a blog entry
 
-=head2 Maintaining State
+Make form another template to include
+Macro for displaying a value if one present
 
-Congratulations! You've added all the basic functionality! Now, let's secure.
+=head2 Implementation Recap
+
+Congratulations! You've added all the basic functionality! Now, let's secure
+critical functions of this blog by putting a login in front of them.
 
 =head1 Authentication
 
@@ -1082,7 +1129,15 @@ features that can be added to this blog. A few ideas include:
 
 =item Replace homegrown blog functionality (such as messages) with other Dancer2 plugins
 
-=item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator)
+=item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator>)
+
+=item Use database slugs in URLs instead of IDs
+
+A database slug is a human-readable identifier (such as a URL encoding of
+the entry title) that can be used to identify an entry rather than the
+numerical ID. They are easier to remember than IDs, are better for SEO of
+your content, and makes your application more secure by hiding some database
+implementation details from an attacker (such as a row ID).
 
 =back
 
