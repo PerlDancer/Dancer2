@@ -447,7 +447,7 @@ we think we'll need to show a blog entry:
     </div>
     <div id="content">
         <h2><% entry.title | html_entity %></h2>
-        <p><% entry.body | html_entity %></p>
+        <p><% entry.content | html_entity %></p>
     <% ELSE %>
         <p>Invalid entry.</p>
     <% END %>
@@ -1160,12 +1160,34 @@ primary key value of the new blog entry; this will get passed to the
 C</entry> route to display the blog post. We log a message showing the
 post successfully created, then redirect the user to the entry display page.
 
+=head3 Redisplaying the Create Form
+
+In the case of an error, it's a good practice to redisplay the original
+form with the previous values populated. Since we stored them in the
+session in the POST route, we have them available in our template for
+display:
+
 =head2 Displaying Blog Data
 
-Trust your users, don't trust what they enter
-Show some input sanitation (id, for example). Show how typed params can help here.
+Displaying a blog entry is fairly simple; the C<quick_select> method of
+L<Dancer2::Plugin::Database> will return a database row as a hashref, which
+can be passed as a parameter to a template:
+
+    get '/entry/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = database->quick_select('entries', { id => $id });
+        template 'entry', { entry => $entry };
+    };
+
+You may notice the route declaration changed; Dancer2 will let you decorate
+a route parameter with a L<Type::Tiny> datatype; if the provided parameter
+doesn't match the type expected by Dancer2, an HTTP 404 status will be
+returned. Any call to C<route_parameters> is then guaranteed to have a
+value of the desired type.
 
 =head3 A note about C<SELECT *>
+
+TODO: remove? Not really appropriate with D2::P::Database
 
 It is generally considered bad practice to issue C<SELECT *> in production
 applications. For example, if your application is expecting columns in a
