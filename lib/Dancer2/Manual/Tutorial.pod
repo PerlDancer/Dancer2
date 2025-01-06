@@ -481,7 +481,7 @@ F<views/create.tt> with the following:
             <label for="summary">Summary</label>
             <input type="text" name="summary" id="summary"><br>
             <label for="content">Content</label>
-            <textarea name="body" id="body" cols="50" rows="10"></textarea><br>
+            <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
             <input type="submit">
         </form>
     </div>
@@ -966,8 +966,8 @@ Then create a new file, F<db/entries.sql>, with the following:
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         summary TEXT NOT NULL,
-        body TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        content TEXT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
 Later, we'll add an additional table for users.
@@ -1036,19 +1036,129 @@ reduce the amount of raw SQL to write.
 For example, let's use a convenience method to create a new blog entry.
 Here's the form we created for entering a blog post:
 
+    <div id="create">
+        <form method="post" action="<% request.uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title"><br>
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary"><br>
+            <label for="content">Content</label>
+            <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
+            <input type="submit">
+        </form>
+    </div>
+
 We can take values submitted via this form and turn them into a row in
 the database:
 
     post '/create' => sub {
-        my $new_id = 1;
-        session entry_id => $new_id;
-        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+        my $title = body_parameters->get('title');
+        my $summary = body_parameters->get('summary');
+        my $content = body_parameters->get('content');
+
+        try {
+            database->quick_insert( 'entries', {
+                title => $title,
+                summary => $summary,
+                content => $content,
+            });
+        } catch ($e) {
+            error $e;
+            session title => $title;
+            session summary => $summary;
+            session content => $content;
+            forward uri_for '/create', {}, { method => 'GET' };
+        }
+        my $id = database->last_insert_id;
+        debug "Created entry $id for '$title'";
+        redirect uri_for "/entry/$id"; # redirect does not need a return
     };
 
-TODO:
-try::tiny
-add some logging
-Log the details, but don't give too much information in the web ui!
+First off, form fields are sent to Dancer2 as body parameters, so we need
+to use the C<body_parameters> keyword to get them:
+
+    my $title = body_parameters->get('title');
+    my $summary = body_parameters->get('summary');
+    my $content = body_parameters->get('content');
+
+In a production environment, you'd want to sanitize this data before
+attempting a database operation. When you sanitize data, you are ensuring
+that data contains only the values you would expect to receive. If it's
+not what you'd expect, you can remove the extra cruft (sanitize), or ask
+the user to correct their entry.
+
+Database operations can fail, so we should make an attempt to trap any
+errors. C<try/catch> lends itself well to this type of error checking.
+Newer versions of Perl have a built-in C<try> keyword, but older versions
+do not. To protect against this, let's install L<Feature::Compat::Try>,
+which uses the built-in C<try> if your Perl has it, otherwise provides
+a backported implementation. To install this module, run F<cpanm>:
+
+    $ cpanm Feature::Compat::Try
+
+Then make sure to include it at the top of your application:
+
+    use Feature::Compat::Try;
+
+The code inside the C<try> block will be executed, and if it fails, will
+C<catch> the error, and execute the code in that block.
+
+        try {
+            database->quick_insert( 'entries', {
+                title => $title,
+                summary => $summary,
+                content => $content,
+            });
+        }
+
+This uses the C<quick_insert> method of our Database plugin, and passes
+the values from the form through to create a row in the C<entries> table.
+
+If a database error occurs, we need to handle it:
+
+    catch ($e) {
+        error $e;
+        session title => $title;
+        session summary => $summary;
+        session content => $content;
+        session message => 'There was a database error creating this entry';
+        forward uri_for '/create', {}, { method => 'GET' };
+    }
+
+The first line creates an error log message containing the actual database
+error; this will be valuable in helping to debug your application, or
+troubleshoot a user issue. We then save the user's values to our session
+so we can repopulate the form for them, allowing them to fix their error.
+
+For the sake of brevity, we populate message with a really basic error
+message. In a production application, you'd want to provide the user with
+a descriptive message as to what the problem actually is.
+
+Why not pass the database error directly to the user? Because this gives
+a potential attacker information about your database and application.
+
+Finally, once the session is populated, we send the user back to the entry
+form:
+
+    forward uri_for '/create', {}, { method => 'GET' };
+
+By default, C<forward> invokes a route with the same HTTP verb of the route
+it is executing from. You can change the verb used by passing a third
+hashref containing the C<method> key. The second (empty) hashref contains
+an optional list of parameters to be passed to the forwarded route.
+
+If the C<catch> isn't triggered, the user's data was successfully added to
+the C<entries> table. As a convenience to the user, we should take them to
+a page where they can view their new entry:
+
+    my $id = database->last_insert_id;
+    debug "Created entry $id for '$title'";
+    redirect uri_for "/entry/$id"; # redirect does not need a return
+
+The first line asks C<DBI> to return the last ID it inserted; this is the
+primary key value of the new blog entry; this will get passed to the
+C</entry> route to display the blog post. We log a message showing the
+post successfully created, then redirect the user to the entry display page.
 
 =head2 Displaying Blog Data
 
