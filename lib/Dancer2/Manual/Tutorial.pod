@@ -447,7 +447,7 @@ we think we'll need to show a blog entry:
     </div>
     <div id="content">
         <h2><% entry.title | html_entity %></h2>
-        <p><% entry.body | html_entity %></p>
+        <p><% entry.content | html_entity %></p>
     <% ELSE %>
         <p>Invalid entry.</p>
     <% END %>
@@ -481,7 +481,7 @@ F<views/create.tt> with the following:
             <label for="summary">Summary</label>
             <input type="text" name="summary" id="summary"><br>
             <label for="content">Content</label>
-            <textarea name="body" id="body" cols="50" rows="10"></textarea><br>
+            <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
             <input type="submit">
         </form>
     </div>
@@ -966,8 +966,8 @@ Then create a new file, F<db/entries.sql>, with the following:
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         summary TEXT NOT NULL,
-        body TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        content TEXT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
 Later, we'll add an additional table for users.
@@ -994,25 +994,214 @@ And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
 
     use Dancer2::Plugin::Database;
 
+We need to add configuration to tell our plugin where to find the SQLite
+database. For this project, it's sufficient to put configuration for
+the database in F<config.yml>. In a production application, you'd
+have different database credentials in your development and staging
+environments than you would in your production environment (we'd hope you
+would anyhow!). And this is where environment config files are handy.
+
+By default, Dancer2 runs your application in the development environment.
+To that end, we'll add plugin configuration appropriately. Add the following
+to your F<environments/development.yml> file:
+
+    plugins:
+      Database:
+        driver: "SQLite"
+        database: "db/dlblog.db"
+        dbi_params:
+          RaiseError: 1
+          AutoCommit: 1
+
+Note that we only provided C<Database> for the plugin name; Dancer2
+automatically infers the C<Dancer2::Plugin::> prefix.
+
+As SQLite databases are a local file, we don't need to provide login
+credentials for the database. The two settings in the C<dbi_params>
+section tell L<DBI> (the underlying database interface) to raise an error
+automatically to our code (should one occur), and to automatically manage
+transactions for us (so we don't have to).
+
 =head1 Implementing the Danceyland Blog
 
 Let's start by creating an entry and saving it to the database; all other
 routes rely on us having at least one entry (in some form).
 
-add some logging
-Deliberately introduce an error that could be caught by logging
-Log the details, but don't give too much information in the web ui!
-For good measure, redirect to the new entry once it has been created.
-Show some input sanitation (id, for example). Show how typed params can help here.
-
-TODO: C<forward> accepts parameters for messaging
-
-TODO:
-Update to create. Same form, with values filled in
-Make form another template to include
-Macro for displaying a value if one present
-
 =head2 Performing Queries
+
+L<Dancer2::Plugin::Database> lets us perform SQL queries against a database
+of our choosing. There are a few convenience methods available to help
+reduce the amount of raw SQL to write.
+
+For example, let's use a convenience method to create a new blog entry.
+Here's the form we created for entering a blog post:
+
+    <div id="create">
+        <form method="post" action="<% request.uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title"><br>
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary"><br>
+            <label for="content">Content</label>
+            <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
+            <input type="submit">
+        </form>
+    </div>
+
+We can take values submitted via this form and turn them into a row in
+the database:
+
+    post '/create' => sub {
+        my $title = body_parameters->get('title');
+        my $summary = body_parameters->get('summary');
+        my $content = body_parameters->get('content');
+
+        try {
+            database->quick_insert( 'entries', {
+                title => $title,
+                summary => $summary,
+                content => $content,
+            });
+        } catch ($e) {
+            error $e;
+            session title => $title;
+            session summary => $summary;
+            session content => $content;
+            forward uri_for '/create', {}, { method => 'GET' };
+        }
+        my $id = database->last_insert_id;
+        debug "Created entry $id for '$title'";
+        redirect uri_for "/entry/$id"; # redirect does not need a return
+    };
+
+First off, form fields are sent to Dancer2 as body parameters, so we need
+to use the C<body_parameters> keyword to get them:
+
+    my $title = body_parameters->get('title');
+    my $summary = body_parameters->get('summary');
+    my $content = body_parameters->get('content');
+
+In a production environment, you'd want to sanitize this data before
+attempting a database operation. When you sanitize data, you are ensuring
+that data contains only the values you would expect to receive. If it's
+not what you'd expect, you can remove the extra cruft (sanitize), or ask
+the user to correct their entry.
+
+Database operations can fail, so we should make an attempt to trap any
+errors. C<try/catch> lends itself well to this type of error checking.
+Newer versions of Perl have a built-in C<try> keyword, but older versions
+do not. To protect against this, let's install L<Feature::Compat::Try>,
+which uses the built-in C<try> if your Perl has it, otherwise provides
+a backported implementation. To install this module, run F<cpanm>:
+
+    $ cpanm Feature::Compat::Try
+
+Then make sure to include it at the top of your application:
+
+    use Feature::Compat::Try;
+
+The code inside the C<try> block will be executed, and if it fails, will
+C<catch> the error, and execute the code in that block.
+
+        try {
+            database->quick_insert( 'entries', {
+                title => $title,
+                summary => $summary,
+                content => $content,
+            });
+        }
+
+This uses the C<quick_insert> method of our Database plugin, and passes
+the values from the form through to create a row in the C<entries> table.
+
+If a database error occurs, we need to handle it:
+
+    catch ($e) {
+        error $e;
+        session title => $title;
+        session summary => $summary;
+        session content => $content;
+        session message => 'There was a database error creating this entry';
+        forward uri_for '/create', {}, { method => 'GET' };
+    }
+
+The first line creates an error log message containing the actual database
+error; this will be valuable in helping to debug your application, or
+troubleshoot a user issue. We then save the user's values to our session
+so we can repopulate the form for them, allowing them to fix their error.
+
+For the sake of brevity, we populate message with a really basic error
+message. In a production application, you'd want to provide the user with
+a descriptive message as to what the problem actually is.
+
+Why not pass the database error directly to the user? Because this gives
+a potential attacker information about your database and application.
+
+Finally, once the session is populated, we send the user back to the entry
+form:
+
+    forward uri_for '/create', {}, { method => 'GET' };
+
+By default, C<forward> invokes a route with the same HTTP verb of the route
+it is executing from. You can change the verb used by passing a third
+hashref containing the C<method> key. The second (empty) hashref contains
+an optional list of parameters to be passed to the forwarded route.
+
+If the C<catch> isn't triggered, the user's data was successfully added to
+the C<entries> table. As a convenience to the user, we should take them to
+a page where they can view their new entry:
+
+    my $id = database->last_insert_id;
+    debug "Created entry $id for '$title'";
+    redirect uri_for "/entry/$id"; # redirect does not need a return
+
+The first line asks C<DBI> to return the last ID it inserted; this is the
+primary key value of the new blog entry; this will get passed to the
+C</entry> route to display the blog post. We log a message showing the
+post successfully created, then redirect the user to the entry display page.
+
+=head3 Redisplaying the Create Form
+
+In the case of an error, it's a good practice to redisplay the original
+form with the previous values populated. Since we stored them in the
+session in the POST route, we have them available in our template for
+display:
+
+=head3 A New Problem!
+
+As we have failures creating blog entries, our session is accumulating
+data from failed blog posts, and we are using that data to repopulate the
+create form. Eventually, we're going to accumulate enough cruft that
+entries will be successfully created...
+
+Why go through the extra effort when C<session_destroy> is an option?
+Using the destroy option deletes a session entirely, and on the next
+request creates a new session. If your session contains information needed
+in the front end or by another application in the same domain, you may
+inadventently cause some unintended side effects. It doesn't pay to be
+lazy here!
+
+=head2 Displaying Blog Data
+
+Displaying a blog entry is fairly simple; the C<quick_select> method of
+L<Dancer2::Plugin::Database> will return a database row as a hashref, which
+can be passed as a parameter to a template:
+
+    get '/entry/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = database->quick_select('entries', { id => $id });
+        template 'entry', { entry => $entry };
+    };
+
+You may notice the route declaration changed; Dancer2 will let you decorate
+a route parameter with a L<Type::Tiny> datatype; if the provided parameter
+doesn't match the type expected by Dancer2, an HTTP 404 status will be
+returned. Any call to C<route_parameters> is then guaranteed to have a
+value of the desired type.
+
+=head3 A note about C<SELECT *>
+
+TODO: remove? Not really appropriate with D2::P::Database
 
 It is generally considered bad practice to issue C<SELECT *> in production
 applications. For example, if your application is expecting columns in a
@@ -1024,11 +1213,15 @@ It is considered better practice to explicitly list the columns you need
 to use when performing a query. This protects your application, and
 potentially your users, from unexpected changes outside of your application.
 
-=head2 Displaying Blog Data
+=head2 Updating a blog entry
 
-=head2 Maintaining State
+Make form another template to include
+Macro for displaying a value if one present
 
-Congratulations! You've added all the basic functionality! Now, let's secure.
+=head2 Implementation Recap
+
+Congratulations! You've added all the basic functionality! Now, let's secure
+critical functions of this blog by putting a login in front of them.
 
 =head1 Authentication
 
@@ -1082,7 +1275,22 @@ features that can be added to this blog. A few ideas include:
 
 =item Replace homegrown blog functionality (such as messages) with other Dancer2 plugins
 
-=item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator)
+=item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator>)
+
+=item Use database slugs in URLs instead of IDs
+
+A database slug is a human-readable identifier (such as a URL encoding of
+the entry title) that can be used to identify an entry rather than the
+numerical ID. They are easier to remember than IDs, are better for SEO of
+your content, and makes your application more secure by hiding some database
+implementation details from an attacker (such as a row ID).
+
+=item Move business logic to a business object; call business object from Dancer2
+
+In larger applications, business logic (like creating a blog post) may
+be put in an object (created in L<Moo>, L<Moose>, etc.), and that object is
+instantiated and called from Dancer2. This helps to decouple tasks in an
+application, and allows for better testing of business logic.
 
 =back
 
