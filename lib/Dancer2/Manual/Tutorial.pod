@@ -1062,10 +1062,33 @@ Congratulations! You've added all the basic functionality! Now, let's secure.
 
 =head2 Configuring Reverse Proxy with NGINX
 
-=head2 What You've Built
+=head1 What You've Built
 
-=head2 Where to Go Next
+Congratulations! You have built a very ugly, but very functional blog
+engine that protects maintenance functions behind a user login using
+L<Dancer2> and other plugins and modules in its ecosystem. You've learned
+a number of important building blocks that will be crucial for building
+other applications.
 
-# mention liteblog
+=head1 Where to Go Next
+
+This application can be used as a springboard and reference for future
+L<Dancer2> projects. There are still a number of improvements and additional
+features that can be added to this blog. A few ideas include:
+
+=over
+
+=item Improved styling by using L<https://getbootstrap.com|Bootstrap> or L<https://tailwindcss.com|Tailwind CSS>
+
+=item Replace homegrown blog functionality (such as messages) with other Dancer2 plugins
+
+=item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator)
+
+=back
+
+For another example of a blog engine in Dancer2, check out
+L<Dancer2::Plugin::LiteBlog|LiteBlog> from our project founder, Sukria.
+
+Happy Dancing!
 
 =cut
