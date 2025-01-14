@@ -1167,6 +1167,20 @@ form with the previous values populated. Since we stored them in the
 session in the POST route, we have them available in our template for
 display:
 
+=head3 A New Problem!
+
+As we have failures creating blog entries, our session is accumulating
+data from failed blog posts, and we are using that data to repopulate the
+create form. Eventually, we're going to accumulate enough cruft that
+entries will be successfully created...
+
+Why go through the extra effort when C<session_destroy> is an option?
+Using the destroy option deletes a session entirely, and on the next
+request creates a new session. If your session contains information needed
+in the front end or by another application in the same domain, you may
+inadventently cause some unintended side effects. It doesn't pay to be
+lazy here!
+
 =head2 Displaying Blog Data
 
 Displaying a blog entry is fairly simple; the C<quick_select> method of
@@ -1270,6 +1284,13 @@ the entry title) that can be used to identify an entry rather than the
 numerical ID. They are easier to remember than IDs, are better for SEO of
 your content, and makes your application more secure by hiding some database
 implementation details from an attacker (such as a row ID).
+
+=item Move business logic to a business object; call business object from Dancer2
+
+In larger applications, business logic (like creating a blog post) may
+be put in an object (created in L<Moo>, L<Moose>, etc.), and that object is
+instantiated and called from Dancer2. This helps to decouple tasks in an
+application, and allows for better testing of business logic.
 
 =back
 
