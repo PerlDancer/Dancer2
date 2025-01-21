@@ -98,6 +98,8 @@ or buying tickets.
         return "You submitted: $param";
     };
 
+=back
+
 So exactly what are these HTTP requests, and what are they all about?
 
 =head2 HTTP Methods: Visitor Actions
@@ -393,6 +395,8 @@ Examples of wildcard route parameters include:
         my @files = splat;
         return "You requested the files: " . join(', ', @files);
     };
+
+=back
 
 =head3 Combining named and wildcard parameters
 
