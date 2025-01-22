@@ -1199,20 +1199,6 @@ doesn't match the type expected by Dancer2, an HTTP 404 status will be
 returned. Any call to C<route_parameters> is then guaranteed to have a
 value of the desired type.
 
-=head3 A note about C<SELECT *>
-
-TODO: remove? Not really appropriate with D2::P::Database
-
-It is generally considered bad practice to issue C<SELECT *> in production
-applications. For example, if your application is expecting columns in a
-certain order, and the DBA makes a change that introduces new columns in
-the middle of a table, suddenly your application has a bug that needs to be
-fixed.
-
-It is considered better practice to explicitly list the columns you need
-to use when performing a query. This protects your application, and
-potentially your users, from unexpected changes outside of your application.
-
 =head2 Updating a blog entry
 
 Make form another template to include
@@ -1227,17 +1213,13 @@ critical functions of this blog by putting a login in front of them.
 
 =head2 Dancer2::Plugin::Auth::Tiny
 
+=head2 Dancer2::Plugin::CryptPassphrase
+
 =head2 Changing Session ID
 
-=head2 Using Hooks
-
-=head1 Adding File Uploads
-
-=head2 Setting Up Routes for Uploads
-
-=head2 Saving and Displaying Uploaded Files
-
 =head1 Finishing Touches
+
+=head2 Using Hooks
 
 =head2 Adding Middleware
 
@@ -1271,9 +1253,9 @@ features that can be added to this blog. A few ideas include:
 
 =over
 
-=item Improved styling by using L<https://getbootstrap.com|Bootstrap> or L<https://tailwindcss.com|Tailwind CSS>
+=item Improved styling by using L<https://getbootstrap.com|Bootstrap> or another CSS framework
 
-=item Replace homegrown blog functionality (such as messages) with other Dancer2 plugins
+=item Replace homegrown functionality (such as messages) with other Dancer2 plugins
 
 =item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator>)
 
@@ -1285,10 +1267,11 @@ numerical ID. They are easier to remember than IDs, are better for SEO of
 your content, and makes your application more secure by hiding some database
 implementation details from an attacker (such as a row ID).
 
-=item Move business logic to a business object; call business object from Dancer2
+=item Move business logic to business layer; call business object from Dancer2
 
 In larger applications, business logic (like creating a blog post) may
-be put in an object (created in L<Moo>, L<Moose>, etc.), and that object is
+be put in an object (such as L<DBIx::Class::Result> or L<DBIx::Class::ResultSet>
+objects, or other L<Moo> or L<Moose> objects), and that object gets
 instantiated and called from Dancer2. This helps to decouple tasks in an
 application, and allows for better testing of business logic.
 
