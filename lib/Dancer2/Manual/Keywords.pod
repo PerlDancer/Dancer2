@@ -1,35 +1,10 @@
 # ABSTRACT: Dancer2 DSL Keyword Reference
 package Dancer2::Manual::Keywords;
 
-# TODO: make section order match manual
-# TODO: review verbiage
-# TODO: some (like content_type) are not linked
-# TODO: some should be noted as discouraged or obsolete
+# TODO: Link headers to manual
+# TODO: Link related keywords
 
 =pod
-
-# TODO: still missing:
-# * app
-# * encode_json
-# * dirname
-# * dancer_version
-# * decode_json
-# * context
-# * flush
-# * push_response_header
-# * from_yaml
-# * dance
-# * psgi_app
-# * mime
-# * engine
-# * headers
-# * path
-# * dancer_app
-# * from_dumper
-# * delayed
-# * done
-# * prepare_app
-# * dancer_major_version
 
 =encoding utf8
 
@@ -157,6 +132,12 @@ B<When to use>: Extract parts of a URL matched by a regex route.
 
 B<Related Keywords>: C<splat>.
 
+=head2 context
+
+Deprecated. Use C<app> instead.
+
+B<See also>: L<app|#app>.
+
 =head2 L<param|Dancer2::Manual/"param and params (Not Recommended)">
 
 Retrieves a parameter from the request (query, body, or route parameters).
@@ -198,7 +179,6 @@ path).
 B<Related Keywords>: C<response>, C<params>, C<header>.
 
 =head2 L<request_data|https://metacpan.org/pod/Dancer2::Manual#request_data>
-# TODO
 
 Retrieves the raw data from the request body.
 
@@ -225,22 +205,29 @@ B<When to use>: Handle named or wildcard route parameters.
 B<Related Keywords>: C<query_parameters>, C<body_parameters>, C<params>.
 
 =head2 L<upload|https://metacpan.org/pod/Dancer2::Manual#upload>
-# TODO
 
-Retrieves an uploaded file object by its field name.
+Uploads a file and makes it accessible as a L<Dancer2::Core::Request::Upload>
+object.
 
-B<When to use>: Handle file uploads from client requests.
+If you named multiple files with the same name, C<upload> keyword returns
+an array of L<Dancer2::Core::Request::Upload> objects:
+
+    post '/some/route' => sub {
+        my ($file1, $file2) = upload('files_input');
+        # $file1 and $file2 are Dancer2::Core::Request::Upload objects
+    };
+
+You can also access the raw hashref of parsed uploads via the current request object:
+
+    post '/some/route' => sub {
+        my $all_uploads = request->uploads;
+        # $all_uploads->{'file_input_foo'} is a Dancer2::Core::Request::Upload object
+        # $all_uploads->{'files_input'} is an arrayref of Dancer2::Core::Request::Upload objects
+    };
+
+B<When to use>: To handle file uploads from client requests.
 
 B<Related Keywords>: C<uploads>, C<request>.
-
-=head2 L<uploads|https://metacpan.org/pod/Dancer2::Manual#uploads>
-# TODO
-
-Returns a hash reference of all uploaded files, keyed by their field names.
-
-B<When to use>: Access multiple file uploads in a single request.
-
-B<Related Keywords>: C<upload>, C<request>.
 
 =head1 Response Handling Keywords
 
@@ -275,6 +262,51 @@ B<When to use>: Specify the MIME type of the response.
 
 B<Related Keywords>: C<header>.
 
+=head2 decode_json
+
+Deserializes a JSON string to a Perl data structure.
+
+B<When to use>: When you need to translate incoming JSON to a Perl hashref.
+
+B<See also>: L<encode_json|#encode_json>, L<from_json|#from_json>.
+
+=head2 delayed
+
+Initiates an asynchronous response. Requires a Plack/PSGI server capable
+of serving requests asynchronously.
+
+B<When to use>: When starting an asynchronous reponse.
+
+B<See also>: L<done|#done>, L<flush|#flush>.
+
+=head2 done
+
+Finalizes an asynchronous repsonse and closes the connection. Can only
+be run within the streaming response callback.
+
+B<When to use>: When finishing delivery of data asynchronously.
+
+B<See also>: L<delayed|#delayed>, L<flush|#flush>.
+
+=head2 encode_json
+
+Serializes a data structure to a UTF-8 encoded binary JSON string. Calling
+this keyword will not trigger the application's serializer hooks.
+
+B<When to use>: When needing to translate a Perl data structure to JSON.
+
+B<See also>: L<decode_json|#decode_json>, L<to_json|#to_json>.
+
+=head2 flush
+
+Flushes content headers when streaming a response. This is necessary when
+C<content> is called multiple times.
+
+B<When to use>: When streaming large amounts of data (such as video)
+asynchronously.
+
+B<See also>: L<delayed|#delayed>, L<done|#done>.
+
 =head2 L<forward|Dancer2::Manual/forward>
 
 Forwards the request to another route handler.
@@ -283,6 +315,15 @@ B<When to use>: Internally redirect to another route within the app.
 
 B<Related Keywords>: C<pass>.
 
+=head2 from_dumper
+
+Deserializes a L<Data::Dumper> structure.
+
+B<When to use>: When you need to turn a C<Data::Dumper> structure into a
+Perl hashref.
+
+B<See also>: L<to_dumper|#to_dumper>, L<from_json|#from_json>.
+
 =head2 L<from_json|Dancer2::Manual/from_json>
 
 Deserializes a JSON string into a Perl data structure.
@@ -290,6 +331,14 @@ Deserializes a JSON string into a Perl data structure.
 B<When to use>: Decode JSON data from the client.
 
 B<Related Keywords>: C<to_json>.
+
+=head2 from_yaml
+
+Deserializes a YAML structure.
+
+B<When to use>: When you need to turn YAML into a Perl hashref.
+
+B<See also>: L<to_yaml|#to_yaml>, L<from_json|#from_json>.
 
 =head2 L<halt|Dancer2::Manual/halt>
 
@@ -302,13 +351,17 @@ HTTP response codes are sent.
 
 B<Related Keywords>: C<status>, C<send_error>.
 
-=head2 L<header|Dancer2::Manual/header>
+=head2 C<header>
 
-Sets an HTTP header in the response.
+Deprecated. Use C<response_header> instead.
 
-B<When to use>: Add or modify response headers.
+B<Related Keywords>: C<response_header>.
 
-B<Related Keywords>: C<content_type>, C<status>.
+=head2 C<headers>
+
+Deprecated. Use C<response_headers> instead.
+
+B<Related Keywords>: C<response_headers>.
 
 =head2 L<pass|Dancer2::Manual/pass>
 
@@ -320,11 +373,19 @@ B<Related Keywords>: C<forward>.
 
 =head2 L<push_header|https://metacpan.org/pod/Dancer2::Manual#push_header>
 
+Deprecated. Use C<push_response_header> instead.
+
+B<When to use>: Don't. Use C<push_response_header>.
+
+B<Related Keywords>: C<push_response_header>.
+
+=head2 push_response_header
+
 Adds a new value to an existing response header without replacing its current value.
 
 B<When to use>: Append additional values to headers like 'Set-Cookie' or 'X-Forwarded-For'.
 
-B<Related Keywords>: C<header>, C<response_header>.
+B<See also>: L<response_header|#response_header>, L<response_headers|#response_headers>.
 
 =head2 L<redirect|Dancer2::Manual/redirect>
 
@@ -394,6 +455,14 @@ when sending error responses.
 
 B<Related Keywords>: C<halt>, C<send_error>.
 
+=head2 L<to_dumper|https://metacpan.org/pod/Dancer2::Manual#to_dumper>
+
+Serializes a Perl data structure into a string using Data::Dumper.
+
+B<When to use>: Convert complex data structures into a readable string format for debugging.
+
+B<Related Keywords>: C<from_dumper>, C<to_yaml>, C<to_json>.
+
 =head2 L<to_json|Dancer2::Manual/to_json>
 
 Serializes a Perl data structure to JSON.
@@ -401,6 +470,14 @@ Serializes a Perl data structure to JSON.
 B<When to use>: Encode data to JSON format.
 
 B<Related Keywords>: C<from_json>, C<send_as>.
+
+=head2 L<to_yaml|https://metacpan.org/pod/Dancer2::Manual#to_yaml>
+
+Serializes a Perl data structure into a YAML string.
+
+B<When to use>: Convert data structures into YAML format for configuration or interoperability.
+
+B<Related Keywords>: C<from_yaml>, C<to_json>, C<to_dumper>.
 
 =head1 Session and Cookie Keywords
 
@@ -430,6 +507,14 @@ B<Related Keywords>: C<cookie>, C<cookies>.
 
 =head1 Application Configuration Keywords
 
+=head2 app
+
+Returns an instance of the app. App is a L<Dancer2::Core::App>.
+
+B<When to use>: When calling methods only available via the application object.
+
+B<See also>: L<dancer_app|#dancer_app>
+
 =head2 L<config|Dancer2::Manual/config>
 
 Retrieves the entire application configuration as a hash reference.
@@ -437,6 +522,40 @@ Retrieves the entire application configuration as a hash reference.
 B<When to use>: Access or inspect all configuration settings.
 
 B<Related Keywords>: C<set>, C<setting>.
+
+=head2 dancer_app
+
+Alias for C<app>.
+
+B<Best Practice>: Use C<app> instead.
+
+B<Related Keywords>: C<app>
+
+=head2 dancer_version
+
+Retrieve full version number of installed Dancer2.
+
+B<When to use>: To help manage compatability and feature usage in your
+applications.
+
+B<See also>: L<dancer_major_version|#dancer_major_version>
+
+=head2 dancer_major_version
+
+Retrieves major version number of Dancer2.
+
+B<When to use>: To help manage compatability and feature usage in your
+applications.
+
+B<See also>: L<dancer_version|#dancer_version>
+
+=head2 prepare_app
+
+Function to help initialize and configure your Dancer2 app.
+B<When to use>: When you need to run initialization or setup code once at
+the start of your application.
+
+B<See also>: L<to_app|#to_app>.
 
 =head2 L<runner|https://metacpan.org/pod/Dancer2::Manual#runner>
 
@@ -566,6 +685,24 @@ B<Related Keywords>: C<debug>, C<info>, C<error>, C<log>.
 
 =head1 Miscellaneous Keywords
 
+=head2 dance
+
+Alias to the C<start> keyword.
+
+B<Note>: This keyword has been superseded by L<to_app|#to_app>.
+
+B<Best Practice>: Use C<to_app> instead.
+
+B<Related Keywords>: L<to_app|#to_app>.
+
+=head2 dirname
+
+Given a path, return the directory name.
+
+B<When to use>: When you need to extract the directory name given a path.
+
+B<See also>: L<path|#path>.
+
 =head2 dsl
 
 Provides access to the DSL (Domain Specific Language) object.
@@ -573,6 +710,17 @@ Provides access to the DSL (Domain Specific Language) object.
 B<When to use>: When writing plugins or extending Dancer2's capabilities.
 
 B<Related Keywords>: None.
+
+=head2 engine
+
+Given a namespace, return the current engine object. For example:
+
+    my $template_engine = engine 'template';
+
+B<When to use>: When you need to manually interact with one of the
+underlying engines in Dancer2.
+
+B<See also>: L<template|#template>, L<session|#session>, L<logger|#logger>.
 
 =head2 L<false|https://metacpan.org/pod/Dancer2::Manual#false>
 
@@ -582,6 +730,36 @@ B<When to use>: Explicitly return a false value in your application.
 
 B<Related Keywords>: C<true>.
 
+=head2 mime
+
+Provide access to your application's instance of L<Dancer2::Core::MIME>.
+
+B<When to use>: When querying or changing your application's MIME settings.
+
+B<See also>: L<send_file|#send_file>.
+
+=head2 path
+
+Concatenates multiple paths together without worrying about the underlying
+operating system. It cleans the path aesthetically, but does not verify its
+existence.
+
+B<When to use>: When you need to generate a filesystem path within your
+application.
+
+B<See also>: L<dirname|#dirname>.
+
+=head2 psgi_app
+
+Provides the same functionality as C<to_app>, but uses the deprecated
+Dispatcher engine.
+
+B<Note>: This keyword has been superseded by L<to_app|#to_app>.
+
+B<Best Practice>: Use C<to_app> instead.
+
+B<See also>: L<to_app|#to_app>.
+
 =head2 L<to_app|https://metacpan.org/pod/Dancer2::Manual#to_app>
 
 Returns the PSGI application code reference for the current Dancer2 app.
@@ -589,22 +767,6 @@ Returns the PSGI application code reference for the current Dancer2 app.
 B<When to use>: Integrate the Dancer2 application with other PSGI-compatible frameworks or servers.
 
 B<Related Keywords>: C<psgi_app>, C<dance>.
-
-=head2 L<to_dumper|https://metacpan.org/pod/Dancer2::Manual#to_dumper>
-
-Serializes a Perl data structure into a string using Data::Dumper.
-
-B<When to use>: Convert complex data structures into a readable string format for debugging.
-
-B<Related Keywords>: C<from_dumper>, C<to_yaml>, C<to_json>.
-
-=head2 L<to_yaml|https://metacpan.org/pod/Dancer2::Manual#to_yaml>
-
-Serializes a Perl data structure into a YAML string.
-
-B<When to use>: Convert data structures into YAML format for configuration or interoperability.
-
-B<Related Keywords>: C<from_yaml>, C<to_json>, C<to_dumper>.
 
 =head2 L<true|https://metacpan.org/pod/Dancer2::Manual#true>
 
