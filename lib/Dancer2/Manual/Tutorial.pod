@@ -11,6 +11,11 @@ In this tutorial, you're going to end up with a working blog application,
 constructed from simple examples and demonstrations of techniques used
 in Dancer2 applications.
 
+If you'd like to see the finished product, you can clone the git repository
+containing the code used in this tutorial:
+
+    git clone https://github.com/PerlDancer/DLBlog.git
+
 =head1 Introduction - the Danceyland Blog
 
 Danceyland wants to share information about happenings at the park on
