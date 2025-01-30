@@ -7,21 +7,48 @@ package Dancer2::Tutorial;
 
 =head1 Dancer2 Tutorial
 
-The point is to gradually build up from simple examples and demonstrations
-of techniques and end up with a working blog application.
+In this tutorial, you're going to end up with a working blog application,
+constructed from simple examples and demonstrations of techniques used
+in Dancer2 applications.
 
 =head1 Introduction - the Danceyland Blog
 
+Danceyland wants to share information about happenings at the park on
+an ongoing basis, and feel the best medium for doing so is by publishing
+a blog. Your task is to construct a blog engine to facilitate this using
+Dancer2 and other Perl modules.
+
 =head2 What You'll Learn
+
+By the end of this tutorial, you'll know how to:
+
+=over
+
+=item * Scaffold a new Dancer2 app
+
+=item * Design and construct routes for an application
+
+=item * Work with sessions, templates, and databases
+
+=item * Extend your Dancer2 applications with plugins
+
+=item * Add authentication to Dancer2 applications
+
+=item * Perform a basic app deployment
+
+=back
 
 =head2 Prerequisites
 
-Linux, BSD, or Windows with WSL and a Linux distribution installed.
+=over
 
-Windows with Stawberry Perl may work, but is not guaranteed.
+=item * Linux, BSD, or Windows with WSL and a Linux distribution installed
 
-You'll also need SQLite 3, installed via your operating system's package
-manager.
+(Strawberry Perl on Windows may work, but is not guaranteed)
+
+=item * SQLite 3, installed via your operating system's package manager
+
+=back
 
 =head1 Setting Up Your Environment
 
