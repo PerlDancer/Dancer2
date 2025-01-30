@@ -1266,8 +1266,8 @@ critical functions of this blog by putting a login in front of them.
 
 =head1 What You've Built
 
-Congratulations! You have built a very ugly, but very functional blog
-engine that protects maintenance functions behind a user login using
+Congratulations! You have built a primitive but very functional blog
+engine that protects maintenance functions behind a user login, using
 L<Dancer2> and other plugins and modules in its ecosystem. You've learned
 a number of important building blocks that will be crucial for building
 other applications.
@@ -1280,11 +1280,22 @@ features that can be added to this blog. A few ideas include:
 
 =over
 
-=item Improved styling by using L<https://getbootstrap.com|Bootstrap> or another CSS framework
+=item Paginate the list of blog entries
 
-=item Replace homegrown functionality (such as messages) with other Dancer2 plugins
+After a while, the list of blog entries can get long. Using L<Data::Page>
+or other Perl modules, break the list of entries into reasonable page
+sizes to more easily and quickly navigate.
 
-=item Improve application security by sanitizing input parameters with regex or a validation framework (such as L<Dancer2::Plugin::DataTransposeValidator>)
+=item Add a search function to the blog
+
+Add a search bar to the UI, then use the C<search()> method in
+L<DBIx::Class> to find blog entries based on what the used input.
+
+=item Improve application security by sanitizing input parameters
+
+Using a regex or a validation framework (such as
+L<Dancer2::Plugin::DataTransposeValidator>), scrub all input before using
+it in a database operation.
 
 =item Use database slugs in URLs instead of IDs
 
