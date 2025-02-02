@@ -896,7 +896,7 @@ Here's the form we created for entering a blog post:
             <input type="text" name="summary" id="summary"><br>
             <label for="content">Content</label>
             <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
-            <input type="submit">
+            <button type="submit">Save Entry</button>
         </form>
     </div>
 
@@ -1032,7 +1032,7 @@ form.
 
 Your new C<post '/create'> route should now look like this:
 
-    post '/create' => needs login => sub {
+    post '/create' => sub {
         my $params = body_parameters();
         var $_ => $params->{ $_ } foreach qw< title summary content >;
 
@@ -1078,7 +1078,7 @@ variables with the C<var> keyword:
             <input type="text" name="summary" id="summary" value="<% vars.summary %>"><br>
             <label for="content">Content</label>
             <textarea name="content" id="content" cols="50" rows="10"><% vars.content %></textarea><br>
-            <input type="submit">
+            <button type="submit">Save Entry</button>
         </form>
     </div>
 
@@ -1191,8 +1191,118 @@ blog post.
 
 =head2 Updating a blog entry
 
-Make form another template to include
-Macro for displaying a value if one present
+To update a blog entry, we need a form that contains the values that have
+already been entered for a given blog post. Didn't we already do that as
+part of redisplaying the create form when it was missing values? Why yes
+we did! What if we could reuse that form for editing an existing entry?
+With a little bit of work, we absolutely can.
+
+Rename F<create.tt> to be F<create_update.tt>, then replace the contents
+with the following:
+
+    <div id="create_update">
+        <form method="post" action="<% post_to %>">
+            <label for="title">title</label>
+            <input type="text" name="title" id="title" value="<% vars.title %>"><br>
+            <label for="summary">summary</label>
+            <input type="text" name="summary" id="summary" value="<% vars.summary %>"><br>
+            <label for="content">content</label>
+            <textarea name="content" id="content" cols="50" rows="10"><% vars.content %></textarea><br>
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+The following minor changes have been made:
+
+=over
+
+=item * The div id was changed to reflect the form's new purpose
+
+=item * The form action was changed to the template variable C<post_to>
+
+=back
+
+The form action will be different based upon whether we are creating a new
+blog entry, or updating an existing one.
+
+We need to create a route to display the form such that it is suitable for
+updating a blog entry:
+
+    get '/update/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        var $_ => $entry->$_ foreach qw< title summary content >;
+        template 'create_update', { post_to => uri_for "/update/$id" };
+    };
+
+As with our route to display a blog entry, we include the type of parameter
+(C<Int>) that we expect to receive. Dancer2 will issue a C<404> not found
+error if this parameter is something other than an integer. We also attempt
+to fetch the row from the C<entries> table identified with the id passed
+to the application.
+
+Once an entry has been retrieved, we populate the same list of variables
+that we did to redisplay the form when required values were missing earlier.
+Finally, we create the correct C<post_to> URL for updating a blog entry, and
+pass it to the template.
+
+As with create, we need a POST route to process the blog update:
+
+    post '/update/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        if( !$entry ) {
+            status 'not_found';
+            return "Attempt to update non-existent entry $id";
+        }
+
+        my $params = body_parameters();
+        var $_ => $params->{ $_ } foreach qw< title summary content >;
+        my @missing = grep { $params->{$_} eq '' } qw< title summary content >;
+        if( @missing ) {
+            var missing => join ",", @missing;
+            warning "Missing parameters: " . var 'missing';
+            forward "/update/$id", {}, { method => 'GET' };
+        }
+
+        try {
+            $entry->update( $params->as_hashref );
+        }
+        catch( $e ) {
+            error "Database error: $e";
+            var error_message => 'A database error occurred; your entry could not be updated',
+            forward "/update/$id", {}, { method => 'GET' };
+        }
+        redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+    };
+
+An additional check exists here that was unnecessary for create: a check to
+ensure the blog post to update actually exists. If it doesn't, the proper
+response is to issue a C<404> not found response to the user:
+
+    if( !$entry ) {
+        status 'not_found';
+        return "Attempt to update non-existent entry $id";
+    }
+
+The C<status> keyword sets the proper response code in the response header,
+and the message in the C<return> sends additional information back to the
+user.
+
+Once the proper blog entry has been loaded, the exact same logic needed
+to create an entry applies to updating one.
+
+=head3 Updating the create form's C<post_to>
+
+Simply call C<uri_for> in our route, then pass the resulting value to
+F<create_update.tt>:
+
+    get '/create' => sub {
+        # Vars are passed to templates automatically
+        template 'create_update', { post_to => uri_for '/create' };
+    };
+
+=head2 Deleting a Blog Entry
 
 =head2 Implementation Recap
 
