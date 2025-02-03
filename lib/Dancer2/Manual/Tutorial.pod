@@ -1500,11 +1500,15 @@ YAML files are great for sessions while developing, but they are not a
 good choice for production. We'll examine some other options when we
 discuss deploying to production later in this tutorial.
 
+=head2 Storing application users
+
+=head2 Password management with Dancer2::Plugin::CryptPassphrase
+
 =head2 Dancer2::Plugin::Auth::Tiny
 
-=head2 Dancer2::Plugin::CryptPassphrase
+=head2 Implementing Login
 
-=head2 Changing Session ID
+=head2 Implementing Logout
 
 =head1 Finishing Touches
 
