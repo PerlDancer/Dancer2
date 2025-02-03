@@ -1304,9 +1304,105 @@ F<create_update.tt>:
 
 =head2 Deleting a Blog Entry
 
+A simple GET route is needed to display information about the route to be
+deleted:
+
+    get '/delete/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        template 'delete', { entry => $entry };
+    };
+
+We require a single route parameter: an integer that represents the ID
+of the blog post we wish to delete. We then attempt to load that entry
+from the database with the C<find()> method of L<DBIx::Class::ResultSet>,
+then dump it to our earlier delete template.
+
+Speaking of which, let's modify our template to use methods on our resultset
+object:
+
+    <% IF entry %>
+    <div id="delete">
+        <form method="post" action="<% request.uri_for('/delete/' _ entry.id) %>">
+            <p>Delete entry <% entry.id %>. Are you sure?</p>
+            <div>
+                <input type="radio" id="yes" name="delete_it" value="yes">
+                <label for="yes">Yes</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" id="no" name="delete_it" value="no">
+                <label for="no">No</label>
+            </div><br>
+            <button type="submit">Delete Entry</button>
+        </form>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+
+Any place we had been using a parameter earlier now calls a corresponding
+method on the C<entry> object. We've also added a check to display a message
+if an invalid entry ID was provided.
+
+Now, let's write the code to actually perform the delete:
+
+    post '/delete/:id[Int]' sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        if( !$entry ) {
+            status 'not_found';
+            return "Attempt to delete non-existent entry $id";
+        }
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            $entry->delete;
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+This uses all of the same techniques and logic we've built previously:
+
+=over
+
+=item * A route definition that checks the datatype of the ID
+
+=item * A check to ensure a blog post with that ID exists
+
+=item * The code to safely perform a delete
+
+Once a resultset object has been instantiated, calling the C<delete> method
+removes it from the database.
+
+=item * Code to redirect to the entry display if the post isn't deleted
+
+=back
+
 =head2 Implementation Recap
 
-Congratulations! You've added all the basic functionality! Now, let's secure
+At this point, we've built an app that allows a user to perform the following
+tasks when writing a blog:
+
+=over
+
+=item * Creating an entry
+
+=item * Editing an existing entry
+
+=item * Deleting an entry
+
+=item * Listing all blog entries
+
+=item * Displaying a single entry
+
+=back
+
+Congratulations - you've added all the basic functionality! Now, let's secure
 critical functions of this blog by putting a login in front of them.
 
 # TODO: MOVE AND REWORK ALL THIS
