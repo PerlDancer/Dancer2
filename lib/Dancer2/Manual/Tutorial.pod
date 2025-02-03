@@ -1405,9 +1405,25 @@ tasks when writing a blog:
 Congratulations - you've added all the basic functionality! Now, let's secure
 critical functions of this blog by putting a login in front of them.
 
-# TODO: MOVE AND REWORK ALL THIS
+=head1 Authentication
 
-=head1 Sessions
+Now that the core functionality is done, we need to secure critical
+functions; visitors shouldn't be allowed to create or modify content,
+only authorized users of the Danceyland blog. Dancer2 has several
+plugins available that help you to add user authentication to your
+applications; for the Danceyland blog, our needs are rather simple, and
+so we will use L<Dancer2::Plugin::Auth::Tiny> as our authentication system
+of choice.
+
+L<Dancer2::Plugin::Auth::Tiny> provides some additional syntax to let us
+easily specify which routes require a logged in user and which do not. It
+also provides a bit of scaffolding to help us build the actual login
+procedure. We'll come back to this in a bit.
+
+We need a way to keep track of who the logged in user is. For that, we're
+going to need to set up and work with sessions.
+
+=head2 Sessions
 
 Sessions allow us to introduce persistence in our web applications. This
 manifests itself in many different ways, be it remembering the currently
@@ -1418,7 +1434,7 @@ Sessions require a storage mechanism to power them. Some common storage
 engines for sessions include memory caches, files, and databases (SQL and
 NoSQL both).
 
-While sessions are generally managed server side, but can also be found
+While sessions are generally managed server side, they can also be found
 client side in secure cookies and browser local storage.
 
 For purposes of this tutorial, we're going to use Dancer2's YAML session
@@ -1426,7 +1442,7 @@ engine, L<Dancer2::Session::YAML>. By keeping our sessions in YAML, it's
 easy to look at the contents of a session while we are developing and
 debugging the blog.
 
-=head2 Setting Up a Session Engine
+=head3 Setting Up a Session Engine
 
 Session engines work much like template engines; there require a little
 bit of setup in your application's config file, and then they are available
@@ -1456,51 +1472,19 @@ your existing template configuration. The section should now look like:
         YAML:
           cookie_name: dlblog.session
 
-=head2 Storing and Retrieving Session Data
+=head3 Storing and Retrieving Session Data
 
-We can use our session to store messages to be displayed across requests.
+We can use our session to store information across multiple requests.
 
 Store session data with the C<session> keyword:
 
-    session message => "Deleted entry $id";
+    session user => 'admin';
 
 Retrieving session data can also be done with the C<session> keyword:
 
-    my $message = session 'message';
+    my $user = session 'user';
 
-Let's add a message to our delete route:
-
-    post '/delete/:id' => sub {
-        my $id = route_parameters->get('id');
-
-        # Always default to not destroying data
-        my $delete_it = body_parameters->get('delete_it') // 0;
-
-        if( $delete_it ) {
-            # Do the deletion here
-            session message => "Deleted entry $id";
-            redirect uri_for "/";
-        } else {
-            # Display our entry again
-            redirect uri_for "/entry/$id";
-        }
-    };
-
-And display it at the top of our list of entries:
-
-    get '/' => sub {
-        my @entries; # We'll populate this later
-        template 'index', {
-            entries => \@entries,
-            message => session 'message',
-        };
-    };
-
-Now confirm you want to delete an entry here:
-
-    L<http://localhost:5000/delete/1>
-
-You can verify the message was written to the session by looking at the
+You can verify the username was written to the session by looking at the
 session file created on disk. If you look in your project directory, you'll
 notice a new F<sessions/> directory. There should now be exactly one file
 there: your current session. Run the following:
@@ -1510,85 +1494,11 @@ there: your current session. Run the following:
 You'll have a file that looks like:
 
     ---
-    message: Deleted entry 1
+    user: admin
 
 YAML files are great for sessions while developing, but they are not a
 good choice for production. We'll examine some other options when we
 discuss deploying to production later in this tutorial.
-
-Now, refresh the current page. Did you spot the problem? That message now
-shows on I<every> request! We need a way to clear messages once they are
-displayed. This is where hooks can be useful. We'll learn more about them
-later in the tutorial.
-
-For a more robust solution for persisting data one-time across requests,
-check out L<Dancer2::Plugin::Deferred>.
-
-=head2 Our Application So Far
-
-Your application module should now look like:
-
-    package DLBlog;
-    use Dancer2;
-
-    get '/' => sub {
-        my @entries; # We'll populate this later
-        template 'index', {
-            entries => \@entries,
-            message => session 'message',
-        };
-    };
-
-    get '/entry/:id' => sub {
-        my $id = route_parameters->get('id');
-        my $entry; # Populated from the database later
-        template 'entry', { entry => $entry };
-    };
-
-    get '/create' => sub {
-        template 'create';
-    };
-
-    post '/create' => sub {
-        my $new_id = 1;
-        session entry_id => $new_id;
-        redirect uri_for "/entry/$new_id"; # redirect does not need a return
-    };
-
-    get '/update/:id' => sub {
-        my $id = route_parameters->get('id');
-        template 'create';
-    };
-
-    post '/update/:id' => sub {
-        my $id = route_parameters->get('id');
-        redirect uri_for "/entry/$id";
-    };
-
-    get '/delete/:id' => sub {
-        my $id = route_parameters->get('id');
-        template 'delete', { id => $id };
-    };
-
-    post '/delete/:id' => sub {
-        my $id = route_parameters->get('id');
-
-        # Always default to not destroying data
-        my $delete_it = body_parameters->get('delete_it') // 0;
-
-        if( $delete_it ) {
-            # Do the deletion here
-            session message => "Deleted entry $id";
-            redirect uri_for "/";
-        } else {
-            # Display our entry again
-            redirect uri_for "/entry/$id";
-        }
-    };
-
-    true;
-
-=head1 Authentication
 
 =head2 Dancer2::Plugin::Auth::Tiny
 
@@ -1599,10 +1509,6 @@ Your application module should now look like:
 =head1 Finishing Touches
 
 =head2 Adding some style
-
-=head2 Using Hooks
-
-=head2 Custom Error Pages
 
 =head1 Testing Your Application
 
