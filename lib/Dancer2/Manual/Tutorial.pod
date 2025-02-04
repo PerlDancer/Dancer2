@@ -1496,17 +1496,199 @@ You'll have a file that looks like:
     ---
     user: admin
 
+The session filename matches the session ID, which is stored in a cookie
+that is delivered to the client browser when your application is accessed.
+If you have the browser developer tools open when you access your
+development site, you can inspect the cookie and see for yourself.
+
 YAML files are great for sessions while developing, but they are not a
 good choice for production. We'll examine some other options when we
 discuss deploying to production later in this tutorial.
 
 =head2 Storing application users
 
+Since we're already using a database to store our blog contents, it only
+makes sense to track our application users there, too. Let's create a
+simplistic table to store user data in F<db/users.sql>:
+
+    CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username VARCHAR NOT NULL UNIQUE,
+        password VARCHAR NOT NULL
+    );
+
+Then run this from our shell:
+
+    sqlite3 db/dlblog.db < db/users.sql
+
+By declaring password to be an unbounded varchar field, we allow for
+passwords or passphrases of any length. Notice we don't track admin
+status, rights, or anything of the like - if you can log in, you can
+administer the blog.
+
+We'll need to regenerate the L<DBIx::Class::Result> classes so we can
+create objects that represent users. Run the following in your shell from
+the project directory:
+
+    dbicdump -o dump_directory=./lib \
+        -o components='["InflateColumn::DateTime"]' \
+        DLBlog::Schema dbi:SQLite:db/dlblog.db '{ quote_char => "\"" }'
+
+You should have an additional source file in your project directory now,
+F<lib/DLBlog/Schema/Result/User.pm>.
+
 =head2 Password management with Dancer2::Plugin::CryptPassphrase
+
+It is best practice to store passwords encrypted, less someone with database
+access look at your C<users> table and steal account credentials. Rather than
+roll our own, we'll use one of the many great options on CPAN.
+
+L<Dancer2::Plugin::CryptPassphrase> provides convenient access to
+L<Crypt::Passphrase> in your Dancer2 applications. We'll use the latter
+to generate a password hash for any new users we create.
+
+Install the above modules:
+
+    cpanm Dancer2::Plugin::CryptPassphrase
+
+and add the module to your F<cpanfile>:
+
+    requires "Dancer2::Plugin::CryptPassphrase";
+
+From your shell, running the following will produce an encrypted password
+string:
+
+    perl -MCrypt::Passphrase -E \
+        'my $auth=Crypt::Passphrase->new(encoder=>"Argon2"); say $auth->hash_password("test")'
+
+(substitute any other password for C<test> you'd rather use)
+
+That can then be filled in as the password value in the below SQL. From your shell:
+
+    sqlite3 db/dlblog.db
+
+    sqlite> INSERT INTO users (username, password)
+    VALUES (
+        'admin',
+        '$argon2id$v=19$m=262144,t=3,p=1$07krd3DaNn3b9JplNPSjnA$CiFKqjqgecDiYoV0qq0QsZn2GXmORkia2YIhgn/dbBo'
+    ); -- admin/test
+
+    sqlite> .quit
 
 =head2 Dancer2::Plugin::Auth::Tiny
 
+We also need to install L<Dancer2::Plugin::Auth::Tiny> From your shell:
+
+    cpanm Dancer2::Plugin::Auth::Tiny
+
+Then add this to your F<cpanfile>:
+
+    requires "Dancer2::Plugin::Auth::Tiny";
+
 =head2 Implementing Login
+
+We need two routes to implement the login process: a GET route to display
+a login form, and a POST route to process the form data. Before that, we
+need to include the plugins we need for authentication. Below your other
+C<use> statements, add the following:
+
+    use Dancer2::Plugin::Auth::Tiny;
+    use Dancer2::Plugin::CryptPassphrase;
+
+We'll need some HTML to create a login form. Add the following to a new
+template file, F<views/login.tt>:
+
+    <div id="login">
+        <% IF login_error %>
+        <div>
+            Invalid username or password
+        </div>
+        <% END %>
+        <form method="post" action="<% request.uri_for('/login') %>">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <input type="hidden" name="return_url" id="return_url" value="<% return_url %>">
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+Next, we need a route to display the login template:
+
+    get '/login' => sub {
+        template 'login' => { return_url => params->{ return_url } };
+    };
+
+If the user tries to access a route that requires a login, and they aren't
+currently logged in, they are redirected to this C<get '/login'>
+route, and the URL they originally accessed is stored in a generic parameter
+named C<return_url>. Upon a successful login attempt, the user will be
+redirected to the page they were originally trying to gain access to.
+C<return_url> is stored in the form as a hidden field.
+
+Finally, when a login request is submitted, we attempt to validate the
+login request via a POST route:
+
+    post '/login' => sub {
+        my $username = body_parameters->get('username');
+        my $password = body_parameters->get('password');
+        my $return_url = body_parameters->get('return_url');
+
+        my $user = resultset( 'User' )->find({ username => $username });
+        if ( $user and verify_password( $password, $user->password) ) {
+            app->change_session_id;
+            session user => $username;
+            info "$username successfully logged in";
+            return redirect $return_url || '/';
+        }
+        else {
+            warning "Failed login attempt for $username";
+            template 'login' => { login_error => 1, return_url => $return_url };
+        }
+    };
+
+We read the form values passed as body parameters, and attempt to look up
+a user with the provided username using C<find()> with a special invokation;
+this time, we want to specifically attempt to find a single row based
+on the value provided to the C<username> column.
+
+If a user is found, we use the C<verify_password()> function from
+L<Crypt::Passphrase> (provided via L<Dancer2::Plugin::CryptPassphrase>)
+to try to compare password hashes; the passwords themselves are never
+directly checked against one another. Instead, the password entered by
+the user is hashed using the same algorithm as when the password was
+hashed and stored in the database. C<verify_password()> takes two arguments:
+the password the user entered, and the password hash we previously saved
+(stored in C<< $user->password >>). If the hashes match, we have validated
+our user, and we can proceed to log them in.
+
+This is where our session comes into play. We can store the name of the user
+that just authenticated in our session. Any time this user visits the site
+again, the session engine looks for a valid session with the ID provied in
+the cookie, and if a session is found, our application will look up the name
+of the user stored in that session; further activity will be tracked as
+that logged in user.
+
+To accomplish this, we first should generate a new session ID as a matter
+of good practice. Since the level of security granted is changing, using
+a new session ID guarantees another browser or user that may have the
+same session ID isn't accidentally granted admin permissions to our app
+(this practice stops a whole class of attacks against your webapp).
+
+Next, we stash the logged in username in our session via the C<session>
+keyword, log an audit message (at the C<info> level) that says a user
+logged in, and finally redirect them to their intended location (or, back
+to the post listing by default). On future requests, this browser will
+be treated as being logged in as the provided username.
+
+If the password check isn't successful, best practice is to log a message
+saying a login attempt failed, then redisplaying the login page with an
+error.
 
 =head2 Implementing Logout
 
