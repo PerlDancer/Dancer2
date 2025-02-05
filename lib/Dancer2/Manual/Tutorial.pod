@@ -812,6 +812,13 @@ Install them using C<cpan> or C<cpanm>:
     cpanm DBD::SQLite Dancer2::Plugin::DBIx::Class \
         DBIx::Class::Schema::Loader DateTime::Format::SQLite
 
+Add these to your F<cpanfile>:
+
+    requires "DBD::SQLite";
+    requires "Dancer2::Plugin::DBIx::Class";
+    requires "DBIx::Class::Schema::Loader";
+    requires "DateTime::Format::SQLite";
+
 And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
 
     use Dancer2::Plugin::DBIx::Class;
@@ -940,7 +947,11 @@ do not. To protect against this, let's install L<Feature::Compat::Try>,
 which uses the built-in C<try> if your Perl has it, otherwise provides
 a backported implementation. To install this module, run F<cpanm>:
 
-    $ cpanm Feature::Compat::Try
+    cpanm Feature::Compat::Try
+
+And add it to your F<cpanfile>:
+
+    requires "Feature::Compat::Try";
 
 Then make sure to include it at the top of your application:
 
