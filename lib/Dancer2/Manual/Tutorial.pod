@@ -262,9 +262,6 @@ C<POST> route to actually perform the deletion.
 We'll also need a route to see the list of all blog entries. This will use
 the HTTP C<GET> method.
 
-TODO: can/should we combine the routes below with the CRUD explanation
-above?
-
 =head3 Add an Entry (Create)
 
 This requires two routes: one to display the create form, and another to
@@ -1904,19 +1901,186 @@ Your finished application code should look like this:
 
 =head1 Finishing Touches
 
+At this point, Danceyland has a fully functional blog engine, and your
+users are chomping at the bit to start using it. Before we let them loose
+on your new creation, let's pretty it up, write some tests, and get it
+deployed to a production environment.
+
 =head2 Adding some style
 
+We've written all of our views up to this point with basic HTML; no effort
+has been made to style our blog or make it attractive. That is beyond the
+scope of this tutorial.
+
+If you clone the tutorial repository, you'll notice that all views have
+styling markup that isn't provided in the tutorial. This was done to
+show you one way styling could be done, and to give you an attractive
+example application to learn from.
+
+L<Bootstrap|https://getbootstrap.com> was used to provide styling for the
+tutorial; it's well known, easy to understand, and easy to find help for.
+If you want to learn more about how Bootstrap works, check out their
+website for more details.
+
 =head1 Testing Your Application
+
+Always good to run your tests in the production environment to ensure there
+are no surprises when you restart the application server. Let's see how
+we can write some basic functionality tests.
 
 =head2 Using Test::WWW::Mechanize::PSGI
 
 =head1 Deployment
 
+We've built the application, and written some basic tests to ensure the
+application can function properly. Now, let's put it on a server and
+make it available to the public!
+
 =head2 Creating Production Configuration
+
+The default Dancer2 configuration provides a lot of information to the
+developer to assist in debugging while creating an application. In a
+production environment, there's too much information being given that can
+be used by someone trying to compromise your application. Let's create
+an environment specifically for production to turn the level of detail down.
+
+If you were using a database server instead of SQLite, you'd want to update
+database credentials in your production configuration to point to your
+production database server.
+
+Replace your F<environments/production.yml> file with the following:
+
+    # configuration file for production environment
+    behind_proxy: 1
+
+    # only log info, warning and error messsages
+    log: "info"
+
+    # log message to a file in logs/
+    logger: "file"
+
+    # hide errors
+    show_stacktrace: 0
+
+    # disable server tokens in production environments
+    no_server_tokens: 1
+
+    # Plugin configuration
+    plugins:
+      DBIx::Class:
+        default:
+          dsn: "dbi:SQLite:dbname=db/dlblog.db"
+          schema_class: "DLBlog::Schema"
+          dbi_params:
+            RaiseError: 1
+            AutoCommit: 1
+      CryptPassphrase:
+        encoder:
+          module: Argon2
+          parallelism: 2
+
+Changes include:
+
+=over
+
+=item * Running behind a reverse proxy
+
+We're going to deploy our application in conjunction with NGINX; running
+in this manner requires Dancer2 to interact and set HTTP headers
+differently than it would running standalone. This setting tells
+Dancer2 to behave as it should behind an NGINX (or other) reverse proxy.
+
+=item * Logging only informational or more severe messages
+
+In a production environment, logging debugging and core Dancer2 messages
+is rarely needed.
+
+=item * Logging to a file
+
+Servers will be running in the background, not in a console window. As
+such, a place to catch log messages will be needed. File logs can also be
+shipped to another service (such as Kibana) for analysis.
+
+=item * No stacktraces
+
+If a fatal error occurs, the stacktraces produced by Dancer2 provide a
+potential attacker with information about the insides of your application.
+By setting C<show_stacktrace> to C<0>, all errors show only the
+F<public/500.html> page.
+
+=item * Disabling server tokens
+
+Setting C<no_server_tokens> prevents Dancer2 from adding the C<X-Powered-By>
+header with Dancer2 and the version you're running.
+
+=back
+
+Our plugin configuration remains the same from the development environment.
 
 =head2 Deploying with a PSGI Server
 
+C<plackup>, by defaults, runs a development server for developing your
+application. It is not suitable for any public-facing deployment.
+
+There are a number of great options available on the L<Plack|https://plackperl.org/>
+website. For our example, we'll use L<Starman>, as it offers reasonable
+performance and functions on nearly any server OS.
+
+We'll pair Starman with L<Server::Starter>, which will give you a robust
+way to manage server processes.
+
+Install both of these modules:
+
+    cpanm Starman Server::Starter
+
+And add them to the blog's F<cpanfile>:
+
+    requires "Starman";
+    requires "Server::Starter";
+
+Assuming we're deploying to a Debian server, the following can be used to
+start the Danceyland blog in the background:
+
+    sudo start_server \
+        --daemonize \
+        --dir=/path/to/DLBlog \
+        --port=5000 \
+        --log-file=/var/log/dlblog.log \
+        --pid-file=/var/run/dlblog.pid \
+        --status-file=/var/run/dlblog.status \
+        -- plackup -s Starman--user www-data --group www-data -E production \
+        bin/app.psgi
+
+Once operational, the server can be restarted with:
+
+    start_server --restart --pid-file=/var/run/dlblog.pid --status-file=/var/run/dlblog.status
+
+Or stopped with:
+
+    start_server --stop --pid-file=/var/run/dlblog.pid
+
 =head2 Configuring Reverse Proxy with NGINX
+
+Finally, let's put NGINX in front of our Dancer2 application. This will
+improve the security and performance of our application:
+
+    server {
+        listen 80;
+        server_name example.com;
+
+        location / {
+            proxy_pass http://127.0.0.1:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+If this server is public facing, you should also configure it with HTTPS;
+L<Let's Encrypt/https://letsencrypt.org> makes this free and easy.
+
+More advanced setups are possible (like serving static content from NGINX
+instead of Dancer2), but that is beyond the scope of this tutorial.
 
 =head1 What You've Built
 
