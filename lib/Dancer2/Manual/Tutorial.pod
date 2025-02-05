@@ -1566,6 +1566,15 @@ and add the module to your F<cpanfile>:
 
     requires "Dancer2::Plugin::CryptPassphrase";
 
+This extension requires configuration as to which password encoder to
+use. Add this to the C<plugins> section of the F<environments/development.yml>
+file:
+
+  CryptPassphrase:
+    encoder:
+      module: Argon2
+      parallelism: 2
+
 From your shell, running the following will produce an encrypted password
 string:
 
