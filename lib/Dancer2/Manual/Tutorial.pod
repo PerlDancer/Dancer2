@@ -1924,11 +1924,363 @@ website for more details.
 
 =head1 Testing Your Application
 
-Always good to run your tests in the production environment to ensure there
-are no surprises when you restart the application server. Let's see how
-we can write some basic functionality tests.
+When developing your application, writing and running tests helps you
+work through difficult parts of your application, and allows you to
+verify that your Dancer2 application is behaving as you designed it
+to. In a production environment, running tests before installation or
+upgrade help ensure there are no surprises when you start/restart the
+application server. Let's see how we can write some basic functionality
+tests.
 
 =head2 Using Test::WWW::Mechanize::PSGI
+
+L<Test::WWW::Mechanize::PSGI> lets us test our Dancer2 applications without
+having to spin up a test web server. It is loaded with convenience methods
+to make it easy to navigate and test our Plack/PSGI applications. Run the
+following to install this from your shell:
+
+    cpanm Test::WWW::Mechanize::PSGI
+
+It must also be added to the C<on "test"> section of your F<cpanfile>:
+
+    requires "Test::WWW::Mechanize::PSGI" => "0";
+
+Before we do any testing for our blog, we'll need to create some testing
+infrastructure so we don't step on any of our production or test data.
+We need a testing database to run tests against so we don't corrupt
+other development or production data. In your shell, run the following:
+
+    mkdir t/db
+    cp db/dlblog.db t/db/test.db
+
+(or, you can use the test database that ships with the DLBlog GitHub
+repository)
+
+You'll also need a config file that is representative of your testing
+environment. Create F<environments/test.yml> and add the following:
+
+    logger: "console"
+    log: "warning"
+    show_stacktrace: 0
+    no_server_tokens: 1
+
+    plugins:
+      DBIx::Class:
+        default:
+          dsn: "dbi:SQLite:dbname=t/db/test.db"
+          schema_class: "DLBlog::Schema"
+          dbi_params:
+            RaiseError: 1
+            AutoCommit: 1
+      CryptPassphrase:
+        encoder:
+          module: Argon2
+          parallelism: 2
+
+This is a hybrid of your production and development configs:
+
+=over
+
+=item * It still logs to the console, but at a higher level so only errors are seen
+
+=item * We hide any stacktraces and disable server tokens/headers
+
+=item * We tell DBIx::Class to look at our test database
+
+=back
+
+To run the default tests from your shell:
+
+    DANCER_ENVIRONMENT=test prove -lv
+
+This runs all tests in the F<t/> subdirectory with maximum verbosity, and
+runs with our test environment configuration.
+
+Dancer2 creates applications with two default tests. The first,
+F<t/001_base.t>, ensures that your Dancer2 application compiles successfully
+without errors. The other test, F<t/002_index_route.t>, ensures that the
+default route of your application is accessible. These are the two most
+basic tests an application can have, and validate very little about the
+functionality of your app. We're going to make two new tests: one just to
+test the nuances of the login process (as security is critical), and another
+to test basic blog functionality.
+
+=head2 Login Tests
+
+Let's verify the login process behaves as intended. Edit F<t/003_login.t>
+and add the following:
+
+    use strict;
+    use warnings;
+    use Test::More;
+    use Test::WWW::Mechanize::PSGI;
+
+    use DLBlog;
+    my $mech = Test::WWW::Mechanize::PSGI->new(
+        app => DLBlog->to_app,
+    );
+
+    $mech->get_ok('/create', 'Got /create while not logged in');
+    $mech->content_contains('Password', '...and was presented with a login page');
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'foobar',
+        }}, '...which we gave invalid credentials');
+    $mech->content_contains('Invalid username or password', '...and gave us an appropriate error');
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'test',
+        }}, '...so we give it real credentials');
+    $mech->content_contains('form', '...and get something that looks like the create form' );
+    $mech->content_contains('Content', 'Confirmed this is the create form');
+
+    done_testing;
+
+We load two test modules: L<Test::More>, which provides a basic set of test
+functionality, and L<Test::WWW::Mechanize::PSGI>, which will do all our heavy
+lifting.
+
+To start, we need to create an instance of a Mechanize object:
+
+    my $mech = Test::WWW::Mechanize::PSGI->new(
+        app => DLBlog->to_app,
+    );
+
+This creates an instance of the Mechanize user agent, and points it at an
+instance of the Danceyland blog app (C<DLBlog>).
+
+We've specified that some routes can't be accessed by unauthorized/non-logged
+in users. Let's test this:
+
+    $mech->get_ok('/create', 'Got /create while not logged in');
+    $mech->content_contains('Password', '...and was presented with a login page');
+
+This tests the C<needs login> condition on the C</create> route. We should
+be taken to a login page if we haven't logged in. C<get_ok> ensures the
+route is accessible, and C<content_contains> looks for a password field.
+
+We should get an error message for a failed login attempt. Let's stuff
+the form with invalid credentials and verify that:
+
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'foobar',
+        }}, '...which we gave invalid credentials');
+    $mech->content_contains('Invalid username or password', '...and gave us an appropriate error');
+
+C<submit_form_ok> takes a hashref of fields and puts the specified values
+into them, then clicks the appropriate submit button. We then check the
+resulting page content to confirm that we do, in fact, see the invalid
+username/password error message.
+
+We know that login handles failed attempts ok now. How about a login with
+valid credentials>
+
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'test',
+        }}, '...so we give it real credentials');
+    $mech->content_contains('form', '...and get something that looks like the create form' );
+    $mech->content_contains('Content', 'Confirmed this is the create form');
+
+We pass the default admin/test credentials, then look at the page we're
+taken to. The create page should have a form, and one of the fields should
+be named Content. C<content_contains> looks for both of these on the
+resulting page, and passes if they are present.
+
+Finally, we need to say we're done running tests:
+
+    done_testing;
+
+Now that it's done, let's run just this one test. From your shell:
+
+    DANCER_ENVIRONMENT=test prove -lv t/003_login.t
+
+And you should see the following output:
+
+    t/003_login.t ..
+    ok 1 - Got /create while not logged in
+    ok 2 - ...and was presented with a login page
+    [DLBlog:2287783] warning @2025-02-06 22:34:25> Failed login attempt for admin in /home/jason/code/PerlDancer/DLBlog/lib/DLBlog.pm l. 134
+    ok 3 - ...which we gave invalid credentials
+    ok 4 - ...and gave us an appropriate error
+    ok 5 - ...so we give it real credentials
+    ok 6 - ...and get something that looks like the create form
+    ok 7 - Confirmed this is the create form
+    1..7
+    ok
+    All tests successful.
+    Files=1, Tests=7,  1 wallclock secs ( 0.02 usr  0.00 sys +  0.92 cusr  0.10 csys =  1.04 CPU)
+    Result: PASS
+
+The labels help us see which tests are running, making it easier to examine
+failures when they happen. You'll see a log message produced when our login
+attempt failed, and a C<PASS> at the end showing all tests were successfully
+run.
+
+=head2 Blog Tests
+
+Using the same techniques we learned writing the login test, we'll make
+a test for basic blog functionality. The complete test will run through
+a basic workflow of the Danceyland blog:
+
+=over
+
+=item * Login
+
+=item * Create an entry
+
+=item * Edit an entry
+
+=item * Delete an entry
+
+=back
+
+Add the following to F<t/004_blog.t> in your project directory:
+
+    use strict;
+    use warnings;
+    use Test::More;
+    use Test::WWW::Mechanize::PSGI;
+
+    use DLBlog;
+    my $mech = Test::WWW::Mechanize::PSGI->new(
+        app => DLBlog->to_app,
+    );
+
+    subtest 'Landing page' => sub {
+        $mech->get_ok('/', 'Got landing page');
+        $mech->title_is('Danceyland Blog', '...for our blog');
+        $mech->content_contains('Test Blog Post','...and it has a test post');
+    };
+
+    subtest 'Login' => sub {
+        $mech->get_ok('/login', 'Visit login page to make some changes');
+        $mech->submit_form_ok({
+            fields => {
+                username => 'admin',
+                password => 'test',
+            }}, '...so we give it a user');
+    };
+
+    subtest 'Create' => sub {
+        $mech->get_ok('/create', 'Write a new blog post');
+        $mech->submit_form_ok({
+            fields => {
+                title => 'Another Test Post',
+                summary => 'Writing a blog post can be done by tests too',
+                content => 'You can create blog entries programmatically with Perl!',
+            }}, '...then write another post');
+        $mech->base_like( qr</entry/\d+$>, '...and get redirected to the new entry' );
+    };
+
+    my $entry_id;
+    subtest 'Update' => sub {
+        ($entry_id) = $mech->uri =~ m</(\d+)$>;
+        $mech->get_ok("/update/$entry_id", 'Navigating to the update page for this post');
+        $mech->submit_form_ok({
+            fields => {
+                title => 'Yet ANOTHER Test Post',
+            }}, '...then update yet another post');
+        $mech->base_like( qr</entry/${entry_id}$>, '...and get redirected to the entry page' );
+        $mech->has_tag('h1','Yet ANOTHER Test Post', '...and it has the updated title');
+    };
+
+    subtest 'Delete' => sub {
+        $mech->get_ok("/delete/$entry_id", "Go delete page for new entry");
+        $mech->submit_form_ok({
+            fields => {
+                delete_it => 'yes',
+            }}, '...then delete it!');
+        $mech->get_ok("/entry/$entry_id", '...then try to navigate to the entry');
+        $mech->content_contains('Invalid entry','...and see the post is no longer there');
+    };
+
+    done_testing;
+
+You'll notice that this time we have organized tests into multiple subtests
+that keep related tests together. While this isn't necessary, it can be
+helpful when working on large test files.
+
+This test introduces us to some additional types of tests:
+
+=over
+
+=item * C<base_like>
+
+This test method examines the resulting URL from the previous Mechanize
+operation. In the C<Create> subtest, we submit a blog entry, and we should
+be taken to the view page for the new entry. By checking the resulting URL,
+we can verify that we were taken to the view page after the post was created.
+
+=item C<uri>
+
+This returns the full URI of the previous Mechanize operation. From this URI,
+we can extract the ID of the last blog entry we created. We'll need this
+to test the update and delete operations.
+
+=item * C<has_tag>
+
+This method looks for a tag matching the type specified, and checks to see
+if the text in that tag matches what is specified in the test. Our C<h1> on
+the entry page should have the blog post title, and in the update test,
+we check to see that the updated title is present.
+
+=back
+
+Run the test from your shell:
+
+    DANCER_ENVIRONMENT=test prove -lv t/004_blog.t
+
+And you should see the following output:
+
+    t/004_blog.t ..
+    # Subtest: Landing page
+        ok 1 - Got landing page
+        ok 2 - ...for our blog
+        ok 3 - ...and it has a test post
+        1..3
+    ok 1 - Landing page
+    # Subtest: Login
+        ok 1 - Visit login page to make some changes
+        ok 2 - ...so we give it a user
+        1..2
+    ok 2 - Login
+    # Subtest: Create
+        ok 1 - Write a new blog post
+        ok 2 - ...then write another post
+        ok 3 - ...and get redirected to the new entry
+        1..3
+    ok 3 - Create
+    # Subtest: Update
+        ok 1 - Navigating to the update page for this post
+        ok 2 - ...then update yet another post
+        ok 3 - ...and get redirected to the entry page
+        ok 4 - ...and it has the updated title
+        1..4
+    ok 4 - Update
+    # Subtest: Delete
+        ok 1 - Go delete page for new entry
+        ok 2 - ...then delete it!
+        ok 3 - ...then try to navigate to the entry
+        ok 4 - ...and see the post is no longer there
+        1..4
+    ok 5 - Delete
+    1..5
+    ok
+    All tests successful.
+    Files=1, Tests=5,  1 wallclock secs ( 0.01 usr  0.01 sys +  0.77 cusr  0.10 csys =  0.89 CPU)
+    Result: PASS
+
+You'll notice that not only is the code conveniently grouped by subtest,
+but so is the output.
+
+There's a lot more you can test still. Look for some additional ideas at
+the end of this tutorial.
 
 =head1 Deployment
 
@@ -2130,6 +2482,14 @@ be put in an object (such as L<DBIx::Class::Result> or L<DBIx::Class::ResultSet>
 objects, or other L<Moo> or L<Moose> objects), and that object gets
 instantiated and called from Dancer2. This helps to decouple tasks in an
 application, and allows for better testing of business logic.
+
+=item Write more tests to catch error conditions for our blog
+
+What happens when you pass a string to a route expecting an ID? What happens
+when you don't fill out all the fields on the create or update pages?
+Write tests to check these conditions using what you've learned from
+writing the existing tests, and make sure the error handling behaves as
+expected.
 
 =back
 
