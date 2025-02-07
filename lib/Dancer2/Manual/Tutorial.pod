@@ -2105,7 +2105,7 @@ And you should see the following output:
     t/003_login.t ..
     ok 1 - Got /create while not logged in
     ok 2 - ...and was presented with a login page
-    [DLBlog:2287783] warning @2025-02-06 22:34:25> Failed login attempt for admin in /home/jason/code/PerlDancer/DLBlog/lib/DLBlog.pm l. 134
+    [DLBlog:2287783] warning @2025-02-06 22:34:25> Failed login attempt for admin in /path/to/DLBlog/lib/DLBlog.pm l. 134
     ok 3 - ...which we gave invalid credentials
     ok 4 - ...and gave us an appropriate error
     ok 5 - ...so we give it real credentials
