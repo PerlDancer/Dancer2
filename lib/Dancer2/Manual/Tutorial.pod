@@ -2217,7 +2217,7 @@ operation. In the C<Create> subtest, we submit a blog entry, and we should
 be taken to the view page for the new entry. By checking the resulting URL,
 we can verify that we were taken to the view page after the post was created.
 
-=item C<uri>
+=item * C<uri>
 
 This returns the full URI of the previous Mechanize operation. From this URI,
 we can extract the ID of the last blog entry we created. We'll need this
