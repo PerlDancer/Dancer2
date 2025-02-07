@@ -2369,6 +2369,40 @@ header with Dancer2 and the version you're running.
 
 Our plugin configuration remains the same from the development environment.
 
+=head2 Installing the Danceyland Blog
+
+On your production server, make sure you have a version of Perl installed,
+and copy your project files to the server by whichever means makes sense
+for your situation.
+
+Run the following from within the project directory to install the
+application's dependencies:
+
+    cpanm --installdeps . --with-test --with-all-features
+
+Get a cup of coffee while this runs; when you come back, resolve any
+dependency issues, then run your tests to make sure the Danceyland blog
+is functional:
+
+    DANCER_ENVIRONMENT=test prove -l
+
+Your output should resemble:
+
+    ./t/001_base.t ......... ok
+    ./t/002_index_route.t .. ok
+    ./t/003_login.t ........ 1/? [DLBlog:2291513] warning @2025-02-06 22:59:09> Failed login attempt for admin in /path/to/DLBlog/lib/DLBlog.pm l. 134
+    ./t/003_login.t ........ ok
+    ./t/004_blog.t .........
+    # Subtest: Landing page
+    ./t/004_blog.t ......... 1/? # Subtest: Login
+    ./t/004_blog.t ......... 2/? # Subtest: Create
+    # Subtest: Update
+    # Subtest: Delete
+    ./t/004_blog.t ......... ok
+    All tests successful.
+    Files=4, Tests=15,  3 wallclock secs ( 0.02 usr  0.00 sys +  2.30 cusr  0.32 csys =  2.64 CPU)
+    Result: PASS
+
 =head2 Deploying with a PSGI Server
 
 C<plackup>, by defaults, runs a development server for developing your
