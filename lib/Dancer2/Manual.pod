@@ -945,6 +945,21 @@ This configuration ensures that the templates are processed using UTF-8
 encoding. This is particularly important if your templates contain
 special characters, such as international text or symbols.
 
+=head3 New Keywords
+
+=over
+
+=item * engine
+
+At the heart of every attraction in Danceyland lies a powerful engine that
+brings it to life. Similarly, in Dancer2, the C<engine> keyword provides
+access to the current engine object, whether it's the template engine
+rendering the views or the logger keeping track of events:
+
+    my $template_engine = engine 'template';
+
+=back
+
 =head2 Comparison of Supported Template Engines
 
 Dancer2 supports various template engines to give you flexibility in how
@@ -1435,21 +1450,51 @@ need to handle file uploads. Dancer2 makes it easy with the C<upload> keyword:
         return "Uploaded $filename successfully!";
     };
 
+=head2 Working with Paths and Directories
+
+Dancer2 provides keywords for navigating paths and directories, similar
+to navigating Danceyland.
+
+=head3 path
+
+Navigating through Danceyland requires clear paths and an understanding
+of the surroundings. In Dancer2, the C<path> keyword allows you to
+create a path from several different directories:
+    use Dancer2;
+
+    get '/attraction/:name' => sub {
+        my $current_path = path( '/the', 'road', 'less', 'traveled' );
+        return "You're visiting: $current_path";
+    };
+
+=head3 dirname
+
+Given a path through Danceyland, like above, C<dirname> will tell you the
+directory you are located in:
+
+    use Dancer2;
+
+    get '/resource' => sub {
+        my $file_path = '/path/to/danceyland/config.yml';
+        my $directory = dirname($file_path);
+        return "Config file is located in: $directory";
+    };
+
 =head2 Keywords Covered
 
-=over 4
-
-=item upload
-
-Used to retrieve an uploaded file.
+=over
 
 =item send_file
 
 Used to send a file, either from disk or memory, to the client.
 
+=item upload
+
+Used to retrieve an uploaded file.
+
 =back
 
-=head1 Configuration
+=head1 Configuration, Startup, Initialization, Versioning
 
 Danceyland needs its rides and attractions to work just right, and so
 does your Dancer2 app. Configuration is key to ensuring your app runs
@@ -1541,17 +1586,116 @@ Example:
         driver: 'SQLite'
         database: 'danceyland.db'
 
+=head2 Startup and Initialization
+
+Some keywords can help prepare Danceyland to start operations in the morning,
+while others offer you insider access to critical areas of the park. Let's
+take a look at what some of these are,
+
+=head3 Accessing the Application Object
+
+Sometimes, you really have to get your hands dirty and go behind the scenes
+of things at Danceyland. The C<app> keyword gives you access to the
+application object (of type L<Dancer2::Core::App>) to change configuration
+or perform certain functions. Another keyword, C<dancer_app>, also lets you
+access the application object.
+
+=head3 Running Code at Startup
+
+The C<prepare_app> keyword takes a coderef that will be run once at the
+start of your application. If there is any one-time setup that needs to
+be performed (like starting up another service, connecting to a service,
+initializing a cache, etc.), C<prepare_app> will give you a place to do
+this.
+
+For example:
+
+    prepare_app {
+        debug "Starting our morning prep work";
+        $rides->power_on();
+        $vendors->prep_food();
+        debug "Open for business!";
+    };
+
+=head3 Starting the Application
+
+The traditional way of kicking things off at Danceyland was to, well, dance!
+
+    use Dancer2;
+
+    get '/' => sub {
+        return 'Welcome to Danceyland!';
+    };
+
+    dance;
+
+As time passed and things changed, dancing wasn't always the right way
+to start the day. C<to_app> became tbe better and preferred way to start
+our Dancer2 applications. C<psgi_app> may also be used.
+
+=head3 Versioning and Compatibility
+
+As Danceyland introduces new attractions, it's essential to ensure they
+align with the park's current standards. In the realm of Dancer2, you can
+use C<dancer_version> to retrieve the full version number of your framework,
+aiding in maintaining compatibility and leveraging the latest features:
+
+    use Dancer2;
+    return "Running on Dancer2 version " . dancer_version;
+
+C<dancer_major_version> provides the major version of Dancer2, helping in
+ensuring compatibility with plugins or external components:
+
+    use Dancer2;
+    return "Running on Dancer2 major version " . dancer_major_version;
+
 =head2 New Keywords
 
 =over 4
+
+=item app
+
+Returns the application object. App object is a L<Dancer2::Core::App>.
+
+=item config
+
+Retrieves configuration values.
+
+=item dance
+
+Starts the application. Not recommended.
+
+=item dancer_app
+
+Returns the application object. Synonym for C<app>.
+
+=item dancer_major_version
+
+Returns the major version of Dancer2.
+
+=item dancer_version
+
+Returns the full version number of Dancer2.
+
+=item prepare_app
+
+Runs a coderef at the start of your application only.
+
+=item psgi_app
+
+Synonym for C<to_app>.
+
+=item set
+
+Explicitly sets configuration options.
 
 =item setting
 
 Returns the value of the specified config setting.
 
-=item set
+=item to_app
 
-Explicitly sets configuration options.
+Returns a coderef to your application, to be started by a Plack server.
 
 =item var
 
@@ -1560,10 +1704,6 @@ Set and retrieve a temporary named value within your application.
 =item vars
 
 Returns a hashref or all temporary variables/values in your application.
-
-=item config
-
-Retrieves configuration values.
 
 =back
 
@@ -1797,6 +1937,42 @@ In this example, the C<MagicApp> package defines routes for the Magical
 Kingdom, and the C<ActionApp> package defines routes for Actionland -
 both using C<< appname => 'MainApp' >>.
 
+=head2 Manually Adjusting MIME settings
+
+In Danceyland, each attraction offers a unique experience, much like how
+different content types are handled in your application. The C<mime>
+keyword provides access to your applicaion's MIME processing object,
+L<Dancer2::Core::MIME>:
+
+    use Dancer2;
+
+    get '/file/:name' => sub {
+        my $filename = route_parameters->get('name');
+        my $file_path = "/path/to/files/$filename";
+        my $content_type = mime->for_file($filename);
+        send_file($file_path, content_type => $content_type);
+    };
+
+=head2 Adding Additional Response Headers
+
+In Danceyland, enhancing visitor experience often involves adding new
+signposts without replacing existing ones. Similarly, in Dancer2, the
+C<push_response_header> keyword allows you to add new values to an
+existing response header without overwriting its current content. This
+is particularly useful for headers like C<Set-Cookie>, where multiple
+values might be necessary:
+
+    use Dancer2;
+
+    get '/set_cookies' => sub {
+        push_response_header 'Set-Cookie' => 'user=alice';
+        push_response_header 'Set-Cookie' => 'theme=light';
+        return "Cookies have been set.";
+    };
+
+In this example, two cookies are added to the response without overwriting
+each other.
+
 =head2 Automatic Serializing and Deserializing Data
 
 In Danceyland, sometimes we need to provide data to our visitors in
@@ -1846,6 +2022,24 @@ over the response format:
 
 Here, C<send_as> explicitly returns the response as JSON.
 
+=head3 C<encode_json>
+
+In managing Danceyland, park data comes and goes in various formats. Dancer2
+provides tools to handle these formats efficiently. The C<encode_json>
+keyword allows you to serialize a Perl data structure into a JSON string:
+
+    use Dancer2;
+
+    get '/data' => sub {
+        my $data = { attraction => 'Roller Coaster', status => 'open' };
+        return encode_json($data);
+    };
+
+C<encode_json> automatically performs UTF-8 encoding of the data for you.
+
+Since you are manually serializing the response data, the serialization
+hooks provided by Dancer2 are not called. See L</Hooks> for more information.
+
 =head3 C<to_json>
 
 C<to_json> converts a Perl data structure to a JSON string. It's useful
@@ -1853,14 +2047,55 @@ when you want to manually prepare JSON data before sending it:
 
     my $json_string = to_json({ name => 'Danceyland', status => 'open' });
 
+You likely want to use C<encode_json> instead, since C<to_json> does not
+do any data encoding.
+
+=head3 C<decode_json>
+
+You can decode incoming JSON payloads from the client with the C<decode_json>
+keyword; it deserializes a JSON string into a Perl data structure:
+
+    use Dancer2;
+
+    post '/update' => sub {
+        my $json_data = request->body;
+        my $data = decode_json($json_data);
+        # Now, do something with it...
+    };
+
+Since you are manually deserializing the incoming JSON, the serialization
+hooks will not run.
+
 =head3 C<from_json>
 
-C<from_json> does the reverse, converting a JSON string into a Perl data
-structure:
+C<from_json> also decodes JSON to a Perl data structure, but it does not
+deal with UTF-8 encoding. You likely want C<decode_json> instead
 
-    my $perl_data = from_json('{"name":"Danceyland", "status":"open"}');
+=head3 C<to_yaml>
 
-Use this when you need to decode incoming JSON data.
+C<to_yaml> takes a Perl datastructure and converts it to a YAML string.
+
+=head3 C<from_yaml>
+
+Similarly, C<from_yaml> lets you deserialize a YAML string into a Perl
+data structure:
+
+    use Dancer2;
+
+    get '/config' => sub {
+        my $yaml_data = request->body;
+        my $data = from_yaml($yaml_data);
+        # Now, do something with $data...
+    };
+
+=head3 C<to_dumper>
+
+Deserializes a string to a L<Data::Dumper>-compatible data structure.
+
+=head3 C<from_dumper>
+
+Takes a data structure produced from L<Data::Dumper> and serializes it
+to a string.
 
 =head2 Hooks
 
@@ -2106,21 +2341,49 @@ a PSGI server that supports event loops, like L<Twiggy>. Such servers can
 handle async tasks, unlike traditional PSGI servers that utilize forking
 to handle multiple parallel tasks.
 
-=head3 Example: Asynchronous HTTP Request
+=head2 Sending Content Asynchronously
+
+Dancer2 provides keywords for implementing asynchronous code.
+
+=head3 delayed
+
+Some events at Danceyland, like the grand parade, are worth watching but
+take some time to complete. Similarly, Dancer2 offers the C<delayed> keyword
+to initiate an asynchronous response, allowing you to deliver long-running
+results, or handling long-running operations.
+
+=head2 done
+
+Once everything is set, you can use C<done> to finalize and send the
+response to the visitor.
+
+=head2 flush
+
+To send parts of the response incrementally, C<flush> allows streaming
+content to the client in a delayed response without closing the connection.
+
+=head2 Example: Asynchronous HTTP Request
 
 Here’s how you can fetch data asynchronously in Dancer2. Instead of
 waiting for a response, the request runs in the background and delivers
 the result when it’s ready:
 
+    use Dancer2;
     use Future::HTTP;
 
     get '/fetch-ride-status' => sub {
         delayed {
-            my $resume = shift;
-            http_get('http://ride-status.com/api/roller-coaster')->on_done(sub {
-                my ($response) = @_;
-                $resume->( $response->content );
+            content 'The grand parade is starting!';
+            flush;
+
+            http_get('http://parade-status.com/api/v1/floats')->then( sub {
+                my ($body, $headers) = @_;
+                content $body;
+                flush;
             });
+
+            content 'The grand parade is finished!';
+            done;
         };
     };
 
