@@ -1149,7 +1149,7 @@ choose how and where to store session data.
 Stores session data in memory. Suitable for development and testing but
 not recommended for production due to its non-persistent nature.
 
-=item Dancer2::Session::JSON
+=item Dancer2::Session::YAML
 
 Stores session data in a YAML file. It's useful for development and
 debugging, but not well suited for production.
