@@ -2345,6 +2345,11 @@ to handle multiple parallel tasks.
 
 Dancer2 provides keywords for implementing asynchronous code.
 
+=head3 content
+
+The C<content> keyword sets the response content from within a delayed
+response.
+
 =head3 delayed
 
 Some events at Danceyland, like the grand parade, are worth watching but
