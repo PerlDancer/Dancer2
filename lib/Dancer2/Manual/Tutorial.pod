@@ -67,7 +67,7 @@ or
 
 =head2 Creating Your First App
 
-    dancer2 -a DLBlog
+    dancer2 gen -a DLBlog
 
 Output:
 
