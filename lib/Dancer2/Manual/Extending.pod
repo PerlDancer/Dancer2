@@ -22,7 +22,7 @@ and plugins for Dancer2. The goal is to give you the tools you need to
 build custom components that integrate seamlessly into your Dancer2
 applications.
 
-=head1 Writing Your Own EnginE
+=head1 Writing Your Own Engine
 
 In Dancer2, engines are used to handle various aspects of your
 application, such as templates, sessions, serializers, and loggers. Each
