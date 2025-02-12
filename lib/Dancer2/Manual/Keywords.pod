@@ -1,9 +1,6 @@
 # ABSTRACT: Dancer2 DSL Keyword Reference
 package Dancer2::Manual::Keywords;
 
-# TODO: Link headers to manual
-# TODO: Link related keywords
-
 =pod
 
 =encoding utf8
@@ -31,7 +28,7 @@ Defines a route that responds to HTTP C<DELETE> requests.
 
 B<When to use>: Delete resources.
 
-B<Related Keywords>: C<get>, C<post>, C<put>, C<patch>, C<options>, C<any>.
+B<Related Keywords>: L</get>, L</post>, L</put>, L</patch>, L</options>, L</any>
 
 =head2 L<get|Dancer2::Manual/get>
 
@@ -40,7 +37,7 @@ creates a C<HEAD> route.
 
 B<When to use>: Fetch static resources or perform read-only actions.
 
-B<Related Keywords>: C<post>, C<put>, C<del>, C<patch>, C<options>, C<any>.
+B<Related Keywords>: L</post>, L</put>, L</del>, L</patch>, L</options>, L</any>
 
 =head2 L<options|Dancer2::Manual/"HTTP Methods: Visitor Actions">
 
@@ -57,7 +54,7 @@ updates.
 
 B<When to use>: Partially update existing resources.
 
-B<Related Keywords>: C<get>, C<post>, C<put>, C<del>, C<options>, C<any>.
+B<Related Keywords>: L</get>, L</post>, L</put>, L</del>, L</options>, L</any>
 
 =head2 L<post|Dancer2::Manual/post>
 
@@ -66,7 +63,7 @@ submissions or resource creation.
 
 B<When to use>: Submit forms, upload files, or create resources.
 
-B<Related Keywords>: C<get>, C<put>, C<del>, C<patch>, C<options>, C<any>.
+B<Related Keywords>: L</get>, L</put>, L</del>, L</patch>, L</options>, L</any>
 
 =head2 L<prefix|Dancer2::Manual/"Organizing routes and growing your app using prefix">
 
@@ -83,15 +80,15 @@ resources.
 
 B<When to use>: Update existing resources in an idempotent way.
 
-B<Related Keywords>: C<get>, C<post>, C<del>, C<patch>, C<options>, C<any>.
+B<Related Keywords>: L</get>, L</post>, L</del>, L</patch>, L</options>, L</any>
 
-=head2 L<splat|https://metacpan.org/pod/Dancer2::Manual/"Wildcard Route Parameters">
+=head2 L<splat|Dancer2::Manual/"Wildcard Route Parameters">
 
 Retrieves a list value captured by a wildcard parameter in routes.
 
 B<When to use>: Use with wildcard routes to capture arbitrary path segments.
 
-B<Related Keywords>: C<captures>.
+B<Related Keywords>: L</captures>
 
 =head1 URL and Route Helper Keywords
 
@@ -101,7 +98,7 @@ Constructs a URI for a given path and query parameters.
 
 B<When to use>: Generate URLs for links and redirects.
 
-B<Related Keywords>: C<uri_for_route>.
+B<Related Keywords>: L</uri_for_route>
 
 =head2 L<uri_for_route|Dancer2::Manual/uri_for_route>
 
@@ -109,10 +106,10 @@ Constructs a URI for a named route.
 
 B<When to use>: Generate URLs based on route names and parameters.
 
-B<Best Practice>: Use C<uri_for_route> with named routes to ensure
+B<Best Practice>: Use L</uri_for_route> with named routes to ensure
 consistency even if route paths change.
 
-B<Related Keywords>: C<uri_for>.
+B<Related Keywords>: L</uri_for>
 
 =head1 Request Handling Keywords
 
@@ -122,33 +119,33 @@ Retrieves parameters specifically from the request body.
 
 B<When to use>: Handle C<POST> or C<PUT> data.
 
-B<Related Keywords>: C<query_parameters>, C<route_parameters>, C<params>.
+B<Related Keywords>: L</query_parameters>, L</route_parameters>, L</params>.
 
-=head2 L<captures|https://metacpan.org/pod/Dancer2::Manual/"Regex Route Matching">
+=head2 L<captures|Dancer2::Manual/"Regex Route Matching">
 
 Accesses all regex capture groups from a route pattern.
 
 B<When to use>: Extract parts of a URL matched by a regex route.
 
-B<Related Keywords>: C<splat>.
+B<Related Keywords>: L</splat>
 
 =head2 context
 
-Deprecated. Use C<app> instead.
+Deprecated. Use L</app> instead.
 
-B<See also>: L<app|#app>.
+B<See also>: L</app>
 
 =head2 L<param|Dancer2::Manual/"param and params (Not Recommended)">
 
 Retrieves a parameter from the request (query, body, or route parameters).
 
-B<When to use>: Not recommended. Use C<query_parameters>, C<body_parameters>,
-or C<route_parameters> for clarity.
+B<When to use>: Not recommended. Use L</query_parameters>, L</body_parameters>,
+or L</route_parameters> for clarity.
 
-B<Best Practice>: Avoid using C<param> in new code to prevent confusion
+B<Best Practice>: Avoid using L</param> in new code to prevent confusion
 between parameter sources. Instead, use more specific keywords.
 
-B<Related Keywords>: C<params>, C<query_parameters>, C<body_parameters>, C<route_parameters>.
+B<Related Keywords>: L</params>, L</query_parameters>, L</body_parameters>, L</route_parameters>
 
 =head2 L<params|Dancer2::Manual/"param and params (Not Recommended)">
 
@@ -156,10 +153,10 @@ Returns all parameters from the request as a hash reference.
 
 B<When to use>: Retrieve all request parameters at once.
 
-B<Best Practice>: Prefer specific keywords like C<query_parameters> for
+B<Best Practice>: Prefer specific keywords like L</query_parameters> for
 clarity in code.
 
-B<Related Keywords>: C<param>, C<query_parameters>, C<body_parameters>, C<route_parameters>.
+B<Related Keywords>: L</param>, L</query_parameters>, L</body_parameters>, L</route_parameters>
 
 =head2 L<query_parameters|Dancer2::Manual/query_parameters>
 
@@ -167,7 +164,7 @@ Retrieves parameters specifically from the query string.
 
 B<When to use>: Handle parameters in the query string (e.g., for searches).
 
-B<Related Keywords>: C<body_parameters>, C<route_parameters>, C<params>.
+B<Related Keywords>: L</body_parameters>, L</route_parameters>, L</params>
 
 =head2 L<request|Dancer2::Core::Request>
 
@@ -176,25 +173,26 @@ Provides access to the current HTTP request object.
 B<When to use>: Get details about the incoming request (headers, method,
 path).
 
-B<Related Keywords>: C<response>, C<params>, C<header>.
+B<Related Keywords>: L</response>, L</params>, L</header>
 
-=head2 L<request_data|https://metacpan.org/pod/Dancer2::Manual#request_data>
+=head2 request_data
 
-Retrieves the raw data from the request body.
+Retrieves the raw data from the request body. If a serializer is set,
+data will be automatically deserialized.
 
 B<When to use>: Access the unprocessed body content of the request, especially
 when dealing with custom or non-standard payloads.
 
-B<Related Keywords>: C<request>, C<body_parameters>, C<params>.
+B<Related Keywords>: L</request>, L</body_parameters>, L</params>
 
-=head2 L<request_header|https://metacpan.org/pod/Dancer2::Manual#request_header>
+=head2 L<request_header|Dancer2::Manual/request_header>
 
 Fetches the value of a specific header from the incoming request.
 
 B<When to use>: Obtain information from request headers, such as 'User-Agent'
 or 'Authorization'.
 
-B<Related Keywords>: C<headers>, C<response_header>.
+B<Related Keywords>: L</headers>, L</response_header>
 
 =head2 L<route_parameters|Dancer2::Manual/route_parameters>
 
@@ -202,9 +200,9 @@ Retrieves parameters from the route pattern.
 
 B<When to use>: Handle named or wildcard route parameters.
 
-B<Related Keywords>: C<query_parameters>, C<body_parameters>, C<params>.
+B<Related Keywords>: L</query_parameters>, L</body_parameters>, L</params>
 
-=head2 L<upload|https://metacpan.org/pod/Dancer2::Manual#upload>
+=head2 L<upload|Dancer2::Manual/upload>
 
 Uploads a file and makes it accessible as a L<Dancer2::Core::Request::Upload>
 object.
@@ -227,11 +225,11 @@ You can also access the raw hashref of parsed uploads via the current request ob
 
 B<When to use>: To handle file uploads from client requests.
 
-B<Related Keywords>: C<uploads>, C<request>.
+B<Related Keywords>: L</uploads>, L</request>
 
 =head1 Response Handling Keywords
 
-=head2 L<content|Dancer2::Manual/"Asynchronous Programming">
+=head2 L<content|Dancer2::Manual/"content">
 
 Sets the content of the response. This B<only> works within a delayed
 response.
@@ -252,52 +250,53 @@ But this will work just fine:
 
 B<When to use>: Directly set content of an asynchronous response.
 
-B<Related Keywords>: C<response>.
+B<Related Keywords>: L</response>
 
-=head2 content_type
+=head2 L<content_type|Dancer2::Manual/"Manually Adjusting MIME Settings">
 
-Sets the `Content-Type` header of the response.
+Sets the C<Content-Type> header of the response.
 
 B<When to use>: Specify the MIME type of the response.
 
-B<Related Keywords>: C<header>.
+B<Related Keywords>: L</header>
 
-=head2 decode_json
+=head2 L<decode_json|Dancer2::Manual/decode_json>
 
-Deserializes a JSON string to a Perl data structure.
+Deserializes a JSON string to a Perl data structure. Does not trigger
+serialization hooks.
 
 B<When to use>: When you need to translate incoming JSON to a Perl hashref.
 
-B<See also>: L<encode_json|#encode_json>, L<from_json|#from_json>.
+B<Related Keywords>: L</encode_json>, L</from_json>
 
-=head2 delayed
+=head2 L<delayed|Dancer2::Manual/delayed>
 
 Initiates an asynchronous response. Requires a Plack/PSGI server capable
 of serving requests asynchronously.
 
 B<When to use>: When starting an asynchronous reponse.
 
-B<See also>: L<done|#done>, L<flush|#flush>.
+B<Related Keywords>: L</done>, L</flush>
 
-=head2 done
+=head2 L<done|Dancer2::Manual/done>
 
 Finalizes an asynchronous repsonse and closes the connection. Can only
 be run within the streaming response callback.
 
 B<When to use>: When finishing delivery of data asynchronously.
 
-B<See also>: L<delayed|#delayed>, L<flush|#flush>.
+B<See also>: L</delayed>, L</flush>
 
-=head2 encode_json
+=head2 L<encode_json|Dancer2::Manual/encode_json>
 
 Serializes a data structure to a UTF-8 encoded binary JSON string. Calling
 this keyword will not trigger the application's serializer hooks.
 
 B<When to use>: When needing to translate a Perl data structure to JSON.
 
-B<See also>: L<decode_json|#decode_json>, L<to_json|#to_json>.
+B<See also>: L</decode_json>, L</to_json>
 
-=head2 flush
+=head2 L<flush|Dancer2::Manual/flush>
 
 Flushes content headers when streaming a response. This is necessary when
 C<content> is called multiple times.
@@ -305,7 +304,7 @@ C<content> is called multiple times.
 B<When to use>: When streaming large amounts of data (such as video)
 asynchronously.
 
-B<See also>: L<delayed|#delayed>, L<done|#done>.
+B<See also>: L</delayed>, L</done>
 
 =head2 L<forward|Dancer2::Manual/forward>
 
@@ -313,32 +312,34 @@ Forwards the request to another route handler.
 
 B<When to use>: Internally redirect to another route within the app.
 
-B<Related Keywords>: C<pass>.
+B<Related Keywords>: L</pass>
 
-=head2 from_dumper
+=head2 L<from_dumper|Dancer2::Manual/from_dumper>
 
 Deserializes a L<Data::Dumper> structure.
 
-B<When to use>: When you need to turn a C<Data::Dumper> structure into a
+B<When to use>: When you need to turn a L<Data::Dumper> structure into a
 Perl hashref.
 
-B<See also>: L<to_dumper|#to_dumper>, L<from_json|#from_json>.
+B<See also>: L</to_dumper>, L</from_json>
 
 =head2 L<from_json|Dancer2::Manual/from_json>
 
-Deserializes a JSON string into a Perl data structure.
+Deserializes a JSON string into a Perl data structure. Does not account
+for UTF-8 characters.
 
-B<When to use>: Decode JSON data from the client.
+B<When to use>: Decode JSON data from the client. L</decode_json> is likely
+what you want.
 
-B<Related Keywords>: C<to_json>.
+B<Related Keywords>: L</to_json>
 
-=head2 from_yaml
+=head2 L<from_yaml|Dancer2::Manual/from_yaml>
 
 Deserializes a YAML structure.
 
 B<When to use>: When you need to turn YAML into a Perl hashref.
 
-B<See also>: L<to_yaml|#to_yaml>, L<from_json|#from_json>.
+B<See also>: L</to_yaml>, L</from_json>
 
 =head2 L<halt|Dancer2::Manual/halt>
 
@@ -346,22 +347,22 @@ Halts request processing and sends a response immediately.
 
 B<When to use>: Stop processing and return a response early.
 
-B<Best Practice>: Combine C<halt> with C<status> to ensure appropriate
+B<Best Practice>: Combine L</halt> with L</status> to ensure appropriate
 HTTP response codes are sent.
 
-B<Related Keywords>: C<status>, C<send_error>.
+B<Related Keywords>: L</status>, L</send_error>
 
 =head2 C<header>
 
-Deprecated. Use C<response_header> instead.
+Deprecated. Use L</response_header> instead.
 
-B<Related Keywords>: C<response_header>.
+B<Related Keywords>: L</response_header>.
 
 =head2 C<headers>
 
-Deprecated. Use C<response_headers> instead.
+Deprecated. Use L</response_headers> instead.
 
-B<Related Keywords>: C<response_headers>.
+B<Related Keywords>: L</response_headers>.
 
 =head2 L<pass|Dancer2::Manual/pass>
 
@@ -369,23 +370,23 @@ Passes control to the next matching route.
 
 B<When to use>: Skip the current route and try the next one.
 
-B<Related Keywords>: C<forward>.
+B<Related Keywords>: L</forward>
 
-=head2 L<push_header|https://metacpan.org/pod/Dancer2::Manual#push_header>
+=head2 C<push_header>
 
-Deprecated. Use C<push_response_header> instead.
+Deprecated. Use L</push_response_header> instead.
 
-B<When to use>: Don't. Use C<push_response_header>.
+B<When to use>: Don't. Use L</push_response_header>.
 
-B<Related Keywords>: C<push_response_header>.
+B<Related Keywords>: L</push_response_header>.
 
-=head2 push_response_header
+=head2 L<push_response_header|Dancer2::Manual/"Adding Additional Response Headers">
 
 Adds a new value to an existing response header without replacing its current value.
 
 B<When to use>: Append additional values to headers like 'Set-Cookie' or 'X-Forwarded-For'.
 
-B<See also>: L<response_header|#response_header>, L<response_headers|#response_headers>.
+B<See also>: L</response_header>, L</response_headers>
 
 =head2 L<redirect|Dancer2::Manual/redirect>
 
@@ -393,7 +394,7 @@ Redirects the client to a different location.
 
 B<When to use>: Redirect users to another route or external URL.
 
-B<Related Keywords>: C<status>.
+B<Related Keywords>: L</status>
 
 =head2 L<response|Dancer2::Core::Response>
 
@@ -401,23 +402,23 @@ Provides access to the current response object.
 
 B<When to use>: Manipulate the outgoing response (headers, status, content).
 
-B<Related Keywords>: C<request>, C<header>, C<content>.
+B<Related Keywords>: L</request>, L</header>, L</content>
 
-=head2 L<response_header|https://metacpan.org/pod/Dancer2::Manual#response_header>
+=head2 L<response_header|Dancer2::Manual/"Adding Additional Response Headers">
 
 Sets or retrieves a specific header in the outgoing response.
 
 B<When to use>: Modify or access response headers before sending them to the client.
 
-B<Related Keywords>: C<header>, C<response_headers>.
+B<Related Keywords>: L</header>, L</response_headers>
 
-=head2 L<response_headers|https://metacpan.org/pod/Dancer2::Manual#response_headers>
+=head2 L<response_headers|Dancer2::Manual/"Adding Additional Response Headers">
 
 Returns a hash reference of all headers set in the response.
 
 B<When to use>: Inspect or manipulate multiple response headers simultaneously.
 
-B<Related Keywords>: C<response_header>, C<header>.
+B<Related Keywords>: L</response_header>, L</header>
 
 =head2 L<send_as|Dancer2::Manual/send_as>
 
@@ -425,7 +426,7 @@ Manually serializes and sends the response in a specific format.
 
 B<When to use>: Control response serialization explicitly.
 
-B<Related Keywords>: C<to_json>, C<from_json>.
+B<Related Keywords>: C<encode_json>, C<decode_json>.
 
 =head2 L<send_error|Dancer2::Manual/send_error>
 
@@ -434,7 +435,7 @@ status code.
 
 B<When to use>: To send a custom error response.
 
-B<Related Keywords>: C<halt>, C<status>.
+B<Related Keywords>: L</halt>, L</status>
 
 =head2 L<send_file|Dancer2::Manual/"Sending Static Files from a Route Handler">
 
@@ -442,7 +443,7 @@ Sends a file to the client.
 
 B<When to use>: Send files from disk or in-memory data as a file.
 
-B<Related Keywords>: C<send_as>.
+B<Related Keywords>: L</send_as>
 
 =head2 L<status|Dancer2::Manual/status>
 
@@ -450,34 +451,35 @@ Sets the HTTP status code for the response.
 
 B<When to use>: Specify response codes (e.g., 200, 404).
 
-B<Best Practice>: Combine C<status> with C<halt> for clearer error handling
+B<Best Practice>: Combine L</status> with L</halt> for clearer error handling
 when sending error responses.
 
-B<Related Keywords>: C<halt>, C<send_error>.
+B<Related Keywords>: L</halt>, L</send_error>
 
-=head2 L<to_dumper|https://metacpan.org/pod/Dancer2::Manual#to_dumper>
+=head2 L<to_dumper|Dancer2::Manual/to_dumper>
 
 Serializes a Perl data structure into a string using Data::Dumper.
 
 B<When to use>: Convert complex data structures into a readable string format for debugging.
 
-B<Related Keywords>: C<from_dumper>, C<to_yaml>, C<to_json>.
+B<Related Keywords>: L</from_dumper>, L</to_yaml>, L</to_json>
 
 =head2 L<to_json|Dancer2::Manual/to_json>
 
-Serializes a Perl data structure to JSON.
+Serializes a Perl data structure to JSON. Does not account or UTF-8
+characters.
 
 B<When to use>: Encode data to JSON format.
 
-B<Related Keywords>: C<from_json>, C<send_as>.
+B<Related Keywords>: L</from_json>, L</send_as>
 
-=head2 L<to_yaml|https://metacpan.org/pod/Dancer2::Manual#to_yaml>
+=head2 L<to_yaml|Dancer2::Manua/#to_yaml>
 
 Serializes a Perl data structure into a YAML string.
 
-B<When to use>: Convert data structures into YAML format for configuration or interoperability.
+B<When to use>: Convert data structures into YAML format.
 
-B<Related Keywords>: C<from_yaml>, C<to_json>, C<to_dumper>.
+B<Related Keywords>: L</from_yaml>, L</to_json>, L</to_dumper>
 
 =head1 Session and Cookie Keywords
 
@@ -487,7 +489,7 @@ Retrieves the value of a specific cookie from the request.
 
 B<When to use>: Access individual cookies.
 
-B<Related Keywords>: C<cookies>, C<session>.
+B<Related Keywords>: L</cookies>, L</session>
 
 =head2 L<cookies|Dancer2::Manual/"Retrieving Cookies">
 
@@ -495,7 +497,7 @@ Retrieves all cookies from the request as a hash reference.
 
 B<When to use>: Inspect or manage multiple cookies.
 
-B<Related Keywords>: C<cookie>.
+B<Related Keywords>: L</cookie>
 
 =head2 L<session|Dancer2::Manual/session>
 
@@ -503,17 +505,17 @@ Stores, retrieves, or removes data from the session.
 
 B<When to use>: Persist user-specific data between requests.
 
-B<Related Keywords>: C<cookie>, C<cookies>.
+B<Related Keywords>: L</cookie>, L</cookies>
 
 =head1 Application Configuration Keywords
 
-=head2 app
+=head2 L<app|Dancer2::Manual/"Accessing the Application Object">
 
 Returns an instance of the app. App is a L<Dancer2::Core::App>.
 
 B<When to use>: When calling methods only available via the application object.
 
-B<See also>: L<dancer_app|#dancer_app>
+B<See also>: L</dancer_app>
 
 =head2 L<config|Dancer2::Manual/config>
 
@@ -521,49 +523,50 @@ Retrieves the entire application configuration as a hash reference.
 
 B<When to use>: Access or inspect all configuration settings.
 
-B<Related Keywords>: C<set>, C<setting>.
+B<Related Keywords>: L</set>, L</setting>
 
-=head2 dancer_app
+=head2 C<dancer_app>
 
-Alias for C<app>.
+Alias for L</app>.
 
-B<Best Practice>: Use C<app> instead.
+B<Best Practice>: Use L</app> instead.
 
-B<Related Keywords>: C<app>
+B<Related Keywords>: L</app>
 
-=head2 dancer_version
+=head2 L<dancer_version|Dancer2::Manual/dancer_version>
 
 Retrieve full version number of installed Dancer2.
 
 B<When to use>: To help manage compatability and feature usage in your
 applications.
 
-B<See also>: L<dancer_major_version|#dancer_major_version>
+B<See also>: L</dancer_major_version>
 
-=head2 dancer_major_version
+=head2 L<dancer_major_version|Dancer2::Manual/dancer_major_version>
 
 Retrieves major version number of Dancer2.
 
 B<When to use>: To help manage compatability and feature usage in your
 applications.
 
-B<See also>: L<dancer_version|#dancer_version>
+B<See also>: L</dancer_version>
 
-=head2 prepare_app
+=head2 L<prepare_app|Dancer2::Manual/prepare_app>
 
 Function to help initialize and configure your Dancer2 app.
+
 B<When to use>: When you need to run initialization or setup code once at
 the start of your application.
 
-B<See also>: L<to_app|#to_app>.
+B<See also>: L</to_app>
 
-=head2 L<runner|https://metacpan.org/pod/Dancer2::Manual#runner>
+=head2 C<runner>
 
 Provides access to the Dancer2 runner object, which manages the application's execution.
 
 B<When to use>: Control or inspect the application's runtime environment.
 
-B<Related Keywords>: C<app>, C<config>.
+B<Related Keywords>: L</app>, L</config>
 
 =head2 L<set|Dancer2::Manual/set>
 
@@ -571,7 +574,7 @@ Sets a configuration value for the application.
 
 B<When to use>: Change configuration dynamically at runtime.
 
-B<Related Keywords>: C<setting>, C<config>.
+B<Related Keywords>: L</setting>, L</config>
 
 =head2 L<setting|Dancer2::Manual/setting>
 
@@ -579,15 +582,15 @@ Retrieves a configuration value.
 
 B<When to use>: Access app configuration values.
 
-B<Related Keywords>: C<set>, C<config>.
+B<Related Keywords>: L</set>, L</config>
 
-=head2 L<start|https://metacpan.org/pod/Dancer2::Manual#start>
+=head2 C<start>
 
 Initiates the Dancer2 application; typically called internally.
 
-B<When to use>: Rarely used directly; C<dance> is preferred to start the application.
+B<When to use>: Rarely used directly; see L</to_app> instead.
 
-B<Related Keywords>: C<dance>, C<psgi_app>.
+B<Related Keywords>: L</dance>, L</psgi_app>
 
 =head2 L<var|Dancer2::Manual/var>
 
@@ -595,15 +598,15 @@ Sets a variable in the application context.
 
 B<When to use>: Store temporary data accessible in routes and templates.
 
-B<Related Keywords>: C<vars>.
+B<Related Keywords>: L</vars>
 
 =head2 L<vars|Dancer2::Manual/vars>
 
 Retrieves the application context variables.
 
-B<When to use>: Access data stored with C<var>.
+B<When to use>: Access data stored with L</var>.
 
-B<Related Keywords>: C<var>.
+B<Related Keywords>: L</var>
 
 =head1 Hooks
 
@@ -613,7 +616,7 @@ Declares a hook to run custom code at specific stages in the request/response li
 
 B<When to use>: Modify requests or responses, or perform actions at predefined lifecycle points.
 
-B<Related Keywords>: C<var>, C<vars>.
+B<Related Keywords>: L</var>, L</vars>
 
 =head1 Template Keywords
 
@@ -623,7 +626,7 @@ Renders a view with the provided data.
 
 B<When to use>: Generate HTML or other formats dynamically.
 
-B<Related Keywords>: C<vars>.
+B<Related Keywords>: L</vars>
 
 =head1 Logging Keywords
 
@@ -631,21 +634,21 @@ B<Related Keywords>: C<vars>.
 
 Logs a message at the debug level.
 
-B<When to use>: Detailed diagnostic messages.
+B<When to use>: Detailed debugging and diagnostic messages.
 
 B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
 
-B<Related Keywords>: C<info>, C<warning>, C<error>, C<log>.
+B<Related Keywords>: L</info>, L</warning>, L</error>, L</log>
 
 =head2 L<error|Dancer2::Manual/error>
 
 Logs a message at the error level.
 
-B<When to use>: Errors that need immediate attention.
+B<When to use>: Log errors that need immediate attention.
 
 B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
 
-B<Related Keywords>: C<debug>, C<info>, C<warning>, C<log>.
+B<Related Keywords>: L</debug>, L</info>, L</warning>, L</log>
 
 =head2 L<info|Dancer2::Manual/info>
 
@@ -655,7 +658,7 @@ B<When to use>: General informational messages.
 
 B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
 
-B<Related Keywords>: C<debug>, C<warning>, C<error>, C<log>.
+B<Related Keywords>: L</debug>, L</warning>, L</error>, L</log>
 
 =head2 L<log|Dancer2::Manual/log>
 
@@ -663,7 +666,7 @@ Logs a message at a specified level.
 
 B<When to use>: Log messages with custom or dynamic levels.
 
-B<Related Keywords>: C<debug>, C<info>, C<warning>, C<error>.
+B<Related Keywords>: L</debug>, L</info>, L</warning>, L</error>
 
 =head2 L<logger|Dancer2::Manual/Logging>
 
@@ -671,29 +674,29 @@ Provides access to the logger object.
 
 B<When to use>: Advanced logging scenarios.
 
-B<Related Keywords>: C<log>, C<debug>, C<info>, C<warning>, C<error>.
+B<Related Keywords>: L</log>, L</debug>, L</info>, L</warning>, L</error>
 
 =head2 L<warning|Dancer2::Manual/warning>
 
 Logs a message at the warning level.
 
-B<When to use>: Non-critical issues that may need attention.
+B<When to use>: Logging non-critical issues that may need attention.
 
 B<Best Practice>: Use appropriate logging levels to maintain clear and actionable logs.
 
-B<Related Keywords>: C<debug>, C<info>, C<error>, C<log>.
+B<Related Keywords>: L</debug>, L</info>, L</error>, L</log>
 
 =head1 Miscellaneous Keywords
 
 =head2 dance
 
-Alias to the C<start> keyword.
+Alias to the L<start> keyword.
 
-B<Note>: This keyword has been superseded by L<to_app|#to_app>.
+B<Note>: This keyword has been superseded by L</to_app>.
 
-B<Best Practice>: Use C<to_app> instead.
+B<Best Practice>: Use L</to_app> instead.
 
-B<Related Keywords>: L<to_app|#to_app>.
+B<Related Keywords>: L</to_app>
 
 =head2 dirname
 
@@ -701,7 +704,7 @@ Given a path, return the directory name.
 
 B<When to use>: When you need to extract the directory name given a path.
 
-B<See also>: L<path|#path>.
+B<See also>: L</path>
 
 =head2 dsl
 
@@ -720,15 +723,15 @@ Given a namespace, return the current engine object. For example:
 B<When to use>: When you need to manually interact with one of the
 underlying engines in Dancer2.
 
-B<See also>: L<template|#template>, L<session|#session>, L<logger|#logger>.
+B<See also>: L</template>, L</session>, L</logger>
 
-=head2 L<false|https://metacpan.org/pod/Dancer2::Manual#false>
+=head2 C<false>
 
 Returns a false value.
 
 B<When to use>: Explicitly return a false value in your application.
 
-B<Related Keywords>: C<true>.
+B<Related Keywords>: L</true>
 
 =head2 mime
 
@@ -736,7 +739,7 @@ Provide access to your application's instance of L<Dancer2::Core::MIME>.
 
 B<When to use>: When querying or changing your application's MIME settings.
 
-B<See also>: L<send_file|#send_file>.
+B<See also>: L</send_file>
 
 =head2 path
 
@@ -747,50 +750,34 @@ existence.
 B<When to use>: When you need to generate a filesystem path within your
 application.
 
-B<See also>: L<dirname|#dirname>.
+B<See also>: L</dirname>
 
 =head2 psgi_app
 
-Provides the same functionality as C<to_app>, but uses the deprecated
+Provides the same functionality as L</to_app>, but uses the deprecated
 Dispatcher engine.
 
-B<Note>: This keyword has been superseded by L<to_app|#to_app>.
+B<Note>: This keyword has been superseded by L</to_app>.
 
-B<Best Practice>: Use C<to_app> instead.
+B<Best Practice>: Use L</to_app> instead.
 
 B<See also>: L<to_app|#to_app>.
 
-=head2 L<to_app|https://metacpan.org/pod/Dancer2::Manual#to_app>
+=head2 L<to_app|Dancer2::Manual/to_app>
 
 Returns the PSGI application code reference for the current Dancer2 app.
 
 B<When to use>: Integrate the Dancer2 application with other PSGI-compatible frameworks or servers.
 
-B<Related Keywords>: C<psgi_app>, C<dance>.
+B<Related Keywords>: L</psgi_app>, L</dance>
 
-=head2 L<true|https://metacpan.org/pod/Dancer2::Manual#true>
+=head2 C<true>
 
 Returns a true value.
 
 B<When to use>: Explicitly return a true value in your application.
 
-B<Related Keywords>: C<false>.
-
-=head2 L<var|https://metacpan.org/pod/Dancer2::Manual#var>
-
-Sets a variable in the application's context.
-
-B<When to use>: Store temporary data accessible across routes and templates during a single request.
-
-B<Related Keywords>: C<vars>, C<app>.
-
-=head2 L<vars|https://metacpan.org/pod/Dancer2::Manual#vars>
-
-Retrieves all variables set in the application's context as a hash reference.
-
-B<When to use>: Access all context variables within the current request.
-
-B<Related Keywords>: C<var>, C<app>.
+B<Related Keywords>: L</false>
 
 =cut
 
