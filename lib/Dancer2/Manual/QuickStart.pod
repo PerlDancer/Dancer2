@@ -12,27 +12,43 @@ system's package manager.
 
 =head2 Via CPAN
 
-Use your favourite method to install from CPAN:
+Use your favorite method to install from CPAN:
 
-    perl -MCPAN -e 'install Dancer2'
+    sudo cpan install Dancer2
 
-Or perhaps you prefer cpanminus:
+Or:
 
-    wget -O - http://cpanmin.us | sudo perl - Dancer2
+    sudo cpanm Dancer2
 
 (If you don't have root access, omit the 'sudo', and cpanminus will install
-Dancer2 and prereqs into C<~/perl5>.)
+Dancer2 and prereqs into F<~/perl5>.)
 
 =head2 Via OS Package Manager
 
 Dancer2 is also available as a package for a number of freely-available
 OSes, including most Linux distributions, FreeBSD, and OpenBSD.
 
-For example on Debian/Ubuntu you should be able to just:
+On Debian/Ubuntu, you can install Dancer2 as such:
 
-    apt-get install libdancer2-perl
+    sudo apt install libdancer2-perl
 
-(also include: Homebrew, macports, FreeBSD, RPM, Net/OpenBSD)
+For other popular operating systems (the use of sudo is implied
+if necessary):
+
+    # RedHat
+    dnf install perl-Dancer2
+
+    # MacPorts
+    port install p5-dancer2
+
+    # FreeBSD
+    pkg install p5-Dancer2
+
+    # OpenBSD
+    pkg_add p5-Dancer2
+
+    # NetBSD
+    pkgin install p5-Dancer2
 
 Do be aware, though, that distribution-packaged versions sometimes lag behind
 the most recent version on CPAN.
@@ -92,6 +108,4 @@ C<plackup> tool (provided by L<Plack>) for launching the application:
 
 View the web application at:
 
-    http://localhost:5000
-
-(TODO: cover other important gen options)
+    http://localhost:5000/
