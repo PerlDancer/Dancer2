@@ -140,7 +140,7 @@ other utilities and scripts for your application.
 =item environments
 
 Configuration information. One file per environment (such as C<development>
-and C<production>)
+and C<production>).
 
 =item lib
 
@@ -294,7 +294,7 @@ fetch the ID passed to our application.
 
 =head3 Update an Entry (Update)
 
-As with adding an entry, this requires two routes: one to dosplay the
+As with adding an entry, this requires two routes: one to display the
 entry form, and another to process the changes:
 
     get '/update/:id' => sub {
@@ -388,11 +388,19 @@ Let's see how it works. From the shell:
 Then open your browser and test your GET routes (we have nothing to post
 yet!):
 
-    L<http://localhost:5000/>
-    L<http://localhost:5000/entry/1>
-    L<http://localhost:5000/create>
-    L<http://localhost:5000/update/1>
-    L<http://localhost:5000/delete/1>
+=over
+
+=item * L<http://localhost:5000/>
+
+=item * L<http://localhost:5000/entry/1>
+
+=item * L<http://localhost:5000/create>
+
+=item * L<http://localhost:5000/update/1>
+
+=item * L<http://localhost:5000/delete/1>
+
+=back
 
 =head1 Setting Up Views
 
