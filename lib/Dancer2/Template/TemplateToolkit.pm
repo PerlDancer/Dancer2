@@ -9,6 +9,9 @@ use Dancer2::FileUtils qw<path>;
 use Scalar::Util ();
 use Template;
 
+# Override to use a different Template::Toolkit base class
+has 'template_class' => ( is => 'ro', default => 'Template' );
+
 with 'Dancer2::Core::Role::Template';
 
 has '+engine' => ( isa => InstanceOf ['Template'], );
@@ -37,7 +40,7 @@ sub _build_engine {
         sub { [ $ttt->views ] },
     ];
 
-    my $tt = Template->new(%tt_config);
+    my $tt = $self->template_class->new(%tt_config);
     $Template::Stash::PRIVATE = undef if $self->config->{show_private_variables};
     return $tt;
 }
