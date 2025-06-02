@@ -193,6 +193,22 @@ PARSER (L<Template::Parser>) and GRAMMAR (L<Template::Grammar>). If you intend t
 several of these components in your app, it is suggested to create an app-specific subclass
 that handles all of them at the same time.
 
+=head2 Custom Template::Toolkit class
+
+When subclassing this module it is possible to use a different
+Template::Toolkit class (for example if you have also subclassed that). To do
+that simply define a different C<template_class> property:
+
+    package Dancer2::Template::TemplateToolkit::FooBar;
+    
+    use Moo;
+    
+    extends 'Dancer2::Template::TemplateToolkit';
+    
+    has '+template_class' => ( default => 'TemplateFooBar' );
+    
+    1;
+
 =head2 Template Caching
 
 L<Template>::Tookit templates can be cached by adding the C<COMPILE_EXT> property to your
