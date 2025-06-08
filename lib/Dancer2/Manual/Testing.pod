@@ -52,52 +52,89 @@ see the different options for sending parameters.
 =head3 Subtests
 
 Tests can be separated using L<Test::More>'s C<subtest> functionality,
-thus creating multiple self-contained tests that don't overwrite each other.
+thus creating multiple self-contained tests that don't affect each other.
 
-Assuming we have a different app that has two states we want to test:
+Assuming we have a different app that we want to test:
 
-     # MyApp.pm
-     package MyApp;
-     use Dancer2;
-     set serializer => 'JSON';
 
-     get '/:user' => sub {
-         my $user = route_parameters->get('user');
+    # MyApp.pm
+    package MyApp;
+    use Dancer2;
+    set serializer => 'JSON';
 
-         $user and return { user => $user };
+    my %users = (
+        jason => {
+            name  => 'Jason',
+            likes => 'planes',
+        },
+        yanick => {
+            name => 'Yanick',
+            likes => 'orchids',
+        }
+    );
 
-         return {};
-     };
+    get '/:user' => sub {
+        my $user = route_parameters->get('user');
 
-     1;
+        my $user_data = $users{$user};
 
-This is a contrived example of a route that checks for a user
-parameter. If it exists, it returns it in a hash with the key
-'user'. If not, it returns an empty hash
+        if( $user_data ) {
+            return { user => $user_data };
+        }
 
-     # param.t
-     use strict;
-     use warnings;
-     use Test::More;
-     use Plack::Test;
-     use HTTP::Request::Common;
-     use MyApp;
+        status 404;
 
-     my $test = Plack::Test->create( MyApp->to_app );
+        return {
+            error => 1,
+            message => 'user not found'
+        }
+    };
 
-     subtest 'A empty request' => sub {
-         my $res = $test->request( GET '/' );
-         ok( $res->is_success, 'Successful request' );
-         is( $res->content '{}', 'Empty response back' );
-     };
+    1;
 
-     subtest 'Request with user' => sub {
-         my $res = $test->request( GET '/?user=sawyer_x' );
-         ok( $res->is_success, 'Successful request' );
-         is( $res->content '{"user":"sawyer_x"}', 'Empty response back' );
-     };
+This is an example of tests for that route ensuring 
+that we have the correct behavior with regard to the user 
+parameter.
 
-     done_testing();
+    # param.t
+    use strict;
+    use warnings;
+
+    use Test::More;
+    use Plack::Test;
+    use HTTP::Request::Common;
+    use JSON qw/ decode_json /;
+
+    use MyApp;
+
+    # swap 'null' for 'note' to see the logs in your TAP output
+    MyApp::set( logger => 'null' );
+
+    my $test = Plack::Test->create( MyApp->to_app );
+
+    subtest 'An empty request' => sub {
+        my $res = $test->request( GET '/' );
+        is $res->code => 404, 'user not provided, so not found';
+    };
+
+    subtest 'Request with invalid user' => sub {
+        my $res = $test->request( GET '/sawyer_x' );
+
+        ok !$res->is_success, 'user not found';
+        is $res->code => 404, 'ressource not found';
+
+        is decode_json($res->content)->{message}, 'user not found', 'error message';
+    };
+
+    subtest 'Request with valid user' => sub {
+        my $res = $test->request( GET '/jason' );
+
+        ok $res->is_success, 'user found';
+
+        is decode_json($res->content)->{user}{likes}, 'planes', 'data present';
+    };
+
+    done_testing();
 
 =head1 Cookies
 
