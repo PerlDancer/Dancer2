@@ -1,13 +1,28 @@
 {{$NEXT}}
 
-1.1.2     2024-11-25 08:34:51-05:00 America/New_York
-
     [ BUG FIXES ]
     * None
 
     [ ENHANCEMENTS ]
     * GH #1723: Enable use of a different Template Toolkit base class
       (Andy Beverley)
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+1.1.2     2024-11-25 08:34:51-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * None
 
     [ DOCUMENTATION ]
     * None
