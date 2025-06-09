@@ -6,7 +6,8 @@
     * None
 
     [ ENHANCEMENTS ]
-    * None
+    * GH #1723: Enable use of a different Template Toolkit base class
+      (Andy Beverley)
 
     [ DOCUMENTATION ]
     * None
