@@ -104,6 +104,13 @@ option remote => (
     required   => 0,
 );
 
+option no_package_files => (
+    is       => 'ro',
+    doc      => "don't create files needed for CPAN packaging",
+    required => 0,
+    default  => 0,
+);
+
 # Last chance to validate args before we attempt to do something with them
 sub BUILD {
     my ( $self, $args ) = @_;
@@ -165,8 +172,10 @@ sub run {
     };
 
     $self->_copy_templates( $files_to_copy, $vars, $self->overwrite );
-    $self->_create_manifest( $files_to_copy, $app_path );
-    $self->_add_to_manifest_skip( $app_path);
+    unless( $self->no_package_files ) {
+        $self->_create_manifest( $files_to_copy, $app_path );
+        $self->_add_to_manifest_skip( $app_path );
+    }
 
     $self->_check_git( $vars );
     $self->_check_yaml;
@@ -302,6 +311,9 @@ sub _copy_templates {
 
     foreach my $pair (@$files) {
         my ( $from, $to ) = @{$pair};
+        next if $self->no_package_files && $from =~ /MANIFEST\.SKIP$/;
+        next if $self->no_package_files && $from =~ /Makefile.PL$/;
+
         if ( -f $to && !$overwrite ) {
             print "! $to exists, overwrite? (or rerun this command with -o) [N/y/a]: ";
             my $res = <STDIN>; chomp($res);
