@@ -152,7 +152,9 @@ the following modules can be used:
 =back
 
 Taking the previous test, assuming it actually creates and uses
-cookies for sessions:
+cookies for sessions (see L<cookie|Dancer2::Manual/"Setting and Updating
+Cookies"> and perhaps L<Dancer2::Session::Cookie> for more information on how
+to do that):
 
      # ... all the use statements
      use HTTP::Cookies;
@@ -160,29 +162,27 @@ cookies for sessions:
      my $jar  = HTTP::Cookies->new;
      my $test = Plack::Test->create( MyApp->to_app );
 
-     subtest 'A empty request' => sub {
-         my $res = $test->request( GET '/' );
-         ok( $res->is_success, 'Successful request' );
-         is( $res->content '{}', 'Empty response back' );
+     subtest 'Request with invalid user' => sub {
+         my $req = GET '/sawyer_x';
+         $jar->add_cookie_header($req);
+         my $res = $test->request($req);
+         ok !$res->is_success, 'Request failed';
          $jar->extract_cookies($res);
-         ok( $jar->as_string, 'We have cookies!' );
+
+         ok !$jar->as_string, 'All cookies deleted';
      };
 
      subtest 'Request with user' => sub {
-         my $req = GET '/?user=sawyer_x';
+         my $req = GET '/jason';
          $jar->add_cookie_header($req);
          my $res = $test->request($req);
-         ok( $res->is_success, 'Successful request' );
-         is( $res->content '{"user":"sawyer_x"}', 'Empty response back' );
+         ok $res->is_success, 'Successful request';
          $jar->extract_cookies($res);
 
-         ok( ! $jar->as_string, 'All cookies deleted' );
+         ok !$jar->as_string, 'All cookies deleted';
      };
 
      done_testing();
-
-Here a cookie jar is created, all requests and responses, existing
-cookies, as well as cookies that were deleted by the response, are checked.
 
 If you don't want to use an entire user agent for this test, you can use
 L<HTTP::Cookies> to store cookies and then retrieve them:
