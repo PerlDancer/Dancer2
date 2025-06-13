@@ -8,6 +8,7 @@ use Plack::Test;
 use HTTP::Request::Common;
 use Ref::Util qw<is_coderef>;
 use List::Util qw<all>;
+use Module::Runtime qw/ require_module /;
 
 use Dancer2::Core::App;
 use Dancer2::Core::Response;
@@ -270,19 +271,27 @@ subtest censor => sub {
         like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
     };
 
-    subtest 'custom imported censor()' => sub {
+    subtest 'custom censor via config' => sub {
+        plan skip_all => "requires Data::Censor" unless require_module('Data::Censor');
+
         my $app = Dancer2::Core::App->new( name => 'main' );
+        $app->setting( 'error_censor' => {
+            'Data::Censor' => {
+                sensitive_fields => ['hush'],
+                replacement => 'NOT TELLING',
+            }
+        });
+
         my $error = Dancer2::Core::Error->new( app => $app );
 
-        $app->setting( personal => 'potato' ); 
-
-        $app->setting( error_censor => 'CustomCensor::censor' );
+        $app->setting( hush => 'potato' ); 
 
         unlike $error->environment => qr/potato/, 'the password is censored';
-        like $error->environment => qr/^ .* personal .* for \s my \s eyes \s only .* $/xm, 'we say it is hidden';
+        like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
     };
 
 };
+
 
 done_testing;
 
