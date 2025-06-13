@@ -6,6 +6,8 @@
     [ ENHANCEMENTS ]
     * GH #1723: Enable use of a different Template Toolkit base class
       (Andy Beverley)
+    * PR #1727: Don't create CPAN package files when generating new apps
+      (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * None
