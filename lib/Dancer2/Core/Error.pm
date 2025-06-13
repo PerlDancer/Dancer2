@@ -48,6 +48,27 @@ has title => (
     builder => '_build_title',
 );
 
+has censor => (
+    is => 'ro',
+    isa => CodeRef,
+    lazy => 1, 
+    default => sub {
+        my $self = shift;
+
+        my $custom = $self->has_app && $self->app->setting('error_censor') 
+            or return \&_censor;
+
+        my $module = $custom =~ s/::[^:]*?$//r;
+        my $function = $custom =~ s/^.*:://r;
+
+        require_module($module) unless eval { 
+            $module->can($function)
+        };
+
+        return $module->can($function);
+    }
+);
+
 sub _build_title {
     my ($self) = @_;
     my $title = 'Error ' . $self->status;
@@ -367,11 +388,11 @@ sub backtrace {
 }
 
 sub dumper {
-    my $obj = shift;
+    my ($self,$obj) = @_;
 
     # Take a copy of the data, so we can mask sensitive-looking stuff:
     my $data     = clone($obj);
-    my $censored = _censor( $data );
+    my $censored = $self->censor->( $data );
 
     #use Data::Dumper;
     my $dd = Data::Dumper->new( [ $data ] );
@@ -399,7 +420,7 @@ sub environment {
     my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
     # Get a sanitised dump of the settings, session and environment
-    $_ = $_ ? dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
+    $_ = $_ ? $self->dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
 
     return <<"END_HTML";
 <div class="title">Stack</div><pre class="content">$stack</pre>
@@ -522,6 +543,35 @@ This is only an attribute getter, you'll have to set it at C<new>.
 =attr message
 
 The message of the error page.
+
+=attr censor 
+
+The function to use to censor error messages. By default it uses the 
+C<_censor> function of this package, but it can be configured via the 
+app setting 'error_censor'. If provided, C<error_censor> has to be 
+the fully qualified name of the censor function to use. That function is 
+expected to take in the data as a hashref, modify it in place and return 
+the number of items 'censored'.
+
+For example, using L<Data::Censor>.
+
+    # in config.yml
+    error_censor: MyApp::Censor::censor
+
+    # in MyApp::Censor
+    package MyApp::Censor;
+
+    use Data::Censor;
+
+    my $data_censor = Data::Censor->new(
+        sensitive_fields => [ qw(card_number password hush) ],
+        replacement => '(Sensitive data hidden)',
+    );
+
+    sub censor { $data_censor->censor(@_) }
+
+    1;
+
 
 =method throw($response)
 
