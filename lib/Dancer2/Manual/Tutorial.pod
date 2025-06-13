@@ -1,0 +1,2543 @@
+package Dancer2::Tutorial;
+# ABSTRACT: A step-by-step guide to get you dancing
+
+=encoding utf8
+
+=pod
+
+=head1 Dancer2 Tutorial
+
+In this tutorial, you're going to end up with a working blog application,
+constructed from simple examples and demonstrations of techniques used
+in Dancer2 applications.
+
+If you'd like to see the finished product, you can clone the git repository
+containing the code used in this tutorial:
+
+    git clone https://github.com/PerlDancer/DLBlog.git
+
+=head1 Introduction - the Danceyland Blog
+
+Danceyland wants to share information about happenings at the park on
+an ongoing basis, and feel the best medium for doing so is by publishing
+a blog. Your task is to construct a blog engine to facilitate this using
+Dancer2 and other Perl modules.
+
+=head2 What You'll Learn
+
+By the end of this tutorial, you'll know how to:
+
+=over
+
+=item * Scaffold a new Dancer2 app
+
+=item * Design and construct routes for an application
+
+=item * Work with sessions, templates, and databases
+
+=item * Extend your Dancer2 applications with plugins
+
+=item * Add authentication to Dancer2 applications
+
+=item * Perform a basic app deployment
+
+=back
+
+=head2 Prerequisites
+
+=over
+
+=item * Linux, BSD, or Windows with WSL and a Linux distribution installed
+
+(Strawberry Perl on Windows may work, but is not guaranteed)
+
+=item * SQLite 3, installed via your operating system's package manager
+
+=back
+
+=head1 Setting Up Your Environment
+
+=head2 Installing Dancer2
+
+    cpan Dancer2
+
+or
+
+    cpanm Dancer2
+
+=head2 Creating Your First App
+
+    dancer2 gen -a DLBlog
+
+Output:
+
+    + DLBlog
+    + DLBlog/.dancer
+    + DLBlog/config.yml
+    + DLBlog/cpanfile
+    + DLBlog/Makefile.PL
+    + DLBlog/MANIFEST.SKIP
+    + DLBlog/t
+    + DLBlog/t/002_index_route.t
+    + DLBlog/t/001_base.t
+    + DLBlog/environments
+    + DLBlog/environments/production.yml
+    + DLBlog/environments/development.yml
+    + DLBlog/bin
+    + DLBlog/bin/app.psgi
+    + DLBlog/views
+    + DLBlog/views/index.tt
+    + DLBlog/public
+    + DLBlog/public/dispatch.cgi
+    + DLBlog/public/404.html
+    + DLBlog/public/favicon.ico
+    + DLBlog/public/500.html
+    + DLBlog/public/dispatch.fcgi
+    + DLBlog/lib
+    + DLBlog/lib/DLBlog.pm
+    + DLBlog/views/layouts
+    + DLBlog/views/layouts/main.tt
+    + DLBlog/public/images
+    + DLBlog/public/images/perldancer.jpg
+    + DLBlog/public/images/perldancer-bg.jpg
+    + DLBlog/public/javascripts
+    + DLBlog/public/javascripts/jquery.js
+    + DLBlog/public/css
+    + DLBlog/public/css/style.css
+    + DLBlog/public/css/error.css
+
+    Your new application is ready! To run it:
+
+        cd DLBlog
+        plackup bin/app.psgi
+
+    To access your application, point your browser to http://localhost:5000
+
+    If you need community assistance, the following resources are available:
+    - Dancer website: https://perldancer.org
+    - Twitter: https://twitter.com/PerlDancer/
+    - GitHub: https://github.com/PerlDancer/Dancer2/
+    - Mailing list: https://lists.perldancer.org/mailman/listinfo/dancer-users
+    - IRC: irc.perl.org#dancer
+
+    Happy Dancing!
+
+Make sure to change to your new project directory to begin work:
+
+    cd DLBlog
+
+=head2 Understanding Directory Structure
+
+Your application directory now contains several subdirectories:
+
+=over
+
+=item bin
+
+Contains the PSGI file that starts your application. Can be used for
+other utilities and scripts for your application.
+
+=item environments
+
+Configuration information. One file per environment (such as C<development>
+and C<production>).
+
+=item lib
+
+Your core application code. This is where you'll put your models,
+controllers, and other code.
+
+=item public
+
+Contains static files such as images, CSS, and JavaScript. Also contains
+instance scripts for CGI and FastCGI.
+
+=item t
+
+Tests for your application.
+
+=item views
+
+Contains templates and layouts.
+
+=back
+
+=head2 Using Plackup for Development
+
+    plackup -r bin/app.psgi
+
+This autorestarts your application when changes are made to your code.
+This is ideal during development, but should not be used in a production
+setting.
+
+=head1 Configuring Our Application
+
+By default, new Dancer2 applications use L<Dancer2::Template::Simple>.
+While this works well for the simplest of apps, it's not well suited to
+applications like the Danceyland Blog. Instead, we'll configure this
+application to use L<Template::Toolkit>, a mainstay of Perl templating.
+
+To enable Template Toolkit, you'll need to edit your F<config.yml>:
+
+    # template engine
+    # simple: default and very basic template engine
+    # template_toolkit: TT
+
+    #template: "simple"
+
+    template: "template_toolkit"
+    engines:
+      template:
+        template_toolkit:
+          # Note: start_tag and end_tag are regexes
+          start_tag: '<%'
+          end_tag:   '%>'
+
+YAML files, such as your application config, support the same comment
+characters as Perl. L<Dancer2::Template::Simple> is disabled by commenting
+that line in your config file, and the default TT config is used by
+uncommenting the C<template> and C<engines> configuration.
+
+This tells Dancer2 to:
+
+=over
+
+=item Load the Template Toolkit template engine
+
+=item Specify Template Toolkit as the template engine to use
+
+=item Passes configuration to the TT engine (C<start_tag, end_tag>)
+
+=back
+
+We'll visit this file regularly throughout the tutorial.
+
+F<config.yml> is the right place to set configuration common to all
+environments (dev, production, etc.), such as the template engine to use.
+Later, we'll see how to use different configuration parameters in
+different environments.
+
+=head1 CRUD Routes
+
+CRUD is an acronym for Create, Read, Update, and Delete. These are the
+basic operations for any database-driven application, such as the
+Danceyland Blog.
+
+=head2 What Routes are Needed?
+
+Blogs contain one or more entries, which we need to be able to Create,
+Read, Update, and Delete. We'll need the following routes:
+
+=over
+
+=item *
+
+Create a blog entry. This corresponds to the HTTP C<POST> method. It also
+requires a form to input the data, which is displayed using the HTTP C<GET>
+method.
+
+=item *
+
+Read (i.e., display) a blog entry. This corresponds to the HTTP C<GET>
+method.
+
+=item *
+
+Update a blog entry. If we were building an API or single-page application,
+this would correspond to the HTTP C<PUT> or C<PATCH> methods. In a
+traditional CRUD-based web application, this will use the C<POST> method.
+
+There is a UI component to this as well, which will use the HTTP C<GET>
+method.
+
+=item *
+
+Delete a blog entry. If we were building an API or single-page application,
+this would correspond to the HTTP C<DELETE> method. However, for simplicity,
+we'll use the HTTP C<GET> method to prompt the user for confirmation, and a
+C<POST> route to actually perform the deletion.
+
+=back
+
+We'll also need a route to see the list of all blog entries. This will use
+the HTTP C<GET> method.
+
+=head3 Add an Entry (Create)
+
+This requires two routes: one to display the create form, and another to
+process the input and create the entry.
+
+To display the entry form:
+
+    get '/create' => sub {
+        return "Show the entry form";
+    };
+
+To process the input and create the blog entry:
+
+    post '/create' => sub {
+        return "Creates the new blog entry";
+    };
+
+=head3 Display an Entry (Read)
+
+This route is similar to the one needed to display the creation form:
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Showing entry ID $id";
+    };
+
+The route declaration contains a parameter this time: the id of the
+blog entry we wish to view. The C<route_parameters> keyword is used to
+fetch the ID passed to our application.
+
+=head3 Update an Entry (Update)
+
+As with adding an entry, this requires two routes: one to display the
+entry form, and another to process the changes:
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the update form for entry id $id";
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Updates the specified blog entry";
+    };
+
+Again, the entry ID is provided to our Dancer2 application as a route
+parameter.
+
+=head3 Delete an Entry (Delete)
+
+This also needs two routes: one to confirm the user wants to delete the
+blog entry, and another to actually delete it:
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the delete confirmation for entry id $id";
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Deletes the specified blog entry";
+    };
+
+=head3 Displaying the Entry List
+
+Finally, we need a route to display the list of all blog entries:
+
+    get '/' => sub {
+        return "Show the list of blog entries";
+    };
+
+=head2 Putting it all Together
+
+So far, F<lib/DLBlog.pm> should look like this:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        return "Show the list of blog entries";
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Showing entry ID $id";
+    };
+
+    get '/create' => sub {
+        return "Show the entry form";
+    };
+
+    post '/create' => sub {
+        return "Creates the new blog entry";
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the update form for entry id $id";
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Updates the specified blog entry";
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Show the delete confirmation for entry id $id";
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        return "Deletes the specified blog entry";
+    };
+
+    true;
+
+=head3 Run your application!
+
+Let's see how it works. From the shell:
+
+    plackup -r bin/app.psgi
+
+Then open your browser and test your GET routes (we have nothing to post
+yet!):
+
+=over
+
+=item * L<http://localhost:5000/>
+
+=item * L<http://localhost:5000/entry/1>
+
+=item * L<http://localhost:5000/create>
+
+=item * L<http://localhost:5000/update/1>
+
+=item * L<http://localhost:5000/delete/1>
+
+=back
+
+=head1 Setting Up Views
+
+=head2 Layout
+
+Let's replace F<views/layouts/main.tt> with simple HTML5 boilerplate:
+
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="<% settings.charset %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title><% title %></title>
+        <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+      </head>
+      <body>
+        <% content %>
+        <div id="footer">
+        Powered by <a href="https://perldancer.org/">Dancer2</a> <% dancer_version %>
+        </div>
+      </body>
+    </html>
+
+This gives us a barebones framework to build our blog into. It sets proper
+encoding of characters, an application title, adds a stylesheet, and adds
+a footer containing the version of Dancer2 powering the blog.
+
+=head2 Templates
+
+The special C<< <% content %> >> variable above is where templates used
+by our routes will display. Instead of returning a string from the routes
+defined above, let's create some templates that will contain the UI
+necessary to interact with the blog, along with some business logic to
+display them at the right time.
+
+=head3 The Index Route (C</>)
+
+Replace the existing F<views/index.tt> with the following:
+
+    <div id="entries">
+    <% IF entries.size %>
+        <dl>
+        <% FOREACH entry IN entries %>
+            <dt><a href="/entry/<% entry.id %>"><% entry.title | html_entity %></a>
+                (created at <% entry.created_at | html_entity %>)</dt>
+            <dd><% entry.summary | html_entity %></dd>
+        <% END %>
+        </dl>
+    <% ELSE %>
+        <p>No entries found.</p>
+    <% END %>
+    </div>
+
+This list will be populated when we read entries from the database later
+in this tutorial.
+
+What's with all these C<html_entity> things? The C<|> is Template Toolkit
+syntax for a filter, and C<html_entity> represents the filter we are using.
+This particular filter properly excapes characters like ampersands when
+displaying them as HTML.
+
+To use this template in our app, we'll use the C<template> keyword to plug
+this into our route:
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', { entries => \@entries };
+    };
+
+=head3 The View Entry Route C</entry/:id>
+
+We'll create a new template, F<views/entry.tt>, that contains everything
+we think we'll need to show a blog entry:
+
+    <% IF entry %>
+    <div id="sidebar">
+        <h1>Posted at</h1>
+        <p><% entry.created_at | html_entity %></p>
+        <h1>Summary</h1>
+        <p><% entry.summary | html_entity %></p>
+    </div>
+    <div id="content">
+        <h2><% entry.title | html_entity %></h2>
+        <p><% entry.content | html_entity %></p>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+
+C<entry> is a hashref that has the contents of our blog post.  If a valid
+entry ID isn't provided, we give the user a message explaining so.
+Otherwise, we'll provide a two column layout with metadata in the sidebar,
+and blog content on the main part of the page.
+
+This is going to be ugly as written; we'll add some styling at the end to
+make things look nicer.
+
+Let's modify our route for viewing entries to use this template:
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+=head3 The Create Entry Routes C</create>
+
+This is just a simple form to create a new blog entry. Create
+F<views/create.tt> with the following:
+
+    <div id="create">
+        <form method="post" action="<% request.uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title"><br>
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary"><br>
+            <label for="content">Content</label>
+            <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
+            <input type="submit">
+        </form>
+    </div>
+
+Using C<uri_for> when specifying the POST URL allows Dancer2 to create a
+proper URL no matter where your app is running from.
+
+This can be added to the create route:
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+There is no template when POSTing to C</create>. There are two possible
+outcomes when creating a blog entry:
+
+=over
+
+=item Creation was successful, so we redirect somewhere sensible
+
+=item Creation failed, so we redisplay the filled in form and show an error
+
+=back
+
+We'll show how to do both of these in the implementation section later.
+For now:
+
+    post '/create' => sub {
+        my $new_id = 1;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+=head3 The Update Entry Routes (C</update/:id>)
+
+Showing the UI for updating a blog entry is similar to what we did in
+create above, except that we will need to display the existing values
+of an entry in the form (we don't want to make the user re-enter
+everything when updating, do we?). Since we have no values to show right
+now, we will implement this latter part in the implementation section
+below.
+
+For now, let's just return the existing create form:
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+We don't need a special template for displaying the results of an update,
+we just need to show the resulting entry. Don't we already have a route
+that does that though? Why should we do that work again here? We shouldn't!
+
+Dancer2 will let you change the flow of your application using the
+C<forward> or C<redirect> keywords. But which should we choose?
+
+=over
+
+=item C<forward> is an internal redirect
+
+This lets you perform the functionality contained in another route, but
+it's done internally, which means that the URL shown to the user in their
+browser's address bar looks like the one they requested. In the case of
+our update, the browser bar will show C<http://localhost:5000/update/1>,
+but what they would be seeing is the output from C<http://localhost:5000/entry/1>.
+This is not desirable, as it is confusing for a user to look at.
+
+=item C<redirect> is an external redirect
+
+External redirects sends the user to a different URL by sending a redirect
+response from Dancer2. Even though the user is executing a POST to
+C<http://localhost:5000/update/1>, upon completion, they're browser bar
+will show C<http://localhost:5000/entry/1>. This is a better option, as
+when an update completes successfully, the URL will match what the user sees
+in their browser.
+
+To do this, let's use the redirect keyword:
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id"; # redirect does not need a return
+    };
+
+We will show how to update an existing entry later in the tutorial.
+
+=back
+
+=head3 The Delete Routes
+
+It's wouldn't be kind to the user to simply delete an entry without giving
+them the option to change their mind, and that's what the GET route for
+deletion is intended to do.
+
+Let's give the user a simple confirmation form. Create F<views/delete.tt>:
+
+    <div id="delete">
+        <form method="post" action="<% request.uri_for('/delete/' _ id) %>">
+            <p>Delete entry <% id %>. Are you sure?</p>
+            <p>
+                <input type="radio" id="yes" name="delete_it" value="yes">
+                <label for="yes">Yes</label>
+            </p>
+            <p>
+                <input type="radio" id="no" name="delete_it" value="no">
+                <label for="no">No</label>
+            </p>
+            <input type="submit">
+        </form>
+    </div>
+
+Our GET route for delete will need to change:
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+Similar to create and update, there's no need to create another template
+to show the results of a delete. We'll just send the user back to the
+list of blog entries:
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+Notice the addition of the C<body_parameters>? This is to get the value
+of the radio button the user selected. This is important to decide if
+the user actually wants to delete or not.
+
+=head2 Reviewing our Application Code
+
+F<lib/DLBlog.pm> should now look like this:
+
+    package DLBlog;
+    use Dancer2;
+
+    get '/' => sub {
+        my @entries; # We'll populate this later
+        template 'index', { entries => \@entries };
+    };
+
+    get '/entry/:id' => sub {
+        my $id = route_parameters->get('id');
+        my $entry; # Populated from the database later
+        template 'entry', { entry => $entry };
+    };
+
+    get '/create' => sub {
+        template 'create';
+    };
+
+    post '/create' => sub {
+        my $new_id = 1;
+        redirect uri_for "/entry/$new_id"; # redirect does not need a return
+    };
+
+    get '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'create';
+    };
+
+    post '/update/:id' => sub {
+        my $id = route_parameters->get('id');
+        redirect uri_for "/entry/$id";
+    };
+
+    get '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+        template 'delete', { id => $id };
+    };
+
+    post '/delete/:id' => sub {
+        my $id = route_parameters->get('id');
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            # Do the deletion here
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+    true;
+
+=head2 Adding Utility to our Views
+
+This is all well and good, but it's not the most functional for our users.
+A basic menu of available options would help users to understand what
+actions can be performed in the Danceyland Blog.
+
+=head3 Adding a Menu to our Layout
+
+Let's edit our layout so users can see the same list of options across all
+pages. By adding the menu once to the layout, we don't have to reproduce
+this in the list, create, update, and delete templates.
+
+Our menu will look like this:
+
+    <div id="menu">
+        <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+        <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+    </div>
+
+Now, let's add it to the top of our layout. The end result looks like:
+
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="<% settings.charset %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title><% title %></title>
+        <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+      </head>
+      <body>
+        <div id="menu">
+            <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+            <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+        </div>
+        <% content %>
+        <div id="footer">
+        Powered by <a href="https://perldancer.org/">Dancer2</a> <% dancer_version %>
+        </div>
+      </body>
+    </html>
+
+Refresh your browser to see the menu appear at the top of your page.
+
+=head1 The Danceyland Database
+
+We need some way to persist the blog entries, and relational databases
+excel at this. We'll use SQLite for this tutorial, but you can use any
+database supported by L<Dancer2::Plugin::Database> and L<DBI>.
+
+L<SQLite|https://sqlite.org> is a lightweight, single file database that
+makes it easy to add relational database functionality to a low-concurrency
+web application.
+
+=head2 Setting Up the Database
+
+At minimum, we need to create a table to contain our blog entries. Create
+a new directory for your database and SQL files:
+
+    $ mkdir db
+
+Then create a new file, F<db/entries.sql>, with the following:
+
+    CREATE TABLE entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        summary TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+Later, we'll add an additional table for users.
+
+Let's create our blog database with the above table. From our project
+directory:
+
+    $ sqlite3 db/dlblog.db < db/entries.sql
+
+=head2 Using Dancer2::Plugin::DBIx::Class
+
+L<Dancer2::Plugin::DBIx::Class> is a plugin that integrates the
+L<DBIx::Class> Object Relational Mapper (ORM) and Dancer2. It maps tables,
+rows, and columns into classes, objects, and methods in Perl. L<DBIx::Class>
+(DBIC for short) makes it convenient to work with databases in your Perl
+applications and reduces a lot of manual SQL creation.
+
+DBIC is also a large and complex beast, and can take some time to become
+proficient with it. This tutorial merely scrapes the surface of what you
+can do with it; for more information, check out
+L<DBIx::Class::Manual::DocMap>.
+
+You'll also need to install two other dependencies, L<DBD::SQLite> (the
+SQLite database driver), L<DBIx::Class::Schema::Loader> (for automatically
+generating database classes from tables), and L<DateTime::Format::SQLite>
+(to interact with dates in DBIC objects).
+
+Install them using C<cpan> or C<cpanm>:
+
+    cpanm DBD::SQLite Dancer2::Plugin::DBIx::Class \
+        DBIx::Class::Schema::Loader DateTime::Format::SQLite
+
+Add these to your F<cpanfile>:
+
+    requires "DBD::SQLite";
+    requires "Dancer2::Plugin::DBIx::Class";
+    requires "DBIx::Class::Schema::Loader";
+    requires "DateTime::Format::SQLite";
+
+And then add it to the top of F<lib/DLBlog.pm> after C<use Dancer2;>:
+
+    use Dancer2::Plugin::DBIx::Class;
+
+We need to add configuration to tell our plugin where to find the SQLite
+database. For this project, it's sufficient to put configuration for
+the database in F<config.yml>. In a production application, you'd
+have different database credentials in your development and staging
+environments than you would in your production environment (we'd hope you
+would anyhow!). And this is where environment config files are handy.
+
+By default, Dancer2 runs your application in the development environment.
+To that end, we'll add plugin configuration appropriately. Add the following
+to your F<environments/development.yml> file:
+
+    plugins:
+      DBIx::Class:
+        default:
+          dsn: "dbi:SQLite:dbname=db/dlblog.db"
+          schema_class: "DLBlog::Schema"
+          dbi_params:
+            RaiseError: 1
+            AutoCommit: 1
+
+Note that we only provided C<DBIx::Class> for the plugin name; Dancer2
+automatically infers the C<Dancer2::Plugin::> prefix.
+
+As SQLite databases are a local file, we don't need to provide login
+credentials for the database. The two settings in the C<dbi_params>
+section tell L<DBIx::Class> to raise an error automatically to our code
+(should one occur), and to automatically manage transactions for us (so
+we don't have to).
+
+=head1 Generating Schema Classes
+
+L<DBIx::Class> relies on class definitions to map database tables to
+Perl constructs. Thankfully, L<DBIx::Class::Schema::Loader> can do much
+of this work for us.
+
+To generate the schema object, and a class that represents the C<entries>
+table, run the following from your shell:
+
+    dbicdump -o dump_directory=./lib \
+        -o components='["InflateColumn::DateTime"]' \
+        DLBlog::Schema dbi:SQLite:db/dlblog.db '{ quote_char => "\"" }'
+
+This creates two new files in your application:
+
+=over
+
+=item * F<lib/DLBlog/Schema.pm>
+
+This is a class that represents all database schema.
+
+=item * F<lib/DLBlog/Schema/Result/Entry.pm>
+
+This is a class representing a single row in the C<entries> table.
+
+=back
+
+=head1 Implementing the Danceyland Blog
+
+Let's start by creating an entry and saving it to the database; all other
+routes rely on us having at least one entry (in some form).
+
+=head2 Performing Queries
+
+L<Dancer2::Plugin::DBIx::Class> lets us easily perform SQL queries against
+a database. It does this by providing methods to interact with data, such
+as C<find>, C<search>, C<create>, and C<update>. These methods make for
+simpler maintenance of code, as they do all the work of writing and executing
+SQL in the background.
+
+For example, let's use a convenience method to create a new blog entry.
+Here's the form we created for entering a blog post:
+
+    <div id="create">
+        <form method="post" action="<% request.uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title"><br>
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary"><br>
+            <label for="content">Content</label>
+            <textarea name="content" id="content" cols="50" rows="10"></textarea><br>
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+We can take values submitted via this form and turn them into a row in
+the database:
+
+    post '/create' => sub {
+        my $params = body_parameters();
+
+        my $entry = do {
+            try {
+                resultset('Entry')->create( $params->as_hashref );
+            }
+            catch( $e ) {
+                error "Database error: $e";
+                var error_message => 'A database error occurred; your entry could not be created',
+                forward '/create', {}, { method => 'GET' };
+            }
+        };
+        redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+    };
+
+Form fields are sent to Dancer2 as body parameters, so we need to use the
+C<body_parameters> keyword to get them:
+
+    my $params = body_parameters();
+
+This returns all body parameters as a single hashref, where each form
+field name is a key, and the value is what the user input into the form.
+
+In a production environment, you'd want to sanitize this data before
+attempting a database operation. When you sanitize data, you are ensuring
+that data contains only the values you would expect to receive. If it's
+not what you'd expect, you can remove the extra cruft (sanitize), or ask
+the user to correct their entry.
+
+Database operations can fail, so we should make an attempt to trap any
+errors. C<try/catch> lends itself well to this type of error checking.
+Newer versions of Perl have a built-in C<try> keyword, but older versions
+do not. To protect against this, let's install L<Feature::Compat::Try>,
+which uses the built-in C<try> if your Perl has it, otherwise provides
+a backported implementation. To install this module, run F<cpanm>:
+
+    cpanm Feature::Compat::Try
+
+And add it to your F<cpanfile>:
+
+    requires "Feature::Compat::Try";
+
+Then make sure to include it at the top of your application:
+
+    use Feature::Compat::Try;
+
+The code inside the C<try> block will be executed, and if it fails, will
+C<catch> the error, and execute the code in that block.
+
+    try {
+        resultset('Entry')->create( $params->as_hashref );
+    }
+
+This uses the C<quick_insert> method of our Database plugin, and passes
+the values from the form through to create a row in the C<entries> table.
+
+If a database error occurs, we need to handle it:
+
+    catch( $e ) {
+        error "Database error: $e";
+        var error_message => 'A database error occurred; your entry could not be created',
+        forward '/create', {}, { method => 'GET' };
+    }
+
+The first line creates an error log message containing the actual database
+error; this will be valuable in helping to debug your application, or
+troubleshoot a user issue. We then stash a message in a variable to be
+displayed on the create page once it is redisplayed.
+For the sake of brevity, we populate message with a really basic error
+message. In a production application, you'd want to provide the user with
+a more descriptive message to help them resolve their own problem, if
+possible.
+
+Why not pass the database error directly to the user? Because this gives
+a potential attacker information about your database and application.
+
+Finally, we send the user back to the entry form:
+
+    forward uri_for '/create', {}, { method => 'GET' };
+
+By default, C<forward> invokes a route with the same HTTP verb of the route
+it is executing from. You can change the verb used by passing a third
+hashref containing the C<method> key. The second (empty) hashref contains
+an optional list of parameters to be passed to the forwarded route.
+
+If the insert succeeds, C<create> returns an object that represents the
+newly created database row, and assigns it to the variable C<$entry>.
+We can perform additional database operations against this row by calling
+methods on C<$entry>. As a convenience to the user, we should take them to
+a page where they can view their new entry:
+
+    debug 'Created entry ' . $entry->id . ' for "' . $entry->title . '"';
+    redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+
+The first line logs a message showing the post was successfully created,
+then redirects the user to the entry display page on the last line.
+
+=head3 Redisplaying the Create Form
+
+In the case of an error, it's a good practice to redisplay the original
+form with the previous values populated. We could add code in our POST
+route to redisplay the form, or we could use the code we already wrote
+to display the form instead. We'll go with the latter.
+
+Dancer2's C<var> keyword lets you create variables to use elsewhere in
+your application, including templates. We'll use these to keep track of
+what the user has already entered, and to display a message to the user
+if any required parameters are missing.
+
+To save any entered parameters into vars, add this line right after the
+call to C<body_parameters>:
+
+    var $_ => $params->{ $_ } foreach qw< title summary content >;
+
+Now, let's check if any of these were not provided when the user submitted
+the create form:
+
+    my @missing = grep { $params->{$_} eq '' } qw< title summary content >;
+    if( @missing ) {
+        var missing => join ",", @missing;
+        warning "Missing parameters: " . var 'missing';
+        forward '/create', {}, { method => 'GET' };
+    }
+
+If any of C<title>, C<summary>, or C<content> are missing, we build up
+a message containing the list of missing parameters. We then set a variable,
+C<missing>, with the message to display. Finally, we internally redirect
+(via the C<forward> keyword) back to the GET route that displays our create
+form.
+
+Your new C<post '/create'> route should now look like this:
+
+    post '/create' => sub {
+        my $params = body_parameters();
+        var $_ => $params->{ $_ } foreach qw< title summary content >;
+
+        my @missing = grep { $params->{$_} eq '' } qw< title summary content >;
+        if( @missing ) {
+            var missing => join ",", @missing;
+            warning "Missing parameters: " . var 'missing';
+            forward '/create', {}, { method => 'GET' };
+        }
+
+        my $entry = do {
+            try {
+                resultset('Entry')->create( $params->as_hashref );
+            }
+            catch( $e ) {
+                error "Database error: $e";
+                var error_message => 'A database error occurred; your entry could not be created',
+                forward '/create', {}, { method => 'GET' };
+            }
+        };
+
+        debug 'Created entry ' . $entry->id . ' for "' . $entry->title . '"';
+        redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+    };
+
+These changes to our C<post '/create'> route creates some succinct code
+that's easy to follow, but may not be the best for a production application.
+Better error handling could be added, retry logic for failed database
+connections doesn't exist, data validation is lacking, etc. All of these
+features can be added to the blog at a later time as additional exercises for
+the developer.
+
+=head3 Updating the create form to show previous values
+
+We need to adjust the create form to show the values we stashed as
+variables with the C<var> keyword:
+
+    <div id="create">
+        <form method="post" action="<% request.uri_for('/create') %>">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title" value="<% vars.title %>"><br>
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" id="summary" value="<% vars.summary %>"><br>
+            <label for="content">Content</label>
+            <textarea name="content" id="content" cols="50" rows="10"><% vars.content %></textarea><br>
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+Variables stashed in your Dancer2 application are available via the C<vars>
+hashref, such as C<< <% vars.title %> >>. When C</create> displays this form,
+any stashed variable values will be filled in to their appropriat form
+element.
+
+=head1 Displaying messages
+
+In our application, we created a message to display a list of any missing
+required fields. We also created an error message if our database operation
+fails. Now, we need to create a place in the layout to display them.
+
+Below our menu, but above our content, add the following:
+
+    <% IF vars.missing %>
+    <div id="missing">
+        <b>Missing parameters: <% vars.missing | html_entity %></b>
+    </div>
+    <% END %>
+    <% IF error_message %>
+    <div id="error">
+        <b>Error: <% vars.error_message | html_entity %></b>
+    </div>
+    <% END %>
+
+This creates two message C<divs>: one that displays missing values, and
+another that displays errors. Creating them separately allows us to more
+easily style them appropriately later.
+
+Notice the C<IF/END> blocks? This content is optional; i.e., if there are
+no missing fields or error messages, this markup will not be added to the
+rendered HTML page.
+
+The layout should now look like:
+
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="<% settings.charset %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title><% title %></title>
+        <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+      </head>
+      <body>
+        <div id="menu">
+            <a href="<% request.uri_for('/') %>">List All Entries</a>&nbsp;|&nbsp;
+            <a href="<% request.uri_for('/create') %>">Create New Entry</a>
+        </div>
+        <% IF vars.missing %>
+        <div id="missing">
+            <b>Missing parameters: <% vars.missing | html_entity %></b>
+        </div>
+        <% END %>
+        <% IF error_message %>
+        <div id="error">
+            <b>Error: <% vars.error_message | html_entity %></b>
+        </div>
+        <% END %>
+        <% content %>
+        <div id="footer">
+        Powered by <a href="https://perldancer.org/">Dancer2</a> <% dancer_version %>
+        </div>
+      </body>
+    </html>
+
+=head2 Displaying Blog Data
+
+Displaying a blog entry is fairly simple; the C<quick_select> method of
+L<Dancer2::Plugin::Database> will return a database row as a hashref, which
+can be passed as a parameter to a template:
+
+    get '/entry/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        template 'entry', { entry => $entry };
+    };
+
+You may notice the route declaration changed; Dancer2 will let you decorate
+a route parameter with a L<Type::Tiny> datatype; if the provided parameter
+doesn't match the type expected by Dancer2, an HTTP 404 status will be
+returned. Any call to C<route_parameters> is then guaranteed to have a
+value of the desired type.
+
+We use the C<find()> method of L<DBIx::Class::ResultSet> to return a single
+row and turn it into an object, which we will reference as C<$entry>. Should
+C<find> not succeed, our template will display a message indicating so:
+
+    <% IF entry %>
+    <div id="sidebar">
+        <h1>Posted at</h1>
+        <p><% entry.created_at | html_entity %></p>
+        <h1>Summary</h1>
+        <p><% entry.summary | html_entity %></p>
+    </div>
+    <div id="content">
+        <h2><% entry.title | html_entity %></h2>
+        <p><% entry.content | html_entity %></p>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+
+By passing the resultset object directly to the template, you can call
+methods directly on that object to display different columns of information,
+such as C<title> and C<content>. If there is no valid entry, the C<ELSE>
+section of the template will be displayed instead of the contents of the
+blog post.
+
+=head2 Updating a blog entry
+
+To update a blog entry, we need a form that contains the values that have
+already been entered for a given blog post. Didn't we already do that as
+part of redisplaying the create form when it was missing values? Why yes
+we did! What if we could reuse that form for editing an existing entry?
+With a little bit of work, we absolutely can.
+
+Rename F<create.tt> to be F<create_update.tt>, then replace the contents
+with the following:
+
+    <div id="create_update">
+        <form method="post" action="<% post_to %>">
+            <label for="title">title</label>
+            <input type="text" name="title" id="title" value="<% vars.title %>"><br>
+            <label for="summary">summary</label>
+            <input type="text" name="summary" id="summary" value="<% vars.summary %>"><br>
+            <label for="content">content</label>
+            <textarea name="content" id="content" cols="50" rows="10"><% vars.content %></textarea><br>
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+The following minor changes have been made:
+
+=over
+
+=item * The div id was changed to reflect the form's new purpose
+
+=item * The form action was changed to the template variable C<post_to>
+
+=back
+
+The form action will be different based upon whether we are creating a new
+blog entry, or updating an existing one.
+
+We need to create a route to display the form such that it is suitable for
+updating a blog entry:
+
+    get '/update/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        var $_ => $entry->$_ foreach qw< title summary content >;
+        template 'create_update', { post_to => uri_for "/update/$id" };
+    };
+
+As with our route to display a blog entry, we include the type of parameter
+(C<Int>) that we expect to receive. Dancer2 will issue a C<404> not found
+error if this parameter is something other than an integer. We also attempt
+to fetch the row from the C<entries> table identified with the id passed
+to the application.
+
+Once an entry has been retrieved, we populate the same list of variables
+that we did to redisplay the form when required values were missing earlier.
+Finally, we create the correct C<post_to> URL for updating a blog entry, and
+pass it to the template.
+
+As with create, we need a POST route to process the blog update:
+
+    post '/update/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        if( !$entry ) {
+            status 'not_found';
+            return "Attempt to update non-existent entry $id";
+        }
+
+        my $params = body_parameters();
+        var $_ => $params->{ $_ } foreach qw< title summary content >;
+        my @missing = grep { $params->{$_} eq '' } qw< title summary content >;
+        if( @missing ) {
+            var missing => join ",", @missing;
+            warning "Missing parameters: " . var 'missing';
+            forward "/update/$id", {}, { method => 'GET' };
+        }
+
+        try {
+            $entry->update( $params->as_hashref );
+        }
+        catch( $e ) {
+            error "Database error: $e";
+            var error_message => 'A database error occurred; your entry could not be updated',
+            forward "/update/$id", {}, { method => 'GET' };
+        }
+        redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+    };
+
+An additional check exists here that was unnecessary for create: a check to
+ensure the blog post to update actually exists. If it doesn't, the proper
+response is to issue a C<404> not found response to the user:
+
+    if( !$entry ) {
+        status 'not_found';
+        return "Attempt to update non-existent entry $id";
+    }
+
+The C<status> keyword sets the proper response code in the response header,
+and the message in the C<return> sends additional information back to the
+user.
+
+Once the proper blog entry has been loaded, the exact same logic needed
+to create an entry applies to updating one.
+
+=head3 Updating the create form's C<post_to>
+
+Simply call C<uri_for> in our route, then pass the resulting value to
+F<create_update.tt>:
+
+    get '/create' => sub {
+        # Vars are passed to templates automatically
+        template 'create_update', { post_to => uri_for '/create' };
+    };
+
+=head2 Deleting a Blog Entry
+
+A simple GET route is needed to display information about the route to be
+deleted:
+
+    get '/delete/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        template 'delete', { entry => $entry };
+    };
+
+We require a single route parameter: an integer that represents the ID
+of the blog post we wish to delete. We then attempt to load that entry
+from the database with the C<find()> method of L<DBIx::Class::ResultSet>,
+then dump it to our earlier delete template.
+
+Speaking of which, let's modify our template to use methods on our resultset
+object:
+
+    <% IF entry %>
+    <div id="delete">
+        <form method="post" action="<% request.uri_for('/delete/' _ entry.id) %>">
+            <p>Delete entry <% entry.id %>. Are you sure?</p>
+            <div>
+                <input type="radio" id="yes" name="delete_it" value="yes">
+                <label for="yes">Yes</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" id="no" name="delete_it" value="no">
+                <label for="no">No</label>
+            </div><br>
+            <button type="submit">Delete Entry</button>
+        </form>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+
+Any place we had been using a parameter earlier now calls a corresponding
+method on the C<entry> object. We've also added a check to display a message
+if an invalid entry ID was provided.
+
+Now, let's write the code to actually perform the delete:
+
+    post '/delete/:id[Int]' sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        if( !$entry ) {
+            status 'not_found';
+            return "Attempt to delete non-existent entry $id";
+        }
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            $entry->delete;
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+This uses all of the same techniques and logic we've built previously:
+
+=over
+
+=item * A route definition that checks the datatype of the ID
+
+=item * A check to ensure a blog post with that ID exists
+
+=item * The code to safely perform a delete
+
+Once a resultset object has been instantiated, calling the C<delete> method
+removes it from the database.
+
+=item * Code to redirect to the entry display if the post isn't deleted
+
+=back
+
+=head2 Implementation Recap
+
+At this point, we've built an app that allows a user to perform the following
+tasks when writing a blog:
+
+=over
+
+=item * Creating an entry
+
+=item * Editing an existing entry
+
+=item * Deleting an entry
+
+=item * Listing all blog entries
+
+=item * Displaying a single entry
+
+=back
+
+Congratulations - you've added all the basic functionality! Now, let's secure
+critical functions of this blog by putting a login in front of them.
+
+=head1 Authentication
+
+Now that the core functionality is done, we need to secure critical
+functions; visitors shouldn't be allowed to create or modify content,
+only authorized users of the Danceyland blog. Dancer2 has several
+plugins available that help you to add user authentication to your
+applications; for the Danceyland blog, our needs are rather simple, and
+so we will use L<Dancer2::Plugin::Auth::Tiny> as our authentication system
+of choice.
+
+L<Dancer2::Plugin::Auth::Tiny> provides some additional syntax to let us
+easily specify which routes require a logged in user and which do not. It
+also provides a bit of scaffolding to help us build the actual login
+procedure. We'll come back to this in a bit.
+
+We need a way to keep track of who the logged in user is. For that, we're
+going to need to set up and work with sessions.
+
+=head2 Sessions
+
+Sessions allow us to introduce persistence in our web applications. This
+manifests itself in many different ways, be it remembering the currently
+logged in user, or remembering form entries between pages on a multi-page
+form. Sessions give us a mechanism for "remembering" things.
+
+Sessions require a storage mechanism to power them. Some common storage
+engines for sessions include memory caches, files, and databases (SQL and
+NoSQL both).
+
+While sessions are generally managed server side, they can also be found
+client side in secure cookies and browser local storage.
+
+For purposes of this tutorial, we're going to use Dancer2's YAML session
+engine, L<Dancer2::Session::YAML>. By keeping our sessions in YAML, it's
+easy to look at the contents of a session while we are developing and
+debugging the blog.
+
+=head3 Setting Up a Session Engine
+
+Session engines work much like template engines; there require a little
+bit of setup in your application's config file, and then they are available
+for use throughout the application.
+
+To set up the YAML session engine, add the following to your F<config.yml>:
+
+    session: "YAML"
+
+    engines:
+      session:
+        YAML:
+          cookie_name: dlblog.session
+
+You can only have one C<engines> section, so this should be combined with
+your existing template configuration. The section should now look like:
+
+    template: "template_toolkit"
+    session: "YAML"
+    engines:
+      template:
+        template_toolkit:
+          # Note: start_tag and end_tag are regexes
+          start_tag: '<%'
+          end_tag:   '%>'
+      session:
+        YAML:
+          cookie_name: dlblog.session
+
+=head3 Storing and Retrieving Session Data
+
+We can use our session to store information across multiple requests.
+
+Store session data with the C<session> keyword:
+
+    session user => 'admin';
+
+Retrieving session data can also be done with the C<session> keyword:
+
+    my $user = session 'user';
+
+You can verify the username was written to the session by looking at the
+session file created on disk. If you look in your project directory, you'll
+notice a new F<sessions/> directory. There should now be exactly one file
+there: your current session. Run the following:
+
+    $ cat sessions/<some session id>.yml
+
+You'll have a file that looks like:
+
+    ---
+    user: admin
+
+The session filename matches the session ID, which is stored in a cookie
+that is delivered to the client browser when your application is accessed.
+If you have the browser developer tools open when you access your
+development site, you can inspect the cookie and see for yourself.
+
+YAML files are great for sessions while developing, but they are not a
+good choice for production. We'll examine some other options when we
+discuss deploying to production later in this tutorial.
+
+=head2 Storing application users
+
+Since we're already using a database to store our blog contents, it only
+makes sense to track our application users there, too. Let's create a
+simplistic table to store user data in F<db/users.sql>:
+
+    CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username VARCHAR NOT NULL UNIQUE,
+        password VARCHAR NOT NULL
+    );
+
+Then run this from our shell:
+
+    sqlite3 db/dlblog.db < db/users.sql
+
+By declaring password to be an unbounded varchar field, we allow for
+passwords or passphrases of any length. Notice we don't track admin
+status, rights, or anything of the like - if you can log in, you can
+administer the blog.
+
+We'll need to regenerate the L<DBIx::Class::Result> classes so we can
+create objects that represent users. Run the following in your shell from
+the project directory:
+
+    dbicdump -o dump_directory=./lib \
+        -o components='["InflateColumn::DateTime"]' \
+        DLBlog::Schema dbi:SQLite:db/dlblog.db '{ quote_char => "\"" }'
+
+You should have an additional source file in your project directory now,
+F<lib/DLBlog/Schema/Result/User.pm>.
+
+=head2 Password management with Dancer2::Plugin::CryptPassphrase
+
+It is best practice to store passwords encrypted, less someone with database
+access look at your C<users> table and steal account credentials. Rather than
+roll our own, we'll use one of the many great options on CPAN.
+
+L<Dancer2::Plugin::CryptPassphrase> provides convenient access to
+L<Crypt::Passphrase> in your Dancer2 applications. We'll use the latter
+to generate a password hash for any new users we create.
+
+Install the above modules:
+
+    cpanm Dancer2::Plugin::CryptPassphrase
+
+and add the module to your F<cpanfile>:
+
+    requires "Dancer2::Plugin::CryptPassphrase";
+
+This extension requires configuration as to which password encoder to
+use. Add this to the C<plugins> section of the F<environments/development.yml>
+file:
+
+  CryptPassphrase:
+    encoder:
+      module: Argon2
+      parallelism: 2
+
+From your shell, running the following will produce an encrypted password
+string:
+
+    perl -MCrypt::Passphrase -E \
+        'my $auth=Crypt::Passphrase->new(encoder=>"Argon2"); say $auth->hash_password("test")'
+
+(substitute any other password for C<test> you'd rather use)
+
+That can then be filled in as the password value in the below SQL. From your shell:
+
+    sqlite3 db/dlblog.db
+
+    sqlite> INSERT INTO users (username, password)
+    VALUES (
+        'admin',
+        '$argon2id$v=19$m=262144,t=3,p=1$07krd3DaNn3b9JplNPSjnA$CiFKqjqgecDiYoV0qq0QsZn2GXmORkia2YIhgn/dbBo'
+    ); -- admin/test
+
+    sqlite> .quit
+
+=head2 Dancer2::Plugin::Auth::Tiny
+
+We also need to install L<Dancer2::Plugin::Auth::Tiny> From your shell:
+
+    cpanm Dancer2::Plugin::Auth::Tiny
+
+Then add this to your F<cpanfile>:
+
+    requires "Dancer2::Plugin::Auth::Tiny";
+
+=head2 Implementing Login
+
+We need two routes to implement the login process: a GET route to display
+a login form, and a POST route to process the form data. Before that, we
+need to include the plugins we need for authentication. Below your other
+C<use> statements, add the following:
+
+    use Dancer2::Plugin::Auth::Tiny;
+    use Dancer2::Plugin::CryptPassphrase;
+
+We'll need some HTML to create a login form. Add the following to a new
+template file, F<views/login.tt>:
+
+    <div id="login">
+        <% IF login_error %>
+        <div>
+            Invalid username or password
+        </div>
+        <% END %>
+        <form method="post" action="<% request.uri_for('/login') %>">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <input type="hidden" name="return_url" id="return_url" value="<% return_url %>">
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+Next, we need a route to display the login template:
+
+    get '/login' => sub {
+        template 'login' => { return_url => params->{ return_url } };
+    };
+
+If the user tries to access a route that requires a login, and they aren't
+currently logged in, they are redirected to this C<get '/login'>
+route, and the URL they originally accessed is stored in a generic parameter
+named C<return_url>. Upon a successful login attempt, the user will be
+redirected to the page they were originally trying to gain access to.
+C<return_url> is stored in the form as a hidden field.
+
+Finally, when a login request is submitted, we attempt to validate the
+login request via a POST route:
+
+    post '/login' => sub {
+        my $username = body_parameters->get('username');
+        my $password = body_parameters->get('password');
+        my $return_url = body_parameters->get('return_url');
+
+        my $user = resultset( 'User' )->find({ username => $username });
+        if ( $user and verify_password( $password, $user->password) ) {
+            app->change_session_id;
+            session user => $username;
+            info "$username successfully logged in";
+            return redirect $return_url || '/';
+        }
+        else {
+            warning "Failed login attempt for $username";
+            template 'login' => { login_error => 1, return_url => $return_url };
+        }
+    };
+
+We read the form values passed as body parameters, and attempt to look up
+a user with the provided username using C<find()> with a special invokation;
+this time, we want to specifically attempt to find a single row based
+on the value provided to the C<username> column.
+
+If a user is found, we use the C<verify_password()> function from
+L<Crypt::Passphrase> (provided via L<Dancer2::Plugin::CryptPassphrase>)
+to try to compare password hashes; the passwords themselves are never
+directly checked against one another. Instead, the password entered by
+the user is hashed using the same algorithm as when the password was
+hashed and stored in the database. C<verify_password()> takes two arguments:
+the password the user entered, and the password hash we previously saved
+(stored in C<< $user->password >>). If the hashes match, we have validated
+our user, and we can proceed to log them in.
+
+This is where our session comes into play. We can store the name of the user
+that just authenticated in our session. Any time this user visits the site
+again, the session engine looks for a valid session with the ID provied in
+the cookie, and if a session is found, our application will look up the name
+of the user stored in that session; further activity will be tracked as
+that logged in user.
+
+To accomplish this, we first should generate a new session ID as a matter
+of good practice. Since the level of security granted is changing, using
+a new session ID guarantees another browser or user that may have the
+same session ID isn't accidentally granted admin permissions to our app
+(this practice stops a whole class of attacks against your webapp).
+
+Next, we stash the logged in username in our session via the C<session>
+keyword, log an audit message (at the C<info> level) that says a user
+logged in, and finally redirect them to their intended location (or, back
+to the post listing by default). On future requests, this browser will
+be treated as being logged in as the provided username.
+
+If the password check isn't successful, best practice is to log a message
+saying a login attempt failed, then redisplaying the login page with an
+error.
+
+=head2 Implementing Logout
+
+To logout a user, we need to remove the session for the logged in user,
+which creates a new session (containing no information about a logged in
+user) and issues a new cookie with the new session ID.
+
+All that is needed is a simple GET route:
+
+    get '/logout' => sub {
+        app->destroy_session;
+        redirect uri_for "/";
+    };
+
+In this route, we ask Dancer2 to destroy the user's session, then redirect
+them to the landing page. When the landing page request is served, a new
+session is created, and a new cookie delivered to the user's browser.
+
+=head2 Securing Routes
+
+We earlier established that blog maintenance capabilities should be
+restricted to logged in/authenticated admin users. For the Danceyland
+blog, this amounts to:
+
+=over
+
+=item * Create
+
+=item * Update
+
+=item * Delete
+
+=back
+
+L<Dancer2::Plugin::Auth::Tiny> provides us with a little syntactic sugar
+to make this happen: C<needs login>.
+
+You can decorate the appropriate routes as such:
+
+    get '/create' => needs login => sub {
+
+This tells Dancer2 that when this route is accessed, if we don't have a
+logged in user, redirect them to the C</login> route.
+
+=head2 Recap
+
+Your finished application code should look like this:
+
+    package DLBlog;
+    use Dancer2;
+    use Dancer2::Plugin::DBIx::Class;
+    use Dancer2::Plugin::Auth::Tiny;
+    use Dancer2::Plugin::CryptPassphrase;
+    use Feature::Compat::Try;
+
+    get '/' => sub {
+        # Give us the most recent first
+        my @entries = resultset('Entry')->search(
+            {},
+            { order_by => { -desc => 'created_at' } },
+        )->all;
+        template 'index', { entries => \@entries };
+    };
+
+    get '/entry/:id[Int]' => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        template 'entry', { entry => $entry };
+    };
+
+    get '/create' => needs login => sub {
+        # Vars are passed to templates automatically
+        template 'create_update', { post_to => uri_for '/create' };
+    };
+
+    post '/create' => needs login => sub {
+        my $params = body_parameters();
+        var $_ => $params->{ $_ } foreach qw< title summary content >;
+
+        my @missing = grep { $params->{$_} eq '' } qw< title summary content >;
+        if( @missing ) {
+            var missing => join ",", @missing;
+            warning "Missing parameters: " . var 'missing';
+            forward '/create', {}, { method => 'GET' };
+        }
+
+        my $entry = do {
+            try {
+                resultset('Entry')->create( $params->as_hashref );
+            }
+            catch( $e ) {
+                error "Database error: $e";
+                var error_message => 'A database error occurred; your entry could not be created',
+                forward '/create', {}, { method => 'GET' };
+            }
+        };
+
+        debug 'Created entry ' . $entry->id . ' for "' . $entry->title . '"';
+        redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+    };
+
+    get '/update/:id[Int]' => needs login => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        var $_ => $entry->$_ foreach qw< title summary content >;
+        template 'create_update', { post_to => uri_for "/update/$id" };
+    };
+
+    post '/update/:id[Int]' => needs login => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        if( !$entry ) {
+            status 'not_found';
+            return "Attempt to update non-existent entry $id";
+        }
+
+        my $params = body_parameters();
+        var $_ => $params->{ $_ } foreach qw< title summary content >;
+        my @missing = grep { $params->{$_} eq '' } qw< title summary content >;
+        if( @missing ) {
+            var missing => join ",", @missing;
+            warning "Missing parameters: " . var 'missing';
+            forward "/update/$id", {}, { method => 'GET' };
+        }
+
+        try {
+            $entry->update( $params->as_hashref );
+        }
+        catch( $e ) {
+            error "Database error: $e";
+            var error_message => 'A database error occurred; your entry could not be updated',
+            forward "/update/$id", {}, { method => 'GET' };
+        }
+
+        debug 'Updated entry ' . $entry->id . ' for "' . $entry->title . '"';
+        redirect uri_for "/entry/" . $entry->id; # redirect does not need a return
+    };
+
+    get '/delete/:id[Int]' => needs login => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        template 'delete', { entry => $entry };
+    };
+
+    post '/delete/:id[Int]' => needs login => sub {
+        my $id = route_parameters->get('id');
+        my $entry = resultset( 'Entry' )->find( $id );
+        if( !$entry ) {
+            status 'not_found';
+            return "Attempt to delete non-existent entry $id";
+        }
+
+        # Always default to not destroying data
+        my $delete_it = body_parameters->get('delete_it') // 0;
+
+        if( $delete_it ) {
+            $entry->delete;
+            redirect uri_for "/";
+        } else {
+            # Display our entry again
+            redirect uri_for "/entry/$id";
+        }
+    };
+
+    get '/login' => sub {
+        template 'login' => { return_url => params->{ return_url } };
+    };
+
+    post '/login' => sub {
+        my $username = body_parameters->get('username');
+        my $password = body_parameters->get('password');
+        my $return_url = body_parameters->get('return_url');
+
+        my $user = resultset( 'User' )->find({ username => $username });
+        if ( $user and verify_password( $password, $user->password) ) {
+            app->change_session_id;
+            session user => $username;
+            info "$username successfully logged in";
+            return redirect $return_url || '/';
+        }
+        else {
+            warning "Failed login attempt for $username";
+            template 'login' => { login_error => 1, return_url => $return_url };
+        }
+    };
+
+    get '/logout' => sub {
+        app->destroy_session;
+        redirect uri_for "/";
+    };
+
+    true;
+
+=head1 Finishing Touches
+
+At this point, Danceyland has a fully functional blog engine, and your
+users are chomping at the bit to start using it. Before we let them loose
+on your new creation, let's pretty it up, write some tests, and get it
+deployed to a production environment.
+
+=head2 Adding some style
+
+We've written all of our views up to this point with basic HTML; no effort
+has been made to style our blog or make it attractive. That is beyond the
+scope of this tutorial.
+
+If you clone the tutorial repository, you'll notice that all views have
+styling markup that isn't provided in the tutorial. This was done to
+show you one way styling could be done, and to give you an attractive
+example application to learn from.
+
+L<Bootstrap|https://getbootstrap.com> was used to provide styling for the
+tutorial; it's well known, easy to understand, and easy to find help for.
+If you want to learn more about how Bootstrap works, check out their
+website for more details.
+
+=head1 Testing Your Application
+
+When developing your application, writing and running tests helps you
+work through difficult parts of your application, and allows you to
+verify that your Dancer2 application is behaving as you designed it
+to. In a production environment, running tests before installation or
+upgrade help ensure there are no surprises when you start/restart the
+application server. Let's see how we can write some basic functionality
+tests.
+
+=head2 Using Test::WWW::Mechanize::PSGI
+
+L<Test::WWW::Mechanize::PSGI> lets us test our Dancer2 applications without
+having to spin up a test web server. It is loaded with convenience methods
+to make it easy to navigate and test our Plack/PSGI applications. Run the
+following to install this from your shell:
+
+    cpanm Test::WWW::Mechanize::PSGI
+
+It must also be added to the C<on "test"> section of your F<cpanfile>:
+
+    requires "Test::WWW::Mechanize::PSGI" => "0";
+
+Before we do any testing for our blog, we'll need to create some testing
+infrastructure so we don't step on any of our production or test data.
+We need a testing database to run tests against so we don't corrupt
+other development or production data. In your shell, run the following:
+
+    mkdir t/db
+    cp db/dlblog.db t/db/test.db
+
+(or, you can use the test database that ships with the DLBlog GitHub
+repository)
+
+You'll also need a config file that is representative of your testing
+environment. Create F<environments/test.yml> and add the following:
+
+    logger: "console"
+    log: "warning"
+    show_stacktrace: 0
+    no_server_tokens: 1
+
+    plugins:
+      DBIx::Class:
+        default:
+          dsn: "dbi:SQLite:dbname=t/db/test.db"
+          schema_class: "DLBlog::Schema"
+          dbi_params:
+            RaiseError: 1
+            AutoCommit: 1
+      CryptPassphrase:
+        encoder:
+          module: Argon2
+          parallelism: 2
+
+This is a hybrid of your production and development configs:
+
+=over
+
+=item * It still logs to the console, but at a higher level so only errors are seen
+
+=item * We hide any stacktraces and disable server tokens/headers
+
+=item * We tell DBIx::Class to look at our test database
+
+=back
+
+To run the default tests from your shell:
+
+    DANCER_ENVIRONMENT=test prove -lv
+
+This runs all tests in the F<t/> subdirectory with maximum verbosity, and
+runs with our test environment configuration.
+
+Dancer2 creates applications with two default tests. The first,
+F<t/001_base.t>, ensures that your Dancer2 application compiles successfully
+without errors. The other test, F<t/002_index_route.t>, ensures that the
+default route of your application is accessible. These are the two most
+basic tests an application can have, and validate very little about the
+functionality of your app. We're going to make two new tests: one just to
+test the nuances of the login process (as security is critical), and another
+to test basic blog functionality.
+
+=head2 Login Tests
+
+Let's verify the login process behaves as intended. Edit F<t/003_login.t>
+and add the following:
+
+    use strict;
+    use warnings;
+    use Test::More;
+    use Test::WWW::Mechanize::PSGI;
+
+    use DLBlog;
+    my $mech = Test::WWW::Mechanize::PSGI->new(
+        app => DLBlog->to_app,
+    );
+
+    $mech->get_ok('/create', 'Got /create while not logged in');
+    $mech->content_contains('Password', '...and was presented with a login page');
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'foobar',
+        }}, '...which we gave invalid credentials');
+    $mech->content_contains('Invalid username or password', '...and gave us an appropriate error');
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'test',
+        }}, '...so we give it real credentials');
+    $mech->content_contains('form', '...and get something that looks like the create form' );
+    $mech->content_contains('Content', 'Confirmed this is the create form');
+
+    done_testing;
+
+We load two test modules: L<Test::More>, which provides a basic set of test
+functionality, and L<Test::WWW::Mechanize::PSGI>, which will do all our heavy
+lifting.
+
+To start, we need to create an instance of a Mechanize object:
+
+    my $mech = Test::WWW::Mechanize::PSGI->new(
+        app => DLBlog->to_app,
+    );
+
+This creates an instance of the Mechanize user agent, and points it at an
+instance of the Danceyland blog app (C<DLBlog>).
+
+We've specified that some routes can't be accessed by unauthorized/non-logged
+in users. Let's test this:
+
+    $mech->get_ok('/create', 'Got /create while not logged in');
+    $mech->content_contains('Password', '...and was presented with a login page');
+
+This tests the C<needs login> condition on the C</create> route. We should
+be taken to a login page if we haven't logged in. C<get_ok> ensures the
+route is accessible, and C<content_contains> looks for a password field.
+
+We should get an error message for a failed login attempt. Let's stuff
+the form with invalid credentials and verify that:
+
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'foobar',
+        }}, '...which we gave invalid credentials');
+    $mech->content_contains('Invalid username or password', '...and gave us an appropriate error');
+
+C<submit_form_ok> takes a hashref of fields and puts the specified values
+into them, then clicks the appropriate submit button. We then check the
+resulting page content to confirm that we do, in fact, see the invalid
+username/password error message.
+
+We know that login handles failed attempts ok now. How about a login with
+valid credentials>
+
+    $mech->submit_form_ok({
+        fields => {
+            username => 'admin',
+            password => 'test',
+        }}, '...so we give it real credentials');
+    $mech->content_contains('form', '...and get something that looks like the create form' );
+    $mech->content_contains('Content', 'Confirmed this is the create form');
+
+We pass the default admin/test credentials, then look at the page we're
+taken to. The create page should have a form, and one of the fields should
+be named Content. C<content_contains> looks for both of these on the
+resulting page, and passes if they are present.
+
+Finally, we need to say we're done running tests:
+
+    done_testing;
+
+Now that it's done, let's run just this one test. From your shell:
+
+    DANCER_ENVIRONMENT=test prove -lv t/003_login.t
+
+And you should see the following output:
+
+    t/003_login.t ..
+    ok 1 - Got /create while not logged in
+    ok 2 - ...and was presented with a login page
+    [DLBlog:2287783] warning @2025-02-06 22:34:25> Failed login attempt for admin in /path/to/DLBlog/lib/DLBlog.pm l. 134
+    ok 3 - ...which we gave invalid credentials
+    ok 4 - ...and gave us an appropriate error
+    ok 5 - ...so we give it real credentials
+    ok 6 - ...and get something that looks like the create form
+    ok 7 - Confirmed this is the create form
+    1..7
+    ok
+    All tests successful.
+    Files=1, Tests=7,  1 wallclock secs ( 0.02 usr  0.00 sys +  0.92 cusr  0.10 csys =  1.04 CPU)
+    Result: PASS
+
+The labels help us see which tests are running, making it easier to examine
+failures when they happen. You'll see a log message produced when our login
+attempt failed, and a C<PASS> at the end showing all tests were successfully
+run.
+
+=head2 Blog Tests
+
+Using the same techniques we learned writing the login test, we'll make
+a test for basic blog functionality. The complete test will run through
+a basic workflow of the Danceyland blog:
+
+=over
+
+=item * Login
+
+=item * Create an entry
+
+=item * Edit an entry
+
+=item * Delete an entry
+
+=back
+
+Add the following to F<t/004_blog.t> in your project directory:
+
+    use strict;
+    use warnings;
+    use Test::More;
+    use Test::WWW::Mechanize::PSGI;
+
+    use DLBlog;
+    my $mech = Test::WWW::Mechanize::PSGI->new(
+        app => DLBlog->to_app,
+    );
+
+    subtest 'Landing page' => sub {
+        $mech->get_ok('/', 'Got landing page');
+        $mech->title_is('Danceyland Blog', '...for our blog');
+        $mech->content_contains('Test Blog Post','...and it has a test post');
+    };
+
+    subtest 'Login' => sub {
+        $mech->get_ok('/login', 'Visit login page to make some changes');
+        $mech->submit_form_ok({
+            fields => {
+                username => 'admin',
+                password => 'test',
+            }}, '...so we give it a user');
+    };
+
+    subtest 'Create' => sub {
+        $mech->get_ok('/create', 'Write a new blog post');
+        $mech->submit_form_ok({
+            fields => {
+                title => 'Another Test Post',
+                summary => 'Writing a blog post can be done by tests too',
+                content => 'You can create blog entries programmatically with Perl!',
+            }}, '...then write another post');
+        $mech->base_like( qr</entry/\d+$>, '...and get redirected to the new entry' );
+    };
+
+    my $entry_id;
+    subtest 'Update' => sub {
+        ($entry_id) = $mech->uri =~ m</(\d+)$>;
+        $mech->get_ok("/update/$entry_id", 'Navigating to the update page for this post');
+        $mech->submit_form_ok({
+            fields => {
+                title => 'Yet ANOTHER Test Post',
+            }}, '...then update yet another post');
+        $mech->base_like( qr</entry/${entry_id}$>, '...and get redirected to the entry page' );
+        $mech->has_tag('h1','Yet ANOTHER Test Post', '...and it has the updated title');
+    };
+
+    subtest 'Delete' => sub {
+        $mech->get_ok("/delete/$entry_id", "Go delete page for new entry");
+        $mech->submit_form_ok({
+            fields => {
+                delete_it => 'yes',
+            }}, '...then delete it!');
+        $mech->get_ok("/entry/$entry_id", '...then try to navigate to the entry');
+        $mech->content_contains('Invalid entry','...and see the post is no longer there');
+    };
+
+    done_testing;
+
+You'll notice that this time we have organized tests into multiple subtests
+that keep related tests together. While this isn't necessary, it can be
+helpful when working on large test files.
+
+This test introduces us to some additional types of tests:
+
+=over
+
+=item * C<base_like>
+
+This test method examines the resulting URL from the previous Mechanize
+operation. In the C<Create> subtest, we submit a blog entry, and we should
+be taken to the view page for the new entry. By checking the resulting URL,
+we can verify that we were taken to the view page after the post was created.
+
+=item * C<uri>
+
+This returns the full URI of the previous Mechanize operation. From this URI,
+we can extract the ID of the last blog entry we created. We'll need this
+to test the update and delete operations.
+
+=item * C<has_tag>
+
+This method looks for a tag matching the type specified, and checks to see
+if the text in that tag matches what is specified in the test. Our C<h1> on
+the entry page should have the blog post title, and in the update test,
+we check to see that the updated title is present.
+
+=back
+
+Run the test from your shell:
+
+    DANCER_ENVIRONMENT=test prove -lv t/004_blog.t
+
+And you should see the following output:
+
+    t/004_blog.t ..
+    # Subtest: Landing page
+        ok 1 - Got landing page
+        ok 2 - ...for our blog
+        ok 3 - ...and it has a test post
+        1..3
+    ok 1 - Landing page
+    # Subtest: Login
+        ok 1 - Visit login page to make some changes
+        ok 2 - ...so we give it a user
+        1..2
+    ok 2 - Login
+    # Subtest: Create
+        ok 1 - Write a new blog post
+        ok 2 - ...then write another post
+        ok 3 - ...and get redirected to the new entry
+        1..3
+    ok 3 - Create
+    # Subtest: Update
+        ok 1 - Navigating to the update page for this post
+        ok 2 - ...then update yet another post
+        ok 3 - ...and get redirected to the entry page
+        ok 4 - ...and it has the updated title
+        1..4
+    ok 4 - Update
+    # Subtest: Delete
+        ok 1 - Go delete page for new entry
+        ok 2 - ...then delete it!
+        ok 3 - ...then try to navigate to the entry
+        ok 4 - ...and see the post is no longer there
+        1..4
+    ok 5 - Delete
+    1..5
+    ok
+    All tests successful.
+    Files=1, Tests=5,  1 wallclock secs ( 0.01 usr  0.01 sys +  0.77 cusr  0.10 csys =  0.89 CPU)
+    Result: PASS
+
+You'll notice that not only is the code conveniently grouped by subtest,
+but so is the output.
+
+There's a lot more you can test still. Look for some additional ideas at
+the end of this tutorial.
+
+=head1 Deployment
+
+We've built the application, and written some basic tests to ensure the
+application can function properly. Now, let's put it on a server and
+make it available to the public!
+
+=head2 Creating Production Configuration
+
+The default Dancer2 configuration provides a lot of information to the
+developer to assist in debugging while creating an application. In a
+production environment, there's too much information being given that can
+be used by someone trying to compromise your application. Let's create
+an environment specifically for production to turn the level of detail down.
+
+If you were using a database server instead of SQLite, you'd want to update
+database credentials in your production configuration to point to your
+production database server.
+
+Replace your F<environments/production.yml> file with the following:
+
+    # configuration file for production environment
+    behind_proxy: 1
+
+    # only log info, warning and error messsages
+    log: "info"
+
+    # log message to a file in logs/
+    logger: "file"
+
+    # hide errors
+    show_stacktrace: 0
+
+    # disable server tokens in production environments
+    no_server_tokens: 1
+
+    # Plugin configuration
+    plugins:
+      DBIx::Class:
+        default:
+          dsn: "dbi:SQLite:dbname=db/dlblog.db"
+          schema_class: "DLBlog::Schema"
+          dbi_params:
+            RaiseError: 1
+            AutoCommit: 1
+      CryptPassphrase:
+        encoder:
+          module: Argon2
+          parallelism: 2
+
+Changes include:
+
+=over
+
+=item * Running behind a reverse proxy
+
+We're going to deploy our application in conjunction with NGINX; running
+in this manner requires Dancer2 to interact and set HTTP headers
+differently than it would running standalone. This setting tells
+Dancer2 to behave as it should behind an NGINX (or other) reverse proxy.
+
+=item * Logging only informational or more severe messages
+
+In a production environment, logging debugging and core Dancer2 messages
+is rarely needed.
+
+=item * Logging to a file
+
+Servers will be running in the background, not in a console window. As
+such, a place to catch log messages will be needed. File logs can also be
+shipped to another service (such as Kibana) for analysis.
+
+=item * No stacktraces
+
+If a fatal error occurs, the stacktraces produced by Dancer2 provide a
+potential attacker with information about the insides of your application.
+By setting C<show_stacktrace> to C<0>, all errors show only the
+F<public/500.html> page.
+
+=item * Disabling server tokens
+
+Setting C<no_server_tokens> prevents Dancer2 from adding the C<X-Powered-By>
+header with Dancer2 and the version you're running.
+
+=back
+
+Our plugin configuration remains the same from the development environment.
+
+=head2 Installing the Danceyland Blog
+
+On your production server, make sure you have a version of Perl installed,
+and copy your project files to the server by whichever means makes sense
+for your situation.
+
+Run the following from within the project directory to install the
+application's dependencies:
+
+    cpanm --installdeps . --with-test --with-all-features
+
+Get a cup of coffee while this runs; when you come back, resolve any
+dependency issues, then run your tests to make sure the Danceyland blog
+is functional:
+
+    DANCER_ENVIRONMENT=test prove -l
+
+Your output should resemble:
+
+    ./t/001_base.t ......... ok
+    ./t/002_index_route.t .. ok
+    ./t/003_login.t ........ 1/? [DLBlog:2291513] warning @2025-02-06 22:59:09> Failed login attempt for admin in /path/to/DLBlog/lib/DLBlog.pm l. 134
+    ./t/003_login.t ........ ok
+    ./t/004_blog.t .........
+    # Subtest: Landing page
+    ./t/004_blog.t ......... 1/? # Subtest: Login
+    ./t/004_blog.t ......... 2/? # Subtest: Create
+    # Subtest: Update
+    # Subtest: Delete
+    ./t/004_blog.t ......... ok
+    All tests successful.
+    Files=4, Tests=15,  3 wallclock secs ( 0.02 usr  0.00 sys +  2.30 cusr  0.32 csys =  2.64 CPU)
+    Result: PASS
+
+=head2 Deploying with a PSGI Server
+
+C<plackup>, by defaults, runs a development server for developing your
+application. It is not suitable for any public-facing deployment.
+
+There are a number of great options available on the L<Plack|https://plackperl.org/>
+website. For our example, we'll use L<Starman>, as it offers reasonable
+performance and functions on nearly any server OS.
+
+We'll pair Starman with L<Server::Starter>, which will give you a robust
+way to manage server processes.
+
+Install both of these modules:
+
+    cpanm Starman Server::Starter
+
+And add them to the blog's F<cpanfile>:
+
+    requires "Starman";
+    requires "Server::Starter";
+
+Assuming we're deploying to a Debian server, the following can be used to
+start the Danceyland blog in the background:
+
+    sudo start_server \
+        --daemonize \
+        --dir=/path/to/DLBlog \
+        --port=5000 \
+        --log-file=/var/log/dlblog.log \
+        --pid-file=/var/run/dlblog.pid \
+        --status-file=/var/run/dlblog.status \
+        -- plackup -s Starman--user www-data --group www-data -E production \
+        bin/app.psgi
+
+Once operational, the server can be restarted with:
+
+    start_server --restart --pid-file=/var/run/dlblog.pid --status-file=/var/run/dlblog.status
+
+Or stopped with:
+
+    start_server --stop --pid-file=/var/run/dlblog.pid
+
+=head2 Configuring Reverse Proxy with NGINX
+
+Finally, let's put NGINX in front of our Dancer2 application. This will
+improve the security and performance of our application:
+
+    server {
+        listen 80;
+        server_name example.com;
+
+        location / {
+            proxy_pass http://127.0.0.1:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+If this server is public facing, you should also configure it with HTTPS;
+L<Let's Encrypt/https://letsencrypt.org> makes this free and easy.
+
+More advanced setups are possible (like serving static content from NGINX
+instead of Dancer2), but that is beyond the scope of this tutorial.
+
+=head1 What You've Built
+
+Congratulations! You have built a primitive but very functional blog
+engine that protects maintenance functions behind a user login, using
+L<Dancer2> and other plugins and modules in its ecosystem. You've learned
+a number of important building blocks that will be crucial for building
+other applications.
+
+=head1 Where to Go Next
+
+This application can be used as a springboard and reference for future
+L<Dancer2> projects. There are still a number of improvements and additional
+features that can be added to this blog. A few ideas include:
+
+=over
+
+=item Paginate the list of blog entries
+
+After a while, the list of blog entries can get long. Using L<Data::Page>
+or other Perl modules, break the list of entries into reasonable page
+sizes to more easily and quickly navigate.
+
+=item Add a search function to the blog
+
+Add a search bar to the UI, then use the C<search()> method in
+L<DBIx::Class> to find blog entries based on what the used input.
+
+=item Improve application security by sanitizing input parameters
+
+Using a regex or a validation framework (such as
+L<Dancer2::Plugin::DataTransposeValidator>), scrub all input before using
+it in a database operation.
+
+=item Use database slugs in URLs instead of IDs
+
+A database slug is a human-readable identifier (such as a URL encoding of
+the entry title) that can be used to identify an entry rather than the
+numerical ID. They are easier to remember than IDs, are better for SEO of
+your content, and makes your application more secure by hiding some database
+implementation details from an attacker (such as a row ID).
+
+=item Move business logic to business layer; call business object from Dancer2
+
+In larger applications, business logic (like creating a blog post) may
+be put in an object (such as L<DBIx::Class::Result> or L<DBIx::Class::ResultSet>
+objects, or other L<Moo> or L<Moose> objects), and that object gets
+instantiated and called from Dancer2. This helps to decouple tasks in an
+application, and allows for better testing of business logic.
+
+=item Write more tests to catch error conditions for our blog
+
+What happens when you pass a string to a route expecting an ID? What happens
+when you don't fill out all the fields on the create or update pages?
+Write tests to check these conditions using what you've learned from
+writing the existing tests, and make sure the error handling behaves as
+expected.
+
+=back
+
+For another example of a blog engine in Dancer2, check out
+L<Dancer2::Plugin::LiteBlog|LiteBlog> from our project founder, Sukria.
+
+Happy Dancing!
+
+=cut
