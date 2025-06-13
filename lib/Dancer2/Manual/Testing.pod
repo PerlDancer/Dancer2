@@ -229,7 +229,7 @@ to L<HTTP::Cookies/add_cookie_header> to work.
 
 =head3 Accessing the configuration file
 
-By importing Dancer2 in the command line scripts, there is full
+By importing Dancer2 in the test files, there is full
 access to the configuration using the imported keywords:
 
      use strict;
