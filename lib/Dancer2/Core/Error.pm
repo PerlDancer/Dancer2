@@ -8,7 +8,7 @@ use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Sub::Quote;
-use Module::Runtime 'require_module';
+use Module::Runtime qw/ require_module use_module /;
 use Ref::Util qw< is_hashref >;
 use Clone qw(clone);
 
@@ -55,17 +55,44 @@ has censor => (
     default => sub {
         my $self = shift;
 
-        my $custom = $self->has_app && $self->app->setting('error_censor') 
-            or return \&_censor;
+        if( my $custom = $self->has_app && $self->app->setting('error_censor') ) {
 
-        my $module = $custom =~ s/::[^:]*?$//r;
-        my $function = $custom =~ s/^.*:://r;
+            if( is_hashref $custom ) {
+                die "only one key can be set for the 'error_censor' setting\n" 
+                    if 1 != keys %$custom;
 
-        require_module($module) unless eval { 
-            $module->can($function)
-        };
+                my( $class, $args ) = %$custom;
 
-        return $module->can($function);
+                my $censor = use_module($class)->new(%$args);
+
+                return sub {
+                    $censor->censor(@_);
+                }
+            }
+
+            my $coderef = eval '\&'.$custom;
+
+            # it's already defined? Nice! We're done
+            return $coderef if $coderef;
+
+            my $module = $custom =~ s/::[^:]*?$//r;
+
+            require_module($module);
+
+            return eval '\&'.$custom;
+        }
+
+        # once Data::Censor has been updated with https://github.com/bigpresh/Data-Censor/pull/2
+        # my $data_censor = use_module('Data::Censor')->new(
+        #     sensitive_fields => qr/pass|card?num|pan|secret/i,
+        #     replacement => "Hidden (looks potentially sensitive)",
+        # );
+
+        # return sub {
+        #     $data_censor->censor(@_);
+        # };
+
+        return \&_censor;
     }
 );
 
@@ -572,6 +599,19 @@ For example, using L<Data::Censor>.
 
     1;
 
+
+As a shortcut, C<error_censor> can also be the key/value combo of 
+a class and the arguments for its constructor. The created object 
+is expected to have a method C<censor>. For example, the use of 
+L<Data::Censor> above could also have been done via the config 
+
+    error_censor:
+        Data::Censor: 
+            sensitive_fields:
+                - card_number 
+                - password 
+                - hush 
+            replacement: '(Sensitive data hidden)'
 
 =method throw($response)
 
