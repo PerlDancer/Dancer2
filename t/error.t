@@ -1,5 +1,8 @@
 use strict;
 use warnings;
+
+use lib 't/lib';
+
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
@@ -36,6 +39,7 @@ my $app     = Dancer2::Core::App->new( name => 'main' );
 my $request = $app->build_request($env);
 
 $app->set_request($request);
+
 
 subtest 'basic defaults of Error object' => sub {
     my $err = Dancer2::Core::Error->new( app => $app );
@@ -240,8 +244,47 @@ subtest 'Errors with show_stacktrace and circular references' => sub {
         'Values for other keys (non-sensitive) appear in the stacktrace');
 };
 
-done_testing;
+subtest censor => sub {
+    sub MyApp::Censor::censor { $_[0]->{hush} = 'NOT TELLING'; return 1; }
 
+    my $app = Dancer2::Core::App->new( name => 'main' );
+
+    $app->setting( password => 'potato' ); # oh my, we're leaking a password
+
+    subtest 'core censor()' => sub {
+        my $error = Dancer2::Core::Error->new( app => $app );
+
+        unlike $error->environment => qr/potato/, 'the password is censored';
+        like $error->environment => qr/^.*password.*Hidden.*$/m, 'we say it is hidden';
+    };
+
+    subtest 'custom censor()' => sub {
+        my $app = Dancer2::Core::App->new( name => 'main' );
+        my $error = Dancer2::Core::Error->new( app => $app );
+
+        $app->setting( hush => 'potato' ); 
+
+        $app->setting( error_censor => 'MyApp::Censor::censor' );
+
+        unlike $error->environment => qr/potato/, 'the password is censored';
+        like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
+    };
+
+    subtest 'custom imported censor()' => sub {
+        my $app = Dancer2::Core::App->new( name => 'main' );
+        my $error = Dancer2::Core::Error->new( app => $app );
+
+        $app->setting( personal => 'potato' ); 
+
+        $app->setting( error_censor => 'CustomCensor::censor' );
+
+        unlike $error->environment => qr/potato/, 'the password is censored';
+        like $error->environment => qr/^ .* personal .* for \s my \s eyes \s only .* $/xm, 'we say it is hidden';
+    };
+
+};
+
+done_testing;
 
 {   # Simple test exception class
     package MyTestException;
