@@ -9,7 +9,7 @@ BEGIN {
     local $ENV{DANCER_ENVIRONMENT};
     local $ENV{PLACK_ENV};
     $ENV{DANCER_CONFIG_READERS}
-        = 'Dancer2::ConfigReader::File::Simple Dancer2::ConfigReader::TestDummy';
+        = 'Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::TestDummy';
 }
 use lib '.';
 use lib './t/lib';
