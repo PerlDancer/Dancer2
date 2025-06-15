@@ -98,7 +98,7 @@ sub _build_config_readers {
     my ($self) = @_;
 
     my @config_reader_names = $ENV{'DANCER_CONFIG_READERS'}
-                            ? (split qr{ \s+ }msx, $ENV{'DANCER_CONFIG_READERS'})
+                            ? (split qr{,}msx, $ENV{'DANCER_CONFIG_READERS'})
                             : ( q{Dancer2::ConfigReader::File::Simple} );
 
     warn "ConfigReaders to use: @config_reader_names\n" if $ENV{DANCER_CONFIG_VERBOSE};
@@ -129,9 +129,9 @@ class or classes to use to create the config.
 Use C<DANCER_CONFIG_READERS> environment variable to define
 which class or classes you want.
 
-    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple Dancer2::ConfigReader::CustomConfig'
+    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::CustomConfig'
 
-If you want several, separate them with whitespace.
+If you want several, separate them with a comma (",").
 Configs are added in left-to-write order where the previous
 config items get overwritten by subsequent ones.
 
