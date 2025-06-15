@@ -11,6 +11,7 @@ use Sub::Quote;
 use File::Spec;
 use Module::Runtime    qw< require_module use_module >;
 use Ref::Util          qw< is_ref is_arrayref is_globref is_scalarref is_regexpref >;
+use Sub::Util          qw/ set_subname subname /;
 
 use Plack::App::File;
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -1228,7 +1229,7 @@ sub compile_hooks {
         my $compiled_hooks = [];
         for my $hook ( @{ $self->hooks->{$position} } ) {
             Scalar::Util::weaken( my $app = $self );
-            my $compiled = sub {
+            my $compiled = set_subname subname($hook) => sub {
                 # don't run the filter if halt has been used
                 $Dancer2::Core::Route::RESPONSE &&
                 $Dancer2::Core::Route::RESPONSE->is_halted

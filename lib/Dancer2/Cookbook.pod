@@ -1020,3 +1020,35 @@ The C<warnings> pragma is already used when one loads Dancer2. However, if
 you I<really> do not want the C<warnings> pragma (for example, due to an
 undesired warning about use of undef values), add a C<no warnings> pragma to
 the appropriate block in your module or psgi file.
+
+=head2 Troubleshooting hooks
+
+You can make troubleshooting hook entries easier by ensuring their coderefs
+are named, either by using L<Sub::Util> or using the refs of regular
+functions.
+
+        package MyApp;
+
+        use Dancer2;
+
+        use Sub::Util qw/ set_subname /;
+
+        hook 'before_request' => 
+            set_subname my_before => sub { ... };
+
+        sub my_after { $::hook_counter++ } 
+
+        hook 'after_request' => \&my_after;
+
+        ...
+
+If you do so, they will appear as part of the core logs:
+
+
+    [MyApp] core @2025-06-15 15:02:36> Entering hook core.app.before_request in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> running hook entry App::HookEntries::my_before in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> Entering hook core.app.after_request in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> running hook entry Dancer2::Core::App::__ANON__ in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> running hook entry App::HookEntries::my_after in (eval 274) l. 1
+
+

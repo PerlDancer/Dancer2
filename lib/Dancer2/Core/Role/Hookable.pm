@@ -6,6 +6,7 @@ use Dancer2::Core;
 use Dancer2::Core::Types;
 use Carp 'croak';
 use Safe::Isa;
+use Sub::Util qw/ subname /;
 
 requires 'supported_hooks', 'hook_aliases';
 
@@ -112,6 +113,10 @@ sub execute_hook {
       $self->log( core => "Entering hook $name" );
 
     for my $hook ( @{ $self->hooks->{$name} } ) {
+
+        $self->log( core => "running hook entry " . subname $hook)
+            if $self->$_isa('Dancer2::Core::App');
+
         $hook->(@_);
     }
 }
