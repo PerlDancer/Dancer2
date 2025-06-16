@@ -235,8 +235,6 @@ subtest 'route_exception' => sub {
 };
 
 subtest 'hook entries logging' => sub {
-    $::hook_counter = 0;
-    $::trap;
 
     package App::HookEntries {
         use Sub::Util qw/ set_subname /;
@@ -245,15 +243,17 @@ subtest 'hook entries logging' => sub {
         set log => 'core';
         set logger => 'capture';
 
-        $::trap = engine('logger')->trapper;
+        our $hook_counter = 0;
+
+        our $trap = engine('logger')->trapper;
 
         get '/' => sub { 'hello there' };
 
         hook 'before_request' => set_subname my_before => sub {
-            $::hook_counter++;
+            $hook_counter++;
         };
 
-        sub my_after { $::hook_counter++ } 
+        sub my_after { $hook_counter++ } 
 
         hook 'after_request' => \&my_after;
     }
@@ -262,9 +262,9 @@ subtest 'hook entries logging' => sub {
     my $test = Plack::Test->create( $app );
     $test->request( GET '/' );
 
-    is $::hook_counter => 2, "we hit both hooks";
+    is $App::HookEntries::hook_counter => 2, "we hit both hooks";
 
-    my @logs = map {$_->{message}} @{$::trap->read};
+    my @logs = map {$_->{message}} @{$App::HookEntries::trap->read};
 
     for my $hook ( qw/ my_before my_after / ) {
         ok scalar( grep { /$hook/ } @logs ), "App::HookEntries::$hook" 
