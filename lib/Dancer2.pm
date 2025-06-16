@@ -134,7 +134,7 @@ Dancer2 is easy and fun:
 
     use Dancer2;
     get '/' => sub { "Hello World" };
-    dance; 
+    dance;
 
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
@@ -367,6 +367,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Michael Kröll
     Michał Wojciechowski
     Mike Katasonov
+    Mikko Koivunalho
     Mohammad S Anwar
     mokko
     Nick Patch
