@@ -4,6 +4,7 @@ package Dancer2::Core::Hook;
 use Moo;
 use Dancer2::Core::Types;
 use Carp;
+use Sub::Util qw/ set_subname subname /;
 
 has name => (
     is       => 'rw',
@@ -28,9 +29,8 @@ has code => (
     required => 1,
     coerce   => sub {
         my ($hook) = @_;
-        sub {
-            my $res;
-            eval { $res = $hook->(@_) };
+        set_subname subname($hook) => sub {
+            my $res = eval { $hook->(@_) };
             croak "Hook error: $@" if $@;
             return $res;
         };
