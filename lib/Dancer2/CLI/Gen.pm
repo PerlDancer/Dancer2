@@ -6,7 +6,7 @@ use URI;
 use HTTP::Tiny;
 use Path::Tiny;
 use JSON::MaybeXS;
-use Dancer2::Template::Simple;
+use Dancer2::Template::Tiny;
 use Module::Runtime qw( use_module is_module_name );
 use CLI::Osprey
     desc => 'Helper script to create new Dancer2 applications';
@@ -109,6 +109,13 @@ option no_package_files => (
     doc      => "don't create files needed for CPAN packaging",
     required => 0,
     default  => 0,
+);
+
+has _engine => (
+    is => 'ro',
+    default => sub {
+        return Dancer2::Template::Tiny->new( config => { start_tag => '[d2%', end_tag => '%2d]' } );
+    },
 );
 
 # Last chance to validate args before we attempt to do something with them
@@ -384,10 +391,7 @@ sub _add_to_manifest_skip {
 sub _process_template {
     my ( $self, $template, $tokens ) = @_;
 
-    my $engine = Dancer2::Template::Simple->new;
-    $engine->{ start_tag } = '[d2%';
-    $engine->{ stop_tag }  = '%2d]';
-    return $engine->render( \$template, $tokens );
+    return $self->_engine->render( \$template, $tokens );
 }
 
 # These are good candidates to move to Dancer2::CLI if other commands
