@@ -35,7 +35,7 @@ requires 'Ref::Util';
 requires 'Safe::Isa';
 requires 'Sub::Quote';
 requires 'Template';
-requires 'Template::Tiny';
+requires 'Template::Tiny', '1.16';
 requires 'Test::Builder';
 requires 'Test::More';
 requires 'Types::Standard';
