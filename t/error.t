@@ -259,37 +259,38 @@ subtest censor => sub {
         like $error->environment => qr/^.*password.*Hidden.*$/m, 'we say it is hidden';
     };
 
-    subtest 'custom censor()' => sub {
-        my $app = Dancer2::Core::App->new( name => 'main' );
-        my $error = Dancer2::Core::Error->new( app => $app );
+    subtest 'custom censor' => sub {
 
-        $app->setting( hush => 'potato' ); 
+        subtest 'via function string' => sub {
+            my $app = Dancer2::Core::App->new( name => 'main' );
+            my $error = Dancer2::Core::Error->new( app => $app );
 
-        $app->setting( error_censor => 'MyApp::Censor::censor' );
+            $app->setting( hush => 'potato' ); 
 
-        unlike $error->environment => qr/potato/, 'the password is censored';
-        like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
-    };
+            $app->setting( error_censor => 'MyApp::Censor::censor' );
 
-    subtest 'custom censor via config' => sub {
-        plan skip_all => "requires Data::Censor" unless require_module('Data::Censor');
+            unlike $error->environment => qr/potato/, 'the password is censored';
+            like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
+        };
 
-        my $app = Dancer2::Core::App->new( name => 'main' );
-        $app->setting( 'error_censor' => {
-            'Data::Censor' => {
-                sensitive_fields => ['hush'],
-                replacement => 'NOT TELLING',
-            }
-        });
+        subtest 'via class hashref' => sub {
+            my $app = Dancer2::Core::App->new( name => 'main' );
+            $app->setting( 'error_censor' => {
+                'Data::Censor' => {
+                    sensitive_fields => ['hush'],
+                    replacement => 'NOT TELLING',
+                }
+            });
 
-        my $error = Dancer2::Core::Error->new( app => $app );
+            my $error = Dancer2::Core::Error->new( app => $app );
 
-        $app->setting( hush => 'potato' ); 
+            $app->setting( hush => 'potato' ); 
 
-        unlike $error->environment => qr/potato/, 'the password is censored';
-        like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
-    };
+            unlike $error->environment => qr/potato/, 'the password is censored';
+            like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
+        };
 
+    }
 };
 
 
