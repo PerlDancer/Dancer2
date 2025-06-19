@@ -1,0 +1,18 @@
+    <div id="create_update">
+        <form method="post" action="<% post_to %>">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" name="title" id="title" value="<% vars.title %>">
+            </div>
+            <div class="mb-3">
+                <label for="summary" class="form-label">Summary</label>
+                <input type="text" class="form-control" name="summary" id="summary" value="<% vars.summary %>">
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <textarea name="content" class="form-control" id="content" cols="50" rows="10"><% vars.content %></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Entry</button>
+        </form>
+    </div>
+

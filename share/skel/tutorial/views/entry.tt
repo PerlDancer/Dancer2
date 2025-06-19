@@ -1,0 +1,17 @@
+    <% IF entry %>
+    <div class="row align-items-start">
+        <div id="sidebar" class="col-md-2">
+            <h4>Posted at</h4>
+            <p><% entry.created_at | html_entity %></p>
+            <h4>Summary</h4>
+            <p><% entry.summary | html_entity %></p>
+        </div>
+        <div id="content" class="col-md-1">
+            <h1><% entry.title | html_entity %></h1>
+            <p><% entry.content | html_entity %></p>
+        </div>
+    </div>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+

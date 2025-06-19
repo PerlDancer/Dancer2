@@ -325,6 +325,7 @@ sub _build_file_list {
 
 sub _copy_templates {
     my ( $self, $files, $vars, $overwrite ) = @_;
+    my $app_name  = $vars->{ appname };
 
     foreach my $pair (@$files) {
         my ( $from, $to ) = @{$pair};
@@ -338,6 +339,7 @@ sub _copy_templates {
             next unless ( $res eq 'y' ) or ( $res eq 'a' );
         }
 
+        $to =~ s/AppFile/$app_name/;
         my $to_dir = path( $to )->parent;
         if ( ! $to_dir->is_dir ) {
             print "+ $to_dir\n";
@@ -359,7 +361,7 @@ sub _copy_templates {
             close $fh;
         }
 
-        if( $from !~ m/\.(ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/ ) {
+        if( $from !~ m/\.(db|ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/ ) {
             $content = $self->_process_template($content, $vars);
         }
 
