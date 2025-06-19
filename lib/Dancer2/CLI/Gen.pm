@@ -79,6 +79,16 @@ option skel => (
     },
 );
 
+option skel_name => (
+    is         => 'ro',
+    short      => 'n',
+    doc        => 'skeleton name',
+    format     => 's',
+    format_doc => 'skelname',
+    required   => 0,
+    default    => 'default',
+);
+
 option docker => (
     is       => 'ro',
     short    => 'c',
@@ -154,7 +164,7 @@ sub run {
         $app_path = path( $self->app_path, $dir );
     }
 
-    my $files_to_copy = $self->_build_file_list( $self->skel, $app_path );
+    my $files_to_copy = $self->_build_file_list( $self->skel . '/' . $self->skel_name, $app_path );
     foreach my $pair( @$files_to_copy ) {
         if( $pair->[0] =~ m/lib\/AppFile.pm$/ ) {
             $pair->[1] = path( $app_path, $app_file );
