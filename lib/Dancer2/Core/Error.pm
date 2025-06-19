@@ -82,17 +82,14 @@ has censor => (
             return eval '\&'.$custom;
         }
 
-        # once Data::Censor has been updated with https://github.com/bigpresh/Data-Censor/pull/2
-        # my $data_censor = use_module('Data::Censor')->new(
-        #     sensitive_fields => qr/pass|card?num|pan|secret/i,
-        #     replacement => "Hidden (looks potentially sensitive)",
-        # );
+         my $data_censor = use_module('Data::Censor')->new(
+             sensitive_fields => qr/pass|card?num|pan|secret/i,
+             replacement => "Hidden (looks potentially sensitive)",
+         );
 
-        # return sub {
-        #     $data_censor->censor(@_);
-        # };
-
-        return \&_censor;
+         return sub {
+             $data_censor->censor(@_);
+         };
     }
 );
 
@@ -471,37 +468,6 @@ sub get_caller {
 
 # private
 
-# Given a hashref, censor anything that looks sensitive.  Returns number of
-# items which were "censored".
-
-sub _censor {
-    my $hash = shift;
-    my $visited = shift || {};
-
-    unless ( $hash && is_hashref($hash) ) {
-        carp "_censor given incorrect input: $hash";
-        return;
-    }
-
-    my $censored = 0;
-    for my $key ( keys %$hash ) {
-        if ( is_hashref( $hash->{$key} ) ) {
-            if (!$visited->{ $hash->{$key} }) {
-                # mark the new ref as visited
-                $visited->{ $hash->{$key} } = 1;
-
-                $censored += _censor( $hash->{$key}, $visited );
-            }
-        }
-        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
-            $hash->{$key} = "Hidden (looks potentially sensitive)";
-            $censored++;
-        }
-    }
-
-    return $censored;
-}
-
 # Replaces the entities that are illegal in (X)HTML.
 sub _html_encode {
     my $value = shift;
@@ -573,12 +539,22 @@ The message of the error page.
 
 =attr censor 
 
-The function to use to censor error messages. By default it uses the 
-C<_censor> function of this package, but it can be configured via the 
-app setting 'error_censor'. If provided, C<error_censor> has to be 
-the fully qualified name of the censor function to use. That function is 
-expected to take in the data as a hashref, modify it in place and return 
-the number of items 'censored'.
+The function to use to censor error messages. By default it uses the C<censor> method of L<Data::Censor> C<_censor>"
+
+         # default censor function used by `error_censor` 
+         # is equivalent to
+         sub MyApp::censor {
+             Data::Censor->new(
+                sensitive_fields => qr/pass|card?num|pan|secret/i,
+                replacement      => "Hidden (looks potentially sensitive)",
+            )->censor(@_);
+         }
+         setting error_censor => 'MyApp::censor';
+
+It can be configured via the app setting C<error_censor>. If provided, 
+C<error_censor> has to be the fully qualified name of the censor 
+function. That function is expected to take in the data as a hashref, 
+modify it in place and return the number of items 'censored'.
 
 For example, using L<Data::Censor>.
 
@@ -612,6 +588,8 @@ L<Data::Censor> above could also have been done via the config
                 - password 
                 - hush 
             replacement: '(Sensitive data hidden)'
+
+
 
 =method throw($response)
 
