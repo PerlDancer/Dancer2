@@ -10,7 +10,8 @@
       (Jason A. Crome)
 
     [ DOCUMENTATION ]
-    * None
+    * GH #1342: Document skipping private methods in pod coverage tests
+      (Jason A. Crome)
 
     [ DEPRECATED ]
     * None
