@@ -268,10 +268,12 @@ sub _how_to_run {
 
     my $app_path = $vars->{ apppath };
     my $app_name = $vars->{ appname };
+
+    print "\nYour new application is ready! To run it:\n";
+
     if( $vars->{ docker } ) {
         my $image = lc $app_name;
         print qq{
-Your new application is ready! To run it:
 
         cd $app_path
         docker build -t ${image} .
@@ -284,18 +286,20 @@ runs on inside of the container.
 
 You may also run your app without Docker:
 };
-    } else {
-        print "\nYour new application is ready! To run it:\n";
     }
+
+    my $install_deps;
+    $install_deps = "\n        cpanm --installdeps ."
+        if $self->skel_name ne 'default';
+
     print qq{
-        cd $app_path
+        cd $app_path$install_deps
         plackup bin/app.psgi
 
-To access your application, point your browser to http://localhost:5000
+To access your application, point your browser to http://localhost:5000/
 
 If you need community assistance, the following resources are available:
 - Dancer website: https://perldancer.org
-- Twitter: https://twitter.com/PerlDancer/
 - GitHub: https://github.com/PerlDancer/Dancer2/
 - Mailing list: https://lists.perldancer.org/mailman/listinfo/dancer-users
 - IRC: irc.perl.org#dancer
