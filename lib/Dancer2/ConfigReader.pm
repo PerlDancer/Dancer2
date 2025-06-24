@@ -8,11 +8,15 @@ use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
 use Module::Runtime qw{ use_module };
+use Ref::Util qw/ is_arrayref /;
+use Scalar::Util qw/ blessed /;
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
 use Dancer2::Core::Types;
 use Dancer2::ConfigUtils 'normalize_config_entry';
+
+our $MAX_CONFIGS = $ENV{DANCER_MAX_CONFIGS} || 100;
 
 has location => (
     is       => 'ro',
@@ -71,17 +75,59 @@ has config_readers => (
 sub _build_config {
     my ($self) = @_;
 
-    my $default  = $self->default_config;
-    my $config = Hash::Merge::Simple->merge(
-        $default,
-        map {
-            warn "Merging config from @{[ $_->name() ]}\n" if $ENV{DANCER_CONFIG_VERBOSE};
-            $_->read_config()
-        } @{ $self->config_readers }
-    );
+    my $config  = $self->default_config;
 
-    $config = $self->_normalize_config($config);
-    return $config;
+    my $nbr_config = 0; 
+
+    my @readers = @{ $self->config_readers };
+
+    my $config_to_object = sub {
+        my $thing = $_;
+
+        return $thing if blessed $thing;
+
+        $thing = { $thing => {} } unless ref $thing;
+
+        die "additional_config_readers entry can have only one key\n"
+            if 1 < keys %$thing;
+
+        my( $class, $args ) = %$thing;
+
+        return use_module($class)->new(
+            location    => $self->location,
+            environment => $self->environment,
+            %$args,
+        );
+    };
+
+    while( my $r = shift @readers ) {
+        die <<"END" if $nbr_config++ >= $MAX_CONFIGS; 
+MAX_CONFIGS exceeded: read over $MAX_CONFIGS configurations
+
+Looks like you have an infinite recursion in your configuration system.
+Re-run with DANCER_CONFIG_VERBOSE=1 to see what is going on.
+
+If your application really read that many configs (may \$dog have mercy 
+on your soul), you can increase the limit via the environment variable 
+DANCER_MAX_CONFIGS.
+
+END
+        warn "Reading config from @{[ $r->name() ]}\n" if $ENV{DANCER_CONFIG_VERBOSE};
+        my $local_config = $r->read_config;
+
+        if( my $additionals = delete $local_config->{additional_config_readers} ) {
+
+            warn "Additional config readers found\n" if $ENV{DANCER_CONFIG_VERBOSE};
+
+            unshift @readers, map { $config_to_object->($_) } is_arrayref($additionals) ? @$additionals : ($additionals);
+        }
+
+        $config = Hash::Merge::Simple->merge(
+            $config, $local_config
+        );
+    }
+
+    return $self->_normalize_config($config);
 }
 
 sub _normalize_config {
@@ -116,26 +162,19 @@ __END__
 
 =head1 DESCRIPTION
 
-This class provides a C<config> attribute that - when accessing
-the first time - feeds itself by executing one or more
-B<ConfigReader> packages.
+This class provides a C<config> attribute that 
+is populated by executing one or more B<ConfigReader> packages. 
+The default ConfigReader used by default is C<Dancer2::ConfigReader::File::Simple>.
 
 Also provides a C<setting()> method which is supposed to be used by externals to
 read/write config entries.
 
-You can control which B<ConfigReader>
-class or classes to use to create the config.
+If more than one config reader is used, their configurations are merged 
+in left-to-write order where the previous config items get overwritten by subsequent ones.
 
-Use C<DANCER_CONFIG_READERS> environment variable to define
-which class or classes you want.
-
-    DANCER_CONFIG_READERS='Dancer2::ConfigReader::Config::Any,Dancer2::ConfigReader::CustomConfig'
-
-If you want several, separate them with a comma (",").
-Configs are added in left-to-write order where the previous
-config items get overwritten by subsequent ones.
-
-For example, if config
+=======
+For example, assuming we are using 3 config readers, 
+if the first config reader returns
 
     item1: content1
     item2: content2
@@ -149,7 +188,7 @@ For example, if config
         subitem1: subcontent1
         subitem2: subcontent2
 
-was followed by config
+and  the second returns 
 
     item2: content9
     item3:
@@ -161,7 +200,7 @@ was followed by config
             subsubitem5: subsubcontent5
     item4: content4
 
-then the final config would be
+then the final config is
 
     item1: content1
     item2: content9
@@ -177,10 +216,35 @@ then the final config would be
 
 The default B<ConfigReader> is C<Dancer2::ConfigReader::Config::Any>.
 
-You can also create your own custom B<ConfigReader> classes.
+=head2 Configuring the ConfigReaders via DANCER_CONFIG_READERS
 
-If you want, you can also extend class C<Dancer2::ConfigReader::Config::Any>.
-Here is an example:
+You can control which B<ConfigReader>
+class or classes to use to create the config
+via the C<DANCER_CONFIG_READERS> environment.
+
+    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::CustomConfig'
+
+If you want several, separate them with a comma (",").
+
+=head2 Bootstrapping the ConfigReaders via C<additional_config_readers>
+
+If the key C<additional_config_readers> is found in one in one or more of the configurations provided by the ConfigReaders, it'll be
+instantiated and added to the list of configurations to merge. This way you can, for example, create a basic F<config.yml> that is
+
+    additional_config_readers:
+        - Dancer2::ConfigReader::SQLite:
+            path: /path/to/sqlite.db
+            table: config
+
+The default ConfigReader L<Dancer2::ConfigReader::File::Simple> will pick that file and proceed to instantiate C<Dancer2::ConfigReader::SQLite>
+with the provided parameters.
+
+C<additional_config_readers> can take one or a list of reader configurations, which can be either the name of the ConfigReader's class, or the
+key/value pair of the class name and its constructor's arguments.
+
+=head2 Creating your own custom B<ConfigReader> classes.
+
+Here's an example extending class C<Dancer2::ConfigReader::Config::Any>.
 
     package Dancer2::ConfigReader::FileExtended;
     use Moo;
