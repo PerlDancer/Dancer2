@@ -1,0 +1,5 @@
+app:
+    config: ok
+extended:
+    one: ${ENV:DANCER_FILE_EXTENDED_ONE}
+    two: Begin ${ENV:DANCER_FILE_EXTENDED_TWO} End
