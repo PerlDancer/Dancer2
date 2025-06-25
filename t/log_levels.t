@@ -38,7 +38,7 @@ use HTTP::Request::Common;
         # Also ensure that the current log level, not the log level when the serialiser is created, is what counts.
         set log        => 'debug';
         set serializer => 'JSON';
-        set template   => 'Simple';
+        set template   => 'Tiny';
         set session    => 'Simple';
         set log        => 'warning';
 
