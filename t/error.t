@@ -209,7 +209,7 @@ subtest 'Errors with show_stacktrace and circular references' => sub {
         set something_with_config => {something => config};
         set password              => '===VERY-UNIQUE-STRING===';
         set innocent_thing        => '===VERY-INNOCENT-STRING===';
-        set template              => 'simple';
+        set template              => 'tiny';
 
         # Trigger an error that makes Dancer2::Core::Error::_censor enter an
         # infinite loop
