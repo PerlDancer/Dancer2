@@ -11,19 +11,18 @@ BEGIN {
 use Dancer2::Core::Cookie;
 use Dancer2::Core::Request;
 
-diag "If you want extra speed, install HTTP::XSCookies"
-  if !Dancer2::Core::Cookie::_USE_XS;
-
-subtest 'with HTTP::XSCookies' => \&all_tests
-    if Dancer2::Core::Cookie::_USE_XS;
-
 if ( Dancer2::Core::Cookie::_USE_XS ) {
+
+    subtest 'with HTTP::XSCookies' => \&all_tests;
+
     no warnings 'redefine';
     *Dancer2::Core::Cookie::to_header = \&Dancer2::Core::Cookie::pp_to_header;
 }
+else {
+    diag "If you want extra speed, install HTTP::XSCookies";
+}
 
-subtest 'w/o HTTP::XSCookies' => \&all_tests
-    if Dancer2::Core::Cookie::_USE_XS;
+subtest 'w/o HTTP::XSCookies' => \&all_tests;
 
 sub all_tests {
     my $cookie = Dancer2::Core::Cookie->new( name => "foo" );
