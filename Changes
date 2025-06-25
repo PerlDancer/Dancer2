@@ -1,5 +1,24 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * GH #1723: Enable use of a different Template Toolkit base class
+      (Andy Beverley)
+    * PR #1727: Don't create CPAN package files when generating new apps
+      (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * GH #1342: Document skipping private methods in pod coverage tests
+      (Jason A. Crome)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 1.1.2     2024-11-25 08:34:51-05:00 America/New_York
 
     [ BUG FIXES ]
