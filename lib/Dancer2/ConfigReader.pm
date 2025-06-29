@@ -196,7 +196,7 @@ Here is an example:
         return $config;
     };
 
-Another (more complex) example is in the file C<Dancer2::ConfigReader::Config::Any>.
+Another (more complex) example is in class C<Dancer2::ConfigReader::Config::Any>.
 
 =head1 ATTRIBUTES
 
