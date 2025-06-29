@@ -1,5 +1,5 @@
 # ABSTRACT: Config reader for files
-package Dancer2::ConfigReader::File::Simple;
+package Dancer2::ConfigReader::Config::Any;
 
 use Moo;
 
@@ -20,7 +20,7 @@ has name => (
     is      => 'ro',
     isa     => Str,
     lazy    => 0,
-    default => sub {'File::Simple'},
+    default => sub {'Config::Any'},
 );
 
 has config_files => (
@@ -127,7 +127,7 @@ random parts of the file config with environmental variables:
 
     use Carp 'croak';
 
-    extends 'Dancer2::ConfigReader::File::Simple';
+    extends 'Dancer2::ConfigReader::Config::Any';
 
     has name => (
         is      => 'ro',
@@ -191,7 +191,7 @@ random parts of the file config with environmental variables:
 
 =attr name
 
-The name of the Config Reader class: C<File::Simple>.
+The name of the Config Reader class: C<Config::Any>.
 
 =attr location
 
