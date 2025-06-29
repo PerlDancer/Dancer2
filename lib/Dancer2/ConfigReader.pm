@@ -99,7 +99,7 @@ sub _build_config_readers {
 
     my @config_reader_names = $ENV{'DANCER_CONFIG_READERS'}
                             ? (split qr{,}msx, $ENV{'DANCER_CONFIG_READERS'})
-                            : ( q{Dancer2::ConfigReader::File::Simple} );
+                            : ( q{Dancer2::ConfigReader::Config::Any} );
 
     warn "ConfigReaders to use: @config_reader_names\n" if $ENV{DANCER_CONFIG_VERBOSE};
     return [
@@ -129,7 +129,7 @@ class or classes to use to create the config.
 Use C<DANCER_CONFIG_READERS> environment variable to define
 which class or classes you want.
 
-    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::CustomConfig'
+    DANCER_CONFIG_READERS='Dancer2::ConfigReader::Config::Any,Dancer2::ConfigReader::CustomConfig'
 
 If you want several, separate them with a comma (",").
 Configs are added in left-to-write order where the previous
@@ -175,16 +175,16 @@ then the final config would be
             subsubitem5: subsubcontent5
     item4: content4
 
-The default B<ConfigReader> is C<Dancer2::ConfigReader::File::Simple>.
+The default B<ConfigReader> is C<Dancer2::ConfigReader::Config::Any>.
 
 You can also create your own custom B<ConfigReader> classes.
 
-If you want, you can also extend class C<Dancer2::ConfigReader::File::Simple>.
+If you want, you can also extend class C<Dancer2::ConfigReader::Config::Any>.
 Here is an example:
 
     package Dancer2::ConfigReader::FileExtended;
     use Moo;
-    extends 'Dancer2::ConfigReader::File::Simple';
+    extends 'Dancer2::ConfigReader::Config::Any';
     has name => (
         is      => 'ro',
         default => sub {'FileExtended'},
@@ -196,7 +196,7 @@ Here is an example:
         return $config;
     };
 
-Another (more complex) example is in the file C<Dancer2::ConfigReader::File::Simple>.
+Another (more complex) example is in class C<Dancer2::ConfigReader::Config::Any>.
 
 =head1 ATTRIBUTES
 
