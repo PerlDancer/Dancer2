@@ -1210,18 +1210,20 @@ sub compile_hooks {
                 eval  { $EVAL_SHIM->($hook,@_); 1; }
                 or do {
                     my $err = $@ || "Zombie Error";
+                    my $is_hook_exception = $position eq 'core.app.hook_exception';
                     # Don't execute the hook_exception hook if the exception
                     # has been generated from a hook exception handler itself,
                     # thus preventing potentially recursive code.
                     $app->execute_hook( 'core.app.hook_exception', $app, $err )
-                        unless $position eq 'core.app.hook_exception';
+                        unless $is_hook_exception;
                     my $is_halted = $app->response->is_halted; # Capture before cleanup
                     # We can't cleanup if we're in the hook for a hook
                     # exception, as this would clear the custom response that
                     # may have been set by the hook. However, there is no need
                     # to do so, as the upper hook that called this hook
                     # exception will perform the cleanup instead anyway
-                    $app->cleanup unless $position eq 'core.app.hook_exception';
+                    $app->cleanup
+                        unless $is_hook_exception;
                     # Allow the hook function to halt the response, thus
                     # retaining any response it may have set. Otherwise the
                     # croak from this function will overwrite any content that
