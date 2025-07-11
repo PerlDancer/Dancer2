@@ -1,7 +1,7 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * GH #1701: Split cookie values on & only (Yanick Champoux)
 
     [ ENHANCEMENTS ]
     * GH #1723: Enable use of a different Template Toolkit base class
