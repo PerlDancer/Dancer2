@@ -157,6 +157,60 @@ my $tests_flags = {};
     };
 }
 
+# 3 test apps for the exception hook - see comments below
+{
+    package App::HookException;
+    use Dancer2;
+
+    get '/hook_exception' => sub { return 1 };
+
+    hook after => sub {
+        die 'this is an exception in the after hook';
+    };
+
+    hook on_hook_exception => sub {
+        my ($app, $error) = @_;
+        ::is ref($app), 'Dancer2::Core::App';
+        ::like $error, qr/this is an exception in the after hook/;
+        $app->response->content("Setting response from exception hook");
+        $app->response->halt;
+    };
+}
+
+{
+    package App::HookExceptionDouble;
+    use Dancer2;
+
+    get '/hook_exception_double' => sub { return 1 };
+
+    hook after => sub {
+        die 'this is an exception in the after hook';
+    };
+
+    hook on_hook_exception => sub {
+        my ($app, $error) = @_;
+        $app->response->content("Setting response from exception hook and then dying");
+        $app->response->halt;
+        die 'this is an exception in the exception hook';
+    };
+}
+
+{
+    package App::HookExceptionRecursive;
+    use Dancer2;
+
+    get '/hook_exception_recursive' => sub { return 1 };
+
+    hook after => sub {
+        die 'this is an exception in the after hook';
+    };
+
+    hook on_hook_exception => sub {
+        my ($app, $error) = @_;
+        die 'this is an exception in the hook exception causing recursion';
+    };
+}
+
 subtest 'Request hooks' => sub {
     my $test = Plack::Test->create( App::WithSerializer->to_app );
     $test->request( GET '/' );
@@ -232,6 +286,29 @@ subtest 'before can halt' => sub {
 subtest 'route_exception' => sub {
     my $test = Plack::Test->create( App::WithError->to_app );
     capture_stderr { $test->request( GET '/route_exception' ) };
+};
+
+# A basic test for a hook that is called in the event of an exception in a hook
+subtest 'hook_exception' => sub {
+    my $test = Plack::Test->create( App::HookException->to_app );
+    my $resp = $test->request( GET '/hook_exception' );
+    is( $resp->content, 'Setting response from exception hook' );
+};
+
+# A more advanced test that checks that an exception can take place within the
+# exception hook, but only if it sets the response content and performs a halt
+subtest 'hook_exception_double' => sub {
+    my $test = Plack::Test->create( App::HookExceptionDouble->to_app );
+    my $resp = $test->request( GET '/hook_exception_double');
+    is( $resp->content, 'Setting response from exception hook and then dying' );
+};
+
+# Similar to the above, but without any handling for the second exception which
+# would otherwise result in a recursive situation
+subtest 'hook_exception_recursive' => sub {
+    my $test = Plack::Test->create( App::HookExceptionRecursive->to_app );
+    my $resp = $test->request( GET '/hook_exception_recursive');
+    like( $resp->content, qr/Internal Server Error/ );
 };
 
 done_testing;
