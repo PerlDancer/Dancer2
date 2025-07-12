@@ -1083,4 +1083,21 @@ to call C<plugin_keywords> after the attribute definition.
 
     plugin_keywords 'bar';
 
+=head3 Coverage for Dancer2::Plugin::<Name> is 0.0%, with 15 naked subroutines
+
+To avoid errors caused by missing pod for private plugin methods, write your
+pod coverage test like so:
+
+    pod_coverage_ok(
+        "Dancer2::Plugin::MyAwesomePlugin", {
+            also_private => [
+                qw/
+                  BUILDARGS BUILD ClassHooks PluginKeyword dancer_app
+                  execute_plugin_hook hook keywords on_plugin_import plugin_args
+                  plugin_setting realms realm realm_providers register register_hook
+                  register_plugin request var
+                  /
+            ]
+        });
+
 =cut

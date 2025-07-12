@@ -8,7 +8,7 @@ my $log_dir = tempdir( CLEANUP => 1 );
 sub config_location {
     my ($app) = @_;
     my %config_readers = map { $_->{name} => $_ } @{ $app->config_reader->config_readers };
-    return $config_readers{ 'File::Simple' }->config_location;
+    return $config_readers{ 'Config::Any' }->config_location;
 }
 
 {

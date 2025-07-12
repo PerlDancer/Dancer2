@@ -5,7 +5,7 @@ use Dancer2::Core::Types;
 
 use Carp 'croak';
 
-extends 'Dancer2::ConfigReader::File::Simple';
+extends 'Dancer2::ConfigReader::Config::Any';
 
 has name => (
     is      => 'ro',

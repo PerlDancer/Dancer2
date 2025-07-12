@@ -20,11 +20,11 @@ use lib './t/lib';
 subtest 'bad DANCER_CONFIG_READERS' => sub {
     # space instead of comma, ooops
     $ENV{DANCER_CONFIG_READERS}
-        = 'Dancer2::ConfigReader::File::Simple Dancer2::ConfigReader::TestDummy';
+        = 'Dancer2::ConfigReader::Config::Any Dancer2::ConfigReader::TestDummy';
 
     throws_ok {
         Dancer2::Core::App->new( name => 'basic' );
-    } qr{`Dancer2::ConfigReader::File::Simple Dancer2::ConfigReader::TestDummy' is not a module name};
+    } qr{`Dancer2::ConfigReader::Config::Any Dancer2::ConfigReader::TestDummy' is not a module name};
 };
 
 subtest 'infinite loop of configs' => sub {
@@ -34,7 +34,6 @@ subtest 'infinite loop of configs' => sub {
     throws_ok {
         Dancer2::Core::App->new( name => 'basic' );
     } qr{MAX_CONFIGS exceeded};
-
 };
 
 done_testing;

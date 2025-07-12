@@ -145,7 +145,7 @@ sub _build_config_readers {
 
     my @config_reader_names = $ENV{'DANCER_CONFIG_READERS'}
                             ? (split qr{,}msx, $ENV{'DANCER_CONFIG_READERS'})
-                            : ( q{Dancer2::ConfigReader::File::Simple} );
+                            : ( q{Dancer2::ConfigReader::Config::Any} );
 
     warn "ConfigReaders to use: @config_reader_names\n" if $ENV{DANCER_CONFIG_VERBOSE};
     return [
@@ -164,7 +164,7 @@ __END__
 
 This class provides a C<config> attribute that 
 is populated by executing one or more B<ConfigReader> packages. 
-The default ConfigReader used by default is C<Dancer2::ConfigReader::File::Simple>.
+The default ConfigReader used by default is C<Dancer2::ConfigReader::Config::Any>.
 
 Also provides a C<setting()> method which is supposed to be used by externals to
 read/write config entries.
@@ -187,7 +187,7 @@ if the first config reader returns
         subitem1: subcontent1
         subitem2: subcontent2
 
-and  the second returns 
+and the second returns 
 
     item2: content9
     item3:
@@ -213,14 +213,13 @@ then the final config is
             subsubitem5: subsubcontent5
     item4: content4
 
-
 =head2 Configuring the ConfigReaders via DANCER_CONFIG_READERS 
 
 You can control which B<ConfigReader>
 class or classes to use to create the config
 via the C<DANCER_CONFIG_READERS> environment.
 
-    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::CustomConfig'
+    DANCER_CONFIG_READERS='Dancer2::ConfigReader::Config::Any,Dancer2::ConfigReader::CustomConfig'
 
 If you want several, separate them with a comma (",").
 
@@ -234,7 +233,7 @@ instantiated and added to the list of configurations to merge. This way you can,
             path: /path/to/sqlite.db 
             table: config
 
-The default ConfigReader L<Dancer2::ConfigReader::File::Simple> will pick that file and proceed to instantiate C<Dancer2::ConfigReader::SQLite> 
+The default ConfigReader L<Dancer2::ConfigReader::::Config::Any> will pick that file and proceed to instantiate C<Dancer2::ConfigReader::SQLite> 
 with the provided parameters.
 
 C<additional_config_readers> can take one or a list of reader configurations, which can be either the name of the ConfigReader's class, or the 
@@ -242,14 +241,14 @@ key/value pair of the class name and its constructor's arguments.
 
 =head2 Creating your own custom B<ConfigReader> classes.
 
-Here's an example extending class C<Dancer2::ConfigReader::File::Simple>.
+Here's an example extending class C<Dancer2::ConfigReader::Config::Any>.
 
-    package Dancer2::ConfigReader::FileExtended;
+    package Dancer2::ConfigReader::Config::Any::Extended;
     use Moo;
-    extends 'Dancer2::ConfigReader::File::Simple';
+    extends 'Dancer2::ConfigReader::Config::Any';
     has name => (
         is      => 'ro',
-        default => sub {'FileExtended'},
+        default => sub {'Config::Any::Extended'},
     );
     around read_config => sub {
         my ($orig, $self) = @_;
@@ -258,7 +257,7 @@ Here's an example extending class C<Dancer2::ConfigReader::File::Simple>.
         return $config;
     };
 
-Another (more complex) example is in the file C<Dancer2::ConfigReader::File::Simple>.
+Another (more complex) example is in class C<Dancer2::ConfigReader::Config::Any>.
 
 =head1 ATTRIBUTES
 

@@ -17,7 +17,7 @@ use Dancer2::Core::App;
 
 subtest basic => sub {
     $ENV{DANCER_CONFIG_READERS}
-        = 'Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::TestDummy';
+        = 'Dancer2::ConfigReader::Config::Any,Dancer2::ConfigReader::TestDummy';
     my $app = Dancer2::Core::App->new( name => 'basic' );
 
     is $app->config->{app}->{config}, 'ok',

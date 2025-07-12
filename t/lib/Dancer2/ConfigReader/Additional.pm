@@ -27,7 +27,7 @@ has config_files => (
 sub read_config {
     return {
         additional_config_readers => [qw/
-            Dancer2::ConfigReader::File::Simple
+            Dancer2::ConfigReader::Config::Any
             Dancer2::ConfigReader::TestDummy
         /]
     };

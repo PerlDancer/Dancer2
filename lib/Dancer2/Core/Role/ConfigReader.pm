@@ -64,8 +64,7 @@ Config can be created by reading configuration
 files, from environment variables, by fetching
 it from a cloud service, or any other means.
 
-By default, the config loader
-which is used, is C<Dancer2::ConfigReader::File::Simple>
+Default config reader is C<Dancer2::ConfigReader::Config::Any>
 but user can create his own config reader
 if he wants to replace or augment
 the default method of config creation.

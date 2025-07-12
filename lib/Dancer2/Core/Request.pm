@@ -579,7 +579,7 @@ sub _build_cookies {
         $cookies->{$name} = Dancer2::Core::Cookie->new(
             name  => $name,
             # HTTP::XSCookies v0.17+ will do the split and return an arrayref
-            value => (is_arrayref($value) ? $value : [split(/[&;]/, $value)])
+            value => is_arrayref($value) ? $value : [split '&', $value ]
         );
     }
     return $cookies;
