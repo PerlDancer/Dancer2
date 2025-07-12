@@ -4,6 +4,8 @@
     * GH #1701: Split cookie values on & only (Yanick Champoux)
 
     [ ENHANCEMENTS ]
+    * GH #530: Make data censoring configurable (Yanick Champoux, David
+      Precious)
     * GH #1723: Enable use of a different Template Toolkit base class
       (Andy Beverley)
     * PR #1727: Don't create CPAN package files when generating new apps
