@@ -82,8 +82,9 @@ has censor => (
             return eval '\&'.$custom;
         }
 
+        # reminder: update POD below if changing the config here
          my $data_censor = use_module('Data::Censor')->new(
-             sensitive_fields => qr/pass|card?num|pan|secret/i,
+             sensitive_fields => qr/pass|card.?num|pan|secret/i,
              replacement => "Hidden (looks potentially sensitive)",
          );
 
@@ -539,13 +540,13 @@ The message of the error page.
 
 =attr censor 
 
-The function to use to censor error messages. By default it uses the C<censor> method of L<Data::Censor> C<_censor>"
+The function to use to censor error messages. By default it uses the C<censor> method of L<Data::Censor>"
 
          # default censor function used by `error_censor` 
          # is equivalent to
          sub MyApp::censor {
              Data::Censor->new(
-                sensitive_fields => qr/pass|card?num|pan|secret/i,
+                sensitive_fields => qr/pass|card.?num|pan|secret/i,
                 replacement      => "Hidden (looks potentially sensitive)",
             )->censor(@_);
          }
