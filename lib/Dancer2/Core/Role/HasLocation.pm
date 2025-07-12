@@ -24,6 +24,8 @@ has caller => (
 
 has location => (
     is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
     builder => '_build_location',
 );
 

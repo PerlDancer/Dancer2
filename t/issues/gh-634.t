@@ -5,6 +5,11 @@ use File::Temp qw/tempdir/;
 use File::Spec;
 
 my $log_dir = tempdir( CLEANUP => 1 );
+sub config_location {
+    my ($app) = @_;
+    my %config_readers = map { $_->{name} => $_ } @{ $app->config_reader->config_readers };
+    return $config_readers{ 'Config::Any' }->config_location;
+}
 
 {
     package LogDirSpecified;
@@ -56,7 +61,7 @@ my $check_cb = sub {
 
     is(
         $logger->location,
-        $app->config_location,
+        config_location( $app ),
         'Logger got correct location',
     );
 
@@ -96,7 +101,7 @@ subtest 'test Logger::File with log_dir NOT specified' => sub {
 
     $check_cb->(
         $app,
-        File::Spec->catdir( $app->config_location, 'logs' ),
+        File::Spec->catdir( config_location( $app ), 'logs' ),
         $app->environment . '.log',
     );
 };
@@ -116,4 +121,3 @@ subtest 'test Logger::File with non-existent log_dir specified' => sub {
         'test_log.log',
     );
 };
-
