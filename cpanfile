@@ -90,6 +90,7 @@ test_requires 'Test::EOL';
 test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
+test_requires 'Test::Exception';
 
 author_requires 'Test::NoTabs';
 author_requires 'Test::Pod';
