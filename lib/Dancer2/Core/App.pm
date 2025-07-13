@@ -1242,7 +1242,7 @@ sub compile_hooks {
                     # Don't execute the hook_exception hook if the exception
                     # has been generated from a hook exception handler itself,
                     # thus preventing potentially recursive code.
-                    $app->execute_hook( 'core.app.hook_exception', $app, $err )
+                    $app->execute_hook( 'core.app.hook_exception', $app, $err, $position )
                         unless $is_hook_exception;
                     my $is_halted = $app->response->is_halted; # Capture before cleanup
                     # We can't cleanup if we're in the hook for a hook
