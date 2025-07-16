@@ -8,7 +8,7 @@ use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Sub::Quote;
-use Module::Runtime 'require_module';
+use Module::Runtime qw/ require_module use_module /;
 use Ref::Util qw< is_hashref >;
 use Clone qw(clone);
 
@@ -46,6 +46,52 @@ has title => (
     isa     => Str,
     lazy    => 1,
     builder => '_build_title',
+);
+
+has censor => (
+    is => 'ro',
+    isa => CodeRef,
+    lazy => 1, 
+    default => sub {
+        my $self = shift;
+
+        if( my $custom = $self->has_app && $self->app->setting('error_censor') ) {
+
+            if( is_hashref $custom ) {
+                die "only one key can be set for the 'error_censor' setting\n" 
+                    if 1 != keys %$custom;
+
+                my( $class, $args ) = %$custom;
+
+                my $censor = use_module($class)->new(%$args);
+
+                return sub {
+                    $censor->censor(@_);
+                }
+            }
+
+            my $coderef = eval '\&'.$custom;
+
+            # it's already defined? Nice! We're done
+            return $coderef if $coderef;
+
+            my $module = $custom =~ s/::[^:]*?$//r;
+
+            require_module($module);
+
+            return eval '\&'.$custom;
+        }
+
+        # reminder: update POD below if changing the config here
+         my $data_censor = use_module('Data::Censor')->new(
+             sensitive_fields => qr/pass|card.?num|pan|secret/i,
+             replacement => "Hidden (looks potentially sensitive)",
+         );
+
+         return sub {
+             $data_censor->censor(@_);
+         };
+    }
 );
 
 sub _build_title {
@@ -367,11 +413,11 @@ sub backtrace {
 }
 
 sub dumper {
-    my $obj = shift;
+    my ($self,$obj) = @_;
 
     # Take a copy of the data, so we can mask sensitive-looking stuff:
     my $data     = clone($obj);
-    my $censored = _censor( $data );
+    my $censored = $self->censor->( $data );
 
     #use Data::Dumper;
     my $dd = Data::Dumper->new( [ $data ] );
@@ -399,7 +445,7 @@ sub environment {
     my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
     # Get a sanitised dump of the settings, session and environment
-    $_ = $_ ? dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
+    $_ = $_ ? $self->dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
 
     return <<"END_HTML";
 <div class="title">Stack</div><pre class="content">$stack</pre>
@@ -422,37 +468,6 @@ sub get_caller {
 }
 
 # private
-
-# Given a hashref, censor anything that looks sensitive.  Returns number of
-# items which were "censored".
-
-sub _censor {
-    my $hash = shift;
-    my $visited = shift || {};
-
-    unless ( $hash && is_hashref($hash) ) {
-        carp "_censor given incorrect input: $hash";
-        return;
-    }
-
-    my $censored = 0;
-    for my $key ( keys %$hash ) {
-        if ( is_hashref( $hash->{$key} ) ) {
-            if (!$visited->{ $hash->{$key} }) {
-                # mark the new ref as visited
-                $visited->{ $hash->{$key} } = 1;
-
-                $censored += _censor( $hash->{$key}, $visited );
-            }
-        }
-        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
-            $hash->{$key} = "Hidden (looks potentially sensitive)";
-            $censored++;
-        }
-    }
-
-    return $censored;
-}
 
 # Replaces the entities that are illegal in (X)HTML.
 sub _html_encode {
@@ -522,6 +537,60 @@ This is only an attribute getter, you'll have to set it at C<new>.
 =attr message
 
 The message of the error page.
+
+=attr censor 
+
+The function to use to censor error messages. By default it uses the C<censor> method of L<Data::Censor>"
+
+         # default censor function used by `error_censor` 
+         # is equivalent to
+         sub MyApp::censor {
+             Data::Censor->new(
+                sensitive_fields => qr/pass|card.?num|pan|secret/i,
+                replacement      => "Hidden (looks potentially sensitive)",
+            )->censor(@_);
+         }
+         setting error_censor => 'MyApp::censor';
+
+It can be configured via the app setting C<error_censor>. If provided, 
+C<error_censor> has to be the fully qualified name of the censor 
+function. That function is expected to take in the data as a hashref, 
+modify it in place and return the number of items 'censored'.
+
+For example, using L<Data::Censor>.
+
+    # in config.yml
+    error_censor: MyApp::Censor::censor
+
+    # in MyApp::Censor
+    package MyApp::Censor;
+
+    use Data::Censor;
+
+    my $data_censor = Data::Censor->new(
+        sensitive_fields => [ qw(card_number password hush) ],
+        replacement => '(Sensitive data hidden)',
+    );
+
+    sub censor { $data_censor->censor(@_) }
+
+    1;
+
+
+As a shortcut, C<error_censor> can also be the key/value combo of 
+a class and the arguments for its constructor. The created object 
+is expected to have a method C<censor>. For example, the use of 
+L<Data::Censor> above could also have been done via the config 
+
+    error_censor:
+        Data::Censor: 
+            sensitive_fields:
+                - card_number 
+                - password 
+                - hush 
+            replacement: '(Sensitive data hidden)'
+
+
 
 =method throw($response)
 

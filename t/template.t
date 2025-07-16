@@ -8,10 +8,13 @@ use HTTP::Request::Common;
 use File::Spec;
 use File::Basename 'dirname';
 
+use lib 't/lib';
+
 eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
 
 use_ok('Dancer2::Template::TemplateToolkit');
+use_ok('Dancer2::Template::TemplateToolkitFoo');
 
 my $views =
   File::Spec->rel2abs( File::Spec->catfile( dirname(__FILE__), 'views' ) );
@@ -107,6 +110,28 @@ content added in after_layout_render";
     $result =~ s/42/21/g;
     $res = $test->request( GET '/global' );
     is $res->content, $result, '[GET /global] Correct content with template hooks';
+};
+
+# Test that a custom class can be used for Template::Toolkit
+my $tt_custom = Dancer2::Template::TemplateToolkitFoo->new;
+
+isa_ok $tt_custom, 'Dancer2::Template::TemplateToolkit';
+isa_ok $tt_custom, 'Dancer2::Template::TemplateToolkitFoo';
+
+{
+    package CustomFoo;
+    use Dancer2;
+
+    Dancer2->runner->apps->[1]->set_template_engine($tt_custom);
+
+    get '/' => sub { template 'index' };
+}
+
+subtest 'custom template render' => sub {
+
+    my $test = Plack::Test->create( CustomFoo->to_app );
+    my $res = $test->request( GET '/' );
+    is $res->content, 'Custom Render Template', 'Custom Render Template';
 };
 
 {

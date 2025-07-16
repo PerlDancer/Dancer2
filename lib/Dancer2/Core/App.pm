@@ -19,6 +19,7 @@ use Plack::Middleware::Conditional;
 use Plack::Middleware::ConditionalGET;
 
 use Dancer2::FileUtils 'path';
+use Dancer2::ConfigReader;
 use Dancer2::Core;
 use Dancer2::Core::Cookie;
 use Dancer2::Core::Error;
@@ -39,7 +40,9 @@ our $EVAL_SHIM; $EVAL_SHIM ||= sub {
 # we have hooks here
 with qw<
     Dancer2::Core::Role::Hookable
-    Dancer2::Core::Role::ConfigReader
+    Dancer2::Core::Role::HasConfig
+    Dancer2::Core::Role::HasLocation
+    Dancer2::Core::Role::HasEnvironment
 >;
 
 sub supported_engines { [ qw<logger serializer session template> ] }
@@ -213,7 +216,7 @@ sub _build_logger_engine {
     my $logger = $self->_factory->create(
         logger          => $value,
         %{$engine_options},
-        location        => $self->config_location,
+        location        => $self->config_reader->config_location,
         environment     => $self->environment,
         app_name        => $self->name,
         postponed_hooks => $self->postponed_hooks
@@ -405,16 +408,42 @@ has session => (
     predicate => '_has_session',
 );
 
-around _build_config => sub {
-    my ( $orig, $self ) = @_;
-    my $config          = $self->$orig;
+has config_reader => (
+    is      => 'ro',
+    isa     => InstanceOf['Dancer2::ConfigReader'],
+    lazy    => 0,
+    builder => '_build_config_reader',
+);
+
+sub _build_config_reader {
+    my ($self) = @_;
+    my $cfgr = Dancer2::ConfigReader->new(
+        environment    => $self->environment,
+        location       => $ENV{DANCER_CONFDIR}     || $self->location,
+        default_config => $self->_build_default_config(),
+    );
+    return $cfgr;
+}
+
+has '+config' => (
+    is      => 'ro',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => '_build_config',
+);
+
+sub _build_config {
+    my ($self) = @_;
+
+    my $config_reader = $self->config_reader;
+    my $config = $config_reader->config;
 
     if ( $config && $config->{'engines'} ) {
         $self->_validate_engine($_) for keys %{ $config->{'engines'} };
     }
 
     return $config;
-};
+}
 
 sub _build_response {
     my $self = shift;
@@ -771,6 +800,7 @@ sub supported_hooks {
       core.app.before_request
       core.app.after_request
       core.app.route_exception
+      core.app.hook_exception
       core.app.before_file_render
       core.app.after_file_render
       core.error.before
@@ -790,6 +820,7 @@ sub hook_aliases {
         before_error           => 'core.error.before',
         after_error            => 'core.error.after',
         on_route_exception     => 'core.app.route_exception',
+        on_hook_exception      => 'core.app.hook_exception',
 
         before_file_render         => 'core.app.before_file_render',
         after_file_render          => 'core.app.after_file_render',
@@ -1137,8 +1168,6 @@ sub BUILD {
     my $self = shift;
     $self->init_route_handlers();
     $self->_init_hooks();
-
-    $self->log(core => 'Built config from files: ' . join(' ', @{$self->config_files}));
 }
 
 sub finish {
@@ -1208,7 +1237,26 @@ sub compile_hooks {
                 eval  { $EVAL_SHIM->($hook,@_); 1; }
                 or do {
                     my $err = $@ || "Zombie Error";
-                    $app->cleanup;
+                    my $is_hook_exception = $position eq 'core.app.hook_exception';
+                    # Don't execute the hook_exception hook if the exception
+                    # has been generated from a hook exception handler itself,
+                    # thus preventing potentially recursive code.
+                    $app->execute_hook( 'core.app.hook_exception', $app, $err )
+                        unless $is_hook_exception;
+                    my $is_halted = $app->response->is_halted; # Capture before cleanup
+                    # We can't cleanup if we're in the hook for a hook
+                    # exception, as this would clear the custom response that
+                    # may have been set by the hook. However, there is no need
+                    # to do so, as the upper hook that called this hook
+                    # exception will perform the cleanup instead anyway
+                    $app->cleanup
+                        unless $is_hook_exception;
+                    # Allow the hook function to halt the response, thus
+                    # retaining any response it may have set. Otherwise the
+                    # croak from this function will overwrite any content that
+                    # may have been set by the hook
+                    return if $is_halted;
+                    # Default behavior if nothing else defined
                     $app->log('error', "Exception caught in '$position' filter: $err");
                     croak "Exception caught in '$position' filter: $err";
                 };
