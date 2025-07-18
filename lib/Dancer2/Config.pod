@@ -185,6 +185,11 @@ PSGI middleware. The default middleware wrappers are:
 
 =back
 
+=head3 additional_config_readers 
+
+L<Dancer2::ConfigReader> instances to bootstrap the application's
+configuration. See the ConfigReader's POD for more information.
+
 =head2 Content type / character set
 
 =head3 content_type (string)
@@ -596,6 +601,11 @@ in your module. dsl_class defaults to L<Dancer2::Core::DSL> if not specified
 Sets the configuration directory.
 
 This correlates to the C<confdir> config option.
+
+=head2 DANCER_CONFIG_VERBOSE
+
+Outputs a lot of debugging information when reading the configuration of
+the application.
 
 =head3 DANCER_ENVDIR
 
