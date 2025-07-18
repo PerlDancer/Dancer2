@@ -173,7 +173,6 @@ read/write config entries.
 If more than one config reader is used, their configurations are merged 
 in left-to-write order where the previous config items get overwritten by subsequent ones.
 
-=======
 For example, assuming we are using 3 config readers, 
 if the first config reader returns
 
@@ -223,7 +222,7 @@ You can control which B<ConfigReader>
 class or classes to use to create the config
 via the C<DANCER_CONFIG_READERS> environment.
 
-    DANCER_CONFIG_READERS='Dancer2::ConfigReader::File::Simple,Dancer2::ConfigReader::CustomConfig'
+    DANCER_CONFIG_READERS='Dancer2::ConfigReader::Config::Any,Dancer2::ConfigReader::CustomConfig'
 
 If you want several, separate them with a comma (",").
 
@@ -237,7 +236,7 @@ instantiated and added to the list of configurations to merge. This way you can,
             path: /path/to/sqlite.db
             table: config
 
-The default ConfigReader L<Dancer2::ConfigReader::File::Simple> will pick that file and proceed to instantiate C<Dancer2::ConfigReader::SQLite>
+The default ConfigReader L<Dancer2::ConfigReader::Config::Any> will pick that file and proceed to instantiate C<Dancer2::ConfigReader::SQLite>
 with the provided parameters.
 
 C<additional_config_readers> can take one or a list of reader configurations, which can be either the name of the ConfigReader's class, or the
