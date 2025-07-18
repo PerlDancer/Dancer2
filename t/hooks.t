@@ -311,4 +311,41 @@ subtest 'hook_exception_recursive' => sub {
     like( $resp->content, qr/Internal Server Error/ );
 };
 
+subtest 'hook entries logging' => sub {
+    $::hook_counter = 0;
+    $::trap;
+
+    package App::HookEntries {
+        use Sub::Util qw/ set_subname /;
+        use Dancer2;
+
+        set log => 'core';
+        set logger => 'capture';
+
+        $::trap = engine('logger')->trapper;
+
+        get '/' => sub { 'hello there' };
+
+        hook 'before_request' => set_subname my_before => sub {
+            $::hook_counter++;
+        };
+
+        sub my_after { $::hook_counter++ }
+
+        hook 'after_request' => \&my_after;
+    }
+
+    my $app = App::HookEntries->to_app;
+    my $test = Plack::Test->create( $app );
+    $test->request( GET '/' );
+
+    is $::hook_counter => 2, "we hit both hooks";
+
+    my @logs = map {$_->{message}} @{$::trap->read};
+
+    for my $hook ( qw/ my_before my_after / ) {
+        ok scalar( grep { /$hook/ } @logs ), "App::HookEntries::$hook"
+    }
+};
+
 done_testing;
