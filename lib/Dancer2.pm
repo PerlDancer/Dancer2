@@ -347,6 +347,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Julien Fiegehenn (simbabque)
     Julio Fraire
     Kaitlyn Parkhurst (SYMKAT)
+    Karen Etheridge
     kbeyazli
     Keith Broughton
     lbeesley

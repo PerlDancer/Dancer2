@@ -10,6 +10,8 @@
       (Andy Beverley)
     * PR #1727: Don't create CPAN package files when generating new apps
       (Jason A. Crome)
+    * PR :1731: Retire Template::Tiny fork, use CPAN's (Jason A. Crome,
+      Karen Etheridge, Damien Krotkine, Yanick Champoux)
     * GH #1737: Add on_hook_exception for errors during hook processing
       (Andy Beverley)
 
