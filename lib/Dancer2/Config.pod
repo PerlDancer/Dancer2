@@ -604,7 +604,7 @@ This correlates to the C<confdir> config option.
 
 =head2 DANCER_CONFIG_VERBOSE
 
-Outputs a lot of debugging information when generating the configuration of
+Outputs a lot of debugging information when reading the configuration of
 the application.
 
 =head3 DANCER_ENVDIR

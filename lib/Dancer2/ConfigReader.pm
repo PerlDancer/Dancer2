@@ -88,8 +88,8 @@ sub _build_config {
 
         $thing = { $thing => {} } unless ref $thing;
 
-        die "additional_config_readers entry can have only one key\n"
-            if 1 < keys %$thing;
+        die "additional_config_readers entry must have exactly one key\n"
+            if keys %$thing != 1;
 
         my( $class, $args ) = %$thing;
 
@@ -162,9 +162,10 @@ __END__
 
 =head1 DESCRIPTION
 
-This class provides a C<config> attribute that 
-is populated by executing one or more B<ConfigReader> packages. 
-The default ConfigReader used by default is C<Dancer2::ConfigReader::File::Simple>.
+This class provides a C<config> attribute which is populated by executing 
+one or more B<ConfigReader> packages.
+
+The default ConfigReader used is L<Dancer2::ConfigReader::Config::Any>.
 
 Also provides a C<setting()> method which is supposed to be used by externals to
 read/write config entries.
