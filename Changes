@@ -17,6 +17,7 @@
       Karen Etheridge, Damien Krotkine, Yanick Champoux)
     * GH #1737: Add on_hook_exception for errors during hook processing
       (Andy Beverley)
+    * PR #1739: Add source to on_hook_exception (Andy Beverley)
 
     [ DOCUMENTATION ]
     * GH #1342: Document skipping private methods in pod coverage tests

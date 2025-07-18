@@ -169,9 +169,10 @@ my $tests_flags = {};
     };
 
     hook on_hook_exception => sub {
-        my ($app, $error) = @_;
+        my ($app, $error, $hook_name) = @_;
         ::is ref($app), 'Dancer2::Core::App';
         ::like $error, qr/this is an exception in the after hook/;
+        ::is $hook_name, 'core.app.after_request';
         $app->response->content("Setting response from exception hook");
         $app->response->halt;
     };

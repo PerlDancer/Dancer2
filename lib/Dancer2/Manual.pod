@@ -928,16 +928,19 @@ L<Dancer2::Core::App> and the error as arguments.
   };
 
 C<on_hook_exception> is called when an exception has been caught within a hook,
-just before logging and rethrowing it higher. This hook receives a
-L<Dancer2::Core::App> and the error as arguments. If the function provided to
-on_hook_exception causes an exception itself, then this will be ignored (thus
-preventing a potentially recursive situation). However, it is still possible
-for the function to set a custom response and halt it (and optionally die),
-thus providing a method to render custom content in the event of an exception
-in a hook. This is shown in the example below:
+just before logging and rethrowing it higher. This hook receives as arguments:
+L<Dancer2::Core::App>, the error string and the name of the hook where the
+exception occurred. The hook name is the full hook name (e.g.
+C<core.app.route_exception>).
+
+If the function provided to on_hook_exception causes an exception itself, then
+this will be ignored (thus preventing a potentially recursive situation).
+However, it is still possible for the function to set a custom response and
+halt it (and optionally die), thus providing a method to render custom content
+in the event of an exception in a hook. This is shown in the example below:
 
   hook on_hook_exception => sub {
-    my ($app, $error) = @_;
+    my ($app, $error, $hook_name) = @_;
     $app->response->content("Some custom content for the response");
     $app->response->halt;
   };
