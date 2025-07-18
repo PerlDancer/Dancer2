@@ -4,17 +4,17 @@ package Dancer2::Template::Tiny;
 use Moo;
 use Carp qw/croak/;
 use Dancer2::Core::Types;
-use Dancer2::Template::Implementation::ForkedTiny;
+use Template::Tiny;
 use Dancer2::FileUtils 'read_file_content';
 
 with 'Dancer2::Core::Role::Template';
 
 has '+engine' => (
-    isa => InstanceOf ['Dancer2::Template::Implementation::ForkedTiny']
+    isa => InstanceOf ['Template::Tiny']
 );
 
 sub _build_engine {
-    Dancer2::Template::Implementation::ForkedTiny->new( %{ $_[0]->config } );
+    Template::Tiny->new( %{ $_[0]->config } );
 }
 
 sub render {
@@ -27,6 +27,10 @@ sub render {
       ref $template
       ? ${$template}
       : read_file_content($template);
+
+    # Template::Tiny doesn't like empty template files (like .dancer), so
+    # don't try to render them. Return an empty (not undef) value instead.
+    return '' unless $template_data;
 
     my $content;
 
@@ -45,25 +49,9 @@ __END__
 This template engine allows you to use L<Template::Tiny> in L<Dancer2>.
 
 L<Template::Tiny> is an implementation of a subset of L<Template::Toolkit> (the
-major parts) which takes much less memory and is faster. If you're only using
+major parts) but takes much less memory and is faster. If you're only using
 the main functions of Template::Toolkit, you could use Template::Tiny. You can
 also seamlessly move back to Template::Toolkit whenever you want.
-
-However, Dancer2 uses a modified version of L<Template::Tiny>, which is L<Dancer2::Template::Implementation::ForkedTiny>. It adds 2 features :
-
-=over
-
-=item *
-
-opening and closing tag are now configurable
-
-=item *
-
-CodeRefs are evaluated and their results is inserted in the result.
-
-=back
-
-You can read more on L<Dancer2::Template::Implementation::ForkedTiny>.
 
 To use this engine, all you need to configure in your L<Dancer2>'s
 C<config.yaml>:
@@ -88,5 +76,4 @@ L<Template::Toolkit> for rendering.
 
 =head1 SEE ALSO
 
-L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Tiny>,
-L<Dancer2::Template::Implementation::ForkedTiny>.
+L<Dancer2>, L<Dancer2::Core::Role::Template>, L<Template::Tiny>.
