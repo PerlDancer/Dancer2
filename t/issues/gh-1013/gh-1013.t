@@ -15,7 +15,7 @@ use HTTP::Request::Common;
         1;
     };
 
-    set template => 'simple';
+    set template => 'tiny';
 
     get '/' => sub {
         template t => { hi => 'hello' },
