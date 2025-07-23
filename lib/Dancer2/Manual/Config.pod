@@ -3,8 +3,8 @@ package Dancer2::Config;
 
 =head1 DESCRIPTION
 
-The Dancer2 configuration (as implemented by
-L<Dancer2::Core::Role::ConfigReader>) handles reading and changing the
+The Dancer2 default configuration system (as implemented by
+L<Dancer2::ConfigReader::Config::Any>) handles reading and changing the
 configuration of your Dancer2 apps.  This document describes how to
 manipulate Dancer2's configuration settings (through code or by file), and
 to document the various settings that are available in Dancer2.
@@ -64,7 +64,6 @@ their F<environments/development_local.yaml> file.
 Note, if there is no F<config.EXT>, Dancer2 will not look for a
 F<config_local.EXT>. The same is true for the local environment
 configuration.
-
 
 =head2 Supported configuration file formats
 
@@ -138,6 +137,24 @@ If you like Apache configuration files, try something similar to:
 
 INI-style files are deliberately simplistic and not recommended for use in
 your Dancer2 applications.
+
+=head1 USING ALTERNATE CONFIG READERS
+
+Dancer2 allows you to use your own configuration system too. See the
+L<Dancer2::ConfigReader> documentation for more information.
+
+=head2 Bootstrapping other config readers
+
+You can use the default Dancer2 configuration reader to load additional
+configuration/configuration readers:
+
+    additional_config_readers:
+        - Dancer2::ConfigReader::SQLite:
+            path: /path/to/sqlite.db
+            table: config
+
+See the L<Dancer2::ConfigReader> documentation for more information and
+examples.
 
 =head1 SUPPORTED SETTINGS
 
@@ -596,20 +613,28 @@ in your module. dsl_class defaults to L<Dancer2::Core::DSL> if not specified
 
 =head2 Environment variables
 
+=head3 DANCER_CONFIG_READERS
+
+Specifies which configuration reader classes can be used to load
+Dancer2 configuration.
+
 =head3 DANCER_CONFDIR
 
-Sets the configuration directory.
+Sets the configuration directory. This is only guaranteed to work with
+the default config reader.
 
 =head2 DANCER_CONFIG_VERBOSE
 
 Outputs a lot of debugging information when reading the configuration of
-the application.
+the application. This is only guaranteed to work with the default config
+reader.
 
 =head3 DANCER_ENVDIR
 
 Sets the environment directory.
 
-This correlates to the C<envdir> config option.
+This correlates to the C<envdir> config option. This is only guaranteed
+to work with the default config reader.
 
 =head3 PLACK_ENV
 
