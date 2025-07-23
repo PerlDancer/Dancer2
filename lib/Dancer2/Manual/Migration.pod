@@ -282,7 +282,12 @@ function with decoded input.
 
 =head3 Templating engine changes
 
-Whereas in Dancer1, the following were equivalent for Template::Toolkit:
+If you are migrating from Dancer1 and are using an application based
+on L<Dancer::Template::Simple>, the L<Dancer2::Template::Simple> engine is
+no longer part of the core Dancer2 distribution. It is available to
+install as a separate distribution from CPAN.
+
+In Dancer1, the following were equivalent for Template::Toolkit:
 
     template 'foo/bar'
     template '/foo/bar'
