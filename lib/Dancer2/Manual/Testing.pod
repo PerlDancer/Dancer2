@@ -49,7 +49,140 @@ A basic test (which we also scaffold with L<dancer2>) looks like this:
 Read the documentation for L<HTTP::Request> and L<HTTP::Request::Common> to
 see the different options for sending parameters.
 
+=head3 Subtests
+
+Tests can be separated using L<Test::More>'s C<subtest> functionality,
+thus creating multiple self-contained tests that don't affect each other.
+
+Assuming we have a different app that we want to test:
+
+
+    # MyApp.pm
+    package MyApp;
+    use Dancer2;
+    set serializer => 'JSON';
+
+    my %users = (
+        jason => {
+            name  => 'Jason',
+            likes => 'planes',
+        },
+        yanick => {
+            name => 'Yanick',
+            likes => 'orchids',
+        }
+    );
+
+    get '/:user' => sub {
+        my $user = route_parameters->get('user');
+
+        my $user_data = $users{$user};
+
+        if( $user_data ) {
+            return { user => $user_data };
+        }
+
+        status 404;
+
+        return {
+            error => 1,
+            message => 'user not found'
+        }
+    };
+
+    1;
+
+This is an example of tests for that route ensuring 
+that we have the correct behavior with regard to the user 
+parameter.
+
+    # param.t
+    use strict;
+    use warnings;
+
+    use Test::More;
+    use Plack::Test;
+    use HTTP::Request::Common;
+    use JSON qw/ decode_json /;
+
+    use MyApp;
+
+    # swap 'null' for 'note' to see the logs in your TAP output
+    MyApp::set( logger => 'null' );
+
+    my $test = Plack::Test->create( MyApp->to_app );
+
+    subtest 'An empty request' => sub {
+        my $res = $test->request( GET '/' );
+        is $res->code => 404, 'user not provided, so not found';
+    };
+
+    subtest 'Request with invalid user' => sub {
+        my $res = $test->request( GET '/sawyer_x' );
+
+        ok !$res->is_success, 'user not found';
+        is $res->code => 404, 'ressource not found';
+
+        is decode_json($res->content)->{message}, 'user not found', 'error message';
+    };
+
+    subtest 'Request with valid user' => sub {
+        my $res = $test->request( GET '/jason' );
+
+        ok $res->is_success, 'user found';
+
+        is decode_json($res->content)->{user}{likes}, 'planes', 'data present';
+    };
+
+    done_testing();
+
 =head1 Cookies
+
+To handle cookies, which are mostly used for maintaining sessions,
+the following modules can be used:
+
+=over 4
+
+=item * L<Test::WWW::Mechanize::PSGI>
+
+=item * L<LWP::Protocol::PSGI>
+
+=item * L<HTTP::Cookies>
+
+=back
+
+Taking the previous test, assuming it actually creates and uses
+cookies for sessions (see L<cookie|Dancer2::Manual/"Setting and Updating
+Cookies"> and perhaps L<Dancer2::Session::Cookie> for more information on how
+to do that):
+
+     # ... all the use statements
+     use HTTP::Cookies;
+
+     my $jar  = HTTP::Cookies->new;
+     my $test = Plack::Test->create( MyApp->to_app );
+
+     subtest 'Request with invalid user' => sub {
+         my $req = GET '/sawyer_x';
+         $jar->add_cookie_header($req);
+         my $res = $test->request($req);
+         ok !$res->is_success, 'Request failed';
+         $jar->extract_cookies($res);
+
+         ok !$jar->as_string, 'All cookies deleted';
+     };
+
+     subtest 'Request with user' => sub {
+         my $req = GET '/jason';
+         $jar->add_cookie_header($req);
+         my $res = $test->request($req);
+         ok $res->is_success, 'Successful request';
+         $jar->extract_cookies($res);
+
+         ok !$jar->as_string, 'All cookies deleted';
+     };
+
+     done_testing();
 
 If you don't want to use an entire user agent for this test, you can use
 L<HTTP::Cookies> to store cookies and then retrieve them:
@@ -93,6 +226,24 @@ L<HTTP::Cookies> to store cookies and then retrieve them:
 
 Please note that the request URL must include scheme and host for the call
 to L<HTTP::Cookies/add_cookie_header> to work.
+
+=head3 Accessing the configuration file
+
+By importing Dancer2 in the test files, there is full
+access to the configuration using the imported keywords:
+
+     use strict;
+     use warnings;
+     use Test::More;
+     use Plack::Test;
+     use HTTP::Request::Common;
+     use MyApp;
+     use Dancer2;
+
+     my $appname = config->{'appname'};
+     diag "Testing $appname";
+
+     # ...
 
 =head1 Plugins
 
