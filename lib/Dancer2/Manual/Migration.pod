@@ -328,6 +328,13 @@ will need to call C<config>:
     # after
     config->{'public_dir'} = 'new_path';
 
+=head3 confdir
+
+You cannot set the configuration directory (C<confdir>) with C<setting>
+now. You can use an environment variable, however:
+
+    export DANCER_CONFDIR=$PROJECT_ROOT/etc
+
 =head3 warnings
 
 The C<warnings> configuration option, along with the environment variable
