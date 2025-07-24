@@ -288,7 +288,7 @@ You may also run your app without Docker:
 };
     }
 
-    my $install_deps;
+    my $install_deps = '';
     $install_deps = "\n        cpanm --installdeps ."
         if $self->skel_name ne 'default';
 
