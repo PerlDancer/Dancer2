@@ -24,10 +24,16 @@ charset: "UTF-8"
 # "engines:" block will take effect.
 
 # template engine
-# simple: default and very basic template engine
+# tiny: default basic template engine
 # template_toolkit: TT
 
-template: "simple"
+template: "tiny"
+engines:
+  template:
+    tiny:
+      # Note: start_tag and end_tag are regexes
+      start_tag: '<%'
+      end_tag:   '%>'
 
 # template: "template_toolkit"
 # engines:
