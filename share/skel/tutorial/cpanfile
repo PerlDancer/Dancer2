@@ -4,6 +4,7 @@ requires "Dancer2::Plugin::DBIx::Class";
 requires "DBIx::Class::Schema::Loader";
 requires "DateTime::Format::SQLite";
 requires "Feature::Compat::Try";
+requires "Dancer2::Template::TemplateToolkit";
 requires "Dancer2::Plugin::CryptPassphrase";
 requires "Dancer2::Plugin::Auth::Tiny";
 requires "Starman";
