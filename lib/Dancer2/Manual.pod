@@ -2270,7 +2270,7 @@ This hook receives as arguments:
 
 =item * The error string
 
-=item The name of the hook where the exception occurred
+=item * The name of the hook where the exception occurred
 
 The hook name is the full hook name (e.g. C<core.app.route_exception>).
 
