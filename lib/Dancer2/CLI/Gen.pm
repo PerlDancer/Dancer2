@@ -79,6 +79,16 @@ option skel => (
     },
 );
 
+option skel_name => (
+    is         => 'ro',
+    short      => 'n',
+    doc        => 'skeleton name',
+    format     => 's',
+    format_doc => 'skelname',
+    required   => 0,
+    default    => 'default',
+);
+
 option docker => (
     is       => 'ro',
     short    => 'c',
@@ -154,7 +164,7 @@ sub run {
         $app_path = path( $self->app_path, $dir );
     }
 
-    my $files_to_copy = $self->_build_file_list( $self->skel, $app_path );
+    my $files_to_copy = $self->_build_file_list( $self->skel . '/' . $self->skel_name, $app_path );
     foreach my $pair( @$files_to_copy ) {
         if( $pair->[0] =~ m/lib\/AppFile.pm$/ ) {
             $pair->[1] = path( $app_path, $app_file );
@@ -258,10 +268,12 @@ sub _how_to_run {
 
     my $app_path = $vars->{ apppath };
     my $app_name = $vars->{ appname };
+
+    print "\nYour new application is ready! To run it:\n";
+
     if( $vars->{ docker } ) {
         my $image = lc $app_name;
         print qq{
-Your new application is ready! To run it:
 
         cd $app_path
         docker build -t ${image} .
@@ -274,18 +286,20 @@ runs on inside of the container.
 
 You may also run your app without Docker:
 };
-    } else {
-        print "\nYour new application is ready! To run it:\n";
     }
+
+    my $install_deps = '';
+    $install_deps = "\n        cpanm --installdeps ."
+        if $self->skel_name ne 'default';
+
     print qq{
-        cd $app_path
+        cd $app_path$install_deps
         plackup bin/app.psgi
 
-To access your application, point your browser to http://localhost:5000
+To access your application, point your browser to http://localhost:5000/
 
 If you need community assistance, the following resources are available:
 - Dancer website: https://perldancer.org
-- Twitter: https://twitter.com/PerlDancer/
 - GitHub: https://github.com/PerlDancer/Dancer2/
 - Mailing list: https://lists.perldancer.org/mailman/listinfo/dancer-users
 - IRC: irc.perl.org#dancer
@@ -315,6 +329,7 @@ sub _build_file_list {
 
 sub _copy_templates {
     my ( $self, $files, $vars, $overwrite ) = @_;
+    my $app_name  = $vars->{ appname };
 
     foreach my $pair (@$files) {
         my ( $from, $to ) = @{$pair};
@@ -328,6 +343,7 @@ sub _copy_templates {
             next unless ( $res eq 'y' ) or ( $res eq 'a' );
         }
 
+        $to =~ s/AppFile/$app_name/;
         my $to_dir = path( $to )->parent;
         if ( ! $to_dir->is_dir ) {
             print "+ $to_dir\n";
@@ -349,7 +365,7 @@ sub _copy_templates {
             close $fh;
         }
 
-        if( $from !~ m/\.(ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/ ) {
+        if( $from !~ m/\.(db|ico|jpg|png|css|eot|map|swp|ttf|svg|woff|woff2|js)$/ ) {
             $content = $self->_process_template($content, $vars);
         }
 

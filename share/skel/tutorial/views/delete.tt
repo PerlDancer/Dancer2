@@ -1,0 +1,19 @@
+    <% IF entry %>
+    <div id="delete">
+        <form method="post" action="<% request.uri_for('/delete/' _ entry.id) %>">
+            <p>Delete entry <% entry.id %>. Are you sure?</p>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="yes" name="delete_it" value="yes">
+                <label class="form-check-label" for="yes">Yes</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="no" name="delete_it" value="no">
+                <label class="form-check-label" for="no">No</label>
+            </div><br>
+            <button type="submit" class="btn btn-danger">Delete Entry</button>
+        </form>
+    <% ELSE %>
+        <p>Invalid entry.</p>
+    <% END %>
+    </div>
+

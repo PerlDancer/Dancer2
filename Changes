@@ -6,6 +6,8 @@
     [ ENHANCEMENTS ]
     * GH #530: Make data censoring configurable (Yanick Champoux, David
       Precious)
+    * GH #850: Scaffold tutorial app; allow multiple apps to be scaffolded
+      in core Dancer2 (Jason A. Crome)
     * GH #1512: Log hook entries as they are executed (Yanick Champoux)
     * GH #1615: Remove Dancer2::Template::Simple from Dancer2 core (Jason
       A. Crome)

@@ -1,0 +1,21 @@
+    <div id="login">
+        <% IF login_error %>
+        <div class="alert alert-danger" id="login_error">
+            Invalid username or password
+        </div>
+        <% END %>
+        <form method="post" action="<% request.uri_for('/login') %>">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input class="form-control" type="text" name="username" id="username">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input class="form-control" type="password" name="password" id="password">
+            </div>
+            <input type="hidden" name="return_url" id="return_url" value="<% return_url %>">
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+
+
