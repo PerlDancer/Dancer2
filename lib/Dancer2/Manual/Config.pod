@@ -202,7 +202,7 @@ PSGI middleware. The default middleware wrappers are:
 
 =back
 
-=head3 additional_config_readers 
+=head3 additional_config_readers
 
 L<Dancer2::ConfigReader> instances to bootstrap the application's
 configuration. See the ConfigReader's POD for more information.
