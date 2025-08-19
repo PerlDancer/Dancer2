@@ -172,18 +172,18 @@ setting.
 
 =head1 Configuring Our Application
 
-By default, new Dancer2 applications use L<Dancer2::Template::Simple>.
-While this works well for the simplest of apps, it's not well suited to
+By default, new Dancer2 applications use L<Dancer2::Template::Tiny>.
+While this works well for some types of apps, it's not well suited to
 applications like the Danceyland Blog. Instead, we'll configure this
 application to use L<Template::Toolkit>, a mainstay of Perl templating.
 
 To enable Template Toolkit, you'll need to edit your F<config.yml>:
 
     # template engine
-    # simple: default and very basic template engine
+    # tiny: default basic template engine
     # template_toolkit: TT
 
-    #template: "simple"
+    #template: "tiny"
 
     template: "template_toolkit"
     engines:
@@ -194,7 +194,7 @@ To enable Template Toolkit, you'll need to edit your F<config.yml>:
           end_tag:   '%>'
 
 YAML files, such as your application config, support the same comment
-characters as Perl. L<Dancer2::Template::Simple> is disabled by commenting
+characters as Perl. L<Dancer2::Template::Tiny> is disabled by commenting
 that line in your config file, and the default TT config is used by
 uncommenting the C<template> and C<engines> configuration.
 

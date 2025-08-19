@@ -154,6 +154,8 @@ and headers are set properly:
 
     behind_proxy: 1
 
+For more information, see L<the configuration guide|Dancer2::Manual::Config/behind_proxy (boolean)>.
+
 =head2 Example: Using NGINX with Starman
 
 Here’s a basic NGINX configuration for a Dancer2 app running on Starman:
