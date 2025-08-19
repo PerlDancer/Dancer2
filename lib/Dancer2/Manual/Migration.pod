@@ -593,3 +593,22 @@ In Dancer2, we write:
 If you make changes to the session in an C<after> hook, your changes will
 not be written to storage, because writing sessions to storage also takes
 place in an (earlier) C<after> hook.
+
+=head2 Hooks
+
+The following Dancer 1 hooks have been renamed in Dancer2:
+
+=over 4
+
+=item * C<before_error_init> changed to C<init_error>.
+
+=item * C<before_error_render> changed to C<before_error>.
+
+=item * C<after_error_render> changed to C<after_error>.
+
+=back
+
+The original names are still supported, but you should change these to
+new versions during your migration as the aliases may be removed in a
+newer version of Dancer2.
+
