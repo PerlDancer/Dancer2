@@ -17,12 +17,12 @@ use IPC::Open3 qw();
 use Try::Tiny;
 use File::Which;
 
-option application => (
+option name => (
     is            => 'ro',
-    short         => 'a',
-    doc           => 'application name',
+    short         => 'n',
+    doc           => 'project name',
     format        => 's',
-    format_doc    => 'appname',
+    format_doc    => 'projectname',
     required      => 1,
     spacer_before => 1,
 );
@@ -30,11 +30,11 @@ option application => (
 option directory => (
     is         => 'ro',
     short      => 'd',
-    doc        => 'application directory (default: same as application name)',
+    doc        => 'project directory (default: same as project name)',
     format     => 's',
     format_doc => 'directory',
     required   => 0,
-    default    => sub { my $self = shift; return $self->application; },
+    default    => sub { my $self = shift; return $self->name; },
 );
 
 # This was causing conflict with Path::Tiny's path(), so renaming to avoid
@@ -66,12 +66,12 @@ option no_check => (
     default  => 0,
 );
 
-option skel => (
+option skel_dir => (
     is         => 'ro',
     short      => 's',
     doc        => 'skeleton directory',
     format     => 's',
-    format_doc => 'directory',
+    format_doc => 'skeldir',
     required   => 0,
     default    => sub{
         my $self = shift;
@@ -81,7 +81,7 @@ option skel => (
 
 option skel_name => (
     is         => 'ro',
-    short      => 'n',
+    short      => 'a',
     doc        => 'skeleton name',
     format     => 's',
     format_doc => 'skelname',
@@ -135,7 +135,7 @@ sub BUILD {
     $self->osprey_usage( 1, qq{
 Invalid application name. Application names must not contain single colons,
 dots, hyphens or start with a number.
-    }) unless is_module_name( $self->application );
+    }) unless is_module_name( $self->name );
 
     if ( my $remote = $self->remote ) {
         my $scheme = URI->new( $remote )->scheme // $self->remote; # This feels dirty
@@ -147,8 +147,8 @@ dots, hyphens or start with a number.
     -d $path or $self->osprey_usage( 1, "path: directory '$path' does not exist" );
     -w $path or $self->osprey_usage( 1, "path: directory '$path' is not writeable" );
 
-    if ( my $skel = $self->skel ) {
-        -d $skel or $self->osprey_usage( 1, "skel: directory '$skel' not found" );
+    if ( my $skel_dir = $self->skel_dir ) {
+        -d $skel_dir or $self->osprey_usage( 1, "skel: directory '$skel_dir' not found" );
     }
 }
 
@@ -156,7 +156,7 @@ sub run {
     my $self = shift;
     $self->_version_check unless $self->no_check;
 
-    my $app_name = $self->application;
+    my $app_name = $self->name;
     my $app_file = $self->_get_app_file( $app_name );
     my $app_path = $self->_get_app_path( $self->app_path, $app_name );
 
@@ -164,7 +164,7 @@ sub run {
         $app_path = path( $self->app_path, $dir );
     }
 
-    my $files_to_copy = $self->_build_file_list( $self->skel . '/' . $self->skel_name, $app_path );
+    my $files_to_copy = $self->_build_file_list( $self->skel_dir . '/' . $self->skel_name, $app_path );
     foreach my $pair( @$files_to_copy ) {
         if( $pair->[0] =~ m/lib\/AppFile.pm$/ ) {
             $pair->[1] = path( $app_path, $app_file );
