@@ -27,6 +27,8 @@
       (Jason A. Crome)
     * PR #1721: New Dancer2 docs, reorganization of all documentation;
       from TPRF grant (Jason A. Crome)
+    * PR #1741: Cover items missed in earlier documentation branch (Jason
+      A. Crome)
 
     [ DEPRECATED ]
     * None

@@ -2122,31 +2122,178 @@ In this example, we store the visitor’s ID (based on their IP address)
 in the C<vars> keyword during the C<before> hook. That value is later
 used in the C</vip-area> route to personalize the response.
 
+=head3 Request Hooks
+
+At the ticket booth just inside the entrance of Danceyland, the friendly
+gatekeeper scans every visitor's pass and gives them a sticker as they pass
+into the park:
+
+    hook before => sub {
+        var sticker => 1;
+    };
+
+The C<before> hook runs before any other code just before each request is
+handled. In this example, we set a var, C<sticker>, that can be used later
+in the request.
+
+As each visitor leaves, a park employee stamps each person's hand so they
+can be readmitted later in the day:
+
+    hook after => sub {
+        my $user = var user;
+        $user->stamp_hand;
+    };
+
+For this example, An object representing a user was stored in a var earlier
+in the request. On the user's way out (via the C<after> hook), their hand
+gets stamped, and could be checked the next time the user enters the park
+to skip buying another ticket.
+
 =head3 Template Hooks
 
-Template hooks allow you to manipulate data before or after templates
-are rendered:
+At Danceyland’s Caricature Corner, the brilliant artist B<Picasso McGlitterpants>
+creates a sketch of every guest who stops by. The caricature goes through
+several phases before it’s ready to hang on your wall:
+
+=over
+
+=item * Before the sketch is drawn: Picasso sharpens their pencils
+
+=item * While drawing: the artist sneaks in little embellishments
+
+=item * When the sketch is done: Picasso proudly signs their masterpiece
+
+=item * Before handing it to you: the park staff pops it into a fancy frame
+
+=back
+
+Before the sketching starts, Picasso ensures all the materials are in order:
 
     hook before_template_render => sub {
         my $tokens = shift;
-        $tokens->{footer_note} = "Thanks for visiting Danceyland!";
+
+        # Picasso McGlitterpants sharpens their pencils and sets up the
+        # paper before drawing begins.
+        $tokens->{materials_ready} = 1;
     };
 
-In this example, the C<footer_note> is added to the template tokens
-before it gets rendered. That token is available in the template as
-C<[% footer_note %]>.
+Template hooks allow you to manipulate data before or after a view
+(i.e., template) is rendered. C<materials_ready> is added as a template
+token before the view gets rendered. That token is made available in the
+template as C<[% materials_ready %]>.
+
+When the sketch is finished, Picasso adds their signature (with extra glitter,
+of course) to make sure the caricature is authentic:
+
+    hook after_template_render => sub {
+        my $content = shift;
+        $$content .= "\n\n-- Signed by Picasso McGlitterpants 🎨✨";
+    };
+
+This happens after the view/template is rendered, but before it is shown
+to the user.
+
+Before the sketch is mounted, the artist sprinkles it with sparkles, making
+sure the presentation twinkles with Danceyland charm:
+
+    hook before_layout_render => sub {
+        my ($tokens, $content) = @_;
+
+        $tokens->{special_effects} = 'sparkles';
+    };
+
+Layout hooks apply after views are rendered, when the layout is going
+to be applied. The C<before_layout_render> hook is run prior to the layout
+being applied. It's a useful place to check for things such as whether or
+not is authorized to view select content.
+
+At the very end, just before the guest receives their caricature, the staff pops
+it into a silvery frame so it’s ready to hang at home:
+
+    hook after_layout_render => sub {
+        my $content = shift;
+
+        $$content = '<div class="silver-frame">' . $$content . "</div>";
+    };
+
+The C<after_layout_render> hook is the last chance to alter content before
+being sent to the browser.
 
 =head3 Error Handling Hooks
 
-Error hooks let you modify how errors are handled:
+Even in Danceyland, sometimes the roller coaster gets stuck at the top, or
+the cotton candy machine makes a little too much fluff. That’s when our
+friendly park attendants step in!
 
-    hook on_handler_exception => sub {
-        my $error = shift;
-        warning "Oops! We encountered an error: $error";
+Error hooks let you step in whenever something goes wrong in an application.
+Just like Danceyland staff rushing over with a smile and a toolkit, your
+error hook can log what happened, show a helpful message, or gently guide
+the guest to the right exit.
+
+    hook on_route_exception => sub {
+        my ($error) = @_;
+        warning "Picasso McGlitterpants spilled glitter on the server: $error";
     };
 
-This hook runs when an exception occurs in a route handler, logging the
-error.
+Or you can catch a general error and provide your own response:
+
+    hook before_error => sub {
+        my ($error) = @_;
+        $error->message("Oops! One of the rides jammed. " .
+            "Please enjoy a free churro while we fix it.");
+    };
+
+Other error hooks include:
+
+=over
+
+=item * init_error
+
+This runs right after a new L<Dancer2::Core::Error> object is built. The new
+error object is passed to the hook as an argument.
+
+=item * after_error
+
+This hook is called right after error is thrown, and receives a
+L<Dancer2::Core::Response> object as an argument.
+
+=item * on_hook_exception
+
+This hook is special, and is only called when an exception is caught in
+another hook, just before logging it and rethrowing it higher.
+
+This hook receives as arguments:
+
+=over
+
+=item * A L<Dancer2::Core::App> object
+
+=item * The error string
+
+=item * The name of the hook where the exception occurred
+
+The hook name is the full hook name (e.g. C<core.app.route_exception>).
+
+=back
+
+If the function provided to C<on_hook_exception> causes an exception itself, then
+this will be ignored (thus preventing a potentially recursive situation).
+However, it is still possible for the function to set a custom response and
+halt it (and optionally die), thus providing a method to render custom content
+in the event of an exception in a hook:
+
+    hook on_hook_exception => sub {
+        my ($app, $error, $hook_name) = @_;
+        $app->response->content("Oh noes! The popcorn machine " .
+            "overheated and overflowed!");
+        $app->response->halt;
+    };
+
+=back
+
+Think of error hooks as the ever-present Danceyland helpers: they
+make sure that when a mishap occurs, guests are cared for and can
+keep smiling on their way to the next attraction.
 
 =head3 File Rendering Hooks
 
@@ -2164,22 +2311,60 @@ File rendering hooks are triggered when static files are served:
 
 =head3 Logging Hooks
 
-You can customize logging behavior using hooks:
+Logging hooks can be used to give additional information or context to
+Danceyland maintenance workers when something breaks down, or to ride
+operators to help ensure smooth operation of rides:
 
-    hook before_logger => sub {
-        my $level = shift;
-        debug "A log message at level $level is about to be written.";
+    hook 'engine.logger.before' => sub {
+        my ( $logger, $level, @messages ) = @_;
+        push @messages, 'Request ID: ' . vars->{request_id};
     };
+
+    hook 'engine.logger.after' => sub {
+        my ( $logger, $level, @messages ) = @_;
+        if( $level eq 'error' ) {
+            # Add code to send an email here
+        }
+    };
+
+These hooks are useful when you want to prepend or append information to
+a log message, write messages out in a specific format, or take additional
+action based on message severity.
 
 =head3 Serializer Hooks
 
-Serializer hooks allow you to manipulate serialized data before it’s
-sent to the client:
+Every great visit to Danceyland ends with a souvenir! Serializer hooks
+are the way Danceyland decides how to wrap up your experience before
+sending you home. Maybe you get your caricature rolled up in a tube,
+maybe it’s slipped into a glossy folder, or maybe Picasso McGlitterpants
+mails it to you as a postcard.
 
-    hook before_serialize => sub {
-        my $data = shift;
-        debug "Serializing this data: " . to_json($data);
+That’s what serializers do: they take the "thing" (your response)
+and package it in the right format (JSON, YAML, plain text, etc.)
+so you can carry it with you outside the park.
+
+For example:
+
+    set serializer => 'JSON';
+
+Now, every souvenir is neatly wrapped in shiny JSON paper.
+
+And if you want a custom wrapper, you can hook into the
+serializer process yourself:
+
+    hook before_serializer => sub {
+        my ($content) = @_;
+        debug "Preparing to wrap up: $content";
     };
+
+    hook after_serializer => sub {
+        my ($serialized) = @_;
+        debug "Souvenir has been wrapped: $serialized";
+    };
+
+So whenever you see serializer hooks, think of the Danceyland
+souvenir shop — the place that makes sure you don’t just have
+a memory, but also a neatly wrapped keepsake to take home.
 
 =head2 Handlers
 
@@ -2191,29 +2376,7 @@ also create your own handlers to extend the park’s offerings.
 
 The L<Dancer2::Handler::File> component is used to serve static files,
 like images and stylesheets, from the C<public> directory. It comes with
-two hooks:
-
-=over 4
-
-=item before_file_render
-
-Called before the file is served:
-
-    hook before_file_render => sub {
-        my $path = shift;
-        debug "Serving file: $path";
-    };
-
-=item C<after_file_render>
-
-Called after the file is served:
-
-    hook after_file_render => sub {
-        my $response = shift;
-        debug "File served, status: " . $response->status;
-    };
-
-=back
+two hooks; see the L</Hooks> section for more information.
 
 =head2 Auto Page Handler
 

@@ -77,7 +77,7 @@ sub _build_config {
 
     my $config  = $self->default_config;
 
-    my $nbr_config = 0; 
+    my $nbr_config = 0;
 
     my @readers = @{ $self->config_readers };
 
@@ -101,14 +101,14 @@ sub _build_config {
     };
 
     while( my $r = shift @readers ) {
-        die <<"END" if $nbr_config++ >= $MAX_CONFIGS; 
+        die <<"END" if $nbr_config++ >= $MAX_CONFIGS;
 MAX_CONFIGS exceeded: read over $MAX_CONFIGS configurations
 
 Looks like you have an infinite recursion in your configuration system.
 Re-run with DANCER_CONFIG_VERBOSE=1 to see what is going on.
 
-If your application really read that many configs (may \$dog have mercy 
-on your soul), you can increase the limit via the environment variable 
+If your application really read that many configs (may \$dog have mercy
+on your soul), you can increase the limit via the environment variable
 DANCER_MAX_CONFIGS.
 
 END
@@ -162,7 +162,7 @@ __END__
 
 =head1 DESCRIPTION
 
-This class provides a C<config> attribute which is populated by executing 
+This class provides a C<config> attribute which is populated by executing
 one or more B<ConfigReader> packages.
 
 The default ConfigReader used is L<Dancer2::ConfigReader::Config::Any>.
@@ -170,10 +170,10 @@ The default ConfigReader used is L<Dancer2::ConfigReader::Config::Any>.
 Also provides a C<setting()> method which is supposed to be used by externals to
 read/write config entries.
 
-If more than one config reader is used, their configurations are merged 
+If more than one config reader is used, their configurations are merged
 in left-to-write order where the previous config items get overwritten by subsequent ones.
 
-For example, assuming we are using 3 config readers, 
+For example, assuming we are using 3 config readers,
 if the first config reader returns
 
     item1: content1
@@ -188,7 +188,7 @@ if the first config reader returns
         subitem1: subcontent1
         subitem2: subcontent2
 
-and  the second returns 
+and the second returns
 
     item2: content9
     item3:

@@ -282,7 +282,12 @@ function with decoded input.
 
 =head3 Templating engine changes
 
-Whereas in Dancer1, the following were equivalent for Template::Toolkit:
+If you are migrating from Dancer1 and are using an application based
+on L<Dancer::Template::Simple>, the L<Dancer2::Template::Simple> engine is
+no longer part of the core Dancer2 distribution. It is available to
+install as a separate distribution from CPAN.
+
+In Dancer1, the following were equivalent for Template::Toolkit:
 
     template 'foo/bar'
     template '/foo/bar'
@@ -327,6 +332,13 @@ will need to call C<config>:
 
     # after
     config->{'public_dir'} = 'new_path';
+
+=head3 confdir
+
+You cannot set the configuration directory (C<confdir>) with C<setting>
+now. You can use an environment variable, however:
+
+    export DANCER_CONFDIR=$PROJECT_ROOT/etc
 
 =head3 warnings
 
@@ -526,7 +538,7 @@ The session keyword has multiple states:
 =item * No arguments
 
 Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
-object, which has methods for L<read|Dancer2::Core::Session/read>, 
+object, which has methods for L<read|Dancer2::Core::Session/read>,
 L<write|Dancer2::Core::Session/write>, and L<delete|Dancer2::Core::Session/delete>.
 
     my $session = session;
@@ -581,3 +593,22 @@ In Dancer2, we write:
 If you make changes to the session in an C<after> hook, your changes will
 not be written to storage, because writing sessions to storage also takes
 place in an (earlier) C<after> hook.
+
+=head2 Hooks
+
+The following Dancer 1 hooks have been renamed in Dancer2:
+
+=over 4
+
+=item * C<before_error_init> changed to C<init_error>.
+
+=item * C<before_error_render> changed to C<before_error>.
+
+=item * C<after_error_render> changed to C<after_error>.
+
+=back
+
+The original names are still supported, but you should change these to
+new versions during your migration as the aliases may be removed in a
+newer version of Dancer2.
+
