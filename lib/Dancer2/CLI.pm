@@ -7,6 +7,7 @@ use File::Share 'dist_dir';
 use Module::Runtime 'use_module';
 
 subcommand gen => 'Dancer2::CLI::Gen';
+subcommand 'gen-app' => 'Dancer2::CLI::Gen';
 
 # Could have done this one inline, but wanted to remain consistent
 # across subcommands.
