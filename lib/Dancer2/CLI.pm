@@ -3,6 +3,7 @@ package Dancer2::CLI;
 
 use Moo;
 use CLI::Osprey;
+use Path::Tiny;
 use File::Share 'dist_dir';
 use Module::Runtime 'use_module';
 
@@ -27,6 +28,27 @@ has _dist_dir => (
 sub run {
     my $self = shift;
     return $self->osprey_usage;
+}
+
+sub _get_app_path {
+    my ( $self, $path, $appname ) = @_;
+    return path( $path, $self->_get_dashed_name( $appname ));
+}
+
+sub _get_app_file {
+    my ( $self, $appname ) = @_;
+    $appname =~ s{::}{/}g;
+    return path( 'lib', "$appname.pm" );
+}
+
+sub _get_perl_interpreter {
+    return -r '/usr/bin/env' ? '#!/usr/bin/env perl' : "#!$^X";
+}
+
+sub _get_dashed_name {
+    my ( $self, $name ) = @_;
+    $name =~ s{::}{-}g;
+    return $name;
 }
 
 1;
