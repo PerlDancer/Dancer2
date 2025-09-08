@@ -157,8 +157,8 @@ sub run {
     $self->_version_check unless $self->no_check;
 
     my $app_name = $self->application;
-    my $app_file = $self->_get_app_file( $app_name );
-    my $app_path = $self->_get_app_path( $self->app_path, $app_name );
+    my $app_file = $self->parent_command->_get_app_file( $app_name );
+    my $app_path = $self->parent_command->_get_app_path( $self->app_path, $app_name );
 
     if( my $dir = $self->directory ) {
         $app_path = path( $self->app_path, $dir );
@@ -182,8 +182,8 @@ sub run {
         apppath          => $app_path,
         appdir           => File::Spec->rel2abs( $app_path ),
         apppath          => $app_path,
-        perl_interpreter => $self->_get_perl_interpreter,
-        cleanfiles       => $self->_get_dashed_name( $app_name ),
+        perl_interpreter => $self->parent_command->_get_perl_interpreter,
+        cleanfiles       => $self->parent_command->_get_dashed_name( $app_name ),
         dancer_version   => $self->parent_command->_dancer2_version,
         docker           => $self->docker,
     };
@@ -410,30 +410,6 @@ sub _process_template {
     return $self->_engine->render( \$template, $tokens );
 }
 
-# These are good candidates to move to Dancer2::CLI if other commands
-# need them later.
-sub _get_app_path {
-    my ( $self, $path, $appname ) = @_;
-    return path( $path, $self->_get_dashed_name( $appname ));
-}
-
-sub _get_app_file {
-    my ( $self, $appname ) = @_;
-    $appname =~ s{::}{/}g;
-    return path( 'lib', "$appname.pm" );
-}
-
-sub _get_perl_interpreter {
-    return -r '/usr/bin/env' ? '#!/usr/bin/env perl' : "#!$^X";
-}
-
-sub _get_dashed_name {
-    my ( $self, $name ) = @_;
-    $name =~ s{::}{-}g;
-    return $name;
-}
-
-# Other utility methods
 sub _version_check {
     my $self    = shift;
     my $version = $self->parent_command->_dancer2_version;
