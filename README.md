@@ -71,7 +71,7 @@ You have questions. We have answers.
 
 - Cookbook
 
-    How do I...? Our [cookbook](https://metacpan.org/pod/Dancer2%3A%3ACookbook)
+    How do I...? Our [cookbook](https://metacpan.org/dist/Dancer2/view/lib/Dancer2/Manual/Cookbook.pod)
     comes with various recipes in many tasty flavors!
 
 - Plugins
