@@ -104,7 +104,7 @@ You have questions. We have answers.
 
 - Contributing
 
-    The [contribution guidelines](https://github.com/PerlDancer/Dancer2/blob/master/Contributing.md) describe
+    The [contribution guidelines](https://github.com/PerlDancer/Dancer2/blob/main/CONTRIBUTING.md) describe
     how to set up your development environment to contribute to the development of Dancer2,
     Dancer2's Git workflow, submission guidelines, and various coding standards.
 
