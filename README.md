@@ -45,7 +45,7 @@ You have questions. We have answers.
 
 - Quick Start
 
-    Want to get going faster? [Quick Start](https://somewhere) will help
+    Want to get going faster? [Quick Start](https://metacpan.org/dist/Dancer2/view/lib/Dancer2/Manual/QuickStart.pod) will help
     you install Dancer2 and bootstrap a new application quickly.
 
 - Manual
