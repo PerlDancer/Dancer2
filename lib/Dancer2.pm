@@ -340,6 +340,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Hobbestigrou
     Hunter McMillen
     ice-lenor
+    icyavocado
     Ivan Bessarabov
     Ivan Kruglov
     JaHIY
