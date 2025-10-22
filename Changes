@@ -8,12 +8,14 @@
 
     [ DOCUMENTATION ]
     * GH #1745: Fix cookbook link in README (icyavocado)
+    * PR #1748: Various documentation fixes (Jason A. Crome)
 
     [ DEPRECATED ]
     * None
 
     [ MISC ]
     * None
+
 2.0.0     2025-09-15 17:49:26-04:00 America/New_York
 
     [ BUG FIXES ]
