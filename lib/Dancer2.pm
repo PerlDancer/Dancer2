@@ -156,10 +156,10 @@ You have questions. We have answers.
 
 =item * Dancer2 Tutorial
 
-Want to learn by example? The L<Dancer2::Manual::Tutorial> will take you from
+Want to learn by example? The L<tutorial|Dancer2::Manual::Tutorial> will take you from
 installation to a working application.
 
-item * Quick Start
+=item * Quick Start
 
 Want to get going faster? L<Quick Start|Dancer2::Manual::QuickStart> will help you install Dancer2
 and bootstrap a new application quickly.

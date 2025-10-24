@@ -1,4 +1,4 @@
-package Dancer2::Tutorial;
+package Dancer2::Manual::Tutorial;
 # ABSTRACT: A step-by-step guide to get you dancing
 
 =encoding utf8
