@@ -37,7 +37,7 @@ complete outline on where to go for help.
 =item * Dancer2 Tutorial
 
 If you are new to the Dancer approach, you should start by reading
-our L<Dancer2::Tutorial>.
+our L<Dancer2::Manual::Tutorial>.
 
 =item * Dancer2 Manual
 
