@@ -2,16 +2,16 @@
 package Dancer2::Core::App;
 
 use Moo;
-use Carp               qw<croak carp>;
-use Scalar::Util       'blessed';
-use List::Util         ();
-use Module::Runtime    'is_module_name';
+use Carp qw<croak carp>;
+use Scalar::Util 'blessed';
+use List::Util ();
+use Module::Runtime 'is_module_name';
 use Safe::Isa;
 use Sub::Quote;
 use File::Spec;
-use Module::Runtime    qw< require_module use_module >;
-use Ref::Util          qw< is_ref is_arrayref is_globref is_scalarref is_regexpref >;
-use Sub::Util          qw/ set_subname subname /;
+use Module::Runtime qw< require_module use_module >;
+use Ref::Util qw< is_ref is_arrayref is_globref is_scalarref is_regexpref >;
+use Sub::Util qw/ set_subname subname /;
 
 use Plack::App::File;
 use Plack::Middleware::FixMissingBodyInRedirect;
@@ -32,7 +32,8 @@ use Dancer2::Core::Factory;
 
 use Dancer2::Handler::File;
 
-our $EVAL_SHIM; $EVAL_SHIM ||= sub {
+our $EVAL_SHIM;
+$EVAL_SHIM ||= sub {
     my $code = shift;
     $code->(@_);
 };
@@ -40,34 +41,37 @@ our $EVAL_SHIM; $EVAL_SHIM ||= sub {
 
 # we have hooks here
 with qw<
-    Dancer2::Core::Role::Hookable
-    Dancer2::Core::Role::HasConfig
-    Dancer2::Core::Role::HasLocation
-    Dancer2::Core::Role::HasEnvironment
+  Dancer2::Core::Role::Hookable
+  Dancer2::Core::Role::HasConfig
+  Dancer2::Core::Role::HasLocation
+  Dancer2::Core::Role::HasEnvironment
 >;
 
-sub supported_engines { [ qw<logger serializer session template> ] }
+sub supported_engines { [qw<logger serializer session template>] }
 
 sub with_plugins {
-    my ( $self, @plugins ) = @_;
+    my ($self, @plugins) = @_;
     return map $self->_with_plugin($_), @plugins;
 
 }
 
 sub _with_plugin {
-    my( $self, $plugin ) = @_;
+    my ($self, $plugin) = @_;
 
-    if ( is_ref($plugin) ) {
+    if (is_ref($plugin)) {
+
         # passing the plugin as an already-created object
 
         # already loaded?
-        if( my ( $already ) = grep { ref($plugin) eq ref $_; } @{ $self->plugins } ) {
-                die "trying to load two different objects for plugin ". ref $plugin
-                    if refaddr($plugin) != refaddr $already ;
+        if (my ($already) = grep { ref($plugin) eq ref $_; } @{$self->plugins})
+        {
+            die "trying to load two different objects for plugin "
+              . ref $plugin
+              if refaddr($plugin) != refaddr $already;
 
         }
         else {
-            push @{ $self->plugins }, $plugin;
+            push @{$self->plugins}, $plugin;
         }
 
         return $plugin;
@@ -75,48 +79,47 @@ sub _with_plugin {
 
     # short plugin names get Dancer2::Plugin:: prefix
     # plugin names starting with a '+' are full package names
-    if ( $plugin !~ s/^\+// ) {
+    if ($plugin !~ s/^\+//) {
         $plugin =~ s/^(?!Dancer2::Plugin::)/Dancer2::Plugin::/;
     }
 
     # check if it's already there
-    if( my ( $already ) = grep { $plugin eq ref $_ } @{ $self->plugins } ) {
+    if (my ($already) = grep { $plugin eq ref $_ } @{$self->plugins}) {
         return $already;
     }
 
-    push @{ $self->plugins },
-         $plugin = use_module($plugin)->new( app => $self );
+    push @{$self->plugins}, $plugin = use_module($plugin)->new(app => $self);
 
     return $plugin;
 }
 
 sub with_plugin {
-    my( $self, $plugin ) = @_;
+    my ($self, $plugin) = @_;
 
     croak "expected a single argument"
-        unless @_ == 2;
+      unless @_ == 2;
 
-    ( $self->with_plugins($plugin) )[0];
+    ($self->with_plugins($plugin))[0];
 }
 
 has _factory => (
     is      => 'ro',
-    isa     => InstanceOf['Dancer2::Core::Factory'],
+    isa     => InstanceOf ['Dancer2::Core::Factory'],
     lazy    => 1,
     default => sub { Dancer2::Core::Factory->new },
 );
 
 has logger_engine => (
-    is        => 'ro',
-    isa       => ConsumerOf['Dancer2::Core::Role::Logger'],
-    lazy      => 1,
-    builder   => '_build_logger_engine',
-    writer    => 'set_logger_engine',
+    is      => 'ro',
+    isa     => ConsumerOf ['Dancer2::Core::Role::Logger'],
+    lazy    => 1,
+    builder => '_build_logger_engine',
+    writer  => 'set_logger_engine',
 );
 
 has session_engine => (
     is      => 'ro',
-    isa     => ConsumerOf['Dancer2::Core::Role::SessionFactory'],
+    isa     => ConsumerOf ['Dancer2::Core::Role::SessionFactory'],
     lazy    => 1,
     builder => '_build_session_engine',
     writer  => 'set_session_engine',
@@ -124,18 +127,18 @@ has session_engine => (
 
 has template_engine => (
     is      => 'ro',
-    isa     => ConsumerOf['Dancer2::Core::Role::Template'],
+    isa     => ConsumerOf ['Dancer2::Core::Role::Template'],
     lazy    => 1,
     builder => '_build_template_engine',
     writer  => 'set_template_engine',
 );
 
 has serializer_engine => (
-    is      => 'ro',
-    isa     => ConsumerOf['Dancer2::Core::Role::Serializer'],
-    lazy    => 1,
-    builder => '_build_serializer_engine',
-    writer  => 'set_serializer_engine',
+    is        => 'ro',
+    isa       => ConsumerOf ['Dancer2::Core::Role::Serializer'],
+    lazy      => 1,
+    builder   => '_build_serializer_engine',
+    writer    => 'set_serializer_engine',
     predicate => 'has_serializer_engine',
 );
 
@@ -143,6 +146,7 @@ has '+local_triggers' => (
     default => sub {
         my $self     = shift;
         my $triggers = {
+
             # general triggers we want to allow, besides engines
             views => sub {
                 my $self  = shift;
@@ -163,7 +167,7 @@ has '+local_triggers' => (
             },
 
             log => sub {
-                my ( $self, $value, $config ) = @_;
+                my ($self, $value, $config) = @_;
 
                 # This will allow to set the log level
                 # using: set log => warning
@@ -171,7 +175,7 @@ has '+local_triggers' => (
             },
         };
 
-        foreach my $engine ( @{ $self->supported_engines } ) {
+        foreach my $engine (@{$self->supported_engines}) {
             $triggers->{$engine} = sub {
                 my $self   = shift;
                 my $value  = shift;
@@ -181,7 +185,7 @@ has '+local_triggers' => (
 
                 my $build_method    = "_build_${engine}_engine";
                 my $setter_method   = "set_${engine}_engine";
-                my $engine_instance = $self->$build_method( $value, $config );
+                my $engine_instance = $self->$build_method($value, $config);
 
                 # set the engine with the new value from the builder
                 $self->$setter_method($engine_instance);
@@ -209,13 +213,13 @@ sub _build_logger_engine {
     defined $value or $value = 'console';
 
     is_module_name($value)
-        or croak "Cannot load logger engine '$value': illegal module name";
+      or croak "Cannot load logger engine '$value': illegal module name";
 
     my $engine_options =
-        $self->_get_config_for_engine( logger => $value, $config );
+      $self->_get_config_for_engine(logger => $value, $config);
 
     my $logger = $self->_factory->create(
-        logger          => $value,
+        logger => $value,
         %{$engine_options},
         location        => $self->config_reader->config_location,
         environment     => $self->environment,
@@ -239,17 +243,17 @@ sub _build_session_engine {
     is_ref($value) and return $value;
 
     is_module_name($value)
-        or croak "Cannot load session engine '$value': illegal module name";
+      or croak "Cannot load session engine '$value': illegal module name";
 
     my $engine_options =
-          $self->_get_config_for_engine( session => $value, $config );
+      $self->_get_config_for_engine(session => $value, $config);
 
-    Scalar::Util::weaken( my $weak_self = $self );
+    Scalar::Util::weaken(my $weak_self = $self);
 
-    # Note that engine options will replace the default session_dir (if provided).
+ # Note that engine options will replace the default session_dir (if provided).
     return $self->_factory->create(
-        session         => $value,
-        session_dir     => path( $self->config->{appdir}, 'sessions' ),
+        session     => $value,
+        session_dir => path($self->config->{appdir}, 'sessions'),
         %{$engine_options},
         postponed_hooks => $self->postponed_hooks,
 
@@ -269,22 +273,22 @@ sub _build_template_engine {
     is_ref($value) and return $value;
 
     is_module_name($value)
-        or croak "Cannot load template engine '$value': illegal module name";
+      or croak "Cannot load template engine '$value': illegal module name";
 
     my $engine_options =
-          $self->_get_config_for_engine( template => $value, $config );
+      $self->_get_config_for_engine(template => $value, $config);
 
     my $engine_attrs = {
-        config => $engine_options,
-        layout => $config->{layout},
-        layout_dir => ( $config->{layout_dir} || 'layouts' ),
-        views => $config->{views},
+        config     => $engine_options,
+        layout     => $config->{layout},
+        layout_dir => ($config->{layout_dir} || 'layouts'),
+        views      => $config->{views},
     };
 
-    Scalar::Util::weaken( my $weak_self = $self );
+    Scalar::Util::weaken(my $weak_self = $self);
 
     return $self->_factory->create(
-        template        => $value,
+        template => $value,
         %{$engine_attrs},
         postponed_hooks => $self->postponed_hooks,
 
@@ -304,9 +308,9 @@ sub _build_serializer_engine {
     is_ref($value) and return $value;
 
     my $engine_options =
-        $self->_get_config_for_engine( serializer => $value, $config );
+      $self->_get_config_for_engine(serializer => $value, $config);
 
-    Scalar::Util::weaken( my $weak_self = $self );
+    Scalar::Util::weaken(my $weak_self = $self);
 
     return $self->_factory->create(
         serializer      => $value,
@@ -324,12 +328,12 @@ sub _get_config_for_engine {
     my $config = shift;
 
     defined $config->{'engines'} && defined $config->{'engines'}{$engine}
-        or return {};
+      or return {};
 
     # try both camelized name and regular name
     my $engine_config = {};
-    foreach my $engine_name ( $name, Dancer2::Core::camelize($name) ) {
-        if ( defined $config->{'engines'}{$engine}{$engine_name} ) {
+    foreach my $engine_name ($name, Dancer2::Core::camelize($name)) {
+        if (defined $config->{'engines'}{$engine}{$engine_name}) {
             $engine_config = $config->{'engines'}{$engine}{$engine_name};
             last;
         }
@@ -365,7 +369,7 @@ has name => (
 
 has request => (
     is        => 'ro',
-    isa       => InstanceOf['Dancer2::Core::Request'],
+    isa       => InstanceOf ['Dancer2::Core::Request'],
     writer    => '_set_request',
     clearer   => 'clear_request',
     predicate => 'has_request',
@@ -373,18 +377,20 @@ has request => (
 
 sub set_request {
     my ($self, $request, $defined_engines) = @_;
+
     # typically this is passed in as an optimization within the
     # dispatch loop but may be called elsewhere
     $defined_engines ||= $self->defined_engines;
+
     # populate request in app and all engines
     $self->_set_request($request);
-    Scalar::Util::weaken( my $weak_request = $request );
-    $_->set_request( $weak_request ) for @{$defined_engines};
+    Scalar::Util::weaken(my $weak_request = $request);
+    $_->set_request($weak_request) for @{$defined_engines};
 }
 
 has response => (
     is        => 'ro',
-    isa       => InstanceOf['Dancer2::Core::Response'],
+    isa       => InstanceOf ['Dancer2::Core::Response'],
     lazy      => 1,
     writer    => 'set_response',
     clearer   => 'clear_response',
@@ -401,7 +407,7 @@ has with_return => (
 
 has session => (
     is        => 'ro',
-    isa       => InstanceOf['Dancer2::Core::Session'],
+    isa       => InstanceOf ['Dancer2::Core::Session'],
     lazy      => 1,
     builder   => '_build_session',
     writer    => 'set_session',
@@ -411,7 +417,7 @@ has session => (
 
 has config_reader => (
     is      => 'ro',
-    isa     => InstanceOf['Dancer2::ConfigReader'],
+    isa     => InstanceOf ['Dancer2::ConfigReader'],
     lazy    => 0,
     builder => '_build_config_reader',
 );
@@ -420,7 +426,7 @@ sub _build_config_reader {
     my ($self) = @_;
     my $cfgr = Dancer2::ConfigReader->new(
         environment    => $self->environment,
-        location       => $ENV{DANCER_CONFDIR}     || $self->location,
+        location       => $ENV{DANCER_CONFDIR} || $self->location,
         default_config => $self->_build_default_config(),
     );
     return $cfgr;
@@ -437,10 +443,10 @@ sub _build_config {
     my ($self) = @_;
 
     my $config_reader = $self->config_reader;
-    my $config = $config_reader->config;
+    my $config        = $config_reader->config;
 
-    if ( $config && $config->{'engines'} ) {
-        $self->_validate_engine($_) for keys %{ $config->{'engines'} };
+    if ($config && $config->{'engines'}) {
+        $self->_validate_engine($_) for keys %{$config->{'engines'}};
     }
 
     return $config;
@@ -451,8 +457,8 @@ sub _build_response {
     return Dancer2::Core::Response->new(
         server_tokens => !$self->config->{'no_server_tokens'},
         $self->has_serializer_engine
-            ? ( serializer => $self->serializer_engine )
-            : (),
+        ? (serializer => $self->serializer_engine)
+        : (),
     );
 }
 
@@ -464,25 +470,27 @@ sub _build_session {
     my $engine = $self->session_engine;
 
     # find the session cookie if any
-    if ( !$self->has_destroyed_session ) {
+    if (!$self->has_destroyed_session) {
         my $session_id;
-        my $session_cookie = $self->cookie( $engine->cookie_name );
-        defined $session_cookie and
-            $session_id = $session_cookie->value;
+        my $session_cookie = $self->cookie($engine->cookie_name);
+        defined $session_cookie
+          and $session_id = $session_cookie->value;
 
         # if we have a session cookie, try to retrieve the session
-        if ( defined $session_id ) {
-            eval  {
-                $EVAL_SHIM->(sub {
-                    $session = $engine->retrieve( id => $session_id );
-                });
+        if (defined $session_id) {
+            eval {
+                $EVAL_SHIM->(
+                    sub {
+                        $session = $engine->retrieve(id => $session_id);
+                    }
+                );
                 1;
-            }
-            or do {
+            } or do {
                 my $err = $@ || "Zombie Error";
-                if ( $err !~ /Unable to retrieve session/ ) {
-                    croak "Failed to retrieve session: $err"
-                } else {
+                if ($err !~ /Unable to retrieve session/) {
+                    croak "Failed to retrieve session: $err";
+                }
+                else {
                     # XXX we throw away the error entirely? Why?
                 }
             };
@@ -499,8 +507,8 @@ sub has_session {
     my $engine = $self->session_engine;
 
     return $self->_has_session
-        || ( $self->cookie( $engine->cookie_name )
-             && !$self->has_destroyed_session );
+      || ($self->cookie($engine->cookie_name)
+        && !$self->has_destroyed_session);
 }
 
 has destroyed_session => (
@@ -518,8 +526,8 @@ has 'prep_apps' => (
 );
 
 sub find_plugin {
-    my ( $self, $name ) = @_;
-    my $plugin = List::Util::first { ref($_) eq $name } @{ $self->plugins };
+    my ($self, $name) = @_;
+    my $plugin = List::Util::first { ref($_) eq $name } @{$self->plugins};
     $plugin or return;
     return $plugin;
 }
@@ -535,13 +543,13 @@ sub destroy_session {
     # a new session is created and supercedes it
     my $session = $self->session;
     $session->expires(-86400);    # yesterday
-    $engine->destroy( id => $session->id );
+    $engine->destroy(id => $session->id);
 
     # Invalidate session cookie in request
     # and clear session in app and engines
     $self->set_destroyed_session($session);
     $self->clear_session;
-    $_->clear_session for @{ $self->defined_engines };
+    $_->clear_session for @{$self->defined_engines};
 
     return;
 }
@@ -549,10 +557,10 @@ sub destroy_session {
 sub setup_session {
     my $self = shift;
 
-    for my $engine ( @{ $self->defined_engines } ) {
-        $self->has_session                         ?
-            $engine->set_session( $self->session ) :
-            $engine->clear_session;
+    for my $engine (@{$self->defined_engines}) {
+        $self->has_session
+          ? $engine->set_session($self->session)
+          : $engine->clear_session;
     }
 }
 
@@ -567,7 +575,7 @@ sub change_session_id {
     if ($engine->can('_change_id')) {
 
         # session engine can change session ID
-        $engine->change_id( session => $session );
+        $engine->change_id(session => $session);
     }
     else {
 
@@ -601,7 +609,7 @@ sub change_session_id {
 
         # write data from old session into new
         # Some engines add session id to data so skip id.
-        while (my ($key, $value) = each %data ) {
+        while (my ($key, $value) = each %data) {
             $session->write($key => $value) unless $key eq 'id';
         }
 
@@ -651,8 +659,8 @@ around add_hook => sub {
     my $self = shift;
 
     # saving caller information
-    my ( $package, $file, $line ) = caller(4);    # deep to 4 : user's app code
-    my $add_hook_caller = [ $package, $file, $line ];
+    my ($package, $file, $line) = caller(4);    # deep to 4 : user's app code
+    my $add_hook_caller = [$package, $file, $line];
 
     my ($hook)       = @_;
     my $name         = $hook->name;
@@ -668,16 +676,16 @@ around add_hook => sub {
     # at this point the hook name must be formatted like:
     # '$type.$candidate.$name', eg: 'engine.template.before_render' or
     # 'plugin.database.before_dbi_connect'
-    my ( $hookable_type, $hookable_name, $hook_name ) = split( /\./, $name );
+    my ($hookable_type, $hookable_name, $hook_name) = split(/\./, $name);
 
-    ( defined $hookable_name && defined $hook_name )
-        or croak "Invalid hook name `$name'";
+    (defined $hookable_name && defined $hook_name)
+      or croak "Invalid hook name `$name'";
 
     grep /^$hookable_type$/, qw(core engine handler plugin)
-        or croak "Unknown hook type `$hookable_type'";
+      or croak "Unknown hook type `$hookable_type'";
 
     # register the hooks for existing hookable candidates
-    foreach my $hookable ( $self->hook_candidates ) {
+    foreach my $hookable ($self->hook_candidates) {
         $hookable->has_hook($name) and $hookable->add_hook(@_);
     }
 
@@ -704,9 +712,9 @@ around execute_hook => sub {
     local $Dancer2::Core::Route::REQUEST  = $self->request;
     local $Dancer2::Core::Route::RESPONSE = $self->response;
 
-    my ( $hook, @args ) = @_;
-    if ( !$self->has_hook($hook) ) {
-        foreach my $cand ( $self->hook_candidates ) {
+    my ($hook, @args) = @_;
+    if (!$self->has_hook($hook)) {
+        foreach my $cand ($self->hook_candidates) {
             $cand->has_hook($hook) and return $cand->execute_hook(@_);
         }
     }
@@ -717,22 +725,17 @@ around execute_hook => sub {
 sub _build_default_config {
     my $self = shift;
 
-    my $public = $ENV{DANCER_PUBLIC} || path( $self->location, 'public' );
+    my $public = $ENV{DANCER_PUBLIC} || path($self->location, 'public');
     return {
-        content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
-        charset        => ( $ENV{DANCER_CHARSET}      || '' ),
-        logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
-        views          => ( $ENV{DANCER_VIEWS}
-                            || path( $self->location, 'views' ) ),
+        content_type => ($ENV{DANCER_CONTENT_TYPE} || 'text/html'),
+        charset      => ($ENV{DANCER_CHARSET}      || ''),
+        logger       => ($ENV{DANCER_LOGGER}       || 'console'),
+        views        => ($ENV{DANCER_VIEWS} || path($self->location, 'views')),
         environment    => $self->environment,
         appdir         => $self->location,
         public_dir     => $public,
         template       => 'Tiny',
-        route_handlers => [
-            [
-                AutoPage => 1
-            ],
-        ],
+        route_handlers => [[AutoPage => 1],],
     };
 }
 
@@ -757,33 +760,36 @@ sub _init_hooks {
                 my $engine = $app->session_engine;
                 defined $engine or return;
 
-                # if a session has been instantiated or we already had a
-                # session, first flush the session so cookie-based sessions can
-                # update the session ID if needed, then set the session cookie
-                # in the response
-                #
-                # if there is NO session object but the request has a cookie with
-                # a session key, create a dummy session with the same ID (without
-                # actually retrieving and flushing immediately) and generate the
-                # cookie header from the dummy session. Lazy Sessions FTW!
+              # if a session has been instantiated or we already had a
+              # session, first flush the session so cookie-based sessions can
+              # update the session ID if needed, then set the session cookie
+              # in the response
+              #
+              # if there is NO session object but the request has a cookie with
+              # a session key, create a dummy session with the same ID (without
+              # actually retrieving and flushing immediately) and generate the
+              # cookie header from the dummy session. Lazy Sessions FTW!
 
-                if ( $app->has_session ) {
+                if ($app->has_session) {
                     my $session;
-                    if ( $app->_has_session ) { # Session object exists
+                    if ($app->_has_session) {    # Session object exists
                         $session = $app->session;
-                        $session->is_dirty and $engine->flush( session => $session );
+                        $session->is_dirty
+                          and $engine->flush(session => $session);
                     }
-                    else { # Cookie header exists. Create a dummy session object
-                        my $cookie = $app->cookie( $engine->cookie_name );
+                    else
+                    {    # Cookie header exists. Create a dummy session object
+                        my $cookie     = $app->cookie($engine->cookie_name);
                         my $session_id = $cookie->value;
-                        $session = Dancer2::Core::Session->new( id => $session_id );
+                        $session =
+                          Dancer2::Core::Session->new(id => $session_id);
                     }
                     $engine->set_cookie_header(
                         response => $response,
                         session  => $session
                     );
                 }
-                elsif ( $app->has_destroyed_session ) {
+                elsif ($app->has_destroyed_session) {
                     my $session = $app->destroyed_session;
                     $engine->set_cookie_header(
                         response  => $response,
@@ -813,15 +819,15 @@ sub supported_hooks {
 sub hook_aliases {
     my $self = shift;
     $self->{'hook_aliases'} ||= {
-        before                 => 'core.app.before_request',
-        before_request         => 'core.app.before_request',
-        after                  => 'core.app.after_request',
-        after_request          => 'core.app.after_request',
-        init_error             => 'core.error.init',
-        before_error           => 'core.error.before',
-        after_error            => 'core.error.after',
-        on_route_exception     => 'core.app.route_exception',
-        on_hook_exception      => 'core.app.hook_exception',
+        before             => 'core.app.before_request',
+        before_request     => 'core.app.before_request',
+        after              => 'core.app.after_request',
+        after_request      => 'core.app.after_request',
+        init_error         => 'core.error.init',
+        before_error       => 'core.error.before',
+        after_error        => 'core.error.after',
+        on_route_exception => 'core.app.route_exception',
+        on_hook_exception  => 'core.app.hook_exception',
 
         before_file_render         => 'core.app.before_file_render',
         after_file_render          => 'core.app.after_file_render',
@@ -830,9 +836,9 @@ sub hook_aliases {
 
 
         # compatibility from Dancer1
-        before_error_render    => 'core.error.before',
-        after_error_render     => 'core.error.after',
-        before_error_init      => 'core.error.init',
+        before_error_render => 'core.error.before',
+        after_error_render  => 'core.error.after',
+        before_error_init   => 'core.error.init',
 
         # TODO: call $engine->hook_aliases as needed
         # But.. currently there are use cases where hook_aliases
@@ -849,12 +855,10 @@ sub hook_aliases {
 sub defined_engines {
     my $self = shift;
     return [
-        $self->template_engine,
-        $self->session_engine,
-        $self->logger_engine,
+        $self->template_engine, $self->session_engine, $self->logger_engine,
         $self->has_serializer_engine
-            ? $self->serializer_engine
-            : (),
+        ? $self->serializer_engine
+        : (),
     ];
 }
 
@@ -865,15 +869,15 @@ sub register_plugin {
     my $self   = shift;
     my $plugin = shift;
 
-    $self->log( core => "Registered $plugin");
+    $self->log(core => "Registered $plugin");
 
-    push @{ $self->plugins }, $plugin;
+    push @{$self->plugins}, $plugin;
 }
 
 # This method overrides the default one from Role::ConfigReader
 sub settings {
     my $self = shift;
-    +{ %{ Dancer2::runner()->config }, %{ $self->config } };
+    +{%{Dancer2::runner()->config}, %{$self->config}};
 }
 
 sub cleanup {
@@ -882,8 +886,9 @@ sub cleanup {
     $self->clear_response;
     $self->clear_session;
     $self->clear_destroyed_session;
+
     # Clear engine attributes
-    for my $engine ( @{ $self->defined_engines } ) {
+    for my $engine (@{$self->defined_engines}) {
         $engine->clear_session;
         $engine->clear_request;
     }
@@ -893,8 +898,8 @@ sub _validate_engine {
     my $self = shift;
     my $name = shift;
 
-    grep +( $_ eq $name ), @{ $self->supported_engines }
-        or croak "Engine '$name' is not supported.";
+    grep +($_ eq $name), @{$self->supported_engines}
+      or croak "Engine '$name' is not supported.";
 }
 
 sub engine {
@@ -911,64 +916,70 @@ sub template {
     my $self = shift;
 
     my $template = $self->template_engine;
-    $template->set_settings( $self->config );
+    $template->set_settings($self->config);
 
     # A session will not exist if there is no request (global keyword)
     #
     # A session may exist but the route code may not have instantiated
     # the session object (sessions are lazy). If this is the case, do
     # that now, so the templates have the session data for rendering.
-    $self->has_request && $self->has_session && ! $template->has_session
-        and $self->setup_session;
+    $self->has_request && $self->has_session && !$template->has_session
+      and $self->setup_session;
 
     # return content
     if ($self->has_with_return) {
         my $old_with_return = $self->with_return;
         my $local_response;
-        $self->set_with_return( sub {
-            $local_response ||= shift;
-        });
+        $self->set_with_return(
+            sub {
+                $local_response ||= shift;
+            }
+        );
+
         # Catch any exceptions that may happen during template processing
-        my $content = eval { $template->process( @_ ) };
+        my $content     = eval { $template->process(@_) };
         my $eval_result = $@;
         $self->set_with_return($old_with_return);
+
         # If there was a previous response set before the exception (or set as
         # part of the exception handling), then use that, otherwise throw the
         # exception as normal
         if ($local_response) {
             $self->with_return->($local_response);
-        } elsif ($eval_result) {
+        }
+        elsif ($eval_result) {
             die $eval_result;
         }
         return $content;
     }
-    return $template->process( @_ );
+    return $template->process(@_);
 }
 
 sub hook_candidates {
     my $self = shift;
 
-    my @engines = @{ $self->defined_engines };
+    my @engines = @{$self->defined_engines};
 
     my @route_handlers;
-    for my $handler ( @{ $self->route_handlers } ) {
+    for my $handler (@{$self->route_handlers}) {
         my $handler_code = $handler->{handler};
-        blessed $handler_code and $handler_code->can('supported_hooks')
-            and push @route_handlers, $handler_code;
+        blessed $handler_code
+          and $handler_code->can('supported_hooks')
+          and push @route_handlers, $handler_code;
     }
 
     # TODO : get the list of all plugins registered
-    my @plugins = @{ $self->plugins };
+    my @plugins = @{$self->plugins};
 
-    ( @route_handlers, @engines, @plugins );
+    (@route_handlers, @engines, @plugins);
 }
 
 sub all_hook_aliases {
     my $self = shift;
 
     my $aliases = $self->hook_aliases;
-    for my $plugin ( grep { $_->can('hook_aliases') } @{ $self->plugins } ) {
-        $aliases = { %{$aliases}, %{ $plugin->hook_aliases } };
+    for my $plugin (grep { $_->can('hook_aliases') } @{$self->plugins}) {
+        $aliases = {%{$aliases}, %{$plugin->hook_aliases}};
     }
 
     return $aliases;
@@ -979,8 +990,8 @@ sub mime_type {
     my $runner = Dancer2::runner();
 
     exists $self->config->{default_mime_type}
-        ? $runner->mime_type->default( $self->config->{default_mime_type} )
-        : $runner->mime_type->reset_default;
+      ? $runner->mime_type->default($self->config->{default_mime_type})
+      : $runner->mime_type->reset_default;
 
     $runner->mime_type;
 }
@@ -997,31 +1008,35 @@ sub log {
 
 sub send_as {
     my $self = shift;
-    my ( $type, $data, $options ) = @_;
+    my ($type, $data, $options) = @_;
     $options ||= {};
 
     $type or croak "Can not send_as using an undefined type";
 
-    if ( lc($type) eq 'html' || lc($type) eq 'plain' ) {
-        if ( $type ne lc $type ) {
+    if (lc($type) eq 'html' || lc($type) eq 'plain') {
+        if ($type ne lc $type) {
             local $Carp::CarpLevel = 2;
-            carp sprintf( "Please use %s as the type for 'send_as', not %s", lc($type), $type );
+            carp sprintf("Please use %s as the type for 'send_as', not %s",
+                lc($type), $type);
         }
 
         $options->{charset} = $self->config->{charset} || 'UTF-8';
-        my $content = Encode::encode( $options->{charset}, $data );
+        my $content = Encode::encode($options->{charset}, $data);
         $options->{content_type} ||= join '/', 'text', lc $type;
+
         # Explicit return needed here, as if we are currently rendering a
         # template then with_return will not longjump
-        return $self->send_file( \$content, %$options );
+        return $self->send_file(\$content, %$options);
     }
 
     # Try and load the serializer class
     my $serializer_class = "Dancer2::Serializer::$type";
     eval {
-        $EVAL_SHIM->(sub {
-            require_module( $serializer_class );
-        });
+        $EVAL_SHIM->(
+            sub {
+                require_module($serializer_class);
+            }
+        );
         1;
     } or do {
         my $err = $@ || "Zombie Error";
@@ -1030,25 +1045,25 @@ sub send_as {
 
     # load any serializer engine config
     my $engine_options =
-        $self->_get_config_for_engine( serializer => $type, $self->config ) || {};
-    my $serializer = $serializer_class->new( config => $engine_options );
-    my $content = $serializer->serialize( $data );
+      $self->_get_config_for_engine(serializer => $type, $self->config) || {};
+    my $serializer = $serializer_class->new(config => $engine_options);
+    my $content    = $serializer->serialize($data);
     $options->{content_type} ||= $serializer->content_type;
-    $self->send_file( \$content, %$options );
+    $self->send_file(\$content, %$options);
 }
 
 sub send_error {
     my $self = shift;
-    my ( $message, $status ) = @_;
+    my ($message, $status) = @_;
 
     my $err = Dancer2::Core::Error->new(
-          message    => $message,
-          app        => $self,
-        ( status     => $status     )x!! $status,
+        message => $message,
+        app     => $self,
+        (status => $status) x !!$status,
 
         $self->has_serializer_engine
-            ? ( serializer => $self->serializer_engine )
-            : (),
+        ? (serializer => $self->serializer_engine)
+        : (),
     )->throw;
 
     # Immediately return to dispatch if with_return coderef exists
@@ -1063,11 +1078,12 @@ sub send_file {
 
     my ($content_type, $charset, $file_path);
 
-    # are we're given a filehandle? (based on what Plack::Middleware::Lint accepts)
-    my $is_filehandle = Plack::Util::is_real_fh($thing)
-      || ( is_globref($thing) && *{$thing}{IO} && *{$thing}{IO}->can('getline') )
-      || ( Scalar::Util::blessed($thing) && $thing->can('getline') );
-    my ($fh) = ($thing)x!! $is_filehandle;
+# are we're given a filehandle? (based on what Plack::Middleware::Lint accepts)
+    my $is_filehandle =
+         Plack::Util::is_real_fh($thing)
+      || (is_globref($thing) && *{$thing}{IO} && *{$thing}{IO}->can('getline'))
+      || (Scalar::Util::blessed($thing) && $thing->can('getline'));
+    my ($fh) = ($thing) x !!$is_filehandle;
 
     # if we're given an IO::Scalar object, DTRT (take the scalar ref from it)
     if (Scalar::Util::blessed($thing) && $thing->isa('IO::Scalar')) {
@@ -1075,79 +1091,84 @@ sub send_file {
     }
 
     # if we're given a SCALAR reference, build a filehandle to it
-    if ( is_scalarref($thing) ) {
+    if (is_scalarref($thing)) {
         ## no critic qw(InputOutput::RequireCheckedOpen)
         open $fh, "<", $thing;
     }
 
     # If we haven't got a filehandle, create one to the requested content
-    if (! $fh) {
+    if (!$fh) {
         my $path = $thing;
+
         # remove prefix from given path (if not a filehandle)
         my $prefix = $self->prefix;
-        if ( $prefix && $prefix ne '/' ) {
+        if ($prefix && $prefix ne '/') {
             $path =~ s/^\Q$prefix\E//;
         }
-        # static file dir - either system root or public_dir
-        my $dir = $options{system_path}
-            ? File::Spec->rootdir
-            : $ENV{DANCER_PUBLIC}
-                || $self->config->{public_dir}
-                || path( $self->location, 'public' );
 
-        $file_path = Dancer2::Handler::File->merge_paths( $path, $dir );
+        # static file dir - either system root or public_dir
+        my $dir =
+          $options{system_path}
+          ? File::Spec->rootdir
+          : $ENV{DANCER_PUBLIC}
+          || $self->config->{public_dir}
+          || path($self->location, 'public');
+
+        $file_path = Dancer2::Handler::File->merge_paths($path, $dir);
         my $err_response = sub {
             my $status = shift;
             $self->response->status($status);
-            $self->response->header( 'Content-Type', 'text/plain' );
-            $self->response->content( Dancer2::Core::HTTP->status_message($status) );
-            $self->with_return->( $self->response );
+            $self->response->header('Content-Type', 'text/plain');
+            $self->response->content(
+                Dancer2::Core::HTTP->status_message($status));
+            $self->with_return->($self->response);
         };
         $err_response->(403) if !defined $file_path;
         $err_response->(404) if !-f $file_path;
         $err_response->(403) if !-r $file_path;
 
         # Read file content as bytes
-        $fh = Dancer2::FileUtils::open_file( "<", $file_path );
+        $fh = Dancer2::FileUtils::open_file("<", $file_path);
         binmode $fh;
-        $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
-        if ( $content_type =~ m!^text/! ) {
+        $content_type =
+          Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
+        if ($content_type =~ m!^text/!) {
             $charset = $self->config->{charset} || "utf-8";
         }
     }
 
     # Now we are sure we can render the file...
-    $self->execute_hook( 'core.app.before_file_render', $file_path );
+    $self->execute_hook('core.app.before_file_render', $file_path);
 
     # response content type and charset
-    ( exists $options{'content_type'} ) and $content_type = $options{'content_type'};
-    ( exists $options{'charset'} ) and $charset = $options{'charset'};
+    (exists $options{'content_type'})
+      and $content_type = $options{'content_type'};
+    (exists $options{'charset'}) and $charset = $options{'charset'};
     $content_type .= "; charset=$charset" if $content_type and $charset;
-    ( defined $content_type )
-      and $self->response->header('Content-Type' => $content_type );
+    (defined $content_type)
+      and $self->response->header('Content-Type' => $content_type);
 
     # content disposition
-    ( exists $options{filename} )
-      and $self->response->header( 'Content-Disposition' =>
-          ($options{content_disposition} || "attachment") . "; filename=\"$options{filename}\"" );
+    (exists $options{filename})
+      and $self->response->header('Content-Disposition' =>
+          ($options{content_disposition} || "attachment")
+          . "; filename=\"$options{filename}\"");
 
     # use a delayed response unless server does not support streaming
     my $use_streaming = exists $options{streaming} ? $options{streaming} : 1;
     my $response;
     my $env = $self->request->env;
-    if ( $env->{'psgi.streaming'} && $use_streaming ) {
+    if ($env->{'psgi.streaming'} && $use_streaming) {
         my $cb = sub {
             my $responder = $Dancer2::Core::Route::RESPONDER;
-            my $res = $Dancer2::Core::Route::RESPONSE;
-            return $responder->(
-                [ $res->status, $res->headers_to_array, $fh ]
-            );
+            my $res       = $Dancer2::Core::Route::RESPONSE;
+            return $responder->([$res->status, $res->headers_to_array, $fh]);
         };
 
-        Scalar::Util::weaken( my $weak_self = $self );
+        Scalar::Util::weaken(my $weak_self = $self);
 
         $response = Dancer2::Core::Response::Delayed->new(
-            error_cb => sub { $weak_self->logger_engine->log( warning => @_ ) },
+            error_cb => sub { $weak_self->logger_engine->log(warning => @_) },
             cb       => $cb,
             request  => $Dancer2::Core::Route::REQUEST,
             response => $Dancer2::Core::Route::RESPONSE,
@@ -1155,14 +1176,15 @@ sub send_file {
     }
     else {
         $response = $self->response;
+
         # direct assignment to hash element, avoids around modifier
         # trying to serialise this this content.
         $response->{content} = Dancer2::FileUtils::read_glob_content($fh);
         $response->is_encoded(1);    # bytes are already encoded
     }
 
-    $self->execute_hook( 'core.app.after_file_render', $response );
-    $self->with_return->( $response );
+    $self->execute_hook('core.app.after_file_render', $response);
+    $self->with_return->($response);
 }
 
 sub BUILD {
@@ -1176,18 +1198,17 @@ sub finish {
 
     # normalize some values that require calculations
     defined $self->config->{'static_handler'}
-        or $self->config->{'static_handler'} = -d $self->config->{'public_dir'};
+      or $self->config->{'static_handler'} = -d $self->config->{'public_dir'};
 
     $self->register_route_handlers;
     $self->compile_hooks;
 
     @{$self->plugins}
-        && $self->plugins->[0]->can('_add_postponed_plugin_hooks')
-        && $self->plugins->[0]->_add_postponed_plugin_hooks(
-            $self->postponed_hooks
-        );
+      && $self->plugins->[0]->can('_add_postponed_plugin_hooks')
+      && $self->plugins->[0]
+      ->_add_postponed_plugin_hooks($self->postponed_hooks);
 
-    foreach my $prep_cb ( @{ $self->prep_apps } ) {
+    foreach my $prep_cb (@{$self->prep_apps}) {
         $prep_cb->($self);
     }
 }
@@ -1196,27 +1217,27 @@ sub init_route_handlers {
     my $self = shift;
 
     my $handlers_config = $self->config->{route_handlers};
-    for my $handler_data ( @{$handlers_config} ) {
+    for my $handler_data (@{$handlers_config}) {
         my ($handler_name, $config) = @{$handler_data};
         $config = {} if !is_ref($config);
 
         my $handler = $self->_factory->create(
-            Handler         => $handler_name,
-            app             => $self,
+            Handler => $handler_name,
+            app     => $self,
             %$config,
             postponed_hooks => $self->postponed_hooks,
         );
 
-        push @{ $self->route_handlers }, {
-            name    => $handler_name,
+        push @{$self->route_handlers},
+          { name    => $handler_name,
             handler => $handler,
-        };
+          };
     }
 }
 
 sub register_route_handlers {
     my $self = shift;
-    for my $handler ( @{$self->route_handlers} ) {
+    for my $handler (@{$self->route_handlers}) {
         my $handler_code = $handler->{handler};
         $handler_code->register($self);
     }
@@ -1225,47 +1246,55 @@ sub register_route_handlers {
 sub compile_hooks {
     my ($self) = @_;
 
-    for my $position ( $self->supported_hooks ) {
+    for my $position ($self->supported_hooks) {
         my $compiled_hooks = [];
-        for my $hook ( @{ $self->hooks->{$position} } ) {
-            Scalar::Util::weaken( my $app = $self );
+        for my $hook (@{$self->hooks->{$position}}) {
+            Scalar::Util::weaken(my $app = $self);
             my $compiled = set_subname subname($hook) => sub {
-                # don't run the filter if halt has been used
-                $Dancer2::Core::Route::RESPONSE &&
-                $Dancer2::Core::Route::RESPONSE->is_halted
-                    and return;
 
-                eval  { $EVAL_SHIM->($hook,@_); 1; }
-                or do {
+                # don't run the filter if halt has been used
+                $Dancer2::Core::Route::RESPONSE
+                  && $Dancer2::Core::Route::RESPONSE->is_halted
+                  and return;
+
+                eval { $EVAL_SHIM->($hook, @_); 1; } or do {
                     my $err = $@ || "Zombie Error";
-                    my $is_hook_exception = $position eq 'core.app.hook_exception';
+                    my $is_hook_exception =
+                      $position eq 'core.app.hook_exception';
+
                     # Don't execute the hook_exception hook if the exception
                     # has been generated from a hook exception handler itself,
                     # thus preventing potentially recursive code.
-                    $app->execute_hook( 'core.app.hook_exception', $app, $err, $position )
-                        unless $is_hook_exception;
-                    my $is_halted = $app->response->is_halted; # Capture before cleanup
+                    $app->execute_hook('core.app.hook_exception',
+                        $app, $err, $position)
+                      unless $is_hook_exception;
+                    my $is_halted =
+                      $app->response->is_halted;    # Capture before cleanup
+
                     # We can't cleanup if we're in the hook for a hook
                     # exception, as this would clear the custom response that
                     # may have been set by the hook. However, there is no need
                     # to do so, as the upper hook that called this hook
                     # exception will perform the cleanup instead anyway
                     $app->cleanup
-                        unless $is_hook_exception;
+                      unless $is_hook_exception;
+
                     # Allow the hook function to halt the response, thus
                     # retaining any response it may have set. Otherwise the
                     # croak from this function will overwrite any content that
                     # may have been set by the hook
                     return if $is_halted;
+
                     # Default behavior if nothing else defined
-                    $app->log('error', "Exception caught in '$position' filter: $err");
+                    $app->log('error',
+                        "Exception caught in '$position' filter: $err");
                     croak "Exception caught in '$position' filter: $err";
                 };
             };
 
             push @{$compiled_hooks}, $compiled;
         }
-        $self->replace_hook( $position, $compiled_hooks );
+        $self->replace_hook($position, $compiled_hooks);
     }
 }
 
@@ -1281,15 +1310,15 @@ sub lexical_prefix {
 
     # alter the prefix for the callback
     my $new_prefix =
-        ( defined $app_prefix ? $app_prefix : '' )
-      . ( defined $prefix     ? $prefix     : '' );
+        (defined $app_prefix ? $app_prefix : '')
+      . (defined $prefix     ? $prefix     : '');
 
     # if the new prefix is empty, it's a meaningless prefix, just ignore it
     length $new_prefix and $self->prefix($new_prefix);
 
     my $err;
-    my $ok= eval { $EVAL_SHIM->($cb); 1 }
-            or do { $err = $@ || "Zombie Error"; };
+    my $ok = eval { $EVAL_SHIM->($cb); 1 }
+      or do { $err = $@ || "Zombie Error"; };
 
     # restore app prefix
     $self->prefix($app_prefix);
@@ -1303,17 +1332,17 @@ sub add_route {
 
     my $route = Dancer2::Core::Route->new(
         type_library => $self->config->{type_library},
-        prefix => $self->prefix,
+        prefix       => $self->prefix,
         %route_attrs,
     );
 
     my $method = $route->method;
-    push @{ $self->routes->{$method} }, $route;
+    push @{$self->routes->{$method}}, $route;
 
-    if ( $method ne 'head' && $route->has_name() ) {
+    if ($method ne 'head' && $route->has_name()) {
         my $name = $route->name;
         $self->route_names->{$name}
-           and die "Route with this name ($name) already exists";
+          and die "Route with this name ($name) already exists";
 
         $self->route_names->{$name} = $route;
     }
@@ -1325,11 +1354,11 @@ sub route_exists {
     my $self  = shift;
     my $route = shift;
 
-    my $routes = $self->routes->{ $route->method };
+    my $routes = $self->routes->{$route->method};
 
     foreach my $existing_route (@$routes) {
         $existing_route->spec_route eq $route->spec_route
-            and return 1;
+          and return 1;
     }
 
     return 0;
@@ -1339,19 +1368,19 @@ sub routes_regexps_for {
     my $self   = shift;
     my $method = shift;
 
-    return [ map $_->regexp, @{ $self->routes->{$method} } ];
+    return [map $_->regexp, @{$self->routes->{$method}}];
 }
 
 sub cookie {
     my $self = shift;
 
-    @_ == 1 and return $self->request->cookies->{ $_[0] };
+    @_ == 1 and return $self->request->cookies->{$_[0]};
 
     # writer
-    my ( $name, $value, %options ) = @_;
+    my ($name, $value, %options) = @_;
     my $c =
-      Dancer2::Core::Cookie->new( name => $name, value => $value, %options );
-    $self->response->push_header( 'Set-Cookie' => $c->to_header );
+      Dancer2::Core::Cookie->new(name => $name, value => $value, %options);
+    $self->response->push_header('Set-Cookie' => $c->to_header);
 }
 
 sub redirect {
@@ -1360,37 +1389,38 @@ sub redirect {
     my $status      = shift;
 
     if ($destination =~ m{^/(?!/)}) {
+
         # If the app is mounted to something other than "/", we must
         # preserve its path.
         my $script_name = $self->request->script_name;
-        $script_name =~ s{/$}{}; # Remove trailing slash (if present).
+        $script_name =~ s{/$}{};    # Remove trailing slash (if present).
         $destination = $script_name . $destination;
     }
 
-    $self->response->redirect( $destination, $status );
+    $self->response->redirect($destination, $status);
 
     # Short circuit any remaining before hook / route code
     # ('pass' and after hooks are still processed)
     $self->has_with_return
-        and $self->with_return->($self->response);
+      and $self->with_return->($self->response);
 }
 
 sub halt {
-   my $self = shift;
-   $self->response->halt( @_ );
+    my $self = shift;
+    $self->response->halt(@_);
 
-   # Short citcuit any remaining hook/route code
-   $self->has_with_return
-       and $self->with_return->($self->response);
+    # Short citcuit any remaining hook/route code
+    $self->has_with_return
+      and $self->with_return->($self->response);
 }
 
 sub pass {
-   my $self = shift;
-   $self->response->pass;
+    my $self = shift;
+    $self->response->pass;
 
-   # Short citcuit any remaining hook/route code
-   $self->has_with_return
-       and $self->with_return->($self->response);
+    # Short citcuit any remaining hook/route code
+    $self->has_with_return
+      and $self->with_return->($self->response);
 }
 
 sub forward {
@@ -1399,10 +1429,10 @@ sub forward {
     my $params  = shift;
     my $options = shift;
 
-    my $new_request = $self->make_forward_to( $url, $params, $options );
+    my $new_request = $self->make_forward_to($url, $params, $options);
 
     $self->has_with_return
-        and $self->with_return->($new_request);
+      and $self->with_return->($new_request);
 
     # nothing else will run after this
 }
@@ -1415,27 +1445,33 @@ sub make_forward_to {
     my $params  = shift;
     my $options = shift;
 
-    my $overrides = { PATH_INFO => $url };
-    exists $options->{method} and
-        $overrides->{REQUEST_METHOD} = $options->{method};
+    my $overrides = {PATH_INFO => $url};
+    exists $options->{method}
+      and $overrides->{REQUEST_METHOD} = $options->{method};
 
     # "clone" the existing request
-    my $new_request = $self->request->_shallow_clone( $params, $overrides );
+    my $new_request = $self->request->_shallow_clone($params, $overrides);
 
-    # If a session object was created during processing of the original request
-    # i.e. a session object exists but no cookie existed
-    # add a cookie so the dispatcher can assign the session to the appropriate app
+    $new_request->{_app} = $self;
+
+    if (exists $self->request->{uri_for_route}) {
+        $new_request->{uri_for_route} = $self->request->{uri_for_route};
+    }
+
+ # If a session object was created during processing of the original request
+ # i.e. a session object exists but no cookie existed
+ # add a cookie so the dispatcher can assign the session to the appropriate app
     my $engine = $self->session_engine;
     $engine && $self->_has_session or return $new_request;
     my $name = $engine->cookie_name;
     exists $new_request->cookies->{$name} and return $new_request;
     $new_request->cookies->{$name} =
-        Dancer2::Core::Cookie->new( name => $name, value => $self->session->id );
+      Dancer2::Core::Cookie->new(name => $name, value => $self->session->id);
 
     return $new_request;
 }
 
-sub app { shift }
+sub app {shift}
 
 # DISPATCHER
 sub to_app {
@@ -1443,14 +1479,14 @@ sub to_app {
 
     # build engines
     {
-        for ( qw<logger session template> ) {
+        for (qw<logger session template>) {
             my $attr = "${_}_engine";
             $self->$attr;
         }
 
         # the serializer engine does not have a default
         # and is the only engine that can actually not have a value
-        if ( $self->config->{'serializer'} ) {
+        if ($self->config->{'serializer'}) {
             $self->serializer_engine;
         }
     }
@@ -1463,22 +1499,22 @@ sub to_app {
         # pre-request sanity check
         my $method = uc $env->{'REQUEST_METHOD'};
         $Dancer2::Core::Types::supported_http_methods{$method}
-            or return [
-                405,
-                [ 'Content-Type' => 'text/plain' ],
-                [ "Method Not Allowed\n\n$method is not supported." ]
-            ];
+          or return [
+            405,
+            ['Content-Type' => 'text/plain'],
+            ["Method Not Allowed\n\n$method is not supported."]
+          ];
 
         my $response;
         eval {
-            $EVAL_SHIM->(sub{ $response = $self->dispatch($env)->to_psgi });
+            $EVAL_SHIM->(sub { $response = $self->dispatch($env)->to_psgi });
             1;
         } or do {
             my $err = $@ || "Zombie Error";
             return [
                 500,
-                [ 'Content-Type' => 'text/plain' ],
-                [ "Internal Server Error\n\n$err"  ],
+                ['Content-Type' => 'text/plain'],
+                ["Internal Server Error\n\n$err"],
             ];
         };
 
@@ -1486,27 +1522,33 @@ sub to_app {
     };
 
     # Only add static content handler if required
-    if ( $self->config->{'static_handler'} ) {
+    if ($self->config->{'static_handler'}) {
+
         # Use App::File to "serve" the static content
         my $static_app = Plack::App::File->new(
             root         => $self->config->{public_dir},
-            content_type => sub { $self->mime_type->for_file( $_[0] ) },
+            content_type => sub { $self->mime_type->for_file($_[0]) },
         )->to_app;
+
         # Conditionally use the static handler wrapped with ConditionalGET
         # when the file exists. Otherwise the request passes into our app.
         $psgi = Plack::Middleware::Conditional->wrap(
             $psgi,
-            condition => sub { -f path( $self->config->{public_dir}, shift->{PATH_INFO} ) },
-            builder   => sub { Plack::Middleware::ConditionalGET->wrap( $static_app ) },
+            condition =>
+              sub { -f path($self->config->{public_dir}, shift->{PATH_INFO}) },
+            builder =>
+              sub { Plack::Middleware::ConditionalGET->wrap($static_app) },
         );
     }
 
     # Wrap with common middleware
-    if ( ! $self->config->{'no_default_middleware'} ) {
+    if (!$self->config->{'no_default_middleware'}) {
+
         # FixMissingBodyInRedirect
-        $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap( $psgi );
+        $psgi = Plack::Middleware::FixMissingBodyInRedirect->wrap($psgi);
+
         # Apply Head. After static so a HEAD request on static content DWIM.
-        $psgi = Plack::Middleware::Head->wrap( $psgi );
+        $psgi = Plack::Middleware::Head->wrap($psgi);
     }
 
     return $psgi;
@@ -1516,46 +1558,51 @@ sub dispatch {
     my $self = shift;
     my $env  = shift;
 
-    my $runner  = Dancer2::runner();
+    my $runner = Dancer2::runner();
     my $request;
     my $request_built_successfully = eval {
-        $EVAL_SHIM->(sub {
-            $request = $runner->{'internal_request'} || $self->build_request($env);
-        });
+        $EVAL_SHIM->(
+            sub {
+                $request =
+                  $runner->{'internal_request'} || $self->build_request($env);
+            }
+        );
         1;
     };
-    # Catch bad content causing deserialization to fail when building the request
-    if ( ! $request_built_successfully ) {
+
+  # Catch bad content causing deserialization to fail when building the request
+    if (!$request_built_successfully) {
         my $err = $@;
         Scalar::Util::weaken(my $app = $self);
         return Dancer2::Core::Error->new(
             app     => $app,
             message => $err,
-            status  => 400,    # 400 Bad request (dont send again), rather than 500
+            status => 400, # 400 Bad request (dont send again), rather than 500
         )->throw;
     }
 
-    my $cname = $self->session_engine->cookie_name;
+    my $cname           = $self->session_engine->cookie_name;
     my $defined_engines = $self->defined_engines;
 
-DISPATCH:
+  DISPATCH:
     while (1) {
         my $http_method = lc $request->method;
-        my $path_info   =    $request->path_info;
+        my $path_info   = $request->path_info;
 
         # Add request to app and engines
         $self->set_request($request, $defined_engines);
 
-        $self->log( core => "looking for $http_method $path_info" );
+        $self->log(core => "looking for $http_method $path_info");
 
-        ROUTE:
-        foreach my $route ( @{ $self->routes->{$http_method} } ) {
+      ROUTE:
+        foreach my $route (@{$self->routes->{$http_method}}) {
+
             #warn "testing route " . $route->regexp . "\n";
             # TODO store in route cache
 
             # go to the next route if no match
             my $match = $route->match($request)
-                or next ROUTE;
+              or next ROUTE;
 
             $request->_set_route_params($match);
             $request->_set_route_parameters($match);
@@ -1563,7 +1610,7 @@ DISPATCH:
 
             # Add session to app *if* we have a session and the request
             # has the appropriate cookie header for _this_ app.
-            if ( my $sess = $runner->{'internal_sessions'}{$cname} ) {
+            if (my $sess = $runner->{'internal_sessions'}{$cname}) {
                 $self->set_session($sess);
             }
 
@@ -1576,35 +1623,39 @@ DISPATCH:
             # avoids __DIE__ handlers.  It also prevents some cleanup routines
             # from working, since they are expecting control to return to them
             # after an eval.
-            DANCER2_CORE_APP_ROUTE_RETURN: {
+          DANCER2_CORE_APP_ROUTE_RETURN: {
                 if (!$self->has_with_return) {
-                    $self->set_with_return(sub {
-                        $response = shift;
-                        no warnings 'exiting';
-                        last DANCER2_CORE_APP_ROUTE_RETURN;
-                    });
+                    $self->set_with_return(
+                        sub {
+                            $response = shift;
+                            no warnings 'exiting';
+                            last DANCER2_CORE_APP_ROUTE_RETURN;
+                        }
+                    );
                 }
                 $response = $self->_dispatch_route($route);
-            };
+            }
 
             # ensure we clear the with_return handler
             $self->clear_with_return;
 
             # handle forward requests
-            if ( ref $response eq 'Dancer2::Core::Request' ) {
+            if (ref $response eq 'Dancer2::Core::Request') {
+
                 # this is actually a request, not response
                 # however, we need to clean up the request & response
                 $self->clear_request;
                 $self->clear_response;
 
                 # this is in case we're asked for an old-style dispatching
-                if ( $runner->{'internal_dispatch'} ) {
+                if ($runner->{'internal_dispatch'}) {
+
                     # Get the session object from the app before we clean up
                     # the request context, so we can propagate this to the
                     # next dispatch cycle (if required).
                     $self->_has_session
-                        and $runner->{'internal_sessions'}{$cname} =
-                            $self->session;
+                      and $runner->{'internal_sessions'}{$cname} =
+                      $self->session;
 
                     $runner->{'internal_forward'} = 1;
                     $runner->{'internal_request'} = $response;
@@ -1618,20 +1669,20 @@ DISPATCH:
             # from here we assume the response is a Dancer2::Core::Response
 
             # halted response, don't process further
-            if ( $response->is_halted ) {
+            if ($response->is_halted) {
                 $self->cleanup;
                 delete $runner->{'internal_request'};
                 return $response;
             }
 
             # pass the baton if the response says so...
-            if ( $response->has_passed ) {
+            if ($response->has_passed) {
                 ## A previous route might have used splat, failed
                 ## this needs to be cleaned from the request.
                 exists $request->{_params}{splat}
-                    and delete $request->{_params}{splat};
+                  and delete $request->{_params}{splat};
 
-                $response->has_passed(0); # clear for the next round
+                $response->has_passed(0);    # clear for the next round
 
                 # clear the content because if you pass it,
                 # the next route is in charge of catching it
@@ -1640,7 +1691,7 @@ DISPATCH:
             }
 
             # it's just a regular response
-            $self->execute_hook( 'core.app.after_request', $response );
+            $self->execute_hook('core.app.after_request', $response);
             $self->cleanup;
             delete $runner->{'internal_request'};
 
@@ -1655,7 +1706,7 @@ DISPATCH:
     # so it can try the next Core::App
     # and set the created request so we don't create it again
     # (this is important so we don't ignore the previous body)
-    if ( $runner->{'internal_dispatch'} ) {
+    if ($runner->{'internal_dispatch'}) {
         $runner->{'internal_404'}     = 1;
         $runner->{'internal_request'} = $request;
     }
@@ -1667,18 +1718,18 @@ DISPATCH:
 }
 
 sub build_request {
-    my ( $self, $env ) = @_;
-    Scalar::Util::weaken( my $weak_self = $self );
+    my ($self, $env) = @_;
+    Scalar::Util::weaken(my $weak_self = $self);
 
     # If we have an app, send the serialization engine
     my $request = Dancer2::Core::Request->new(
-          env             => $env,
-          is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
-          uri_for_route   => sub { shift; $weak_self->uri_for_route(@_) },
+        env             => $env,
+        is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
+        uri_for_route   => sub { shift; $weak_self->uri_for_route(@_) },
 
-          $self->has_serializer_engine
-              ? ( serializer => $self->serializer_engine )
-              : (),
+        $self->has_serializer_engine
+        ? (serializer => $self->serializer_engine)
+        : (),
     );
 
     return $request;
@@ -1686,13 +1737,15 @@ sub build_request {
 
 # Call any before hooks then the matched route.
 sub _dispatch_route {
-    my ( $self, $route ) = @_;
+    my ($self, $route) = @_;
 
     local $@;
     eval {
-        $EVAL_SHIM->(sub {
-            $self->execute_hook( 'core.app.before_request', $self );
-        });
+        $EVAL_SHIM->(
+            sub {
+                $self->execute_hook('core.app.before_request', $self);
+            }
+        );
         1;
     } or do {
         my $err = $@ || "Zombie Error";
@@ -1700,12 +1753,12 @@ sub _dispatch_route {
     };
     my $response = $self->response;
 
-    if ( $response->is_halted ) {
-        return $self->_prep_response( $response );
+    if ($response->is_halted) {
+        return $self->_prep_response($response);
     }
 
     eval {
-        $EVAL_SHIM->(sub{ $response = $route->execute($self) });
+        $EVAL_SHIM->(sub { $response = $route->execute($self) });
         1;
     } or do {
         my $err = $@ || "Zombie Error";
@@ -1716,14 +1769,15 @@ sub _dispatch_route {
 }
 
 sub _prep_response {
-    my ( $self, $response, $content ) = @_;
+    my ($self, $response, $content) = @_;
 
     # The response object has no back references to the content or app
     # Update the default_content_type of the response if any value set in
     # config so it can be applied when the response is encoded/returned.
     my $config = $self->config;
-    if ( exists $config->{content_type}
-      and my $ct = $config->{content_type} ) {
+    if (exists $config->{content_type}
+        and my $ct = $config->{content_type})
+    {
         $response->default_content_type($ct);
     }
 
@@ -1733,10 +1787,10 @@ sub _prep_response {
 }
 
 sub response_internal_error {
-    my ( $self, $error ) = @_;
+    my ($self, $error) = @_;
 
-    $self->execute_hook( 'core.app.route_exception', $self, $error );
-    $self->log( error => "Route exception: $error" );
+    $self->execute_hook('core.app.route_exception', $self, $error);
+    $self->log(error => "Route exception: $error");
 
     local $Dancer2::Core::Route::REQUEST  = $self->request;
     local $Dancer2::Core::Route::RESPONSE = $self->response;
@@ -1749,7 +1803,7 @@ sub response_internal_error {
 }
 
 sub response_not_found {
-    my ( $self, $request ) = @_;
+    my ($self, $request) = @_;
 
     $self->set_request($request);
 
@@ -1757,7 +1811,7 @@ sub response_not_found {
     local $Dancer2::Core::Route::RESPONSE = $self->response;
 
     my $response = Dancer2::Core::Error->new(
-        app    => $self,
+        app     => $self,
         status  => 404,
         message => $request->path,
     )->throw;
@@ -1768,17 +1822,17 @@ sub response_not_found {
 }
 
 sub uri_for_route {
-    my ( $self, $route_name, $route_params, $query_params, $dont_escape ) = @_;
+    my ($self, $route_name, $route_params, $query_params, $dont_escape) = @_;
     my $route = $self->route_names->{$route_name}
-        or die "Cannot find route named '$route_name'";
+      or die "Cannot find route named '$route_name'";
 
     my $string = $route->spec_route;
     is_regexpref($string)
-        and die "uri_for_route() does not support regexp route paths";
+      and die "uri_for_route() does not support regexp route paths";
 
     # Convert splat only to the general purpose structure
-    if ( is_arrayref($route_params) ) {
-        $route_params = { 'splat' => $route_params };
+    if (is_arrayref($route_params)) {
+        $route_params = {'splat' => $route_params};
     }
 
     # The regexes are taken and altered from:
@@ -1791,7 +1845,8 @@ sub uri_for_route {
     foreach my $param (@params) {
         $param =~ s{^([^\[]+).*}{$1}xms;
         my $value = $route_params->{$param}
-            or die "Route $route_name uses the parameter '${param}', which was not provided";
+          or die
+          "Route $route_name uses the parameter '${param}', which was not provided";
 
         $string =~ s!\Q:$param\E(\[[^\]]+\])?!$value!xmsg;
     }
@@ -1803,25 +1858,25 @@ sub uri_for_route {
     $string =~ s!\*!(?#splat)!g;
 
     # TODO: Can we cut this down?
-    my @token_or_splat =
-          $string  =~ /\(\?#((?:mega)?splat)\)/g;
+    my @token_or_splat = $string =~ /\(\?#((?:mega)?splat)\)/g;
 
     my $splat_params = $route_params->{'splat'};
     if ($splat_params && @token_or_splat) {
         $#{$splat_params} == $#token_or_splat
-            or die 'Mismatch in amount of splat args and splat elements';
+          or die 'Mismatch in amount of splat args and splat elements';
 
-        for ( my $i = 0; $i < @{$splat_params}; $i++ ) {
-            if ( is_arrayref($splat_params->[$i]) ){
-                my $megasplat = join '/', @{ $splat_params->[$i] };
+        for (my $i = 0; $i < @{$splat_params}; $i++) {
+            if (is_arrayref($splat_params->[$i])) {
+                my $megasplat = join '/', @{$splat_params->[$i]};
                 $string =~ s{\Q(?#megasplat)\E}{$megasplat};
-            } else {
+            }
+            else {
                 $string =~ s{\Q(?#splat)\E}{$splat_params->[$i]};
             }
         }
     }
 
-    return $self->request->uri_for( $string, $query_params, $dont_escape );
+    return $self->request->uri_for($string, $query_params, $dont_escape);
 }
 
 1;
