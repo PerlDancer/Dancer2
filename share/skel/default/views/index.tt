@@ -33,7 +33,7 @@
               href="https://metacpan.org/pod/Dancer2::Manual">Introduction</a></li>
               <li><a href="https://metacpan.org/pod/Dancer2::Cookbook">Cookbook</a></li>
               <li><a
-              href="https://metacpan.org/pod/Dancer2::Tutorial"
+              href="https://metacpan.org/pod/Dancer2::Manual::Tutorial"
               title="a tutorial to build a small blog engine with Dancer">Tutorial</a></li>
               <li><a href="https://metacpan.org/pod/Dancer2::Manual::Deployment">Deployment</a></li>
             </ul>
