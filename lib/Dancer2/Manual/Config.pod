@@ -623,7 +623,7 @@ Dancer2 configuration.
 Sets the configuration directory. This is only guaranteed to work with
 the default config reader.
 
-=head2 DANCER_CONFIG_VERBOSE
+=head3 DANCER_CONFIG_VERBOSE
 
 Outputs a lot of debugging information when reading the configuration of
 the application. This is only guaranteed to work with the default config
