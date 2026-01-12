@@ -394,6 +394,14 @@ Conforms to the environment variable C<DANCER_STARTUP_INFO>.
 If set to true, Dancer2 will display full stack traces when a warning or a
 die occurs. (Internally sets Carp::Verbose). Default to false.
 
+=head3 strict_config (boolean)
+
+If set to true (the default), Dancer2 will warn about unknown configuration
+keys at the top level and about unknown keys in built-in engine sections where
+the options are known. Set this to false if you intentionally store
+application-specific settings at the top level or use custom engines with
+additional configuration keys.
+
 =head3 no_server_tokens (boolean)
 
 If set to true, Dancer2 will B<not> add an "X-Powered-By" header and also append

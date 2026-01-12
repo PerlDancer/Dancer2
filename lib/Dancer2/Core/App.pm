@@ -741,6 +741,7 @@ sub _build_default_config {
         appdir         => $self->location,
         public_dir     => $public,
         template       => 'Tiny',
+        strict_config => 1,
         route_handlers => [
             [
                 AutoPage => 1
