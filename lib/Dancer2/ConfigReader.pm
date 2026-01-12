@@ -8,7 +8,7 @@ use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
 use Module::Runtime qw{ use_module };
-use Ref::Util qw/ is_arrayref /;
+use Ref::Util qw/ is_arrayref is_hashref /;
 use Scalar::Util qw/ blessed /;
 
 use Dancer2::Core::Factory;
@@ -17,6 +17,106 @@ use Dancer2::Core::Types;
 use Dancer2::ConfigUtils 'normalize_config_entry';
 
 our $MAX_CONFIGS = $ENV{DANCER_MAX_CONFIGS} || 100;
+
+my %KNOWN_CORE_KEYS = map +( $_ => 1 ), qw(
+    additional_config_readers
+    appdir
+    apphandler
+    appname
+    auto_page
+    behind_proxy
+    charset
+    content_type
+    default_mime_type
+    engines
+    environment
+    error_template
+    host
+    layout
+    layout_dir
+    log
+    logger
+    no_default_middleware
+    no_server_tokens
+    plugins
+    port
+    public_dir
+    route_handlers
+    serializer
+    session
+    show_errors
+    show_stacktrace
+    startup_info
+    static_handler
+    template
+    timeout
+    traces
+    type_library
+    views
+    strict_config
+);
+
+my %KNOWN_ENGINE_CONFIG = (
+    'logger' => {
+        'base_keys' => {
+            'app_name'              => 1,
+            'auto_encoding_charset' => 1,
+            'log_format'            => 1,
+            'log_level'             => 1,
+        },
+        'engines' => {
+            'capture' => { keys => {} },
+            'console' => { keys => {} },
+            'diag'    => { keys => {} },
+            'file'    => {
+                'keys' => {
+                    'file_name' => 1,
+                    'log_dir'   => 1,
+                },
+            },
+            'note'    => { keys => {} },
+            'null'    => { keys => {} },
+        },
+    },
+    'serializer' => {
+        'engines' => {
+            'dumper' => { keys => {} },
+            'json'   => { allow_any => 1 },
+            'mutable' => {
+                keys => {
+                    mapping => 1,
+                },
+            },
+            'yaml' => { keys => {} },
+        },
+    },
+    'session' => {
+        'base_keys' => {
+            'cookie_domain'    => 1,
+            'cookie_duration'  => 1,
+            'cookie_name'      => 1,
+            'cookie_path'      => 1,
+            'cookie_same_site' => 1,
+            'is_http_only'     => 1,
+            'is_secure'        => 1,
+            'session_duration' => 1,
+        },
+        'engines' => {
+            'simple' => { keys => {} },
+            'yaml'   => {
+                'keys' => {
+                    'session_dir' => 1,
+                },
+            },
+        },
+    },
+    'template' => {
+        'engines' => {
+            'templatetoolkit' => { allow_any => 1 },
+            'tiny'            => { allow_any => 1 },
+        },
+    },
+);
 
 has location => (
     is       => 'ro',
@@ -137,6 +237,9 @@ sub _normalize_config {
         my $value = $config->{$key};
         $config->{$key} = normalize_config_entry( $key, $value );
     }
+
+    $self->_strict_config_keys($config);
+
     return $config;
 }
 
@@ -154,6 +257,86 @@ sub _build_config_readers {
             environment => $self->environment,
         ), @config_reader_names
     ];
+}
+
+sub _strict_config_keys {
+    my ( $self, $config ) = @_;
+
+    return
+        if exists $config->{'strict_config'}
+        && !$config->{'strict_config'};
+
+    my @warnings = map +(
+        $KNOWN_CORE_KEYS{$_}
+        ? ()
+        : "Unknown configuration key '$_'"
+    ), sort keys %{$config};
+
+    if ( my $engines = $config->{'engines'} ) {
+        push @warnings, $self->_warn_unknown_engine_config_keys($engines);
+    }
+
+    @warnings or return;
+
+    warn join(
+        "\n",
+        @warnings,
+        'Set strict_config => 0 to silence these warnings.'
+    ) . "\n";
+}
+
+sub _warn_unknown_engine_config_keys {
+    my ( $self, $engines ) = @_;
+    is_hashref($engines)
+        or return;
+
+    my @warnings;
+
+    for my $engine_type ( sort keys %{$engines} ) {
+        my $type_config = $engines->{$engine_type};
+        is_hashref($type_config)
+            or next;
+
+        my $known_type = $KNOWN_ENGINE_CONFIG{$engine_type}
+            or next;
+
+        my $base_keys     = $known_type->{'base_keys'} || {};
+        my $known_engines = $known_type->{'engines'}   || {};
+
+        for my $engine_name ( sort keys %{$type_config} ) {
+            my $engine_config = $type_config->{$engine_name};
+            is_hashref($engine_config)
+                or next;
+
+            my $normalized = _normalize_engine_name($engine_name);
+            defined $normalized
+                or next;
+
+            my $known_engine = $known_engines->{$normalized} or next;
+            next if $known_engine->{'allow_any'};
+
+            my %allowed = (%{$base_keys}, %{ $known_engine->{keys} || {} });
+
+            for my $key ( sort keys %{$engine_config} ) {
+                next if $allowed{$key};
+                push @warnings,
+                    "Unknown configuration key '$key' for engine '$engine_type/$engine_name'";
+            }
+        }
+    }
+
+    return @warnings;
+}
+
+sub _normalize_engine_name {
+    my ($name) = @_;
+
+    return if !defined $name;
+    return if $name =~ /::/xms;
+
+    my $normalized = lc $name;
+    $normalized =~ s/_//xmsg;
+    return $normalized;
 }
 
 1;
