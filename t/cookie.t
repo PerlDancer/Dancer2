@@ -42,6 +42,10 @@ sub all_tests {
         is $cookie->value => 'a', "get first value in scalar context";
         is_deeply [ $cookie->value ] => [qw(a b c)],
             "get all values in list context";;
+        is_deeply [ $cookie->values ] => [qw(a b c)],
+            "values returns all values";
+        is scalar $cookie->values => 3,
+            "values returns arrayref in scalar context";
 
         ok $cookie->value( { x => 1, y => 2 } ), "can set values with a hashref";
         like $cookie->value => qr/^[xy]$/;    # hashes doesn't store order...

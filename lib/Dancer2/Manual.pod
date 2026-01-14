@@ -1247,6 +1247,24 @@ To retrieve all cookies, use the C<cookies> keyword:
         }
     }
 
+=head2 Multiple Values Per Cookie
+
+Cookie values can be multi-valued. C<cookie('name')> returns the first value
+in scalar context and all values in list context.
+
+    my $visitor  = cookie('visitor'); # single value
+    my @visitors = cookie('visitor'); # multiple values (list context)
+
+However, you can also call the methods C<value> (for either scalar/list
+contexts), or C<values> for list only context:
+
+    my $cookie   = cookies->{'name'};
+    my $visitor  = $cookie->value();
+    my @visitors = $cookies->values();
+
+    # this also works, similar to the DSL keyword 'cookie'
+    my @visitors = $cookie->value();
+
 =head2 Deleting Cookies
 
 To delete a cookie, set it with an expiration time in the past:
