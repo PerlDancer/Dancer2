@@ -858,9 +858,6 @@ sub defined_engines {
     ];
 }
 
-# FIXME not needed anymore, I suppose...
-sub api_version {2}
-
 sub register_plugin {
     my $self   = shift;
     my $plugin = shift;
