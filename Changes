@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * PR #1753: Fix structure of config docs (Mikko Koivunalho)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 2.0.1     2025-10-22 18:13:37-04:00 America/New_York
 
     [ BUG FIXES ]
