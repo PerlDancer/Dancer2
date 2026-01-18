@@ -46,7 +46,7 @@ sub reset_to_default {
 
 sub reset_default {
     my ($self) = @_;
-    Carp::croak 'DEPRECATED: reset_default internal method, replaced by reset_to_default';
+    Carp::carp 'DEPRECATED: reset_default internal method, replaced by reset_to_default';
     goto &reset_to_default;
 }
 
