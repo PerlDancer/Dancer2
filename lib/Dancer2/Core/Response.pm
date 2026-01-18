@@ -6,6 +6,7 @@ use Moo;
 
 use Encode;
 use Dancer2::Core::Types;
+use Dancer2::Core::MIME;
 
 use Dancer2 ();
 use Dancer2::Core::HTTP;
@@ -19,6 +20,12 @@ use Sub::Quote ();
 use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
+
+has mime_type => (
+    'is'      => 'ro',
+    'isa'     => InstanceOf['Dancer2::Core::MIME'],
+    'default' => sub { Dancer2::Core::MIME->new() },
+);
 
 has headers => (
     is     => 'ro',
@@ -150,22 +157,22 @@ sub encode_content {
 }
 
 sub new_from_plack {
-    my ($self, $psgi_res) = @_;
+    my ($class, $psgi_res) = @_;
 
     return Dancer2::Core::Response->new(
-        status  => $psgi_res->status,
-        headers => $psgi_res->headers,
-        content => $psgi_res->body,
+        status   => $psgi_res->status,
+        headers  => $psgi_res->headers,
+        content  => $psgi_res->body,
     );
 }
 
 sub new_from_array {
-    my ($self, $arrayref) = @_;
+    my ($class, $arrayref) = @_;
 
     return Dancer2::Core::Response->new(
-        status  => $arrayref->[0],
-        headers => $arrayref->[1],
-        content => $arrayref->[2][0],
+        status    => $arrayref->[0],
+        headers   => $arrayref->[1],
+        content   => $arrayref->[2][0],
     );
 }
 
@@ -204,8 +211,7 @@ sub content_type {
     my $self = shift;
 
     if ( scalar @_ > 0 ) {
-        my $runner   = Dancer2::runner();
-        my $mimetype = $runner->mime_type->name_or_type(shift);
+        my $mimetype = $self->mime_type->name_or_type(shift);
         $self->header( 'Content-Type' => $mimetype );
         return $mimetype;
     }

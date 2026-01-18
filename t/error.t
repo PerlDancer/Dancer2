@@ -180,8 +180,10 @@ subtest 'App dies with serialized error' => sub {
 subtest 'Error with exception object' => sub {
     local $@;
     eval { MyTestException->throw('a test exception object') };
+    my $exception = $@;
     my $err = Dancer2::Core::Error->new(
-        exception       => $@,
+        app             => Dancer2::Core::App->new(),
+        exception       => $exception,
         show_stacktrace => 1,
     )->throw;
 

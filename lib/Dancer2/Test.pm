@@ -41,6 +41,7 @@ our @EXPORT = qw(
 #dancer1 also has read_logs, response_redirect_location_is
 #cf. https://github.com/PerlDancer2/Dancer22/issues/25
 
+use Dancer2::Core::MIME;
 use Dancer2::Core::Dispatcher;
 use Dancer2::Core::Request;
 
@@ -87,6 +88,7 @@ sub dancer_response {
         status  => $psgi_response->[0],
         headers => $psgi_response->[1],
         content => $psgi_response->[2][0],
+        mime_type => Dancer2::Core::MIME->new(),
     );
 }
 

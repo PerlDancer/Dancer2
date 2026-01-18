@@ -20,7 +20,6 @@ has config => (
     builder => '_build_config',
 );
 
-# FIXME: i hate this
 has mime_type => (
     is      => 'ro',
     isa     => InstanceOf ['Dancer2::Core::MIME'],

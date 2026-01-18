@@ -462,7 +462,7 @@ sub mime {
     }
     else {
         my $runner = $self->runner;
-        $runner->mime_type->reset_default;
+        $runner->mime_type->reset_to_default;
         return $runner->mime_type;
     }
 }

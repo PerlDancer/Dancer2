@@ -4,6 +4,7 @@ package Dancer2::Core::Error;
 use Moo;
 use Carp;
 use Dancer2::Core::Types;
+use Dancer2::Core::MIME;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
@@ -257,6 +258,7 @@ has response => (
                 ? $ENV{DANCER_NO_SERVER_TOKENS}
                 : 0;
         return Dancer2::Core::Response->new(
+            mime_type     => $self->has_app ? $self->app->mime_type : Dancer2::Core::MIME->new(),
             server_tokens => !$no_server_tokens,
             ( serializer => $serializer )x!! $serializer
         );
