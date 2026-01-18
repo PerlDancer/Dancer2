@@ -668,14 +668,6 @@ B<When to use>: Log messages with custom or dynamic levels.
 
 B<Related Keywords>: L</debug>, L</info>, L</warning>, L</error>
 
-=head2 L<logger|Dancer2::Manual/Logging>
-
-Provides access to the logger object.
-
-B<When to use>: Advanced logging scenarios.
-
-B<Related Keywords>: L</log>, L</debug>, L</info>, L</warning>, L</error>
-
 =head2 L<warning|Dancer2::Manual/warning>
 
 Logs a message at the warning level.
