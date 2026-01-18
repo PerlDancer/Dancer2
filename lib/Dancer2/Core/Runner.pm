@@ -171,31 +171,27 @@ sub start_server {
 sub psgi_app {
     my ($self, $apps) = @_;
 
-    if ( $apps && @{$apps} ) {
-        my @found_apps = ();
-
-        foreach my $app_req ( @{$apps} ) {
-            if ( is_regexpref($app_req) ) {
-                # find it in the apps registry
-                push @found_apps,
-                    grep +( $_->name =~ $app_req ), @{ $self->apps };
-            } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
-                # use it directly
-                push @found_apps, $app_req;
-            } elsif ( !is_ref($app_req) ) {
-                # find it in the apps registry
-                push @found_apps,
-                    grep +( $_->name eq $app_req ), @{ $self->apps };
-            } else {
-                croak "Invalid input to psgi_app: $app_req";
-            }
+    my @found_apps;
+    foreach my $app_req ( @{ $apps || [] } ) {
+        if ( is_regexpref($app_req) ) {
+            # Asked to find app via regex pattern on its name
+            push @found_apps,
+                grep +( $_->name =~ $app_req ), @{ $self->apps };
+        } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
+            # Given Dancer2 App instance
+            push @found_apps, $app_req;
+        } elsif ( !is_ref($app_req) ) {
+            # Strings of the app names
+            push @found_apps,
+                grep +( $_->name eq $app_req ), @{ $self->apps };
+        } else {
+            croak "Invalid input to psgi_app: $app_req";
         }
-
-        $apps = \@found_apps;
-    } else {
-        # dispatch over all apps by default
-        $apps = $self->apps;
     }
+
+    # if specific apps, dispatch to them
+    # otherwise, dispatch over all apps by default
+    $apps = @found_apps ? \@found_apps : $self->apps;
 
     my $dispatcher = Dancer2::Core::Dispatcher->new( apps => $apps );
 
