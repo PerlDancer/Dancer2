@@ -116,4 +116,41 @@ subtest 'can disable warnings' => sub {
     is( $warnings, q{}, 'warnings silenced' );
 };
 
+subtest 'can allow specific top-level keys' => sub {
+    my $warnings = _read_config_with_warnings({
+        strict_config_allow => [ 'typo', 'extra_top_level' ],
+        typo                     => 1,
+        extra_top_level          => 1,
+        nope                     => 1,
+        engines                  => {
+            logger => {
+                File => {
+                    extra => 1,
+                },
+            },
+        },
+    });
+
+    unlike(
+        $warnings,
+        qr/Unknown configuration key 'typo'/,
+        'does not warn for allowlisted keys',
+    );
+    unlike(
+        $warnings,
+        qr/Unknown configuration key 'extra_top_level'/,
+        'does not warn for allowlisted keys',
+    );
+    like(
+        $warnings,
+        qr/Unknown configuration key 'nope'/,
+        'still warns for other top-level keys',
+    );
+    like(
+        $warnings,
+        qr/Unknown configuration key 'extra' for engine 'logger\/File'/,
+        'still warns for unknown engine keys',
+    );
+};
+
 done_testing;
