@@ -402,6 +402,17 @@ the options are known. Set this to false if you intentionally store
 application-specific settings at the top level or use custom engines with
 additional configuration keys.
 
+=head3 strict_config_allow (array)
+
+List of top-level configuration keys that should be ignored by strict config
+warnings. This allows you to keep C<strict_config> enabled while permitting
+application-specific keys.
+
+    strict_config: 1
+    strict_config_allow:
+      - my_custom_key
+      - feature_flags
+
 =head3 no_server_tokens (boolean)
 
 If set to true, Dancer2 will B<not> add an "X-Powered-By" header and also append

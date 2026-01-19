@@ -54,6 +54,7 @@ my %KNOWN_CORE_KEYS = map +( $_ => 1 ), qw(
     type_library
     views
     strict_config
+    strict_config_allow
 );
 
 my %KNOWN_ENGINE_CONFIG = (
@@ -266,8 +267,18 @@ sub _strict_config_keys {
         if exists $config->{'strict_config'}
         && !$config->{'strict_config'};
 
+    my %allowed_keys;
+    if ( exists $config->{'strict_config_allow'} ) {
+        my $allow = $config->{'strict_config_allow'};
+        if ( is_arrayref($allow) ) {
+            %allowed_keys = map +( $_ => 1 ), @{$allow};
+        } else {
+            croak('strict_config_allow can only be arrayref');
+        }
+    }
+
     my @warnings = map +(
-        $KNOWN_CORE_KEYS{$_}
+        $KNOWN_CORE_KEYS{$_} || $allowed_keys{$_}
         ? ()
         : "Unknown configuration key '$_'"
     ), sort keys %{$config};
