@@ -86,6 +86,11 @@ around value => sub {
     return wantarray ? @$array : $array->[0];
 };
 
+sub values {
+    my $self  = shift;
+    return @{ $self->{'value'} || [] };
+}
+
 # this is only for overloading; need a real sub to refer to, as the Moose
 # attribute accessor won't be available at that point.
 sub _get_value { shift->value }
@@ -178,6 +183,11 @@ you say e.g. return "Hi, $cookie", you'll get the cookie's value there.)
 In list context, returns a list of potentially multiple values; in scalar
 context, returns just the first value.  (So, if you expect a cookie to have
 multiple values, use list context.)
+
+=method values
+
+Returns all values associated with this cookie, always a list. (So in scalar
+context, you will get the count.)
 
 =attr name
 
