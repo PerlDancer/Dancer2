@@ -3,6 +3,7 @@
 package Dancer2::Core::MIME;
 
 use Moo;
+use Carp ();
 
 use Plack::MIME;
 use Dancer2::Core::Types;
@@ -24,6 +25,8 @@ BEGIN {
     }
 }
 
+use constant { 'DEFAULT_MIME_TYPE' => 'application/data' };
+
 has custom_types => (
     is      => 'ro',
     isa     => HashRef,
@@ -33,12 +36,18 @@ has custom_types => (
 has default => (
     is      => 'rw',
     isa     => Str,
-    builder => "reset_default",
+    default => sub { DEFAULT_MIME_TYPE() },
 );
+
+sub reset_to_default {
+    my ($self) = @_;
+    $self->default( DEFAULT_MIME_TYPE() );
+}
 
 sub reset_default {
     my ($self) = @_;
-    $self->default("application/data");
+    Carp::carp 'DEPRECATED: reset_default internal method, replaced by reset_to_default';
+    goto &reset_to_default;
 }
 
 sub add_type {
@@ -127,6 +136,10 @@ Default MIME type defined by MIME::Types, set to: B<application/data>.
 =head1 METHODS
 
 =head2 reset_default
+
+Deprecated, use C<reset_to_default>.
+
+=head2 reset_to_default
 
 This method resets C<mime_type> to the default type.
 

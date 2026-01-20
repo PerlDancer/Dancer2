@@ -169,6 +169,12 @@ has '+local_triggers' => (
                 # using: set log => warning
                 $self->logger_engine->log_level($value);
             },
+
+            default_mime_type => sub {
+                my $self  = shift;
+                my $value = shift;
+                $self->mime_type->default($value);
+            },
         };
 
         foreach my $engine ( @{ $self->supported_engines } ) {
@@ -192,6 +198,12 @@ has '+local_triggers' => (
 
         return $triggers;
     },
+);
+
+has 'mime_type' => (
+    'is'      => 'ro',
+    'isa'     => InstanceOf['Dancer2::Core::MIME'],
+    'default' => sub { Dancer2::Core::MIME->new() },
 );
 
 sub _build_logger_engine {
@@ -449,6 +461,7 @@ sub _build_config {
 sub _build_response {
     my $self = shift;
     return Dancer2::Core::Response->new(
+        mime_type     => $self->mime_type,
         server_tokens => !$self->config->{'no_server_tokens'},
         $self->has_serializer_engine
             ? ( serializer => $self->serializer_engine )
@@ -971,17 +984,6 @@ sub all_hook_aliases {
     return $aliases;
 }
 
-sub mime_type {
-    my $self   = shift;
-    my $runner = Dancer2::runner();
-
-    exists $self->config->{default_mime_type}
-        ? $runner->mime_type->default( $self->config->{default_mime_type} )
-        : $runner->mime_type->reset_default;
-
-    $runner->mime_type;
-}
-
 sub log {
     my $self  = shift;
     my $level = shift;
@@ -1107,7 +1109,7 @@ sub send_file {
         # Read file content as bytes
         $fh = Dancer2::FileUtils::open_file( "<", $file_path );
         binmode $fh;
-        $content_type = Dancer2::runner()->mime_type->for_file($file_path) || 'text/plain';
+        $content_type = $self->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
             $charset = $self->config->{charset} || "utf-8";
         }
