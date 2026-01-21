@@ -11,7 +11,8 @@ sub create {
 
     $type = Dancer2::Core::camelize($type);
     $name = Dancer2::Core::camelize($name);
-    my $component_class = "Dancer2::${type}::${name}";
+    my $was_fully_qualified = ( $name =~ s/^\+// );  # strip any leading '+'
+    my $component_class = ( $was_fully_qualified ) ? $name : "Dancer2::${type}::${name}";
 
     eval { use_module($component_class); 1; }
         or croak "Unable to load class for $type component $name: $@";

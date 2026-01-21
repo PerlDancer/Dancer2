@@ -338,9 +338,15 @@ sub _get_config_for_engine {
     defined $config->{'engines'} && defined $config->{'engines'}{$engine}
         or return {};
 
-    # try both camelized name and regular name
+    # try name, camelized name and fully-qualified name (without plus)
+    my $full_name = $name;
+    my $was_fully_qualified = ( $full_name =~ s/^\+// );  # strip any leading '+'
     my $engine_config = {};
-    foreach my $engine_name ( $name, Dancer2::Core::camelize($name) ) {
+    foreach my $engine_name (
+        $name,
+        Dancer2::Core::camelize($name),
+        ( $was_fully_qualified ? $full_name : () )
+    ) {
         if ( defined $config->{'engines'}{$engine}{$engine_name} ) {
             $engine_config = $config->{'engines'}{$engine}{$engine_name};
             last;
