@@ -108,7 +108,7 @@ subtest "send_as html" => sub {
     my $res = $test->request( GET '/html' );
     is $res->code, '200';
     is $res->content_type, 'text/html';
-    is $res->content_type_charset, 'UTF-8';
+    ok !defined $res->content_type_charset;
 
     is $res->content, '<html></html>';
 };
@@ -117,7 +117,7 @@ subtest "send_as plain" => sub {
     my $res = $test->request( GET '/plain' );
     is $res->code, '200';
     is $res->content_type, 'text/plain';
-    is $res->content_type_charset, 'UTF-8';
+    ok !defined $res->content_type_charset;
 
     is $res->content, 'some plain text with <html></html>';
 };

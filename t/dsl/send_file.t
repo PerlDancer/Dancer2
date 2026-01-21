@@ -79,7 +79,7 @@ test_psgi $app, sub {
         is( $r->code, 200, 'send_file sets the status to 200' );
 
         my $charset = $r->headers->content_type_charset;
-        is( $charset, 'UTF-8', 'Text content type has UTF-8 charset' );
+        ok( !defined $charset, 'Text content type has no default charset' );
         my $test_string = encode_utf8('áéíóú');
         like(
             $r->content,
