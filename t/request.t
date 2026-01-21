@@ -247,7 +247,7 @@ sub run_test {
             $h->{$_} = $_;
         }
 
-        my $i = Dancer2::Core::Request::_decode($h);
+        my $i = Dancer2::Core::Request->_decode($h);
         is_deeply( $i, $h, 'hash not mangled' );
         ok( !@warnings, 'no warnings were issued' );
     }

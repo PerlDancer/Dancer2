@@ -191,6 +191,9 @@ has '+local_triggers' => (
 
                 # set the engine with the new value from the builder
                 $self->$setter_method($engine_instance);
+                if ( $engine eq 'serializer' && $self->has_response ) {
+                    $self->response->serializer($engine_instance);
+                }
 
                 return $engine_instance;
             };
@@ -287,10 +290,11 @@ sub _build_template_engine {
           $self->_get_config_for_engine( template => $value, $config );
 
     my $engine_attrs = {
-        config => $engine_options,
-        layout => $config->{layout},
+        config     => $engine_options,
+        layout     => $config->{layout},
         layout_dir => ( $config->{layout_dir} || 'layouts' ),
-        views => $config->{views},
+        views      => $config->{views},
+        charset    => $config->{charset},
     };
 
     Scalar::Util::weaken( my $weak_self = $self );
@@ -317,6 +321,7 @@ sub _build_serializer_engine {
 
     my $engine_options =
         $self->_get_config_for_engine( serializer => $value, $config );
+    $engine_options->{strict_utf8} //= $config->{strict_utf8};
 
     Scalar::Util::weaken( my $weak_self = $self );
 
@@ -463,6 +468,7 @@ sub _build_response {
     return Dancer2::Core::Response->new(
         mime_type     => $self->mime_type,
         server_tokens => !$self->config->{'no_server_tokens'},
+        charset       => $self->config->{charset},
         $self->has_serializer_engine
             ? ( serializer => $self->serializer_engine )
             : (),
@@ -734,6 +740,7 @@ sub _build_default_config {
     return {
         content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset        => ( $ENV{DANCER_CHARSET}      || '' ),
+        strict_utf8    => ( $ENV{DANCER_STRICT_UTF8}  || 0 ),
         logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
         views          => ( $ENV{DANCER_VIEWS}
                             || path( $self->location, 'views' ) ),
@@ -1008,8 +1015,11 @@ sub send_as {
             carp sprintf( "Please use %s as the type for 'send_as', not %s", lc($type), $type );
         }
 
-        $options->{charset} = $self->config->{charset} || 'UTF-8';
-        my $content = Encode::encode( $options->{charset}, $data );
+        $options->{charset} //= $self->config->{charset};
+        my $content = $data;
+        if ( defined $options->{charset} && length $options->{charset} ) {
+            $content = Encode::encode( $options->{charset}, $data );
+        }
         $options->{content_type} ||= join '/', 'text', lc $type;
         # Explicit return needed here, as if we are currently rendering a
         # template then with_return will not longjump
@@ -1031,6 +1041,7 @@ sub send_as {
     # load any serializer engine config
     my $engine_options =
         $self->_get_config_for_engine( serializer => $type, $self->config ) || {};
+    $engine_options->{strict_utf8} //= $self->config->{strict_utf8};
 
     Scalar::Util::weaken( my $weak_self = $self );
     my $serializer = $self->_factory->create(
@@ -1051,6 +1062,7 @@ sub send_error {
     my $err = Dancer2::Core::Error->new(
           message    => $message,
           app        => $self,
+          charset    => $self->config->{charset},
         ( status     => $status     )x!! $status,
 
         $self->has_serializer_engine
@@ -1119,7 +1131,7 @@ sub send_file {
         binmode $fh;
         $content_type = $self->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
-            $charset = $self->config->{charset} || "utf-8";
+            $charset = $self->config->{charset};
         }
     }
 
@@ -1539,6 +1551,7 @@ sub dispatch {
             app     => $app,
             message => $err,
             status  => 400,    # 400 Bad request (dont send again), rather than 500
+            charset => $self->config->{charset},
         )->throw;
     }
 
@@ -1682,6 +1695,7 @@ sub build_request {
           env             => $env,
           is_behind_proxy => $self->settings->{'behind_proxy'} || 0,
           uri_for_route   => sub { shift; $weak_self->uri_for_route(@_) },
+          strict_utf8     => $self->config->{strict_utf8},
 
           $self->has_serializer_engine
               ? ( serializer => $self->serializer_engine )
@@ -1733,6 +1747,8 @@ sub _prep_response {
       and my $ct = $config->{content_type} ) {
         $response->default_content_type($ct);
     }
+    exists $config->{charset}
+        and $response->charset( $config->{charset} );
 
     # if we were passed any content, set it in the response
     defined $content && $response->content($content);
@@ -1752,6 +1768,7 @@ sub response_internal_error {
         app       => $self,
         status    => 500,
         exception => $error,
+        charset   => $self->config->{charset},
     )->throw;
 }
 
@@ -1764,9 +1781,10 @@ sub response_not_found {
     local $Dancer2::Core::Route::RESPONSE = $self->response;
 
     my $response = Dancer2::Core::Error->new(
-        app    => $self,
+        app     => $self,
         status  => 404,
         message => $request->path,
+        charset => $self->config->{charset},
     )->throw;
 
     $self->cleanup;

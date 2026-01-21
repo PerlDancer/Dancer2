@@ -70,8 +70,14 @@ has has_passed => (
 sub pass { shift->has_passed(1) }
 
 has serializer => (
-    is  => 'ro',
+    is  => 'rw',
     isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
+);
+
+has charset => (
+    is        => 'rw',
+    isa       => Str,
+    predicate => 'has_charset',
 );
 
 has is_encoded => (
@@ -145,15 +151,19 @@ sub encode_content {
              $self->content_type( $self->default_content_type );
 
     return $content if $ct !~ /^text/;
+    my $charset = $self->headers->content_type_charset;
+    $charset = $self->charset
+      if !defined $charset && $self->has_charset;
+    return $content if !defined $charset || $charset eq '';
 
     # we don't want to encode an empty string, it will break the output
     $content or return $content;
 
-    $self->content_type("$ct; charset=UTF-8")
+    $self->content_type("$ct; charset=$charset")
       if $ct !~ /charset/;
 
     $self->is_encoded(1);
-    return Encode::encode( 'UTF-8', $content );
+    return Encode::encode( $charset, $content );
 }
 
 sub new_from_plack {
@@ -303,10 +313,15 @@ response will try coerce it to a string via double quote interpolation.
 Default mime type to use for the response Content-Type header
 if nothing was specified
 
+=attr charset
+
+Charset to use when encoding C<text/*> responses. An empty value disables
+automatic encoding.
+
 =method encode_content
 
 Encodes the stored content according to the stored L<content_type>.  If the content_type
-is a text format C<^text>, then no encoding will take place.
+is not a text format C<^text>, then no encoding will take place.
 
 Internally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
 

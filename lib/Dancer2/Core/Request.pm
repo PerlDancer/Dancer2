@@ -6,7 +6,7 @@ use warnings;
 use parent 'Plack::Request';
 
 use Carp;
-use Encode;
+use Encode qw(decode FB_CROAK);
 use URI;
 use URI::Escape;
 use Safe::Isa;
@@ -40,10 +40,12 @@ eval {
     require Unicode::UTF8;
     no warnings qw<redefine once>;
     *__decode = sub { Unicode::UTF8::decode_utf8($_[0]) };
+    *__valid  = sub { Unicode::UTF8::valid_utf8($_[0]) };
     1;
 } or do {
     no warnings qw<redefine once>;
     *__decode = sub { decode( 'UTF-8', $_[0] ) };
+    *__valid  = sub { eval { decode( 'UTF-8', $_[0], FB_CROAK ); 1 } };
 };
 
 # check presence of XS module to speedup request
@@ -81,6 +83,7 @@ sub new {
 
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
+    $self->{'_strict_utf8'} = !!$opts{'strict_utf8'};
 
     # Deserialize/parse body for HMV
     $self->data;
@@ -126,14 +129,14 @@ sub _query_params { $_[0]->{'_query_params'} }
 
 sub _set_query_params {
     my ( $self, $params ) = @_;
-    $self->{_query_params} = _decode( $params );
+    $self->{_query_params} = $self->_decode( $params, 'query parameters' );
 }
 
 sub _route_params { $_[0]->{'_route_params'} ||= {} }
 
 sub _set_route_params {
     my ( $self, $params ) = @_;
-    $self->{_route_params} = _decode( $params );
+    $self->{_route_params} = $self->_decode( $params, 'route parameters' );
     $self->_build_params();
 }
 
@@ -294,6 +297,12 @@ sub uri_base {
     return $canon;
 }
 
+sub path {
+    my $self = shift;
+    my $path = $self->env->{PATH_INFO} || '/';
+    return $self->_decode_bytes( $path, 'PATH_INFO' );
+}
+
 sub dispatch_path {
     Carp::croak q{DEPRECATED: request->dispatch_path. Please use request->path instead};
 }
@@ -353,9 +362,9 @@ sub query_parameters {
     my $self = shift;
     $self->{'query_parameters'} ||= do {
         if ($XS_PARSE_QUERY_STRING) {
-            my $query = _decode(CGI::Deurl::XS::parse_query_string(
+            my $query = $self->_decode(CGI::Deurl::XS::parse_query_string(
                 $self->env->{'QUERY_STRING'}
-            ));
+            ), 'query parameters');
 
             Hash::MultiValue->new(
                 map {;
@@ -367,7 +376,7 @@ sub query_parameters {
             );
         } else {
             # defer to Plack::Request
-            _decode($self->SUPER::query_parameters);
+            $self->_decode($self->SUPER::query_parameters, 'query parameters');
         }
     };
 }
@@ -380,13 +389,18 @@ sub _set_route_parameters {
     # remove reserved splat parameter name
     # you should access splat parameters using splat() keyword
     delete @{$params}{qw<splat captures>};
-    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{_decode($params)} );
+    $self->{'route_parameters'} = Hash::MultiValue->from_mixed(
+        %{ $self->_decode( $params, 'route parameters' ) }
+    );
 }
 
 sub body_parameters {
     my $self = shift;
     # defer to (the overridden) Plack::Request->body_parameters
-    $self->{'body_parameters'} ||= _decode($self->SUPER::body_parameters());
+    $self->{'body_parameters'} ||= $self->_decode(
+        $self->SUPER::body_parameters(),
+        'body parameters',
+    );
 }
 
 sub parameters {
@@ -415,23 +429,53 @@ sub splat { @{ shift->params->{splat} || [] } }
 sub param { shift->params->{ $_[0] } }
 
 sub _decode {
-    my ($h) = @_;
+    my ( $self, $h, $context ) = @_;
     return if not defined $h;
 
     if ( !is_ref($h) && !utf8::is_utf8($h) ) {
-        return __decode($h);
+        return $self->_decode_bytes( $h, $context );
     }
     elsif ( ref($h) eq 'Hash::MultiValue' ) {
-        return Hash::MultiValue->from_mixed(_decode($h->as_hashref_mixed));
+        return Hash::MultiValue->from_mixed(
+            $self->_decode( $h->as_hashref_mixed, $context )
+        );
     }
     elsif ( is_hashref($h) ) {
-        return { map {my $t = _decode($_); $t} (%$h) };
+        return { map scalar $self->_decode( $_, $context ), %{$h} };
     }
     elsif ( is_arrayref($h) ) {
-        return [ map _decode($_), @$h ];
+        return [ map $self->_decode( $_, $context ), @{$h} ];
     }
 
     return $h;
+}
+
+sub _decode_bytes {
+    my ( $self, $bytes, $context ) = @_;
+
+    return __decode($bytes) if __valid($bytes);
+    return $self->_invalid_utf8( $bytes, $context );
+}
+
+sub _invalid_utf8 {
+    my ( $self, $bytes, $context ) = @_;
+    my $strict = $self->{_strict_utf8};
+    my $where  = $context || 'input';
+    my $msg    = "Invalid UTF-8 in $where";
+
+    $strict
+        and Carp::croak($msg);
+
+    if ( my $logger = $self->env->{'psgix.logger'} ) {
+        $logger->({
+            level   => 'warning',
+            message => "$msg; leaving bytes unchanged",
+        });
+    } else {
+        Carp::carp("$msg; leaving bytes unchanged");
+    }
+
+    return $bytes;
 }
 
 sub is_ajax {
@@ -542,7 +586,7 @@ sub _build_uploads {
                              headers  => {@{$_->{headers}->psgi_flatten_without_sort}},
                              tempname => $_->{tempname},
                              size     => $_->{size},
-                             filename => _decode( $_->{filename} ),
+                             filename => $self->_decode( $_->{filename}, 'upload filename' ),
                       ), $uploads->get_all($name);
 
         $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
@@ -601,6 +645,7 @@ sub _shallow_clone {
     # Clone and merge query params
     my $new_params = $self->params;
     $new_request->{_query_params} = { %{ $self->{_query_params} || {} } };
+    $new_request->{_strict_utf8}  = $self->{_strict_utf8};
     $new_request->{query_parameters} = $self->query_parameters->clone;
     for my $key ( keys %{ $params || {} } ) {
         my $value = $params->{$key};
@@ -961,8 +1006,9 @@ associated risks and alternatives.
 
 =method path
 
-The path requested by the client, normalized. This is effectively
-C<path_info> or a single forward C</>.
+The decoded path requested by the client, normalized. This is effectively
+C<path_info> or a single forward C</>. Invalid UTF-8 is left as bytes in
+lenient mode (with a warning), or throws an error in strict UTF-8 mode.
 
 =method path_info
 
