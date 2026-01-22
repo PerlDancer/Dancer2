@@ -45,7 +45,10 @@ eval {
 } or do {
     no warnings qw<redefine once>;
     *__decode = sub { decode( 'UTF-8', $_[0] ) };
-    *__valid  = sub { eval { decode( 'UTF-8', $_[0], FB_CROAK ); 1 } };
+    *__valid  = sub {
+        my $copy = $_[0];
+        eval { decode( 'UTF-8', $copy, FB_CROAK ); 1 };
+    };
 };
 
 # check presence of XS module to speedup request
@@ -452,6 +455,10 @@ sub _decode {
 
 sub _decode_bytes {
     my ( $self, $bytes, $context ) = @_;
+
+    # If PSGI already gave us characters, avoid re-decoding.
+    return $bytes if utf8::is_utf8($bytes);
+    return $bytes if $bytes !~ /[\x80-\xFF]/;
 
     return __decode($bytes) if __valid($bytes);
     return $self->_invalid_utf8( $bytes, $context );
