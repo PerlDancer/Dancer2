@@ -469,6 +469,11 @@ sub _build_response {
         mime_type     => $self->mime_type,
         server_tokens => !$self->config->{'no_server_tokens'},
         charset       => $self->config->{charset},
+        strict_utf8   => $self->config->{strict_utf8},
+        do {
+            Scalar::Util::weaken( my $weak_self = $self );
+            log_cb => sub { $weak_self && $weak_self->log(@_) };
+        },
         $self->has_serializer_engine
             ? ( serializer => $self->serializer_engine )
             : (),
