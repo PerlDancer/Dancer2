@@ -6,7 +6,7 @@ use warnings;
 use parent 'Plack::Request';
 
 use Carp;
-use Encode qw(decode FB_CROAK);
+use Encode qw(decode FB_CROAK LEAVE_SRC);
 use URI;
 use URI::Escape;
 use Safe::Isa;
@@ -46,8 +46,7 @@ eval {
     no warnings qw<redefine once>;
     *__decode = sub { decode( 'UTF-8', $_[0] ) };
     *__valid  = sub {
-        my $copy = $_[0];
-        eval { decode( 'UTF-8', $copy, FB_CROAK ); 1 };
+        eval { decode( 'UTF-8', $_[0], FB_CROAK | LEAVE_SRC ); 1 };
     };
 };
 
