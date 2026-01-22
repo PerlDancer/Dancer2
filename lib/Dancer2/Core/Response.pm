@@ -4,6 +4,7 @@ package Dancer2::Core::Response;
 
 use Moo;
 
+use Carp;
 use Encode;
 use Dancer2::Core::Types;
 use Dancer2::Core::MIME;
@@ -20,6 +21,8 @@ use Sub::Quote ();
 use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
+
+my $WARNED_NO_CHARSET = 0;
 
 has mime_type => (
     'is'      => 'ro',
@@ -43,6 +46,18 @@ has headers => (
         HTTP::Headers::Fast->new();
     },
     handles => [qw<header push_header>],
+);
+
+has strict_utf8 => (
+    is      => 'ro',
+    isa     => Bool,
+    default => sub {0},
+);
+
+has log_cb => (
+    is        => 'ro',
+    isa       => CodeRef,
+    predicate => 'has_log_cb',
 );
 
 sub headers_to_array {
@@ -154,7 +169,22 @@ sub encode_content {
     my $charset = $self->headers->content_type_charset;
     $charset = $self->charset
       if !defined $charset && $self->has_charset;
-    return $content if !defined $charset || $charset eq '';
+    if ( !defined $charset || $charset eq '' ) {
+        return $content if !utf8::is_utf8($content);
+        my $msg = 'Response contains characters but no charset is configured; assuming UTF-8';
+        $self->strict_utf8
+            and Carp::croak($msg);
+        if ( !$WARNED_NO_CHARSET ) {
+            $WARNED_NO_CHARSET = 1;
+            if ( $self->has_log_cb ) {
+                $self->log_cb->( warning => $msg );
+            }
+            else {
+                Carp::carp($msg);
+            }
+        }
+        $charset = 'UTF-8';
+    }
 
     # we don't want to encode an empty string, it will break the output
     $content or return $content;
