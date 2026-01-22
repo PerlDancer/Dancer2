@@ -123,6 +123,9 @@ __END__
 
 =head1 DESCRIPTION
 
+(If you're looking for the L<dancer2> command documentation via CLI, try
+C<perldoc -F $(which dancer2)>.)
+
 Dancer2 is the new generation of L<Dancer>, the lightweight web framework for
 Perl. Dancer2 is a complete rewrite based on L<Moo>.
 
