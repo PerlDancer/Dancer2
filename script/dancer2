@@ -21,6 +21,9 @@ dancer2 <command> [options...]
 
 =head1 DESCRIPTION
 
+(If you're looking for the main L<Dancer2> module documentation via
+CLI, try C<perldoc Dancer2>.)
+
 Dancer2 is the new generation lightweight web-framework for Perl.
 This tool provides nice, easily-extendable CLI interface for it.
 
