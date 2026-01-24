@@ -1,10 +1,15 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
-    * None
+    * GH #863: Fix case insensitive system confusion (Sawyer X)
 
     [ ENHANCEMENTS ]
-    * None
+    * GH #763: Strict config mode; warn on unknown config keys with
+      opt-out (Sawyer X)
+    * GH #1073: Get multiple session cookie values at once with clear
+      method (Sawyer X)
+    * PR #1757: Remove api_version, improve dispatching loop (Sawyer X)
+    * PR #1758: Move MIME ownership to app (Sawyer X)
 
     [ DOCUMENTATION ]
     * PR #1753: Fix structure of config docs (Mikko Koivunalho)
