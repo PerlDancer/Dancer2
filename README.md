@@ -8,7 +8,7 @@
   Dancer2 is a lightweight yet powerful web application framework
   written in Perl.
   <br>
-  <a href="https://metacpan.org/pod/Dancer2%3A%3ATutorial">Tutorial</a>
+  <a href="https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ATutorial">Tutorial</a>
   ·
   <a href="https://metacpan.org/pod/Dancer2%3A%3AManual">Manual</a>
   ·
@@ -40,7 +40,7 @@ You have questions. We have answers.
 
 - Dancer2 Tutorial
 
-    Want to learn by example? The [Dancer2 tutorial](https://metacpan.org/pod/Dancer2%3A%3ATutorial)
+    Want to learn by example? The [Dancer2 tutorial](https://metacpan.org/pod/Dancer2%3A%3AManual%3A%3ATutorial)
     will take you from installation to a working application.
 
 - Quick Start
