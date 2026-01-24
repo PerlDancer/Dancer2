@@ -12,6 +12,8 @@
     * PR #1758: Move MIME ownership to app (Sawyer X)
 
     [ DOCUMENTATION ]
+    * PR #1749, #1750: Fix broken manual and tutorial links (Gil Magno,
+      Jason A. Crome)
     * PR #1753: Fix structure of config docs (Mikko Koivunalho)
 
     [ DEPRECATED ]
