@@ -15,6 +15,7 @@
     * PR #1749, #1750: Fix broken manual and tutorial links (Gil Magno,
       Jason A. Crome)
     * PR #1753: Fix structure of config docs (Mikko Koivunalho)
+    * PR #1762: Remove keyword logger from DSL document (Mikko Koivunalho)
 
     [ DEPRECATED ]
     * None
