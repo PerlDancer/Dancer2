@@ -392,7 +392,7 @@ sub backtrace {
     return $html unless $file and $line;
 
     # file and line are located, let's read the source Luke!
-    my $fh = eval { open_file('<', $file) } or return $html;
+    my $fh = eval { open_file( '<', $file, $self->charset ) } or return $html;
     my @lines = <$fh>;
     close $fh;
 

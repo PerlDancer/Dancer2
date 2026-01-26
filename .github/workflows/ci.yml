@@ -113,7 +113,7 @@ jobs:
         run: |
             perl -v
             cpanm --notest --force Module::Pluggable
-            cpanm Dancer2-*.tar.gz
+            cpanm -v Dancer2-*.tar.gz
             perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
 
 
@@ -141,7 +141,7 @@ jobs:
         run: |
             perl -v
             cpanm --notest --force Module::Pluggable
-            cpanm Dancer2-*.tar.gz
+            cpanm -v Dancer2-*.tar.gz
             perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
 
       - name: Testing selected Plugins
