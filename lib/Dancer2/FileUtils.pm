@@ -153,12 +153,16 @@ Like path, but returns '' if path doesn't exist.
 =func dirname
 
     use Dancer2::FileUtils 'dirname';
-
     my $dir = dirname($path);
 
-Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
-a path. On most OS, returns all but last level of file path. See
-L<File::Basename> for details.
+    # Same thing:
+    use Path::Tiny qw< path >;
+    my $dir       = path($path)->parent;
+    my $as_string = $dir->stringify;
+
+Fetches the directory name of a path
+On most OS, returns all but last level of file path. See
+L<Path::Tiny> for details.
 
 =func set_file_mode($fh);
 

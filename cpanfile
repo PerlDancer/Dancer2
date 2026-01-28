@@ -8,7 +8,6 @@ requires 'Digest::SHA';
 requires 'Encode';
 requires 'Exporter', '5.57';
 requires 'Exporter::Tiny';
-requires 'File::Basename';
 requires 'File::Copy';
 requires 'File::Path';
 requires 'File::Share';
