@@ -4,7 +4,6 @@ package Dancer2::Handler::File;
 use Carp 'croak';
 use Moo;
 use HTTP::Date;
-use Dancer2::FileUtils 'path';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Path::Tiny ();
