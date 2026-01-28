@@ -12,7 +12,6 @@ use Module::Runtime qw{ require_module use_module };
 use Dancer2::Core::Factory;
 use Dancer2::Core;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils 'path';
 use Dancer2::ConfigUtils 'normalize_config_entry';
 
 has config => (

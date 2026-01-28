@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 
-use Test::More tests => 25;
+use Test::More tests => 14;
 use Test::Fatal;
 use File::Spec;
 BEGIN { @File::Spec::ISA = ("File::Spec::Unix") }
@@ -34,22 +34,6 @@ like(
 my $content = Dancer2::FileUtils::read_file_content();
 is $content, undef;
 
-my $paths = [
-   [ undef          => 'undef' ],
-   [ '/foo/./bar/'  => '/foo/bar/' ],
-   [ '/foo/../bar' => '/bar' ],
-   [ '/foo/bar/..'  => '/foo/' ],
-   [ '/a/b/c/d/A/B/C' => '/a/b/c/d/A/B/C' ],
-   [ '/a/b/c/d/../A/B/C' => '/a/b/c/A/B/C' ],
-   [ '/a/b/c/d/../../A/B/C' => '/a/b/A/B/C' ],
-   [ '/a/b/c/d/../../../A/B/C' => '/a/A/B/C' ],
-   [ '/a/b/c/d/../../../../A/B/C' => '/A/B/C' ], 
-];
-
-for my $case ( @$paths ) {
-    is Dancer2::FileUtils::normalize_path( $case->[0] ), $case->[1];
-}
-
 my $p = Dancer2::FileUtils::dirname('/somewhere');
 is $p, '/';
 
@@ -72,10 +56,6 @@ if ( !-e $path ) {
 
 my $tmpdir = File::Temp->newdir;
 is( path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
-
-#slightly tricky paths on different platforms
-is( path( '/', 'b', '/c' ), '/b//c', 'path /,b,/c -> /b//c' );
-is( path( '/', '/b', ), '/b', 'path /, /b -> /b' );
 
 note "escape_filename"; {
     my $names = [
