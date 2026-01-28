@@ -73,7 +73,7 @@ sub _build_config_files {
     {
         foreach my $ext (@exts) {
             my $path = Path::Tiny::path( $file->[0], $file->[1] . ".$ext" )->stringify;
-            next if !-r $path;
+            next unless -r $path;
 
             # Look for *_local.ext files
             my $local = Path::Tiny::path( $file->[0], $file->[1] . "_local.$ext" );
