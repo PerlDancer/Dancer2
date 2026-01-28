@@ -18,7 +18,7 @@ use Dancer2::ConfigUtils 'normalize_config_entry';
 has config => (
     is      => 'ro',
     isa     => HashRef,
-    lazy    => 0,
+    lazy    => 1,
     builder => '_build_config',
 );
 
