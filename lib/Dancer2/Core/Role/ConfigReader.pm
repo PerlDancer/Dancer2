@@ -35,13 +35,17 @@ has environments_location => (
 
         my $self = shift;
 
+        my $last;
         foreach my $maybe_path ( $self->config_location, $self->location ) {
             my $path = Path::Tiny::path($maybe_path, 'environments');
+            $last = $path;
             $path->exists && $path->is_dir
-              and return $path->stringify;
+                and return $path->stringify;
         }
 
-        return '';
+        # This is to assure any call on path($environments_location) won't crash
+        # But the calling code will eventually realize the path doesn't exist
+        return $last->stringify;
     },
 );
 
