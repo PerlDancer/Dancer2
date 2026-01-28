@@ -7,8 +7,7 @@ use Dancer2::Core::Request;
 
 use Carp;
 use File::Temp 0.22;
-use File::Basename qw/dirname basename/;
-use File::Spec;
+use Path::Tiny qw< path >;
 use Encode qw(encode_utf8);
 
 diag "If you want extra speed, install URL::Encode::XS"
@@ -18,7 +17,7 @@ diag "If you want extra speed, install CGI::Deurl::XS"
 
 sub test_path {
     my ( $file, $dir ) = @_;
-    is dirname($file), $dir, "dir of $file is $dir";
+    is path($file)->parent, $dir, "dir of $file is $dir";
 }
 
 sub run_test {
@@ -118,11 +117,11 @@ SHOGUN6
 
         # copy_to, link_to
         my $dest_dir = File::Temp::tempdir( CLEANUP => 1, TMPDIR => 1 );
-        my $dest_file = File::Spec->catfile( $dest_dir, $upload->basename );
+        my $dest_file = path( $dest_dir, $upload->basename )->stringify;
         $upload->copy_to($dest_file);
         ok( ( -f $dest_file ), "file '$dest_file' has been copied" );
 
-        my $dest_file_link = File::Spec->catfile( $dest_dir, "hardlink" );
+        my $dest_file_link = path( $dest_dir, "hardlink" )->stringify;
         $upload->link_to($dest_file_link);
         ok( ( -f $dest_file_link ),
             "hardlink '$dest_file_link' has been created"

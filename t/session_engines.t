@@ -6,12 +6,11 @@ use Plack::Test;
 use HTTP::Cookies;
 use HTTP::Request::Common;
 
-use File::Spec;
-use File::Basename 'dirname';
+use Path::Tiny qw< path >;
 
 my $SESSION_DIR;
 BEGIN {
-    $SESSION_DIR = File::Spec->catfile( dirname(__FILE__), 'sessions' );
+    $SESSION_DIR = path( __FILE__ )->parent->child('sessions')->stringify;
 }
 
 {
