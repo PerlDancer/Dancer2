@@ -242,8 +242,8 @@ L<Dancer2::Plugin::Database/"AUTOMATIC UTF-8 SUPPORT">
 
 =back
 
-Default value is empty which means don't do anything. HTTP responses without
-charset will be interpreted as ISO-8859-1 by most clients.
+Default value is C<UTF-8>. HTTP responses without charset will be interpreted
+as ISO-8859-1 by most clients.
 
 If C<charset> is empty, Dancer2 will not encode response bodies. Handlers
 should return already-encoded byte strings.

@@ -362,6 +362,7 @@ sub throw {
 
     $self->response->status( $self->status );
     $self->response->content_type( $self->content_type );
+    $self->response->charset( $self->charset ) if defined $self->charset;
     $self->response->content($message);
 
     $self->has_app &&
