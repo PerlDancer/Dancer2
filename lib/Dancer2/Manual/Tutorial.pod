@@ -2370,8 +2370,12 @@ F<public/500.html> page.
 
 =item * Disabling server tokens
 
-Setting C<no_server_tokens> prevents Dancer2 from adding the C<X-Powered-By>
-header with Dancer2 and the version you're running.
+Setting C<no_server_tokens> prevents Dancer2 from adding the
+C<X-Powered-By> header and, when using Dancer2's standalone server, from
+setting the C<Server> header to the Dancer2 version.
+
+Does not touch the C<Server> header when running under an external PSGI
+server.
 
 =back
 

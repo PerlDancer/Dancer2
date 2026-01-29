@@ -396,8 +396,11 @@ die occurs. (Internally sets Carp::Verbose). Default to false.
 
 =head3 no_server_tokens (boolean)
 
-If set to true, Dancer2 will B<not> add an "X-Powered-By" header and also append
-the Dancer2 version to the "Server" header. Default to false - adding.
+If set to true, Dancer2 will B<not> add an C<X-Powered-By> header, and it
+will avoid setting the "Server" header when using Dancer2's standalone
+server.
+
+Default to B<false>.
 
 You can also use the environment variable C<DANCER_NO_SERVER_TOKENS>.
 

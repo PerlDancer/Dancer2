@@ -77,12 +77,17 @@ sub _build_server {
     my $self = shift;
 
     require_module('HTTP::Server::PSGI');
-    HTTP::Server::PSGI->new(
+    my %args = (
         host            => $self->host,
         port            => $self->port,
         timeout         => $self->timeout,
-        server_software => "Perl Dancer2 " . Dancer2->VERSION,
     );
+
+    if ( !$self->config->{'no_server_tokens'} ) {
+        $args{'server_software'} = "Perl Dancer2 " . Dancer2->VERSION;
+    }
+
+    return HTTP::Server::PSGI->new(%args);
 }
 
 sub _build_config {
@@ -153,8 +158,6 @@ sub start {
     $self->config->{'apphandler'} eq 'PSGI'
         and return $app;
 
-    # FIXME: this should not include the server tokens
-    # since those are already added to the server itself
     $self->start_server($app);
 }
 

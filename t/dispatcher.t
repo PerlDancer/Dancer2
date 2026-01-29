@@ -112,7 +112,6 @@ my @tests = (
             200,
             [   'Content-Length' => 4,
                 'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             ["home"],
             $simple_route,
@@ -126,7 +125,6 @@ my @tests = (
             200,
             [   'Content-Length' => 12,
                 'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             ["Hello Johnny"],
             $user_splat_route, # the second, after the first pass()es
@@ -139,7 +137,6 @@ my @tests = (
         expected => [
             204,
             [   'Content-Type'   => 'text/html; charset=UTF-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             [],
             $removed_content_route,
@@ -154,7 +151,6 @@ my @tests = (
             [   'Location'       => 'http://perldancer.org',
                 'Content-Length' => '305',
                 'Content-Type'   => 'text/html; charset=utf-8',
-                'Server'         => "Perl Dancer2 " . Dancer2->VERSION,
             ],
             qr/This item has moved/,
             $halt_route,

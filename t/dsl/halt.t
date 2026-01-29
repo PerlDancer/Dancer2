@@ -40,12 +40,6 @@ subtest 'halt within routes' => sub {
             my $res = $cb->( GET '/halt' );
 
             is(
-                $res->server,
-                "Perl Dancer2 " . Dancer2->VERSION,
-                '[/halt] Correct Server header',
-            );
-
-            is(
                 $res->headers->header('X-Foo'),
                 'foo',
                 '[/halt] Correct X-Foo header',
