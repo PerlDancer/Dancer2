@@ -111,7 +111,7 @@ my @tests = (
         expected => [
             200,
             [   'Content-Length' => 4,
-                'Content-Type'   => 'text/html',
+                'Content-Type'   => 'text/html; charset=utf-8',
             ],
             ["home"],
             $simple_route,
@@ -124,7 +124,7 @@ my @tests = (
         expected => [
             200,
             [   'Content-Length' => 12,
-                'Content-Type'   => 'text/html',
+                'Content-Type'   => 'text/html; charset=utf-8',
             ],
             ["Hello Johnny"],
             $user_splat_route, # the second, after the first pass()es
@@ -136,7 +136,7 @@ my @tests = (
         },
         expected => [
             204,
-            [ 'Content-Type'   => 'text/html' ],
+            [ 'Content-Type'   => 'text/html; charset=utf-8' ],
             [],
             $removed_content_route,
         ]
