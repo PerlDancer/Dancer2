@@ -11,7 +11,6 @@ requires 'Exporter::Tiny';
 requires 'File::Copy';
 requires 'File::Path';
 requires 'File::Share';
-requires 'File::Spec';
 requires 'File::Temp';
 requires 'Hash::Merge::Simple';
 requires 'Hash::MultiValue';

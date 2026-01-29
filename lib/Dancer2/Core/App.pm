@@ -137,6 +137,27 @@ has serializer_engine => (
     predicate => 'has_serializer_engine',
 );
 
+has _appdir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_appdir_path',
+    init_arg => undef,
+);
+
+has _views_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_views_path',
+    init_arg => undef,
+);
+
+has _public_dir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_public_dir_path',
+    init_arg => undef,
+);
+
 has '+local_triggers' => (
     default => sub {
         my $self     = shift;
@@ -259,7 +280,7 @@ sub _build_session_engine {
     # Note that engine options will replace the default session_dir (if provided).
     return $self->_factory->create(
         session         => $value,
-        session_dir     => Path::Tiny::path( $self->config->{appdir}, 'sessions' )->stringify,
+        session_dir     => $self->_appdir_path->child('sessions')->stringify,
         %{$engine_options},
         postponed_hooks => $self->postponed_hooks,
 
@@ -728,13 +749,13 @@ around execute_hook => sub {
 sub _build_default_config {
     my $self = shift;
 
-    my $public = $ENV{DANCER_PUBLIC} || Path::Tiny::path( $self->location, 'public' )->stringify;
+    my $public = $ENV{DANCER_PUBLIC} || $self->_location_path->child('public')->stringify;
     return {
         content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset        => ( $ENV{DANCER_CHARSET}      || '' ),
         logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
         views          => ( $ENV{DANCER_VIEWS}
-                            || Path::Tiny::path( $self->location, 'views' )->stringify ),
+                            || $self->_location_path->child('views')->stringify ),
         environment    => $self->environment,
         appdir         => $self->location,
         public_dir     => $public,
@@ -745,6 +766,24 @@ sub _build_default_config {
             ],
         ],
     };
+}
+
+sub _build_appdir_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config->{appdir} || $self->location );
+}
+
+sub _build_views_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config->{views} );
+}
+
+sub _build_public_dir_path {
+    my $self = shift;
+    my $dir = $ENV{DANCER_PUBLIC}
+        || $self->config->{public_dir}
+        || $self->_location_path->child('public')->stringify;
+    return Path::Tiny::path($dir);
 }
 
 sub _init_hooks {
@@ -1088,9 +1127,7 @@ sub send_file {
         # static file dir - either system root or public_dir
         my $dir = $options{system_path}
             ? Path::Tiny->rootdir
-            : $ENV{DANCER_PUBLIC}
-                || $self->config->{public_dir}
-                || Path::Tiny::path( $self->location, 'public' )->stringify;
+            : $self->_public_dir_path;
 
         my $err_response = sub {
             my $status = shift;
@@ -1105,7 +1142,7 @@ sub send_file {
 
         # We need to check whether they are trying to access
         # a directory outside their scope
-        $err_response->(403) if !Path::Tiny::path($dir)->realpath->subsumes($file_path);
+        $err_response->(403) if !$dir->realpath->subsumes($file_path);
 
         # other error checks
         $err_response->(403) if !$file_path->exists;
@@ -1503,7 +1540,7 @@ sub to_app {
     if ( $self->config->{'static_handler'} ) {
         # Use App::File to "serve" the static content
         my $static_app = Plack::App::File->new(
-            root         => $self->config->{public_dir},
+            root         => $self->_public_dir_path->stringify,
             content_type => sub { $self->mime_type->for_file( $_[0] ) },
         )->to_app;
         # Conditionally use the static handler wrapped with ConditionalGET
@@ -1512,8 +1549,7 @@ sub to_app {
             $psgi,
             condition => sub {
                 my $env = shift;
-                Path::Tiny::path(
-                    $self->config->{'public_dir'},
+                $self->_public_dir_path->child(
                     defined $env->{'PATH_INFO'} && length $env->{'PATH_INFO'}
                     ? ($env->{'PATH_INFO'})
                     : (),

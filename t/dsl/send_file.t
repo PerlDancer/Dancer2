@@ -7,7 +7,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
 use File::Temp;
-use File::Spec;
+use Path::Tiny ();
 use Ref::Util qw<is_coderef>;
 
 {
@@ -53,12 +53,12 @@ use Ref::Util qw<is_coderef>;
     };
 
     get '/no_streaming' => sub {
-        my $file = File::Spec->rel2abs(__FILE__);
+        my $file = Path::Tiny::path(__FILE__)->absolute->stringify;
         send_file( $file, system_path => 1, streaming => 0 );
     };
 
     get '/options_streaming' => sub {
-        my $file = File::Spec->rel2abs(__FILE__);
+        my $file = Path::Tiny::path(__FILE__)->absolute->stringify;
         send_file( $file, system_path => 1, streaming => 1 );
     };
 

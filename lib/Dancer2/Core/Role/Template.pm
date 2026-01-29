@@ -6,6 +6,7 @@ use Dancer2::Core::Types;
 use Path::Tiny ();
 use Carp 'croak';
 use Ref::Util qw< is_ref >;
+use Scalar::Util qw< blessed >;
 
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
@@ -74,8 +75,9 @@ has settings => (
 # the `set` keyword. As such, these are defined as read-write attrs.
 
 has views => (
-    is  => 'rw',
-    isa => Maybe [Str],
+    is      => 'rw',
+    isa     => Maybe [Str],
+    trigger => sub { $_[0]->_clear_views_path },
 );
 
 has layout => (
@@ -88,6 +90,19 @@ has layout_dir => (
     isa => Maybe [Str],
 );
 
+has _views_path => (
+    is       => 'rw',
+    lazy     => 1,
+    builder  => '_build_views_path',
+    clearer  => '_clear_views_path',
+    init_arg => undef,
+);
+
+sub _build_views_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->views );
+}
+
 sub _template_name {
     my ( $self, $view ) = @_;
     my $def_tmpl_ext = $self->default_tmpl_ext();
@@ -99,21 +114,22 @@ sub view_pathname {
     my ( $self, $view ) = @_;
 
     $view = $self->_template_name($view);
-    return Path::Tiny::path( $self->views, $view )->stringify;
+    return $self->_views_path->child($view)->stringify;
 }
 
 sub layout_pathname {
     my ( $self, $layout ) = @_;
 
-    return Path::Tiny::path(
-        $self->views,
-        $self->layout_dir,
+    my @parts = defined $self->layout_dir ? ( $self->layout_dir ) : ();
+    return $self->_views_path->child(
+        @parts,
         $self->_template_name($layout),
     )->stringify;
 }
 
 sub pathname_exists {
     my ( $self, $pathname ) = @_;
+    return $pathname->is_file if blessed($pathname);
     return Path::Tiny::path($pathname)->is_file;
 }
 

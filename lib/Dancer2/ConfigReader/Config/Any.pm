@@ -29,6 +29,14 @@ has config_files => (
     builder => '_build_config_files',
 );
 
+has _config_files_path => (
+    is       => 'ro',
+    lazy     => 1,
+    isa      => ArrayRef[InstanceOf['Path::Tiny']],
+    builder  => '_build_config_files_path',
+    init_arg => undef,
+);
+
 sub read_config {
     my ($self) = @_;
 
@@ -44,11 +52,19 @@ sub read_config {
 
 sub _build_config_files {
     my ($self) = @_;
+    return [ map $_->stringify, @{ $self->_config_files_path } ];
+}
+
+sub _build_config_files_path {
+    my ($self) = @_;
 
     my $location = $self->config_location;
     warn "Searching config files in location: $location\n" if $ENV{DANCER_CONFIG_VERBOSE};
     # an undef location means no config files for the caller
     return [] unless defined $location;
+
+    my $config_location = Path::Tiny::path($location);
+    my $environments_location = Path::Tiny::path( $self->environments_location );
 
     my $running_env = $self->environment;
     my @available_exts = Config::Any->extensions;
@@ -68,11 +84,11 @@ sub _build_config_files {
         }
     }
 
-    foreach my $file ( [ $location, "config" ],
-        [ $self->environments_location, $running_env ] )
+    foreach my $file ( [ $config_location, "config" ],
+        [ $environments_location, $running_env ] )
     {
         foreach my $ext (@exts) {
-            my $path = Path::Tiny::path( $file->[0], $file->[1] . ".$ext" )->stringify;
+            my $path = Path::Tiny::path( $file->[0], $file->[1] . ".$ext" );
             next unless -r $path;
 
             # Look for *_local.ext files

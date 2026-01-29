@@ -29,6 +29,18 @@ has location => (
     builder => '_build_location',
 );
 
+has _location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_location_path',
+    init_arg => undef,
+);
+
+sub _build_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->location );
+}
+
 # FIXME: i hate you most of all -- Sawyer X
 sub _build_location {
     my $self   = shift;

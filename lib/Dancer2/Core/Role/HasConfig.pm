@@ -3,7 +3,6 @@ package Dancer2::Core::Role::HasConfig;
 
 use Moo::Role;
 
-use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';

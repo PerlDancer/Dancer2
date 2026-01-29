@@ -179,9 +179,8 @@ sub run {
     my $vars = {
         appname          => $app_name,
         appfile          => $app_file->stringify,
-        apppath          => $app_path,
-        appdir           => File::Spec->rel2abs( $app_path ),
-        apppath          => $app_path,
+        apppath          => $app_path->stringify,
+        appdir           => $app_path->absolute->stringify,
         perl_interpreter => $self->parent_command->_get_perl_interpreter,
         cleanfiles       => $self->parent_command->_get_dashed_name( $app_name ),
         dancer_version   => $self->parent_command->_dancer2_version,
@@ -225,7 +224,8 @@ commands:
         my $gitignore = path( $self->parent_command->_dist_dir, '.gitignore' );
         path( $gitignore )->copy( $app_path );
 
-        chdir File::Spec->rel2abs( $app_path ) or die "Can't cd to $app_path: $!";
+        chdir $app_path->absolute->stringify
+          or die "Can't cd to $app_path: $!";
         if( _run_shell_cmd( 'git', 'init') != 0 or
             _run_shell_cmd( 'git', 'add', '.') != 0 or
             _run_shell_cmd( 'git', 'commit', "-m 'Initial commit of $app_name by Dancer2'" ) != 0 ) {
@@ -456,4 +456,3 @@ sub _run_shell_cmd {
 }
 
 1;
-

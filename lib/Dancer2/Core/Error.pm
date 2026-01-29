@@ -136,13 +136,12 @@ sub _build_static_page {
     my $public_dir = $ENV{DANCER_PUBLIC}
       || ( $self->has_app && $self->app->config->{public_dir} );
 
-    my $filename = sprintf "%s/%d.html", $public_dir, $self->status;
+    return if !$public_dir;
 
-    open my $fh, '<', $filename or return;
+    my $file = Path::Tiny::path($public_dir)->child( $self->status . '.html' );
+    return if !$file->is_file;
 
-    local $/ = undef;    # slurp time
-
-    return <$fh>;
+    return eval { $file->slurp_utf8 };
 }
 
 sub default_error_page {
@@ -392,8 +391,11 @@ sub backtrace {
     return $html unless $file and $line;
 
     # file and line are located, let's read the source Luke!
+    my $path = Path::Tiny::path($file);
+    return $html if !$path->is_file;
+
     my @lines;
-    eval { @lines = Path::Tiny::path($file)->lines_utf8; 1; } or return $html;
+    eval { @lines = $path->lines_utf8; 1; } or return $html;
 
     $html .= qq|<div class="title">$file around line $line</div>|;
 

@@ -49,6 +49,30 @@ has environments_location => (
     },
 );
 
+has _config_location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_config_location_path',
+    init_arg => undef,
+);
+
+has _environments_location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_environments_location_path',
+    init_arg => undef,
+);
+
+sub _build_config_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config_location );
+}
+
+sub _build_environments_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->environments_location );
+}
+
 # It is required to get environment from the caller.
 # Environment should be passed down from Dancer2::Core::App.
 has environment => (

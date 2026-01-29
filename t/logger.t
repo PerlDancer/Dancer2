@@ -1,6 +1,7 @@
 use Test::More;
 use strict;
 use warnings;
+use Path::Tiny ();
 
 BEGIN {
 
@@ -104,7 +105,7 @@ subtest 'logger file' => sub {
 
     warning "Danger! Warning!";
 
-    open my $log_file, '<', File::Spec->catfile($dir, 'test');
+    open my $log_file, '<', Path::Tiny::path($dir, 'test')->stringify;
     my $txt = <$log_file>;
     like $txt, qr/Danger! Warning!/;
 };

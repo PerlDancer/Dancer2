@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More tests=> 3;
 use File::Temp qw/tempdir/;
-use File::Spec;
+use Path::Tiny qw< path >;
 
 my $log_dir = tempdir( CLEANUP => 1 );
 sub config_location {
@@ -79,7 +79,7 @@ my $check_cb = sub {
 
     is(
         $logger->log_file,
-        File::Spec->catfile( $dir, $file ),
+        path( $dir, $file )->stringify,
         'Logger got correct log file',
     );
 };
@@ -101,7 +101,7 @@ subtest 'test Logger::File with log_dir NOT specified' => sub {
 
     $check_cb->(
         $app,
-        File::Spec->catdir( config_location( $app ), 'logs' ),
+        path( config_location( $app ), 'logs' )->stringify,
         $app->environment . '.log',
     );
 };

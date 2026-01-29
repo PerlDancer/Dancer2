@@ -3,13 +3,13 @@ package Dancer2::ConfigReader;
 
 use Moo;
 
-use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
 use Module::Runtime qw{ use_module };
 use Ref::Util qw/ is_arrayref /;
 use Scalar::Util qw/ blessed /;
+use Path::Tiny ();
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
@@ -61,6 +61,30 @@ has environments_location => (
         return '';
     },
 );
+
+has _config_location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_config_location_path',
+    init_arg => undef,
+);
+
+has _environments_location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_environments_location_path',
+    init_arg => undef,
+);
+
+sub _build_config_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config_location );
+}
+
+sub _build_environments_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->environments_location );
+}
 
 has config => (
     is      => 'ro',

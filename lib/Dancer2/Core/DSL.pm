@@ -145,8 +145,9 @@ sub error   { shift->app->log( error   => @_ ) }
 sub true  {1}
 sub false {0}
 
-sub dirname { shift and Path::Tiny::path(@_)->parent->stringify }
-sub path    { shift and Path::Tiny::path(@_)->stringify }
+sub _path_obj { shift and Path::Tiny::path(@_) }
+sub dirname { shift and _path_obj(@_)->parent->stringify }
+sub path    { shift and _path_obj(@_)->stringify }
 
 sub config { shift->app->settings }
 
