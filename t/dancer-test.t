@@ -12,7 +12,7 @@ BEGIN {
     $ENV{DANCER_CONFDIR} = File::Spec->catdir(dirname(__FILE__), 'dancer-test');
 }
 
-use Test::More tests => 50;
+use Test::More tests => 46;
 
 use Dancer2;
 use Dancer2::Test;
@@ -69,9 +69,6 @@ response_content_unlike $_ => qr/ought/ for @routes;
 
 response_status_is $_   => 200 for @routes;
 response_status_isnt $_ => 203 for @routes;
-
-response_headers_include $_ => [ Server => "Perl Dancer2 " . Dancer2->VERSION ]
-  for @routes;
 
 ## Check parameters get through ok
 get '/param' => sub { param('test') };

@@ -179,9 +179,6 @@ sub new_from_array {
 sub to_psgi {
     my ($self) = @_;
 
-    $self->server_tokens
-        and $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
-
     my $headers = $self->headers;
     my $status  = $self->status;
 

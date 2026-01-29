@@ -65,7 +65,6 @@ test_psgi $app, sub {
     $res = $cb->(GET "/bounce/");
     is $res->header('Content-Length') => 5;
     is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
-    is $res->header('Server')         => "Perl Dancer2 " . Dancer2->VERSION;
 
     $res = $cb->(POST "/");
     is $res->code    => 200;
@@ -76,7 +75,6 @@ test_psgi $app, sub {
     is $res->content                  => 'post-home';
     is $res->header('Content-Length') => 9;
     is $res->header('Content-Type')   => 'text/html; charset=UTF-8';
-    is $res->header('Server')         => "Perl Dancer2 " . Dancer2->VERSION;
 };
 
 done_testing();

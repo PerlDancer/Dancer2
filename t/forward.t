@@ -118,12 +118,6 @@ test_psgi $app, sub {
             '[GET /bounce/] Correct content type charset',
         );
 
-        is(
-            $res->headers->server,
-            "Perl Dancer2 " . Dancer2->VERSION,
-            '[GET /bounce/] Correct Server',
-        );
-
     }
 
     # checking post
@@ -166,11 +160,6 @@ test_psgi $app, sub {
             '[POST /bounce/] Correct content type charset',
         );
 
-        is(
-            $res->headers->server,
-            "Perl Dancer2 " . Dancer2->VERSION,
-            '[POST /bounce/] Correct Server',
-        );
     }
 
     is(
