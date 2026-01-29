@@ -1030,7 +1030,14 @@ sub send_as {
     # load any serializer engine config
     my $engine_options =
         $self->_get_config_for_engine( serializer => $type, $self->config ) || {};
-    my $serializer = $serializer_class->new( config => $engine_options );
+
+    Scalar::Util::weaken( my $weak_self = $self );
+    my $serializer = $self->_factory->create(
+        serializer      => $type,
+        config          => $engine_options,
+        postponed_hooks => $self->postponed_hooks,
+        log_cb          => sub { $weak_self->log(@_) },
+    );
     my $content = $serializer->serialize( $data );
     $options->{content_type} ||= $serializer->content_type;
     $self->send_file( \$content, %$options );
