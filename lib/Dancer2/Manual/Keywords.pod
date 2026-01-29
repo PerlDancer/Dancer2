@@ -325,8 +325,8 @@ B<See also>: L</to_dumper>, L</from_json>
 
 =head2 L<from_json|Dancer2::Manual/from_json>
 
-Deserializes a JSON string into a Perl data structure. Does not account
-for UTF-8 characters.
+Deserializes a JSON string into a Perl data structure. The input is expected
+to be UTF-8 encoded bytes.
 
 B<When to use>: Decode JSON data from the client. L</decode_json> is likely
 what you want.
@@ -466,8 +466,8 @@ B<Related Keywords>: L</from_dumper>, L</to_yaml>, L</to_json>
 
 =head2 L<to_json|Dancer2::Manual/to_json>
 
-Serializes a Perl data structure to JSON. Does not account or UTF-8
-characters.
+Serializes a Perl data structure to JSON. The input should be character
+strings. The output is UTF-8 encoded bytes.
 
 B<When to use>: Encode data to JSON format.
 
@@ -772,4 +772,3 @@ B<When to use>: Explicitly return a true value in your application.
 B<Related Keywords>: L</false>
 
 =cut
-

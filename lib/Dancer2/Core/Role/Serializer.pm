@@ -49,6 +49,9 @@ around serialize => sub {
         1;
     } or do {
         my $error = $@ || 'Zombie Error';
+        if ( blessed($self) && $self->config->{strict_utf8} ) {
+            die $error;
+        }
         blessed $self
             and $self->log_cb->( core => "Failed to serialize content: $error" );
     };

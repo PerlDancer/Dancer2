@@ -242,16 +242,33 @@ L<Dancer2::Plugin::Database/"AUTOMATIC UTF-8 SUPPORT">
 
 =back
 
-Default value is empty which means don't do anything. HTTP responses without
-charset will be interpreted as ISO-8859-1 by most clients.
+Default value is C<UTF-8>. HTTP responses without charset will be interpreted
+as ISO-8859-1 by most clients.
+
+If C<charset> is empty, Dancer2 will not encode response bodies. Handlers
+should return already-encoded byte strings.
 
 You can cancel any charset processing by specifying your own charset in
 Content-Type header or by ensuring that response body leaves your handler
 without Unicode flag set (by encoding it into some 8bit charset, for
 example).
 
-Also, since automatically serialized JSON responses have C<application/json>
-Content-Type, you should always encode them by hand.
+Serialized JSON responses are UTF-8 encoded by the JSON serializer. Pass
+character strings to the serializer so it can do the encoding once.
+
+=head3 strict_utf8 (boolean)
+
+Controls how invalid UTF-8 bytes are handled at decoding boundaries (request
+path/parameters) and in JSON serialization.
+
+=over
+
+=item * If false (default), invalid UTF-8 is left as bytes and a warning is
+emitted.
+
+=item * If true, invalid UTF-8 causes an immediate error.
+
+=back
 
 =head3 default_mime_type (string)
 

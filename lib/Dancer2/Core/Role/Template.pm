@@ -289,7 +289,8 @@ The name of the template engine (e.g.: Simple).
 
 =attr charset
 
-The charset.  The default value is B<UTF-8>.
+The charset used by the template engine. This is typically set from the
+application's C<charset> setting.
 
 =attr default_tmpl_ext
 

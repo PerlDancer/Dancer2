@@ -136,6 +136,10 @@ subtest "send_as error cases" => sub {
     }
 
     {
+        local $SIG{__WARN__} = sub {
+            return if $_[0] =~ /Subroutine .* redefined/;
+            CORE::warn @_;
+        };
         my $res = $test->request( GET '/sendas/jSoN' );
         is $res->code, '500',
             "send_as dies with incorrectly cased serializer name";
