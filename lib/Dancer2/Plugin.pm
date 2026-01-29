@@ -461,17 +461,14 @@ END
 
     die $@ if $@;
 
-    my $app_dsl_cb = _find_consumer();
-
-    if ( $app_dsl_cb ) {
-        my $dsl = $app_dsl_cb->();
-
-        {
-            ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
-            no strict 'refs';
-            no warnings 'redefine';
-            *{"${caller}::dsl"} = sub {$dsl};
-        }
+    {
+        ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
+        no strict 'refs';
+        no warnings 'redefine';
+        *{"${caller}::dsl"} = sub {
+            my $app_dsl_cb = _find_consumer($caller);
+            return $app_dsl_cb ? $app_dsl_cb->() : undef;
+        };
     }
 
     return map { [ $_ => { class => $caller } ] }
@@ -479,10 +476,13 @@ END
 }
 
 sub _find_consumer {
+    my %skip = map +( $_ => 1 ), @_;
     my $class;
 
     ## no critic qw(ControlStructures::ProhibitCStyleForLoops)
     for ( my $i = 1; my $caller = caller($i); $i++ ) {
+        next if $skip{$caller};
+        next if eval { $caller->isa('Dancer2::Plugin') };
         $class = $caller->can('dsl')
             and last;
     }
@@ -511,7 +511,7 @@ sub register_plugin {
 
     my $_DANCER2_IMPORT_TIME_SUBS = $plugin_module->_DANCER2_IMPORT_TIME_SUBS;
     unshift(@$_DANCER2_IMPORT_TIME_SUBS, sub {
-                my $app_dsl_cb = _find_consumer();
+                my $app_dsl_cb = _find_consumer($plugin_module);
 
                 # Here we want to verify that "register_plugin" compat keyword
                 # was in fact only called from an app.
