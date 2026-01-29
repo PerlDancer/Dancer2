@@ -3,7 +3,6 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
-use File::Spec;
 use English;
 
 use Dancer2::Core::App;

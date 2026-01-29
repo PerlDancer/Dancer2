@@ -37,6 +37,13 @@ has log_dir => (
     builder => '_build_log_dir',
 );
 
+has _log_dir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_log_dir_path',
+    init_arg => undef,
+);
+
 has file_name => (
     is      => 'ro',
     isa     => Str,
@@ -51,6 +58,13 @@ has log_file => (
     builder => '_build_log_file',
 );
 
+has _log_file_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_log_file_path',
+    init_arg => undef,
+);
+
 has fh => (
     is      => 'ro',
     lazy    => 1,
@@ -59,19 +73,29 @@ has fh => (
 
 sub _build_log_dir { Path::Tiny::path( $_[0]->location, 'logs' )->stringify }
 
+sub _build_log_dir_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->log_dir );
+}
+
 sub _build_file_name {$_[0]->environment . ".log"}
 
 sub _build_log_file {
     my $self = shift;
-    return Path::Tiny::path( $self->log_dir, $self->file_name )->stringify;
+    return $self->_log_dir_path->child( $self->file_name )->stringify;
+}
+
+sub _build_log_file_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->log_file );
 }
 
 sub _build_fh {
     my $self    = shift;
-    my $logfile = $self->log_file;
+    my $logfile = $self->_log_file_path->stringify;
 
     my $fh = eval {
-        Path::Tiny::path($logfile)->filehandle(
+        $self->_log_file_path->filehandle(
             '>>', ':encoding(UTF-8)',
         );
     } or do {

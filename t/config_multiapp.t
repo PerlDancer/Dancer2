@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 use Test::More;
-use File::Spec;
 
 use lib '.';
 use t::app::t1::lib::App1;
