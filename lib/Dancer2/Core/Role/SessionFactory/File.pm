@@ -30,10 +30,22 @@ has session_dir => (
     default => sub { Path::Tiny::path( '.', 'sessions' )->stringify },
 );
 
+has _session_dir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_session_dir_path',
+    init_arg => undef,
+);
+
+sub _build_session_dir_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->session_dir );
+}
+
 sub BUILD {
     my $self = shift;
 
-    if ( !-d $self->session_dir ) {
+    if ( !$self->_session_dir_path->is_dir ) {
         mkdir $self->session_dir
           or croak "Unable to create session dir : "
           . $self->session_dir . ' : '
@@ -63,8 +75,7 @@ sub _sessions {
 
 sub _retrieve {
     my ( $self, $id ) = @_;
-    my $session_file = Path::Tiny::path(
-        $self->session_dir,
+    my $session_file = $self->_session_dir_path->child(
         escape_filename($id) . $self->_suffix,
     )->stringify;
 
@@ -81,15 +92,13 @@ sub _retrieve {
 sub _change_id {
     my ($self, $old_id, $new_id) = @_;
 
-    my $old_path = Path::Tiny::path(
-        $self->session_dir,
+    my $old_path = $self->_session_dir_path->child(
         escape_filename($old_id) . $self->_suffix
     )->stringify;
 
     return if !-f $old_path;
 
-    my $new_path = Path::Tiny::path(
-        $self->session_dir,
+    my $new_path = $self->_session_dir_path->child(
         escape_filename($new_id) . $self->_suffix
     )->stringify;
 
@@ -98,8 +107,7 @@ sub _change_id {
 
 sub _destroy {
     my ( $self, $id ) = @_;
-    my $session_file = Path::Tiny::path(
-        $self->session_dir,
+    my $session_file = $self->_session_dir_path->child(
         escape_filename($id) . $self->_suffix
     )->stringify;
     return if !-f $session_file;
@@ -109,8 +117,7 @@ sub _destroy {
 
 sub _flush {
     my ( $self, $id, $data ) = @_;
-    my $session_file = Path::Tiny::path(
-        $self->session_dir,
+    my $session_file = $self->_session_dir_path->child(
         escape_filename($id) . $self->_suffix
     )->stringify;
 

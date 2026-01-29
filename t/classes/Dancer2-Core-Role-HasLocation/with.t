@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use File::Spec;
 use Path::Tiny qw< path >;
 use Test::More tests => 11;
 
@@ -78,9 +77,9 @@ note 'With .dancer file:'; {
 
 note 'blib/ ignored:'; {
     my $app = App->new(
-        caller => File::Spec->catfile(
+        caller => path(
             $basedir, qw<FakeDancerDir blib lib fakescript.pl>
-        )
+        )->stringify
     );
 
     isa_ok( $app, 'App' );

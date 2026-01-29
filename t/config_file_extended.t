@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 use Test::More;
-use File::Spec;
 
 BEGIN {
     # undefine ENV vars used as defaults for app environment in these tests
