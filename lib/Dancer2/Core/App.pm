@@ -744,7 +744,7 @@ sub _build_default_config {
     my $public = $ENV{DANCER_PUBLIC} || path( $self->location, 'public' );
     return {
         content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
-        charset        => ( $ENV{DANCER_CHARSET}      || '' ),
+        charset        => ( $ENV{DANCER_CHARSET}      || 'UTF-8' ),
         strict_utf8    => ( $ENV{DANCER_STRICT_UTF8}  || 0 ),
         logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
         views          => ( $ENV{DANCER_VIEWS}
