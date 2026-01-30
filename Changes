@@ -8,6 +8,7 @@
       opt-out (Sawyer X)
     * GH #1073: Get multiple session cookie values at once with clear
       method (Sawyer X)
+    * GH #1664: Stop sending double server headers (Sawyer X)
     * PR #1757: Remove api_version, improve dispatching loop (Sawyer X)
     * PR #1758: Move MIME ownership to app (Sawyer X)
 
