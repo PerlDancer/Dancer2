@@ -1,2 +1,5 @@
 app:
     config: ok
+
+strict_config: 0
+
