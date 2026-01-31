@@ -354,6 +354,9 @@ This is the directory where your templates and layouts live.  It's the
 
 Default: B<< C<$appdir/views> >>.
 
+C<views> can only be set once, preferably via config. Once the template
+engine is initialized, changing the views setting has no effect.
+
 =head2 Templating & layouts
 
 =head3 template
