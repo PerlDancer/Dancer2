@@ -1,3 +1,5 @@
 logger : capture
 log    : core 
 
+strict_config: 0
+

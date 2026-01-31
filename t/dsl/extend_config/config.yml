@@ -1,1 +1,2 @@
 dsl_class: 'Dancer2::Test::ExtendedDSL'
+strict_config: 0
