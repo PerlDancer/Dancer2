@@ -39,10 +39,10 @@ ok(!defined &foo, 'intermediate package has no polluted namespace');
 package test3;
 use Test::More;
 use FindBin;
-use File::Spec;
+use Path::Tiny qw< path >;
 
 BEGIN {
-    $ENV{DANCER_CONFDIR} = File::Spec->catdir($FindBin::Bin, 'extend_config');
+    $ENV{DANCER_CONFDIR} = path( $FindBin::Bin, 'extend_config' )->stringify;
 }
 
 use Dancer2;
