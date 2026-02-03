@@ -14,6 +14,7 @@
     * PR #1758: Move MIME ownership to app (Sawyer X)
 
     [ DOCUMENTATION ]
+    * GH #1431: Better document behavior of views setting (Jason A. Crome)
     * PR #1749, #1750: Fix broken manual and tutorial links (Gil Magno,
       Jason A. Crome)
     * PR #1753: Fix structure of config docs (Mikko Koivunalho)
