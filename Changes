@@ -2,6 +2,7 @@
 
     [ BUG FIXES ]
     * GH #863: Fix case insensitive system confusion (Sawyer X)
+    * GH #1449, 1630: Make plugin DSL keyword app-specific (Sawyer X)
 
     [ ENHANCEMENTS ]
     * GH #763: Strict config mode; warn on unknown config keys with
