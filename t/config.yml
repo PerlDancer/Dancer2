@@ -1,5 +1,6 @@
 log: "info"
 logger: "Note"
+strict_config: 0
 
 plugins:
   "FooPlugin":

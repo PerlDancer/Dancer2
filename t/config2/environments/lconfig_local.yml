@@ -1,3 +1,4 @@
 application:
    feature_3: replacement
    feature_8: goober
+strict_config: 0

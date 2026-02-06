@@ -2,3 +2,4 @@ application:
     feature_2: alpha
     feature_5: beta
     feature_6: gamma
+strict_config: 0
