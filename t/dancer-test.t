@@ -117,7 +117,7 @@ my $russian_test =
 $param_response =
   dancer_response( GET => '/multi',
     { params => { test => [ 'test/', $russian_test ] } } );
-is $param_response->content, 'test/' . encode( 'UTF-8', $russian_test ),
+is decode( 'UTF-8', $param_response->content ), 'test/' . $russian_test,
   'multi utf8 value properly merge';
 
 get '/headers' => sub {
