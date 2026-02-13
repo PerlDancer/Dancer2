@@ -399,7 +399,7 @@ die occurs. (Internally sets Carp::Verbose). Default to false.
 
 =head3 strict_config (boolean)
 
-If set to true (the default), Dancer2 will warn about unknown configuration
+If set to true, Dancer2 will warn about unknown configuration
 keys at the top level and about unknown keys in built-in engine sections where
 the options are known. Set this to false if you intentionally store
 application-specific settings at the top level or use custom engines with

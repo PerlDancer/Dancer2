@@ -55,6 +55,7 @@ sub _read_config_with_warnings {
 
 subtest 'warns on unknown keys' => sub {
     my $warnings = _read_config_with_warnings({
+        strict_config => 1,
         typo => 1,
         engines => {
             logger => {
@@ -118,6 +119,7 @@ subtest 'can disable warnings' => sub {
 
 subtest 'can allow specific top-level keys' => sub {
     my $warnings = _read_config_with_warnings({
+        strict_config => 1,
         strict_config_allow => [ 'typo', 'extra_top_level' ],
         typo                     => 1,
         extra_top_level          => 1,
