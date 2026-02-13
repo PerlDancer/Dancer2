@@ -29,6 +29,21 @@ application, such as templates, sessions, serializers, and loggers. Each
 engine follows a standard interface, making it easy to plug in new
 implementations.
 
+Engines can live in the Dancer2 namespace:
+
+    set serializer => 'JSON';
+    set template => 'Mason';
+
+(these resolve to L<Dancer2::Serializer::JSON> and L<Dancer2::Template::Mason>
+respectively)
+
+Or you can provide the fully qualified namespace using the C<+> indicator:
+
+    set serializer => `+My::Awesome::Serializer`;
+    set template => `+My::Template::DWIM`;
+
+The latter is similar to how L<Plack> handles this.
+
 =head2 Writing a Template Engine
 
 A custom template engine must implement the L<Dancer2::Core::Role::Template>
