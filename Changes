@@ -14,6 +14,7 @@
       (Sawyer X)
     * PR #1757: Remove api_version, improve dispatching loop (Sawyer X)
     * PR #1758: Move MIME ownership to app (Sawyer X)
+    * PR #1767: Turn off strict_config for noisy tests (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * GH #1431: Better document behavior of views setting (Jason A. Crome)
