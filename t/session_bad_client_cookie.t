@@ -1,10 +1,10 @@
 use strict;
 use warnings;
 use Test::More;
-use File::Spec;
 use Plack::Test;
 use HTTP::Request::Common;
 use HTTP::Cookies;
+use Path::Tiny ();
 
 {
     package
@@ -65,10 +65,11 @@ for my $engine (qw(YAML Simple SimpleHexId)) {
 
     if ($session_engine->can('session_dir')) {
         # make sure our test file does not exist
-        my $bad_session_file =
-          File::Spec->catfile($session_engine->session_dir,
-            $bad_session_id . $session_engine->_suffix);
-        unlink $bad_session_file;
+        my $path = Path::Tiny::path(
+            $session_engine->session_dir,
+            $bad_session_id . $session_engine->_suffix
+        );
+        $path->exists and $path->remove;
     }
 
     # run the tests for this engine

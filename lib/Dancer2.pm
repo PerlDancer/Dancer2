@@ -11,7 +11,6 @@ use Import::Into;
 use Dancer2::Core;
 use Dancer2::Core::App;
 use Dancer2::Core::Runner;
-use Dancer2::FileUtils;
 
 our $AUTHORITY = 'SUKRIA';
 

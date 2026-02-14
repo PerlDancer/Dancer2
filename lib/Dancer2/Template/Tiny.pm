@@ -3,9 +3,9 @@ package Dancer2::Template::Tiny;
 
 use Moo;
 use Carp qw/croak/;
+use Path::Tiny ();
 use Dancer2::Core::Types;
 use Template::Tiny;
-use Dancer2::FileUtils 'read_file_content';
 
 with 'Dancer2::Core::Role::Template';
 
@@ -26,7 +26,7 @@ sub render {
     my $template_data =
       ref $template
       ? ${$template}
-      : read_file_content($template);
+      : Path::Tiny::path($template)->slurp_utf8;
 
     # Template::Tiny doesn't like empty template files (like .dancer), so
     # don't try to render them. Return an empty (not undef) value instead.

@@ -6,9 +6,10 @@ with 'Dancer2::Core::Role::SessionFactory';
 
 use Carp 'croak';
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw(path set_file_mode escape_filename);
+use Dancer2::FileUtils qw(escape_filename);
 use Fcntl ':flock';
 use File::Copy ();
+use Path::Tiny ();
 
 #--------------------------------------------------------------------------#
 # Required by classes consuming this role
@@ -26,13 +27,25 @@ requires '_freeze_to_handle';    # given handle and data, serialize it
 has session_dir => (
     is      => 'ro',
     isa     => Str,
-    default => sub { path( '.', 'sessions' ) },
+    default => sub { Path::Tiny::path( '.', 'sessions' )->stringify },
 );
+
+has _session_dir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_session_dir_path',
+    init_arg => undef,
+);
+
+sub _build_session_dir_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->session_dir );
+}
 
 sub BUILD {
     my $self = shift;
 
-    if ( !-d $self->session_dir ) {
+    if ( !$self->_session_dir_path->is_dir ) {
         mkdir $self->session_dir
           or croak "Unable to create session dir : "
           . $self->session_dir . ' : '
@@ -62,7 +75,9 @@ sub _sessions {
 
 sub _retrieve {
     my ( $self, $id ) = @_;
-    my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
+    my $session_file = $self->_session_dir_path->child(
+        escape_filename($id) . $self->_suffix,
+    )->stringify;
 
     croak "Invalid session ID: $id" unless -f $session_file;
 
@@ -77,20 +92,24 @@ sub _retrieve {
 sub _change_id {
     my ($self, $old_id, $new_id) = @_;
 
-    my $old_path =
-      path($self->session_dir, escape_filename($old_id) . $self->_suffix);
+    my $old_path = $self->_session_dir_path->child(
+        escape_filename($old_id) . $self->_suffix
+    )->stringify;
 
     return if !-f $old_path;
 
-    my $new_path =
-      path($self->session_dir, escape_filename($new_id) . $self->_suffix);
+    my $new_path = $self->_session_dir_path->child(
+        escape_filename($new_id) . $self->_suffix
+    )->stringify;
 
     File::Copy::move($old_path, $new_path);
 }
 
 sub _destroy {
     my ( $self, $id ) = @_;
-    my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
+    my $session_file = $self->_session_dir_path->child(
+        escape_filename($id) . $self->_suffix
+    )->stringify;
     return if !-f $session_file;
 
     unlink $session_file;
@@ -98,13 +117,15 @@ sub _destroy {
 
 sub _flush {
     my ( $self, $id, $data ) = @_;
-    my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
+    my $session_file = $self->_session_dir_path->child(
+        escape_filename($id) . $self->_suffix
+    )->stringify;
 
     open my $fh, '>', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_EX or die "Can't lock file '$session_file': $!\n";
     seek $fh, 0, 0 or die "Can't seek in file '$session_file': $!\n";
     truncate $fh, 0 or die "Can't truncate file '$session_file': $!\n";
-    set_file_mode($fh);
+    binmode $fh, ':encoding(UTF-8)';
     $self->_freeze_to_handle( $fh, $data );
     close $fh or die "Can't close '$session_file': $!\n";
 

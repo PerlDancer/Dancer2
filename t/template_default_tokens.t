@@ -1,17 +1,15 @@
 use strict;
 use warnings;
-use File::Spec;
-use File::Basename 'dirname';
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
 use Ref::Util qw<is_coderef>;
+use Path::Tiny qw< path >;
 
 eval { require Template; Template->import(); 1 }
   or plan skip_all => 'Template::Toolkit probably missing.';
 
-my $views =
-  File::Spec->rel2abs( File::Spec->catfile( dirname(__FILE__), 'views' ) );
+my $views = path( __FILE__ )->parent->child('views')->absolute->stringify;
 
 {
 

@@ -4,18 +4,16 @@ use Test::More;
 use Test::Fatal;
 use Carp 'croak';
 
+use Path::Tiny qw< path >;
 use Dancer2::Core::Runner;
-use Dancer2::FileUtils qw/dirname path/;
-use File::Spec;
-use File::Temp;
 
 # undefine ENV vars used as defaults for app environment in these tests
 local $ENV{DANCER_ENVIRONMENT};
 local $ENV{PLACK_ENV};
 
-my $runner = Dancer2::Core::Runner->new();
-my $location = File::Spec->rel2abs( path( dirname(__FILE__), 'config' ) );
-my $location2 = File::Spec->rel2abs( path( dirname(__FILE__), 'config2' ) );
+my $runner    = Dancer2::Core::Runner->new();
+my $location  = path( __FILE__ )->parent->child('config')->stringify;
+my $location2 = path( __FILE__ )->parent->child('config2')->stringify;
 
 {
     package Dancer2::Test::TestRoleOne;

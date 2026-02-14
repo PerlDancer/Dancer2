@@ -4,37 +4,34 @@ package Dancer2::FileUtils;
 use strict;
 use warnings;
 
-use File::Basename ();
-use File::Spec;
+use Path::Tiny ();
 use Carp;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
   dirname open_file path read_file_content read_glob_content
-  path_or_empty set_file_mode normalize_path escape_filename
+  path_or_empty set_file_mode escape_filename
 );
 
 
 sub path {
     my @parts = @_;
-    my $path  = File::Spec->catfile(@parts);
-
-    return normalize_path($path);
+    return Path::Tiny::path(@parts)->stringify;
 }
 
 sub path_or_empty {
     my @parts = @_;
-    my $path  = path(@parts);
+    my $path  = Path::Tiny::path(@parts);
 
     # return empty if it doesn't exist
-    return -e $path ? $path : '';
+    return $path->exists ? $path->stringify : '';
 }
 
-sub dirname { File::Basename::dirname(@_) }
+sub dirname { return Path::Tiny::path(@_)->parent->stringify; }
 
 sub set_file_mode {
     my $fh      = shift;
-    my $charset = 'utf-8';
+    my $charset = 'UTF-8';
     binmode $fh, ":encoding($charset)";
     return $fh;
 }
@@ -42,10 +39,9 @@ sub set_file_mode {
 sub open_file {
     my ( $mode, $filename ) = @_;
 
-    open my $fh, $mode, $filename
-      or croak "Can't open '$filename' using mode '$mode': $!";
-
-    return set_file_mode($fh);
+    return Path::Tiny::path($filename)->filehandle(
+        $mode, ':encoding(UTF-8)',
+    );
 }
 
 sub read_file_content {
@@ -64,25 +60,6 @@ sub read_glob_content {
     close $fh;
 
     return wantarray ? @content : join '', @content;
-}
-
-sub normalize_path {
-
-    # this is a revised version of what is described in
-    # http://www.linuxjournal.com/content/normalizing-path-names-bash
-    # by Mitch Frazier
-    my $path = shift or return;
-    my $seqregex = qr{
-        [^/]*       # anything without a slash
-        /\.\.(/|\z) # that is accompanied by two dots as such
-    }x;
-
-    $path =~ s{/\./}{/}g;
-    while ( $path =~ s{$seqregex}{} ) {}
-
-    #see https://rt.cpan.org/Public/Bug/Display.html?id=80077
-    $path =~ s{^//}{/};
-    return $path;
 }
 
 sub escape_filename {
@@ -144,8 +121,12 @@ Nothing by default. You can provide a list of subroutines to import.
 
 =func my $path = path( 'folder', 'folder', 'filename');
 
-Provides comfortable path resolution, internally using L<File::Spec>. 'path'
-does not verify paths, it just normalizes the path.
+Calls L<Path::Tiny>'s C<< path(...)->stringify >> path parts.
+Better if you use C<Path::Tiny::path(@parts)> directly instead.
+
+If you want to normalize the path (for existing path), use:
+
+    Path::Tiny::path(@parts)->realpath->stringify;
 
 =func my $path = path_or_empty('folder, 'folder','filename');
 
@@ -154,12 +135,16 @@ Like path, but returns '' if path doesn't exist.
 =func dirname
 
     use Dancer2::FileUtils 'dirname';
-
     my $dir = dirname($path);
 
-Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
-a path. On most OS, returns all but last level of file path. See
-L<File::Basename> for details.
+    # Same thing:
+    use Path::Tiny qw< path >;
+    my $dir       = path($path)->parent;
+    my $as_string = $dir->stringify;
+
+Fetches the directory name of a path
+On most OS, returns all but last level of file path. See
+L<Path::Tiny> for details.
 
 =func set_file_mode($fh);
 
@@ -204,8 +189,6 @@ in scalar context returns the entire contents of the file.
 Similar to I<read_file_content>, only it accepts a file handle. It is
 assumed that the appropriate PerlIO layers are applied to the file handle.
 Returns the content and B<closes the file handle>.
-
-=func my $norm_path=normalize_path ($path);
 
 =func my $escaped_filename = escape_filename( $filename );
 

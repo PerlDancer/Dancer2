@@ -3,15 +3,12 @@
 use strict;
 use warnings;
 
-use File::Spec;
-use File::Basename 'dirname';
+use Path::Tiny qw< path >;
 use Test::More tests => 32;
 use Plack::Test;
 use HTTP::Request::Common;
 
-my $views = File::Spec->rel2abs(
-    File::Spec->catfile( dirname(__FILE__), 'views' )
-);
+my $views = path( __FILE__ )->parent->child('views')->stringify;
 
 my %called_hooks = ();
 my $hook_name    = 'engine.template.before_render';

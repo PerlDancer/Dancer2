@@ -3,7 +3,6 @@ package Dancer2::Core::Role::HasConfig;
 
 use Moo::Role;
 
-use File::Spec;
 use Config::Any;
 use Hash::Merge::Simple;
 use Carp 'croak';
@@ -12,13 +11,12 @@ use Module::Runtime qw{ require_module use_module };
 use Dancer2::Core::Factory;
 use Dancer2::Core;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils 'path';
 use Dancer2::ConfigUtils 'normalize_config_entry';
 
 has config => (
     is      => 'ro',
     isa     => HashRef,
-    lazy    => 0,
+    lazy    => 1,
     builder => '_build_config',
 );
 

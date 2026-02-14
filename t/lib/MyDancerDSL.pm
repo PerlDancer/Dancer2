@@ -1,11 +1,6 @@
 package MyDancerDSL;
 
 use Moo;
-use Dancer2::Core::Hook;
-use Dancer2::Core::Error;
-use Dancer2::FileUtils;
-use Carp;
-
 extends 'Dancer2::Core::DSL';
 
 around dsl_keywords => sub {

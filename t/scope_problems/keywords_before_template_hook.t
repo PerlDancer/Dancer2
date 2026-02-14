@@ -3,12 +3,11 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common qw/GET/;
-use File::Basename 'dirname';
-use File::Spec;
+use Path::Tiny qw< path >;
 
 my $views;
 BEGIN {
-  $views = File::Spec->rel2abs( File::Spec->catfile( dirname(__FILE__), 'views' ) );
+  $views = path( __FILE__ )->parent->child('views')->stringify;
 }
 
 eval { require Template; Template->import(); 1 }

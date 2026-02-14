@@ -8,7 +8,7 @@ use List::Util         ();
 use Module::Runtime    'is_module_name';
 use Safe::Isa;
 use Sub::Quote;
-use File::Spec;
+use Path::Tiny         ();
 use Module::Runtime    qw< require_module use_module >;
 use Ref::Util          qw< is_ref is_arrayref is_globref is_scalarref is_regexpref >;
 use Sub::Util          qw/ set_subname subname /;
@@ -19,18 +19,16 @@ use Plack::Middleware::Head;
 use Plack::Middleware::Conditional;
 use Plack::Middleware::ConditionalGET;
 
-use Dancer2::FileUtils 'path';
 use Dancer2::ConfigReader;
 use Dancer2::Core;
 use Dancer2::Core::Cookie;
+use Dancer2::Core::HTTP;
 use Dancer2::Core::Error;
 use Dancer2::Core::Types;
 use Dancer2::Core::Route;
 use Dancer2::Core::Hook;
 use Dancer2::Core::Request;
 use Dancer2::Core::Factory;
-
-use Dancer2::Handler::File;
 
 our $EVAL_SHIM; $EVAL_SHIM ||= sub {
     my $code = shift;
@@ -137,6 +135,27 @@ has serializer_engine => (
     builder => '_build_serializer_engine',
     writer  => 'set_serializer_engine',
     predicate => 'has_serializer_engine',
+);
+
+has _appdir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_appdir_path',
+    init_arg => undef,
+);
+
+has _views_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_views_path',
+    init_arg => undef,
+);
+
+has _public_dir_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_public_dir_path',
+    init_arg => undef,
 );
 
 has '+local_triggers' => (
@@ -261,7 +280,7 @@ sub _build_session_engine {
     # Note that engine options will replace the default session_dir (if provided).
     return $self->_factory->create(
         session         => $value,
-        session_dir     => path( $self->config->{appdir}, 'sessions' ),
+        session_dir     => $self->_appdir_path->child('sessions')->stringify,
         %{$engine_options},
         postponed_hooks => $self->postponed_hooks,
 
@@ -730,13 +749,13 @@ around execute_hook => sub {
 sub _build_default_config {
     my $self = shift;
 
-    my $public = $ENV{DANCER_PUBLIC} || path( $self->location, 'public' );
+    my $public = $ENV{DANCER_PUBLIC} || $self->_location_path->child('public')->stringify;
     return {
         content_type   => ( $ENV{DANCER_CONTENT_TYPE} || 'text/html' ),
         charset        => ( $ENV{DANCER_CHARSET}      || '' ),
         logger         => ( $ENV{DANCER_LOGGER}       || 'console' ),
         views          => ( $ENV{DANCER_VIEWS}
-                            || path( $self->location, 'views' ) ),
+                            || $self->_location_path->child('views')->stringify ),
         environment    => $self->environment,
         appdir         => $self->location,
         public_dir     => $public,
@@ -748,6 +767,24 @@ sub _build_default_config {
             ],
         ],
     };
+}
+
+sub _build_appdir_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config->{appdir} || $self->location );
+}
+
+sub _build_views_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config->{views} );
+}
+
+sub _build_public_dir_path {
+    my $self = shift;
+    my $dir = $ENV{DANCER_PUBLIC}
+        || $self->config->{public_dir}
+        || $self->_location_path->child('public')->stringify;
+    return Path::Tiny::path($dir);
 }
 
 sub _init_hooks {
@@ -1097,12 +1134,9 @@ sub send_file {
         }
         # static file dir - either system root or public_dir
         my $dir = $options{system_path}
-            ? File::Spec->rootdir
-            : $ENV{DANCER_PUBLIC}
-                || $self->config->{public_dir}
-                || path( $self->location, 'public' );
+            ? Path::Tiny->rootdir
+            : $self->_public_dir_path;
 
-        $file_path = Dancer2::Handler::File->merge_paths( $path, $dir );
         my $err_response = sub {
             my $status = shift;
             $self->response->status($status);
@@ -1110,17 +1144,28 @@ sub send_file {
             $self->response->content( Dancer2::Core::HTTP->status_message($status) );
             $self->with_return->( $self->response );
         };
-        $err_response->(403) if !defined $file_path;
-        $err_response->(404) if !-f $file_path;
+
+        # resolve relative paths (with '../') as much as possible
+        $file_path = Path::Tiny::path( $dir, $path )->realpath;
+
+        # We need to check whether they are trying to access
+        # a directory outside their scope
+        $err_response->(403) if !$dir->realpath->subsumes($file_path);
+
+        # other error checks
+        $err_response->(403) if !$file_path->exists;
+        $err_response->(404) if !$file_path->is_file;
         $err_response->(403) if !-r $file_path;
 
         # Read file content as bytes
-        $fh = Dancer2::FileUtils::open_file( "<", $file_path );
-        binmode $fh;
+        $fh = $file_path->openr_raw();
         $content_type = $self->mime_type->for_file($file_path) || 'text/plain';
         if ( $content_type =~ m!^text/! ) {
             $charset = $self->config->{charset} || "utf-8";
         }
+
+        # cleanup for other functions not assuming on Path::Tiny
+        $file_path = $file_path->stringify;
     }
 
     # Now we are sure we can render the file...
@@ -1164,7 +1209,14 @@ sub send_file {
         $response = $self->response;
         # direct assignment to hash element, avoids around modifier
         # trying to serialise this this content.
-        $response->{content} = Dancer2::FileUtils::read_glob_content($fh);
+
+        # optimized slurp
+        {
+            ## no critic qw(Variables::RequireInitializationForLocalVars)
+            local $/;
+            $response->{'content'} = <$fh>;
+        }
+
         $response->is_encoded(1);    # bytes are already encoded
     }
 
@@ -1496,14 +1548,21 @@ sub to_app {
     if ( $self->config->{'static_handler'} ) {
         # Use App::File to "serve" the static content
         my $static_app = Plack::App::File->new(
-            root         => $self->config->{public_dir},
+            root         => $self->_public_dir_path->stringify,
             content_type => sub { $self->mime_type->for_file( $_[0] ) },
         )->to_app;
         # Conditionally use the static handler wrapped with ConditionalGET
         # when the file exists. Otherwise the request passes into our app.
         $psgi = Plack::Middleware::Conditional->wrap(
             $psgi,
-            condition => sub { -f path( $self->config->{public_dir}, shift->{PATH_INFO} ) },
+            condition => sub {
+                my $env = shift;
+                $self->_public_dir_path->child(
+                    defined $env->{'PATH_INFO'} && length $env->{'PATH_INFO'}
+                    ? ($env->{'PATH_INFO'})
+                    : (),
+                )->is_file;
+              },
             builder   => sub { Plack::Middleware::ConditionalGET->wrap( $static_app ) },
         );
     }

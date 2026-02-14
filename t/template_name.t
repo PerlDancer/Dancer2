@@ -1,7 +1,5 @@
 use strict;
 use warnings;
-use File::Spec;
-use File::Basename 'dirname';
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;

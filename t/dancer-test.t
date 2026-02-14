@@ -2,14 +2,13 @@
 
 use strict;
 use warnings;
-use File::Spec;
-use File::Basename qw/dirname/;
 use Ref::Util qw<is_arrayref>;
+use Path::Tiny ();
 
 BEGIN {
     # Disable route handlers so we can actually test route_exists
     # and route_doesnt_exist. Use config that disables default route handlers.
-    $ENV{DANCER_CONFDIR} = File::Spec->catdir(dirname(__FILE__), 'dancer-test');
+    $ENV{DANCER_CONFDIR} = Path::Tiny::path( __FILE__ )->parent->child('dancer-test')->stringify;
 }
 
 use Test::More tests => 46;

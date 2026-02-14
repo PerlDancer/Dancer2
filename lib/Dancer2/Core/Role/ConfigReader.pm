@@ -3,16 +3,15 @@ package Dancer2::Core::Role::ConfigReader;
 
 use Moo::Role;
 
-use File::Spec;
+use Carp 'croak';
+use Path::Tiny ();
 use Config::Any;
 use Hash::Merge::Simple;
-use Carp 'croak';
 use Module::Runtime 'require_module';
 
 use Dancer2::Core::Factory;
 use Dancer2::Core;
 use Dancer2::Core::Types;
-use Dancer2::FileUtils 'path';
 
 has config_location => (
     is      => 'ro',
@@ -30,11 +29,49 @@ has environments_location => (
     isa     => Str,
     lazy    => 1,
     default => sub {
-        $ENV{DANCER_ENVDIR}
-          || File::Spec->catdir( $_[0]->config_location, 'environments' )
-          || File::Spec->catdir( $_[0]->location,        'environments' );
+        # short circuit
+        defined $ENV{'DANCER_ENVDIR'}
+            and return $ENV{'DANCER_ENVDIR'};
+
+        my $self = shift;
+
+        my $last;
+        foreach my $maybe_path ( $self->config_location, $self->location ) {
+            my $path = Path::Tiny::path($maybe_path, 'environments');
+            $last = $path;
+            $path->exists && $path->is_dir
+                and return $path->stringify;
+        }
+
+        # This is to assure any call on path($environments_location) won't crash
+        # But the calling code will eventually realize the path doesn't exist
+        return $last->stringify;
     },
 );
+
+has _config_location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_config_location_path',
+    init_arg => undef,
+);
+
+has _environments_location_path => (
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_environments_location_path',
+    init_arg => undef,
+);
+
+sub _build_config_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->config_location );
+}
+
+sub _build_environments_location_path {
+    my $self = shift;
+    return Path::Tiny::path( $self->environments_location );
+}
 
 # It is required to get environment from the caller.
 # Environment should be passed down from Dancer2::Core::App.
