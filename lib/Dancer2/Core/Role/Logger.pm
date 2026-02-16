@@ -43,6 +43,12 @@ has log_format => (
     default => sub {'[%a:%P] %L @%T> %m in %f l. %l'},
 );
 
+has caller_stack_size => (
+    is      => 'rw',
+    isa     => Int,
+    default => sub { 9; },
+);
+
 my $_levels = {
 
     # levels < 0 are for core only
@@ -75,7 +81,6 @@ sub format_message {
     $message = Encode::encode( $self->auto_encoding_charset, $message )
       if $self->auto_encoding_charset;
 
-    my @stack = caller(8);
     my $request = $self->request;
     my $config = $self->config;
 
@@ -93,22 +98,7 @@ sub format_message {
         }
     };
 
-    my $chars_mapping = {
-        a => sub { $self->app_name },
-        t => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) ) },
-        T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
-        u => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", gmtime(time) ) },
-        U => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", gmtime(time) ) },
-        P => sub {$$},
-        L => sub {$level},
-        m => sub {$message},
-        f => sub { $stack[1] || '-' },
-        l => sub { $stack[2] || '-' },
-        h => sub {
-            ( $request && ( $request->remote_host || $request->address ) ) || '-'
-        },
-        i => sub { ( $request && $request->id ) || '-' },
-    };
+    my $chars_mapping = $self->map_chars_to_subs($level, $message, );
 
     my $char_mapping = sub {
         my $char = shift;
@@ -132,6 +122,29 @@ sub format_message {
 
     return $fmt . "\n";
 }
+
+sub map_chars_to_subs {
+    my ( $self, $level, $message, $caller_delta ) = @_;
+    my @stack = caller($self->caller_stack_size + ($caller_delta // 0));
+    my $request = $self->request;
+    return {
+        a => sub { $self->app_name },
+        t => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) ) },
+        T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
+        u => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", gmtime(time) ) },
+        U => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", gmtime(time) ) },
+        P => sub {$$},
+        L => sub {$level},
+        m => sub {$message},
+        p => sub { $stack[0] || '-' }, # package
+        f => sub { $stack[1] || '-' }, # filepath
+        l => sub { $stack[2] || '-' }, # line number
+        h => sub {
+            ( $request && ( $request->remote_host || $request->address ) ) || '-'
+        },
+        i => sub { ( $request && $request->id ) || '-' },
+    };
+};
 
 sub _serialize {
     my @vars = @_;
@@ -226,6 +239,10 @@ Log messages as B<error>.
 
 Provides a common message formatting.
 
+=method map_chars_to_subs
+
+Returns a hashref which has all the items needed for message formatting.
+
 =attr auto_encoding_charset
 
 Charset to use when writing a message.
@@ -281,6 +298,10 @@ timer
 =item %m
 
 message
+
+=item %p
+
+package name that emit the message
 
 =item %f
 
