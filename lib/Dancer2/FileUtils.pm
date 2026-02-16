@@ -33,24 +33,26 @@ sub path_or_empty {
 sub dirname { File::Basename::dirname(@_) }
 
 sub set_file_mode {
-    my $fh      = shift;
-    my $charset = 'utf-8';
+    my ( $fh, $charset ) = @_;
+    $charset = 'utf-8' if !defined $charset;
+    return $fh if $charset eq '';
     binmode $fh, ":encoding($charset)";
     return $fh;
 }
 
 sub open_file {
-    my ( $mode, $filename ) = @_;
+    my ( $mode, $filename, $charset ) = @_;
 
     open my $fh, $mode, $filename
       or croak "Can't open '$filename' using mode '$mode': $!";
 
-    return set_file_mode($fh);
+    return set_file_mode( $fh, $charset );
 }
 
 sub read_file_content {
-    my $file = shift or return;
-    my $fh = open_file( '<', $file );
+    my ( $file, $charset ) = @_;
+    $file or return;
+    my $fh = open_file( '<', $file, $charset );
 
     return wantarray
       ? read_glob_content($fh)
@@ -161,25 +163,25 @@ Exposes L<File::Basename>'s I<dirname>, to allow fetching a directory name from
 a path. On most OS, returns all but last level of file path. See
 L<File::Basename> for details.
 
-=func set_file_mode($fh);
+=func set_file_mode($fh, $charset);
 
     use Dancer2::FileUtils 'set_file_mode';
 
     set_file_mode($fh);
 
-Applies charset setting from Dancer2's configuration. Defaults to utf-8 if no
-charset setting.
+Applies the specified charset. Defaults to utf-8 if no charset is provided.
+An empty charset disables encoding layers.
 
-=func my $fh = open_file('<', $file) or die $message;
+=func my $fh = open_file('<', $file, $charset) or die $message;
 
     use Dancer2::FileUtils 'open_file';
     my $fh = open_file('<', $file) or die $message;
 
-Calls open and returns a filehandle. Takes in account the 'charset' setting
-from Dancer2's configuration to open the file in the proper encoding (or
-defaults to utf-8 if setting not present).
+Calls open and returns a filehandle. If a charset is provided, opens the file
+in that encoding; otherwise defaults to utf-8. An empty charset disables
+encoding layers.
 
-=func my $content = read_file_content($file);
+=func my $content = read_file_content($file, $charset);
 
     use Dancer2::FileUtils 'read_file_content';
 

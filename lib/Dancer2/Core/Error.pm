@@ -362,6 +362,7 @@ sub throw {
 
     $self->response->status( $self->status );
     $self->response->content_type( $self->content_type );
+    $self->response->charset( $self->charset ) if defined $self->charset;
     $self->response->content($message);
 
     $self->has_app &&
@@ -392,7 +393,7 @@ sub backtrace {
     return $html unless $file and $line;
 
     # file and line are located, let's read the source Luke!
-    my $fh = eval { open_file('<', $file) } or return $html;
+    my $fh = eval { open_file( '<', $file, $self->charset ) } or return $html;
     my @lines = <$fh>;
     close $fh;
 

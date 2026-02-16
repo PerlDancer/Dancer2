@@ -4,6 +4,7 @@ package Dancer2::Core::Response;
 
 use Moo;
 
+use Carp;
 use Encode;
 use Dancer2::Core::Types;
 use Dancer2::Core::MIME;
@@ -20,6 +21,8 @@ use Sub::Quote ();
 use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
+
+my $WARNED_NO_CHARSET = 0;
 
 has mime_type => (
     'is'      => 'ro',
@@ -43,6 +46,18 @@ has headers => (
         HTTP::Headers::Fast->new();
     },
     handles => [qw<header push_header>],
+);
+
+has strict_utf8 => (
+    is      => 'ro',
+    isa     => Bool,
+    default => sub {0},
+);
+
+has log_cb => (
+    is        => 'ro',
+    isa       => CodeRef,
+    predicate => 'has_log_cb',
 );
 
 sub headers_to_array {
@@ -70,8 +85,14 @@ has has_passed => (
 sub pass { shift->has_passed(1) }
 
 has serializer => (
-    is  => 'ro',
+    is  => 'rw',
     isa => ConsumerOf ['Dancer2::Core::Role::Serializer'],
+);
+
+has charset => (
+    is        => 'rw',
+    isa       => Str,
+    predicate => 'has_charset',
 );
 
 has is_encoded => (
@@ -145,15 +166,34 @@ sub encode_content {
              $self->content_type( $self->default_content_type );
 
     return $content if $ct !~ /^text/;
+    my $charset = $self->headers->content_type_charset;
+    $charset = $self->charset
+      if !defined $charset && $self->has_charset;
+    if ( !defined $charset || $charset eq '' ) {
+        return $content if !utf8::is_utf8($content);
+        my $msg = 'Response contains characters but no charset is configured; assuming UTF-8';
+        $self->strict_utf8
+            and Carp::croak($msg);
+        if ( !$WARNED_NO_CHARSET ) {
+            $WARNED_NO_CHARSET = 1;
+            if ( $self->has_log_cb ) {
+                $self->log_cb->( warning => $msg );
+            }
+            else {
+                Carp::carp($msg);
+            }
+        }
+        $charset = 'UTF-8';
+    }
 
     # we don't want to encode an empty string, it will break the output
     $content or return $content;
 
-    $self->content_type("$ct; charset=UTF-8")
+    $self->content_type("$ct; charset=$charset")
       if $ct !~ /charset/;
 
     $self->is_encoded(1);
-    return Encode::encode( 'UTF-8', $content );
+    return Encode::encode( $charset, $content );
 }
 
 sub new_from_plack {
@@ -303,10 +343,15 @@ response will try coerce it to a string via double quote interpolation.
 Default mime type to use for the response Content-Type header
 if nothing was specified
 
+=attr charset
+
+Charset to use when encoding C<text/*> responses. An empty value disables
+automatic encoding.
+
 =method encode_content
 
 Encodes the stored content according to the stored L<content_type>.  If the content_type
-is a text format C<^text>, then no encoding will take place.
+is not a text format C<^text>, then no encoding will take place.
 
 Internally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
 

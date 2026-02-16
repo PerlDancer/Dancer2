@@ -115,7 +115,7 @@ test_psgi $app, sub {
         is(
             $res->headers->content_type_charset,
             'UTF-8',
-            '[GET /bounce/] Correct content type charset',
+            '[GET /bounce/] Default content type charset',
         );
 
     }
@@ -157,7 +157,7 @@ test_psgi $app, sub {
         is(
             $res->headers->content_type_charset,
             'UTF-8',
-            '[POST /bounce/] Correct content type charset',
+            '[POST /bounce/] Default content type charset',
         );
 
     }
