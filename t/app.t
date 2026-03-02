@@ -276,7 +276,7 @@ is_deeply(
 );
 
 is(
-    path( $app->caller )->canonpath,
+    path( $app->caller ),
     path( qw< t app.t > ),
     'Correct caller for app',
 );

@@ -1169,7 +1169,13 @@ sub send_file {
         };
 
         # resolve relative paths (with '../') as much as possible
-        $file_path = Path::Tiny::path( $dir, $path )->realpath;
+        # On Windows, absolute paths (e.g., C:/foo) must not be joined with
+        # the rootdir since Path::Tiny would produce an invalid /C:/foo path.
+        my $pt_path = Path::Tiny::path($path);
+        $file_path = ( $pt_path->is_absolute
+            ? $pt_path
+            : Path::Tiny::path( $dir, $path )
+        )->realpath;
 
         # We need to check whether they are trying to access
         # a directory outside their scope
