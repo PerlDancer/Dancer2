@@ -54,7 +54,7 @@ if ( !-e $path ) {
 }
 
 my $tmpdir = File::Temp->newdir;
-is( path_or_empty($tmpdir), $tmpdir, 'path_or_empty on an existing path' );
+is( path_or_empty($tmpdir), Path::Tiny::path("$tmpdir")->stringify, 'path_or_empty on an existing path' );
 
 note "escape_filename"; {
     my $names = [
