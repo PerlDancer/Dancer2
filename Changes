@@ -9,6 +9,8 @@
       opt-out (Sawyer X)
     * GH #1073: Get multiple session cookie values at once with clear
       method (Sawyer X)
+    * GH #1323: Allow fully qualified namespaces for all engines (Russell
+      @veryrusty Jenkins)
     * GH #1664: Stop sending double server headers (Sawyer X)
     * GH #1709: `send_as` should use the full serializer, including hooks
       (Sawyer X)
