@@ -17,6 +17,7 @@
       stict config enabled (Jason A. Crome)
     * GH #1073: Get multiple session cookie values at once with clear
       method (Sawyer X)
+    * GH #1264: Move to Path::Tiny (Sawyer X)
     * GH #1323: Allow fully qualified namespaces for all engines (Russell
       @veryrusty Jenkins)
     * GH #1594: Use Unicode::UTF8 if available (Sawyer X)
