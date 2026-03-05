@@ -16,6 +16,11 @@ layout: "main"
 # about unicode within your app when this setting is set (recommended).
 charset: "UTF-8"
 
+# When strict_config is true, Dancer2 will warn you about unknown
+# top-level configuration keys, and warn about unknown engine
+# configuration options.
+strict_config: 1
+
 # === Engines ===
 #
 # NOTE: All the engine configurations need to be under a single "engines:"
