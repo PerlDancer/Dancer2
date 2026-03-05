@@ -1,8 +1,14 @@
 {{$NEXT}}
 
     [ BUG FIXES ]
+    * GH #686: Fix: to_json is double encoding UTF8 (Sawyer X)
     * GH #863: Fix case insensitive system confusion (Sawyer X)
+    * GH #1124: Fix: charset config option is mostly ignored (Sawyer X)
+    * GH #1143: Fix utf8 in URL (Sawyer X, Sorin Pop)
     * GH #1449, 1630: Make plugin DSL keyword app-specific (Sawyer X)
+    * GH #1773: t/dsl/send_as.t throws json-related warnings (Jason
+      A. Crome)
+    * GH #1774: t/hooks.t throws void warnings (Jason A. Crome)
 
     [ ENHANCEMENTS ]
     * GH #763: Strict config mode; warn on unknown config keys with
@@ -13,15 +19,13 @@
       method (Sawyer X)
     * GH #1323: Allow fully qualified namespaces for all engines (Russell
       @veryrusty Jenkins)
+    * GH #1594: Use Unicode::UTF8 if available (Sawyer X)
     * GH #1664: Stop sending double server headers (Sawyer X)
     * GH #1709: `send_as` should use the full serializer, including hooks
       (Sawyer X)
     * PR #1757: Remove api_version, improve dispatching loop (Sawyer X)
     * PR #1758: Move MIME ownership to app (Sawyer X)
     * PR #1767: Turn off strict_config for noisy tests (Jason A. Crome)
-    * GH #1773: t/dsl/send_as.t throws json-related warnings (Jason
-      A. Crome)
-    * GH #1774: t/hooks.t throws void warnins (Jason A. Crome)
 
     [ DOCUMENTATION ]
     * GH #1431: Better document behavior of views setting (Jason A. Crome)
