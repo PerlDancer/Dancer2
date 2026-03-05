@@ -4,6 +4,7 @@ requires 'Carp';
 requires 'Clone';
 requires 'Config::Any';
 requires 'Data::Censor' => '0.04';
+requires 'Devel::StackTrace';
 requires 'Digest::SHA';
 requires 'Encode';
 requires 'Exporter', '5.57';
