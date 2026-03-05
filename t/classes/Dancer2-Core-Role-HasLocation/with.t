@@ -1,7 +1,6 @@
 use strict;
 use warnings;
-use File::Spec;
-use File::Basename;
+use Path::Tiny qw< path >;
 use Test::More tests => 11;
 
 {
@@ -21,25 +20,25 @@ note 'Defaults:'; {
         'App consumes Dancer2::Core::Role::HasLocation',
     );
 
-    my $path = File::Spec->catfile(qw<
+    my $path = path(qw<
         t classes Dancer2-Core-Role-HasLocation with.t
-    >);
+    >)->stringify;
 
     is(
-        File::Spec->canonpath( $app->caller ),
+        path( $app->caller ),
         $path,
         'Default caller',
     );
 
 }
 
-my $basedir = dirname( File::Spec->rel2abs(__FILE__) );
+my $basedir = path( __FILE__ )->parent->stringify;
 
 note 'With lib/ and bin/:'; {
     my $app = App->new(
-        caller => File::Spec->catfile(
-            $basedir, qw<FakeDancerDir fake inner dir fakescript.pl>
-        )
+        caller => path(
+            $basedir, qw<FakeDancerDir lib fake inner dir fakescript.pl>
+        )->stringify
     );
 
     isa_ok( $app, 'App' );
@@ -47,12 +46,9 @@ note 'With lib/ and bin/:'; {
     my $location = $app->location;
     $location =~ s/\/$//;
 
-    my $path = File::Spec->rel2abs(
-        File::Spec->catdir(
-            File::Spec->curdir,
-            qw<t classes Dancer2-Core-Role-HasLocation FakeDancerDir>,
-        )
-    );
+    my $path = path(
+        qw<t classes Dancer2-Core-Role-HasLocation FakeDancerDir>,
+    )->absolute->stringify;
 
     is(
         $location,
@@ -63,30 +59,27 @@ note 'With lib/ and bin/:'; {
 
 note 'With .dancer file:'; {
     my $app = App->new(
-        caller => File::Spec->catfile(
+        caller => path(
             $basedir, qw<FakeDancerFile script.pl>
-        )
+        )->stringify
     );
 
     isa_ok( $app, 'App' );
 
     my $location = $app->location;
 
-    my $path = File::Spec->rel2abs(
-        File::Spec->catdir(
-            File::Spec->curdir,
-            qw<t classes Dancer2-Core-Role-HasLocation FakeDancerFile>,
-        )
-    );
+    my $path = path(
+        qw<t classes Dancer2-Core-Role-HasLocation FakeDancerFile>,
+    )->absolute->stringify;
 
     is( $location, $path, 'Got correct location with .dancer file' );
 }
 
 note 'blib/ ignored:'; {
     my $app = App->new(
-        caller => File::Spec->catfile(
+        caller => path(
             $basedir, qw<FakeDancerDir blib lib fakescript.pl>
-        )
+        )->stringify
     );
 
     isa_ok( $app, 'App' );
@@ -94,12 +87,9 @@ note 'blib/ ignored:'; {
     my $location = $app->location;
     $location =~ s/\/$//;
 
-    my $path = File::Spec->rel2abs(
-        File::Spec->catdir(
-            File::Spec->curdir,
-            qw<t classes Dancer2-Core-Role-HasLocation FakeDancerDir>,
-        )
-    );
+    my $path = path(
+        qw<t classes Dancer2-Core-Role-HasLocation FakeDancerDir>,
+    )->absolute->stringify;
 
     is( $location, $path, 'blib/ dir is ignored' );
 }

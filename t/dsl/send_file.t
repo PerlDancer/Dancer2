@@ -7,7 +7,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
 use File::Temp;
-use File::Spec;
+use Path::Tiny ();
 use Ref::Util qw<is_coderef>;
 
 {
@@ -21,6 +21,10 @@ use Ref::Util qw<is_coderef>;
 
     get '/' => sub {
         send_file 'index.html';
+    };
+
+    get '/illegal' => sub {
+        send_file '../index.html';
     };
 
     prefix '/some' => sub {
@@ -49,12 +53,12 @@ use Ref::Util qw<is_coderef>;
     };
 
     get '/no_streaming' => sub {
-        my $file = File::Spec->rel2abs(__FILE__);
+        my $file = Path::Tiny::path(__FILE__)->absolute->stringify;
         send_file( $file, system_path => 1, streaming => 0 );
     };
 
     get '/options_streaming' => sub {
-        my $file = File::Spec->rel2abs(__FILE__);
+        my $file = Path::Tiny::path(__FILE__)->absolute->stringify;
         send_file( $file, system_path => 1, streaming => 1 );
     };
 
@@ -144,6 +148,17 @@ test_psgi $app, sub {
         ok($r->is_success, 'send_file returns success');
         is($r->header('Content-Disposition'), 'inline; filename="1x1.png"', 'send_file returns correct inline Content-Disposition');
     };
+
+    subtest "Illegal path" => sub {
+        my $r = $cb->( GET '/illegal' );
+        is( $r->code, 403, 'Illegal path returns 403' );
+        is(
+            $r->content,
+            'Forbidden',
+            'Text content contains UTF-8 characters',
+        );
+    };
+
 };
 
 done_testing;

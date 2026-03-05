@@ -4,10 +4,7 @@ use Test::More;
 use Dancer2::Core::Hook;
 use Plack::Test;
 use HTTP::Request::Common;
-
-use File::Spec;
-use File::Basename 'dirname';
-
+use Path::Tiny qw< path >;
 use lib 't/lib';
 
 eval { require Template; Template->import(); 1 }
@@ -16,8 +13,7 @@ eval { require Template; Template->import(); 1 }
 use_ok('Dancer2::Template::TemplateToolkit');
 use_ok('Dancer2::Template::TemplateToolkitFoo');
 
-my $views =
-  File::Spec->rel2abs( File::Spec->catfile( dirname(__FILE__), 'views' ) );
+my $views = path( __FILE__ )->parent->child('views')->absolute->stringify;
 
 my $tt = Dancer2::Template::TemplateToolkit->new(
     views  => $views,
