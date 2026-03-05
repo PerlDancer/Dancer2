@@ -314,7 +314,6 @@ subtest 'hook_exception_recursive' => sub {
 
 subtest 'hook entries logging' => sub {
     $::hook_counter = 0;
-    $::trap;
 
     package App::HookEntries {
         use Sub::Util qw/ set_subname /;
