@@ -130,6 +130,15 @@ SHOGUN6
         # make sure cleanup is performed when the HTTP::Body object is purged
         my $file = $upload->tempname;
         ok( ( -f $file ), 'temp file exists while request object lives' );
+
+        # On Windows, files cannot be unlinked while open. Close all cached
+        # file handles before destroying $req so that HTTP::Body's temp dir
+        # cleanup (which runs in the destructor) can succeed.
+        if ( $^O eq 'MSWin32' ) {
+            $_->{'fh'} = undef for
+                @uploads, $test_upload_file3, @test_upload_file6, $upload;
+        }
+
         undef $req;
       SKIP: {
             skip
