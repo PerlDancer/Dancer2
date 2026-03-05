@@ -159,7 +159,6 @@ sub default_error_page {
         title    => $self->title,
         charset  => $self->charset,
         content  => $show_fullmsg ? $self->full_message : _html_encode($self->message) || 'Wooops, something went wrong',
-        version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
 
@@ -176,9 +175,6 @@ sub default_error_page {
 <h1>[% title %]</h1>
 <div id="content">
 [% content %]
-</div>
-<div id="footer">
-Powered by <a href="http://perldancer.org/">Dancer2</a> [% version %]
 </div>
 </body>
 </html>
