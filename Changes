@@ -1,13 +1,1020 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #863: Fix case insensitive system confusion (Sawyer X)
+    * GH #1449, 1630: Make plugin DSL keyword app-specific (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * GH #763: Strict config mode; warn on unknown config keys with
+      opt-out (Sawyer X)
+    * GH #1073: Get multiple session cookie values at once with clear
+      method (Sawyer X)
+    * GH #1664: Stop sending double server headers (Sawyer X)
+    * GH #1709: `send_as` should use the full serializer, including hooks
+      (Sawyer X)
+    * PR #1757: Remove api_version, improve dispatching loop (Sawyer X)
+    * PR #1758: Move MIME ownership to app (Sawyer X)
+    * PR #1767: Turn off strict_config for noisy tests (Jason A. Crome)
+
     [ DOCUMENTATION ]
-    * Update core team members and contributors list (Russell Jenkins)
+    * GH #1431: Better document behavior of views setting (Jason A. Crome)
+    * PR #1749, #1750: Fix broken manual and tutorial links (Gil Magno,
+      Jason A. Crome)
+    * PR #1753: Fix structure of config docs (Mikko Koivunalho)
+    * PR #1762: Remove keyword logger from DSL document (Mikko Koivunalho)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+2.0.1     2025-10-22 18:13:37-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * GH #1745: Fix cookbook link in README (icyavocado)
+    * PR #1748: Various documentation fixes (Jason A. Crome)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+2.0.0     2025-09-15 17:49:26-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1701: Split cookie values on & only (Yanick Champoux)
+
+    [ ENHANCEMENTS ]
+    * GH #530: Make data censoring configurable (Yanick Champoux, David
+      Precious)
+    * GH #850: Scaffold tutorial app; allow multiple apps to be scaffolded
+      in core Dancer2 (Jason A. Crome)
+    * GH #1512: Log hook entries as they are executed (Yanick Champoux)
+    * GH #1615: Remove Dancer2::Template::Simple from Dancer2 core (Jason
+      A. Crome)
+    * PR #1637: New, extendable configuration system (Mikko Koivunalho)
+    * GH #1723: Enable use of a different Template Toolkit base class
+      (Andy Beverley)
+    * PR #1727: Don't create CPAN package files when generating new apps
+      (Jason A. Crome)
+    * PR #1731: Retire Template::Tiny fork, use CPAN's (Jason A. Crome,
+      Karen Etheridge, Damien Krotkine, Yanick Champoux)
+    * PR #1736: Allow config system to bootstrap itself (Yanick Champoux)
+    * GH #1737: Add on_hook_exception for errors during hook processing
+      (Andy Beverley)
+    * PR #1739: Add source to on_hook_exception (Andy Beverley)
+    * PR #1742: Refactor CLI for future expansion (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * GH #1342: Document skipping private methods in pod coverage tests
+      (Jason A. Crome)
+    * PR #1721: New Dancer2 docs, reorganization of all documentation;
+      from TPRF grant (Jason A. Crome)
+    * PR #1741: Cover items missed in earlier documentation branch (Jason
+      A. Crome)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+1.1.2     2024-11-25 08:34:51-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * PR #1715: Update deprecated download-artifact (dependabot)
+    * GH #1716: Remove Scope::Upper from list of recommended deps
+      (Russell @veryrusty Jenkins)
+    * PR #1718: Add Module::Pluggable as a requirement, excluding
+      broken versions (Russell @veryrusty Jenkins)
+    * PR #1719: Force install of Module::Pluggable so CI can successfully
+      run (Jason A. Crome, Russell @veryrusty Jenkins)
+
+1.1.1     2024-07-18 19:48:00-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1712: Fix use of send_as in templates (Andy Beverley)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * PR #1706: Document missing logging hooks and log format option;
+      fix typo in logging test (Jason A. Crome)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+1.1.0     2023-12-11 20:28:26-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * GH #33: Named routes; add uri_for_route keyword (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+1.0.0     2023-10-09 10:10:10-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1663: Allow overriding of prefix in add_route (GeekRuthie)
+    * GH #1675: Stringify VERSION_FROM correctly in Makefile.PL (Jason
+      A. Crome)
+    * GH #1677: Don't deserialize multipart form data on post (Emil
+      Perhinschi)
+    * GH #1694: Update JS assets in Dancer2 app skel (Jason A. Crome)
+
+    [ ENHANCEMENTS ]
+    * PR #1682: Bump minimum version of Perl to 5.14 (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * GH #1580: Document the purpose of the .dancer file (Jason A. Crome)
+    * GH #1669: Show correct usage of Dancer2::Core::Error (GeekRuthie)
+    * GH #1674: Fix POD for input_handle() (mauke)
+    * GH #1414: Add documentation resources to the doc map (Jason A.
+      Crome, Yanick Champoux)
+    * PR #1684: Remove shumphrey from core developers (Steven Humphrey)
+    * GH #1685: Document the versioning scheme and Dancer2 release
+      process (Jason A. Crome)
+    * PR #1688: Fixed various bugs/issues in Dancer2 Pod (Jason A. Crome)
+    * PR #1691: Update the contribution guidelines (Jason A. Crome)
+    * PR #1692: Change README extension .mkdn -> .md (Jason A. Crome)
+
+    [ DEPRECATED ]
+    * GH #1645: Deprecated Dancer2::Test (Jason A. Crome)
+    * GH #1646: Deprecated keyword: push_header (Jason A. Crome)
+    * GH #1647: Deprecated keyword: header (Jason A. Crome)
+    * GH #1648: Deprecated keyword: headers (Jason A. Crome)
+    * GH #1649: Deprecated keyword: context (Jason A. Crome)
+    * GH #1650: Deprecated: splat/capture named placeholders (Jason A.
+      Crome)
+    * GH #1651: Deprecated core Request instance method:
+      request->dispatch_path (Jason A. Crome)
+    * GH #1652: Deprecated keyword in plugins: plugin_setting (Jason A.
+      Crome)
+    * GH #1653: Deprecated keyword in plugins: dancer_app (Jason A. Crome)
+    * GH #1654: Deprecated keyword in plugins: request (Jason A. Crome)
+    * GH #1655: Deprecated keyword in plugins: var (Jason A. Crome)
+    * GH #1656: Deprecated keyword in plugins: hook (Jason A. Crome)
+
+    [ MISC ]
+    * GH #1659: Rename `master` branch to be `main` (Yanick Champoux)
+
+0.400001  2023-02-05 18:41:48-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * PR #1247: Fix edge case in plugin compat (Sawyer X)
+    * GH #1621: Fix recursion error in TT after longjump (Andy Beverley,
+      Russell @veryrusty Jenkins)
+    * PR #1667: Remove failing module from GitHub Actions
+      config (Jason A. Crome)
+
+    [ ENHANCEMENTS ]
+    * GH #769, PR #829, #1662: Rename show_errors as show_stacktrace
+      (Nuno Ramos Carvalho, Sawyer X)
+    * GH #1594: Use Unicode::UTF8 if available (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #1657: Fix the Dancer2::DeprecationPolicy abstract (Jason A. Crome)
+    * GH #1661: Add 'gen' command to 'dancer2' runs (Steve Bertrand)
+    * PR #1671: Fix broken links in POD; avoid passive voice (Tom Hukins)
+
+0.400000  2022-03-13 22:16:13-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * PR #1634: Fix CI push setting to run tests on branches with / in the 
+      name (Stefan Hornburg - Racke)
+    * PR #1641: Fix uninitialized warnings from parsing routes with mixed
+      regex/splats (Russell @veryrusty Jenkins)
+
+    [ ENHANCEMENTS ]
+    * PR #1627: Set minimum Perl to 5.10.1 (Peter Mottram - SysPete)
+    * PR #1643: Set minimum Perl to 5.12.5 (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * PR #1633: Fix YAML example in the tutorial (Tina Müller)
+    * PR #1644: Add deprecation policy to docs; link git guide (Jason A. 
+      Crome)
+
+0.301004  2021-06-06 13:30:28-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1624: Fix missing gen subcommand in tutorial (racke)
+    * PR #1626: Add File::Which to Dancer2 dependencies (Jason A. Crome)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+0.301003  2021-06-03 09:24:33-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1611: Redirect '/' doesn't always work as expected (Russell 
+      @veryrusty Jenkins, Christopher Gurnee)
+    * PR #1620: Quiet spammy failing CI builds (Jason A. Crome)
+    * PR #1623: Copy Dockerfile from the right spot (Jason A. Crome)
+
+    [ ENHANCEMENTS ]
+    * PR #1613: Add git features to Dancer2 CLI (Jason A. Crome)
+    * PR #1614: Generate Dockerfile when creating new app (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * PR #1563: Fix typos in perlcritic.rc notes (Achyut Kumar Panda)
+    * PR #1609: Document and test for missing DSL keywords (racke, Jason A.
+      Crome)
+    * PR #1618: Provide a consistent list of community resources (Jason A.
+      Crome)
+    * PR #1619: Clarify Dancer2::Template::Simple's role in life (Jason A.
+      Crome)
+
+0.301002  2021-04-18 15:29:32-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * GH #1593: Log files used to build config (Nick Tonkin)
+    * PR #1608: Migrate CLI to CLI::Osprey (Jason A. Crome)
+    # PR #1610: Replace File::Find with Path::Tiny in CLI (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * PR #1597: Update Core/Hook.pm Pod (Paul Clements)
+
+0.301001  2021-03-17 08:52:34-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * PR #1607: Fix broken tests following App::Cmd removal (Jason Crome)
+
+    [ ENHANCEMENTS ]
+    * PR #1606: Clean up various build prereqs (Graham Knop)
+
+    [ DOCUMENTATION ]
+    * None
+
+0.301000  2021-03-15 18:58:17-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * PR #1586: Run version checks against MetaCPAN (Jason A. Crome)
+    * PR #1604: Remove App::Cmd dependency; have script/dancer2 bail if
+      it's not installed (David Precious)
+    
+    [ ENHANCEMENTS ]
+    * GH #1064: Add DSL keyword request_data (Mickey Nasriachi)
+    * PR #1581: Disable scheduled GitHub action on Forks (Gabor Szabo)
+    * PR #1590: Improve install/documentation of XS modules (Jason A. Crome)
+    * PR #1591: Add more plugins to GitHub Actions CI (Gabor Szabo)
+
+    [ DOCUMENTATION ]
+    * GH #1582: Small fixes in Migration POD (Sergiy Borodych)
+    * PR #1595: Add cookbook recipe for enabling/disabling routes at 
+      runtime (Nick Tonkin)
+    * PR #1599: Punctuation correction in docs (Nick Tonkin)
+
+0.300005  2021-01-26 15:57:41-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1546: Add MIME type for all files served from public (Russell 
+      @veryrusty Jenkins)
+    * GH #1555: Remove all leftovers of warnings config setting (Sergiy 
+      Borodych)
+    * GH #1557: Remove HTTP::XSCookies workaround (Alexander Pankoff)
+    * GH #1564: Add script_name to redirects beginning with / (Nigel Gregoire)
+    * GH #1567: Fix CSS so errors do not display ourside of <pre> HTML
+      element (Elliot Holden)
+    * GH #1568: Serializer::Mutable doesn't auto-load other serializers
+      (Russell @veryrusty Jenkins)
+    * GH #1579: Fix missing push_header method in Response::Delayed 
+      (Paul Clements)
+    
+    [ ENHANCEMENTS ]
+    * GH #1552: Update jQuery (Sergiy Borodych)
+    * GH #1558: Test to make sure uploads aren't discarded after the
+      forward keyword is used (Alexander Pankoff)
+    * GH #1571: Add GitHub Actions support (Gabor Szabo)
+    * GH #1572: Install Dancer2::Session::Cookie in order to run the test 
+      t/issues/gh-811.t (racke)
+
+    [ DOCUMENTATION ]
+    * GH #1490: Document Dancer2::Core::App->template() (Steve Dondley)
+    * GH #1551: Fix pod for cookie same site attribute (Sergiy Borodych)
+    * GH #1562: Fix links, missing code in Tutorial (cloveistaken)
+
+0.300004  2020-05-26 20:52:34-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1509: Request instantiation fails throw 400 Bad Response (Russell
+      @veryrusty Jenkins). This resolves GH #1056, 1482, 1496, 1507, 1508,
+      and 1510.
+    
+    [ ENHANCEMENTS ]
+    * GH #1510: Test for proper multi-part form handing (ice-lenor, Sawyer X)
+    * GH #1547: Cookie SameSite support (Russell @veryrusty Jenkins)
+
+    [ DOCUMENTATION ]
+    * None
+
+0.300003  2020-04-09 10:39:55-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * None
+    
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * GH #1543: Various tutorial cleanups (Peter Mottram - SysPete)
+
+0.300002  2020-04-07 11:44:59-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1541: Fix broken test that is skipped under CI (Peter Mottram - 
+      SysPete)
+    
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+0.300001  2020-04-06 12:14:47-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1461: Relax redirect to match RFC_7231 (James Raspass)
+    * GH #1499: Don't double decode date strings (simbabque)
+    * GH #1536: Fix storing objects in YAML sessions (Tom Hukins)
+
+    [ ENHANCEMENTS ]
+    * GH #1540: Improve configuration handling (Tom Hukins)
+
+    [ DOCUMENTATION ]
+    * GH #1425: Revamped Tutorial (Steve Dondley)
+    * GH #1521: Documentation on configuring the adress to listen on: 
+      "server" does not seem to work, but "host" does (Ma_Sys.ma)
+    * GH #1530: Fix missing space in docs (ferki)
+    * GH #1535: Fix example code in SessionFactory::File (Sergiy Borodych)
+    * GH #1538: Defined or should not be an assignment (Timothy Alexis 
+      Vass)
+
+0.300000  2019-12-23 23:55:09-06:00 America/Chicago
+
+    [ BUG FIXES ]
+    * None
+
+    [ ENHANCEMENTS ]
+    * GH #1127, GH #1476: Route parameters with types (Peter Mottram - 
+      SysPete)
+
+    [ DOCUMENTATION ]
+    * None 
+
+0.208002  2019-12-14 16:08:46-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH#1527: Update travis dist to 'trusty' (Sergiy Borodych)
+
+    [ ENHANCEMENTS ]
+    * GH #1525: Remove use of Return::MultiLevel, and implement stack frame 
+      jumping manually (Graham Knop)
+
+    [ DOCUMENTATION ]
+    * GH #1505: Fix Flaskr link (Mohammad S Anwar)
+    * GH #1506, 1520: Explain what add_route() does with args (Tom Hukins)
+    * GH #1519: Fix Template Toolkit config docs (Tom Hukins)
+    * GH #1522: Fix itetare typo (Stefan Hornburg - Racke)
+    * GH #1523: Fix typo in Template Toolkit documentation (Mike Katasonov)
+    * GH #1524: Fix error in configuration documentation (Tom Hukins)
+    * GH #1526: Mention that TT2 config start_tag/end_tag need escaping 
+      (Chris White)
+    * GH #1528: Note that"Engines" key must be merged in config.yml (Chris
+      White)
+
+0.208001  2019-08-04 21:06:25-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1515: Add Types::Standard to cpanfile (Russell @veryrusty Jenkins)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * GH #1513: Fix Dancer2::Test typo (Utkarsh Gupta)
+
+0.208000  2019-06-19 10:21:16-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * PR #1493: Fix body not being sent on forward (Johannes Piehler)
+    * PR #1498: Load missing Encode in logger role (simbabque)
+    * PR #1501: Set :raw when copying files to new project (xenu)
+    * GH #1502: Update jquery (racke)
+
+    [ ENHANCEMENTS ]
+    * GH #1320: Implement prepare_app keyword (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * Tidy up Cookbook POD. (Mohammad S Anwar)
+
+0.207000  2018-11-14 17:24:25-05:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1427: Allow layout_dir to be configured by set keyword (Russell
+      @veryrusty Jenkins)
+    * GH #1456: Engine logging respects minimum level filtering (Daniel Perrett)
+    * PR #1479: Remove arbitrary Perl 5.10 requirement from tests (Dan Book)
+    * PR #1480: Correct dynamic HTTP::XSCookies requirement (Dan Book)
+    * PR #1486: Install dzil deps for use by Appveyor (Dan Book)
+
+    [ ENHANCEMENTS ]
+    * GH #1418: Send plain text content with send_as() (Steve Dondley)
+    * PR #1457: Serializer mutable with custom mapping. Also resolves issues
+      #795, #973, and #901 (Russell @veryrusty Jenkins, Yanick Champoux, 
+      Daniel Böhmer, Steven Humphrey)
+    * PR #1459: Add no default middleware feature. Also resolves #1410 
+      (Russell @veryrusty Jenkins)
+    * GH #1469: Code of Conduct enhancements (MaxPerl)
+
+    [ DOCUMENTATION ]
+    * GH #1166: Add behind_proxy docs to Deployment manual (Nuno Ramos 
+      Carvalho)
+    * GH #1417: Add "set engines" documentation (Deirdre Moran)
+    * PR #1450: Add calculator example (Gabor Szabo)
+    * PR #1452: Fix Pod formatting for CPAN (simbabque)
+    * PR #1454: Fix typos in docs (Gil Magno)
+    * PR #1464: Can't set environment with 'set' keyword (Ben Kaufman)
+    * PR #1470: Use session for flash and explain in detail (simbabque)
+    * PR #1472: Migration, tutorial, other doc fixes (Jason A. Crome)
+    * PR #1473: Show support resources after generating new app (Jason A.
+      Crome)
+    * PR #1474: Use the correct URL for HAProxy (Jason A. Crome)
+    * PR #1475: Add manual section for security concerns (Jason A. Crome)
+    * PR #1487: Clarify deprecation of Dancer2::Test (Steve Dondley)
+
+0.206000  2018-04-19 22:09:46-04:00 America/New_York
+
+    [ BUG FIXES ]
+    * GH #1090, #1406: Replace HTTP::Body with HTTP::Entity::Parser in
+      Dancer2::Core::Request. (Russell @veryrusty Jenkins)
+    * GH #1292: Fix multiple attribute definitions within Plugins
+      (Nigel Gregoire)
+    * GH #1304: Fix the order by which config files are loaded, independently
+      of their filename extension (Alberto Simões, Russell @veryrusty Jenkins)
+    * GH #1400: Fix infinite recursion with exceptions that use circular
+      references. (Andre Walker)
+    * GH #1430: Fix `dancer2 gen` from source directory when Dancer2 not
+      installed. (Tina @perlpunk Müller - Tina)
+    * GH #1434: Add `validate_id` method to verify a session id before
+      requesting the session engine fetch it from its data store.
+      (Russell @veryrusty Jenkins)
+    * GH #1435, #1438: Allow XS crush_cookie methods to return an arrayref
+      of values. (Russell @veryrusty Jenkins)
+    * GH #1443: Update copyright year (Joseph Frazer)
+    * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
+    * PR #1447: Fix missing build requires (Mohammad S Anwar)
+    
+    [ ENHANCEMENTS ]
+    * PR #1354: TemplateToolkit template engine will log (at debug level)
+      if a template is not found. (Kiel R Stirling, Russell @veryrusty Jenkins)
+    * GH #1432: Support Content-Disposition of inline in 
+      send_file() (Dave Webb)
+    * PR #1433: Verbose testing in AppVeyor (Graham Knop)
+
+    [ DOCUMENTATION ]
+    * GH #1314: Documentation tweaks (David Precious)
+    * GH #1317: Document serializer configuration (sdeseille)
+    * GH #1386: Add Hello World example (Gabor Szabo)
+    * PR #1408: List project development resources (Steve Dondley)
+    * PR #1426: Move performance improvement information from Migration guide
+      to Deployment (Pedro Melo)
+
+0.206000_02 2018-04-09 21:48:24-04:00 America/New_York (TRIAL RELEASE)
+
+    [ BUG FIXES ]
+    * GH #1090, #1406: Replace HTTP::Body with HTTP::Entity::Parser in
+      Dancer2::Core::Request. (Russell @veryrusty Jenkins)
+    * GH #1304: Fix the order by which config files are loaded, independently
+      of their filename extension (Alberto Simões, Russell @veryrusty Jenkins)
+    * GH #1400: Fix infinite recursion with exceptions that use circular
+      references. (Andre Walker)
+    * GH #1430: Fix `dancer2 gen` from source directory when Dancer2 not
+      installed. (Tina @perlpunk Müller - Tina)
+    * GH #1434: Add `validate_id` method to verify a session id before
+      requesting the session engine fetch it from its data store.
+      (Russell @veryrusty Jenkins)
+    * GH #1435, #1438: Allow XS crush_cookie methods to return an arrayref
+      of values. (Russell @veryrusty Jenkins)
+    * GH #1443: Update copyright year (Joseph Frazer)
+    * GH #1445: Use latest HTTP::Headers::Fast (Russell @veryrusty Jenkins)
+    
+    [ ENHANCEMENTS ]
+    * PR #1354: TemplateToolkit template engine will log (at debug level)
+      if a template is not found. (Kiel R Stirling, Russell @veryrusty Jenkins)
+    * GH #1432: Support Content-Disposition of inline in 
+      send_file() (Dave Webb)
+    * PR #1433: Verbose testing in AppVeyor (Graham Knop)
+
+    [ DOCUMENTATION ]
+    * GH #1317: Document serializer configuration (sdeseille)
+    * PR #1426: Move performance improvement information from Migration guide
+      to Deployment (Pedro Melo)
+
+0.205002  2017-10-17 16:08:25-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1362: Make cookies http_only by default (David Precious)
+    * GH #1366: Use proper shebang on dancer script and make EU::MM do the job
+    * GH #1373: Unset Dancer environment vars before testing (Alberto Simões)
+    * GH #1380: Consider class of error displayed when using show_errors
+      (Nick Tonkin).
+    * GH #1383: Remove Deflater from default app skeleton (Pierre Vigier)
+    * GH #1385: Fix links inside the documentation (Alberto Simões)
+    * GH #1390: Honour no_server_tokens config in error responses (Russell
+      @veryrusty Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #1285: Add "Default Template Variables" section to manual (simbabque)
+    * GH #1312: Fix docs for Dancer2::Core::Route->match, which takes a request
+      object (simbabque).
+    * GH #1368: Don't allow XSS in tutorial (simbabque)
+    * GH #1383: Remove full URL on links to third party modules (Alberto Simoes)
+    * GH #1395: Customize TT behavior via subclassing (simbabque).
+
+0.205001  2017-07-11 08:03:21-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1332: Add check for old version of HTTP::XSCookies (Peter Mottram -
+      SysPete)
+    * GH #1336: Fix warnings on 5.10 and below. (Sawyer X)
+    * GH #1347: Add Perl versions 5.22-5.26 and appveyor to Travis-CI
+      configuration (Dave Jacoby)
+
+    [ ENHANCEMENTS ]
+    * GH #1281: Use Ref::Util in Core for all reference checks (Mickey 
+      Nasriachi)
+    * GH #1338: Add message explaining how to run newly-created application
+      (Jonathan Cast)
+
+    [ DOCUMENTATION ]
+    * GH #1334: Fix prefix example in Cookbook (Abdullah Diab)
+    * GH #1335: Add missing word in request->host docs (Glenn Fowler)
+    * GH #1337: Fix link in SEE ALSO section of Dancer2::Core::Types (Stefan
+      Hornburg - Racke)
+    * GH #1341: Clarify plugin documentation (Stefan Hornburg - Racke)
+    * GH #1345, #1351, #1356: Fix password check code example in tutorial
+      (Jonathan Cast)
+    * GH #1355: Fix typo (Gregor Herrmann)
+
+0.205000  2017-03-10 15:37:52-06:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1325: Support multi-value cookies when using HTTP::XSCookies.
+      (James Raspass)
+    * GH #1303: Read configuration options when send_as() creates a new 
+      serializer (Paul Williams)
+    * GH #1290: Properly check buffer length in _read_to_end() (Marketa 
+      Wachtlova)
+    * GH #1322: Deprecate broken request->dispatch_path in favor of 
+      request->path. Warn the developer of the deprecation (Russell 
+      @veryrusty Jenkins).
+
+    [ ENHANCEMENTS ]
+    * GH #1326: Speed up by using Type::Tiny, again. (Pete SysPete Mottram)
+    * GH #1318: Add support for the SameSite cookie attribute. (James Raspass)
+    * GH #1283: Skeleton now provides an example of setting the appdir.
+      (Jason Lewis)
+    * GH #1315: Adjust dist.ini to set "build_requires" for 
+      ExtUtils::MakeMaker. (Atoomic)
+    * GH #1331: Preliminary prepare_app() work (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #1324: Fix broken link to send_file. (Fabrice Gabolde)
+    * GH #1311: Typo and link fixes. (Breno G. de Oliveira - @garu)
+    * GH #1310: Document query string parameters in uri_for. (Michael J South)
+    * GH #1329: Remove dead code from file upload example (Stefan Hornburg - 
+      Racke)
+    * GH #1256: Additions to migration manual (Daniel Perrett)
+    * GH #1330: Add middleware examples to scaffolder (David - sbts)
+
+0.204004  2017-01-26 18:29:34+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #1307: Fix breakage of Template::Toolkit, caused by
+      previous release. (Peter SysPete Mottram)
+
+0.204003  2017-01-25 15:21:40-06:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1299: Fix missing CPANTS prereqs (Mohammad S. Anwar)
+
+    [ ENHANCEMENTS ]
+    * GH #1249: Improve consistency with Template::Toolkit,
+      using correct case for 'include_path', 'stop_tag', 'end_tag',
+      and 'start_tag', removing ANYCASE option.
+      (Klaus Ita)
+    * Call route exception hook before logging an error, allowing devs to
+      raise their own errors bedore D2 logging takes over. (Andy Beverley)
+
+    [ DOCUMENTATION ]
+    * Add another example of the delayed asynchronous mechanism
+      (Ed @mohawk2 J., Sawyer X)
+    * GH #1291: Document 'change_session_id' in Dancer2::Core::App.
+      (Peter SysPete Mottram)
+    * Fix typo in Dancer2::Core::Response (Gregorr Herrmann)
+    * Document Dancer2::Plugin::RootURIFor (Mario Zieschang)
+
+0.204002  2016-12-21 15:40:02-06:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #975: Fix "public_dir" configuration to work, just like
+      DANCER_PUBLIC. (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * You can now call '$self->find_plugin(...)' within a plugin
+      in order to find a plugin, in order to use its DSL in your
+      custom plugin. (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * GH #1282: Typo in Cookbook. (Kurt Edmiston)
+    * GH #1214: Update Migration document. (Sawyer X)
+    * GH #1286: Clarify hook behavior when disabling layout (biafra)
+    * GH #1280: Update documentation to use specific parameter 
+                keywords (Hunter McMillen)
+
+0.204001  2016-10-17 08:29:00-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * Restore 5.8 support (fix test which required captures).
+      (Russell @veryrusty Jenkins)
+    * PR #1271: fix wrong regex check against $_ (Mickey Nasriachi)
+
+    [ ENHANCEMENTS ]
+    * GH #1262: Add 'encode_json' and 'decode_json' DSL, which are
+      recommended instead of 'to_json' and 'from_json'.
+      (Dennis @episodeiv lichtenthäler)
+
+    [ DOCUMENTATION ]
+    * Fix some typos.(Dennis @episodeiv lichtenthäler)
+    * GH #1031: Remove D2::Core::Context remnants from docs.
+      (Sawyer X)
+
+    [ PACKAGING ]
+    * GH #1273: Do not require Test::Perl::Critic to install.
+      (Dennis lichtenthäler)
+
+0.204000  2016-10-10 20:56:51-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1255: Fix hook overriding in plugin. (Yves Orton)
+    * GH #1191: Named capture prior to dispatch breaks dispatch.
+      (Yves Orton)
+    * GH #1235: Clean up descriptions for HTTP codes 303 and 305.
+      (Yanick Champoux)
+    * Remove duplicate (and errornous) 451 error message.
+      (Sawyer X)
+    * GH #1116, #1245: Ensure cached Hash::MultiValue parameters are cloned
+      into the new request. (Russell @veryrusty Jenkins)
+
+    [ ENHANCEMENTS ]
+    * You can now provide a $EVAL_SHIM to Dancer2::Core::App in order
+      to have custom code run on eval{} calls. One example of this
+      is to handle proper counting of stack frames when you want to
+      unwind/unroll the stack for custom error reporting.
+      (Yves Orton)
+    * Added a cpanfile to allow installing local dependencies with 
+      carton. (Mickey Nasriachi)
+    * GH #1260: Specify optional charset to send_file and send_as
+      (Russell @veryrusty Jenkins)
+    * PR #1162: Change skeleton template tags so skeletons can generate
+      applications that use Template Toolkit default tags (Jason Lewis)
+    * GH #1149: Fix config loading inconsistencies, support local config
+      files in addition to standard Dancer conf files (Jonathan Scott Duff)
+    * PR #1269: Stash decoded body_parameters separately from those 
+      in Plack::Request (Russell @veryrusty Jenkins)
+    * GH #1253: Static middleware should send 304 Not Modified to enable
+      intermediate level caching. (Russell @veryrusty Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #608: Remove extra general COPYRIGHT notice in Tutorial.
+      (Sawyer X)
+    * Simplify upload example. (Alberto Simões, Sawyer X)
+
+0.203001  2016-09-03 20:59:47-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1237: Specify minimum version of List::Util required for pair*
+      functionals. (Russell @veryrusty Jenkins)
+
+    [ ENHANCEMENTS ]
+    * PR #1242: Replace Class::Load with Module::Runtime (Russell 
+      Jenkins - @veryrusty)
+
+0.203000  2016-08-24 22:09:56-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1232: Force deserialization of body data even when an existing 
+      Plack::Request object has already parsed request body. Don't double
+      decode deserialized data. (Russell Jenkins - @veryrusty)
+
+    [ ENHANCEMENTS ]
+    * GH #1195: Add change_session_id() method - both as a good security 
+      practice and to comply with other established security standards.
+      (Peter Mottram)
+    * GH #1234: Add convenience functions to access Dancer's HTTP_CODES
+      table. (Yanick Champoux)
+
+    [ DOCUMENTATION ]
+    * Fix Typo (Stefan Hornburg - Racke)
+    * Document $session->data (Stefan Hornburg - Racke)
+    
+0.202000  2016-08-13 13:50:30-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * Fix memory leak in plugins. (Sawyer X)
+    * GH #1180, #1220: Revert (most of) GH #1120. Change back to using
+      MooX::Types::MooseLike until issues around Type::Tiny are resolved.
+      Peter (@SysPete) Mottram
+    * GH #1192: Decode body|query|request_parameters (Peter Mottram)
+    * GH #1224: Plugins defined with :PluginKeyword attribute are now 
+      exported. (Yanick Champoux)
+    * GH #1226: Plugins can now call the DSL of the app via $self->dsl
+      (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * PR #1223: Add YAML::XS to Recommends (Peter Mottram)
+    * PR #1117: If installed, use HTTP::XSCookies and all cookie operations 
+      will be faster (Peter Mottram)
+    * PR #1228: Allow register_plugin() to pass @_ properly (Sawyer X)
+    * PR #1231: Plugins can now call the syntax of plugins they loaded 
+      (Sawyer X)
+
+    [ DOCUMENTATION ]
+    * PR #1151: Note that config is immutable after first read (Peter Mottram)
+    * PR #1222: Update list of files generated by `dancer2 -a`, make name of 
+      sample app consistent (Daniel Perrett)
+
+0.201000  2016-07-22 08:26:18-05:00 America/Chicago
+
+    [ BUG FIXES ]
+    * GH #1216: Make DSL work in edge-case of plugins calling DSL before the
+      app class loaded Dancer2. (Sawyer X)
+    * GH #1210: Show proper module/line number in log output (Masaaki Saito)
+
+    [ ENHANCEMENTS ]
+    * GH #900: Switch from to_json to encode/encode_json (Nuno Ramos Carvalho)
+    * GH #1196: Move serializer from JSON to JSON::MaybeXS (Nuno Ramos Carvalho)
+    * GH #1215: Remove unused DANCER2_SHARE_DIR env variable (Jason A. Crome)
+
+    [ DOCUMENTATION ]
+    * PR #1213: Clarify params merging docs and related examples
+      (Daniel Perrett)
+    * Add Peter Mottram (@SysPete) to list of core developers. (Russell Jenkins)
+    * PR #1208: Introduce appdir before it's used; simplify description of what
+      a view is (James E Keenan)
+    * GH #1218: By request, remove David Golden from list of core developers. 
+      Created "emeritus" section to honor the contributions of former core 
+      developers. Thanks, xdg!
+
+0.200003  2016-07-11 17:17:57+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * PR #1198: Session::YAML should not accept bad session cookie value 
+      from client (Peter Mottram)
+    * Require minimum version of YAML of 0.86 (to satisfy GH #899) and a 
+      maximum version of YAML 1.15. YAML 1.16 causes test failures as
+      reported by CPAN Testers.
+    * Remove session test data from builds. (Peter Mottram)
+
+    [ ENHANCEMENTS ]
+    * Require minimum version of ExtUtils::MakeMaker of 7.1101 to support 
+      a range of prereq version numbers (rjbs, Jason Crome, Sawyer X)
+    * GH #1188: Add error message to open_file (exercism-1)
+    * Support showing private variables in templates under
+      Template::Toolkit. (Alberto Simões)
+
+    [ DOCUMENTATION ]
+    * GH #1193: Spelling correction (Gregor Herrmann)
+    * Fix typo of config option in Pod. (Nuno Carvalho)
+    * Fix POD syntax error. (Nuno Carvalho)
+    * Fix Manual error. (James E Keenan)
+    * Move documentation index to dancer2. (Alan Berndt)
+    * GH #1209: Clean up examples for 'set views' and 'set public_dir'
+      in Dancer2::Manual (James E Keenan)
+
+0.200002  2016-06-22 16:39:13+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * Using `var` with a `forward`ed request now works.
+      (Sawyer X, Jason Crome)
+
+
+0.200001  2016-06-16 15:51:04+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #1175: Plugins are not required to be in the Dancer2::Plugin
+      namespace. (Russell @veryrusty Jenkins)
+    * GH #1176, #1177: Remove Test::Deep as a test dependency.
+      (Nuno Carvalho, Peter Mottram)
+    * GH #1185: Fails on 5.25.1. (Tony Cook)
+
+    [ DOCUMENTATION ]
+    * GH #1178: Update D2::Manual with links to new plugin architecture.
+      (Joel Berger, Jason A. Crome)
+    * GH #1184: Use 'before_template_render' rather than the special case
+      'before_template' in D2::Manual and D2::Tutorial (Philippe Bricout)
+
+    [ ENHANCEMENTS ]
+    * GH #1018: Additional plugin hook tests (Ruben Amortegui)
+
+0.200000  2016-05-31 15:05:46+02:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #1174: Update plugin tests to stop deprecation warnings
+      (Peter Mottram)
+    * GH #1173: Reword error when serialization / deserialization fails
+      to be more generic (Russell @veryrusty Jenkins)
+
+    [ ENHANCEMENTS ]
+    * Introduce an improved variation of the Dancer2::Plugin::SendAs
+      into core. You can now override the serializer (or lack thereof)
+      at any point in time for a response by calling `send_as`. You
+      can also send the options of `send_file` (like the Content-Type)
+      and the charset for the app is also respected.
+      (Russell @veryrusty Jenkins)
+
+0.166001_04 2016-05-27 14:54:53+02:00 Europe/Amsterdam (TRIAL RELEASE)
+
+    [ BUG FIXES ]
+    * GH #1171: Ensure request query parameter parsing is independent of
+      Plack version (Russell Jenkins)
+
+0.166001_03 2016-05-27 13:23:52+02:00 Europe/Amsterdam (TRIAL RELEASE)
+
+    [ BUG FIXES ]
+    * GH #1165, #1167: Copy is_behind_proxy attribute into new request
+      on forward. (Russell Jenkins)
+
+    [ ENHANCEMENTS ]
+    * GH #1120: Move from MooX::Types::MooseLike to Type::Tiny for
+      performance. (Peter Mottram)
+    * GH #1145, #1164: Replace Class::Load with Module::Runtime
+      (Sawyer X)
+    * GH #1159, #1163: Make template keyword global.
+      (Sawyer X, Russell Jenkins)
+
+    [ DOCUMENTATION ]
+    * GH #1158: List both static and shared modules in Apache's deploy
+      instructions. (Varadinsky)
+
+0.166001_02 2016-04-29 16:42:54+02:00 Europe/Amsterdam (TRIAL RELEASE)
+
+
+    [ BUG FIXES ]
+    * GH #1160: Engines receive correct log callback on build
+      (Peter Mottram)
+    * GH #1148: Ensure request body parameter parsing is independent of
+      Plack version (Russell Jenkins)
+
+0.166001_01 2016-04-19 21:50:35+02:00 Europe/Amsterdam (TRIAL RELEASE)
+
+    [ BUG FIXES ]
+    * GH #1102: Handle multiple '..' in file path utilities.
+      (Oleg A. Mamontov, Peter Mottram)
+    * GH #1114: Fix missing prereqs as reported by CPANTS.
+      (Mohammad S Anwar)
+    * GH #1128: Shh warning if optional megasplat is not present.
+      (David Precious)
+    * GH #1139: Fix incorrect Content-Length header added by AutoPage
+      handler (Michael Kröll, Russell Jenkins)
+    * GH #1144: Change tt tags to span in skel (Jason Lewis)
+    * GH #1046: "no_server_tokens" configuration option doesn't work.
+      (Sawyer X)
+    # GH #1155, #1157: Fix megasplat value splitting when there are empty
+      trailing path segments. (Tatsuhiko Miyagawa, Russell Jenkins)
+      NOTE: Paths matching a megasplat that end with a '/' will now include
+      an empty string as the last value. For the route pattern '/foo/**',
+      the path '/foo/bar', the megasplat gives ['bar'], whereas '/foo/bar/'
+      now gives ['bar','']. Joining the array of megasplat values will now
+      always be the string matched against for the megasplit.
+
+    [ DOCUMENTATION ]
+    * GH #1119: Improve the deployment documentation. (Andrew Beverley)
+    * GH #1123: Document import of utf8 pragma. (Victor Adam)
+    * GH #1132: Fix spelling mistakes in POD (Gregor Herrmann)
+    * GH #1134: Fix spelling errors detected by codespell (James McCoy)
+    * GH #1153: Fix POD rendering error. (Sawyer X)
+
+    [ ENHANCEMENTS ]
+    * GH #1129: engine.logger.* hooks are called around logging a message.
+      (Russell @veryrusty Jenkins)
+    * GH #1146: Cleaner display of error context (Vernon Lyon)
+    * GH #1085: Add consistent keywords for accessing headers;
+      'request_header' for request, 'response_header', 'response_headers'
+      and 'push_response_header' for response. (Russell @veryrusty Jenkins)
+    * GH #1010: New Dancer2::Plugin architecture, includes support for
+      plugins using other plugins. (Yanick Champoux, Russell Jenkins,
+      Sawyer X, Damien Krotkine, Stefan @racke Hornburg, Peter Mottram)
+      Note: Considerable effort has gone into working with the authors
+      of existing plugins to ensure their plugins are compatible with both
+      the 'old' and the new reworked plugin architecture. Please upgrade
+      your plugins to a recent release.
+      (Special thanks to Peter @SysPete Mottram)
+
+0.166001  2016-01-22 07:54:46+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #1105, #1106, #1108: Autopage + Template Toolkit broke in last
+      release. (Kaitlyn Parkhurst @symkat, Russell Jenkins)
+
+0.166000  2016-01-12 19:01:51+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * GH #1013, #1092: Remove race condition caused by caching available
+      engines. (Sawyer X, Menno Blom, Russell Jenkins)
+    * GH #1089: Exact macthing of route regex comments for tokens/splats.
+      (Sawyer X)
+    * GH #1079, #1082: Allow routes to return '0' as response content,
+      and serializer hooks are called when default response content is
+      to be returned. (Alberto Simões, Russell Jenkins)
+    * GH #1093, 1095: Use a dynamic TT2 INCLUDE_PATH to allow relative
+      views with relative includes; fixing regression introduced by #1037.
+      (Russell Jenkins)
+    * GH #1096, #1097: Return compatibility on Perl 5.8.x!
+      (Peter Mottram - @SysPete)
+
+    [ DOCUMENTATION ]
+    * GH #1076: Typo in Dancer2::Core::Hook POD. (Jonathan Scott Duff)
+
+    [ ENHANCEMENTS ]
+    * GH #1074: Add sample session engine config to skeleton app.
+      (Peter Mottram - @SysPete)
+    * GH #1088: Return route objects when defining new routes.
+      (Sawyer X)
+
+0.165000  2015-12-17 09:19:13+01:00 Europe/Amsterdam
+
+    [ BUG FIXES ]
+    * Revert session_name change, as this would invalidate all existing
+      changes. We will need to rethink this change.
+      (Stefan @racke Hornburg, Sawyer X)
+
+0.164000  2015-12-16 23:42:24+01:00 Europe/Amsterdam
+
+    [ DOCUMENTATION ]
+    * Update core team members and contributors list. (Russell Jenkins)
+    * GH #1066: Fix typo in Cookbook. (gertvanoss)
+    * Correct typo. It's "query_parameters", not "request_parameters".
+      Thanks to mst for letting me know and making sure I fix it!
+      (Sawyer X)
 
     [ BUG FIXES ]
     * GH #1040: Forward with a post body no longer tries to re-read body
-      filehandle (Bas Bloemsaat)
+      filehandle. (Bas Bloemsaat)
     * GH #1042: Add Diggest::SHA as explicit prequisite for installs on
-      perl < v5.9.3 (Russell Jenkins)
+      perl < v5.9.3. (Russell Jenkins)
+    * GH #1071, #1070: HTML escape the message in the default error page.
+      (Peter Mottram)
+    * GH #1062, #1063: Command line interface didn't support
+      "-s SKELETON_DIRECTORY" in any order.
+      (Nuno Carvalho)
+    * GH #1052, #1053: Always call before_serializer hook when serializer
+      is set.
+      (Mickey Nasriachi)
+    * GH #1034: Correctly use different session cookie name for Dancer2.
+      (Jason A. Crome)
+    * GH #1060: Remove trailing slashes when providing skeleton
+      directory.
+      (Gabor Szabo)
 
     [ ENHANCEMENTS ]
     * Use Plack 1.0035 to make sure you only have HTTP::Headers::Fast
@@ -15,7 +1022,18 @@
     * GH #951 #1037: Dancer2::Template::TemplateToolkit no longer sets TT2
       INCLUDE_PATH directive, allowing `views` setting to be non-absolute
       paths. (Russell Jenkins)
-    * GH #1032 #1043: Add .dancer file to new app scaffolding (Jason A. Crome)
+    * GH #1032 #1043: Add .dancer file to new app scaffolding.
+      (Jason A. Crome)
+    * GH #1045: Small cleanups to Request class. (Russell Jenkins)
+    * GH #1033: strict && warnings in Dancer2::CLI. (Mohammad S Anwar)
+    * GH #1052, #1053: Allow before_serializer hook to change the content
+      using @_.
+      (Mickey Nasriachi)
+    * GH #1060: Ignore .git directory when using an external skeleton
+      directory.
+      (Gabor Szabo)
+    * GH #1060: Support more asset file extensions. (Gabor Szabo)
+    * GH #1072: Add request->is_options(). (Theo van Hoesel)
 
 0.163000  2015-10-15 12:47:57+02:00 Europe/Amsterdam
 
@@ -34,7 +1052,7 @@
       (Sawyer X)
 
     [ ENHANCEMENTS ]
-    * GH #738, #740, #988: route_parameters, request_parameters, and
+    * GH #738, #740, #988: route_parameters, query_parameters, and
       body_parameters keywords added, providing Hash::MultiValue objects!
       (Sawyer X)
     * #941, #999: delayed() keyword now has "on_error" option for controlling
@@ -641,7 +1659,7 @@
     * GH #585, #595: Return 405 Method Not Allowed instead of 500.
       (Omar M. Othman)
     * GH #570, #579: Ensure keywords pass, send_error and send_file
-      exit immediatly when executed. (Russell Jenkins)
+      exit immediately when executed. (Russell Jenkins)
 
     [ ENHANCEMENTS ]
     * GH #587: Serializer::Mutable alive! (Pedro Bruno)
@@ -729,7 +1747,7 @@
       runner is now responsible of including the local ./lib dir if needed.
     * GH#469, 418: Dancer2::Plugin provides a ':no_dsl' flag for modern Plugins
       (Pedro Melo)
-    * GH#485: Keywords 'redirect' and 'forward' exit immediatly when executed in
+    * GH#485: Keywords 'redirect' and 'forward' exit immediately when executed in
       a route/hook. New dependency on Return::MultiLevel (Russell Jenkins).
     * GH#495: Use accessor and predicates instead of direct access.
       Addresses GH#493 too. (Russell Jenkins)
@@ -968,7 +1986,7 @@
 
     [ PACKAGING ]
     * Remove prereq Digest::SHA (mokko)
-    * Dancer::P::Bcrypt recomends Dancer::P::Passphrase (Blabos de Blebe)
+    * Dancer::P::Bcrypt recommends Dancer::P::Passphrase (Blabos de Blebe)
 
 0.03 - 2013-03-07 (Alexis Sukrieh)
 

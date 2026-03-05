@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Plack::Test;
 use HTTP::Request::Common;
 use Dancer2::Logger::Capture;
@@ -18,6 +18,14 @@ isa_ok( $logger, 'Dancer2::Logger::Capture' );
 
     # for now
     set logger     => 'Console';
+
+    # deserialization fail hook
+    hook 'core.error.before' => sub {
+        my ($err) = @_;  # Dancer2::Core::Error object
+        if ( $err->message =~ m!Failed to deserialize content! ) {
+            $err->status(444);  # custom status
+        }
+    };
 
     put '/from_params' => sub {
         my %p = params();
@@ -61,9 +69,9 @@ subtest 'PUT request with parameters' => sub {
 
 my $app = App->to_app;
 use utf8;
-use JSON;
+use JSON::MaybeXS;
 use Encode;
-use Class::Load 'load_class';
+use Module::Runtime 'use_module';
 
 note "Verify Serializers decode into characters"; {
     my $utf8 = '∮ E⋅da = Q,  n → ∞, ∑ f(i) = ∏ g(i)';
@@ -73,7 +81,7 @@ note "Verify Serializers decode into characters"; {
 
         for my $type ( qw/Dumper JSON YAML/ ) {
             my $class = "Dancer2::Serializer::$type";
-            load_class($class);
+            use_module($class);
 
             my $serializer = $class->new();
             my $body = $serializer->serialize({utf8 => $utf8});
@@ -132,7 +140,7 @@ note "Decoding of mixed route and deserialized body params"; {
         my @req_params = (
             "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
             'Content-Type' => 'application/json',
-            Content        => JSON::to_json({ population => 592393 }),
+            Content        => JSON::MaybeXS::encode_json({ population => 592393 }),
         );
 
         my $r = $cb->( POST @req_params );
@@ -159,7 +167,7 @@ note "Deserialze any body content that is allowed or undefined"; {
                 $method,
                 "/from/D\x{c3}\x{bc}sseldorf", # /from/d%C3%BCsseldorf
                 [ 'Content-Type' => 'application/json' ],
-                JSON::to_json({ population => 592393 }),
+                JSON::MaybeXS::encode_json({ population => 592393 }),
             );
             my $response = $cb->($request);
             my $content  = Encode::decode( 'UTF-8', $response->content );
@@ -182,12 +190,13 @@ note 'Check serialization errors'; {
     test_psgi $app, sub {
         my $cb = shift;
 
-        $cb->(
+        my $r = $cb->(
             PUT '/from_params',
                 'Content-Type' => 'application/json',
                 Content        => '---',
         );
 
+        # Ensure error is logged
         my $trap = $logger->trapper;
         isa_ok( $trap, 'Dancer2::Logger::Capture::Trap' );
 
@@ -200,16 +209,20 @@ note 'Check serialization errors'; {
         isa_ok( $msg, 'HASH' );
         is( scalar keys %{$msg}, 2, 'Two items in the error' );
 
+        my $err_regex = qr{
+            ^
+            \QFailed to deserialize content: \E
+            \Qmalformed number\E
+        }x;
+
         is( $msg->{'level'}, 'core', 'Correct level' );
-        like(
-            $msg->{'message'},
-            qr{
-                ^
-                \QFailed to deserialize the request: \E
-                \Qmalformed number\E
-            }x,
-            'Correct error message',
-        );
+        like( $msg->{'message'}, $err_regex, 'Logged correct error message' );
+
+        # Check we get a 444 response
+        is( $r->code, 444, "444 custom response" );
+        my $content = Dancer2::Serializer::JSON::decode_json( $r->content );
+        like( $content->{message}, $err_regex, "Failed to deserialize content error");
+
     }
 }
 

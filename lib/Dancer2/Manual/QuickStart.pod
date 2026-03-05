@@ -1,0 +1,111 @@
+# ABSTRACT: Quickly install Dancer2 and boostrap a new application
+package Dancer2::Manual::QuickStart;
+
+=pod
+
+=encoding utf8
+
+=head1 Installing Dancer2
+
+Installation of Dancer2 is simple, either by using CPAN or your operating
+system's package manager.
+
+=head2 Via CPAN
+
+Use your favorite method to install from CPAN:
+
+    sudo cpan install Dancer2
+
+Or:
+
+    sudo cpanm Dancer2
+
+(If you don't have root access, omit the 'sudo', and cpanminus will install
+Dancer2 and prereqs into F<~/perl5>.)
+
+=head2 Via OS Package Manager
+
+Dancer2 is also available as a package for a number of freely-available
+OSes, including most Linux distributions, FreeBSD, and OpenBSD.
+
+On Debian/Ubuntu, you can install Dancer2 as such:
+
+    sudo apt install libdancer2-perl
+
+For other popular operating systems (the use of sudo is implied
+if necessary):
+
+    # RedHat
+    dnf install perl-Dancer2
+
+    # MacPorts
+    port install p5-dancer2
+
+    # FreeBSD
+    pkg install p5-Dancer2
+
+    # OpenBSD
+    pkg_add p5-Dancer2
+
+    # NetBSD
+    pkgin install p5-Dancer2
+
+Do be aware, though, that distribution-packaged versions sometimes lag behind
+the most recent version on CPAN.
+
+=head1 Bootstrapping a new Dancer2 application
+
+Create a web application using the C<dancer2> script:
+
+    $ dancer2 gen -a MyApp && cd MyApp
+    + MyApp
+    + MyApp/config.yml
+    + MyApp/Makefile.PL
+    + MyApp/MANIFEST.SKIP
+    + MyApp/.dancer
+    + MyApp/cpanfile
+    + MyApp/bin
+    + MyApp/bin/app.psgi
+    + MyApp/environments
+    + MyApp/environments/development.yml
+    + MyApp/environments/production.yml
+    + MyApp/lib
+    + MyApp/lib/MyApp.pm
+    + MyApp/public
+    + MyApp/public/favicon.ico
+    + MyApp/public/500.html
+    + MyApp/public/dispatch.cgi
+    + MyApp/public/404.html
+    + MyApp/public/dispatch.fcgi
+    + MyApp/public/css
+    + MyApp/public/css/error.css
+    + MyApp/public/css/style.css
+    + MyApp/public/images
+    + MyApp/public/images/perldancer.jpg
+    + MyApp/public/images/perldancer-bg.jpg
+    + MyApp/public/javascripts
+    + MyApp/public/javascripts/jquery.js
+    + MyApp/t
+    + MyApp/t/001_base.t
+    + MyApp/t/002_index_route.t
+    + MyApp/views
+    + MyApp/views/index.tt
+    + MyApp/views/layouts
+    + MyApp/views/layouts/main.tt
+
+It creates a directory named after the name of the app, along with a
+configuration file, a views directory (where your templates and layouts
+will live), an environments directory (where environment-specific
+settings live), a module containing the actual guts of your application, and
+a script to start it. Finally, F<.dancer> indicates the root directory of
+your app, making it easier for Dancer2 to determine the various paths it
+needs for finding resources and code within your application.
+
+Because Dancer2 is a L<PSGI> web application framework, you can use the
+C<plackup> tool (provided by L<Plack>) for launching the application:
+
+    plackup bin/app.psgi
+
+View the web application at:
+
+    http://localhost:5000/

@@ -6,20 +6,60 @@ use URI::Escape;
 use Dancer2::Core::Types;
 use Dancer2::Core::Time;
 use Carp 'croak';
+use Ref::Util qw< is_arrayref is_hashref >;
 use overload '""' => \&_get_value;
 
-sub to_header {
+BEGIN {
+    my $try_xs =
+        exists($ENV{PERL_HTTP_XSCOOKIES}) ? !!$ENV{PERL_HTTP_XSCOOKIES} :
+        exists($ENV{PERL_ONLY})           ?  !$ENV{PERL_ONLY} :
+        1;
+
+    my $use_xs = 0;
+    $try_xs and eval {
+        require HTTP::XSCookies;
+        $use_xs++;
+    };
+    if ( $use_xs ) {
+        *to_header = \&xs_to_header;
+    }
+    else {
+        *to_header = \&pp_to_header;
+    }
+    *_USE_XS = $use_xs ? sub () { !!1 } : sub () { !!0 };
+}
+
+sub xs_to_header {
+    my $self = shift;
+
+    # HTTP::XSCookies can't handle multi-value cookies.
+    return $self->pp_to_header(@_) if @{[ $self->value ]} > 1;
+
+    return HTTP::XSCookies::bake_cookie(
+        $self->name,
+        {   value    => $self->value,
+            path     => $self->path,
+            domain   => $self->domain,
+            expires  => $self->expires,
+            httponly => $self->http_only,
+            secure   => $self->secure,
+            samesite => $self->same_site,
+        }
+    );
+}
+
+sub pp_to_header {
     my $self   = shift;
-    my $header = '';
 
     my $value = join( '&', map uri_escape($_), $self->value );
     my $no_httponly = defined( $self->http_only ) && $self->http_only == 0;
 
     my @headers = $self->name . '=' . $value;
-    push @headers, "path=" . $self->path       if $self->path;
-    push @headers, "expires=" . $self->expires if $self->expires;
-    push @headers, "domain=" . $self->domain   if $self->domain;
-    push @headers, "Secure"                    if $self->secure;
+    push @headers, "Path=" . $self->path          if $self->path;
+    push @headers, "Expires=" . $self->expires    if $self->expires;
+    push @headers, "Domain=" . $self->domain      if $self->domain;
+    push @headers, "SameSite=" . $self->same_site if $self->same_site;
+    push @headers, "Secure"                       if $self->secure;
     push @headers, 'HttpOnly' unless $no_httponly;
 
     return join '; ', @headers;
@@ -32,9 +72,9 @@ has value => (
     coerce   => sub {
         my $value = shift;
         my @values =
-            ref $value eq 'ARRAY' ? @$value
-          : ref $value eq 'HASH'  ? %$value
-          :                         ($value);
+            is_arrayref($value) ? @$value
+          : is_hashref($value)  ? %$value
+          :                       ($value);
         return [@values];
     },
 );
@@ -45,6 +85,11 @@ around value => sub {
     my $array = $orig->( $self, @_ );
     return wantarray ? @$array : $array->[0];
 };
+
+sub values {
+    my $self  = shift;
+    return @{ $self->{'value'} || [] };
+}
 
 # this is only for overloading; need a real sub to refer to, as the Moose
 # attribute accessor won't be available at that point.
@@ -89,7 +134,13 @@ has http_only => (
     is       => 'rw',
     isa      => Bool,
     required => 0,
-    default  => sub {0},
+    default  => sub {1},
+);
+
+has same_site => (
+    is       => 'rw',
+    isa      => Enum[qw[Strict Lax None]],
+    required => 0,
 );
 
 1;
@@ -133,6 +184,11 @@ In list context, returns a list of potentially multiple values; in scalar
 context, returns just the first value.  (So, if you expect a cookie to have
 multiple values, use list context.)
 
+=method values
+
+Returns all values associated with this cookie, always a list. (So in scalar
+context, you will get the count.)
+
 =attr name
 
 The cookie's name.
@@ -168,5 +224,13 @@ the server (via HTTP) and not by any JavaScript code.
 
 If your cookie is meant to be used by some JavaScript code, set this
 attribute to 0.
+
+=attr same_site
+
+Whether the cookie ought not to be sent along with cross-site requests.
+Valid values are C<Strict>, C<Lax>, or C<None>. Default is unset.
+Refer to
+L<RFC6265bis|https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site>
+for further details regarding same-site context.
 
 =cut

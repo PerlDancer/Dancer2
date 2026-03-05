@@ -3,8 +3,11 @@ use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 use Dancer2;
+
+set behind_proxy => 1;
 
 get '/' => sub {
     'home:' . join( ',', params );
@@ -25,6 +28,12 @@ get '/go_to_post/' => sub {
     return forward '/simple_post_route/', { foo => 'bar' },
       { method => 'post' };
 };
+get '/proxy/' => sub {
+    return uri_for('/');
+};
+get '/forward_with_proxy/' => sub {
+    forward '/proxy/';
+};
 
 # NOT SUPPORTED IN DANCER2
 # In dancer2, vars are alive for only one request flow, a forward initiate a
@@ -34,7 +43,7 @@ get '/go_to_post/' => sub {
 # get '/a' => sub { return "test is " . var('test'); };
 
 my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;
@@ -109,12 +118,6 @@ test_psgi $app, sub {
             '[GET /bounce/] Correct content type charset',
         );
 
-        is(
-            $res->headers->server,
-            "Perl Dancer2 " . Dancer2->VERSION,
-            '[GET /bounce/] Correct Server',
-        );
-
     }
 
     # checking post
@@ -157,12 +160,13 @@ test_psgi $app, sub {
             '[POST /bounce/] Correct content type charset',
         );
 
-        is(
-            $res->headers->server,
-            "Perl Dancer2 " . Dancer2->VERSION,
-            '[POST /bounce/] Correct Server',
-        );
     }
+
+    is(
+        $cb->( GET '/forward_with_proxy/', 'X-Forwarded-Proto' => 'https' )->content,
+        'https://localhost/',
+        '[GET /forward_with_proxy/] maintained is_behind_proxy',
+    );
 };
 
 done_testing;

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Plack::Test;
 use Plack::Request;
 use Plack::Builder;
@@ -106,5 +106,20 @@ subtest '/mounted/endpoint' => sub {
     my $res = $test->request( GET '/mounted/endpoint' );
     ok( $res->is_success, 'Result successful' );
     is( $res->content, '/mounted', 'script_name is /mounted' );
+};
+
+# Tests behaviour when SCRIPT_NAME is also the beginning of PATH_INFO
+# See the discussion in #1288.
+subtest '/endpoint/endpoint' => sub {
+    my $app = builder {
+        mount '/' => sub { [200,[],['OK']] };
+        mount '/endpoint' => App->to_app;
+    };
+
+    my $test = Plack::Test->create($app);
+
+    my $res = $test->request( GET '/endpoint/endpoint' );
+    ok( $res->is_success, 'Result successful' );
+    is( $res->content, '/endpoint', 'script_name is /endpoint' );
 };
 

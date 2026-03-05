@@ -1,6 +1,7 @@
 log: "info"
 logger: "Note"
+strict_config: 0
 
 plugins:
-  "t::lib::FooPlugin":
+  "FooPlugin":
     plugin: 42

@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 {
     package CustomError;
@@ -26,7 +27,7 @@ use HTTP::Request::Common;
     package StandardError;
 
     use Dancer2;
-    set show_errors => 1;
+    set show_stacktrace => 1;
 
     get '/no_template' => sub {
         send_error "oopsie", 404;
@@ -36,8 +37,8 @@ use HTTP::Request::Common;
 my $custom_error_app   = CustomError->to_app;
 my $standard_error_app = StandardError->to_app;
 
-is( ref $custom_error_app,   'CODE', 'Got app' );
-is( ref $standard_error_app, 'CODE', 'Got app' );
+ok( is_coderef($custom_error_app), 'Got app' );
+ok( is_coderef($standard_error_app), 'Got app' );
 
 my $custom_error_test   = Plack::Test->create($custom_error_app);
 my $standard_error_test = Plack::Test->create($standard_error_app);

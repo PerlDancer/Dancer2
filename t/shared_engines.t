@@ -15,6 +15,7 @@ use HTTP::Request::Common;
         engine('session')->{'__marker__'} = 1;
     }
 
+    use lib '.';
     use t::lib::Foo with => { session => engine('session') };
 
     get '/main' => sub {

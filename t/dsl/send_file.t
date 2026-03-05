@@ -8,6 +8,7 @@ use Plack::Test;
 use HTTP::Request::Common;
 use File::Temp;
 use File::Spec;
+use Ref::Util qw<is_coderef>;
 
 {
     package StaticContent;
@@ -36,7 +37,7 @@ use File::Spec;
 
     get '/filehandle' => sub {
         open my $fh, "<:raw", __FILE__;
-        send_file( $fh, content_type => 'text/plain' );
+        send_file( $fh, content_type => 'text/plain', charset => 'utf-8' );
     };
 
     get '/check_content_type' => sub {
@@ -56,10 +57,18 @@ use File::Spec;
         my $file = File::Spec->rel2abs(__FILE__);
         send_file( $file, system_path => 1, streaming => 1 );
     };
+
+    get '/content_disposition/attachment' => sub {
+        send_file('1x1.png', filename => '1x1.png');
+    };
+
+    get '/content_disposition/inline' => sub {
+        send_file('1x1.png', filename => '1x1.png', content_disposition => 'inline');
+    };
 }
 
 my $app = StaticContent->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;
@@ -100,6 +109,8 @@ test_psgi $app, sub {
         my $r = $cb->( GET '/filehandle' );
 
         is( $r->code, 200, 'send_file set status to 200 (filehandle)');
+        is( $r->content_type, 'text/plain', 'expected content_type');
+        is( $r->content_type_charset, 'UTF-8', 'expected charset');
         like( $r->content, qr{package StaticContent}, 'filehandle content' );
     };
 
@@ -120,6 +131,18 @@ test_psgi $app, sub {
 
         ok($r->is_success, 'send_file returns success');
         is($r->content_type, 'image/png', 'send_file returns correct content_type');
+    };
+
+    subtest 'Content-Disposition defaults to "attachment"' => sub {
+        my $r = $cb->( GET '/content_disposition/attachment' );
+        ok($r->is_success, 'send_file returns success');
+        is($r->header('Content-Disposition'), 'attachment; filename="1x1.png"', 'send_file returns correct attachment Content-Disposition');
+    };
+
+    subtest 'Content-Disposition supports "inline"' => sub {
+        my $r = $cb->( GET '/content_disposition/inline' );
+        ok($r->is_success, 'send_file returns success');
+        is($r->header('Content-Disposition'), 'inline; filename="1x1.png"', 'send_file returns correct inline Content-Disposition');
     };
 };
 

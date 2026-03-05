@@ -1,15 +1,21 @@
 use strict;
 use warnings;
+
+use lib 't/lib';
+
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
+use List::Util qw<all>;
+use Module::Runtime qw/ require_module /;
 
 use Dancer2::Core::App;
 use Dancer2::Core::Response;
 use Dancer2::Core::Request;
 use Dancer2::Core::Error;
 
-use JSON (); # Error serialization
+use JSON::MaybeXS qw/JSON/; # Error serialization
 
 my $env = {
     'psgi.url_scheme' => 'http',
@@ -35,6 +41,7 @@ my $request = $app->build_request($env);
 
 $app->set_request($request);
 
+
 subtest 'basic defaults of Error object' => sub {
     my $err = Dancer2::Core::Error->new( app => $app );
     is $err->status,  500,                                 'code';
@@ -59,7 +66,7 @@ subtest "send_error in route" => sub {
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -93,7 +100,7 @@ subtest "send_error with custom stuff" => sub {
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -121,24 +128,24 @@ subtest 'Throwing an error with a response' => sub {
 
     my $err = eval { Dancer2::Core::Error->new(
         exception   => 'our exception',
-        show_errors => 1
+        show_stacktrace => 1
     )->throw($resp) };
       
     isa_ok($err, 'Dancer2::Core::Response', "Error->throw() accepts a response");
 };
 
-subtest 'Error with show_errors: 0' => sub {
+subtest 'Error with show_stacktrace: 0' => sub {
     my $err = Dancer2::Core::Error->new(
-        exception   => 'our exception',
-        show_errors => 0
+        exception       => 'our exception',
+        show_stacktrace => 0
     )->throw;
     unlike $err->content => qr/our exception/;
 };
 
-subtest 'Error with show_errors: 1' => sub {
+subtest 'Error with show_stacktrace: 1' => sub {
     my $err = Dancer2::Core::Error->new(
-        exception   => 'our exception',
-        show_errors => 1
+        exception       => 'our exception',
+        show_stacktrace => 1
     )->throw;
     like $err->content => qr/our exception/;
 };
@@ -173,16 +180,123 @@ subtest 'App dies with serialized error' => sub {
 subtest 'Error with exception object' => sub {
     local $@;
     eval { MyTestException->throw('a test exception object') };
+    my $exception = $@;
     my $err = Dancer2::Core::Error->new(
-        exception   => $@,
-        show_errors => 1,
+        app             => Dancer2::Core::App->new(),
+        exception       => $exception,
+        show_stacktrace => 1,
     )->throw;
 
     like $err->content, qr/a test exception object/, 'Error content contains exception message';
 };
 
-done_testing;
+subtest 'Errors without server tokens' => sub {
+    {
+        package AppNoServerTokens;
+        use Dancer2;
+        set serializer => 'JSON';
+        set no_server_tokens => 1;
 
+        get '/ohno' => sub {
+            die "oh no";
+        };
+    }
+
+    my $test = Plack::Test->create( AppNoServerTokens->to_app );
+    my $r = $test->request( GET '/ohno' );
+    is( $r->code, 500, "/ohno returned 500 response");
+    is( $r->header('server'), undef, "No server header when no_server_tokens => 1" );
+};
+
+subtest 'Errors with show_stacktrace and circular references' => sub {
+    {
+        package App::ShowErrorsCircRef;
+        use Dancer2;
+        set show_stacktrace           => 1;
+        set something_with_config => {something => config};
+        set password              => '===VERY-UNIQUE-STRING===';
+        set innocent_thing        => '===VERY-INNOCENT-STRING===';
+        set template              => 'tiny';
+
+        # Trigger an error that makes Dancer2::Core::Error::_censor enter an
+        # infinite loop
+        get '/ohno' => sub {
+            template q{I don't exist};
+        };
+
+    }
+
+    my $test = Plack::Test->create( App::ShowErrorsCircRef->to_app );
+    my $r = $test->request( GET '/ohno' );
+    is( $r->code, 500, "/ohno returned 500 response");
+    like( $r->content, qr{Stack}, 'it includes a stack trace' );
+
+    my @password_values = ($r->content =~ /\bpassword\b(.+)\n/g);
+    my $is_password_hidden =
+      all { /Hidden \(looks potentially sensitive\)/ } @password_values;
+
+    ok($is_password_hidden, "password was hidden in stacktrace");
+
+    cmp_ok(@password_values, '>', 1,
+        'password key appears more than once in the stacktrace');
+
+    unlike($r->content, qr{===VERY-UNIQUE-STRING===},
+        'password value does not appear in the stacktrace');
+
+    like($r->content, qr{===VERY-INNOCENT-STRING===},
+        'Values for other keys (non-sensitive) appear in the stacktrace');
+};
+
+subtest censor => sub {
+    sub MyApp::Censor::censor { $_[0]->{hush} = 'NOT TELLING'; return 1; }
+
+    my $app = Dancer2::Core::App->new( name => 'main' );
+
+    $app->setting( password => 'potato' ); # oh my, we're leaking a password
+
+    subtest 'core censor()' => sub {
+        my $error = Dancer2::Core::Error->new( app => $app );
+
+        unlike $error->environment => qr/potato/, 'the password is censored';
+        like $error->environment => qr/^.*password.*Hidden.*$/m, 'we say it is hidden';
+    };
+
+    subtest 'custom censor' => sub {
+
+        subtest 'via function string' => sub {
+            my $app = Dancer2::Core::App->new( name => 'main' );
+            my $error = Dancer2::Core::Error->new( app => $app );
+
+            $app->setting( hush => 'potato' ); 
+
+            $app->setting( error_censor => 'MyApp::Censor::censor' );
+
+            unlike $error->environment => qr/potato/, 'the password is censored';
+            like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
+        };
+
+        subtest 'via class hashref' => sub {
+            my $app = Dancer2::Core::App->new( name => 'main' );
+            $app->setting( 'error_censor' => {
+                'Data::Censor' => {
+                    sensitive_fields => ['hush'],
+                    replacement => 'NOT TELLING',
+                }
+            });
+
+            my $error = Dancer2::Core::Error->new( app => $app );
+
+            $app->setting( hush => 'potato' ); 
+
+            unlike $error->environment => qr/potato/, 'the password is censored';
+            like $error->environment => qr/^ .* hush .* NOT \s TELLING .* $/xm, 'we say it is hidden';
+        };
+
+    }
+};
+
+
+done_testing;
 
 {   # Simple test exception class
     package MyTestException;

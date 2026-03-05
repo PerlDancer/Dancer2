@@ -5,6 +5,7 @@ use Dancer2::Core::Types;
 
 use Moo::Role;
 use POSIX 'strftime';
+use Encode ();
 use Data::Dumper;
 
 with 'Dancer2::Core::Role::Engine';
@@ -57,9 +58,7 @@ my $_levels = {
 
 has log_level => (
     is  => 'rw',
-    isa => sub {
-        grep {/$_[0]/} keys %{$_levels};
-    },
+    isa => Enum[keys %{$_levels}],
     default => sub {'debug'},
 );
 
@@ -76,17 +75,14 @@ sub format_message {
     $message = Encode::encode( $self->auto_encoding_charset, $message )
       if $self->auto_encoding_charset;
 
-    my @stack = caller(5);
+    my @stack = caller(8);
     my $request = $self->request;
     my $config = $self->config;
 
     my $block_handler = sub {
         my ( $block, $type ) = @_;
         if ( $type eq 't' ) {
-            return Encode::decode(
-                $config->{'charset'} || 'UTF-8',
-                POSIX::strftime( $block, localtime(time) )
-            );
+            return POSIX::strftime( $block, localtime(time) );
         }
         elsif ( $type eq 'h' ) {
             return ( $request && $request->header($block) ) || '-';
@@ -99,19 +95,9 @@ sub format_message {
 
     my $chars_mapping = {
         a => sub { $self->app_name },
-        t => sub {
-            Encode::decode(
-                $config->{'charset'} || 'UTF-8',
-                POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) )
-            );
-        },
+        t => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) ) },
         T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
-        u => sub {
-            Encode::decode(
-                $config->{'charset'} || 'UTF-8',
-                POSIX::strftime( "%d/%b/%Y %H:%M:%S", gmtime(time) )
-            );
-        },
+        u => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", gmtime(time) ) },
         U => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", gmtime(time) ) },
         P => sub {$$},
         L => sub {$level},
@@ -129,7 +115,7 @@ sub format_message {
 
         my $cb = $chars_mapping->{$char};
         if ( !$cb ) {
-            Carp::carp "\%$char not supported.";
+            Carp::carp "%$char not supported.";
             return "-";
         }
         $cb->($char);
@@ -157,6 +143,14 @@ sub _serialize {
           : ( defined($_) ? $_ : 'undef' )
     ), @vars;
 }
+
+around 'log' => sub {
+    my ($orig, $self, @args) = @_;
+
+    $self->execute_hook( 'engine.logger.before', $self, @args );
+    $self->$orig( @args );
+    $self->execute_hook( 'engine.logger.after', $self, @args );
+};
 
 sub core {
     my ( $self, @args ) = @_;
@@ -247,6 +241,10 @@ This is a format string (or a preset name) to specify the log format.
 The possible values are:
 
 =over 4
+
+=item %a
+
+app name
 
 =item %h
 

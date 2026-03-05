@@ -5,12 +5,13 @@ use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
 
 use Carp 'croak';
-use Class::Load 'try_load_class';
 use Dancer2::Core::Session;
 use Dancer2::Core::Types;
 use Digest::SHA 'sha1';
 use List::Util 'shuffle';
 use MIME::Base64 'encode_base64url';
+use Module::Runtime 'require_module';
+use Ref::Util qw< is_ref is_arrayref is_hashref >;
 
 sub hook_aliases { +{} }
 sub supported_hooks {
@@ -20,6 +21,9 @@ sub supported_hooks {
 
       engine.session.before_create
       engine.session.after_create
+
+      engine.session.before_change_id
+      engine.session.after_change_id
 
       engine.session.before_destroy
       engine.session.after_destroy
@@ -81,6 +85,13 @@ has is_http_only => (
     default => sub {1},
 );
 
+has cookie_same_site => (
+    is        => 'ro',
+    isa       => Str,
+    predicate => 1,
+    coerce    => sub { ucfirst $_[0] },
+);
+
 sub create {
     my ($self) = @_;
 
@@ -104,8 +115,8 @@ sub create {
 
 {
     my $COUNTER     = 0;
-    my $CPRNG_AVAIL = try_load_class('Math::Random::ISAAC::XS') &&
-                      try_load_class('Crypt::URandom');
+    my $CPRNG_AVAIL = eval { require_module('Math::Random::ISAAC::XS'); 1; } &&
+                      eval { require_module('Crypt::URandom'); 1; };
 
     # don't initialize until generate_id is called so the ISAAC algorithm
     # is seeded after any pre-forking
@@ -145,6 +156,11 @@ sub create {
     }
 }
 
+sub validate_id {
+    my ($self, $id) = @_;
+    return $id =~ m/^[A-Za-z0-9_\-~]+$/;
+}
+
 requires '_retrieve';
 
 sub retrieve {
@@ -153,14 +169,18 @@ sub retrieve {
 
     $self->execute_hook( 'engine.session.before_retrieve', $id );
 
-    my $data = eval { $self->_retrieve($id) };
+    my $data;
+    # validate format of session id before attempt to retrieve
+    my $rc = eval {
+        $self->validate_id($id) && ( $data = $self->_retrieve($id) );
+    };
     croak "Unable to retrieve session with id '$id'"
-      if $@;
+      if ! $rc;
 
     my %args = ( id => $id, );
 
     $args{data} = $data
-      if $data and ref $data eq 'HASH';
+      if $data and is_hashref($data);
 
     $args{expires} = $self->cookie_duration
       if $self->has_cookie_duration;
@@ -169,6 +189,25 @@ sub retrieve {
 
     $self->execute_hook( 'engine.session.after_retrieve', $session );
     return $session;
+}
+
+# XXX eventually we could perhaps require '_change_id'?
+
+sub change_id {
+    my ( $self, %params ) = @_;
+    my $session = $params{session};
+    my $old_id  = $session->id;
+
+    $self->execute_hook( 'engine.session.before_change_id', $old_id );
+
+    my $new_id = $self->generate_id;
+    $session->id( $new_id );
+
+    eval { $self->_change_id( $old_id, $new_id ) };
+    croak "Unable to change session id for session with id $old_id: $@"
+      if $@;
+
+    $self->execute_hook( 'engine.session.after_change_id', $new_id );
 }
 
 requires '_destroy';
@@ -213,7 +252,7 @@ sub cookie {
     my ( $self, %params ) = @_;
     my $session = $params{session};
     croak "cookie() requires a valid 'session' parameter"
-      unless ref($session) && $session->isa("Dancer2::Core::Session");
+      unless is_ref($session) && $session->isa("Dancer2::Core::Session");
 
     my %cookie = (
         value     => $session->id,
@@ -222,6 +261,9 @@ sub cookie {
         secure    => $self->is_secure,
         http_only => $self->is_http_only,
     );
+
+    $cookie{same_site} = $self->cookie_same_site
+      if $self->has_cookie_same_site;
 
     $cookie{domain} = $self->cookie_domain
       if $self->has_cookie_domain;
@@ -240,7 +282,7 @@ sub sessions {
     my $sessions = $self->_sessions;
 
     croak "_sessions() should return an array ref"
-      if ref($sessions) ne ref( [] );
+      unless is_arrayref($sessions);
 
     return $sessions;
 }
@@ -278,6 +320,12 @@ Defaults to "/".
 Default duration before session cookie expiration.  If set, the
 L<Dancer2::Core::Session> C<expires> attribute will be set to the current time
 plus this duration (expression parsed by L<Dancer2::Core::Time>).
+
+=attr cookie_same_site
+
+Restricts the session cookie to a first-party or same-site context.
+Defaults to the empty string and is unused as a result.
+See L<Dancer2::Core::Cookie/same_site>.
 
 =attr session_duration
 
@@ -334,6 +382,16 @@ This method is used internally by create() to set the session ID.
 This method does not need to be implemented in the class unless an
 alternative method for session ID generation is desired.
 
+=head2 validate_id
+
+Returns true if a session id is of the correct format, or false otherwise.
+
+By default, this ensures that the session ID is a string of characters
+from the Base64 schema for "URL Applications" plus the C<~> character.
+
+This method does not need to be implemented in the class unless an
+alternative set of characters for session IDs is desired.
+
 =head2 retrieve
 
 Return the session object corresponding to the session ID given. If none is
@@ -343,6 +401,16 @@ found, triggers an exception.
 
 The method C<_retrieve> must be implemented.  It must take C<$id> as a single
 argument and must return a hash reference of session data.
+
+=head2 change_id
+
+Changes the session ID of the corresponding session.
+    
+    MySessionFactory->change_id(session => $session_object);
+
+The method C<_change_id> must be implemented. It must take C<$old_id> and
+C<$new_id> as arguments and change the ID from the old one to the new one
+in the underlying session storage.
 
 =head2 destroy
 

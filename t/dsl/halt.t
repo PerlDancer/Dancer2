@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 subtest 'halt within routes' => sub {
     {
@@ -12,7 +13,7 @@ subtest 'halt within routes' => sub {
 
         get '/' => sub { 'hello' };
         get '/halt' => sub {
-            header 'X-Foo' => 'foo';
+            response_header 'X-Foo' => 'foo';
             halt;
         };
         get '/shortcircuit' => sub {
@@ -23,7 +24,7 @@ subtest 'halt within routes' => sub {
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -37,12 +38,6 @@ subtest 'halt within routes' => sub {
 
         {
             my $res = $cb->( GET '/halt' );
-
-            is(
-                $res->server,
-                "Perl Dancer2 " . Dancer2->VERSION,
-                '[/halt] Correct Server header',
-            );
 
             is(
                 $res->headers->header('X-Foo'),
@@ -61,13 +56,13 @@ subtest 'halt in before hook' => sub {
 
         hook before => sub {
             response->content('I was halted');
-            halt if request->dispatch_path eq '/shortcircuit';
+            halt if request->path eq '/shortcircuit';
         };
 
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb  = shift;

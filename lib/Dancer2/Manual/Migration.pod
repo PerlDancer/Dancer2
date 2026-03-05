@@ -97,31 +97,8 @@ not be executed.
 See L<Dancer2::Cookbook|https://metacpan.org/pod/Dancer2::Cookbook#Using-the-prefix-feature-to-split-your-application>
 for details.
 
-2. The following modules can be used to speed up an app in Dancer2:
-
-=over 4
-
-=item * L<URL::Encode::XS>
-
-=item * L<CGI::Deurl::XS>
-
-=item * L<HTTP::Parser::XS>
-
-=item * L<Scope::Upper>
-
-=back
-
-They would need to be installed separately. This is because L<Dancer2> does
-not incorporate any C code, but it can get C-code compiled as a module.
-Thus, these modules can be used for speed improvement provided:
-
-=over 4
-
-=item * You have access to a C interpreter
-
-=item * You don't need to fatpack your application
-
-=back
+2. To speed up an app in Dancer2, install the recommended modules listed in the
+L<Dancer2::Manual::Deployment/"Performance Improvements"> section.
 
 =head2 Request
 
@@ -178,6 +155,10 @@ The C<params> keyword which provides merged parameters used to allow body
 parameters to override route parameters. Now route parameters take
 precedence over query parameters and body parameters.
 
+We have introduced C<route_parameters> to retrieve parameter values from
+the route matching. Please refer to L<Dancer2::Manual> for more
+information.
+
 =head2 Tests
 
 Dancer2 recommends the use of L<Plack::Test>.
@@ -227,6 +208,7 @@ For example:
     use Test::More import => ['!pass'];
     use Plack::Test;
     use HTTP::Request::Common;
+    use Ref::Util qw<is_coderef>;
 
     {
         package App;
@@ -242,7 +224,7 @@ For example:
     }
 
     my $app = Dancer2->psgi_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -298,6 +280,36 @@ function with decoded input.
 
 =back
 
+=head3 Templating engine changes
+
+If you are migrating from Dancer1 and are using an application based
+on L<Dancer::Template::Simple>, the L<Dancer2::Template::Simple> engine is
+no longer part of the core Dancer2 distribution. It is available to
+install as a separate distribution from CPAN.
+
+In Dancer1, the following were equivalent for Template::Toolkit:
+
+    template 'foo/bar'
+    template '/foo/bar'
+
+In Dancer2, when using L<Dancer2::Template::TemplateToolkit>, the version with
+the leading slash will try to locate C</foo/bar> relative to your filesystem
+root, not relative to your Dancer application directory.
+
+The L<Dancer2::Template::Simple> engine is unchanged in this respect.
+
+Whereas in Dancer1, template engines have the methods:
+
+    $template_engine->view('foo.tt')
+    $template_engine->view_exists('foo.tt')
+
+In Dancer2, you should instead write:
+
+    $template_engine->view_pathname('foo.tt')
+    $template_engine->pathname_exists($full_path)
+
+You may not need these unless you are writing a templating engine.
+
 =head3 Serializers
 
 You no longer need to implement the C<loaded> method. It is simply
@@ -309,6 +321,24 @@ Now the L<Simple|Dancer2::Session::Simple> session engine is turned on
 by default, unless you specify a different one.
 
 =head2 Configuration
+
+=head3 C<public_dir>
+
+You cannot set the public directory with C<setting> now. Instead you
+will need to call C<config>:
+
+    # before
+    setting( 'public_dir', 'new_path/' );
+
+    # after
+    config->{'public_dir'} = 'new_path';
+
+=head3 confdir
+
+You cannot set the configuration directory (C<confdir>) with C<setting>
+now. You can use an environment variable, however:
+
+    export DANCER_CONFDIR=$PROJECT_ROOT/etc
 
 =head3 warnings
 
@@ -365,7 +395,7 @@ In Dancer 2 you can also enable Template::Toolkit with the same configuration op
 
 But the default start_tag and end_tag are now [% and %], so if you used the default in Dancer 1
 now you will have to explicitly change the start_tag and end_tag values.
-The configuration also got an extral level of depth. Under the C<engine> key there is a C<template>
+The configuration also got an extra level of depth. Under the C<engine> key there is a C<template>
 key and the C<template_toolkit> key comes below that. As in this example:
 
     engines:
@@ -425,14 +455,64 @@ for these options, or the particular session engine for other supported options.
   session: Simple
 
   engines:
-     session:
-	   Simple:
-	    cookie_name: dance.set
+    session:
+      Simple:
+        cookie_name: dance.set
         cookie_duration: '24 hours'
-	    is_secure: 1
+        is_secure: 1
         is_http_only: 1
 
+=head3 Plack Middleware
+
+In Dancer1 you could set up Plack Middleware using a C<plack_middlewares> key
+in your C<config.yml> file. Under Dancer2 you will instead need to invoke
+middleware using L<Plack::Builder>, as demonstrated in
+L<Dancer2::Manual::Deployment>.
+
 =head2 Keywords
+
+=head3 Calling Keywords Explicitly
+
+In Dancer1, keywords could be imported individually into a package:
+
+    package MyApp;
+    use Dancer qw< get post params session >;
+
+    get '/foo' { ... };
+
+Any keywords you did't export could be called explicitly:
+
+    package MyApp;
+    use Dancer qw< get post params session >;
+    use List::Util qw< any >;
+
+    Dancer::any sub { ... };
+
+Dancer2's DSL is implemented differently. Keywords only exist in the namespace
+of the package which C<use>s Dancer2, i.e. there is no C<Dancer2::any>, only
+e.g. C<MyApp::any>.
+
+If you only want individual keywords, you can write a shim as follows:
+
+    package MyApp::DSL;
+    use Dancer2 appname => 'MyApp';
+
+    use Exporter qw< import >;
+
+    our @EXPORT = qw< get post ... >
+
+Then in other packages:
+
+    package MyApp;
+
+    use MyApp::DSL qw< get post >;
+
+    MyApp::DSL::any sub { ... };
+
+=head3 appdir
+
+This keyword does not exist in Dancer2. However, the same information can be
+found in C<< config->{'appdir'} >>.
 
 =head3 load
 
@@ -447,7 +527,7 @@ This keyword doesn't exist in Dancer2.
 =head3 session
 
 In L<Dancer> a session was created and a cookie was sent just by rendering a page
-using the C<template> function. In L<Dancer2> one needs to actully set a value in
+using the C<template> function. In L<Dancer2> one needs to actually set a value in
 a session object using the C<session> function in order to create the session
 and send the cookie.
 
@@ -458,7 +538,8 @@ The session keyword has multiple states:
 =item * No arguments
 
 Without any arguments, the session keyword returns a L<Dancer2::Core::Session>
-object, which has methods for L<read>, L<write>, and L<delete>.
+object, which has methods for L<read|Dancer2::Core::Session/read>,
+L<write|Dancer2::Core::Session/write>, and L<delete|Dancer2::Core::Session/delete>.
 
     my $session = session;
     $session->read($key);
@@ -496,3 +577,38 @@ delete:
 
     my $session = session;
     $session->delete($key);
+
+You can retrieve the whole session hash with the C<data> method:
+
+    $session->data;
+
+To destroy a session, instead of writing:
+
+    session->destroy
+
+In Dancer2, we write:
+
+    app->destroy_session if app->has_session
+
+If you make changes to the session in an C<after> hook, your changes will
+not be written to storage, because writing sessions to storage also takes
+place in an (earlier) C<after> hook.
+
+=head2 Hooks
+
+The following Dancer 1 hooks have been renamed in Dancer2:
+
+=over 4
+
+=item * C<before_error_init> changed to C<init_error>.
+
+=item * C<before_error_render> changed to C<before_error>.
+
+=item * C<after_error_render> changed to C<after_error>.
+
+=back
+
+The original names are still supported, but you should change these to
+new versions during your migration as the aliases may be removed in a
+newer version of Dancer2.
+

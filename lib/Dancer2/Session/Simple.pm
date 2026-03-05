@@ -25,6 +25,13 @@ sub _retrieve {
     return $s;
 }
 
+sub _change_id {
+    my ( $class, $old_id, $new_id ) = @_;
+
+    $SESSIONS->{$new_id} = $class->_retrieve($old_id);
+    delete $SESSIONS->{$old_id};
+}
+
 sub _destroy {
     my ( $class, $id ) = @_;
     delete $SESSIONS->{$id};

@@ -2,7 +2,7 @@ package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
 
 use Moo;
-use JSON ();
+use JSON::MaybeXS ();
 use Scalar::Util 'blessed';
 
 with 'Dancer2::Core::Role::Serializer';
@@ -10,9 +10,21 @@ with 'Dancer2::Core::Role::Serializer';
 has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
-sub from_json { __PACKAGE__-> deserialize(@_) }
+sub from_json { __PACKAGE__->deserialize(@_) }
 
 sub to_json { __PACKAGE__->serialize(@_) }
+
+sub decode_json {
+    my ( $entity ) = @_;
+
+    JSON::MaybeXS::decode_json($entity);
+}
+
+sub encode_json {
+    my ( $entity ) = @_;
+
+    JSON::MaybeXS::encode_json($entity);
+}
 
 # class definition
 sub serialize {
@@ -25,15 +37,14 @@ sub serialize {
     }
 
     $options->{utf8} = 1 if !defined $options->{utf8};
-
-    JSON::to_json( $entity, $options );
+    JSON::MaybeXS->new($options)->encode($entity);
 }
 
 sub deserialize {
     my ( $self, $entity, $options ) = @_;
 
     $options->{utf8} = 1 if !defined $options->{utf8};
-    JSON::from_json( $entity, $options );
+    JSON::MaybeXS->new($options)->decode($entity);
 }
 
 1;
@@ -68,3 +79,48 @@ Serializes a Perl data structure into a JSON string.
 =method deserialize($content)
 
 Deserializes a JSON string into a Perl data structure.
+
+
+
+=head2 Configuring the JSON Serializer using C<set engines>
+
+The JSON serializer options can be configured via C<set engines>. The most
+common settings are:
+
+=over 4
+
+=item   allow_nonref
+
+Ignore non-ref scalars returned from handlers. With this set the "Hello, World!"
+handler returning a string will be dealt with properly.
+
+=back
+
+Set engines should be called prior to setting JSON as the serializer:
+
+ set engines =>
+ {
+     serializer =>
+     {
+         JSON =>
+         {
+            allow_nonref => 1
+         },
+     }
+ };
+
+ set serializer      => 'JSON';
+ set content_type    => 'application/json';
+
+=head2 Returning non-JSON data.
+
+Handlers can return non-JSON via C<send_as>, which overrides the default serializer:
+
+ get '/' =>
+ sub
+ {
+     send_as html =>
+     q{Welcome to the root of all evil...<br>step into my office.}
+ };
+
+Any other non-JSON returned format supported by 'send_as' can be used.

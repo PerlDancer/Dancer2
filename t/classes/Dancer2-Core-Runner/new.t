@@ -2,6 +2,10 @@ use strict;
 use warnings;
 use Test::More tests => 39;
 
+# undefine ENV vars used as defaults for app environment in these tests
+local $ENV{DANCER_ENVIRONMENT};
+local $ENV{PLACK_ENV};
+
 use_ok('Dancer2::Core::Runner');
 
 is( $Dancer2::runner, undef, 'No runner defined in Dancer2 yet' );

@@ -4,7 +4,8 @@ package Dancer2::Core::DSL;
 
 use Moo;
 use Carp;
-use Class::Load 'load_class';
+use Module::Runtime 'require_module';
+use Ref::Util qw< is_arrayref is_hashref >;
 use Dancer2::Core::Hook;
 use Dancer2::FileUtils;
 use Dancer2::Core::Response::Delayed;
@@ -53,6 +54,7 @@ sub dsl_keywords {
         dancer_version       => { is_global => 1 },
         dancer_major_version => { is_global => 1 },
         debug                => { is_global => 1 },
+        decode_json          => { is_global => 1 },
         del                  => { is_global => 1 },
         delayed              => {
             is_global => 0, prototype => '&@',
@@ -60,6 +62,7 @@ sub dsl_keywords {
         dirname              => { is_global => 1 },
         done                 => { is_global => 0 },
         dsl                  => { is_global => 1 },
+        encode_json          => { is_global => 1 },
         engine               => { is_global => 1 },
         error                => { is_global => 1 },
         false                => { is_global => 1 },
@@ -87,13 +90,22 @@ sub dsl_keywords {
         path                 => { is_global => 1 },
         post                 => { is_global => 1 },
         prefix               => { is_global => 1 },
+        prepare_app          => {
+            is_global => 1, prototype => '&',
+        },
         psgi_app             => { is_global => 1 },
         push_header          => { is_global => 0 },
+        push_response_header => { is_global => 0 },
         put                  => { is_global => 1 },
         redirect             => { is_global => 0 },
         request              => { is_global => 0 },
+        request_data         => { is_global => 0 },
+        request_header       => { is_global => 0 },
         response             => { is_global => 0 },
+        response_header      => { is_global => 0 },
+        response_headers     => { is_global => 0 },
         runner               => { is_global => 1 },
+        send_as              => { is_global => 0 },
         send_error           => { is_global => 0 },
         send_file            => { is_global => 0 },
         session              => { is_global => 0 },
@@ -102,7 +114,7 @@ sub dsl_keywords {
         splat                => { is_global => 0 },
         start                => { is_global => 1 },
         status               => { is_global => 0 },
-        template             => { is_global => 0 },
+        template             => { is_global => 1 },
         to_app               => { is_global => 1 },
         to_dumper            => { is_global => 1 },
         to_json              => { is_global => 1 },
@@ -110,6 +122,7 @@ sub dsl_keywords {
         true                 => { is_global => 1 },
         upload               => { is_global => 0 },
         uri_for              => { is_global => 0 },
+        uri_for_route        => { is_global => 0 },
         var                  => { is_global => 0 },
         vars                 => { is_global => 0 },
         warning              => { is_global => 1 },
@@ -175,6 +188,8 @@ sub session {
     }
 }
 
+sub send_as { shift->app->send_as(@_) }
+
 sub send_error { shift->app->send_error(@_) }
 
 sub send_file { shift->app->send_file(@_) }
@@ -205,12 +220,14 @@ sub patch   { shift->_normalize_route( [qw/patch   /], @_ ) }
 sub post    { shift->_normalize_route( [qw/post    /], @_ ) }
 sub put     { shift->_normalize_route( [qw/put     /], @_ ) }
 
+sub prepare_app { push @{ shift->app->prep_apps }, @_ }
+
 sub any {
     my $self = shift;
 
     # If they've supplied their own list of methods,
     # expand del, otherwise give them the default list.
-    if ( ref $_[0] eq 'ARRAY' ) {
+    if ( is_arrayref($_[0]) ) {
         s/^del$/delete/ for @{ $_[0] };
     }
     else {
@@ -225,13 +242,28 @@ sub _normalize_route {
     my $methods = shift;
     my %args;
 
-    # Options are optional, deduce their presence from arg length.
-    # @_ = ( REGEXP, OPTIONS, CODE )
-    # or
-    # @_ = ( REGEXP, CODE )
-    @args{qw/regexp options code/} = @_ == 3 ? @_ : ( $_[0], {}, $_[1] );
+    # Options are optional, try to deduce their presence from arg length.
+    if ( @_ == 4 ) {
+        # @_ = ( NAME, REGEXP, OPTIONS, CODE )
+        # get 'foo', '/foo', { 'user_agent' => '...' }, sub {...}
+        @args{qw<name regexp options code>} = @_;
+    } elsif ( @_ == 2 ) {
+        # @_ = ( REGEXP, CODE )
+        # get '/foo', sub {...}
+        @args{qw<regexp code>} = @_;
+    } elsif ( @_ == 3 ) {
+        # @_ = ( REGEXP, OPTIONS, CODE )
+        # get '/foo', { 'user_agent' => '...' }, sub {...}
+        # @_ = ( NAME, REGEXP, CODE )
+        # get 'foo', '/foo',sub {...}
+        if ( is_hashref( $_[1] ) ) {
+            @args{qw<regexp options code>} = @_;
+        } else {
+            @args{qw<name regexp code>} = @_;
+        }
+    }
 
-    $app->add_route( %args, method => $_ ) for @{$methods};
+    return map $app->add_route( %args, method => $_ ), @{$methods};
 }
 
 #
@@ -265,16 +297,28 @@ sub status {
 }
 
 sub push_header {
+    Carp::croak "DEPRECATED: push_header keyword. Please use the 'push_response_header' keyword instead of 'push_header'";
+}
+
+sub push_response_header {
     shift;
     $Dancer2::Core::Route::RESPONSE->push_header(@_);
 }
 
 sub header {
+    Carp::croak "DEPRECATED: header keyword. Please use the 'response_header' keyword instead of 'header'";
+}
+
+sub response_header {
     shift;
     $Dancer2::Core::Route::RESPONSE->header(@_);
 }
 
 sub headers {
+    Carp::croak "DEPRECATED: headers keyword. Please use the 'response_headers' keyword instead of 'headers'";
+}
+
+sub response_headers {
     shift;
     $Dancer2::Core::Route::RESPONSE->header(@_);
 }
@@ -371,11 +415,12 @@ sub pass         { shift->app->pass }
 #
 
 sub context {
-    carp "DEPRECATED: please use the 'app' keyword instead of 'context'";
-    shift->app;
+    Carp::croak "DEPRECATED: context keyword. Please use the 'app' keyword instead of 'context'";
 }
 
 sub request { $Dancer2::Core::Route::REQUEST }
+
+sub request_header { shift; $Dancer2::Core::Route::REQUEST->headers->header(@_) }
 
 sub response { $Dancer2::Core::Route::RESPONSE }
 
@@ -384,6 +429,8 @@ sub upload { shift; $Dancer2::Core::Route::REQUEST->upload(@_); }
 sub captures { $Dancer2::Core::Route::REQUEST->captures }
 
 sub uri_for { shift; $Dancer2::Core::Route::REQUEST->uri_for(@_); }
+
+sub uri_for_route { shift->app->uri_for_route(@_); }
 
 sub splat { $Dancer2::Core::Route::REQUEST->splat }
 
@@ -394,6 +441,8 @@ sub param { shift; $Dancer2::Core::Route::REQUEST->param(@_); }
 sub query_parameters { shift; $Dancer2::Core::Route::REQUEST->query_parameters(@_); }
 sub body_parameters  { shift; $Dancer2::Core::Route::REQUEST->body_parameters(@_);  }
 sub route_parameters { shift; $Dancer2::Core::Route::REQUEST->route_parameters(@_); }
+
+sub request_data { shift; $Dancer2::Core::Route::REQUEST->body_data(@_); }
 
 sub redirect { shift->app->redirect(@_) }
 
@@ -413,7 +462,7 @@ sub mime {
     }
     else {
         my $runner = $self->runner;
-        $runner->mime_type->reset_default;
+        $runner->mime_type->reset_to_default;
         return $runner->mime_type;
     }
 }
@@ -424,37 +473,49 @@ sub mime {
 
 sub from_json {
     shift; # remove first element
-    require Dancer2::Serializer::JSON;
+    require_module('Dancer2::Serializer::JSON');
     Dancer2::Serializer::JSON::from_json(@_);
 }
 
 sub to_json {
     shift; # remove first element
-    require Dancer2::Serializer::JSON;
+    require_module('Dancer2::Serializer::JSON');
     Dancer2::Serializer::JSON::to_json(@_);
+}
+
+sub decode_json {
+    shift; # remove first element
+    require_module('Dancer2::Serializer::JSON');
+    Dancer2::Serializer::JSON::decode_json(@_);
+}
+
+sub encode_json {
+    shift; # remove first element
+    require_module('Dancer2::Serializer::JSON');
+    Dancer2::Serializer::JSON::encode_json(@_);
 }
 
 sub from_yaml {
     shift; # remove first element
-    require Dancer2::Serializer::YAML;
+    require_module('Dancer2::Serializer::YAML');
     Dancer2::Serializer::YAML::from_yaml(@_);
 }
 
 sub to_yaml {
     shift; # remove first element
-    require Dancer2::Serializer::YAML;
+    require_module('Dancer2::Serializer::YAML');
     Dancer2::Serializer::YAML::to_yaml(@_);
 }
 
 sub from_dumper {
     shift; # remove first element
-    require Dancer2::Serializer::Dumper;
+    require_module('Dancer2::Serializer::Dumper');
     Dancer2::Serializer::Dumper::from_dumper(@_);
 }
 
 sub to_dumper {
     shift; # remove first element
-    require Dancer2::Serializer::Dumper;
+    require_module('Dancer2::Serializer::Dumper');
     Dancer2::Serializer::Dumper::to_dumper(@_);
 }
 
@@ -465,6 +526,7 @@ __END__
 =func setting
 
 Lets you define settings and access them:
+
     setting('foo' => 42);
     setting('foo' => 42, 'bar' => 43);
     my $foo=setting('foo');
@@ -474,6 +536,7 @@ If settings were defined returns number of settings.
 =func set ()
 
 alias for L<setting>:
+
     set('foo' => '42');
     my $port=set('port');
 

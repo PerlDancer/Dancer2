@@ -4,6 +4,7 @@ package Dancer2::Core::Hook;
 use Moo;
 use Dancer2::Core::Types;
 use Carp;
+use Sub::Util qw/ set_subname subname /;
 
 has name => (
     is       => 'rw',
@@ -28,9 +29,8 @@ has code => (
     required => 1,
     coerce   => sub {
         my ($hook) = @_;
-        sub {
-            my $res;
-            eval { $res = $hook->(@_) };
+        set_subname subname($hook) => sub {
+            my $res = eval { $hook->(@_) };
             croak "Hook error: $@" if $@;
             return $res;
         };
@@ -44,26 +44,14 @@ __END__
 =head1 SYNOPSIS
 
   # inside a plugin
-  use Dancer2::Cook::Hook;
+  use Dancer2::Core::Hook;
   Dancer2::Core::Hook->register_hooks_name(qw/before_auth after_auth/);
 
-=method register_hook ($hook_name, [$properties], $code)
-
-    hook 'before', {apps => ['main']}, sub {...};
+=method register_hook ($hook_name, $code)
 
     hook 'before' => sub {...};
 
-Attaches a hook at some point, with a possible list of properties.
-
-Currently supported properties:
-
-=over 4
-
-=item apps
-
-    an array reference containing apps name
-
-=back
+Attaches a hook at some point.
 
 =method register_hooks_name
 
@@ -78,7 +66,7 @@ Test if a hook with this name has already been registered.
 
 =method execute_hook
 
-Execute a hooks
+Execute a hook
 
 =method get_hooks_for
 

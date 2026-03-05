@@ -22,6 +22,7 @@ sub _freeze_to_handle {
 
 sub _thaw_from_handle {
     my ( $self, $fh ) = @_;
+    local $YAML::LoadBlessed = 1;
     return YAML::LoadFile($fh);
 }
 

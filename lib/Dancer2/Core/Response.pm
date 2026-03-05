@@ -6,6 +6,7 @@ use Moo;
 
 use Encode;
 use Dancer2::Core::Types;
+use Dancer2::Core::MIME;
 
 use Dancer2 ();
 use Dancer2::Core::HTTP;
@@ -20,21 +21,23 @@ use overload
   '@{}' => sub { $_[0]->to_psgi },
   '""'  => sub { $_[0] };
 
+has mime_type => (
+    'is'      => 'ro',
+    'isa'     => InstanceOf['Dancer2::Core::MIME'],
+    'default' => sub { Dancer2::Core::MIME->new() },
+);
+
 has headers => (
     is     => 'ro',
-    isa    => Sub::Quote::quote_sub(q{
-        use Safe::Isa;
-        $_[0]->$_isa('ARRAY')          ||
-        $_[0]->$_DOES('HTTP::Headers') ||
-        $_[0]->$_DOES('HTTP::Headers::Fast')
-    }),
+    isa => InstanceOf['HTTP::Headers'],
     lazy   => 1,
     coerce => sub {
         my ($value) = @_;
         # HTTP::Headers::Fast reports that it isa 'HTTP::Headers',
         # but there is no actual inheritance.
-        return $value if blessed($value) && $value->isa('HTTP::Headers');
-        HTTP::Headers::Fast->new( @{$value} );
+        $value->$_isa('HTTP::Headers')
+          ? $value
+          : HTTP::Headers::Fast->new(@{$value});
     },
     default => sub {
         HTTP::Headers::Fast->new();
@@ -104,17 +107,26 @@ has content => (
     clearer   => 'clear_content',
 );
 
+has server_tokens => (
+    is      => 'ro',
+    isa     => Bool,
+    default => sub {1},
+);
+
 around content => sub {
-    my ( $orig, $self, $content ) = @_;
+    my ( $orig, $self ) = ( shift, shift );
 
-    @_ == 2 and return $self->$orig;
+    # called as getter?
+    @_ or return $self->$orig;
 
+    # No serializer defined; encode content
     $self->serializer
-        or return $self->$orig( $self->encode_content($content) );
+        or return $self->$orig( $self->encode_content(@_) );
 
-    $content = $self->serialize($content);
+    # serialize content
+    my $serialized = $self->serialize(@_);
     $self->is_encoded(1); # All serializers return byte strings
-    return $self->$orig( defined $content ? $content : '' );
+    return $self->$orig( defined $serialized ? $serialized : '' );
 };
 
 has default_content_type => (
@@ -145,30 +157,27 @@ sub encode_content {
 }
 
 sub new_from_plack {
-    my ($self, $psgi_res) = @_;
+    my ($class, $psgi_res) = @_;
 
     return Dancer2::Core::Response->new(
-        status  => $psgi_res->status,
-        headers => $psgi_res->headers,
-        content => $psgi_res->body,
+        status   => $psgi_res->status,
+        headers  => $psgi_res->headers,
+        content  => $psgi_res->body,
     );
 }
 
 sub new_from_array {
-    my ($self, $arrayref) = @_;
+    my ($class, $arrayref) = @_;
 
     return Dancer2::Core::Response->new(
-        status  => $arrayref->[0],
-        headers => $arrayref->[1],
-        content => $arrayref->[2][0],
+        status    => $arrayref->[0],
+        headers   => $arrayref->[1],
+        content   => $arrayref->[2][0],
     );
 }
 
 sub to_psgi {
     my ($self) = @_;
-
-    Dancer2::runner()->config->{'no_server_tokens'}
-        or $self->header( 'Server' => "Perl Dancer2 " . Dancer2->VERSION );
 
     my $headers = $self->headers;
     my $status  = $self->status;
@@ -176,9 +185,12 @@ sub to_psgi {
     Plack::Util::status_with_no_entity_body($status)
         and return [ $status, $self->headers_to_array($headers), [] ];
 
+    my $content = $self->content;
     # It is possible to have no content and/or no content type set
-    # e.g. if all routes 'pass'. Apply defaults here..
-    my $content = defined $self->content ? $self->content : '';
+    # e.g. if all routes 'pass'. Set the default value for the content
+    # (an empty string), allowing serializer hooks to be triggered
+    # as they may change the content..
+    $content = $self->content('') if ! defined $content;
 
     if ( !$headers->header('Content-Length')    &&
          !$headers->header('Transfer-Encoding') &&
@@ -196,8 +208,7 @@ sub content_type {
     my $self = shift;
 
     if ( scalar @_ > 0 ) {
-        my $runner   = Dancer2::runner();
-        my $mimetype = $runner->mime_type->name_or_type(shift);
+        my $mimetype = $self->mime_type->name_or_type(shift);
         $self->header( 'Content-Type' => $mimetype );
         return $mimetype;
     }
@@ -297,7 +308,7 @@ if nothing was specified
 Encodes the stored content according to the stored L<content_type>.  If the content_type
 is a text format C<^text>, then no encoding will take place.
 
-Interally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
+Internally, it uses the L<is_encoded> flag to make sure that content is not encoded twice.
 
 If it encodes the content, then it will return the encoded content.  In all other
 cases it returns C<false>.

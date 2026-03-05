@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use File::Spec;
 use File::Basename qw/dirname/;
+use Ref::Util qw<is_arrayref>;
 
 BEGIN {
     # Disable route handlers so we can actually test route_exists
@@ -11,7 +12,7 @@ BEGIN {
     $ENV{DANCER_CONFDIR} = File::Spec->catdir(dirname(__FILE__), 'dancer-test');
 }
 
-use Test::More tests => 49;
+use Test::More tests => 46;
 
 use Dancer2;
 use Dancer2::Test;
@@ -69,9 +70,6 @@ response_content_unlike $_ => qr/ought/ for @routes;
 response_status_is $_   => 200 for @routes;
 response_status_isnt $_ => 203 for @routes;
 
-response_headers_include $_ => [ Server => "Perl Dancer2 " . Dancer2->VERSION ]
-  for @routes;
-
 ## Check parameters get through ok
 get '/param' => sub { param('test') };
 my $param_response =
@@ -103,7 +101,7 @@ is $file_response->content, 'testfile', 'file uploaded with supplied filename';
 ## Check multiselect/multi parameters get through ok
 get '/multi' => sub {
     my $t = param('test');
-    return 'bad' if ref($t) ne 'ARRAY';
+    return 'bad' if !is_arrayref($t);
     my $p = join( '', @$t );
     return $p;
 };
@@ -125,7 +123,8 @@ is $param_response->content, 'test/' . encode( 'UTF-8', $russian_test ),
 get '/headers' => sub {
     join " : ", request->header('X-Sent-By'), request->cookies->{foo};
 };
-note "extra headers in request"; {
+note "extra headers in request"; 
+sub extra_headers {
     my $sent_by = 'Dancer2::Test';
     my $headers_test = dancer_response( GET => '/headers',
         {
@@ -137,4 +136,15 @@ note "extra headers in request"; {
     );
     is $headers_test->content, "$sent_by : bar",
         "extra headers included in request";
+}
+
+note "Run extra_headers test with XS_HTTP_COOKIES"
+  if $Dancer2::Core::Request::XS_HTTP_COOKIES;
+extra_headers();
+SKIP: {
+    skip "HTTP::XSCookies not installed", 1
+      if !$Dancer2::Core::Request::XS_HTTP_COOKIES;
+    note "Run extra_headers test without XS_HTTP_COOKIES";
+    $Dancer2::Core::Request::XS_HTTP_COOKIES = 0;
+    extra_headers();
 }

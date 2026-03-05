@@ -1,10 +1,12 @@
 package Dancer2;
+
 # ABSTRACT: Lightweight yet powerful web application framework
 
+use 5.12.0;
 use strict;
 use warnings;
-use List::Util  'first';
-use Class::Load 'load_class';
+use List::Util 'first';
+use Module::Runtime 'use_module';
 use Import::Into;
 use Dancer2::Core;
 use Dancer2::Core::App;
@@ -21,31 +23,34 @@ sub runner   {$runner}
 sub psgi_app { shift->runner->psgi_app(@_) }
 
 sub import {
-    my ( $class,  @args   ) = @_;
-    my ( $caller, $script ) = caller;
+    my ($class,  @args)   = @_;
+    my ($caller, $script) = caller;
 
     my @final_args;
     my $clean_import;
     foreach my $arg (@args) {
+
         # ignore, no longer necessary
         # in the future these will warn as deprecated
-        grep +( $arg eq $_ ), qw<:script :syntax :tests>
-            and next;
+        grep +($arg eq $_), qw<:script :syntax :tests>
+          and next;
 
-        if ( $arg eq ':nopragmas' ) {
+        if ($arg eq ':nopragmas') {
             $clean_import++;
             next;
         }
 
-        if ( substr( $arg, 0, 1 ) eq '!' ) {
+        if (substr($arg, 0, 1) eq '!') {
             push @final_args, $arg, 1;
-        } else {
+        }
+        else {
             push @final_args, $arg;
         }
     }
 
     $clean_import
-        or $_->import::into($caller) for qw<strict warnings utf8>;
+      or $_->import::into($caller)
+      for qw<strict warnings utf8>;
 
     scalar @final_args % 2
       and die q{parameters must be key/value pairs or '!keyword'};
@@ -56,16 +61,17 @@ sub import {
     $appname ||= $caller;
 
     # never instantiated the runner, should do it now
-    if ( not defined $runner ) {
+    if (not defined $runner) {
         $runner = Dancer2::Core::Runner->new();
     }
 
     # Search through registered apps, creating a new app object
     # if we do not find one with the same name.
     my $app;
-    ($app) = first { $_->name eq $appname } @{ $runner->apps };
+    ($app) = first { $_->name eq $appname } @{$runner->apps};
 
-    if ( ! $app ) {
+    if (!$app) {
+
         # populating with the server's postponed hooks in advance
         $app = Dancer2::Core::App->new(
             name            => $appname,
@@ -85,24 +91,24 @@ sub import {
     $final_args{dsl} ||= $config_dsl;
 
     # load the DSL, defaulting to Dancer2::Core::DSL
-    load_class( $final_args{dsl} );
-    my $dsl = $final_args{dsl}->new( app => $app );
-    $dsl->export_symbols_to( $caller, \%final_args );
+    my $dsl = use_module($final_args{dsl})->new(app => $app);
+    $dsl->export_symbols_to($caller, \%final_args);
 }
 
 sub _set_import_method_to_caller {
     my ($caller) = @_;
 
     my $import = sub {
-        my ( $self, %options ) = @_;
+        my ($self, %options) = @_;
 
         my $with = $options{with};
-        for my $key ( keys %$with ) {
-            $self->dancer_app->setting( $key => $with->{$key} );
+        for my $key (keys %$with) {
+            $self->dancer_app->setting($key => $with->{$key});
         }
     };
 
     {
+        ## no critic
         no strict 'refs';
         no warnings 'redefine';
         *{"${caller}::import"} = $import;
@@ -117,21 +123,129 @@ __END__
 
 =head1 DESCRIPTION
 
-Dancer2 is the new generation of L<Dancer>, the lightweight web-framework for
+(If you're looking for the L<dancer2> command documentation via CLI, try
+C<perldoc -F $(which dancer2)>.)
+
+Dancer2 is the new generation of L<Dancer>, the lightweight web framework for
 Perl. Dancer2 is a complete rewrite based on L<Moo>.
 
 Dancer2 can optionally use XS modules for speed, but at its core remains
-fatpackable (packable by L<App::FatPacker>) so you could easily deploy Dancer2
+fatpackable (via L<App::FatPacker>), enabling you to easily deploy Dancer2
 applications on hosts that do not support custom CPAN modules.
 
-Dancer2 is easy and fun:
+Creating web applications with Dancer2 is easy and fun:
 
+    #!/usr/bin/env perl
+
+    package HelloWorld;
     use Dancer2;
-    get '/' => sub { "Hello World" };
-    dance;
+
+    get '/' => sub {
+        return "Hello, world!";
+    };
+
+    true;
+
+    HelloWorld->to_app;
 
 This is the main module for the Dancer2 distribution. It contains logic for
 creating a new Dancer2 application.
+
+=head2 Documentation Index
+
+You have questions. We have answers.
+
+=over 4
+
+=item * Dancer2 Tutorial
+
+Want to learn by example? The L<Dancer2::Manual::Tutorial> will take you from
+installation to a working application.
+
+item * Quick Start
+
+Want to get going faster? L<Quick Start|Dancer2::Manual::QuickStart> will help you install Dancer2
+and bootstrap a new application quickly.
+
+=item * Dancer2 Manual
+
+Want to gain understanding of Dancer2 so you can use it best? The
+L<Dancer2::Manual> is a comprehensive guide to the framework.
+
+=item * Dancer2 Keywords
+
+Looking for list of all the keywords? The L<DSL guide|Dancer2::Manual::Keywords>
+documents the entire Dancer2 DSL.
+
+=item * Dancer2 Config
+
+Need to fine tune your application? The L<configuration guide|Dancer2::Manual::Config>
+is the complete reference to all configuration options.
+
+=item * Dancer2 Deployment
+
+Ready to get your application off the ground? L<Deploying Dancer2 applications|Dancer2::Manual::Deployment>
+helps you deploy your application to a real-world host.
+
+=item * Dancer2 Cookbook
+
+How do I...? Our L<cookbook|Dancer2::Manual::Cookbook> comes with various recipes
+in many tasty flavors!
+
+=item * Dancer2 Plugins
+
+Looking for add-on functionality for your application? The L<plugin guide|Dancer2::Manual::Plugins>
+contains our curated list of recommended plugins.
+
+For information on how to author a plugin, see L<the plugin author's guide|Dancer2::Plugin/Writing the plugin>.
+
+=item * Dancer2 Migration guide
+
+Starting from Dancer 1? Jump over to the L<migration guide|Dancer2::Manual::Migration>
+to learn how to make the smoothest transition to Dancer2.
+
+=back
+
+=head3 Other Documentation
+
+=over
+
+=item * Core and Community Policy, and Standards of Conduct
+
+The L<Dancer core and community policy, and standards of conduct|Dancer2::Policy> defines
+what constitutes acceptable behavior in our community, what behavior is considered
+abusive and unacceptable, and what steps will be taken to remediate inappropriate
+and abusive behavior. By participating in any public forum for Dancer or its
+community, you are agreeing to the terms of this policy.
+
+=item * GitHub Wiki
+
+Our L<GitHub wiki|https://github.com/PerlDancer/Dancer2/wiki> has community-contributed
+documentation, as well as other information that doesn't quite fit within
+this manual.
+
+=item * Contributing
+
+The L<contribution guidelines|https://github.com/PerlDancer/Dancer2/blob/master/Contributing.md> describe
+how to set up your development environment to contribute to the development of Dancer2,
+Dancer2's Git workflow, submission guidelines, and various coding standards.
+
+=item * Deprecation Policy
+
+The L<deprecation policy|Dancer2::DeprecationPolicy> defines the process for removing old,
+broken, unused, or outdated code from the Dancer2 codebase. This policy is critical
+for guiding and shaping future development of Dancer2.
+
+=back
+
+=head1 SECURITY REPORTS
+
+If you need to report a security vulnerability in Dancer2, send all pertinent
+information to L<dancer-security@dancer.pm|mailto:dancer-security@dancer.pm>, or report it
+via the GitHub security tool. These reports will be addressed in the earliest possible
+timeframe.
+
+=head1 SUPPORT
 
 You are welcome to join our mailing list.
 For subscription information, mail address and archives see
@@ -139,103 +253,38 @@ L<http://lists.preshweb.co.uk/mailman/listinfo/dancer-users>.
 
 We are also on IRC: #dancer on irc.perl.org.
 
-=head2 Documentation Index
-
-Documentation on Dancer2 is split into several manpages. Below is a
-complete outline on where to go for help.
-
-=over 4
-
-=item * Dancer2 Tutorial
-
-If you are new to the Dancer approach, you should start by reading
-our L<Dancer2::Tutorial>.
-
-=item * Dancer2 Manual
-
-L<Dancer2::Manual> is the reference for Dancer2. Here you will find
-information on the concepts of Dancer2 application development and
-a comprehensive reference to the Dancer2 domain specific
-language.
-
-=item * Dancer2 Keywords
-
-The keywords for Dancer2 can be found under L<DSL Keywords|Dancer2::Manual/DSL KEYWORDS>.
-
-=item * Dancer2 Deployment
-
-For configuration examples of different deployment solutions involving
-Dancer2 and Plack, refer to L<Dancer2::Manual::Deployment>.
-
-=item * Dancer2 Cookbook
-
-Specific examples of code for real-life problems and some 'tricks' for
-applications in Dancer can be found in L<Dancer2::Cookbook>
-
-=item * Dancer2 Config
-
-For configuration file details refer to L<Dancer2::Config>. It is a
-complete list of all configuration options.
-
-=item * Dancer2 Plugins
-
-Refer to L<Dancer2::Plugins> for a partial list of available Dancer2
-plugins. Note that although we try to keep this list up to date we
-expect plugin authors to tell us about new modules.
-
-=item * Dancer2 Migration guide
-
-L<Dancer2::Manual::Migration> provides the most up-to-date instruction on
-how to convert a Dancer (1) based application to Dancer2.
-
-=back
-
-=func my $runner=runner();
-
-Returns the current runner. It is of type L<Dancer2::Core::Runner>.
-
-=cut
-
-=method import;
-
-If it doesn't exist already, C<import> creates a new runner, imports strict
-and warnings, loads additional libraries, creates a new Dancer2 app (of type
-L<Dancer2::Core::App>) and exports the DSL symbols to the caller.
-
-If any additional argument processing is needed, it will be done at this point.
-
-Import gets called when you use Dancer2. You can specify import options giving
-you control over the keywords that will be imported into your webapp and other
-things:
-
-    use Dancer2 '!quux'; # Don't import DSL keyword quux
-    use Dancer2 appname => 'MyAwesomeApp'; # Add routes and hooks to MyAwesomeApp
-    use Dancer2 ( foo => 'bar' ); # sets option foo to bar (currently not implemented)
-
 =head1 AUTHORS
 
 =head2 CORE DEVELOPERS
 
     Alberto Simões
     Alexis Sukrieh
+    D Ruth Holloway (GeekRuthie)
     Damien Krotkine
-    David Golden
     David Precious
     Franck Cuny
     Jason A. Crome
     Mickey Nasriachi
+    Peter Mottram (SysPete)
     Russell Jenkins
     Sawyer X
     Stefan Hornburg (Racke)
-    Steven Humphrey
     Yanick Champoux
+
+=head2 CORE DEVELOPERS EMERITUS
+
+    David Golden
+    Steven Humphrey
 
 =head2 CONTRIBUTORS
 
     A. Sinan Unur
+    Abdullah Diab
+    Achyut Kumar Panda
     Ahmad M. Zawawi
     Alex Beamish
     Alexander Karelas
+    Alexander Pankoff
     Alexandr Ciornii
     Andrew Beverley
     Andrew Grangaard
@@ -247,6 +296,8 @@ things:
     Bas Bloemsaat
     baynes
     Ben Hutton
+    Ben Kaufman
+    biafra
     Blabos de Blebe
     Breno G. de Oliveira
     cdmalon
@@ -256,51 +307,89 @@ things:
     chenchen000
     Chi Trinh
     Christian Walde
+    Christopher White
+    cloveistaken
     Colin Kuskie
     cym0n
     Dale Gallagher
+    Dan Book (Grinnz)
+    Daniel Böhmer
     Daniel Muey
+    Daniel Perrett
+    Dave Jacoby
+    Dave Webb
+    David (sbts)
     David Steinbrunner
     David Zurborg
     Davs
+    Deirdre Moran
+    Dennis Lichtenthäler
     Dinis Rebolo
     dtcyganov
+    Elliot Holden
+    Emil Perhinschi
     Erik Smit
     Fayland Lam
+    ferki
     Gabor Szabo
+    GeekRuthie
     geistteufel
     Gideon D'souza
+    Gil Magno
+    Glenn Fowler
     Graham Knop
     Gregor Herrmann
     Grzegorz Rożniecki
     Hobbestigrou
+    Hunter McMillen
+    ice-lenor
+    icyavocado
     Ivan Bessarabov
     Ivan Kruglov
     JaHIY
     Jakob Voss
     James Aitken
     James Raspass
+    James McCoy
+    Jason Lewis
     Javier Rojas
     Jean Stebens
     Jens Rehsack
+    Joel Berger
+    Johannes Piehler
+    Jonathan Cast
     Jonathan Scott Duff
-    Julien Fiegehenn
+    Joseph Frazer
+    Julien Fiegehenn (simbabque)
     Julio Fraire
+    Kaitlyn Parkhurst (SYMKAT)
+    Karen Etheridge
     kbeyazli
     Keith Broughton
     lbeesley
     Lennart Hengstmengel
     Ludovic Tolhurst-Cleaver
+    Mario Zieschang
     Mark A. Stratman
+    Marketa Wachtlova
+    Masaaki Saito
     Mateu X Hunter
     Matt Phillips
     Matt S Trout
+    mauke
     Maurice
+    MaxPerl
+    Ma_Sys.ma
     Menno Blom
+    Michael Kröll
     Michał Wojciechowski
+    Mike Katasonov
+    Mikko Koivunalho
+    Mohammad S Anwar
     mokko
     Nick Patch
     Nick Tonkin
+    Nigel Gregoire
     Nikita K
     Nuno Carvalho
     Olaf Alders
@@ -309,22 +398,35 @@ things:
     pants
     Patrick Zimmermann
     Pau Amma
+    Paul Clements
     Paul Cochrane
+    Paul Williams
     Pedro Bruno
     Pedro Melo
-    Peter Mottram
+    Philippe Bricout
+    Ricardo Signes
     Rick Yakubowski
-    sakshee3
+    Ruben Amortegui
+    Sakshee Vijay (sakshee3)
     Sam Kington
     Samit Badle
+    Sebastien Deseille (sdeseille)
+    Sergiy Borodych
     Shlomi Fish
-    simbabque
     Slava Goltser
-    smashz
     Snigdha
+    Steve Bertrand
+    Steve Dondley
+    Steven Humphrey
+    Tatsuhiko Miyagawa
+    Timothy Alexis Vass
     Tina Müller
     Tom Hukins
     Upasana Shukla
+    Utkarsh Gupta
     Vernon Lyon
+    Victor Adam
     Vince Willems
     Vincent Bachelier
+    xenu
+    Yves Orton

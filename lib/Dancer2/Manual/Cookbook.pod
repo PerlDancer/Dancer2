@@ -1,0 +1,1011 @@
+package Dancer2::Manual::Cookbook;
+# ABSTRACT: Example-driven quick-start to the Dancer2 web framework
+
+=pod
+
+=encoding utf8
+
+=head1 Description
+
+A quick-start guide with examples to get you up and running with the Dancer2
+web framework. This document will be twice as useful if you finish reading
+the manual (L<Dancer2::Manual>) first, but that is not required... :-)
+
+=head1 Route Recipes
+
+=head2 The simplest Dancer2 web app
+
+Dancer2 has been designed to be easy to work with - it's trivial to write a
+simple web app, but still has the power to work with larger projects. To
+start with, let's make an incredibly simple "Hello World" example:
+
+    #!/usr/bin/env perl
+    package MyApp;
+    use Dancer2;
+
+    get '/' => sub {
+        return "Hello, world!";
+    };
+
+    MyApp->to_app();
+
+Yes - the above is a fully-functioning web app; running that script with
+C<plackup MyApp.psgi> will launch a webserver listening on the default
+port (5000). Now you can make a request:
+
+    $ curl http://localhost:5000/
+    Hello, world!
+
+Note that you don't need to use the C<strict> and C<warnings> pragmas; they
+are already loaded by Dancer2.
+
+=head2 Default Route
+
+You can set up a default route to help trap C<404> errors in a
+consistent way, or to handle multiple routes in a consistent
+manner. A default route handler will handle any request that doesn't get
+served by any other route.
+
+All you need to do is set up the following route as the B<last> route:
+
+    any qr{.*} => sub {
+        status 'not_found';
+        template 'special_404', { path => request->path };
+    };
+
+Then you can set up the F<special_404.tt> template like so:
+
+    You tried to reach [% path %], but it is unavailable at the moment.
+
+    Please try again or contact us at <contact@example.com>.
+
+=head2 Using the C<auto_page> feature for automatic route creation
+
+For simple "static" pages you can simply enable the C<auto_page> config
+setting; this means you don't need to declare a route handler for those
+pages; if a request is for C</foo/bar>, Dancer2 will check for a matching
+view (e.g. C</foo/bar.tt>) and render it with the default layout, if
+found. For full details, see the documentation for the L<auto_page
+setting|Dancer2::Config/"auto_page">.
+
+=head2 Enabling and disabling routes with config and Module::Runtime
+
+For various reasons you may want to be able to turn routes on and off in
+your app without having to comment out sections of code. This is easily
+accomplished if you encapsulate each route handler (or group of related
+handlers) in a separate module, and load the wanted routes at runtime.
+
+In C<MyApp::Route::Foo>:
+
+    package MyApp::Route::Foo;
+
+    use Dancer2 appname => 'MyApp';
+
+    get '/foo' => sub { return "bar" };
+
+In C<MyApp::Route::Baz>:
+
+    package MyApp::Route::Baz;
+
+    use Dancer2 appname => 'MyApp';
+
+    get '/baz' => sub { return "qux" };
+
+In your C<config.yaml>:
+
+    route_modules :
+        Foo : 1
+        Baz : 0
+
+In your main route controller:
+
+    use Dancer2;
+    use Module::Runtime 'require_module';
+
+    my $module_base = 'MyApp::Route::';
+
+    my %modules = %{ config->{route_modules} };
+
+    my @required_modules = grep { $modules{$_} } keys %modules;
+
+    require_module( $module_base . $_ ) for @required_modules;
+
+Now your app will expose C</foo> but requests to C</baz> will return a
+404 response.
+
+=head2 Using the prefix feature to split your application
+
+For better maintainability, you may want to separate some of your application
+components into different packages. Let's say we have a simple web app with an
+admin section and want to maintain this in a different package:
+
+    package myapp;
+    use Dancer2;
+    use myapp::admin;
+
+    prefix undef;
+
+    get '/' => sub {...};
+
+    1;
+
+    package myapp::admin;
+    use Dancer2 appname => 'myapp';
+
+    prefix '/admin';
+
+    get '/' => sub {...};
+
+    1;
+
+The following routes will be generated for us:
+
+    - get /
+    - get /admin/
+    - head /
+    - head /admin/
+
+By default, a separate application is created for every package that uses
+Dancer2. The C<appname> tag is used to collect routes and hooks into a
+single Dancer2 application. In the above example, C<appname =E<gt> 'myapp'>
+adds the routes from C<myapp::admin> to the routes of the app C<myapp>.
+
+When using multiple applications please ensure that your path definitions do
+not overlap. For example, if using a default route as described above, once
+a request is matched to the default route then no further routes (or
+applications) will be reached.
+
+=head1 Template Recipes
+
+=head2 UsingTemplate Toolkit's WRAPPER directive in Dancer2
+
+Dancer2 already provides a WRAPPER-like ability, which we call a "layout".
+The reason we don't use Template Toolkit's WRAPPER (which also makes us
+incompatible with it) is because not all template systems support it.
+In fact, most don't.
+
+However, you might want to use it to be able to define C<META> and
+regular L<Template::Toolkit> variables.
+
+These few steps will get you there:
+
+=over 4
+
+=item * Disable the layout in Dancer2
+
+You can do this by simply commenting (or removing) the C<layout>
+configuration in the config file.
+
+=item * Use the Template Toolkit template engine
+
+Change the configuration of the template to Template Toolkit:
+
+    # in config.yml
+    template: "template_toolkit"
+
+=item * Tell the Template Toolkit engine which wrapper to use
+
+    # in config.yml
+    # ...
+    engines:
+        template:
+            template_toolkit:
+                WRAPPER: layouts/main.tt
+
+=back
+
+Done! Everything will work fine out of the box, including variables and
+C<META> variables.
+
+Please note that disabling the internal layout it will also disable the
+hooks C<before_layout_render> and C<after_layout_render>.
+
+=head2 Customizing Template Toolkit in Dancer2
+
+Please see L<Dancer2::Template::TemplateToolkit|Dancer2::Template::TemplateToolkit/"ADVANCED CUSTOMIZATION">
+for more details.
+
+=head1 Error Recipes
+
+=head2 Delivering custom error pages
+
+=head3 At the Core
+
+In Dancer2, creating new errors is done by creating a new L<Dancer2::Core::Error>
+
+     my $oopsie = Dancer2::Core::Error->new(
+         status  => 418,
+         message => "This is the Holidays. Tea not acceptable. We want eggnog.",
+         app     => $app,
+     )
+
+If not given, the status code defaults to a 500, there is no need for a message if
+we feel taciturn, and while the C<$app> (which is a I<Dancer2::Core::App>
+object holding all the pieces of information related to the current request) is
+needed if we want to take advantage of the templates, we can also do without.
+
+However, to be seen by the end user, we have to populate the L<Dancer2::Core::Response>
+object with the error's data. This is done via:
+
+     $oopsie->throw($response);
+
+Or, if we want to use the response object already present in the C<$app>
+(which is usually the case):
+
+     $oopsie->throw;
+
+This populates the status code of the response, sets its content, and throws a
+I<halt()> in the dispatch process.
+
+=head3 What it will look like?
+
+The error object has quite a few ways to generate its content.
+
+First, it can be explicitly given
+
+     my $oopsie = Dancer2::Core::Error->new(
+         content => '<html><body><h1>OMG</h1></body></html>',
+     );
+
+If the C<$content> was not given, the error will check if there is a
+template by the name of the status code (so, say you're using Template
+Toolkit, F<418.tt>) and will use it to generate the content, passing it
+the error's C<$message>, C<$status> code and C<$title> (which, if not
+specified, will be the standard HTTP error definition for the status code).
+
+If there is no template, the error will then look for a static page (to
+continue with our example, F<418.html>) in the F<public/> directory.
+
+And finally, if all of that failed, the error object will fall back on
+an internal template.
+
+=head3 Errors in Routes
+
+The simplest way to use errors in routes is:
+
+     get '/xmas/gift/:gift' => sub {
+         die "sorry, we're all out of ponies\n"
+             if route_parameters->get('gift') eq 'pony';
+     };
+
+The die will be intercepted by Dancer, converted into an error (status
+code 500, message set to the dying words) and passed to the response.
+
+In the cases where more control is required, C<send_error()> is the way to go:
+
+     get '/glass/eggnog' => sub {
+         send_error "Sorry, no eggnog here", 418;
+     };
+
+And if total control is needed:
+
+     get '/xmas/wishlist' => sub {
+         Dancer2::Core::Error->new(
+             response => response(),
+             status   => 406,
+             message  => "nothing but coal for you, I'm afraid",
+             template => 'naughty/index',
+         )->throw unless user_was_nice();
+
+         ...;
+     };
+
+=head1 Configuration Recipes
+
+=head2 Accessing configuration information from a separate script
+
+You may want to access your webapp's configuration from outside your
+webapp. You could, of course, use the YAML module of your choice and load
+your webapps's F<config.yml>, but chances are that this is not convenient.
+
+Use Dancer2 instead. You can simply use the values from F<config.yml>
+and some additional default values:
+
+    # bin/show_app_config.pl
+    use Dancer2;
+    printf "template: %s\n", config->{'template'}; # simple
+    printf "log: %s\n",      config->{'log'};      # undef
+
+Note that C<< config->{log} >> should result in an uninitialized warning
+on a default scaffold since the environment isn't loaded and
+log is defined in the environment but not in F<config.yml>. Hence C<undef>.
+
+Dancer2 will load your F<config.yml> configuration file along with the
+correct environment file located in your F<environments/> directory.
+
+The environment is determined by two environment variables in the following
+order:
+
+=over 4
+
+=item * DANCER_ENVIRONMENT
+
+=item * PLACK_ENV
+
+=back
+
+If neither of those is set, it will default to loading the development
+environment (typically C<$webapp/environment/development.yml>).
+
+If you wish to load a different environment, you need to override these
+variables.
+
+You can call your script with the environment changed:
+
+    $ PLACK_ENV=production perl bin/show_app_config.pl
+
+Or you can override them directly in the script (less recommended):
+
+    BEGIN { $ENV{'DANCER_ENVIRONMENT'} = 'production' }
+    use Dancer2;
+
+    ...
+
+=head1 Database Recipes
+
+=head2 Using DBIx::Class
+
+L<DBIx::Class>, also known as DBIC, is one of the many Perl ORM
+(I<Object Relational Mapper>) frameworks. It is easy to use DBIC in Dancer2
+using L<Dancer2::Plugin::DBIx::Class>.
+
+This example demonstrates a simple Dancer2 application that allows one to search
+for authors or books. The application is connected to a database that contains
+authors and their books. The website will have a single page with a form
+that allows one to query books or authors and display the results.
+
+=head3 Creating the application
+
+    $ dancer2 gen -a bookstore
+
+To use the Template Toolkit as the template engine, specify it in the
+configuration file:
+
+    # add in bookstore/config.yml
+    template: template_toolkit
+
+=head3 Creating the view
+
+We need a view to display the search form and the results, if any. The
+results will be fed by the route to the view as an arrayref of results. Each
+result is a hashref, with a author key containing the name of the author, and
+a books key containing an arrayref of strings: the books' names.
+
+    # example of a list of results
+    [ { author => 'author 1',
+        books => [ 'book 1', 'book 2' ],
+      },
+      { author => 'author 2',
+        books => [ 'book 3', 'book 4' ],
+      }
+    ]
+
+    # bookstore/views/search.tt
+    <p>
+    <form action="/search">
+    Search query: <input type="text" name="query" />
+    </form>
+    </p>
+    <br>
+
+An example of the view displaying the search form and results, if any:
+
+    <% IF query.length %>
+      <p>Search query was : <% query %>.</p>
+      <% IF results.size %>
+        Results:
+        <ul>
+        <% FOREACH result IN results %>
+          <li>Author: <% result.author.replace("((?i)$query)", '<b>$1</b>') %>
+          <ul>
+          <% FOREACH book IN result.books %>
+            <li><% book.replace("((?i)$query)", '<b>$1</b>') %>
+          <% END %>
+          </ul>
+        <% END %>
+      <% ELSE %>
+        No result
+      <% END %>
+    <% END %>
+
+=head3 Creating a Route
+
+A simple route, to be added in the C<Bookstore.pm> module:
+
+    # add in bookstore/lib/Bookstore.pm
+    get '/search' => sub {
+        my $query   = query_parameters->get('query');
+        my @results = ();
+
+        if ( length $query ) {
+            @results = _perform_search($query);
+        }
+
+        template search => {
+            query   => $query,
+            results => \@results,
+        };
+    };
+
+=head3 Creating a database
+
+We create a SQLite file database:
+
+    $ sqlite3 bookstore.db
+    CREATE TABLE author(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        firstname text default '' not null,
+        lastname text not null
+    );
+
+    CREATE TABLE book(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        author INTEGER REFERENCES author (id),
+        title text default '' not null
+    );
+
+Now, to populate the database with some data, we use L<DBIx::Class>:
+
+    # populate_database.pl
+    package My::Bookstore::Schema;
+    use base qw(DBIx::Class::Schema::Loader);
+    package main;
+    my $schema = My::Bookstore::Schema->connect('dbi:SQLite:dbname=bookstore.db');
+    $schema->populate('Author', [
+        [ 'firstname', 'lastname'],
+        [ 'Ian M.',    'Banks'   ],
+        [ 'Richard',   'Matheson'],
+        [ 'Frank',     'Herbert' ],
+    ]);
+    my @books_list = (
+        [ 'Consider Phlebas',    'Banks'    ],
+        [ 'The Player of Games', 'Banks'    ],
+        [ 'Use of Weapons',      'Banks'    ],
+        [ 'Dune',                'Herbert'  ],
+        [ 'Dune Messiah',        'Herbert'  ],
+        [ 'Children of Dune',    'Herbert'  ],
+        [ 'The Night Stalker',   'Matheson' ],
+        [ 'The Night Strangler', 'Matheson' ],
+    );
+    # transform author names into ids
+    $_->[1] = $schema->resultset('Author')->find({ lastname => $_->[1] })->id
+        foreach (@books_list);
+    $schema->populate('Book', [
+        [ 'title', 'author' ],
+        @books_list,
+    ]);
+
+Then run it in the directory where F<bookstore.db> sits:
+
+    perl populate_database.db
+
+=head3 Using Dancer2::Plugin::DBIx::Class
+
+There are 2 ways of configuring DBIC to understand how the data is organized
+in your database:
+
+=over 4
+
+=item * Use auto-detection
+
+The configuration file needs to be updated to indicate the use of the
+Dancer2::Plugin::DBIx::Class plugin, define a new DBIC schema called C<Bookstore> and
+to indicate that this schema is connected to the SQLite database we created.
+
+    # add in bookstore/config.yml
+    plugins:
+      DBIC:
+        Bookstore:
+          dsn:  "dbi:SQLite:dbname=bookstore.db"
+
+Now, C<_perform_search> can be implemented using L<Dancer2::Plugin::DBIx::Class>. The
+plugin gives you access to an additional keyword called B<schema>, which you
+give the name of schema you want to retrieve. It returns a C<DBIx::Class::Schema::Loader>
+which can be used to get a resultset and perform searches, as per standard
+usage of DBIX::Class.
+
+    # add in bookstore/lib/Bookstore.pm
+    sub _perform_search {
+        my ($query) = @_;
+        my $bookstore_schema = schema 'Bookstore';
+        my @results;
+        # search in authors
+        my @authors = $bookstore_schema->resultset('Author')->search({
+            -or => [
+                firstname => { like => "%$query%" },
+                lastname  => { like => "%$query%" },
+          ]
+        });
+        push @results, map {
+            { author => join(' ', $_->firstname, $_->lastname),
+                books => [],
+            }
+        } @authors;
+        my %book_results;
+        # search in books
+        my @books = $bookstore_schema->resultset('Book')->search({
+            title => { like => "%$query%" },
+        });
+        foreach my $book (@books) {
+            my $author_name = join(' ', $book->author->firstname, $book->author->lastname);
+            push @{$book_results{$author_name}}, $book->title;
+        }
+        push @results, map {
+            { author => $_,
+              books => $book_results{$_},
+            }
+        } keys %book_results;
+        return @results;
+    }
+
+=item * Use home made schema classes
+
+The L<DBIx::Class::MooseColumns> lets you write the DBIC schema classes
+using L<Moose>. The schema classes should be put in a place that Dancer2
+will find. A good place is in F<bookstore/lib/>.
+
+Once your schema classes are in place, all you need to do is modify F<config.yml>
+to specify that you want to use them, instead of the default auto-detection method:
+
+    # change in bookstore/config.yml
+    plugins:
+      DBIC:
+        bookstore:
+          schema_class: My::Bookstore::Schema
+          dsn: "dbi:SQLite:dbname=bookstore.db"
+
+=back
+
+Our bookstore lookup application can now be started using the built-in server:
+
+    # start the web application
+    plackup bin/app.psgi
+
+=head1 Authentication Recipes
+
+Writing a form for authentication is simple: we check the user credentials
+on a request and decide whether to continue or redirect them to a form.
+The form allows them to submit their username and password; we save that
+and create a session for them so when they try the original request,
+we recognize the user and allow them in.
+
+=head2 Basic Application
+
+The application is fairly simple. We have a route that needs authentication,
+we have a route for showing the login page, and we have a route for posting
+login information and creating a session.
+
+     package MyApp;
+     use Dancer2;
+
+     get '/' => sub {
+         session('user')
+             or redirect('/login');
+
+         template index => {};
+     };
+
+     get '/login' => sub {
+         template login => {};
+     };
+
+     post '/login' => sub {
+         my $username  = query_parameters->get('username');
+         my $password  = query_parameters->get('password');
+         my $redir_url = query_parameters->get('redirect_url') || '/login';
+
+         $username eq 'john' && $password eq 'correcthorsebatterystaple'
+             or redirect $redir_url;
+
+         session user => $username;
+         redirect $redir_url;
+     };
+
+=head2 Tiny Authentication Helper
+
+L<Dancer2::Plugin::Auth::Tiny> allows you to abstract away not only the
+part that checks whether the session exists, but to also generate a
+redirect with the right path and return URL.
+
+We simply have to define what routes needs a login using Auth::Tiny's
+C<needs> keyword.
+
+     get '/' => needs login => sub {
+         template index => {};
+     };
+
+It creates a proper return URL using C<uri_for> and the address from which
+the user arrived.
+
+We can thus decorate all of our private routes to require authentication in
+this manner. If a user does not have a session, it will automatically forward
+it to I</login>, in which we would render a form for the user to send a login request.
+
+Auth::Tiny even provides a new parameter, C<return_url>, which can be used to send
+the user back to their original requested path.
+
+=head2 Password Hashing
+
+L<Dancer2::Plugin::Passphrase> provides a simple passwords-as-objects interface with
+sane defaults for hashed passwords which you can use in your web application. It uses
+B<bcrypt> as the default but supports anything the L<Digest> interface does.
+
+Assuming we have the original user-creation form submitting a username and password:
+
+     package MyApp;
+     use Dancer2;
+     use Dancer2::Plugin::Passphrase;
+     post '/register' => sub {
+         my $username = query_parameters->get('username');
+         my $password = passphrase(
+             query_parameters->get('password')
+         )->generate;
+
+         # $password is now a hashed password object
+         save_user_in_db( $username, $password->rfc2307 );
+
+         template registered => { success => 1 };
+     };
+
+We can now add the B<POST> method for verifying that username and password:
+
+     post '/login' => sub {
+         my $username   = query_parameters->get('username');
+         my $password   = query_parameters->get('password');
+         my $saved_pass = fetch_password_from_db($username);
+
+         if ( passphrase($password)->matches($saved_pass) ) {
+             session user => $username;
+             redirect query_parameters->get('return_url') || '/';
+         }
+
+         # let's render instead of redirect...
+         template login => { error => 'Invalid username or password' };
+     };
+
+=head1 JSON/Serialization/API Recipes
+
+=head2 Writing a REST application
+
+With Dancer2, it's easy to write REST applications. Dancer2 provides helpers
+to serialize and deserialize for the following data formats:
+
+=over 4
+
+=item JSON
+
+=item YAML
+
+=item XML
+
+=item Data::Dumper
+
+=back
+
+To activate this feature, you only have to set the C<serializer> setting to
+the format you require, for instance in your config file:
+
+   serializer: JSON
+
+Or directly in your code:
+
+   set serializer => 'JSON';
+
+From now, all hashrefs or arrayrefs returned by a route will be serialized
+to the format you chose, and all data received from B<POST> or B<PUT>
+requests will be automatically deserialized.
+
+    get '/hello/:name' => sub {
+        # this structure will be returned to the client as
+        # {"name":"$name"}
+        return { name => query_parameters->get('name') };
+    };
+
+It's possible to let the client choose which serializer to use. For
+this, use L<Dancer2::Serializer::Mutable>, and an appropriate serializer will be
+chosen from the C<Content-Type> header.
+
+It's also possible to return a custom error using the
+L<send_error|Dancer2::Manual::Keywords/send_error> keyword. When you don't
+use a serializer, the C<send_error> function will take a string as first
+parameter (the message), and an optional HTTP code. When using a serializer,
+the message can be a string, an arrayref or a hashref:
+
+    get '/hello/:name' => sub {
+        if (...) {
+           send_error("you can't do that");
+           # or
+           send_error({reason => 'access denied', message => "no"});
+        }
+    };
+
+The content of the error will be serialized using the appropriate
+serializer.
+
+=head2 Using the serializer
+
+Serializers essentially do two things:
+
+=over 4
+
+=item * Deserialize incoming requests
+
+When a user makes a request with serialized input, the serializer
+automatically deserializes it into actual input parameters.
+
+=item * Serialize outgoing responses
+
+When you return a data structure from a route, it will automatically
+serialize it for you before returning it to the user.
+
+=back
+
+=head3 Configuring
+
+In order to configure a serializer, you just need to pick which format
+you want for encoding/decoding (e.g. L<JSON|Dancer2::Serializer::JSON>)
+and set it up using the C<serializer> configuration keyword.
+
+It is recommended to explicitly add it in the actual code instead of the
+configuration file so it doesn't apply automatically to every app that
+reads the configuration file (unless that's what you want):
+
+     package MyApp;
+     use Dancer2;
+     set serializer => 'JSON'; # Dancer2::Serializer::JSON
+
+     ...
+
+=head3 Using
+
+Now that we have a serializer set up, we can just return data structures:
+
+     get '/' => sub {
+         return { resources => \%resources };
+     };
+
+When we return this data structure, it will automatically be serialized
+into JSON. No other code is necessary.
+
+We also now receive requests in JSON:
+
+     post '/:entity/:id' => sub {
+         my $entity = route_parameters->get('entity');
+         my $id     = route_parameters->get('id');
+
+         # input which was sent serialized
+         my $user = body_parameters->get('user');
+
+         ...
+     };
+
+We can now make a serialized request:
+
+     $ curl -X POST http://ourdomain/person/16 -d '{"user":"sawyer_x"}'
+
+=head3 Supporting both serialized and non-serialized routes
+
+Serializers are engines. They affect a Dancer Application, which means
+that once you've set a serializer, B<all> routes within that package
+will be serialized and deserialized. This is how the feature works.
+
+As suggested above, if you would like to have both, you need to create
+another application which will not be serialized.
+
+A common usage for this is an API providing serialized endpoints (and
+receiving serialized requests) and providing rendered pages.
+
+     # MyApp.pm
+     package MyApp;
+     use Dancer2;
+
+     # another useful feature:
+     set auto_page => 1;
+
+     get '/' => sub { template 'index' => {...} };
+
+     # MyApp/API.pm
+     package MyApp::API;
+     use Dancer2;
+     set serializer => 'JSON'; # or any other serializer
+
+     get '/' => sub { +{ resources => \%resources, ... } };
+
+     # user-specific routes, for example
+     prefix '/users' => sub {
+         get '/view'     => sub {...};
+         get '/view/:id' => sub {...};
+         put '/add'      => sub {...}; # automatically deserialized params
+     };
+
+     ...
+
+Then those will be mounted together for a single app:
+
+     # handler: app.pl:
+     use MyApp;
+     use MyApp::API;
+     use Plack::Builder;
+
+     builder {
+         mount '/'    => MyApp->to_app;
+         mount '/api' => MyApp::API->to_app;
+     };
+
+If you want use redirect from a mounted package to the application's root
+URI, L<Dancer2::Plugin::RootURIFor> makes this possible:
+
+    package OurWiki;
+    use Dancer;
+    use Dancer2::Plugin::RootURIFor;
+
+    get '/:some_path' => sub {
+        redirect root_uri_for('/');
+    }
+
+
+=head3 An example: Writing API interfaces
+
+This example demonstrates an app that makes a request to a weather
+API and then displays it dynamically in a web page.
+
+Other than L<Dancer2> for defining routes, we will use L<HTTP::Tiny>
+to make the weather API request, L<JSON> to decode it from JSON format,
+and finally L<File::Spec> to provide a fully-qualified path to our
+template engine.
+
+     use JSON;
+     use Dancer2;
+     use HTTP::Tiny;
+     use File::Spec;
+
+=head4 Configuration
+
+We use the L<Template::Toolkit> template system for this app.
+Dancer searches for our templates in our views directory, which defaults
+to I<views> directory in our current directory. Since we want to put our
+template in our current directory, we will configure that. However,
+I<Template::Toolkit> does not want us to provide a relative path without
+configuring it to allow it. This is a security issue. So, we're using
+L<File::Spec> to create a full path to where we are.
+
+We also unset the default layout, so Dancer won't try to wrap our template
+with another one. This is a feature in Dancer to allow you to wrap your
+templates with a layout when your templating system doesn't support it. Since
+we're not using a layout here, we don't need it.
+
+     set template => 'template_toolkit';       # set template engine
+     set layout   => undef;                    # disable layout
+     set views    => File::Spec->rel2abs('.'); # full path to views
+
+Now, we define our URL:
+
+     my $url = 'http://api.openweathermap.org/data/2.5/weather?id=5110629&units=imperial';
+
+=head4 Route
+
+We will define a main route which, upon a request, will fetch the information
+from the weather API, decode it, and then display it to the user.
+
+Route definition:
+
+     get '/' => sub {
+         ...
+     };
+
+Editing the stub of route dispatching code, we start by making the request
+and decoding it:
+
+     # fetch data
+     my $res = HTTP::Tiny->new->get($url);
+
+     # decode request
+     my $data = decode_json $res->{'content'};
+
+The data is not just a flat hash. It's a deep structure. In this example, we
+will filter it for only the simple keys in the retrieved data:
+
+     my $metrics = { map +(
+         ref $data->{$_} ? () : ( $_ => $data->{$_} )
+     ), keys %{$data} };
+
+All that is left now is to render it:
+
+     template index => { metrics => $metrics };
+
+=head3 Example: Feeding graph data through AJAX
+
+Let us assume we are building an application that uses a plotting library
+to generate a graph and expects to get its data, which is in the form
+of word count from an AJAX call.
+
+For the graph, we need the url C</data> to return a JSON representation
+of the word count data. Dancer in fact has a C<encode_json()> function that takes
+care of the JSON encapsulation.
+
+     get '/data' => sub {
+         open my $fh, '<', $count_file;
+
+         my %contestant;
+         while (<$fh>) {
+             chomp;
+             my ( $date, $who, $count ) = split '\s*,\s*';
+
+             my $epoch = DateTime::Format::Flexible->parse_datetime($date)->epoch;
+             my $time = 1000 * $epoch;
+             $contestant{$who}{$time} = $count;
+         }
+
+         my @json;  # data structure that is going to be JSONified
+
+         while ( my ( $peep, $data ) = each %contestant ) {
+             push @json, {
+                 label     => $peep,
+                 hoverable => \1,    # so that it becomes JavaScript's 'true'
+                 data => [ map  { [ $_, $data->{$_} ] }
+                         sort { $a <=> $b }
+                         keys %$data ],
+             };
+         }
+
+         my $beginning = DateTime::Format::Flexible->parse_datetime( "2010-11-01")->epoch;
+         my $end       = DateTime::Format::Flexible->parse_datetime( "2010-12-01")->epoch;
+
+         push @json, {
+             label => 'de par',
+             data => [
+                 [$beginning * 1000, 0],
+                 [   DateTime->now->epoch * 1_000,
+                     50_000
+                       * (DateTime->now->epoch - $beginning)
+                       / ($end - $beginning)
+                 ]
+               ],
+
+         };
+
+         send_as JSON => \@json ;
+     };
+
+=head1 Dessert Recipes
+
+(these are tasty tips and tricks that don't fit anywhere else)
+
+=head2 Turning off warnings
+
+The C<warnings> pragma is already used when one loads Dancer2. However, if
+you I<really> do not want the C<warnings> pragma (for example, due to an
+undesired warning about use of undef values), add a C<no warnings> pragma to
+the appropriate block in your module or psgi file.
+
+=head2 Troubleshooting hooks
+
+You can make troubleshooting hook entries easier by ensuring their coderefs
+are named, either by using L<Sub::Util> or using the refs of regular
+functions.
+
+        package MyApp;
+
+        use Dancer2;
+
+        use Sub::Util qw/ set_subname /;
+
+        hook 'before_request' => 
+            set_subname my_before => sub { ... };
+
+        sub my_after { $::hook_counter++ } 
+
+        hook 'after_request' => \&my_after;
+
+        ...
+
+If you do so, they will appear as part of the core logs:
+
+
+    [MyApp] core @2025-06-15 15:02:36> Entering hook core.app.before_request in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> running hook entry App::HookEntries::my_before in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> Entering hook core.app.after_request in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> running hook entry Dancer2::Core::App::__ANON__ in (eval 274) l. 1
+    [MyApp] core @2025-06-15 15:02:36> running hook entry App::HookEntries::my_after in (eval 274) l. 1
+
+

@@ -4,6 +4,7 @@ use warnings;
 use Plack::Test;
 use HTTP::Request::Common;
 use Capture::Tiny 'capture_stderr';
+use Ref::Util qw<is_coderef>;
 
 {
     package App;
@@ -22,7 +23,7 @@ use Capture::Tiny 'capture_stderr';
 }
 
 my $app = App->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb      = shift;

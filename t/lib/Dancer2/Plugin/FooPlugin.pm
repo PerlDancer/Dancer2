@@ -1,0 +1,62 @@
+package Dancer2::Plugin::FooPlugin;
+use Dancer2::Plugin;
+
+on_plugin_import {
+    my $dsl = shift;
+    $dsl->get( '/sitemap' => sub { _html_sitemap($dsl) } );
+};
+
+sub _html_sitemap {
+    join( ', ', _retrieve_get_urls(@_) );
+}
+
+register foo_wrap_request => sub {
+    my ($self) = @_;
+    return $self->app->request;
+}, { is_global => 0 };
+
+register foo_route => sub {
+    my ($self) = @_;
+    $self->get( '/foo', sub {'foo'} );
+} => { is_global => 1, prototype => '$@' };
+
+register p_config => sub {
+    my $dsl    = shift;
+    my $config = plugin_setting;
+    return $config;
+};
+
+# taken from SiteMap
+sub _retrieve_get_urls {
+    my $dsl = shift;
+    my ( $route, @urls );
+
+    for my $app ( @{ $dsl->runner->apps } ) {
+        my $routes = $app->routes;
+
+        # push the static get routes into an array.
+      get_route:
+        for my $get_route ( @{ $routes->{get} } ) {
+            my $regexp = $get_route->regexp;
+
+            # If the pattern is a true comprehensive regexp or the route
+            # has a :variable element to it, then omit it.
+            next get_route if ( $regexp =~ m/[()[\]|]|:\w/ );
+
+            # If there is a wildcard modifier, then drop it and have the
+            # full route.
+            $regexp =~ s/\?//g;
+
+            # Other than that, its cool to be added.
+            push( @urls, $regexp )
+              if !grep { $regexp =~ m/$_/i }
+                  @$Dancer2::Plugin::SiteMap::OMIT_ROUTES;
+        }
+    }
+
+    return sort(@urls);
+}
+
+
+register_plugin;
+1;

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Fatal;
 use Plack::Test;
 use HTTP::Request::Common;
@@ -452,6 +452,41 @@ subtest 'Parameters (body/query/route)' => sub {
         $Dancer2::Core::Request::XS_URL_DECODE = 0;
         test_all_params;
     }
+};
+
+# multiple parsing of request body (such as from creating two request objects)
+# previously caused an infinite loop when HTTP::Body was used.
+subtest 'Multiple request object creation doesnt reparse request body' => sub {
+    my $test = Plack::Test->create( sub {
+        my $env     = shift;
+        my $request = Dancer2::Core::Request->new( env => $env );
+        # Second institation shouldn't reparse request body.
+        my $request2 = Dancer2::Core::Request->new( env => $env );
+
+        my %exp_params = (
+            post => {
+                x => 1, meth => 'post',
+            },
+        );
+
+        is( $request->path,   '/',    'path is set' );
+        is( $request->method, 'POST', 'method is set' );
+
+        is_deeply(
+            scalar( $request->params('body') ),
+            $exp_params{'post'},
+            'body params are OK',
+        );
+
+        return psgi_ok;
+    } );
+
+    my $req = POST '/', { x => 1, meth => 'post' };
+
+    ok(
+        $test->request($req)->is_success,
+        'Request successful',
+    );
 };
 
 # more stuff to test

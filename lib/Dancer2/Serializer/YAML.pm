@@ -4,19 +4,28 @@ package Dancer2::Serializer::YAML;
 use Moo;
 use Carp 'croak';
 use Encode;
-use Class::Load 'load_class';
+use Module::Runtime 'use_module';
+use Sub::Defer;
 
 with 'Dancer2::Core::Role::Serializer';
 
 has '+content_type' => ( default => sub {'text/x-yaml'} );
 
-# helpers
-sub from_yaml { __PACKAGE__->deserialize(@_) }
+# deferred helpers. These are called as class methods, but need to
+# ensure YAML is loaded.
 
-sub to_yaml { __PACKAGE__->serialize(@_) }
+my $_from_yaml = defer_sub 'Dancer2::Serializer::YAML::from_yaml' => sub {
+    use_module('YAML');
+    sub { __PACKAGE__->deserialize(@_) };
+};
+
+my $_to_yaml = defer_sub 'Dancer2::Serializer::YAML::to_yaml' => sub {
+    use_module('YAML');
+    sub { __PACKAGE__->serialize(@_) };
+};
 
 # class definition
-sub BUILD { load_class('YAML') }
+sub BUILD { use_module('YAML') }
 
 sub serialize {
     my ( $self, $entity ) = @_;

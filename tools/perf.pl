@@ -7,6 +7,8 @@ use Plack::Test;
 use HTTP::Request::Common;
 use Dumbbench;
 use Getopt::Long qw<:config no_ignore_case>;
+use HTTP::XSHeaders;
+use HTTP::XSCookies;
 
 $ENV{'DANCER_ENVIRONMENT'} = 'production';
 $ENV{'PLACK_ENV'} = 'production';
@@ -70,7 +72,7 @@ if ( $opts{'profile'} ) {
     $app2->({
         REQUEST_METHOD => 'GET',
         PATH_INFO      => '/',
-    });
+    }) for 1 .. 50;
     DB::disable_profile();
     DB::finish_profile();
 } elsif ( $opts{'compare'} ) {
@@ -130,7 +132,7 @@ if ( $opts{'profile'} ) {
     $bench->report;
 } else {
     print << "_END_HELP";
-$0 -- <-s | --speed 1|2|3|4|5> <profile | bench | compare>
+$0 -- <-s | --speed 1|2|3|4|5> <--profile | --bench | --compare>
 ("--" is required before parameters because D1 parses ARGV)
 
 Commands:

@@ -7,12 +7,11 @@ use parent 'Plack::Request';
 
 use Carp;
 use Encode;
-use HTTP::Body;
 use URI;
 use URI::Escape;
-use Class::Load 'try_load_class';
 use Safe::Isa;
 use Hash::MultiValue;
+use Ref::Util qw< is_ref is_arrayref is_hashref is_coderef >;
 
 use Dancer2::Core::Types;
 use Dancer2::Core::Request::Upload;
@@ -32,13 +31,25 @@ my @http_env_keys = (qw/
 # apparently you can't eval core functions
 sub accept { $_[0]->env->{'HTTP_ACCEPT'} }
 
-eval << "_EVAL" for @http_env_keys; ## no critic
-sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc $_ ) } }
+eval << "_EVAL" or die $@ for @http_env_keys; ## no critic
+sub $_ { \$_[0]->env->{ 'HTTP_' . ( uc "$_" ) } }
+1;
 _EVAL
 
+eval {
+    require Unicode::UTF8;
+    no warnings qw<redefine once>;
+    *__decode = sub { Unicode::UTF8::decode_utf8($_[0]) };
+    1;
+} or do {
+    no warnings qw<redefine once>;
+    *__decode = sub { decode( 'UTF-8', $_[0] ) };
+};
+
 # check presence of XS module to speedup request
-our $XS_URL_DECODE         = try_load_class('URL::Encode::XS');
-our $XS_PARSE_QUERY_STRING = try_load_class('CGI::Deurl::XS');
+our $XS_URL_DECODE         = eval { require URL::Encode::XS; 1; };
+our $XS_PARSE_QUERY_STRING = eval { require CGI::Deurl::XS;  1; };
+our $XS_HTTP_COOKIES       = eval { require HTTP::XSCookies; 1; };
 
 our $_id = 0;
 
@@ -66,20 +77,13 @@ sub new {
     $self->{'id'}              = ++$_id;
     $self->{'vars'}            = {};
     $self->{'is_behind_proxy'} = !!$opts{'is_behind_proxy'};
-
-    # parameters
-    $self->{_chunk_size}       = 4096;
-    $self->{_read_position}    = 0;
-    $self->{_http_body} =
-      HTTP::Body->new( $self->content_type || '', $self->content_length );
-    $self->{_http_body}->cleanup(1);
+    $self->{'uri_for_route'}   = $opts{'uri_for_route'};
 
     $opts{'body_params'}
         and $self->{'_body_params'} = $opts{'body_params'};
 
-    # parsing body for HMV first
-    $self->body_parameters;
-    $self->data;      # Deserialize body
+    # Deserialize/parse body for HMV
+    $self->data;
     $self->_build_uploads();
 
     return $self;
@@ -101,7 +105,7 @@ sub var {
 sub set_path_info { $_[0]->env->{'PATH_INFO'} = $_[1] }
 
 # XXX: incompatible with Plack::Request
-sub body { $_[0]->{'body'} ||= $_[0]->_read_to_end }
+sub body { $_[0]->raw_body }
 
 sub id { $_id }
 
@@ -116,14 +120,7 @@ sub _params { $_[0]->{'_params'} ||= $_[0]->_build_params }
 
 sub _has_params { defined $_[0]->{'_params'} }
 
-sub _body_params {
-    my $self = shift;
-
-    # make sure body is parsed
-    $self->body;
-
-    $self->{'_body_params'} ||= _decode( $self->{'_http_body'}->param );
-}
+sub _body_params { $_[0]->{'_body_params'} ||= $_[0]->body_parameters->as_hashref_mixed }
 
 sub _query_params { $_[0]->{'_query_params'} }
 
@@ -164,8 +161,8 @@ sub forwarded_host        { shift->env->{'HTTP_X_FORWARDED_HOST'} }
 
 # there are two options
 sub forwarded_protocol    {
-    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
     $_[0]->env->{'HTTP_X_FORWARDED_PROTO'}    ||
+    $_[0]->env->{'HTTP_X_FORWARDED_PROTOCOL'} ||
     $_[0]->env->{'HTTP_FORWARDED_PROTO'}
 }
 
@@ -180,10 +177,19 @@ sub scheme {
 
 sub serializer { $_[0]->{'serializer'} }
 
-sub data { $_[0]->{'data'} ||= &deserialize }
+sub data { $_[0]->{'data'} ||= $_[0]->deserialize() }
 
 sub deserialize {
     my $self = shift;
+
+    # don't attempt to deserialize if the form is 'multipart/form-data'
+    if (
+        $self->content_type 
+        && $self->content_type =~ /^multipart\/form-data/i 
+        ) {
+        return;
+    }
+
 
     my $serializer = $self->serializer
         or return;
@@ -200,8 +206,25 @@ sub deserialize {
     $body && length $body > 0
         or return;
 
+    # Catch serializer fails - which is tricky as Role::Serializer
+    # wraps the deserializaion in an eval and returns undef.
+    # We want to generate a 500 error on serialization fail (Ref #794)
+    # to achieve that, override the log callback so we can catch a signal
+    # that it failed. This is messy (messes with serializer internals), but
+    # "works".
+    my $serializer_fail;
+    my $serializer_log_cb = $serializer->log_cb;
+    local $serializer->{log_cb} = sub {
+        $serializer_fail = $_[1];
+        $serializer_log_cb->(@_);
+    };
+    # work-around to resolve a chicken-and-egg issue when instantiating a
+    # request object; the serializer needs that request object to deserialize
+    # the body params.
+    Scalar::Util::weaken( my $request = $self );
+    $self->serializer->has_request || $self->serializer->set_request($request);
     my $data = $serializer->deserialize($body);
-    return if !defined $data;
+    die $serializer_fail if $serializer_fail;
 
     # Set _body_params directly rather than using the setter. Deserializiation
     # returns characters and skipping the decode op in the setter ensures
@@ -209,16 +232,22 @@ sub deserialize {
     # converts that to a PVIV. Some serializers are picky (JSON)..
     $self->{_body_params} = $data;
 
+    # Set body parameters (decoded HMV)
+    $self->{'body_parameters'} =
+        Hash::MultiValue->from_mixed( is_hashref($data) ? %$data : () );
+
     return $data;
 }
 
-sub uri       { $_[0]->request_uri }
-sub is_head   { $_[0]->method eq 'HEAD' }
-sub is_post   { $_[0]->method eq 'POST' }
-sub is_get    { $_[0]->method eq 'GET' }
-sub is_put    { $_[0]->method eq 'PUT' }
-sub is_delete { $_[0]->method eq 'DELETE' }
-sub is_patch  { $_[0]->method eq 'PATCH' }
+sub uri        { $_[0]->request_uri }
+
+sub is_head    { $_[0]->method eq 'HEAD' }
+sub is_post    { $_[0]->method eq 'POST' }
+sub is_get     { $_[0]->method eq 'GET' }
+sub is_put     { $_[0]->method eq 'PUT' }
+sub is_delete  { $_[0]->method eq 'DELETE' }
+sub is_patch   { $_[0]->method eq 'PATCH' }
+sub is_options { $_[0]->method eq 'OPTIONS' }
 
 # public interface compat with CGI.pm objects
 sub request_method { $_[0]->method }
@@ -266,22 +295,7 @@ sub uri_base {
 }
 
 sub dispatch_path {
-    my $self = shift;
-
-    my $path = $self->path;
-
-    # Want $self->base->path, without needing the URI object,
-    # and trim any trailing '/'.
-    my $base = '';
-    $base .= $self->script_name if defined $self->script_name;
-    $base =~ s|/+$||;
-
-    # Remove base from front of path.
-    $path =~ s|^(\Q$base\E)?||;
-    $path =~ s|^/+|/|;
-    # PSGI spec notes that '' should be considered '/'
-    $path = '/' if $path eq '';
-    return $path;
+    Carp::croak q{DEPRECATED: request->dispatch_path. Please use request->path instead};
 }
 
 sub uri_for {
@@ -301,6 +315,15 @@ sub uri_for {
     return $dont_escape
            ? uri_unescape( ${ $uri->canonical } )
            : ${ $uri->canonical };
+}
+
+sub uri_for_route {
+    my ( $self, @args ) = @_;
+
+    is_coderef( $self->{'uri_for_route'} )
+        or die 'uri_for_route called on a request instance without it';
+
+    return $self->{'uri_for_route'}->(@_);
 }
 
 sub params {
@@ -330,21 +353,21 @@ sub query_parameters {
     my $self = shift;
     $self->{'query_parameters'} ||= do {
         if ($XS_PARSE_QUERY_STRING) {
-            my $query = CGI::Deurl::XS::parse_query_string(
+            my $query = _decode(CGI::Deurl::XS::parse_query_string(
                 $self->env->{'QUERY_STRING'}
-            );
+            ));
 
             Hash::MultiValue->new(
                 map {;
                     my $key = $_;
-                    ref $query->{$key} eq 'ARRAY'
+                    is_arrayref( $query->{$key} )
                     ? ( map +( $key => $_ ), @{ $query->{$key} } )
                     : ( $key => $query->{$key} )
                 } keys %{$query}
             );
         } else {
             # defer to Plack::Request
-            $self->_parse_query;
+            _decode($self->SUPER::query_parameters);
         }
     };
 }
@@ -357,25 +380,13 @@ sub _set_route_parameters {
     # remove reserved splat parameter name
     # you should access splat parameters using splat() keyword
     delete @{$params}{qw<splat captures>};
-    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{$params} );
+    $self->{'route_parameters'} = Hash::MultiValue->from_mixed( %{_decode($params)} );
 }
 
 sub body_parameters {
     my $self = shift;
-    $self->{'plack.request.body'}
-        and return $self->{'plack.request.body'};
-
-    my $env = $self->env;
-
-    # handle case of serializer
-    if ( my $data = $self->deserialize ) {
-        return Hash::MultiValue->from_mixed(
-            ref $data eq 'HASH' ? %{$data} : ()
-        );
-    }
-
-    $self->_parse_request_body;
-    return $self->env->{'plack.request.body'};
+    # defer to (the overridden) Plack::Request->body_parameters
+    $self->{'body_parameters'} ||= _decode($self->SUPER::body_parameters());
 }
 
 sub parameters {
@@ -387,7 +398,8 @@ sub parameters {
         return $self->$attr;
     }
 
-    $self->env->{'plack.request.merged'} ||= do {
+    # merge together the *decoded* parameters
+    $self->{'merged_parameters'} ||= do {
         my $query = $self->query_parameters;
         my $body  = $self->body_parameters;
         my $route = $self->route_parameters; # not in Plack::Request
@@ -406,15 +418,16 @@ sub _decode {
     my ($h) = @_;
     return if not defined $h;
 
-    if ( !ref($h) && !utf8::is_utf8($h) ) {
-        return decode( 'UTF-8', $h );
+    if ( !is_ref($h) && !utf8::is_utf8($h) ) {
+        return __decode($h);
     }
-
-    if ( ref($h) eq 'HASH' ) {
+    elsif ( ref($h) eq 'Hash::MultiValue' ) {
+        return Hash::MultiValue->from_mixed(_decode($h->as_hashref_mixed));
+    }
+    elsif ( is_hashref($h) ) {
         return { map {my $t = _decode($_); $t} (%$h) };
     }
-
-    if ( ref($h) eq 'ARRAY' ) {
+    elsif ( is_arrayref($h) ) {
         return [ map _decode($_), @$h ];
     }
 
@@ -438,7 +451,7 @@ sub upload {
 
     return $res unless wantarray;
     return ()   unless defined $res;
-    return ( ref($res) eq 'ARRAY' ) ? @$res : $res;
+    return ( is_arrayref($res) ) ? @$res : $res;
 }
 
 sub _build_params {
@@ -453,7 +466,7 @@ sub _build_params {
 
     # and merge everything
     $self->{_params} = {
-        map +( ref $_ eq 'HASH' ? %{$_} : () ),
+        map +( is_hashref($_) ? %{$_} : () ),
         $previous,
         $get_params,
         $self->_body_params,
@@ -497,7 +510,7 @@ sub _parse_get_params {
         # looking for multi-value params
         if ( exists $query_params->{$key} ) {
             my $prev_val = $query_params->{$key};
-            if ( ref($prev_val) && ref($prev_val) eq 'ARRAY' ) {
+            if ( is_arrayref($prev_val) ) {
                 push @{ $query_params->{$key} }, $val;
             }
             else {
@@ -514,71 +527,23 @@ sub _parse_get_params {
     return $self->_query_params;
 }
 
-sub _read_to_end {
-    my ($self) = @_;
-
-    my $content_length = $self->content_length;
-    return unless $self->_has_something_to_read();
-
-    my $body = '';
-    if ( $content_length && $content_length > 0 ) {
-        while ( my $buffer = $self->_read() ) {
-            $body .= $buffer;
-        }
-        $self->{_http_body}->add($body);
-    }
-
-    return $body;
-}
-
-sub _has_something_to_read {
-    my ($self) = @_;
-    return 0 unless defined $self->input_handle;
-}
-
-# taken from Miyagawa's Plack::Request::BodyParser
-sub _read {
-    my ( $self ) = @_;
-    my $remaining = $self->content_length - $self->{_read_position};
-    my $maxlength = $self->{_chunk_size};
-
-    return if ( $remaining <= 0 );
-
-    my $readlen = ( $remaining > $maxlength ) ? $maxlength : $remaining;
-    my $buffer;
-    my $rc;
-
-    $rc = $self->input_handle->read( $buffer, $readlen );
-
-    if ( defined $rc ) {
-        $self->{_read_position} += $rc;
-        return $buffer;
-    }
-    else {
-        croak "Unknown error reading input: $!";
-    }
-}
-
-# Taken gently from Plack::Request, thanks to Plack authors.
 sub _build_uploads {
     my ($self) = @_;
 
-    # build the body and body params
+    # parse body and build body params
     my $body_params = $self->_body_params;
 
-    my $uploads = _decode( $self->{_http_body}->upload );
+    my $uploads = $self->SUPER::uploads;
     my %uploads;
 
-    for my $name ( keys %{$uploads} ) {
-        my $files = $uploads->{$name};
-        $files = ref $files eq 'ARRAY' ? $files : [$files];
-
+    for my $name ( keys %$uploads ) {
         my @uploads = map Dancer2::Core::Request::Upload->new(
-                              headers  => $_->{headers},
-                              tempname => $_->{tempname},
-                              size     => $_->{size},
-                              filename => $_->{filename},
-                      ), @{$files};
+                             # For back-compatibility, we use a HashRef of headers
+                             headers  => {@{$_->{headers}->psgi_flatten_without_sort}},
+                             tempname => $_->{tempname},
+                             size     => $_->{size},
+                             filename => _decode( $_->{filename} ),
+                      ), $uploads->get_all($name);
 
         $uploads{$name} = @uploads > 1 ? \@uploads : $uploads[0];
 
@@ -601,21 +566,82 @@ sub _build_cookies {
     my $http_cookie = $self->header('Cookie');
     return $cookies unless defined $http_cookie; # nothing to do
 
-    foreach my $cookie ( split( /[,;]\s/, $http_cookie ) ) {
+    if ( $XS_HTTP_COOKIES ) {
+        $cookies = HTTP::XSCookies::crush_cookie($http_cookie);
+    }
+    else {
+        # handle via Plack::Request
+        $cookies = $self->SUPER::cookies();
+    }
 
-        # here, we don't want more than the 2 first elements
-        # a cookie string can contains something like:
-        # cookie_name="foo=bar"
-        # we want `cookie_name' as the value and `foo=bar' as the value
-        my ( $name, $value ) = split( /\s*=\s*/, $cookie, 2 );
-        my @values;
-        if ( defined $value and $value ne '' ) {
-            @values = map uri_unescape($_), split( /[&;]/, $value );
-        }
-        $cookies->{$name} =
-          Dancer2::Core::Cookie->new( name => $name, value => \@values );
+    # convert to objects
+    while (my ($name, $value) = each %{$cookies}) {
+        $cookies->{$name} = Dancer2::Core::Cookie->new(
+            name  => $name,
+            # HTTP::XSCookies v0.17+ will do the split and return an arrayref
+            value => is_arrayref($value) ? $value : [split '&', $value ]
+        );
     }
     return $cookies;
+}
+
+# poor man's clone
+sub _shallow_clone {
+    my ($self, $params, $options) = @_;
+
+    # shallow clone $env; we don't want to alter the existing one
+    # in $self, then merge any overridden values
+    my $env = { %{ $self->env }, %{ $options || {} } };
+
+    my $new_request = __PACKAGE__->new(
+        env         => $env,
+        body_params => {},
+    );
+
+    # Clone and merge query params
+    my $new_params = $self->params;
+    $new_request->{_query_params} = { %{ $self->{_query_params} || {} } };
+    $new_request->{query_parameters} = $self->query_parameters->clone;
+    for my $key ( keys %{ $params || {} } ) {
+        my $value = $params->{$key};
+        $new_params->{$key} = $value;
+        $new_request->{_query_params}->{$key} = $value;
+        $new_request->{query_parameters}->add( $key => $value );
+    }
+
+    # Copy params (these are already decoded)
+    $new_request->{_params}       = $new_params;
+    $new_request->{_body_params}  = $self->{_body_params};
+    $new_request->{_route_params} = $self->{_route_params};
+    $new_request->{headers}       = $self->headers;
+
+    # Copy remaining settings
+    $new_request->{is_behind_proxy} = $self->{is_behind_proxy};
+    $new_request->{vars}            = $self->{vars};
+
+    # Clone any existing decoded & cached body params. (GH#1116 GH#1269)
+    $new_request->{'body_parameters'} = $self->body_parameters->clone;
+
+    # Delete merged HMV parameters, allowing them to be reconstructed on first use.
+    delete $new_request->{'merged_parameters'};
+
+    return $new_request;
+}
+
+
+sub _set_route {
+    my ( $self, $route ) = @_;
+    $self->{'route'} = $route;
+}
+
+sub route { $_[0]->{'route'} }
+
+sub body_data {
+    my $self = shift;
+    return $self->data if $self->serializer;
+    $self->_body_params;
+    return $self->{_body_params} if keys %{ $self->{_body_params} };
+    return $self->body;
 }
 
 1;
@@ -697,11 +723,11 @@ C<HTTP_FORWARDED_PROTO>.
 
 =item C<host>
 
-Checks whether we are behind a proxy using the C<is_behind_proxy>
+Checks whether we are behind a proxy using the C<behind_proxy>
 configuration option, and if so returns the first
 C<HTTP_X_FORWARDED_HOST>, since this is a comma separated list.
 
-If you have not configured that you behind a proxy, it returns HTTP
+If you have not configured that you are behind a proxy, it returns HTTP
 header C<HTTP_HOST>.
 
 =item C<keep_alive>
@@ -743,6 +769,15 @@ If you need to access the body of the request, you have to use this accessor and
 should not try to read C<psgi.input> by hand. C<Dancer2::Core::Request>
 already did it for you and kept the raw body untouched in there.
 
+=method body_data
+
+Returns the body of the request in data form, making it possible to distinguish
+between C<body_parameters>, a representation of the request parameters
+(L<Hash::MultiValue>) and other forms of content.
+
+If a serializer is set, this is the deserialized request body. Otherwise this is
+the decoded body parameters (if any), or the body content itself.
+
 =method content
 
 Returns the undecoded byte string POST body.
@@ -759,8 +794,7 @@ content, returns the deserialized structure as a hashref.
 
 =method dispatch_path
 
-The part of the C<path> after C<base>. This is the path used
-for dispatching the request to routes.
+Alias for L<path>. Deprecated.
 
 =method env
 
@@ -791,7 +825,7 @@ Alias to C<input_handle> method below.
 
 =method input_handle
 
-Alias to the PSGI input handle (C<< <request->env->{psgi.input}> >>)
+Alias to the PSGI input handle (C<< request->env->{'psgi.input'} >>)
 
 =method is_ajax
 
@@ -817,6 +851,10 @@ Return true if the method requested by the client is 'POST'
 =method is_put
 
 Return true if the method requested by the client is 'PUT'
+
+=method is_options
+
+Return true if the method requested by the client is 'OPTIONS'
 
 =method logger
 
@@ -872,9 +910,54 @@ If called in list context, returns a list of key and value pairs, so you could u
 
     my %allparams = params;
 
+Parameters are merged in the following order: query, body, route - i.e. route
+parameters have the highest priority:
+
+    POST /hello/Ruth?name=Quentin
+
+    name=Bobbie
+
+    post '/hello/:name' => sub {
+        return "Hello, " . route_parameters->get('name') . "!"; # returns Ruth
+        return "Hello, " . query_parameters->get('name') . "!"; # returns Quentin
+        return "Hello, " . body_parameters->get('name') . "!";  # returns Bobbie
+        return "Hello, " . param('name') . "!";                 # returns Ruth
+    };
+
+The L</query_parameters>, L</route_parameters>, and L</body_parameters> keywords
+provide a L<Hash::MultiValue> result from the three different parameters.
+We recommend using these rather than C<params>, because of the potential for
+unintentional behaviour - consider the following request and route handler:
+
+    POST /artist/104/new-song
+
+    name=Careless Dancing
+
+    post '/artist/:id/new-song' => sub {
+      find_artist(param('id'))->create_song(params);
+      # oops! we just passed id into create_song,
+      # but we probably only intended to pass name
+      find_artist(param('id'))->create_song(body_parameters);
+    };
+
+    POST /artist/104/join-band
+
+    id=4
+    name=Dancing Misfits
+
+    post '/artist/:id/new-song' => sub {
+      find_artist(param('id'))->join_band(params);
+      # oops! we just passed an id of 104 into join_band,
+      # but we probably should have passed an id of 4
+    };
+
 =method parameters
 
 Returns a L<Hash::MultiValue> object with merged GET and POST parameters.
+
+Parameters are merged in the following order: query, body, route - i.e. route
+parameters have the highest priority - see L</params> for how this works, and
+associated risks and alternatives.
 
 =method path
 
@@ -922,6 +1005,10 @@ Alias to the C<method> accessor, for backward-compatibility with C<CGI> interfac
 =method request_uri
 
 Return the raw, undecoded request URI path.
+
+=method route
+
+Return the L<route|Dancer2::Core::Route> which this request matched.
 
 =method scheme
 
@@ -1012,6 +1099,13 @@ You get the following behavior:
     print $uri; # http://localhost:5000/foo/bar?baz=baz
 
 C<uri_for> returns a L<URI> object (which can stringify to the value).
+
+=method uri_for_route(route_name, route_params, query_params, escape)
+
+Constructs a URI from the base and the path of the specified route name.
+
+Read more about it in the C<Dancer2::Manual::Keywords> document under
+C<uri_for_route>.
 
 =method user
 

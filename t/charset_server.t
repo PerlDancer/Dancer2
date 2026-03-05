@@ -6,6 +6,7 @@ use utf8;
 
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 {
     package App;
@@ -31,7 +32,7 @@ use HTTP::Request::Common;
 }
 
 my $app = Dancer2->psgi_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

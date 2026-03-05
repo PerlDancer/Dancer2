@@ -37,10 +37,9 @@ has content_type => (
 around serialize => sub {
     my ( $orig, $self, $content, $options ) = @_;
 
-    $content && length $content > 0
-        or return $content;
-
     blessed $self && $self->execute_hook( 'engine.serializer.before', $content );
+
+    $content or return $content;
 
     my $data;
     eval {
@@ -51,7 +50,7 @@ around serialize => sub {
     } or do {
         my $error = $@ || 'Zombie Error';
         blessed $self
-            and $self->log_cb->( core => "Failed to serialize the request: $error" );
+            and $self->log_cb->( core => "Failed to serialize content: $error" );
     };
 
     return $data;
@@ -69,21 +68,11 @@ around deserialize => sub {
         1;
     } or do {
         my $error = $@ || 'Zombie Error';
-        $self->log_cb->( core => "Failed to deserialize the request: $error" );
+        $self->log_cb->( core => "Failed to deserialize content: $error" );
     };
 
     return $data;
 };
-
-# most serializer don't have to overload this one
-sub support_content_type {
-    my ( $self, $ct ) = @_;
-    return unless $ct;
-
-    my @toks = split ';', $ct;
-    $ct = lc( $toks[0] );
-    return $ct eq $self->content_type;
-}
 
 1;
 
@@ -97,6 +86,23 @@ serializer under Dancer2.
 In order to implement this role, the consumer B<must> implement the
 methods C<serialize> and C<deserialize>, and should define
 the C<content_type> attribute value.
+
+=head1 CONFIGURATION
+
+The B<serializer> configuration variable tells Dancer2 which engine to use.
+
+You can change it either in your config.yml file:
+
+    #Set JSON engine
+    serializer: "JSON"
+
+    # Prettify JSON output
+    engines:
+      serializer:
+        JSON:
+          pretty: 1
+
+To know which engines are availables please see L<Dancer2::Manual/"Serializers">
 
 =head1 METHODS
 
@@ -130,4 +136,3 @@ serializer.
 
 The deserialize method receives encoded bytes and must therefore
 handle any decoding required.
-

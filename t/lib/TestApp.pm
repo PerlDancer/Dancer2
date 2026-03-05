@@ -72,21 +72,21 @@ post '/dirname' => sub {
 
 # header
 get '/header/:name/:value' => sub {
-    header param('name') => param('value');
+    response_header param('name') => param('value');
     1;
 };
 
 # push_header
 get '/header/:name/:valueA/:valueB' => sub {
-    push_header param('name') => param('valueA');
-    push_header param('name') => param('valueB');
+    push_response_header param('name') => param('valueA');
+    push_response_header param('name') => param('valueB');
     1;
 };
 
 # header
 get '/header_twice/:name/:valueA/:valueB' => sub {
-    header param('name') => param('valueA');
-    header param('name') => param('valueB');
+    response_header param('name') => param('valueA');
+    response_header param('name') => param('valueB');
     1;
 };
 

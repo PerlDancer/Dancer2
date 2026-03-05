@@ -3,13 +3,15 @@ use warnings;
 use Test::More import => ['!pass'];
 use Plack::Test;
 use HTTP::Request::Common;
-use JSON;
+use JSON::MaybeXS;
+use Ref::Util qw<is_coderef>;
 
 subtest 'global and route keywords' => sub {
     {
         package App1;
         use Dancer2;
-        use t::lib::FooPlugin;
+        use lib 't/lib';
+        use Dancer2::Plugin::FooPlugin;
 
         sub location {'/tmp'}
 
@@ -25,7 +27,7 @@ subtest 'global and route keywords' => sub {
     }
 
     my $app = App1->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -43,8 +45,8 @@ subtest 'global and route keywords' => sub {
         );
 
         is(
-            $cb->( GET '/plugin_setting' )->content,
-            encode_json( { plugin => "42" } ),
+            _normalize($cb->( GET '/plugin_setting' )->content),
+            _normalize(encode_json( { plugin => '42' } )),
             'plugin_setting returned the expected config'
         );
 
@@ -60,13 +62,14 @@ subtest 'plugin old syntax' => sub {
     {
         package App2;
         use Dancer2;
-        use t::lib::DancerPlugin;
+        use lib 't/lib';
+        use Dancer2::Plugin::DancerPlugin;
 
         around_get;
     }
 
     my $app = App2->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -81,7 +84,7 @@ subtest 'plugin old syntax' => sub {
 
 subtest caller_dsl => sub {
     my $app = App1->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -100,9 +103,10 @@ subtest 'hooks in plugins' => sub {
     {
         package App3;
         use Dancer2;
-        use t::lib::OnPluginImport;
-        use t::lib::Hookee;
-        use t::lib::EmptyPlugin;
+        use lib 't/lib';
+        use Dancer2::Plugin::OnPluginImport;
+        use Dancer2::Plugin::Hookee;
+        use Dancer2::Plugin::EmptyPlugin;
 
         hook 'third_hook' => sub {
             var( hook => 'third hook' );
@@ -134,7 +138,7 @@ subtest 'hooks in plugins' => sub {
     }
 
     my $app = App3->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -161,10 +165,20 @@ subtest 'hooks in plugins' => sub {
         is (
             $cb->( GET '/on_import' )->content,
             Dancer2->VERSION,
-            'hooks added by on_plugin_import dont stop hooks being added later'
+            'hooks added by on_plugin_import don\'t stop hooks being added later'
         );
     };
 };
 
+sub _normalize {
+  my ($json) = @_;
+
+  my $data = decode_json($json);
+  foreach (keys %$data) {
+    $data->{$_} = $data->{$_} * 1 if ($data->{$_} =~ m/^\d+$/);
+  }
+
+  return encode_json($data);
+}
 
 done_testing;

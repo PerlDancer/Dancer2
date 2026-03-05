@@ -3,6 +3,10 @@ use warnings;
 use Test::More tests => 6;
 use Dancer2::Core::Runner;
 
+# undefine ENV vars used as defaults for app environment in these tests
+local $ENV{DANCER_ENVIRONMENT};
+local $ENV{PLACK_ENV};
+
 {
     my $runner = Dancer2::Core::Runner->new();
     isa_ok( $runner, 'Dancer2::Core::Runner' );

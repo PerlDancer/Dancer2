@@ -3,10 +3,12 @@ package Dancer2::Core::Runner;
 
 use Moo;
 use Carp 'croak';
+use Module::Runtime 'require_module';
 use Dancer2::Core::MIME;
 use Dancer2::Core::Types;
 use Dancer2::Core::Dispatcher;
 use Plack::Builder qw();
+use Ref::Util qw< is_ref is_regexpref >;
 
 # Hashref of configurable items for the runner.
 # Defaults come from ENV vars. Updated via global triggers
@@ -18,7 +20,6 @@ has config => (
     builder => '_build_config',
 );
 
-# FIXME: i hate this
 has mime_type => (
     is      => 'ro',
     isa     => InstanceOf ['Dancer2::Core::MIME'],
@@ -75,13 +76,18 @@ has timeout => (
 sub _build_server {
     my $self = shift;
 
-    require HTTP::Server::PSGI;
-    HTTP::Server::PSGI->new(
+    require_module('HTTP::Server::PSGI');
+    my %args = (
         host            => $self->host,
         port            => $self->port,
         timeout         => $self->timeout,
-        server_software => "Perl Dancer2 " . Dancer2->VERSION,
     );
+
+    if ( !$self->config->{'no_server_tokens'} ) {
+        $args{'server_software'} = "Perl Dancer2 " . Dancer2->VERSION;
+    }
+
+    return HTTP::Server::PSGI->new(%args);
 }
 
 sub _build_config {
@@ -110,7 +116,7 @@ sub BUILD {
 
     # Enable traces if set by ENV var.
     if (my $traces = $self->config->{traces} ) {
-        require Carp;
+        require_module('Carp');
         $Carp::Verbose = $traces ? 1 : 0;
     };
 
@@ -152,8 +158,6 @@ sub start {
     $self->config->{'apphandler'} eq 'PSGI'
         and return $app;
 
-    # FIXME: this should not include the server tokens
-    # since those are already added to the server itself
     $self->start_server($app);
 }
 
@@ -169,31 +173,27 @@ sub start_server {
 sub psgi_app {
     my ($self, $apps) = @_;
 
-    if ( $apps && @{$apps} ) {
-        my @found_apps = ();
-
-        foreach my $app_req ( @{$apps} ) {
-            if ( ref $app_req eq 'Regexp' ) {
-                # find it in the apps registry
-                push @found_apps,
-                    grep +( $_->name =~ $app_req ), @{ $self->apps };
-            } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
-                # use it directly
-                push @found_apps, $app_req;
-            } elsif ( ! ref $app_req ) {
-                # find it in the apps registry
-                push @found_apps,
-                    grep +( $_->name eq $app_req ), @{ $self->apps };
-            } else {
-                croak "Invalid input to psgi_app: $app_req";
-            }
+    my @found_apps;
+    foreach my $app_req ( @{ $apps || [] } ) {
+        if ( is_regexpref($app_req) ) {
+            # Asked to find app via regex pattern on its name
+            push @found_apps,
+                grep +( $_->name =~ $app_req ), @{ $self->apps };
+        } elsif ( ref $app_req eq 'Dancer2::Core::App' ) {
+            # Given Dancer2 App instance
+            push @found_apps, $app_req;
+        } elsif ( !is_ref($app_req) ) {
+            # Strings of the app names
+            push @found_apps,
+                grep +( $_->name eq $app_req ), @{ $self->apps };
+        } else {
+            croak "Invalid input to psgi_app: $app_req";
         }
-
-        $apps = \@found_apps;
-    } else {
-        # dispatch over all apps by default
-        $apps = $self->apps;
     }
+
+    # if specific apps, dispatch to them
+    # otherwise, dispatch over all apps by default
+    $apps = @found_apps ? \@found_apps : $self->apps;
 
     my $dispatcher = Dancer2::Core::Dispatcher->new( apps => $apps );
 

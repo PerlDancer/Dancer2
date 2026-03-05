@@ -1,0 +1,13 @@
+# configuration file for production environment
+
+# only log warning and error messsages
+log: "warning"
+
+# log message to a file in logs/
+logger: "file"
+
+# hide errors
+show_stacktrace: 0
+
+# disable server tokens in production environments
+no_server_tokens: 1

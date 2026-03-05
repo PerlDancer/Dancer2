@@ -4,11 +4,15 @@ package Dancer2::Core::Error;
 use Moo;
 use Carp;
 use Dancer2::Core::Types;
+use Dancer2::Core::MIME;
 use Dancer2::Core::HTTP;
 use Data::Dumper;
 use Dancer2::FileUtils qw/path open_file/;
 use Devel::StackTrace;
 use Sub::Quote;
+use Module::Runtime qw/ require_module use_module /;
+use Ref::Util qw< is_hashref >;
+use Clone qw(clone);
 
 has app => (
     is        => 'ro',
@@ -16,14 +20,14 @@ has app => (
     predicate => 'has_app',
 );
 
-has show_errors => (
+has show_stacktrace => (
     is      => 'ro',
     isa     => Bool,
     default => sub {
         my $self = shift;
 
         $self->has_app
-            and return $self->app->setting('show_errors');
+            and return $self->app->setting('show_stacktrace');
     },
 );
 
@@ -46,6 +50,52 @@ has title => (
     builder => '_build_title',
 );
 
+has censor => (
+    is => 'ro',
+    isa => CodeRef,
+    lazy => 1, 
+    default => sub {
+        my $self = shift;
+
+        if( my $custom = $self->has_app && $self->app->setting('error_censor') ) {
+
+            if( is_hashref $custom ) {
+                die "only one key can be set for the 'error_censor' setting\n" 
+                    if 1 != keys %$custom;
+
+                my( $class, $args ) = %$custom;
+
+                my $censor = use_module($class)->new(%$args);
+
+                return sub {
+                    $censor->censor(@_);
+                }
+            }
+
+            my $coderef = eval '\&'.$custom;
+
+            # it's already defined? Nice! We're done
+            return $coderef if $coderef;
+
+            my $module = $custom =~ s/::[^:]*?$//r;
+
+            require_module($module);
+
+            return eval '\&'.$custom;
+        }
+
+        # reminder: update POD below if changing the config here
+         my $data_censor = use_module('Data::Censor')->new(
+             sensitive_fields => qr/pass|card.?num|pan|secret/i,
+             replacement => "Hidden (looks potentially sensitive)",
+         );
+
+         return sub {
+             $data_censor->censor(@_);
+         };
+    }
+);
+
 sub _build_title {
     my ($self) = @_;
     my $title = 'Error ' . $self->status;
@@ -57,9 +107,7 @@ sub _build_title {
 }
 
 has template => (
-    is => 'ro',
-
-#    isa => sub { ref($_[0]) eq 'SCALAR' || ReadableFilePath->(@_) },
+    is      => 'ro',
     lazy    => 1,
     builder => '_build_error_template',
 );
@@ -69,9 +117,9 @@ sub _build_error_template {
 
     # look for a template named after the status number.
     # E.g.: views/404.tt  for a TT template
+    my $engine = $self->app->template_engine;
     return $self->status
-      if -f $self->app->template_engine
-          ->view_pathname( $self->status );
+      if $engine->pathname_exists( $engine->view_pathname( $self->status ) );
 
     return;
 }
@@ -101,17 +149,17 @@ sub _build_static_page {
 sub default_error_page {
     my $self = shift;
 
-    require Template::Tiny;
+    require_module('Template::Tiny');
 
     my $uri_base = $self->has_app && $self->app->has_request ?
         $self->app->request->uri_base : '';
 
-    # GH#1001 stack trace if show_errors is true and this is a 'server' error (5xx)
-    my $show_fullmsg = $self->show_errors && $self->status =~ /^5/;
+    # GH#1001 stack trace if show_stacktrace is true and this is a 'server' error (5xx)
+    my $show_fullmsg = $self->show_stacktrace && $self->status =~ /^5/;
     my $opts = {
         title    => $self->title,
         charset  => $self->charset,
-        content  => $show_fullmsg ? $self->full_message : $self->message || 'Wooops, something went wrong',
+        content  => $show_fullmsg ? $self->full_message : _html_encode($self->message) || 'Wooops, something went wrong',
         version  => Dancer2->VERSION,
         uri_base => $uri_base,
     };
@@ -140,14 +188,15 @@ END_TEMPLATE
     return $output;
 }
 
+# status and message are 'rw' to permit modification in core.error.before hooks
 has status => (
-    is      => 'ro',
+    is      => 'rw',
     default => sub {500},
     isa     => Num,
 );
 
 has message => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => Str,
     lazy    => 1,
     default => sub { '' },
@@ -163,12 +212,7 @@ sub full_message {
 
 has serializer => (
     is        => 'ro',
-    isa       => Sub::Quote::quote_sub(q{
-        use Safe::Isa;
-        $_[0]
-            ? $_[0]->$_DOES('Dancer2::Core::Role::Serializer')
-            : 1;
-    }),
+    isa       => Maybe[ConsumerOf['Dancer2::Core::Role::Serializer']],
     builder   => '_build_serializer',
 );
 
@@ -208,7 +252,15 @@ has response => (
     default => sub {
         my $self = shift;
         my $serializer = $self->serializer;
+        # include server tokens in response ?
+        my $no_server_tokens = $self->has_app
+            ? $self->app->config->{'no_server_tokens'}
+            : defined $ENV{DANCER_NO_SERVER_TOKENS}
+                ? $ENV{DANCER_NO_SERVER_TOKENS}
+                : 0;
         return Dancer2::Core::Response->new(
+            mime_type     => $self->has_app ? $self->app->mime_type : Dancer2::Core::MIME->new(),
+            server_tokens => !$no_server_tokens,
             ( serializer => $serializer )x!! $serializer
         );
     }
@@ -277,9 +329,11 @@ sub _build_content {
         return $content if defined $content;
     }
 
-    # It doesn't make sense to return a static page if show_errors is on
-    if ( !$self->show_errors && (my $content = $self->static_page) ) {
-        return $content;
+    # It doesn't make sense to return a static page for a 500 if show_stacktrace is on
+    if ( !($self->show_stacktrace && $self->status eq '500') ) {
+         if ( my $content = $self->static_page ) {
+             return $content;
+         }
     }
 
     if ($self->has_app && $self->app->config->{error_template}) {
@@ -369,14 +423,14 @@ sub backtrace {
 }
 
 sub dumper {
-    my $obj = shift;
+    my ($self,$obj) = @_;
 
     # Take a copy of the data, so we can mask sensitive-looking stuff:
-    my %data     = %$obj;
-    my $censored = _censor( \%data );
+    my $data     = clone($obj);
+    my $censored = $self->censor->( $data );
 
     #use Data::Dumper;
-    my $dd = Data::Dumper->new( [ \%data ] );
+    my $dd = Data::Dumper->new( [ $data ] );
     my $hash_separator = '  @@!%,+$$#._(--  '; # Very unlikely string to exist already
     my $prefix_padding = '  #+#+@%.,$_-!((  '; # Very unlikely string to exist already
     $dd->Terse(1)->Quotekeys(0)->Indent(1)->Sortkeys(1)->Pair($hash_separator)->Pad($prefix_padding);
@@ -401,7 +455,7 @@ sub environment {
     my $env = $self->has_app && $self->app->has_request && $self->app->request->env;
 
     # Get a sanitised dump of the settings, session and environment
-    $_ = $_ ? dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
+    $_ = $_ ? $self->dumper($_) : '<i>undefined</i>' for $settings, $session, $env;
 
     return <<"END_HTML";
 <div class="title">Stack</div><pre class="content">$stack</pre>
@@ -446,32 +500,6 @@ sub get_caller {
 
 # private
 
-# Given a hashref, censor anything that looks sensitive.  Returns number of
-# items which were "censored".
-
-sub _censor {
-    my $hash = shift;
-    if ( !$hash || ref $hash ne 'HASH' ) {
-        carp "_censor given incorrect input: $hash";
-        return;
-    }
-
-    my $censored = 0;
-    for my $key ( keys %$hash ) {
-        if ( ref $hash->{$key} eq 'HASH' ) {
-            # Take a copy of the data, so we can hide sensitive-looking stuff:
-            $hash->{$key} = { %{ $hash->{$key} } };
-            $censored += _censor( $hash->{$key} );
-        }
-        elsif ( $key =~ /(pass|card?num|pan|secret)/i ) {
-            $hash->{$key} = "Hidden (looks potentially sensitive)";
-            $censored++;
-        }
-    }
-
-    return $censored;
-}
-
 # Replaces the entities that are illegal in (X)HTML.
 sub _html_encode {
     my $value = shift;
@@ -493,7 +521,6 @@ __END__
 
 =head1 SYNOPSIS
 
-    # taken from send_file:
     use Dancer2::Core::Error;
 
     my $error = Dancer2::Core::Error->new(
@@ -501,7 +528,7 @@ __END__
         message => "No such file: `$path'"
     );
 
-    Dancer2::Core::Response->set($error->render);
+    $error->throw;
 
 =head1 DESCRIPTION
 
@@ -518,7 +545,7 @@ Create a new Dancer2::Core::Error object. For available arguments see ATTRIBUTES
 
 =method supported_hooks ();
 
-=attr show_errors
+=attr show_stacktrace
 
 =attr charset
 
@@ -542,6 +569,60 @@ This is only an attribute getter, you'll have to set it at C<new>.
 
 The message of the error page.
 
+=attr censor 
+
+The function to use to censor error messages. By default it uses the C<censor> method of L<Data::Censor>"
+
+         # default censor function used by `error_censor` 
+         # is equivalent to
+         sub MyApp::censor {
+             Data::Censor->new(
+                sensitive_fields => qr/pass|card.?num|pan|secret/i,
+                replacement      => "Hidden (looks potentially sensitive)",
+            )->censor(@_);
+         }
+         setting error_censor => 'MyApp::censor';
+
+It can be configured via the app setting C<error_censor>. If provided, 
+C<error_censor> has to be the fully qualified name of the censor 
+function. That function is expected to take in the data as a hashref, 
+modify it in place and return the number of items 'censored'.
+
+For example, using L<Data::Censor>.
+
+    # in config.yml
+    error_censor: MyApp::Censor::censor
+
+    # in MyApp::Censor
+    package MyApp::Censor;
+
+    use Data::Censor;
+
+    my $data_censor = Data::Censor->new(
+        sensitive_fields => [ qw(card_number password hush) ],
+        replacement => '(Sensitive data hidden)',
+    );
+
+    sub censor { $data_censor->censor(@_) }
+
+    1;
+
+
+As a shortcut, C<error_censor> can also be the key/value combo of 
+a class and the arguments for its constructor. The created object 
+is expected to have a method C<censor>. For example, the use of 
+L<Data::Censor> above could also have been done via the config 
+
+    error_censor:
+        Data::Censor: 
+            sensitive_fields:
+                - card_number 
+                - password 
+                - hush 
+            replacement: '(Sensitive data hidden)'
+
+
+
 =method throw($response)
 
 Populates the content of the response with the error's information.
@@ -550,16 +631,12 @@ attribute's response.
 
 =method backtrace
 
-Create a backtrace of the code where the error is caused.
+Show the surrounding lines of context at the line where the error was thrown.
 
 This method tries to find out where the error appeared according to the actual
 error message (using the C<message> attribute) and tries to parse it (supporting
 the regular/default Perl warning or error pattern and the L<Devel::SimpleTrace>
 output) and then returns an error-highlighted C<message>.
-
-=method tabulate
-
-Small subroutine to help output nicer.
 
 =head2 dumper
 

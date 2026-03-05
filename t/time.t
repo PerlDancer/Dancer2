@@ -3,12 +3,11 @@
 use strict;
 use warnings;
 use Test::More;
-use Class::Load 'try_load_class';
 
 my $mocked_epoch = 1355676244;    # "Sun, 16-Dec-2012 16:44:04 GMT"
 
 # The order is important!
-try_load_class('Test::MockTime')
+eval { require Test::MockTime; 1; }
     or plan skip_all => 'Test::MockTime not present';
 
 Test::MockTime::set_fixed_time($mocked_epoch);

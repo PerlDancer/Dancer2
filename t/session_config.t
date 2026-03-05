@@ -13,10 +13,11 @@ use HTTP::Request::Common;
         engines => {
             session => {
                 Simple => {
-                    cookie_name     => 'dancer.sid',
-                    cookie_path     => '/foo',
-                    cookie_duration => '1 hour',
-                    is_http_only    => 0, # will not show up in cookie
+                    cookie_name      => 'dancer.sid',
+                    cookie_path      => '/foo',
+                    cookie_duration  => '1 hour',
+                    cookie_same_site => 'Strict',
+                    is_http_only     => 0, # will not show up in cookie
                 },
             },
         }
@@ -59,7 +60,7 @@ subtest 'Set session' => sub {
 
     my ( $expires, $domain, $path, $opts );
     my $cookie = $jar->scan( sub {
-        ( $expires, $domain, $path, $opts ) = @_[ 8, 4, 3 ];
+        ( $expires, $domain, $path, $opts ) = @_[ 8, 4, 3, 10 ];
     } );
 
     my $httponly = $opts->{'HttpOnly'};
@@ -70,6 +71,7 @@ subtest 'Set session' => sub {
     is $domain, 'localhost.local', "cookie domain set";
     is $path, '/foo', "cookie path set";
     is $httponly, undef, "cookie has not set HttpOnly";
+    is $opts->{SameSite}, 'Strict', "cookie has same site set to strict";
 
     # read value back
 };

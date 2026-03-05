@@ -5,6 +5,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
 use HTTP::Cookies;
+use Ref::Util qw<is_coderef>;
 
 {
     package TestApp;
@@ -40,7 +41,7 @@ use HTTP::Cookies;
 }
 
 my $app = TestApp->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 my $test = Plack::Test->create($app);
 my $jar = HTTP::Cookies->new();

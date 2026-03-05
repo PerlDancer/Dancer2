@@ -3,7 +3,6 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
-use Class::Load 'try_load_class';
 
 {
     package App::CBOR; ## no critic
@@ -21,10 +20,10 @@ use Class::Load 'try_load_class';
 }
 
 subtest 'Testing with CBOR' => sub {
-    try_load_class('CBOR::XS')
+    eval { require CBOR::XS; 1; }
         or plan skip_all => 'CBOR::XS is needed for this test';
 
-    try_load_class('Dancer2::Serializer::CBOR')
+    eval { require Dancer2::Serializer::CBOR; 1; }
         or plan skip_all => 'Dancer2::Serializer::CBOR is needed for this test';
 
     App::CBOR->setup;

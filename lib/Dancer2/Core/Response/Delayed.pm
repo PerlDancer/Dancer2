@@ -2,7 +2,7 @@ package Dancer2::Core::Response::Delayed;
 # ABSTRACT: Delayed responses
 
 use Moo;
-use MooX::Types::MooseLike::Base qw<CodeRef InstanceOf>;
+use Dancer2::Core::Types qw<CodeRef InstanceOf>;
 
 has request => (
     is       => 'ro',
@@ -14,7 +14,7 @@ has response => (
     is       => 'ro',
     isa      => InstanceOf['Dancer2::Core::Response'],
     required => 1,
-    handles => [qw/status headers/],
+    handles => [qw/status headers push_header/],
 );
 
 has cb => (
@@ -92,7 +92,7 @@ This object represents a delayed (asynchronous) response for L<Dancer2>.
 It can be used via the C<delayed> keyword.
 
 It keeps references to a request and a response in order to avoid
-keeping a reference ot the application.
+keeping a reference to the application.
 
 =head1 ATTRIBUTES
 

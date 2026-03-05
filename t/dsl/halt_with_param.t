@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 subtest 'halt with parameter within routes' => sub {
     {
@@ -12,7 +13,7 @@ subtest 'halt with parameter within routes' => sub {
 
         get '/' => sub { 'hello' };
         get '/halt' => sub {
-            header 'X-Foo' => 'foo';
+            response_header 'X-Foo' => 'foo';
             halt;
         };
         get '/shortcircuit' => sub {
@@ -22,7 +23,7 @@ subtest 'halt with parameter within routes' => sub {
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb = shift;
@@ -36,12 +37,6 @@ subtest 'halt with parameter within routes' => sub {
 
         {
             my $res = $cb->( GET '/halt' );
-
-            is(
-                $res->server,
-                "Perl Dancer2 " . Dancer2->VERSION,
-                '[/halt] Correct Server header',
-            );
 
             is(
                 $res->headers->header('X-Foo'),
@@ -59,13 +54,13 @@ subtest 'halt with parameter in before hook' => sub {
         use Dancer2;
 
         hook before => sub {
-            halt('I was halted') if request->dispatch_path eq '/shortcircuit';
+            halt('I was halted') if request->path eq '/shortcircuit';
         };
 
     }
 
     my $app = App->to_app;
-    is( ref $app, 'CODE', 'Got app' );
+    ok( is_coderef($app), 'Got app' );
 
     test_psgi $app, sub {
         my $cb  = shift;
@@ -81,4 +76,3 @@ subtest 'halt with parameter in before hook' => sub {
 };
 
 done_testing;
-

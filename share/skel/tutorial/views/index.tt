@@ -1,0 +1,20 @@
+    <h2>Blog Entries</h2>
+    <div id="entries">
+    <% IF entries.size %>
+        <dl>
+        <% FOREACH entry IN entries %>
+            <dt><a href="/entry/<% entry.id %>"><% entry.title | html_entity %></a></dt>
+            <dd>
+                <p>
+                    (<a href="<% request.uri_for('/update/' _ entry.id) %>">Edit</a>
+                    <a href="<% request.uri_for('/delete/' _ entry.id) %>">Delete</a>)<br>
+                    <% entry.created_at | html_entity %><br>
+                    <% entry.summary | html_entity %><br>
+                </p>
+            </dd>
+        <% END %>
+        </dl>
+    <% ELSE %>
+        <p>No entries found.</p>
+    <% END %>
+    </div>

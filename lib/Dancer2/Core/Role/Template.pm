@@ -3,8 +3,9 @@
 package Dancer2::Core::Role::Template;
 
 use Dancer2::Core::Types;
-use Dancer2::FileUtils qw'path';
+use Dancer2::FileUtils 'path';
 use Carp 'croak';
+use Ref::Util qw< is_ref >;
 
 use Moo::Role;
 with 'Dancer2::Core::Role::Engine';
@@ -53,16 +54,6 @@ has default_tmpl_ext => (
     default => sub { shift->config->{extension} || 'tt' },
 );
 
-has views => (
-    is  => 'rw',
-    isa => Maybe [Str],
-);
-
-has layout => (
-    is  => 'rw',
-    isa => Maybe [Str],
-);
-
 has engine => (
     is      => 'ro',
     isa     => Object,
@@ -78,10 +69,23 @@ has settings => (
     writer  => 'set_settings',
 );
 
+# The attributes views, layout and layout_dir have triggers in
+# Dancer2::Core::App that enable their values to be modified by
+# the `set` keyword. As such, these are defined as read-write attrs.
+
+has views => (
+    is  => 'rw',
+    isa => Maybe [Str],
+);
+
+has layout => (
+    is  => 'rw',
+    isa => Maybe [Str],
+);
+
 has layout_dir => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub {'layouts'},
+    is  => 'rw',
+    isa => Maybe [Str],
 );
 
 sub _template_name {
@@ -108,6 +112,11 @@ sub layout_pathname {
     );
 }
 
+sub pathname_exists {
+    my ( $self, $pathname ) = @_;
+    return -f $pathname;
+}
+
 sub render_layout {
     my ( $self, $layout, $tokens, $content ) = @_;
 
@@ -119,7 +128,7 @@ sub render_layout {
 
 sub apply_renderer {
     my ( $self, $view, $tokens ) = @_;
-    $view = $self->view_pathname($view) if !ref $view;
+    $view = $self->view_pathname($view) if !is_ref($view);
     $tokens = $self->_prepare_tokens_options( $tokens );
 
     $self->execute_hook( 'engine.template.before_render', $tokens );
@@ -173,14 +182,18 @@ sub _prepare_tokens_options {
     $tokens ||= {};
     $tokens->{perl_version}   = $^V;
     $tokens->{dancer_version} = Dancer2->VERSION;
+    $tokens->{settings}       = $self->settings;
 
-    $tokens->{settings} = $self->settings;
-    $tokens->{request}  = $self->request;
-    $tokens->{params}   = $self->request->params;
-    $tokens->{vars}     = $self->request->vars;
+    # no request when template is called as a global keyword
+    if ( $self->has_request ) {
+        $tokens->{request}  = $self->request;
+        $tokens->{params}   = $self->request->params;
+        $tokens->{vars}     = $self->request->vars;
 
-    $tokens->{session} = $self->session->data
-      if $self->has_session;
+        # a session can not exist if there is no request
+        $tokens->{session} = $self->session->data
+          if $self->has_session;
+    }
 
     return $tokens;
 }
@@ -241,7 +254,7 @@ Current version of perl, effectively C<$^V>.
 
 =item * C<dancer_version>
 
-Current version of Dancer2, effectively C<<Dancer2->VERSION>>.
+Current version of Dancer2, effectively C<< Dancer2->VERSION >>.
 
 =item * C<settings>
 
@@ -308,6 +321,14 @@ Returns the full path to the requested view.
 
 Returns the full path to the requested layout.
 
+=method pathname_exists($pathname)
+
+Returns true if the requested pathname exists. Can be used for either views
+or layouts:
+
+    $self->pathname_exists( $self->view_pathname( 'some_view' ) );
+    $self->pathname_exists( $self->layout_pathname( 'some_layout' ) );
+
 =method render_layout($layout, \%tokens, \$content)
 
 Render the layout with the applied tokens
@@ -317,3 +338,5 @@ Render the layout with the applied tokens
 =method apply_layout($content, \%tokens, \%options)
 
 =method process($view, \%tokens, \%options)
+
+=method template($view, \%tokens, \%options)

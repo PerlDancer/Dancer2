@@ -8,6 +8,7 @@ use Carp 'croak';
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw(path set_file_mode escape_filename);
 use Fcntl ':flock';
+use File::Copy ();
 
 #--------------------------------------------------------------------------#
 # Required by classes consuming this role
@@ -63,7 +64,7 @@ sub _retrieve {
     my ( $self, $id ) = @_;
     my $session_file = path( $self->session_dir, escape_filename($id) . $self->_suffix );
 
-    return unless -f $session_file;
+    croak "Invalid session ID: $id" unless -f $session_file;
 
     open my $fh, '+<', $session_file or die "Can't open '$session_file': $!\n";
     flock $fh, LOCK_SH or die "Can't lock file '$session_file': $!\n";
@@ -71,6 +72,20 @@ sub _retrieve {
     close $fh or die "Can't close '$session_file': $!\n";
 
     return $data;
+}
+
+sub _change_id {
+    my ($self, $old_id, $new_id) = @_;
+
+    my $old_path =
+      path($self->session_dir, escape_filename($old_id) . $self->_suffix);
+
+    return if !-f $old_path;
+
+    my $new_path =
+      path($self->session_dir, escape_filename($new_id) . $self->_suffix);
+
+    File::Copy::move($old_path, $new_path);
 }
 
 sub _destroy {
@@ -112,13 +127,14 @@ Classes consuming this must satisfy three requirements: C<_suffix>,
 C<_freeze_to_handle> and C<_thaw_from_handle>.
 
 
-    package Dancer2::SessionFactory::XYX
+    package Dancer2::Session::XYX;
 
+    use Dancer2::Core::Types;
     use Moo;
 
     has _suffix => (
         is      => 'ro',
-        isa     => 'Str',
+        isa     => Str,
         default => sub { '.xyz' },
     );
 

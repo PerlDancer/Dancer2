@@ -5,6 +5,7 @@ use Moo;
 
 use Carp;
 use File::Spec;
+use Module::Runtime 'require_module';
 
 use Dancer2::Core::Types;
 use Dancer2::FileUtils qw(open_file);
@@ -38,7 +39,7 @@ sub file_handle {
 
 sub copy_to {
     my ( $self, $target ) = @_;
-    require File::Copy;
+    require_module('File::Copy');
     File::Copy::copy( $self->tempname, $target );
 }
 
@@ -68,7 +69,7 @@ sub content {
 
 sub basename {
     my ($self) = @_;
-    require File::Basename;
+    require_module('File::Basename');
     File::Basename::basename( $self->filename );
 }
 

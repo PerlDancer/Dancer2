@@ -4,6 +4,7 @@ use Test::More import => ['!pass'], tests => 4;
 use Dancer2;
 use Plack::Test;
 use HTTP::Request::Common;
+use Ref::Util qw<is_coderef>;
 
 get '/' => sub {
     return 'Forbidden';
@@ -18,21 +19,21 @@ get '/redirect' => sub {
 };
 
 hook before => sub {
-    return if request->dispatch_path eq '/default';
+    return if request->path eq '/default';
 
     # Add some content to the response
     response->content("SillyStringIsSilly");
 
     # redirect - response should include the above content
     return redirect '/default'
-        if request->dispatch_path eq '/redirect';
+        if request->path eq '/redirect';
 
     # The response object will get replaced by the result of the forward.
     forward '/default';
 };
 
 my $app = __PACKAGE__->to_app;
-is( ref $app, 'CODE', 'Got app' );
+ok( is_coderef($app), 'Got app' );
 
 test_psgi $app, sub {
     my $cb = shift;

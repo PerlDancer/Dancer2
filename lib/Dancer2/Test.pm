@@ -10,6 +10,7 @@ use Test::Builder;
 use URI::Escape;
 use Data::Dumper;
 use File::Temp;
+use Ref::Util qw<is_arrayref>;
 
 use parent 'Exporter';
 our @EXPORT = qw(
@@ -40,6 +41,7 @@ our @EXPORT = qw(
 #dancer1 also has read_logs, response_redirect_location_is
 #cf. https://github.com/PerlDancer2/Dancer22/issues/25
 
+use Dancer2::Core::MIME;
 use Dancer2::Core::Dispatcher;
 use Dancer2::Core::Request;
 
@@ -55,7 +57,7 @@ our $NO_WARN = 0;
 # or can be fed a response (which is passed through without
 # any modification)
 sub dancer_response {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    croak 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     _find_dancer_apps_for_dispatcher();
@@ -70,6 +72,7 @@ sub dancer_response {
 
     # override the set_request so it actually sets our request instead
     {
+        ## no critic qw(TestingAndDebugging::ProhibitNoWarnings)
         no warnings qw<redefine once>;
         *Dancer2::Core::App::set_request = sub {
             my $self = shift;
@@ -85,6 +88,7 @@ sub dancer_response {
         status  => $psgi_response->[0],
         headers => $psgi_response->[1],
         content => $psgi_response->[2][0],
+        mime_type => Dancer2::Core::MIME->new(),
     );
 }
 
@@ -96,8 +100,8 @@ sub _build_request_from_env {
     # or as a arrayref, or as a simple string
     my ( $method, $path, $options ) =
         @_ > 1 ? @_
-      : ref $_[0] eq 'ARRAY' ? @{ $_[0] }
-      :                        ( GET => $_[0], {} );
+      : is_arrayref($_[0]) ? @{ $_[0] }
+      :                      ( GET => $_[0], {} );
 
     my $env = {
         %ENV,
@@ -115,7 +119,7 @@ sub _build_request_from_env {
     if ( defined $options->{params} ) {
         my @params;
         while ( my ( $p, $value ) = each %{ $options->{params} } ) {
-            if ( ref($value) eq 'ARRAY' ) {
+            if ( is_arrayref($value) ) {
                 for my $v (@$value) {
                     push @params,
                       uri_escape_utf8($p) . '=' . uri_escape_utf8($v);
@@ -139,6 +143,9 @@ sub _build_request_from_env {
         for my $header ( @{ $options->{headers} } ) {
             my ( $name, $value ) = @{$header};
             $request->header( $name => $value );
+            if ( $name =~ /^cookie$/i ) {
+                $env->{HTTP_COOKIE} = $value;
+            }
         }
     }
 
@@ -200,7 +207,7 @@ sub _build_env_from_request {
     if ( my $params = $request->{_query_params} ) {
         my @params;
         while ( my ( $p, $value ) = each %{$params} ) {
-            if ( ref($value) eq 'ARRAY' ) {
+            if ( is_arrayref($value) ) {
                 for my $v (@$value) {
                     push @params,
                       uri_escape_utf8($p) . '=' . uri_escape_utf8($v);
@@ -221,7 +228,7 @@ sub _build_env_from_request {
 
 sub response_status_is {
     my ( $req, $status, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     $test_name ||= "response status is $status for " . _req_label($req);
@@ -250,7 +257,7 @@ sub _find_route_match {
 }
 
 sub route_exists {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     my $tb = Test::Builder->new;
@@ -259,7 +266,7 @@ sub route_exists {
 }
 
 sub route_doesnt_exist {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     my $tb = Test::Builder->new;
@@ -270,7 +277,7 @@ sub route_doesnt_exist {
 sub response_status_isnt {
     my ( $req, $status, $test_name ) = @_;
 
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
 
     $test_name ||= "response status is not $status for " . _req_label($req);
@@ -310,28 +317,28 @@ sub response_status_isnt {
 }
 
 sub response_content_is {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'is_eq' );
 }
 
 sub response_content_isnt {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'isnt_eq' );
 }
 
 sub response_content_like {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'like' );
 }
 
 sub response_content_unlike {
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     _cmp_response_content( @_, 'unlike' );
@@ -339,7 +346,7 @@ sub response_content_unlike {
 
 sub response_content_is_deeply {
     my ( $req, $matcher, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "response content looks good for " . _req_label($req);
 
@@ -350,7 +357,7 @@ sub response_content_is_deeply {
 
 sub response_is_file {
     my ( $req, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "a file is returned for " . _req_label($req);
 
@@ -362,7 +369,7 @@ sub response_is_file {
 
 sub response_headers_are_deeply {
     my ( $req, $expected, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "headers are as expected for " . _req_label($req);
 
@@ -377,7 +384,7 @@ sub response_headers_are_deeply {
 
 sub response_headers_include {
     my ( $req, $expected, $test_name ) = @_;
-    carp 'Dancer2::Test is deprecated, please use Plack::Test instead'
+    carp 'DEPRECATED: Dancer2::Test. Please use Plack::Test instead'
         unless $NO_WARN;
     $test_name ||= "headers include expected data for " . _req_label($req);
     my $tb = Test::Builder->new;
@@ -436,11 +443,10 @@ sub route_pod_coverage {
                 for ( my $idx = 0; $idx < @$pod_dataref; $idx++ ) {
                     my $pod_part = $pod_dataref->[$idx];
 
-                    next if ref $pod_part ne 'ARRAY';
+                    next if !is_arrayref($pod_part);
                     foreach my $ref_part (@$pod_part) {
-                        if ( ref($ref_part) eq "ARRAY" ) {
-                            push @$pod_dataref, $ref_part;
-                        }
+                        is_arrayref($ref_part)
+                            and push @$pod_dataref, $ref_part;
                     }
 
                     my $pod_string = lc $pod_part->[2];
@@ -534,13 +540,13 @@ sub _req_label {
         ref $req eq 'Dancer2::Core::Response' ? 'response object'
       : ref $req eq 'Dancer2::Core::Request'
       ? join( ' ', map { $req->$_ } qw/ method path / )
-      : ref $req eq 'ARRAY' ? join( ' ', @$req )
-      :                       "GET $req";
+      : is_arrayref($req) ? join( ' ', @$req )
+      :                     "GET $req";
 }
 
 sub _expand_req {
     my $req = shift;
-    return ref $req eq 'ARRAY' ? @$req : ( 'GET', $req );
+    return is_arrayref($req) ? @$req : ( 'GET', $req );
 }
 
 # Sort arrayref of headers (turn it into a list of arrayrefs, sort by the header
@@ -593,7 +599,7 @@ sub _req_to_response {
     # already a response object
     return $req if ref $req eq 'Dancer2::Core::Response';
 
-    return dancer_response( ref $req eq 'ARRAY' ? @$req : ( 'GET', $req ) );
+    return dancer_response( is_arrayref($req) ? @$req : ( 'GET', $req ) );
 }
 
 # make sure we have at least one app in the dispatcher, and if not,
@@ -628,25 +634,28 @@ __END__
 
     my $res = $test->request( GET '/' );
     is( $res->code, 200, '[GET /] Request successful' );
-    like( $res->content, qr/hello, world/, '[GET /] Correct content';
+    like( $res->content, qr/hello, world/, '[GET /] Correct content' );
 
     done_testing;
 
 =head1 DESCRIPTION
 
-B<DEPRECATED>.  Please use L<Plack::Test> instead as shown in the SYNOPSIS!
+B<DEPRECATED. This module and all the functions listed below are deprecated. Do
+not use this module.> The routines provided by this module for testing Dancer2
+apps are buggy and unnecessary. Instead, use the L<Plack::Test> module as shown
+in the SYNOPSIS above and ignore the functions in this documentation. Consult
+the L<Plack::Test> documentation for further details.
 
-This module will warn for a while until we actually remove it. This is to
-provide enough time to fully remove it from your system.
+This module will be removed from the Dancer2 distribution in the near future.
+You should migrate all tests that use it over to the L<Plack::Test> module and
+remove this module from your system. This module will throw warnings to remind
+you.
 
-If you need to remove the warnings, for now, you can set:
+For now, you can silence the warnings by setting the C<NO_WARN> option:
 
     $Dancer::Test::NO_WARN = 1;
 
-This module provides useful routines to test Dancer2 apps. They are, however,
-buggy and unnecessary. L<Plack::Test> is advised instead.
-
-$test_name is always optional.
+In the functions below, $test_name is always optional.
 
 =func dancer_response ($method, $path, $params, $arg_env);
 
