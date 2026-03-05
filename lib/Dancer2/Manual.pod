@@ -2053,7 +2053,7 @@ keyword allows you to serialize a Perl data structure into a JSON string:
         return encode_json($data);
     };
 
-C<encode_json> automatically performs UTF-8 encoding of the data for you.
+C<encode_json> expects character data and returns UTF-8 encoded bytes.
 
 Since you are manually serializing the response data, the serialization
 hooks provided by Dancer2 are not called. See L</Hooks> for more information.
@@ -2065,8 +2065,8 @@ when you want to manually prepare JSON data before sending it:
 
     my $json_string = to_json({ name => 'Danceyland', status => 'open' });
 
-You likely want to use C<encode_json> instead, since C<to_json> does not
-do any data encoding.
+You likely want to use C<encode_json> instead. Both return UTF-8 encoded
+bytes, but C<encode_json> makes the intent explicit.
 
 =head3 C<decode_json>
 
@@ -2086,8 +2086,8 @@ hooks will not run.
 
 =head3 C<from_json>
 
-C<from_json> also decodes JSON to a Perl data structure, but it does not
-deal with UTF-8 encoding. You likely want C<decode_json> instead
+C<from_json> also decodes JSON to a Perl data structure. The input is
+expected to be UTF-8 encoded bytes.
 
 =head3 C<to_yaml>
 

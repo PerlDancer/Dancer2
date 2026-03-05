@@ -26,7 +26,7 @@ sub render {
     my $template_data =
       ref $template
       ? ${$template}
-      : read_file_content($template);
+      : read_file_content( $template, $self->charset );
 
     # Template::Tiny doesn't like empty template files (like .dancer), so
     # don't try to render them. Return an empty (not undef) value instead.

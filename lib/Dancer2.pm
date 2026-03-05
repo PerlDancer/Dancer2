@@ -415,6 +415,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Shlomi Fish
     Slava Goltser
     Snigdha
+    Sorin Pop
     Steve Bertrand
     Steve Dondley
     Steven Humphrey
