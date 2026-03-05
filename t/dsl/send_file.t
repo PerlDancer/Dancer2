@@ -6,7 +6,6 @@ use Encode 'encode_utf8';
 use Test::More;
 use Plack::Test;
 use HTTP::Request::Common;
-use File::Temp;
 use Path::Tiny ();
 use Ref::Util qw<is_coderef>;
 
@@ -45,11 +44,8 @@ use Ref::Util qw<is_coderef>;
     };
 
     get '/check_content_type' => sub {
-        my $temp = File::Temp->new();
-        print $temp "hello";
-        close $temp;
-        send_file($temp->filename, content_type => 'image/png',
-                                   system_path  => 1);
+        my $file = Path::Tiny::path(__FILE__)->absolute->stringify;
+        send_file($file, content_type => 'image/png', system_path => 1);
     };
 
     get '/no_streaming' => sub {
