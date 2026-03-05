@@ -7,6 +7,8 @@
     [ ENHANCEMENTS ]
     * GH #763: Strict config mode; warn on unknown config keys with
       opt-out (Sawyer X)
+    * GH #763: Default strict config to off, but scaffold new apps with
+      stict config enabled (Jason A. Crome)
     * GH #1073: Get multiple session cookie values at once with clear
       method (Sawyer X)
     * GH #1323: Allow fully qualified namespaces for all engines (Russell
