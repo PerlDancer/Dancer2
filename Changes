@@ -39,7 +39,7 @@
     * None
 
     [ MISC ]
-    * None
+    * PR #1776: Remove "Powered by..." from the error page (Jason A. Crome)
 
 2.0.1     2025-10-22 18:13:37-04:00 America/New_York
 
