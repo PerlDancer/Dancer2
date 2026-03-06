@@ -75,6 +75,7 @@ recommends 'Type::Tiny::XS';
 recommends 'URL::Encode::XS';
 recommends 'YAML::XS';
 recommends 'Unicode::UTF8';
+recommends 'Log::Any';
 
 suggests 'Fcntl';
 suggests 'MIME::Types';
@@ -90,6 +91,7 @@ test_requires 'Test::Fatal';
 test_requires 'Test::More';
 test_requires 'Test::More', '0.92';
 test_requires 'Test::Exception';
+test_requires 'Log::Any';
 
 author_requires 'Test::NoTabs';
 author_requires 'Test::Pod';
