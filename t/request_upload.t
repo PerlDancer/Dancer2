@@ -132,11 +132,16 @@ SHOGUN6
         ok( ( -f $file ), 'temp file exists while request object lives' );
 
         # On Windows, files cannot be unlinked while open. Close all cached
-        # file handles before destroying $req so that HTTP::Body's temp dir
-        # cleanup (which runs in the destructor) can succeed.
+        # file handles before destroying $req so that the temp dir cleanup
+        # (which runs in File::Temp::Dir's DESTROY, triggered by freeing
+        # $req's PSGI env) can succeed.
         if ( $^O eq 'MSWin32' ) {
-            $_->{'fh'} = undef for
-                @uploads, $test_upload_file3, @test_upload_file6, $upload;
+            for my $up_or_list ( values %{ $req->uploads } ) {
+                my @ups = ref $up_or_list eq 'ARRAY'
+                    ? @{$up_or_list}
+                    : $up_or_list;
+                $_->{_fh} = undef for @ups;
+            }
         }
 
         undef $req;
