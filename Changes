@@ -11,6 +11,7 @@
     * GH #1773: t/dsl/send_as.t throws json-related warnings (Jason
       A. Crome)
     * GH #1774: t/hooks.t throws void warnings (Jason A. Crome)
+    * GH #1777: Properly unlink file uploads on Windows (Sawyer X)
 
     [ ENHANCEMENTS ]
     * GH #763: Strict config mode; warn on unknown config keys with
