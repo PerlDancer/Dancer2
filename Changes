@@ -6,6 +6,8 @@
     * GH #1124: Fix: charset config option is mostly ignored (Sawyer X)
     * GH #1143: Fix utf8 in URL (Sawyer X, Sorin Pop)
     * GH #1449, 1630: Make plugin DSL keyword app-specific (Sawyer X)
+    * GH #1772: t/dsl/send_file.t fails with content_type-related errors
+      (Sawyer X)
     * GH #1773: t/dsl/send_as.t throws json-related warnings (Jason
       A. Crome)
     * GH #1774: t/hooks.t throws void warnings (Jason A. Crome)
