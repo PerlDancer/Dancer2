@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2.1.0     2026-03-11 21:29:26-04:00 America/New_York
+
     [ BUG FIXES ]
     * GH #686: Fix: to_json is double encoding UTF8 (Sawyer X)
     * GH #863: Fix case insensitive system confusion (Sawyer X)
