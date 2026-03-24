@@ -84,6 +84,7 @@ sub _ensure_characters {
     }
 
     if ( is_plain_hashref($entity) ) {
+        my %ret;
         for my $key ( keys %{$entity} ) {
             my $value = $entity->{$key};
             my $decoded_key = _ensure_scalar( $key, $strict_utf8, $self );
@@ -92,12 +93,12 @@ sub _ensure_characters {
 
             if ( $decoded_key ne $key ) {
                 delete $entity->{$key};
-                $entity->{$decoded_key} = $decoded_value;
+                $ret{$decoded_key} = $decoded_value;
             } else {
-                $entity->{$key} = $decoded_value;
+                $ret{$key} = $decoded_value;
             }
         }
-        return $entity;
+        return \%ret;
     }
 
     return $entity;
