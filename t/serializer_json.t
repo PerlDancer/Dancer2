@@ -18,7 +18,8 @@ use Dancer2::Serializer::JSON;
     set engines => {
         serializer => {
             JSON => {
-                pretty => 1,
+                canonical => 1,
+                pretty    => 1,
             }
         }
     };
@@ -31,16 +32,16 @@ use Dancer2::Serializer::JSON;
 
 my @tests = (
     {   entity  => { a      => 1, b => 2, },
-        options => { pretty => 1 },
+        options => { canonical => 1, pretty => 1 },
         name    => "basic hash",
     },
     {   entity  =>
           { c => [ { d => 3, e => { f => 4, g => 'word', } } ], h => 6 },
-        options => { pretty => 1 },
+        options => { canonical => 1, pretty => 1 },
         name    => "nested",
     },
     {   entity  => { data => "\x{2620}" x 10 },
-        options => { pretty => 1, utf8 => 1 },
+        options => { canonical => 1, pretty => 1, utf8 => 1 },
         name    => "utf8",
     }
 );
