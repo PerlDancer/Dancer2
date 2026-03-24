@@ -2,7 +2,7 @@ package Dancer2::Serializer::JSON;
 # ABSTRACT: Serializer for handling JSON data
 
 use Moo;
-use Ref::Util qw< is_arrayref is_hashref >;
+use Ref::Util qw< is_plain_arrayref is_plain_hashref >;
 use JSON::MaybeXS ();
 use Encode qw(decode FB_CROAK);
 use Scalar::Util 'blessed';
@@ -76,14 +76,14 @@ sub _ensure_characters {
     return $entity if !defined $entity;
     return _ensure_scalar( $entity, $strict_utf8, $self ) if !ref $entity;
 
-    if ( is_arrayref($entity) ) {
+    if ( is_plain_arrayref($entity) ) {
         for my $i ( 0 .. $#{$entity} ) {
             $entity->[$i] = _ensure_characters( $entity->[$i], $strict_utf8, $self );
         }
         return $entity;
     }
 
-    if ( is_hashref($entity) ) {
+    if ( is_plain_hashref($entity) ) {
         for my $key ( keys %{$entity} ) {
             my $value = $entity->{$key};
             my $decoded_key = _ensure_scalar( $key, $strict_utf8, $self );
