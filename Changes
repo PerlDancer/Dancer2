@@ -6,6 +6,7 @@
     * GH #1790: Fix infinite recursion into blessed objects in JSON
       Serializer (Russell @veryrusty Jenkins)
     * PR #1791: Send correct error codes in send_file (Anton Lundin)
+    * Fix path()/dirname() DSL keywords dropping their first argument (Mike Weisenborn)
 
     [ ENHANCEMENTS ]
     * None
