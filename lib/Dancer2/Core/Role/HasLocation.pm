@@ -51,6 +51,22 @@ my @_config_files = map "config.$_",
 # directory worth calling the app root.
 my @_app_dirs = qw< environments views public >;
 
+# Files and directories marking the root of a checkout or a distribution.
+my @_project_markers =
+    qw< .git .hg .svn Makefile.PL Build.PL dist.ini cpanfile >;
+
+# Is this directory a ceiling the walk must not cross? Whatever the app root
+# is, it sits at or below its own project root, never in the home directory
+# or the build directory above it. Only consulted for directories _is_app_root
+# has already rejected, so a project root that is also an app root - which is
+# the usual case, 'dancer2 gen' writes a cpanfile and a Makefile.PL - has been
+# accepted long before this is reached.
+sub _is_project_boundary {
+    my $dir = shift;
+    $dir->child($_)->exists and return 1 for @_project_markers;
+    return 0;
+}
+
 # Does this directory look like the root of a Dancer2 application?
 #
 # Historically the only test was "holds both lib/ and bin/". That is a poor
@@ -102,6 +118,10 @@ sub _build_location {
             $subdir_found = 1;
             last;
         }
+
+        # a checkout or distribution root that is not itself an app root:
+        # stop rather than escape into whatever happens to lie above it
+        last if _is_project_boundary($subdir);
 
         # stop at the volume root, where parent() is its own fixed point
         my $parent = $subdir->parent;

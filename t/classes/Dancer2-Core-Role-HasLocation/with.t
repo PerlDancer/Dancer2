@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Path::Tiny qw< path >;
-use Test::More tests => 14;
+use Test::More tests => 19;
 
 {
     package App;
@@ -102,6 +102,37 @@ note 'Does not walk past an app root into an enclosing lib/+bin/ dir:'; {
             $app->location,
             $path,
             "App root found by $case{$dir}, not the enclosing lib/+bin/ dir",
+        );
+    }
+}
+
+# A checkout or distribution root is a ceiling: whatever the app root is, it
+# sits at or below that line, never in the directory above it. Built at
+# runtime rather than shipped, because git will not track a path named .git.
+note 'Stops at a project boundary rather than escaping above it:'; {
+    my $tmp = Path::Tiny->tempdir;
+
+    # plays the part of a home directory: lib/ and bin/, nothing Dancer2
+    $tmp->child($_)->mkpath for qw< lib bin >;
+
+    foreach my $marker ( qw< .git .hg Makefile.PL dist.ini cpanfile > ) {
+        my $checkout = $tmp->child("checkout$marker");
+        my $srcdir   = $checkout->child('src');
+        $srcdir->mkpath;
+
+        # .git and .hg are directories in a normal checkout, the rest files
+        $marker =~ /^\./ ? $checkout->child($marker)->mkpath
+                         : $checkout->child($marker)->touch;
+
+        my $script = $srcdir->child('fakescript.pl');
+        $script->touch;
+
+        my $app = App->new( caller => $script->stringify );
+
+        is(
+            $app->location,
+            $srcdir->realpath->stringify,
+            "$marker halts the walk instead of reaching the lib/+bin/ dir above",
         );
     }
 }
