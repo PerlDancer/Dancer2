@@ -384,6 +384,7 @@ We are also on IRC: #dancer on irc.perl.org.
     Michael Kröll
     Michał Wojciechowski
     Mike Katasonov
+    Mike Weisenborn
     Mikko Koivunalho
     Mohammad S Anwar
     mokko
