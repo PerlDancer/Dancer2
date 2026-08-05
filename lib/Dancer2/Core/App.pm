@@ -1586,6 +1586,13 @@ sub to_app {
             $psgi,
             condition => sub {
                 my $env = shift;
+                # A NUL byte in PATH_INFO makes Path::Tiny warn ("Invalid \0
+                # character in pathname for ftis") when we ask it whether the
+                # path is a file. Refuse it here, before Path::Tiny ever sees
+                # it, so the request just falls through to the app (which
+                # 404s, as it always has) without the warning.
+                return 0
+                    if defined $env->{'PATH_INFO'} && $env->{'PATH_INFO'} =~ /\0/;
                 $self->_public_dir_path->child(
                     defined $env->{'PATH_INFO'} && length $env->{'PATH_INFO'}
                     ? ($env->{'PATH_INFO'})
