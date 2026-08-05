@@ -213,3 +213,45 @@ jobs:
             cpanm Dancer2-*.tar.gz
             perl -MDancer2 -e 'print qq{$Dancer2::VERSION\n}'
 
+  # Dynamically discover all available Perl versions for comprehensive compatibility testing.
+  # Inspired by https://github.com/cpan-authors/YAML-Syck/blob/main/.github/workflows/testsuite.yml
+  perl-versions:
+    if: ${{ github.repository == 'PerlDancer/Dancer2' || github.event_name != 'schedule' }}
+    runs-on: ubuntu-latest
+    needs: build-in-container
+    name: List Perl versions
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: 5.14
+          with-devel: true
+
+  test-perl-matrix:
+    name: "Perl ${{ matrix.perl-version }}"
+    needs: [perl-versions]
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version: ${{ fromJson(needs.perl-versions.outputs.perl-versions) }}
+
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: the-dancer
+
+      - name: Install Dancer
+        run: |
+            perl -v
+            cpanm --notest --force Module::Pluggable
+            cpanm -v Dancer2-*.tar.gz
+            perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
+
