@@ -4,6 +4,7 @@ package Dancer2::Handler::AutoPage;
 use Moo;
 use Carp 'croak';
 use Dancer2::Core::Types;
+use Path::Tiny ();
 
 with qw<
     Dancer2::Core::Role::Handler
@@ -35,7 +36,15 @@ sub code {
 
         my $page       = $app->request->path;
         my $layout_dir = $template->layout_dir;
-        if ( $page =~ m{^/\Q$layout_dir\E/} ) {
+
+        # Cheap fast path: if the request path is spelled with the layout
+        # directory's own case, refuse it without touching the filesystem.
+        # This is only an optimisation - it is not the authoritative check,
+        # because on a case-insensitive filesystem (macOS/Windows) a
+        # differently-cased request would miss it while still resolving to
+        # the same file (F11). The check below decides from the resolved
+        # file instead, so it catches that case too.
+        if ( defined $layout_dir && $page =~ m{^/\Q$layout_dir\E/} ) {
             $app->response->has_passed(1);
             return;
         }
@@ -47,6 +56,42 @@ sub code {
         if ( ! $template->pathname_exists( $view_path ) ) {
             $app->response->has_passed(1);
             return;
+        }
+
+        # Authoritative check: is the page's own directory, resolved on
+        # disk, inside the layout directory? Decided from what is actually
+        # there rather than the request path's spelling, the same
+        # containment approach send_file uses at
+        # Dancer2/Core/App.pm:1180-1182
+        # ($dir->realpath->subsumes($file_path)).
+        #
+        # This does not use $view_path/view_pathname for the comparison:
+        # that method is engine-specific, and Dancer2::Template::TemplateToolkit
+        # overrides it to return a bare template name rather than a
+        # filesystem path, leaving TT2's own INCLUDE_PATH search to resolve
+        # it - so it cannot be relied on to name a location on disk here.
+        # $template->views is guaranteed absolute by
+        # Dancer2::Core::Role::Template, so joining it with $page and
+        # taking the parent gives the page's real directory regardless of
+        # which template engine is in use. Its parent directory is
+        # guaranteed to exist at this point - pathname_exists just
+        # confirmed the page resolves to a real file - so realpath cannot
+        # die here.
+        if ( defined $layout_dir ) {
+            my $layout_dir_path =
+                Path::Tiny::path( $template->views, $layout_dir );
+            my $page_dir_path =
+                Path::Tiny::path( $template->views, $page )->parent;
+
+            if ( $layout_dir_path->is_dir
+                && $page_dir_path->is_dir
+                && $layout_dir_path->realpath->subsumes(
+                    $page_dir_path->realpath
+                )
+            ) {
+                $app->response->has_passed(1);
+                return;
+            }
         }
 
         my $ct = $template->process( $page );
