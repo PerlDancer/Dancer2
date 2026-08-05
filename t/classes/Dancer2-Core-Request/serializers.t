@@ -71,4 +71,41 @@ subtest 'Testing with JSON' => sub {
     );
 };
 
+{
+    package App::UrlEncoded;
+    use Dancer2;
+
+    # Due to the random hash order, the response will randomly fail the test.
+    # Turn on canonical to mitigate the problem.
+    set engines => {
+        serializer => {
+            JSON => {
+                canonical => 1
+            }
+        }
+    };
+
+    set serializer => 'JSON';
+
+    post '/' => sub {
+        my %body_parameters = body_parameters->flatten;
+        ::is_deeply(\%body_parameters, { foo => 'bar', bar => '' }, 'Correct body parameters');
+        return \%body_parameters;
+    };
+}
+
+subtest 'Testing with Form-UrlEncoded Data' => sub {
+    my $app = Plack::Test->create( App::UrlEncoded->to_app );
+    my $res = $app->request(
+        POST '/',
+        Content_Type => 'application/x-www-form-urlencoded',
+        Content      => 'foo=bar&bar='
+    );
+    is(
+        $res->content,
+        '{"bar":"","foo":"bar"}',
+        "Successful response"
+    );
+};
+
 done_testing();
