@@ -94,8 +94,20 @@ sub _get_content_type {
         # for backwards compatibility.
         foreach my $method ( $header, qw<content_type accept> ) {
             if ( my $value = $self->request->header($method) ) {
-                if ( my $serializer = $self->mapping->{$value} ) {
-                    $self->set_content_type($value);
+                # A header value may carry parameters after the content
+                # type itself (e.g. 'text/x-yaml; charset=utf-8'). Strip
+                # anything from the first ';' onward, trim surrounding
+                # whitespace and lowercase what's left, so the lookup
+                # matches on the content type alone - the mapping's keys
+                # are bare lowercase content types. (An Accept header
+                # listing several comma-separated types is not split
+                # further here: the whole remainder is matched as one
+                # string, so only a single-type Accept is recognised.)
+                ( my $type = $value ) =~ s/;.*$//;
+                $type =~ s/^\s+|\s+$//g;
+                $type = lc $type;
+                if ( my $serializer = $self->mapping->{$type} ) {
+                    $self->set_content_type($type);
                     return $serializer;
                 }
             }
@@ -141,24 +153,38 @@ __END__
 =head1 DESCRIPTION
 
 This serializer will try find the best (de)serializer for a given request.
-For this, it will pick the first valid content type found from the following list
-and use its related serializer.
+For this, it will pick the first valid content type found from a list, and
+use its related serializer. The list, and its order, is not the same in both
+directions:
 
 =over
 
 =item
 
-The B<content_type> from the request headers
+When B<deserializing> an incoming request body (that is, working out how to
+read it), the order is: the B<content_type> from the request headers, then
+the B<accept> from the request headers, then the default of
+B<application/json>.
 
 =item
 
-the B<accept> from the request headers
-
-=item
-
-The default is B<application/json>
+When B<serializing> a response (that is, working out what to send back), the
+order is: the B<accept> from the request headers, then the B<content_type>
+from the request headers, then the default of B<application/json>. Consulting
+C<Accept> first is deliberate - it is the header a client uses to say what it
+wants back, which need not match the content type of what it sent.
 
 =back
+
+In both directions, a header's value is matched against the mapping on its
+content type alone: any C<;>-separated parameters (such as
+C<; charset=utf-8>) are stripped, surrounding whitespace is trimmed, and the
+result is lowercased before comparison. So C<Content-Type: text/x-yaml>,
+C<Content-Type: text/x-yaml; charset=utf-8> and C<Content-Type: TEXT/X-YAML>
+are all recognised as C<text/x-yaml>. An C<Accept> header listing several
+comma-separated types is not split further - it is matched as a whole after
+parameter-stripping, so only a single-type C<Accept> value is recognised;
+anything else falls through to the next header or the default.
 
 The content-type/serializer mapping that C<Dancer2::Serializer::Mutable>
 uses is
@@ -168,6 +194,9 @@ uses is
     Dancer2::Serializer::YAML   | text/x-yaml, text/html
     Dancer2::Serializer::Dumper | text/x-data-dumper
     Dancer2::Serializer::JSON   | text/x-json, application/json
+
+The keys above are bare, lowercase content types - not raw header values - as
+described above.
 
 A different mapping can be provided via the config file. For example,
 the default mapping would be configured as
@@ -182,8 +211,7 @@ the default mapping would be configured as
                     'text/x-json'        : JSON
                     'application/json'   : JSON
 
-The keys of the mapping are the content-types to serialize,
-and the values the serializers to use. Serialization for C<YAML>, C<Dumper>
+The values are the serializers to use. Serialization for C<YAML>, C<Dumper>
 and C<JSON> are done using internal Dancer mechanisms. Any other serializer will
 be taken to be as Dancer2 serialization class (minus the C<Dancer2::Serializer::> prefix)
 and an instance of it will be used
