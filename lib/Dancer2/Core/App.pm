@@ -1937,7 +1937,8 @@ sub uri_for_route {
 
     foreach my $param (@params) {
         $param =~ s{^([^\[]+).*}{$1}xms;
-        my $value = $route_params->{$param}
+        my $value = $route_params->{$param};
+        defined $value
             or die "Route $route_name uses the parameter '${param}', which was not provided";
 
         $string =~ s!\Q:$param\E(\[[^\]]+\])?!$value!xmsg;
