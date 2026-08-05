@@ -30,11 +30,10 @@ option application => (
 option directory => (
     is         => 'ro',
     short      => 'd',
-    doc        => 'application directory (default: same as application name)',
+    doc        => 'application directory (default: dashed application name)',
     format     => 's',
     format_doc => 'directory',
     required   => 0,
-    default    => sub { my $self = shift; return $self->application; },
 );
 
 # This was causing conflict with Path::Tiny's path(), so renaming to avoid
@@ -190,7 +189,7 @@ sub run {
     $self->_copy_templates( $files_to_copy, $vars, $self->overwrite );
     unless( $self->no_package_files ) {
         $self->_create_manifest( $files_to_copy, $app_path );
-        $self->_add_to_manifest_skip( $app_path );
+        $self->_add_to_manifest_skip( $app_path, $vars->{cleanfiles} );
     }
 
     $self->_check_git( $vars );
@@ -221,10 +220,22 @@ commands:
 
         #my $dist_dir  = $self->parent_command->_dist_dir;
         my $app_path  = $vars->{ apppath };
-        my $gitignore = path( $self->parent_command->_dist_dir, '.gitignore' );
-        path( $gitignore )->copy( $app_path );
 
-        chdir $app_path->absolute->stringify
+        # The shipped template lives at share/gitignore, not share/.gitignore --
+        # a leading dot there would make git itself honour it against this
+        # distribution's own share/ tree (see F14). The generated application
+        # still needs a file literally named .gitignore, so the destination
+        # name is given explicitly rather than left to whatever copy() does
+        # with a directory target.
+        my $gitignore = path( $self->parent_command->_dist_dir, 'gitignore' );
+        path( $gitignore )->copy( path( $app_path, '.gitignore' ) );
+
+        # $vars->{apppath} is a plain string (see the die message below, which
+        # wants it as one); the absolute path was already computed once into
+        # $vars->{appdir} at the point of $app_path->absolute->stringify in
+        # run(), so re-derive it from there instead of calling ->absolute on
+        # a string (that was bug F15).
+        chdir $vars->{ appdir }
           or die "Can't cd to $app_path: $!";
         if( _run_shell_cmd( 'git', 'init') != 0 or
             _run_shell_cmd( 'git', 'add', '.') != 0 or
@@ -396,11 +407,11 @@ sub _create_manifest {
 }
 
 sub _add_to_manifest_skip {
-    my ( $self, $dir ) = @_;
+    my ( $self, $dir, $dist_name ) = @_;
 
     my $filename = path( $dir, 'MANIFEST.SKIP' );
     open my $fh, '>>', $filename or die $!;
-    print {$fh} "^$dir-\n";
+    print {$fh} "^$dist_name-\n";
     close $fh;
 }
 
