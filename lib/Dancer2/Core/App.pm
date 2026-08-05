@@ -158,6 +158,27 @@ has _public_dir_path => (
     init_arg => undef,
 );
 
+# compile_hooks() wraps each registered hook and writes the wrappers back
+# via replace_hook. finish() (and therefore compile_hooks) can legitimately
+# run more than once -- to_app() calls finish() every time it's invoked --
+# and re-wrapping an already-wrapped hook would make a single dying hook
+# report itself once per layer, so a dying hook fired core.app.hook_exception
+# once, then twice, then three times as to_app was called again.
+#
+# This records every wrapper compile_hooks has produced, keyed by address,
+# so a later run recognises its own work and passes it through instead of
+# wrapping it a second time. It is deliberately per-hook rather than a
+# per-app "already compiled" flag: hooks can still be registered after the
+# first compile -- finish() adds postponed plugin hooks immediately after
+# calling compile_hooks -- and those must still get wrapped when a later
+# to_app() comes round.
+has _compiled_hooks => (
+    is       => 'ro',
+    isa      => HashRef,
+    default  => sub { +{} },
+    init_arg => undef,
+);
+
 has '+local_triggers' => (
     default => sub {
         my $self     = shift;
@@ -1316,6 +1337,13 @@ sub compile_hooks {
     for my $position ( $self->supported_hooks ) {
         my $compiled_hooks = [];
         for my $hook ( @{ $self->hooks->{$position} } ) {
+            # Already a wrapper this method produced on an earlier run:
+            # pass it through untouched. See _compiled_hooks.
+            if ( $self->_compiled_hooks->{ Scalar::Util::refaddr($hook) } ) {
+                push @{$compiled_hooks}, $hook;
+                next;
+            }
+
             Scalar::Util::weaken( my $app = $self );
             my $compiled = set_subname subname($hook) => sub {
                 # don't run the filter if halt has been used
@@ -1337,9 +1365,14 @@ sub compile_hooks {
                     # exception, as this would clear the custom response that
                     # may have been set by the hook. However, there is no need
                     # to do so, as the upper hook that called this hook
-                    # exception will perform the cleanup instead anyway
+                    # exception will perform the cleanup instead anyway.
+                    # Likewise, if the response has been halted, that halt
+                    # means "this response is final" -- cleanup would destroy
+                    # the request/response/session the dispatcher still needs
+                    # to read, letting the very route this halt was meant to
+                    # refuse run anyway.
                     $app->cleanup
-                        unless $is_hook_exception;
+                        unless $is_hook_exception || $is_halted;
                     # Allow the hook function to halt the response, thus
                     # retaining any response it may have set. Otherwise the
                     # croak from this function will overwrite any content that
@@ -1350,6 +1383,12 @@ sub compile_hooks {
                     croak "Exception caught in '$position' filter: $err";
                 };
             };
+
+            # Remember the wrapper -- by address, and by holding a reference
+            # so its address cannot be reused by a later coderef -- so a
+            # subsequent compile_hooks run recognises and skips it.
+            $self->_compiled_hooks->{ Scalar::Util::refaddr($compiled) }
+                = $compiled;
 
             push @{$compiled_hooks}, $compiled;
         }
