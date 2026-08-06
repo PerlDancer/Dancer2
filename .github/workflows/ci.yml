@@ -7,6 +7,12 @@ on:
     branches: '**'
   schedule:
     - cron: '42 5 * * *'
+  workflow_dispatch:
+
+# A new push to a branch supersedes any run still going on that branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # Build and test Dancer on several versions of Perl using an image that already has a lot of modules installed.
 # This will provide a fast feedback if a commit broke anything in the unit-tests.
@@ -55,8 +61,7 @@ jobs:
 
             # HTTP::XSCookies (optional) does not compile on perl 5.44+: its
             # Makefile.PL forces -std=c89, which perl's headers no longer
-            # accept. Fix submitted upstream at https://github.com/gonzus/http-xscookies/pull/11
-            # Dancer2 falls back
+            # accept. Fix submitted upstream at <PR URL>. Dancer2 falls back
             # to its pure-Perl cookie path without it. Remove this filter
             # once a fixed release is on CPAN.
             dzil listdeps --author --missing \
