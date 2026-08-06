@@ -238,14 +238,26 @@ subtest 'the skeleton environment configs are in git (F14 fixed)' => sub {
     # a fresh clone generates them. They also belong in @required above now.
     my $probe = 'share/skel/default/environments/development.yml';
 
-    my ( undef, undef, $rev_status ) = capture {
-        system( 'git', 'rev-parse', '--is-inside-work-tree' );
+    # Being inside a work tree is not enough. 'dzil test' builds into
+    # .build/XXXX *within* this checkout and runs the suite from there, so
+    # --is-inside-work-tree succeeds while 'git ls-files <path>' -- which
+    # resolves its pathspec relative to the current directory -- names a
+    # build artifact rather than the source file, and reports nothing.
+    # Ask git where the top of the tree is and query from there instead,
+    # skipping where there is no git at all (a released tarball on a smoker).
+    my ( $toplevel, undef, $rev_status ) = capture {
+        system( 'git', 'rev-parse', '--show-toplevel' );
     };
     $rev_status == 0
         or plan skip_all => 'not a git checkout, so tracking cannot be checked';
+    chomp $toplevel;
+
+    -d path( $toplevel, 'share/skel/default' )
+        or plan skip_all => "git top level $toplevel is not this source tree";
 
     my ($tracked) = capture {
-        system( 'git', 'ls-files', 'share/skel/default/environments' );
+        system( 'git', '-C', $toplevel, 'ls-files',
+                'share/skel/default/environments' );
     };
     like( $tracked, qr{development\.yml}, 'development.yml is tracked by git' );
     like( $tracked, qr{production\.yml}, 'production.yml is tracked by git' );

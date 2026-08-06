@@ -32,6 +32,16 @@ sub header_for {
     return Dancer2::Core::Cookie->new(@_)->pp_to_header;
 }
 
+# Split a Set-Cookie header into its name=value pair plus the sorted set of
+# its attributes, for comparing two headers that must carry the same
+# information without asserting an order they do not have. RFC 6265 gives
+# Set-Cookie attributes no significant order, and the XS builder does not
+# emit them in a stable one -- see the XS-versus-pure-Perl subtest below.
+sub header_parts {
+    my ( $name_value, @attributes ) = split /; /, shift;
+    return [ $name_value, sort @attributes ];
+}
+
 # --- time expressions ----------------------------------------------------
 
 subtest 'a bare number is an absolute epoch' => sub {
@@ -272,11 +282,23 @@ subtest 'the XS header builder agrees with the pure-Perl one' => sub {
 
     # Whichever implementation is active, to_header must be one of the two -
     # asserted unconditionally so this subtest is never vacuous.
+    #
+    # Compared as a set rather than as a string. HTTP::XSCookies::bake_cookie
+    # is handed a hashref and walks it to build the attribute list, so with
+    # XS active the order of Path, HttpOnly and the rest varies from call to
+    # call -- two calls in one process can disagree:
+    #
+    #   to_header    n=v; Path=/; HttpOnly
+    #   xs_to_header n=v; HttpOnly; Path=/
+    #
+    # Asserting the string would fail about half the time. RFC 6265 gives
+    # these attributes no significant order, so the content is what matters
+    # and is all this can honestly check.
     my $cookie = Dancer2::Core::Cookie->new( name => 'n', value => 'v' );
     my $expected = Dancer2::Core::Cookie::_USE_XS()
         ? $cookie->xs_to_header
         : $cookie->pp_to_header;
-    is( $cookie->to_header, $expected,
+    is_deeply( header_parts( $cookie->to_header ), header_parts($expected),
         'to_header is aliased to the implementation this build selected' );
 };
 
