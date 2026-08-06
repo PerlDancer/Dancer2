@@ -1937,9 +1937,19 @@ sub uri_for_route {
 
     foreach my $param (@params) {
         $param =~ s{^([^\[]+).*}{$1}xms;
+        # A defined-but-false value is a legitimate parameter -- 0 is an
+        # ordinary database ID, list index or page number -- so these are
+        # tested for definedness and emptiness rather than for truth. The
+        # empty string is refused because ':param' compiles to ([^/]+),
+        # which matches at least one character: substituting it would
+        # produce a URI that cannot match the route it came from.
         my $value = $route_params->{$param};
-        defined $value
-            or die "Route $route_name uses the parameter '${param}', which was not provided";
+        if ( !defined $value ) {
+            die "Route $route_name uses the parameter '${param}', which was not provided";
+        }
+        elsif ( $value eq '' ) {
+            die "Route $route_name was given an empty value for the parameter '${param}'";
+        }
 
         $string =~ s!\Q:$param\E(\[[^\]]+\])?!$value!xmsg;
     }

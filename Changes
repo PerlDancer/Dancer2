@@ -45,9 +45,13 @@
       missed, fell back to JSON, and answered a valid request with 400.
       The header is now normalised (parameters stripped, trimmed,
       lowercased) before the lookup.
-    * uri_for_route died on a route parameter whose value was 0 or the
-      empty string, reporting it as "not provided". Defined-but-false
-      values are now accepted.
+    * uri_for_route died on a route parameter whose value was 0,
+      reporting it as "not provided" when it had been provided. 0 is an
+      ordinary database ID, list index or page number and is now
+      accepted. An empty value is still refused -- ':param' matches at
+      least one character, so it would produce a URI that cannot match
+      the route it came from -- but now says the value was empty rather
+      than claiming it was never provided.
     * to_app recompiled the hook wrappers on every call, wrapping the
       already-wrapped hooks, so a dying hook fired on_hook_exception once
       per to_app call. Hooks are now wrapped exactly once, while hooks

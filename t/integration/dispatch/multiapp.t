@@ -185,25 +185,32 @@ subtest 'uri_for_route refuses rather than emitting an unsubstituted token' => s
     }
 };
 
-subtest 'uri_for_route accepts a route parameter of 0 or "", but still refuses a missing one (F1)' => sub {
+subtest 'uri_for_route accepts a route parameter of 0, but not undef or "" (F1)' => sub {
     my $test = multi_app('MultiUri');
 
-    # Fixed behavior: the parameter is now tested with defined, not for
-    # truth, so a defined-but-false value (0, or the empty string) is a
-    # legitimate parameter -- an ordinary database ID or list index -- and
-    # is substituted like any other value. See F1 in
+    # Fixed behavior: the parameter is tested for definedness rather than
+    # for truth, so 0 -- an ordinary database ID, list index or page number
+    # -- is substituted like any other value. See F1 in
     # paad/test-roadmap/test-roadmap-findings.md.
     is( $test->request( GET '/uri/zero' )->content,
         'LIVED http://localhost/item/0',
         'a route parameter of 0 is substituted, not rejected' );
 
-    is( $test->request( GET '/uri/empty' )->content,
-        'LIVED http://localhost/item/',
-        'and so is the empty string' );
+    # The empty string is a different case from 0, and is still refused:
+    # ':id' compiles to ([^/]+), which matches at least one character, so
+    # substituting '' would yield '/item/' -- a URI that cannot match the
+    # route it was generated from. Refusing beats handing back a URL that
+    # 404s against its own application.
+    my $empty = $test->request( GET '/uri/empty' )->content;
+    like( $empty, qr/^DIED/, 'an empty route parameter is refused' );
+    like( $empty, qr/was given an empty value for the parameter 'id'/,
+        'and says the value was empty rather than missing' );
+    unlike( $empty, qr/which was not provided/,
+        'not reusing the "not provided" wording for a value that was provided' );
 
     # A parameter that was genuinely never supplied must still die, with the
-    # same message as before -- this subtest is about "0 and '' are values",
-    # not about relaxing the check for an absent key.
+    # same message as before, and must be distinguishable from the empty
+    # case above -- that distinction is the point of the two messages.
     my $content = $test->request( GET '/uri/missing' )->content;
     like( $content, qr/^DIED/, 'a route parameter with no value at all is still refused' );
     like( $content, qr/uses the parameter 'id', which was not provided/,
