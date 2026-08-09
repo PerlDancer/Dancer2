@@ -1,0 +1,4 @@
+# This test asserts on stderr, so it must not inherit logger: "Note"
+# from t/issues/config.yml. Having a config here also pins the app root
+# to this directory.
+logger: "Console"
