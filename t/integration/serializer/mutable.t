@@ -13,14 +13,14 @@ use HTTP::Request;
 #   serialize   - _get_content_type('accept'), so the request's Accept
 #                 decides how the outgoing body is written.
 #
-# That asymmetry is intentional and documented (F3): Accept is the header a
+# That asymmetry is intentional and documented: Accept is the header a
 # client uses to say what it wants back, so it is consulted first when
 # choosing a response format, while Content-Type - what the client says it
 # sent - is consulted first when reading the request body.
 #
 # The lookup matches on the content type alone: any ';'-separated parameters
 # (such as '; charset=utf-8') are stripped, and the result is lowercased,
-# before comparing against the mapping. That used to not be true (F8) - a
+# before comparing against the mapping. That used to not be true - a
 # charset parameter was an exact-match miss that silently fell back to JSON,
 # turning a valid YAML request into a 400. It is asserted below as fixed.
 
@@ -103,9 +103,9 @@ subtest 'Content-Type chooses the incoming format' => sub {
         'so a JSON body under a bogus content type is still read' );
 };
 
-subtest 'Accept wins over Content-Type when serializing (documented, F3)' => sub {
+subtest 'Accept wins over Content-Type when serializing (documented)' => sub {
 
-    # F3. The module's DESCRIPTION documents two different priority orders:
+    # The module's DESCRIPTION documents two different priority orders:
     # Content-Type first when deserializing a request body, but Accept first
     # when serializing a response - because Accept is the header a client
     # uses to say what format it wants *back*, which need not match what it
@@ -141,9 +141,9 @@ subtest 'Accept wins over Content-Type when serializing (documented, F3)' => sub
     like( $mirror->content, qr/^---\n/, 'with a YAML body' );
 };
 
-subtest 'a charset parameter on Content-Type is stripped before the lookup (fixed, F8)' => sub {
+subtest 'a charset parameter on Content-Type is stripped before the lookup (fixed)' => sub {
 
-    # F8. The lookup now strips any ';'-separated parameters and lowercases
+    # The lookup now strips any ';'-separated parameters and lowercases
     # what remains before matching against the mapping
     # (Dancer2/Serializer/Mutable.pm:96-105), so a charset parameter no
     # longer causes a miss. Previously 'text/x-yaml; charset=utf-8' missed

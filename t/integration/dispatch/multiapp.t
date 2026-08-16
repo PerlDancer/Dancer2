@@ -185,13 +185,13 @@ subtest 'uri_for_route refuses rather than emitting an unsubstituted token' => s
     }
 };
 
-subtest 'uri_for_route accepts a route parameter of 0, but not undef or "" (F1)' => sub {
+subtest 'uri_for_route accepts a route parameter of 0, but not undef or ""' => sub {
     my $test = multi_app('MultiUri');
 
     # Fixed behavior: the parameter is tested for definedness rather than
     # for truth, so 0 -- an ordinary database ID, list index or page number
-    # -- is substituted like any other value. See F1 in
-    # paad/test-roadmap/test-roadmap-findings.md.
+    # -- is substituted like any other value. Previously the check was for
+    # truth, so a 0 was refused as though it had not been given at all.
     is( $test->request( GET '/uri/zero' )->content,
         'LIVED http://localhost/item/0',
         'a route parameter of 0 is substituted, not rejected' );

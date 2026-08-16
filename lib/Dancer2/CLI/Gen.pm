@@ -223,7 +223,8 @@ commands:
 
         # The shipped template lives at share/gitignore, not share/.gitignore --
         # a leading dot there would make git itself honour it against this
-        # distribution's own share/ tree (see F14). The generated application
+        # distribution's own share/ tree, which kept the skeleton's environment
+        # configs out of the shipped dist entirely. The generated application
         # still needs a file literally named .gitignore, so the destination
         # name is given explicitly rather than left to whatever copy() does
         # with a directory target.
@@ -234,7 +235,8 @@ commands:
         # wants it as one); the absolute path was already computed once into
         # $vars->{appdir} at the point of $app_path->absolute->stringify in
         # run(), so re-derive it from there instead of calling ->absolute on
-        # a string (that was bug F15).
+        # a string -- which is what used to make 'dancer2 gen -g' die with
+        # "Can't locate object method \"absolute\" via package ...".
         chdir $vars->{ appdir }
           or die "Can't cd to $app_path: $!";
         if( _run_shell_cmd( 'git', 'init') != 0 or

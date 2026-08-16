@@ -176,8 +176,8 @@ subtest 'the generated application passes its own bundled tests' => sub {
     like( $stdout, qr/Result: PASS/, 'the harness agrees' );
 };
 
-subtest 'the application directory is named after the dashed app name (F12 fixed)' => sub {
-    # F12 used to leave the directory named after the application verbatim --
+subtest 'the application directory is named after the dashed app name (fixed)' => sub {
+    # This used to leave the directory named after the application verbatim --
     # colons and all -- even though the generator computes a dashed name for
     # exactly this purpose. Without -d, that dashed name is now what the
     # directory option falls back to, so the directory and the Makefile.PL it
@@ -207,8 +207,8 @@ subtest 'the application directory is named after the dashed app name (F12 fixed
         'and an explicit -d is honoured verbatim, even with colons in it' );
 };
 
-subtest 'MANIFEST.SKIP gets the relative dashed name (F13 fixed)' => sub {
-    # F13 used to build the appended line from the full filesystem path the
+subtest 'MANIFEST.SKIP gets the relative dashed name (fixed)' => sub {
+    # This used to build the appended line from the full filesystem path the
     # app was generated into, so it could never match anything -- MANIFEST.SKIP
     # patterns are matched against distribution-root-relative paths. The line
     # is now the dashed distribution name, matching what Makefile.PL cleans.
@@ -228,8 +228,8 @@ subtest 'MANIFEST.SKIP gets the relative dashed name (F13 fixed)' => sub {
         'the other patterns are relative, as MANIFEST.SKIP expects' );
 };
 
-subtest 'the skeleton environment configs are in git (F14 fixed)' => sub {
-    # F14 was caused by share/.gitignore: shipped as data -- Dancer2::CLI::Gen
+subtest 'the skeleton environment configs are in git (fixed)' => sub {
+    # This was caused by share/.gitignore: shipped as data -- Dancer2::CLI::Gen
     # copies it into a generated app when -g is given -- but because it sat
     # inside share/ under that name, git also applied its patterns to this
     # repository's own tree, and one of them was 'environments/'. That template
@@ -271,8 +271,8 @@ subtest 'the skeleton environment configs are in git (F14 fixed)' => sub {
         'environments/production.yml is generated' );
 };
 
-subtest '-g creates a git repository with an initial commit (F15 fixed)' => sub {
-    # F15: _check_git used to die with "Can't locate object method \"absolute\"
+subtest '-g creates a git repository with an initial commit (fixed)' => sub {
+    # _check_git used to die with "Can't locate object method \"absolute\"
     # via package ..." -- it called ->absolute on $vars->{apppath}, a plain
     # string, instead of using $vars->{appdir}, which run() had already made
     # absolute for exactly this purpose. That happened after the application

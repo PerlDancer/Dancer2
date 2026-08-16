@@ -105,7 +105,7 @@ sub code {
 
         # Path::Tiny does not collapse '../' segments, so the joined path
         # above may still point outside public_dir even though it is a
-        # readable file (F4). Resolve it and refuse anything that escapes,
+        # readable file. Resolve it and refuse anything that escapes,
         # the same containment check send_file uses at
         # Dancer2/Core/App.pm:1180-1182. This is only safe to call now: the
         # -f check above guarantees the file (and so every directory in its

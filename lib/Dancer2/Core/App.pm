@@ -1945,10 +1945,10 @@ sub uri_for_route {
         # produce a URI that cannot match the route it came from.
         my $value = $route_params->{$param};
         if ( !defined $value ) {
-            die "Route $route_name uses the parameter '${param}', which was not provided";
+            die "Route $route_name uses the parameter '${param}', which was not provided\n";
         }
         elsif ( $value eq '' ) {
-            die "Route $route_name was given an empty value for the parameter '${param}'";
+            die "Route $route_name was given an empty value for the parameter '${param}'\n";
         }
 
         $string =~ s!\Q:$param\E(\[[^\]]+\])?!$value!xmsg;

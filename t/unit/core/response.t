@@ -173,7 +173,7 @@ subtest 'no charset is appended to a non-text content type' => sub {
         'with Content-Length counting those characters' );
 };
 
-subtest 'replacing the content after the first set is encoded on its own merits (fixed F6)' => sub {
+subtest 'replacing the content after the first set is encoded on its own merits (fixed)' => sub {
 
     # is_encoded describes the content currently assigned, not the response
     # for all time. The 'around content' modifier (Response.pm:137-...)
@@ -296,7 +296,7 @@ subtest 'CR and LF are stripped from header values' => sub {
         'no element of the PSGI header array contains CR or LF' );
 };
 
-subtest 'CR and LF are stripped from a header name (fixed F7)' => sub {
+subtest 'CR and LF are stripped from a header name (fixed)' => sub {
 
     # headers_to_array strips CR and LF from each header *value*
     # (Dancer2/Core/Response.pm:70-..., commented "remove CR and LF since the

@@ -17,9 +17,9 @@ use Path::Tiny ();
 #   3. Dancer2::Handler::File - off by default; a real route (/**) registered
 #                             into the application when config asks for it.
 #
-# Where they disagree, the disagreement is asserted rather than smoothed over,
-# and the one case that is a security hole is recorded in
-# paad/test-roadmap/test-roadmap-findings.md with a pointer back to the test below.
+# Where they disagree, the disagreement is asserted rather than smoothed over.
+# One of those disagreements was a security hole - Dancer2::Handler::File
+# serving files outside public_dir - and is pinned by the ../ subtests below.
 
 # --- fixture tree ---------------------------------------------------------
 #
@@ -240,7 +240,7 @@ subtest 'the default static handler runs ahead of the application' => sub {
     }
 };
 
-subtest 'a null byte in a static path is refused quietly (fixed F5)' => sub {
+subtest 'a null byte in a static path is refused quietly (fixed)' => sub {
     my $test = Plack::Test->create( StaticApp->to_app );
 
     my @warnings;
@@ -314,7 +314,7 @@ subtest 'Dancer2::Handler::File serves files as an ordinary route' => sub {
     }
 };
 
-subtest 'Dancer2::Handler::File refuses a ../ path outside public_dir (fixed F4)' => sub {
+subtest 'Dancer2::Handler::File refuses a ../ path outside public_dir (fixed)' => sub {
 
     # This used to be a security hole: Dancer2::Handler::File joined
     # public_dir with the request path and never checked that the result was
@@ -323,8 +323,6 @@ subtest 'Dancer2::Handler::File refuses a ../ path outside public_dir (fixed F4)
     # Dancer2/Core/App.pm:1180-1182 ($dir->realpath->subsumes($file_path)),
     # so it agrees with send_file and with Plack::App::File on the default
     # static path, both of which answer 403 for the same request.
-    #
-    # Filed in paad/test-roadmap/test-roadmap-findings.md.
 
     my $test = Plack::Test->create( HandlerFileApp->to_app );
 
@@ -336,7 +334,7 @@ subtest 'Dancer2::Handler::File refuses a ../ path outside public_dir (fixed F4)
         'and the content of the file outside public_dir is not disclosed' );
 };
 
-subtest 'the ../ escape is refused at any depth (fixed F4)' => sub {
+subtest 'the ../ escape is refused at any depth (fixed)' => sub {
 
     # The subtest above pins that a single ../ is refused. This one pins that
     # the containment check holds regardless of how many ../ segments are

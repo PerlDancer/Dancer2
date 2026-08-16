@@ -42,7 +42,7 @@ sub code {
         # This is only an optimisation - it is not the authoritative check,
         # because on a case-insensitive filesystem (macOS/Windows) a
         # differently-cased request would miss it while still resolving to
-        # the same file (F11). The check below decides from the resolved
+        # the same file. The check below decides from the resolved
         # file instead, so it catches that case too.
         if ( defined $layout_dir && $page =~ m{^/\Q$layout_dir\E/} ) {
             $app->response->has_passed(1);

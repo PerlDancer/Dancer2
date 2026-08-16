@@ -182,7 +182,7 @@ subtest 'an unrecognised block type warns and renders "-"' => sub {
 subtest 'an unsupported format character behaves the same whether or not it was ever documented' => sub {
 
     # %D used to be listed in the log_format POD ("timer") despite
-    # map_chars_to_subs never implementing it (F2). Rather than invent a timer
+    # map_chars_to_subs never implementing it. Rather than invent a timer
     # with no state in the logger role to back it, the fix was to remove %D
     # from the docs, so it is now just another unsupported character. This
     # checks it is indistinguishable from %Z, which was never documented at

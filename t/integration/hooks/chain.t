@@ -19,7 +19,7 @@ use HTTP::Request::Common;
 #
 # Each of OrderApp/HaltApp/HaltInExceptionApp's PSGI coderef is built exactly
 # once, at file scope, simply so every subtest for a given app shares one
-# compiled app. Hook compilation is idempotent (see the last subtest, F10),
+# compiled app. Hook compilation is idempotent (see the to_app subtest below),
 # so this is no longer load-bearing the way it once was, but there is still
 # no reason to rebuild the same app repeatedly.
 
@@ -145,9 +145,9 @@ subtest 'halt in a before hook stops the whole chain' => sub {
         'no later hook and no route runs after halt' );
 };
 
-subtest 'a halting hook_exception handler keeps the route refused (F9)' => sub {
+subtest 'a halting hook_exception handler keeps the route refused' => sub {
 
-    # F9, fixed. The wrapper captures is_halted before deciding whether to
+    # Fixed. The wrapper captures is_halted before deciding whether to
     # call $app->cleanup (Dancer2/Core/App.pm:1335-1342), and now skips
     # cleanup when the response was halted, as well as when this is itself
     # the hook_exception handler. A halt means "this response is final", so
@@ -193,9 +193,9 @@ subtest 'a halting hook_exception handler keeps the route refused (F9)' => sub {
     );
 };
 
-subtest 'to_app compiles the hooks only once, however many times it is called (F10)' => sub {
+subtest 'to_app compiles the hooks only once, however many times it is called' => sub {
 
-    # F10, fixed. finish() calls compile_hooks(), which wraps each hook and
+    # Fixed. finish() calls compile_hooks(), which wraps each hook and
     # puts the wrappers back via replace_hook - so a second to_app() would
     # wrap the already-wrapped hooks again, and on the failure path each
     # layer would treat the inner layer's croak as a fresh hook failure and
@@ -246,7 +246,7 @@ subtest 'to_app compiles the hooks only once, however many times it is called (F
 
 subtest 'a hook registered after the first to_app is still compiled' => sub {
 
-    # The companion to the subtest above, and the reason the F10 fix records
+    # The companion to the subtest above, and the reason that fix records
     # individual wrappers rather than setting a single "hooks are compiled"
     # flag on the app. Hooks can arrive after the first compile: finish()
     # adds postponed plugin hooks immediately *after* calling compile_hooks,
@@ -255,8 +255,8 @@ subtest 'a hook registered after the first to_app is still compiled' => sub {
     # straight out through the dispatcher instead of reaching
     # core.app.hook_exception at all.
     #
-    # Asserted through the same observable as F10: a dying hook that reaches
-    # the wrapper reports itself exactly once.
+    # Asserted through the same observable as the subtest above: a dying
+    # hook that reaches the wrapper reports itself exactly once.
 
     {
         package LateHookApp;

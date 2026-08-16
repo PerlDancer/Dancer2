@@ -113,9 +113,9 @@ subtest 'a layout cannot be requested as a page' => sub {
     }
 };
 
-subtest 'the layout guard holds under a different case (fixed F11)' => sub {
+subtest 'the layout guard holds under a different case' => sub {
 
-    # F11 used to be reachable here: the guard compared the request path
+    # This used to be reachable: the guard compared the request path
     # against the layout directory name with a case-sensitive match
     # (Dancer2/Handler/AutoPage.pm:38), so on a case-insensitive filesystem -
     # macOS and Windows by default - a request for /Layouts/main missed the
@@ -141,7 +141,7 @@ subtest 'the layout guard holds under a different case (fixed F11)' => sub {
         ( $CASE_INSENSITIVE_FS ? 'case-insensitive' : 'case-sensitive' ),
         ' - the 404 below is reached ',
         ( $CASE_INSENSITIVE_FS
-            ? 'via the containment check (the case F11 was about)'
+            ? 'via the containment check (the case the fix was about)'
             : 'because the view lookup itself already misses' ),
     );
 
