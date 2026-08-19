@@ -8,6 +8,7 @@
     * PR #1791: Send correct error codes in send_file (Anton Lundin)
     * Fix path()/dirname() DSL keywords dropping their first
       argument (Mike Weisenborn)
+    * PR #1801: Fix failing CI (Jason A. Crome)
 
     [ ENHANCEMENTS ]
     * None
