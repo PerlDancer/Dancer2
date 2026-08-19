@@ -76,9 +76,11 @@ sub _build_location {
             last;
         }
 
-        $subdir = $subdir->parent;
+        # Preserve pre-Path::Tiny traversal behavior: keep walking "up"
+        # even when current subdir is ".".
+        $subdir = Path::Tiny::path( $subdir, '..' );
 
-        last if $subdir->realpath->stringify eq Path::Tiny->rootdir->stringify;
+        last if $subdir->absolute->stringify eq Path::Tiny->rootdir->stringify;
     }
 
     my $path = $subdir_found ? $subdir : $location;
