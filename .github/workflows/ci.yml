@@ -7,6 +7,12 @@ on:
     branches: '**'
   schedule:
     - cron: '42 5 * * *'
+  workflow_dispatch:
+
+# A new push to a branch supersedes any run still going on that branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # Build and test Dancer on several versions of Perl using an image that already has a lot of modules installed.
 # This will provide a fast feedback if a commit broke anything in the unit-tests.
@@ -31,22 +37,36 @@ jobs:
       matrix:
         perl-version:
           - 'latest'
+          - '5.40'
           - '5.36-bookworm'
-          - '5.20-buster'
 
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}     # https://hub.docker.com/r/perldocker/perl-tester
 
     name: Build on Linux with Perl ${{ matrix.perl-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
             perl -v
             cpanm --notest --force Module::Pluggable
+
+            # HTTP::XSCookies omits Date::Parse from TEST_REQUIRES in its
+            # Makefile.PL, so its `make test` fails on any perl that doesn't
+            # already have TimeDate installed. Remove once upstream ships a fix.
+            cpanm --notest Date::Parse
+
             dzil authordeps --missing | cpanm --notest
-            dzil listdeps --author --missing | cpanm --notest
+
+            # HTTP::XSCookies (optional) does not compile on perl 5.44+: its
+            # Makefile.PL forces -std=c89, which perl's headers no longer
+            # accept. Fix submitted upstream at <PR URL>. Dancer2 falls back
+            # to its pure-Perl cookie path without it. Remove this filter
+            # once a fixed release is on CPAN.
+            dzil listdeps --author --missing \
+              | grep -v '^HTTP::XSCookies$' \
+              | cpanm --notest
 
       - name: Regular tests
         run: |
@@ -72,7 +92,7 @@ jobs:
 
       - name: Archive artifacts
         if: ${{ matrix.perl-version == 'latest' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: the-dancer
           path: |
@@ -105,7 +125,7 @@ jobs:
     name: Test Dancer on ${{ matrix.perl-version }}
     steps:
       - name: Download a single artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8
         with:
           name: the-dancer
 
@@ -113,6 +133,12 @@ jobs:
         run: |
             perl -v
             cpanm --notest --force Module::Pluggable
+
+            # HTTP::XSCookies omits Date::Parse from TEST_REQUIRES in its
+            # Makefile.PL, so its `make test` fails on any perl that doesn't
+            # already have TimeDate installed. Remove once upstream ships a fix.
+            cpanm --notest Date::Parse
+
             cpanm -v Dancer2-*.tar.gz
             perl -MDancer2 -e 'print "$Dancer2::VERSION\n"'
 
@@ -133,7 +159,7 @@ jobs:
     name: Test downstream on ${{ matrix.perl-version }}
     steps:
       - name: Download a single artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8
         with:
           name: the-dancer
 
@@ -146,11 +172,9 @@ jobs:
 
       - name: Testing selected Plugins
         run: |
-          #cpanm --test-only --verbose Dancer2::Plugin::Auth::HTTP::Basic::DWIW # TODO: Re-enable once patched for Dancer 1.0.0
             cpanm --test-only --verbose Dancer2::Template::Handlebars
             cpanm --test-only --verbose Dancer2::Session::Cookie
             cpanm --test-only --verbose Dancer2::Plugin::Email
-            cpanm --test-only --verbose Dancer2::Plugin::Auth::Extensible
             cpanm --test-only --verbose Dancer2::Plugin::DBIC
 
       - name: Testing selected downstream modules
@@ -177,7 +201,7 @@ jobs:
 
     steps:
       - name: Download a single artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8
         with:
           name: the-dancer
 
@@ -198,6 +222,11 @@ jobs:
             # https://github.com/tokuhirom/Test-TCP/pull/99
             cpanm --notest Test::TCP
 
+            # HTTP::XSCookies omits Date::Parse from TEST_REQUIRES in its
+            # Makefile.PL, so its `make test` fails on any perl that doesn't
+            # already have TimeDate installed. Remove once upstream ships a fix.
+            cpanm --notest Date::Parse
+
             dir
             Set-Content -NoNewline "cpanm --verbose " install.bat
             Get-ChildItem -Name Dancer2* >> install.bat
@@ -210,6 +239,11 @@ jobs:
         if: ${{ ! startsWith( matrix.runner, 'windows-' )  }}
         run: |
             cpanm --notest --force Module::Pluggable
+
+            # HTTP::XSCookies omits Date::Parse from TEST_REQUIRES in its
+            # Makefile.PL, so its `make test` fails on any perl that doesn't
+            # already have TimeDate installed. Remove once upstream ships a fix.
+            cpanm --notest Date::Parse
+
             cpanm Dancer2-*.tar.gz
             perl -MDancer2 -e 'print qq{$Dancer2::VERSION\n}'
-
