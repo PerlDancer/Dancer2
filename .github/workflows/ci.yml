@@ -247,3 +247,16 @@ jobs:
 
             cpanm Dancer2-*.tar.gz
             perl -MDancer2 -e 'print qq{$Dancer2::VERSION\n}'
+
+      # cpanm reports only "Building and testing Dancer2-x.y.z ... FAIL" and
+      # puts the actual test output in its own build.log, which is not part of
+      # the job output - so a failure here says nothing about which test failed
+      # or why. Print it when, and only when, something went wrong.
+      - name: Show the cpanm build log if the install failed
+        if: ${{ failure() && ! startsWith( matrix.runner, 'windows-' ) }}
+        run: |
+            for log in ~/.cpanm/work/*/build.log; do
+                [ -f "$log" ] || continue
+                echo "===== $log"
+                cat "$log"
+            done
