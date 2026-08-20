@@ -1627,9 +1627,12 @@ sub to_app {
                 my $env = shift;
                 # A NUL byte in PATH_INFO makes Path::Tiny warn ("Invalid \0
                 # character in pathname for ftis") when we ask it whether the
-                # path is a file. Refuse it here, before Path::Tiny ever sees
-                # it, so the request just falls through to the app (which
-                # 404s, as it always has) without the warning.
+                # path is a file. "ftis" is not a typo on our part: it is
+                # perl's own internal name for the file-test ops, quoted here
+                # verbatim so this comment can be found from the warning text.
+                # Refuse it here, before Path::Tiny ever sees it, so the
+                # request just falls through to the app (which 404s, as it
+                # always has) without the warning.
                 return 0
                     if defined $env->{'PATH_INFO'} && $env->{'PATH_INFO'} =~ /\0/;
                 $self->_public_dir_path->child(
