@@ -58,12 +58,9 @@ sub code {
             return;
         }
 
-        # Authoritative check: is the page's own directory, resolved on
-        # disk, inside the layout directory? Decided from what is actually
-        # there rather than the request path's spelling, the same
-        # containment approach send_file uses at
-        # Dancer2/Core/App.pm:1180-1182
-        # ($dir->realpath->subsumes($file_path)).
+        # Authoritative check: is the page's own directory the layout
+        # directory, or inside it? Decided from what is actually on disk
+        # rather than from the request path's spelling.
         #
         # This does not use $view_path/view_pathname for the comparison:
         # that method is engine-specific, and Dancer2::Template::TemplateToolkit
@@ -75,8 +72,7 @@ sub code {
         # taking the parent gives the page's real directory regardless of
         # which template engine is in use. Its parent directory is
         # guaranteed to exist at this point - pathname_exists just
-        # confirmed the page resolves to a real file - so realpath cannot
-        # die here.
+        # confirmed the page resolves to a real file.
         if ( defined $layout_dir ) {
             my $layout_dir_path =
                 Path::Tiny::path( $template->views, $layout_dir );
@@ -85,8 +81,10 @@ sub code {
 
             if ( $layout_dir_path->is_dir
                 && $page_dir_path->is_dir
-                && $layout_dir_path->realpath->subsumes(
-                    $page_dir_path->realpath
+                && _dir_is_within(
+                    $page_dir_path,
+                    $layout_dir_path,
+                    Path::Tiny::path( $template->views ),
                 )
             ) {
                 $app->response->has_passed(1);
@@ -97,6 +95,55 @@ sub code {
         my $ct = $template->process( $page );
         return ( $app->request->method eq 'GET' ) ? $ct : '';
     };
+}
+
+# Is $dir the same directory as $ancestor, or inside it?
+#
+# Comparing resolved path strings is not enough. realpath() resolves
+# symlinks but does not canonicalise case, so on a case-insensitive
+# filesystem - macOS and Windows by default - 'views/Layouts' and
+# 'views/layouts' name one directory while comparing as two. That is
+# precisely the case this guard exists to catch, so the comparison is made
+# on filesystem identity (device and inode) instead, which no spelling can
+# disguise. It settles symlinks and hardlinks on the way past.
+#
+# The walk stops at $stop_at (the views directory) rather than climbing to
+# the filesystem root: nothing above views is ours to reason about, and a
+# page cannot be inside the layout directory without being under views too.
+#
+# Some Windows configurations report an inode of 0 for every file, which
+# would make every directory compare equal to every other. Where that is
+# so, identity is unusable and the comparison falls back to matching the
+# paths case-insensitively - imperfect, since it assumes the folding rules
+# rather than asking the filesystem, but it fails closed on the case this
+# guard is about rather than silently passing everything.
+sub _dir_is_within {
+    my ( $dir, $ancestor, $stop_at ) = @_;
+
+    my @ancestor_id = stat "$ancestor" or return 0;
+    my $usable_inode = $ancestor_id[1];
+
+    if ( !$usable_inode ) {
+        my $a = lc Path::Tiny::path($ancestor)->stringify;
+        my $d = lc Path::Tiny::path($dir)->stringify;
+        return $d eq $a || index( $d, "$a/" ) == 0;
+    }
+
+    my $stop = eval { $stop_at->realpath->stringify };
+    my $cursor = eval { $dir->realpath } or return 0;
+
+    while (1) {
+        my @id = stat "$cursor" or return 0;
+        return 1 if $id[0] == $ancestor_id[0] && $id[1] == $ancestor_id[1];
+
+        last if defined $stop && $cursor->stringify eq $stop;
+
+        my $parent = $cursor->parent;
+        last if $parent->stringify eq $cursor->stringify;    # hit the root
+        $cursor = $parent;
+    }
+
+    return 0;
 }
 
 sub regexp {'/**'}
