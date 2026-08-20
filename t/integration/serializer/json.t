@@ -103,21 +103,53 @@ subtest 'a serialized response carries the serializer content type' => sub {
     # so it goes to App::_prep_response, which does $response->content($content)
     # like any other value). content()'s 'around' modifier serializes
     # whenever a serializer is configured, with no ref-ness check
-    # (Dancer2/Core/Response.pm:141-171). But the JSON serializer's encode()
-    # requires a reference and dies on a plain scalar; that die is caught and
-    # logged rather than propagated (Dancer2::Core::Role::Serializer's
-    # 'around serialize'), so Response::serialize's own "or return" bails out
-    # before ever setting the Content-Type to application/json
-    # (Dancer2/Core/Response.pm:295-306). The net effect: a 200, the
-    # *default* text/html content type (never overwritten), and an empty
-    # body - the string is silently swallowed, not returned verbatim and not
-    # JSON-encoded.
+    # (Dancer2/Core/Response.pm:141-171).
+    #
+    # What happens next depends on the JSON module underneath JSON::MaybeXS,
+    # because Dancer2::Serializer::JSON::serialize does not pass allow_nonref:
+    #
+    #   refuses a non-ref  encode() dies ("hash- or arrayref expected"). The
+    #                      die is caught and logged rather than propagated (the
+    #                      'around serialize' in
+    #                      Dancer2::Core::Role::Serializer), so
+    #                      Response::serialize's own "or return" bails out
+    #                      before ever setting the Content-Type
+    #                      (Dancer2/Core/Response.pm:295-306). The string is
+    #                      silently swallowed: the default text/html content
+    #                      type, never overwritten, and an empty body.
+    #
+    #   encodes a non-ref  an ordinary serialized response: application/json,
+    #                      with '"plain string"' as the body.
+    #
+    # This is not just a question of which backend is installed: it varies by
+    # version within one backend. Cpanel::JSON::XS 4.37 refuses a top-level
+    # non-reference, while 4.43 encodes it -- RFC 8259 permits any value at the
+    # top level, unlike the older RFC 4627 that required an object or array.
+    # So naming backends here would be wrong twice over, and the capability is
+    # probed instead: whatever is installed, the test asserts what Dancer2
+    # actually does with it. Neither outcome is pinned as the correct one.
+    my $backend_encodes_nonref =
+        eval { JSON::MaybeXS->new( { utf8 => 1 } )->encode('probe'); 1 } ? 1 : 0;
+
+    note( "JSON backend is $JSON::MaybeXS::JSON_Class, which ",
+        ( $backend_encodes_nonref ? 'encodes' : 'refuses' ),
+        ' a top-level non-reference' );
+
     my $string = $test->request( GET '/string' );
     is( $string->code, 200, '/string: responds' );
-    is( $string->header('Content-Type'), 'text/html',
-        '/string: a plain string does not get the serializer\'s content type' );
-    is( $string->content, '',
-        '/string: the serializer silently swallows a non-ref value, leaving no body' );
+
+    if ($backend_encodes_nonref) {
+        is( $string->header('Content-Type'), 'application/json',
+            '/string: a backend that encodes a non-ref gives the serializer content type' );
+        is( $string->content, '"plain string"',
+            '/string: and the plain string is JSON-encoded into the body' );
+    }
+    else {
+        is( $string->header('Content-Type'), 'text/html',
+            '/string: a backend that refuses a non-ref leaves the default content type' );
+        is( $string->content, '',
+            '/string: and the serializer silently swallows the value, leaving no body' );
+    }
 
     # Characters must arrive as UTF-8 bytes, not as wide characters and not
     # as escaped ASCII.
