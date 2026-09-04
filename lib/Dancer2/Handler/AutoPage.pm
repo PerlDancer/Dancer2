@@ -134,7 +134,14 @@ sub _dir_is_within {
 
     while (1) {
         my @id = stat "$cursor" or return 0;
-        return 1 if $id[0] == $ancestor_id[0] && $id[1] == $ancestor_id[1];
+        # 'eq', not '=='. Where an inode number is too large for perl to
+        # hold as an integer, stat returns it as a decimal string; comparing
+        # numerically converts that to a float and rounds it, so two
+        # different inodes can compare equal. perldoc -f stat says to prefer
+        # 'eq' for exactly this reason, and it is correct for the values
+        # that are returned numerically too. Rounding here would be a
+        # fail-open: a page outside the layout directory would be served.
+        return 1 if $id[0] eq $ancestor_id[0] && $id[1] eq $ancestor_id[1];
 
         last if defined $stop && $cursor->stringify eq $stop;
 
