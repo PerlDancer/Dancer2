@@ -124,7 +124,7 @@ sub validate_id {
     my ($self, $id) = @_;
 
     return 0
-      if !defined $id || length($id) > 128;
+      if !defined $id || length($id) > 4096;
 
     return $id =~ m/\A[A-Za-z0-9_\-~]+\z/;
 }
@@ -351,7 +351,10 @@ Returns true if a session id is of the correct format, or false otherwise.
 
 By default, this ensures that the session ID is a string of characters
 from the Base64 schema for "URL Applications" plus the C<~> character,
-and no longer than 128 characters.
+and no longer than 4096 characters. The length limit corresponds to the
+maximum size of an HTTP cookie, so it accommodates cookie-based session
+engines such as L<Dancer2::Session::Cookie> while rejecting oversized
+values that would otherwise be handed to the backend unchanged.
 
 This method does not need to be implemented in the class unless an
 alternative set of characters for session IDs is desired.

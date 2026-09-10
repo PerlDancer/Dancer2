@@ -48,7 +48,8 @@ subtest 'validate_id' => sub {
     ok $ENGINE->validate_id($id), 'generated ID validates';
     ok !$ENGINE->validate_id("$id\n"), 'trailing newline rejected';
     ok !$ENGINE->validate_id("a\nb"), 'embedded newline rejected';
-    ok !$ENGINE->validate_id('x' x 129), 'overly long ID rejected';
+    ok $ENGINE->validate_id('a' x 4096), 'maximum-length ID validates';
+    ok !$ENGINE->validate_id('x' x 4097), 'overly long ID rejected';
     ok !$ENGINE->validate_id(undef), 'undef rejected';
 };
 
