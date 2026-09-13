@@ -68,7 +68,6 @@ sub dsl_keywords {
         false                => { is_global => 1 },
         flush                => { is_global => 0 },
         forward              => { is_global => 0 },
-        from_dumper          => { is_global => 1 },
         from_json            => { is_global => 1 },
         from_yaml            => { is_global => 1 },
         get                  => { is_global => 1 },
@@ -116,7 +115,6 @@ sub dsl_keywords {
         status               => { is_global => 0 },
         template             => { is_global => 1 },
         to_app               => { is_global => 1 },
-        to_dumper            => { is_global => 1 },
         to_json              => { is_global => 1 },
         to_yaml              => { is_global => 1 },
         true                 => { is_global => 1 },
@@ -506,18 +504,6 @@ sub to_yaml {
     shift; # remove first element
     require_module('Dancer2::Serializer::YAML');
     Dancer2::Serializer::YAML::to_yaml(@_);
-}
-
-sub from_dumper {
-    shift; # remove first element
-    require_module('Dancer2::Serializer::Dumper');
-    Dancer2::Serializer::Dumper::from_dumper(@_);
-}
-
-sub to_dumper {
-    shift; # remove first element
-    require_module('Dancer2::Serializer::Dumper');
-    Dancer2::Serializer::Dumper::to_dumper(@_);
 }
 
 1;
