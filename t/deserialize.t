@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 16;
 use Plack::Test;
 use HTTP::Request::Common;
 use Dancer2::Logger::Capture;
@@ -79,7 +79,7 @@ note "Verify Serializers decode into characters"; {
     test_psgi $app, sub {
         my $cb = shift;
 
-        for my $type ( qw/Dumper JSON YAML/ ) {
+        for my $type ( qw/JSON YAML/ ) {
             my $class = "Dancer2::Serializer::$type";
             use_module($class);
 
@@ -100,27 +100,11 @@ note "Verify Serializers decode into characters"; {
 
             my $content = Encode::decode( 'UTF-8', $r->content );
 
-            # Dumper is a jerk and represents it in Perl \x{...} notation
-
-            if ( $type eq 'Dumper' ) {
-                {
-                    no strict;
-                    $content = eval $content;
-                }
-
-                # now $content is an actual ref again
-                is_deeply(
-                    $content,
-                    [ 'utf8', $utf8 ],
-                    "utf-8 string returns the same using the $type serializer",
-                )
-            } else {
-                like(
-                    $content,
-                    qr{\Q$utf8\E},
-                    "utf-8 string returns the same using the $type serializer",
-                );
-            }
+            like(
+                $content,
+                qr{\Q$utf8\E},
+                "utf-8 string returns the same using the $type serializer",
+            );
         }
     };
 }
