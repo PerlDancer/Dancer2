@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    [ REMOVALS ]
+    * The Dumper serializer has been removed from core and moved to its own
+      CPAN distribution, Dancer2-Serializer-Dumper. The to_dumper and
+      from_dumper DSL keywords have been removed. The Mutable serializer no
+      longer maps text/x-data-dumper by default; it must be explicitly enabled
+      with engines.serializer.Mutable.enable_dumper.
+
     [ BUG FIXES ]
     * GH #1784: Fix UTF-8 handling in Serializer::JSON for readonly
       values (Russell @veryrusty Jenkins)

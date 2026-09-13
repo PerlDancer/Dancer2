@@ -2106,15 +2106,6 @@ data structure:
         # Now, do something with $data...
     };
 
-=head3 C<to_dumper>
-
-Deserializes a string to a L<Data::Dumper>-compatible data structure.
-
-=head3 C<from_dumper>
-
-Takes a data structure produced from L<Data::Dumper> and serializes it
-to a string.
-
 =head2 Hooks
 
 Hooks are like special backstage passes at Danceyland. They give you
