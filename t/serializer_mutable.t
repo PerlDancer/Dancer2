@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5
+use Test::More tests => 4
 ;
 use Dancer2::Serializer::Mutable;
 use Plack::Test;
@@ -40,7 +40,13 @@ subtest "serializer returns to default state" => sub {
     $res = $test->request( GET '/serialize', 'Accept' => 'text/x-data-dumper' );
     is(
         $res->headers->content_type,
-        'text/x-data-dumper',
+        'application/json',
+        "Dumper content type falls back to default as it is not enabled",
+    );
+    $res = $test->request( GET '/serialize', 'Accept' => 'text/x-json' );
+    is(
+        $res->headers->content_type,
+        'text/x-json',
         "Correct content-type header",
     );
     $res = $test->request( GET '/serialize' );
@@ -59,11 +65,6 @@ my $d = {
             types       => [ qw(text/x-yaml text/html) ],
             value       => encode('UTF-8', YAML::Dump({ bar => 'baz' })),
             last_val    => "---bar:baz",
-        },
-    dumper  => {
-            types       => [ qw(text/x-data-dumper) ],
-            value       => Data::Dumper::Dumper({ bar => 'baz' }),
-            last_val    => "\$VAR1={'bar'=>'baz'};",
         },
     json    => {
             types       => [ qw(text/x-json application/json) ],
