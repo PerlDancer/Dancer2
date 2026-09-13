@@ -8,7 +8,7 @@ mappings
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Dancer2::Serializer::Mutable;
 use Plack::Test;
 use HTTP::Request::Common;
@@ -16,6 +16,7 @@ use Encode;
 use JSON::MaybeXS;
 use YAML;
 use Ref::Util qw<is_coderef>;
+use Test::Fatal;
 
 {
     package Dancer2::Serializer::Other;
@@ -37,7 +38,6 @@ use Ref::Util qw<is_coderef>;
     BEGIN {
         setting engines => { serializer => { Mutable => { mapping => {
             'text/x-yaml'        => 'YAML',
-            'text/x-data-dumper' => 'Dumper',
             'text/x-json'        => 'JSON',
             'application/json'   => 'JSON',
             'text/other'         => 'Other',
@@ -73,11 +73,6 @@ test_psgi $app, sub {
                 types       => [ qw(text/other) ],
                 value       => '{thing}',
                 last_val    => "{thing}",
-            },
-        dumper  => {
-                types       => [ qw(text/x-data-dumper) ],
-                value       => Data::Dumper::Dumper({ bar => 'baz' }),
-                last_val    => "\$VAR1={'bar'=>'baz'};",
             },
         json    => {
                 types       => [ qw(text/x-json application/json) ],
@@ -123,4 +118,30 @@ test_psgi $app, sub {
         }
     }
 
+};
+
+{
+    my $mutable = Dancer2::Serializer::Mutable->new(
+        config => { mapping => { 'text/x-data-dumper' => 'Dumper' } },
+    );
+
+    like(
+        exception { $mutable->mapping },
+        qr/enable_dumper/,
+        'Mapping Dumper without enable_dumper croaks',
+    );
+}
+
+SKIP: {
+    eval { require Dancer2::Serializer::Dumper; 1 }
+        or skip 'Dancer2::Serializer::Dumper is not installed', 1;
+
+    my $mutable = Dancer2::Serializer::Mutable->new( enable_dumper => 1 );
+    my $mapping = $mutable->mapping;
+
+    is(
+        $mapping->{'text/x-data-dumper'},
+        'Dumper',
+        'enable_dumper adds text/x-data-dumper to the default mapping',
+    );
 }
