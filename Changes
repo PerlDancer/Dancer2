@@ -5,6 +5,7 @@
       with from_dumper/to_dumper keywords, tests (David Precious)
 
     [ BUG FIXES ]
+    * GH #1781: Fix directory detection heuristic (Jason A. Crome)
     * GH #1784: Fix UTF-8 handling in Serializer::JSON for readonly
       values (Russell @veryrusty Jenkins)
     * GH #1790: Fix infinite recursion into blessed objects in JSON
