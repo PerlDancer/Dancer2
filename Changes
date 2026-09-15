@@ -9,8 +9,8 @@
     * Fix path()/dirname() DSL keywords dropping their first
       argument (Mike Weisenborn)
     * PR #1801: Fix failing CI (Jason A. Crome)
-    * Make session ID generation always use Crypt::URandom and
-      harden validate_id against invalid session IDs
+    * PR #1804: Make session ID generation always use Crypt::URandom and
+      harden validate_id against invalid session IDs (David Precious)
 
     [ ENHANCEMENTS ]
     * None
