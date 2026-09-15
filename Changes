@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    [ REMOVALS ]
+    * PR #1821: Remove Data::Dumper serializer from Dancer2 core, along
+      with from_dumper/to_dumper keywords, tests (David Precious)
+
     [ BUG FIXES ]
     * GH #1784: Fix UTF-8 handling in Serializer::JSON for readonly
       values (Russell @veryrusty Jenkins)
