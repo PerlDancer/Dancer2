@@ -10,12 +10,7 @@ use Dancer2::Session::Simple;
 
 my $ENGINE = Dancer2::Session::Simple->new;
 
-my $CPRNG_AVAIL = eval { require Math::Random::ISAAC::XS; 1; }
-  && eval { require Crypt::URandom; 1; };
-
-note $CPRNG_AVAIL
-  ? "Crypto strength tokens"
-  : "Default strength tokens";
+note "Cryptographically-strong session ID generation";
 
 subtest 'session attributes' => sub {
     my $s1 = $ENGINE->create;
@@ -45,6 +40,17 @@ subtest "$count session IDs and no dups" => sub {
 
     is $iteration, $count,
       "no duplicate ID after $count iterations (done $iteration)";
+};
+
+subtest 'validate_id' => sub {
+    my $id = $ENGINE->generate_id;
+
+    ok $ENGINE->validate_id($id), 'generated ID validates';
+    ok !$ENGINE->validate_id("$id\n"), 'trailing newline rejected';
+    ok !$ENGINE->validate_id("a\nb"), 'embedded newline rejected';
+    ok $ENGINE->validate_id('a' x 4096), 'maximum-length ID validates';
+    ok !$ENGINE->validate_id('x' x 4097), 'overly long ID rejected';
+    ok !$ENGINE->validate_id(undef), 'undef rejected';
 };
 
 done_testing;
