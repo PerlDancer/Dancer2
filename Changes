@@ -1,18 +1,16 @@
 {{$NEXT}}
 
     [ SECURITY ]
-    * Fix path traversal in Dancer2::Handler::File, which served files
-      from outside public_dir; see GHSA-6xw8-v24c-m783 (David Precious)
-    * A halting on_hook_exception handler no longer lets the route the
-      hook refused run anyway; see GHSA-v527-r4px-7vx7 (David Precious)
+    * PR #1836: Fix path traversal in Dancer2::Handler::File, which
+      served files from outside public_dir; see GHSA-6xw8-v24c-m783
+      (David Precious)
+    * PR #1836: A halting on_hook_exception handler no longer lets the
+      route the hook refused run anyway; see GHSA-v527-r4px-7vx7
+      (David Precious)
     * GH #1822: Strip CR and LF from response header names, as was
       already done for header values (David Precious)
     * GH #1823: AutoPage no longer serves a layout as a page on
       case-insensitive filesystems (David Precious)
-
-    [ REMOVALS ]
-    * PR #1821: Remove Data::Dumper serializer from Dancer2 core, along
-      with from_dumper/to_dumper keywords, tests (David Precious)
 
     [ BUG FIXES ]
     * GH #1781: Fix directory detection heuristic (Jason A. Crome)
@@ -21,7 +19,7 @@
     * GH #1790: Fix infinite recursion into blessed objects in JSON
       Serializer (Russell @veryrusty Jenkins)
     * PR #1791: Send correct error codes in send_file (Anton Lundin)
-    * Fix path()/dirname() DSL keywords dropping their first
+    * PR #1797: Fix path()/dirname() DSL keywords dropping their first
       argument (Mike Weisenborn)
     * PR #1801: Fix failing CI (Jason A. Crome)
     * PR #1804: Make session ID generation always use Crypt::URandom and
@@ -34,10 +32,10 @@
       refuses an empty one with a clearer message (David Precious)
     * GH #1827: Hooks are compiled exactly once however many times
       to_app is called (David Precious)
-    * GH #1828: A NUL byte in a static file request no longer warns
-      once per request (David Precious)
-    * GH #1829: dancer2 gen -g (and -r) no longer dies after writing
-      the application (David Precious)
+    * GH #1828: A NUL byte in a static file request no longer warns once
+      per request (David Precious)
+    * GH #1829: dancer2 gen -g (and -r) no longer dies after writing the
+      application (David Precious)
     * GH #1830: dancer2 gen names the application directory after the
       dashed distribution name (David Precious)
     * GH #1831: dancer2 gen appends a relative, matchable pattern to
@@ -52,16 +50,17 @@
     * GH #1833: Remove %D from the documented log_format characters; it
       was never implemented (David Precious)
 
+    [ DEPRECATED ]
+    * PR #1821: Remove Data::Dumper serializer from Dancer2 core, along
+      with from_dumper/to_dumper keywords, tests (David Precious)
+
     [ MISC ]
     * GH #1834: Rename share/.gitignore so git stops applying it to this
       distribution's own share/ tree (David Precious)
     * GH #1835: Add a characterization test suite under t/unit,
       t/integration and t/e2e (David Precious)
-    * With thanks to Curtis "Ovid" Poe, whose generated test suite for
-      Dancer2 found the defects fixed above
-
-    [ DEPRECATED ]
-    * None
+    * With thanks to Curtis "Ovid" Poe, whose generated test suite from
+      PAAD for Dancer2 found the defects fixed above
 
 2.1.0     2026-03-11 21:29:26-04:00 America/New_York
 
