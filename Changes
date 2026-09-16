@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2.2.0     2026-09-16 07:58:19-04:00 America/New_York
+
     [ SECURITY ]
     * PR #1836: Fix path traversal in Dancer2::Handler::File, which
       served files from outside public_dir; see GHSA-6xw8-v24c-m783
