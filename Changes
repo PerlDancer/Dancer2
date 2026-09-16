@@ -1,29 +1,14 @@
 {{$NEXT}}
 
     [ SECURITY ]
-    * Dancer2::Handler::File served files from outside public_dir: the
-      request path was joined onto public_dir and then only tested for
-      being a readable file, never for still being inside public_dir.
-      Path::Tiny does not collapse '..', so a request for '/../secret'
-      escaped, at unlimited depth, up to disclosing any file readable by
-      the server process. Only reachable by an application that enables
-      the File route handler *and* sets static_handler: 0; the default
-      static handler refuses such paths first. Now uses the same
-      containment check send_file already made.
-    * A before hook that refused a request could be overridden: an
-      on_hook_exception handler that set a response and halted had that
-      response destroyed by the cleanup call that followed, so dispatch
-      read a fresh, unhalted response and ran the very route the hook had
-      refused, side effects and all. Cleanup is no longer run when the
-      response was halted.
-    * Response headers: CR and LF were stripped from header values but
-      not from header names, so a newline injected into a name reached
-      the PSGI header array intact. Names are now sanitised as values are.
-    * The AutoPage layout guard matched the request path against the
-      layout directory case-sensitively, so on a case-insensitive
-      filesystem (macOS, Windows) '/Layouts/main' served a layout that
-      '/layouts/main' correctly withheld. The guard now decides from the
-      resolved file rather than the spelling of the request.
+    * Fix path traversal in Dancer2::Handler::File, which served files
+      from outside public_dir; see GHSA-6xw8-v24c-m783 (David Precious)
+    * A halting on_hook_exception handler no longer lets the route the
+      hook refused run anyway; see GHSA-v527-r4px-7vx7 (David Precious)
+    * GH #1822: Strip CR and LF from response header names, as was
+      already done for header values (David Precious)
+    * GH #1823: AutoPage no longer serves a layout as a page on
+      case-insensitive filesystems (David Precious)
 
     [ REMOVALS ]
     * PR #1821: Remove Data::Dumper serializer from Dancer2 core, along
@@ -41,62 +26,39 @@
     * PR #1801: Fix failing CI (Jason A. Crome)
     * PR #1804: Make session ID generation always use Crypt::URandom and
       harden validate_id against invalid session IDs (David Precious)
-    * Assigning response content a second time left it unencoded while
-      the response still advertised its charset, so an after hook that
-      rewrote the content, or halt() after content was set, shipped wide
-      characters under a charset=UTF-8 header with a character-count
-      Content-Length. is_encoded now describes the content currently
-      assigned rather than latching for the life of the response.
-    * Serializer::Mutable matched the Content-Type/Accept header against
-      its mapping as an exact string, so 'text/x-yaml; charset=utf-8'
-      missed, fell back to JSON, and answered a valid request with 400.
-      The header is now normalised (parameters stripped, trimmed,
-      lowercased) before the lookup.
-    * uri_for_route died on a route parameter whose value was 0,
-      reporting it as "not provided" when it had been provided. 0 is an
-      ordinary database ID, list index or page number and is now
-      accepted. An empty value is still refused -- ':param' matches at
-      least one character, so it would produce a URI that cannot match
-      the route it came from -- but now says the value was empty rather
-      than claiming it was never provided.
-    * to_app recompiled the hook wrappers on every call, wrapping the
-      already-wrapped hooks, so a dying hook fired on_hook_exception once
-      per to_app call. Hooks are now wrapped exactly once, while hooks
-      registered after the first compile are still wrapped.
-    * A NUL byte in a static file request made Path::Tiny warn once per
-      request, putting an attacker-supplied path in the log. Such paths
-      are now refused before Path::Tiny sees them; the 404 is unchanged.
-    * dancer2 gen -g (and -r, which implies it) always died calling
-      ->absolute on a string, exiting 255 after writing the application
-      but before creating the git repository.
-    * dancer2 gen named the application directory after the raw module
-      name, colons and all ('My::App' rather than 'My-App'), disagreeing
-      with the Makefile.PL generated beside it.
-    * The pattern dancer2 gen appended to a generated MANIFEST.SKIP was
-      built from the absolute generation path, so it could never match;
-      it is now the relative distribution name.
+    * GH #1824: Encode each response content assignment on its own
+      merits, not just the first (David Precious)
+    * GH #1825: Serializer::Mutable now ignores content type parameters
+      such as charset when choosing a format (David Precious)
+    * GH #1826: uri_for_route accepts a route parameter of 0, and
+      refuses an empty one with a clearer message (David Precious)
+    * GH #1827: Hooks are compiled exactly once however many times
+      to_app is called (David Precious)
+    * GH #1828: A NUL byte in a static file request no longer warns
+      once per request (David Precious)
+    * GH #1829: dancer2 gen -g (and -r) no longer dies after writing
+      the application (David Precious)
+    * GH #1830: dancer2 gen names the application directory after the
+      dashed distribution name (David Precious)
+    * GH #1831: dancer2 gen appends a relative, matchable pattern to
+      MANIFEST.SKIP (David Precious)
 
     [ ENHANCEMENTS ]
     * None
 
     [ DOCUMENTATION ]
-    * Serializer::Mutable documented one header precedence order for both
-      directions. It in fact prefers Content-Type when deserializing a
-      request and Accept when serializing a response, which is the
-      sensible behaviour; the documentation now describes both.
-    * Removed %D from the documented Logger log_format characters. It was
-      never implemented, so following the documentation produced a Carp
-      warning on every line logged. Also documented what an unrecognised
-      format character does.
+    * GH #1832: Document Serializer::Mutable's actual header precedence
+      in each direction (David Precious)
+    * GH #1833: Remove %D from the documented log_format characters; it
+      was never implemented (David Precious)
 
     [ MISC ]
-    * share/.gitignore, a template shipped into generated applications,
-      was named such that git honoured it against this distribution's own
-      share/ tree, where its 'environments/' entry covers the skeleton's
-      per-environment configs. Renamed to share/gitignore; the generated
-      application still receives it as .gitignore.
-    * Added a characterization test suite under t/unit, t/integration and
-      t/e2e covering the behaviour above and the surrounding areas.
+    * GH #1834: Rename share/.gitignore so git stops applying it to this
+      distribution's own share/ tree (David Precious)
+    * GH #1835: Add a characterization test suite under t/unit,
+      t/integration and t/e2e (David Precious)
+    * With thanks to Curtis "Ovid" Poe, whose generated test suite for
+      Dancer2 found the defects fixed above
 
     [ DEPRECATED ]
     * None
