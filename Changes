@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+    [ SECURITY ]
+    * Serializer::YAML no longer lets a request body instantiate arbitrary
+      blessed objects via a !!perl/hash:Some::Class tag, or ask for a
+      string eval via !!perl/code. Both are now refused explicitly rather
+      than left to YAML.pm's defaults, and the minimum YAML version is
+      raised to 1.30 (David Precious)
+
 2.2.0     2026-09-16 07:58:19-04:00 America/New_York
 
     [ SECURITY ]

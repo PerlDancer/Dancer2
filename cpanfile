@@ -54,13 +54,29 @@ requires 'Module::Pluggable';
 conflicts 'Module::Pluggable', '== 6.1';
 conflicts 'Module::Pluggable', '== 6.2';
 
-# Minimum version of YAML is needed due to:
-# - https://github.com/PerlDancer/Dancer2/issues/899
-# Excluded 1.16 is needs due to:
-# - http://www.cpantesters.org/cpan/report/25911c10-4199-11e6-8d7d-86c55bc2a771
-# - http://www.cpantesters.org/cpan/report/284ac158-419a-11e6-9a35-e3e15bc2a771
-requires 'YAML', '0.86';
-conflicts 'YAML', '== 1.16';
+# Dancer2::Serializer::YAML hands untrusted request bodies to YAML::Load, so
+# the floor here is a security constraint, decided as follows:
+#
+#   1.25  introduced $YAML::LoadBlessed. The serializer sets it to 0 itself so
+#         the protection does not depend on YAML.pm's ambient default -- but
+#         below 1.25 the variable does not exist and setting it is a silent
+#         no-op, leaving !!perl/hash:Some::Class able to instantiate an
+#         arbitrary blessed object from a request body.
+#   1.26  fixed a parsing regression introduced in 1.25.
+#   1.28  "only enable loading globs when $LoadCode is set" -- an upstream
+#         security fix in the same load path we expose to untrusted input, and
+#         unlike LoadBlessed it is behavioural, so we cannot reproduce it from
+#         our side on older versions. This is the real security floor.
+#   1.30  changed the $YAML::LoadBlessed default to 0. We override it
+#         explicitly either way, so this adds nothing functionally -- but it is
+#         from January 2020 and costs nothing, and it keeps the safe behaviour
+#         if our explicit setting is ever lost in a refactor.
+#
+# 1.30 also supersedes two older constraints, no longer declared separately:
+# a floor of 0.86 (https://github.com/PerlDancer/Dancer2/issues/899), and an
+# exclusion of the broken 1.16 (cpantesters reports
+# 25911c10-4199-11e6-8d7d-86c55bc2a771 and 284ac158-419a-11e6-9a35-e3e15bc2a771).
+requires 'YAML', '1.30';
 
 recommends 'CGI::Deurl::XS';
 recommends 'Class::XSAccessor';
