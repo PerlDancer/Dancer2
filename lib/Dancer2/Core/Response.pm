@@ -67,6 +67,10 @@ sub headers_to_array {
     my @hdrs;
     $headers->scan( sub {
         my ( $k, $v ) = @_;
+         $k =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+         $k =~ s/\015|\012//g; # remove CR and LF from the name for the same
+                                # reason as the value: an unsanitised name is
+                                # just as usable for response splitting
          $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
          $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
         push @hdrs, $k => $v;
@@ -139,6 +143,22 @@ around content => sub {
 
     # called as getter?
     @_ or return $self->$orig;
+
+    # is_encoded describes the content currently stored, not the response
+    # forever: a fresh assignment must be judged (and encoded) on its own
+    # merits rather than inheriting the previous content's encoded status.
+    #
+    # This is safe for the callers that mark already-encoded bytes with
+    # is_encoded(1) "by hand": Handler/File.pm sets is_encoded(1) *after*
+    # calling content($bytes), so by the time is_encoded is latched, this
+    # modifier (and the encode_content call below) has already run and
+    # finished with this assignment. The send_file path in Core/App.pm
+    # assigns content via the raw hash element ($response->{content} = ...),
+    # bypassing this modifier entirely, and only then sets is_encoded(1) -
+    # so it never reaches this reset at all. Neither caller sets
+    # is_encoded(1) *before* assigning content, which is the only order this
+    # reset would break.
+    $self->is_encoded(0);
 
     # No serializer defined; encode content
     $self->serializer

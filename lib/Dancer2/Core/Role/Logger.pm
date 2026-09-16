@@ -291,10 +291,6 @@ PID
 
 log level
 
-=item %D
-
-timer
-
 =item %m
 
 message
@@ -324,6 +320,11 @@ timer formatted with a valid time format
 header value
 
 =back
+
+A format character that is not in the list above (whether mistyped or simply
+unsupported) is not fatal: it produces a C<Carp> warning of the form
+C<< %X not supported. >> and the field renders as C<->, leaving the rest of
+the log line intact.
 
 =attr log_level
 

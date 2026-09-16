@@ -97,11 +97,24 @@ sub code {
 
         my $file_path = Path::Tiny::path( $self->_public_dir_path, $path );
         my $file_path_str = $file_path->stringify;
-        return $self->standard_response( $app, 403 ) if !defined $file_path_str;
 
         if ( !-f $file_path_str ) {
             $app->response->has_passed(1);
             return;
+        }
+
+        # Path::Tiny does not collapse '../' segments, so the joined path
+        # above may still point outside public_dir even though it is a
+        # readable file. Resolve it and refuse anything that escapes,
+        # the same containment check send_file uses at
+        # Dancer2/Core/App.pm:1180-1182. This is only safe to call now: the
+        # -f check above guarantees the file (and so every directory in its
+        # path) exists, so realpath cannot die here.
+        $file_path      = $file_path->realpath;
+        $file_path_str  = $file_path->stringify;
+
+        if ( !$self->_public_dir_path->realpath->subsumes($file_path) ) {
+            return $self->standard_response( $app, 403 );
         }
 
         if ( !-r $file_path_str ) {

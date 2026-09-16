@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+    [ SECURITY ]
+    * Fix path traversal in Dancer2::Handler::File, which served files
+      from outside public_dir; see GHSA-6xw8-v24c-m783 (David Precious)
+    * A halting on_hook_exception handler no longer lets the route the
+      hook refused run anyway; see GHSA-v527-r4px-7vx7 (David Precious)
+    * GH #1822: Strip CR and LF from response header names, as was
+      already done for header values (David Precious)
+    * GH #1823: AutoPage no longer serves a layout as a page on
+      case-insensitive filesystems (David Precious)
+
     [ REMOVALS ]
     * PR #1821: Remove Data::Dumper serializer from Dancer2 core, along
       with from_dumper/to_dumper keywords, tests (David Precious)
@@ -16,17 +26,41 @@
     * PR #1801: Fix failing CI (Jason A. Crome)
     * PR #1804: Make session ID generation always use Crypt::URandom and
       harden validate_id against invalid session IDs (David Precious)
+    * GH #1824: Encode each response content assignment on its own
+      merits, not just the first (David Precious)
+    * GH #1825: Serializer::Mutable now ignores content type parameters
+      such as charset when choosing a format (David Precious)
+    * GH #1826: uri_for_route accepts a route parameter of 0, and
+      refuses an empty one with a clearer message (David Precious)
+    * GH #1827: Hooks are compiled exactly once however many times
+      to_app is called (David Precious)
+    * GH #1828: A NUL byte in a static file request no longer warns
+      once per request (David Precious)
+    * GH #1829: dancer2 gen -g (and -r) no longer dies after writing
+      the application (David Precious)
+    * GH #1830: dancer2 gen names the application directory after the
+      dashed distribution name (David Precious)
+    * GH #1831: dancer2 gen appends a relative, matchable pattern to
+      MANIFEST.SKIP (David Precious)
 
     [ ENHANCEMENTS ]
     * None
 
     [ DOCUMENTATION ]
-    * None
-
-    [ DEPRECATED ]
-    * None
+    * GH #1832: Document Serializer::Mutable's actual header precedence
+      in each direction (David Precious)
+    * GH #1833: Remove %D from the documented log_format characters; it
+      was never implemented (David Precious)
 
     [ MISC ]
+    * GH #1834: Rename share/.gitignore so git stops applying it to this
+      distribution's own share/ tree (David Precious)
+    * GH #1835: Add a characterization test suite under t/unit,
+      t/integration and t/e2e (David Precious)
+    * With thanks to Curtis "Ovid" Poe, whose generated test suite for
+      Dancer2 found the defects fixed above
+
+    [ DEPRECATED ]
     * None
 
 2.1.0     2026-03-11 21:29:26-04:00 America/New_York
