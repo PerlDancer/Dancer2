@@ -25,7 +25,12 @@
       '/layouts/main' correctly withheld. The guard now decides from the
       resolved file rather than the spelling of the request.
 
+    [ REMOVALS ]
+    * PR #1821: Remove Data::Dumper serializer from Dancer2 core, along
+      with from_dumper/to_dumper keywords, tests (David Precious)
+
     [ BUG FIXES ]
+    * GH #1781: Fix directory detection heuristic (Jason A. Crome)
     * GH #1784: Fix UTF-8 handling in Serializer::JSON for readonly
       values (Russell @veryrusty Jenkins)
     * GH #1790: Fix infinite recursion into blessed objects in JSON
@@ -34,6 +39,8 @@
     * Fix path()/dirname() DSL keywords dropping their first
       argument (Mike Weisenborn)
     * PR #1801: Fix failing CI (Jason A. Crome)
+    * PR #1804: Make session ID generation always use Crypt::URandom and
+      harden validate_id against invalid session IDs (David Precious)
     * Assigning response content a second time left it unencoded while
       the response still advertised its charset, so an after hook that
       rewrote the content, or halt() after content was set, shipped wide

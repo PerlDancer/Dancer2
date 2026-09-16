@@ -1,8 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
-use Dancer2::Serializer::Dumper;
+use Test::More tests => 4;
 use Plack::Test;
 use HTTP::Request::Common;
 use Ref::Util qw<is_coderef>;
@@ -32,11 +31,3 @@ test_psgi $app, sub {
         );
     }
 };
-
-my $serializer = Dancer2::Serializer::Dumper->new();
-
-is(
-    $serializer->content_type,
-    'text/x-data-dumper',
-    'content-type is set correctly',
-);

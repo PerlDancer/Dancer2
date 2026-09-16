@@ -48,7 +48,6 @@ subtest 'Accept chooses the outgoing format' => sub {
         'text/x-json'        => [ 'text/x-json',         qr/^\{"a":1\}$/ ],
         'text/x-yaml'        => [ 'text/x-yaml',         qr/^---\na: 1\n$/ ],
         'text/html'          => [ 'text/html',           qr/^---\na: 1\n$/ ],
-        'text/x-data-dumper' => [ 'text/x-data-dumper',  qr/VAR1/ ],
     );
 
     for my $accept ( sort keys %expected ) {
@@ -64,7 +63,17 @@ subtest 'Accept chooses the outgoing format' => sub {
 };
 
 subtest 'an unrecognised or absent Accept falls back to JSON' => sub {
-    for my $accept ( 'application/xml', 'text/plain', '*/*' ) {
+    # 'text/x-data-dumper' is in this list rather than the one above because
+    # the Dumper serializer is no longer part of the default mapping: it
+    # deserializes by evaluating the request body as perl, so it must now be
+    # opted into with engines.serializer.Mutable.enable_dumper. This app does
+    # not set it, so the type is simply unrecognised and falls through to the
+    # default - which is the point worth asserting, since falling back to
+    # JSON rather than quietly reaching for Dumper is what keeps an
+    # unconfigured app away from the eval.
+    for my $accept (
+        'application/xml', 'text/plain', '*/*', 'text/x-data-dumper' )
+    {
         my $response = hit( GET => '/out', [ Accept => $accept ] );
         is( $response->header('Content-Type'), 'application/json',
             "Accept: $accept falls back to JSON" );
