@@ -48,8 +48,14 @@ sub deserialize {
     # behaviour does not depend on which YAML.pm the user resolved: LoadBlessed
     # only defaults to 0 from YAML 1.30, and the variable itself only exists
     # from 1.25 (which is why cpanfile floors YAML -- see the note there).
+    #
+    # UseCode must be zeroed as well: YAML::Loader::Base decides on code
+    # loading with a plain OR -- load_code($YAML::LoadCode || $YAML::UseCode) --
+    # so LoadCode = 0 alone is defeated by an ambient $YAML::UseCode = 1, and
+    # the !!perl/code string eval is not gated on LoadBlessed at all.
     local $YAML::LoadBlessed = 0;
     local $YAML::LoadCode    = 0;
+    local $YAML::UseCode     = 0;
 
     YAML::Load(decode('UTF-8', $content));
 }

@@ -72,6 +72,12 @@ conflicts 'Module::Pluggable', '== 6.2';
 #         from January 2020 and costs nothing, and it keeps the safe behaviour
 #         if our explicit setting is ever lost in a refactor.
 #
+# The serializer also zeroes $YAML::UseCode, because the loader ORs it into
+# its code-loading decision (load_code($YAML::LoadCode || $YAML::UseCode)) and
+# an ambient $YAML::UseCode = 1 would otherwise defeat the LoadCode setting.
+# UseCode has existed since long before any of the above, so it changes
+# nothing about the 1.30 floor.
+#
 # 1.30 also supersedes two older constraints, no longer declared separately:
 # a floor of 0.86 (https://github.com/PerlDancer/Dancer2/issues/899), and an
 # exclusion of the broken 1.16 (cpantesters reports
