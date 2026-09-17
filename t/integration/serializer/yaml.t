@@ -16,13 +16,19 @@ use Dancer2::Serializer::YAML;
 #   !!perl/code               string-eval a sub body
 #
 # Dancer2::Serializer::YAML::deserialize refuses both by setting
-# $YAML::LoadBlessed and $YAML::LoadCode to 0 itself, rather than relying on
-# YAML.pm's defaults. That distinction is the point of these tests: the
-# variables are localised inside deserialize, so the guarantee has to hold even
-# when the surrounding process has set them to something hostile. Each test
-# below therefore sets the ambient value to 1 first -- which is what YAML.pm
-# older than 1.30 does by default, and what Dancer2::Session::YAML sets for its
-# own load -- and asserts the serializer still refuses.
+# $YAML::LoadBlessed, $YAML::LoadCode and $YAML::UseCode to 0 itself, rather
+# than relying on YAML.pm's defaults. That distinction is the point of these
+# tests: the variables are localised inside deserialize, so the guarantee has
+# to hold even when the surrounding process has set them to something hostile.
+# Each test below therefore sets the ambient values to 1 first -- which is what
+# YAML.pm older than 1.30 does by default, and what Dancer2::Session::YAML
+# sets for its own load -- and asserts the serializer still refuses.
+#
+# UseCode has to be guarded too: YAML::Loader::Base decides on code loading
+# with a plain OR -- load_code($YAML::LoadCode || $YAML::UseCode) -- so an
+# ambient $YAML::UseCode = 1 defeats LoadCode = 0 on its own, and the
+# !!perl/code string eval is not gated on LoadBlessed at all. Hence the
+# code-eval subtest below, with a side-effecting payload as its control.
 #
 # The assertions deliberately test only the security property -- "no
 # Attacker::Gadget object comes back" -- and not the exact shape of what does.
@@ -43,7 +49,10 @@ my $blessed_payload = qq{--- !!perl/hash:Attacker::Gadget\nfoo: bar\n};
 my $serializer = Dancer2::Serializer::YAML->new( log_cb => sub {} );
 
 subtest 'a blessing tag never yields the attacker-named object' => sub {
-    local $YAML::LoadBlessed = 1;    # hostile ambient value
+    no warnings 'once';
+    local $YAML::LoadBlessed = 1;    # hostile ambient values
+    local $YAML::LoadCode    = 1;
+    local $YAML::UseCode     = 1;
 
     my $data = eval { $serializer->deserialize($blessed_payload) };
 
@@ -61,10 +70,17 @@ subtest 'a blessing tag never yields the attacker-named object' => sub {
 };
 
 subtest 'the localisation does not leak' => sub {
+    no warnings 'once';
     local $YAML::LoadBlessed = 1;
+    local $YAML::LoadCode    = 1;
+    local $YAML::UseCode     = 1;
     eval { $serializer->deserialize($blessed_payload) };
     is $YAML::LoadBlessed, 1,
         'an ambient LoadBlessed is restored after deserialize returns';
+    is $YAML::LoadCode, 1,
+        'an ambient LoadCode is restored after deserialize returns';
+    is $YAML::UseCode, 1,
+        'an ambient UseCode is restored after deserialize returns';
 };
 
 subtest 'ordinary YAML still round-trips' => sub {
@@ -79,6 +95,36 @@ subtest 'ordinary YAML still round-trips' => sub {
         'a top-level sequence still loads',
     );
 };
+
+{
+    my $code_payload = qq{--- !!perl/code \x27evil { BEGIN { \$::yaml_code_ran = 1 } }\x27\n};
+
+    subtest 'a code tag never evaluates the payload' => sub {
+        # YAML::Loader::Base decides on code loading with load_code($LoadCode
+        # || $UseCode), so with both ambient values hostile -- and even
+        # LoadBlessed hostile, which would be irrelevant here anyway -- a
+        # direct YAML::Load string-evals the payload. The serializer must not.
+        no warnings 'once';
+        local $YAML::LoadBlessed = 1;
+        local $YAML::LoadCode    = 1;
+        local $YAML::UseCode     = 1;
+
+        undef $::yaml_code_ran;
+        {
+            local $SIG{__WARN__} = sub {};
+            eval { YAML::Load($code_payload) };
+        }
+        ok $::yaml_code_ran,
+            'control: the payload is evaluated when passed straight to YAML::Load'
+            or diag 'attacker code was not evaluated, cannot prove the guard matters';
+
+        undef $::yaml_code_ran;
+        eval { $serializer->deserialize($code_payload) };
+        ok !$::yaml_code_ran,
+            'deserialize did not evaluate the supplied code'
+            or diag 'attacker code ran during deserialize';
+    };
+}
 
 {
     package YAMLApp;
@@ -99,9 +145,12 @@ subtest 'ordinary YAML still round-trips' => sub {
 subtest 'a blessing payload sent as a request body never blesses' => sub {
     my $app = YAMLApp->to_app;
 
-    # As above, the ambient value is made hostile first; Plack::Test runs the
+    # As above, the ambient values are made hostile first; Plack::Test runs the
     # app in this process, so this localisation is what the serializer sees.
+    no warnings 'once';
     local $YAML::LoadBlessed = 1;
+    local $YAML::LoadCode    = 1;
+    local $YAML::UseCode     = 1;
 
     test_psgi $app, sub {
         my $cb = shift;

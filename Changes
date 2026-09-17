@@ -6,6 +6,10 @@
       string eval via !!perl/code. Both are now refused explicitly rather
       than left to YAML.pm's defaults, and the minimum YAML version is
       raised to 1.30 (David Precious)
+    * The refusal above also covers $YAML::UseCode, which YAML.pm ORs into
+      its code-loading decision (load_code($YAML::LoadCode || $YAML::UseCode))
+      and which is not gated on LoadBlessed, so an ambient UseCode would have
+      reopened the string-eval path (David Precious)
 
 2.2.0     2026-09-16 07:58:19-04:00 America/New_York
 
