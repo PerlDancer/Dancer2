@@ -1,18 +1,25 @@
 {{$NEXT}}
 
     [ SECURITY ]
-    * Serializer::YAML no longer lets a request body instantiate arbitrary
-      blessed objects via a !!perl/hash:Some::Class tag, or ask for a
-      string eval via !!perl/code. Both are now refused explicitly rather
-      than left to YAML.pm's defaults, and the minimum YAML version is
-      raised to 1.30 (David Precious)
-    * The refusal above also covers $YAML::UseCode, which YAML.pm ORs into
-      its code-loading decision (load_code($YAML::LoadCode || $YAML::UseCode))
-      and which is not gated on LoadBlessed, so an ambient UseCode would have
-      reopened the string-eval path (David Precious)
+    * PR #1838: Serializer::YAML refuses blessed objects and code in
+      request bodies; raise min YAML version to 1.30 (David Precious)
+    * PR #1839: Serializer::YAML also zeroes $YAML::UseCode, which
+      otherwise reopens the code eval (David Precious)
 
     [ BUG FIXES ]
     * GH #1840: Specify min version of CLI::Osprey needed (Jason A. Crome)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
 
 2.2.0     2026-09-16 07:58:19-04:00 America/New_York
 
