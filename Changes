@@ -11,6 +11,9 @@
       and which is not gated on LoadBlessed, so an ambient UseCode would have
       reopened the string-eval path (David Precious)
 
+    [ BUG FIXES ]
+    * GH #1840: Specify min version of CLI::Osprey needed (Jason A. Crome)
+
 2.2.0     2026-09-16 07:58:19-04:00 America/New_York
 
     [ SECURITY ]

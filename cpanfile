@@ -41,7 +41,7 @@ requires 'Test::More';
 requires 'Types::Standard';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
-requires 'CLI::Osprey';
+requires 'CLI::Osprey','0.09';
 requires 'File::Which';
 requires 'Sub::Util';
 
