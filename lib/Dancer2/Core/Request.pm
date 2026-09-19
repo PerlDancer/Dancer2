@@ -195,6 +195,16 @@ sub deserialize {
         return;
     }
 
+    # don't attempt to deserialize if the form is 'application/x-www-form-urlencoded'
+    if (
+        $self->content_type
+        && $self->content_type =~ /^application\/x-www-form-urlencoded/i
+        && $self->body
+        && $self->body !~ /^\s*[[{]/   # Not JSON
+        && $self->body =~ /=/    # has an '='
+    ) {
+        return;
+    }
 
     my $serializer = $self->serializer
         or return;
