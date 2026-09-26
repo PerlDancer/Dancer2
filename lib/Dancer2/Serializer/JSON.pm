@@ -12,9 +12,9 @@ with 'Dancer2::Core::Role::Serializer';
 has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
-sub from_json { __PACKAGE__->deserialize(@_) }
+sub from_json { __PACKAGE__->new( log_cb => sub {} )->deserialize(@_) }
 
-sub to_json { __PACKAGE__->serialize(@_) }
+sub to_json { __PACKAGE__->new( log_cb => sub {} )->serialize(@_) }
 
 sub decode_json {
     my ( $entity ) = @_;

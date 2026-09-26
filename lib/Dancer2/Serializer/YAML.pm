@@ -16,12 +16,12 @@ has '+content_type' => ( default => sub {'text/x-yaml'} );
 
 my $_from_yaml = defer_sub 'Dancer2::Serializer::YAML::from_yaml' => sub {
     use_module('YAML');
-    sub { __PACKAGE__->deserialize(@_) };
+    sub { __PACKAGE__->new( log_cb => sub {} )->deserialize(@_) };
 };
 
 my $_to_yaml = defer_sub 'Dancer2::Serializer::YAML::to_yaml' => sub {
     use_module('YAML');
-    sub { __PACKAGE__->serialize(@_) };
+    sub { __PACKAGE__->new( log_cb => sub {} )->serialize(@_) };
 };
 
 # class definition

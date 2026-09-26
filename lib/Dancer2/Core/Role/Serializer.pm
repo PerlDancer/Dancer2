@@ -71,7 +71,8 @@ around deserialize => sub {
         1;
     } or do {
         my $error = $@ || 'Zombie Error';
-        $self->log_cb->( core => "Failed to deserialize content: $error" );
+        blessed $self
+            and $self->log_cb->( core => "Failed to deserialize content: $error" );
     };
 
     return $data;
