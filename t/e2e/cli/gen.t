@@ -7,6 +7,7 @@ use Path::Tiny qw< path >;
 use Capture::Tiny qw< capture >;
 use Config;
 use File::Which qw< which >;
+use TAP::Harness;
 
 # End-to-end test for the `dancer2 gen` scaffold: it runs the real command as a
 # separate process against share/skel, then compiles and runs what came out.
@@ -158,20 +159,24 @@ subtest 'the generated application compiles' => sub {
 };
 
 subtest 'the generated application passes its own bundled tests' => sub {
-    # The app's tests are run the way its author would run them, from inside
-    # the generated directory. Its output is captured rather than let through:
-    # in the development environment the console logger writes core-level lines
-    # to STDERR, and that is the child's business, not this suite's.
+    # The app's tests are run from inside the generated directory, the way its
+    # author would run them. Using TAP::Harness (rather than shelling out to
+    # prove) ensures the child perls are invoked via $^X -- the same interpreter
+    # that is running this test suite -- so they see the same @INC and the same
+    # XS extensions. Shelling out to prove lets PATH decide which perl to use,
+    # which on smokers with multiple perls installed can differ from this one,
+    # producing "Can't locate Module::Runtime" or XS handshake mismatches.
     my ( $stdout, $stderr, $status ) = capture {
         local $ENV{'PERL5LIB'} = _prepend_lib();
         my $cwd = path('.')->absolute;
         chdir $app->stringify or die "cannot chdir to $app: $!";
-        my $rv = system( 'prove', '-lr', 't' );
+        my $harness = TAP::Harness->new({ lib => ['lib'] });
+        my $aggregator = $harness->runtests(glob 't/*.t');
         chdir $cwd->stringify or die "cannot chdir back to $cwd: $!";
-        $rv;
+        $aggregator->has_errors ? 1 : 0;
     };
 
-    is( $status, 0, 'prove -lr t passes in the generated application' )
+    is( $status, 0, 'the generated app passes its own tests' )
         or diag "STDOUT:\n$stdout\nSTDERR:\n$stderr";
     like( $stdout, qr/Result: PASS/, 'the harness agrees' );
 };
