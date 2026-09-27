@@ -13,15 +13,26 @@ has '+content_type' => ( default => sub {'text/x-yaml'} );
 
 # deferred helpers. These are called as class methods, but need to
 # ensure YAML is loaded.
+#
+# They run outside a Dancer2 app, so there is no app logger for the engine to
+# send diagnostics to, and a failed parse would otherwise return undef and say
+# nothing at all. Warn instead, so the caller still gets to see what went
+# wrong.
+sub _warn_log_cb {
+    my ( $level, $message ) = @_;
+    $message =~ s/\s+\z//;
+    warn "$message\n";
+    return 1;
+}
 
 my $_from_yaml = defer_sub 'Dancer2::Serializer::YAML::from_yaml' => sub {
     use_module('YAML');
-    sub { __PACKAGE__->new( log_cb => sub {} )->deserialize(@_) };
+    sub { __PACKAGE__->new( log_cb => \&_warn_log_cb )->deserialize(@_) };
 };
 
 my $_to_yaml = defer_sub 'Dancer2::Serializer::YAML::to_yaml' => sub {
     use_module('YAML');
-    sub { __PACKAGE__->new( log_cb => sub {} )->serialize(@_) };
+    sub { __PACKAGE__->new( log_cb => \&_warn_log_cb )->serialize(@_) };
 };
 
 # class definition
