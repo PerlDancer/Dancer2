@@ -20,7 +20,12 @@ has '+content_type' => ( default => sub {'application/json'} );
 # still gets to see what went wrong.
 sub _warn_log_cb {
     my ( $level, $message ) = @_;
-    $message =~ s/\s+\z//;
+
+    # The message is whatever the parser left in $@, and whether it ends in a
+    # newline varies by backend, so strip the line ending it came with and
+    # supply exactly one: no blank line after a message that already ended in
+    # one, and no "at <this file> line <n>" appended by warn to one that did not.
+    $message =~ s/\r?\n\z//;
     warn "$message\n";
     return 1;
 }
