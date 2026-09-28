@@ -388,10 +388,10 @@ We are also on IRC: #dancer on irc.perl.org.
     Mikko Koivunalho
     Mohammad S Anwar
     mokko
-    Nick Patch
     Nick Tonkin
     Nigel Gregoire
     Nikita K
+    Nova Patch
     Nuno Carvalho
     Olaf Alders
     Olivier Mengué
