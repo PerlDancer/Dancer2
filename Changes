@@ -1,5 +1,25 @@
 {{$NEXT}}
 
+    [ SECURITY ]
+    * None
+
+    [ BUG FIXES ]
+    * GH #1837: Fix class-method serializer crash (David Precious)
+    * GH #1843: Fix cpantesters, Debian build issues in gen.t
+      (David Precious)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 2.2.1     2026-09-18 21:12:29-04:00 America/New_York
 
     [ SECURITY ]
