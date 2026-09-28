@@ -53,6 +53,7 @@ my %KNOWN_CORE_KEYS = map +( $_ => 1 ), qw(
     traces
     type_library
     views
+    strict_utf8
     strict_config
     strict_config_allow
 );
