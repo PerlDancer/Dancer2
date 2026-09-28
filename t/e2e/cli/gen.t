@@ -7,6 +7,7 @@ use Path::Tiny qw< path >;
 use Capture::Tiny qw< capture >;
 use Config;
 use File::Which qw< which >;
+use TAP::Harness;
 
 # End-to-end test for the `dancer2 gen` scaffold: it runs the real command as a
 # separate process against share/skel, then compiles and runs what came out.
@@ -14,7 +15,8 @@ use File::Which qw< which >;
 # It runs the command out of *this* source tree, never an installed Dancer2:
 #   -s share/skel  points at the skeleton in the repo rather than the dist_dir
 #   -x             skips the "is there a newer Dancer2 on CPAN?" check, which
-#                  needs the network and warns when it cannot reach it
+#                  needs the network and warns when it cannot reach it -- but
+#                  only if this build still has that option, see below
 # The generated application only knows about Dancer2 through PERL5LIB, which is
 # set to this repo's lib for every child process below.
 
@@ -27,6 +29,33 @@ my $skel   = $repo->child('share/skel');
 
 my $lib = $repo->child('lib')->stringify;
 
+# Whether the generator understands -x has to be asked, not assumed. Debian
+# patches the CPAN version check out of Dancer2::CLI::Gen as a privacy measure
+# (debian/patches/no-phone-home.patch), and the option whose only job is to
+# switch that check off goes with it, so on a build made from those sources
+# passing -x aborts the generator with "Unknown option: x" before it writes a
+# single file -- and every assertion in this file then fails, pointing at the
+# scaffold rather than at the flag. Where the option is gone, so is the network
+# access it exists to suppress, so dropping it loses nothing.
+my @no_check = _no_check_option();
+
+# Ask the command itself what it accepts. Osprey spells the long form with
+# dashes or underscores depending on its version, so match the short form, and
+# accept either spelling of the long one.
+sub _no_check_option {
+    my ( $stdout, $stderr ) = capture {
+        local $ENV{'PERL5LIB'} = _prepend_lib();
+        system( $Config{'perlpath'}, "-I$lib", "$script", 'gen', '--help' );
+    };
+
+    my $usage = "$stdout$stderr";
+    return '-x' if $usage =~ /(?:^|\s)-x\b/ || $usage =~ /--no.check\b/;
+
+    note 'this dancer2 gen has no -x: running without it, on the assumption '
+        . 'that the version check it skips has been patched out too';
+    return;
+}
+
 # Run the generator. Returns the exit status and both output streams; the
 # generator is chatty on STDOUT ("+ path" per file written), and none of that
 # should reach this suite's own output.
@@ -35,9 +64,27 @@ sub gen {
     my ( $stdout, $stderr, $status ) = capture {
         local $ENV{'PERL5LIB'} = _prepend_lib();
         system( $Config{'perlpath'}, "-I$lib", "$script", 'gen',
-            '-s', "$skel", '-x', '--overwrite', @args );
+            '-s', "$skel", @no_check, '--overwrite', @args );
     };
-    return { status => $status, stdout => $stdout, stderr => $stderr };
+    return {
+        status => $status,
+        stdout => $stdout,
+        stderr => _without_version_check_warning($stderr),
+    };
+}
+
+# With no -x to pass, a build that kept the version check runs it, and it warns
+# when it cannot reach metacpan -- which is the normal state of a package build
+# daemon. That warning is the generator saying something this test has no way
+# to switch off in such a build, so it is dropped here rather than failing the
+# "says nothing on STDERR" assertion. Only those two lines go; anything else
+# the generator writes to STDERR is still caught. Builds that do have -x are
+# left alone, so the assertion stays strict where it can be.
+sub _without_version_check_warning {
+    my $stderr = shift;
+    return $stderr if @no_check;
+    $stderr =~ s{\s*Couldn't determine latest version of Dancer2\b[^\n]*\n[^\n]*\n\s*}{}s;
+    return $stderr;
 }
 
 # This repo's lib has to come first so the child sees *this* Dancer2, but it
@@ -158,20 +205,24 @@ subtest 'the generated application compiles' => sub {
 };
 
 subtest 'the generated application passes its own bundled tests' => sub {
-    # The app's tests are run the way its author would run them, from inside
-    # the generated directory. Its output is captured rather than let through:
-    # in the development environment the console logger writes core-level lines
-    # to STDERR, and that is the child's business, not this suite's.
+    # The app's tests are run from inside the generated directory, the way its
+    # author would run them. Using TAP::Harness (rather than shelling out to
+    # prove) ensures the child perls are invoked via $^X -- the same interpreter
+    # that is running this test suite -- so they see the same @INC and the same
+    # XS extensions. Shelling out to prove lets PATH decide which perl to use,
+    # which on smokers with multiple perls installed can differ from this one,
+    # producing "Can't locate Module::Runtime" or XS handshake mismatches.
     my ( $stdout, $stderr, $status ) = capture {
         local $ENV{'PERL5LIB'} = _prepend_lib();
         my $cwd = path('.')->absolute;
         chdir $app->stringify or die "cannot chdir to $app: $!";
-        my $rv = system( 'prove', '-lr', 't' );
+        my $harness = TAP::Harness->new({ lib => ['lib'] });
+        my $aggregator = $harness->runtests(glob 't/*.t');
         chdir $cwd->stringify or die "cannot chdir back to $cwd: $!";
-        $rv;
+        $aggregator->has_errors ? 1 : 0;
     };
 
-    is( $status, 0, 'prove -lr t passes in the generated application' )
+    is( $status, 0, 'the generated app passes its own tests' )
         or diag "STDOUT:\n$stdout\nSTDERR:\n$stderr";
     like( $stdout, qr/Result: PASS/, 'the harness agrees' );
 };

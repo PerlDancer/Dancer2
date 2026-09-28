@@ -12,9 +12,27 @@ with 'Dancer2::Core::Role::Serializer';
 has '+content_type' => ( default => sub {'application/json'} );
 
 # helpers
-sub from_json { __PACKAGE__->deserialize(@_) }
+#
+# These run outside a Dancer2 app, so there is no app logger for the engine to
+# send diagnostics to. Without one they would be lost: a failed parse returns
+# undef and says nothing, and _invalid_utf8 below would stop reaching STDERR
+# the way it does when these run as class methods. Warn instead, so the caller
+# still gets to see what went wrong.
+sub _warn_log_cb {
+    my ( $level, $message ) = @_;
 
-sub to_json { __PACKAGE__->serialize(@_) }
+    # The message is whatever the parser left in $@, and whether it ends in a
+    # newline varies by backend, so strip the line ending it came with and
+    # supply exactly one: no blank line after a message that already ended in
+    # one, and no "at <this file> line <n>" appended by warn to one that did not.
+    $message =~ s/\r?\n\z//;
+    warn "$message\n";
+    return 1;
+}
+
+sub from_json { __PACKAGE__->new( log_cb => \&_warn_log_cb )->deserialize(@_) }
+
+sub to_json { __PACKAGE__->new( log_cb => \&_warn_log_cb )->serialize(@_) }
 
 sub decode_json {
     my ( $entity ) = @_;
