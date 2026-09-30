@@ -125,24 +125,35 @@ sub format_message {
 
 # The two date renderings, behind %t/%u and %T/%U.
 #
-# These used to be a strftime format string each, but strftime's rendering of
-# %d/%b/%Y is not the same on every platform, and where it is not, the format
-# documented for log_format is what gets lost. The MinGW C runtime behind Perl
-# on Windows - that is, every Strawberry Perl build - renders a September date
-# as 29/9/2026 where this format asks for 29/Sep/2026: its %b yields the month
-# number rather than the month name. Building the fields with sprintf, and the
-# month from a fixed table, gives the documented dd/Mon/yyyy on every platform
-# rather than on every platform but one.
+# These used to be a single strftime format string each. They are built field
+# by field now, so that the numbers come out zero-padded the same way on every
+# platform, and so that the one field strftime cannot be relied on for has a
+# fallback (see _month_name below).
 #
 # (strftime is still used for the %{...}t block code, where the format is the
 # caller's own and whatever their C library makes of it is what they asked
 # for.)
+
+# %b is what "dd/Mon/yyyy" has always meant here -- the locale's abbreviated
+# month name -- so it is still asked for. Not every platform can answer,
+# though: the MinGW C runtime behind Strawberry Perl gives %b the month
+# *number*, and a September log line came out "29/9/2026 23:59:25" where this
+# format promises 29/Sep/2026. Where the answer is not a name, fall back to
+# the English abbreviation, so the documented format is what every platform
+# produces without costing anyone the locale-aware behaviour they had.
 my @MONTH_NAME = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+
+sub _month_name {
+    my @time = @_;
+    my $name = POSIX::strftime( '%b', @time );
+    return $name if defined $name && length $name && $name !~ /\A\d+\z/;
+    return $MONTH_NAME[ $time[4] ];
+}
 
 sub _date_slashes {
     my @time = @_;
     return sprintf '%02d/%s/%04d %02d:%02d:%02d',
-        $time[3], $MONTH_NAME[ $time[4] ], $time[5] + 1900,
+        $time[3], _month_name(@time), $time[5] + 1900,
         $time[2], $time[1], $time[0];
 }
 
