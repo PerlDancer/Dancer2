@@ -1,5 +1,29 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * %t and %u in log_format render the month as a number on Windows
+      perls built against the MinGW runtime (29/9/2026 where everywhere
+      else gives 29/Sep/2026: its strftime %b is the month number). The
+      date fields are now built field by field, so they zero-pad the
+      same way everywhere, and the month falls back to the English
+      abbreviation only where strftime has no name to give back - so a
+      localised month name still works where the platform supports it
+    * dancer2 gen wrote the generated MANIFEST and MANIFEST.SKIP with CRLF
+      line endings on Windows, leaving a carriage return on the end of
+      every pattern; both are now written with LF as everywhere else
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 2.2.2     2026-09-28 19:45:16-04:00 America/New_York
 
     [ SECURITY ]
