@@ -102,11 +102,26 @@ subtest 'the request-derived codes substitute' => sub {
 subtest 'the date codes substitute in their documented formats' => sub {
     # The exact instant is not asserted - only the shape, which is what
     # distinguishes the four codes from each other.
-    like( rendered('%t'), qr{^\d{2}/[A-Z][a-z]{2}/\d{4} \d{2}:\d{2}:\d{2}$},
+    #
+    # The numeric fields are held to their documented shape, since every
+    # locale renders a number as a number. The month name is not: %b is
+    # whatever the platform's locale calls the month, and that varies more
+    # than one might hope - German gives "Mär" (non-ASCII), French "sept."
+    # or "mars" (lower-case, and sometimes punctuated). Pinning it to three
+    # ASCII letters, as this subtest used to, fails the suite on any such
+    # system even when the code is behaving exactly as documented.
+    #
+    # So all it asks of the month is that it be a name rather than a number,
+    # which is what keeps the case that actually broke - the MinGW C runtime,
+    # whose %b returns the month *number*, giving "29/9/2026" for September -
+    # from passing as though it were fine.
+    my $MONTH = qr{[^\d/][^/]*};
+
+    like( rendered('%t'), qr{^\d{2}/$MONTH/\d{4} \d{2}:\d{2}:\d{2}$},
         '%t is dd/Mon/yyyy hh:mm:ss' );
     like( rendered('%T'), qr{^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$},
         '%T is yyyy-mm-dd hh:mm:ss' );
-    like( rendered('%u'), qr{^\d{2}/[A-Z][a-z]{2}/\d{4} \d{2}:\d{2}:\d{2}$},
+    like( rendered('%u'), qr{^\d{2}/$MONTH/\d{4} \d{2}:\d{2}:\d{2}$},
         '%u is dd/Mon/yyyy hh:mm:ss, in UTC' );
     like( rendered('%U'), qr{^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$},
         '%U is yyyy-mm-dd hh:mm:ss, in UTC' );
