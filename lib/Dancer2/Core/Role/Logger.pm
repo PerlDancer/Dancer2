@@ -123,16 +123,46 @@ sub format_message {
     return $fmt . "\n";
 }
 
+# The two date renderings, behind %t/%u and %T/%U.
+#
+# These used to be a strftime format string each, but strftime's rendering of
+# %d/%b/%Y is not the same on every platform, and where it is not, the format
+# documented for log_format is what gets lost. The MinGW C runtime behind Perl
+# on Windows - that is, every Strawberry Perl build - renders a September date
+# as 29/9/2026 where this format asks for 29/Sep/2026: its %b yields the month
+# number rather than the month name. Building the fields with sprintf, and the
+# month from a fixed table, gives the documented dd/Mon/yyyy on every platform
+# rather than on every platform but one.
+#
+# (strftime is still used for the %{...}t block code, where the format is the
+# caller's own and whatever their C library makes of it is what they asked
+# for.)
+my @MONTH_NAME = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+
+sub _date_slashes {
+    my @time = @_;
+    return sprintf '%02d/%s/%04d %02d:%02d:%02d',
+        $time[3], $MONTH_NAME[ $time[4] ], $time[5] + 1900,
+        $time[2], $time[1], $time[0];
+}
+
+sub _date_dashes {
+    my @time = @_;
+    return sprintf '%04d-%02d-%02d %02d:%02d:%02d',
+        $time[5] + 1900, $time[4] + 1, $time[3],
+        $time[2], $time[1], $time[0];
+}
+
 sub map_chars_to_subs {
     my ( $self, $level, $message, $caller_delta ) = @_;
     my @stack = caller($self->caller_stack_size + ($caller_delta // 0));
     my $request = $self->request;
     return {
         a => sub { $self->app_name },
-        t => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) ) },
-        T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
-        u => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", gmtime(time) ) },
-        U => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", gmtime(time) ) },
+        t => sub { _date_slashes( localtime(time) ) },
+        T => sub { _date_dashes( localtime(time) ) },
+        u => sub { _date_slashes( gmtime(time) ) },
+        U => sub { _date_dashes( gmtime(time) ) },
         P => sub {$$},
         L => sub {$level},
         m => sub {$message},
