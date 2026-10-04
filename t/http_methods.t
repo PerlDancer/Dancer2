@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Plack::Test;
 use HTTP::Request;
 use Ref::Util qw<is_coderef>;
@@ -15,6 +15,7 @@ my %method = (
     patch   => 'PATCH',
     put     => 'PUT',
     options => 'OPTIONS',
+    query   => 'QUERY',
 );
 
 my $app = __PACKAGE__->to_app;
