@@ -14,8 +14,8 @@ local $ENV{DANCER_ENVIRONMENT};
 local $ENV{PLACK_ENV};
 
 my $runner = Dancer2::Core::Runner->new();
-my $location = path( __FILE__() )->sibling('config');
-my $location2 = path( __FILE__() )->sibling('config2');
+my $location = path( __FILE__ )->sibling('config');
+my $location2 = path( __FILE__ )->sibling('config2');
 
 {
 
