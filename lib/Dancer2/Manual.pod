@@ -98,6 +98,18 @@ or buying tickets.
         return "You submitted: $param";
     };
 
+=item query
+
+This keyword defines a route that responds to HTTP QUERY requests. It
+works similarly to C<post>, in that the search or lookup details are sent
+in the request body, but it is used for read-only actions like looking up
+tickets. Like C<get>, it should not change anything on the server.
+
+    query '/path' => sub {
+        my $param = body_parameters->get('param');
+        return "You searched for: $param";
+    };
+
 =back
 
 So exactly what are these HTTP requests, and what are they all about?
@@ -107,7 +119,7 @@ So exactly what are these HTTP requests, and what are they all about?
 Think of HTTP methods as the different actions visitors can take in
 your theme park. Entering the park, buying tickets, updating ticket
 details, and leaving the park are all actions represented by C<GET>,
-C<POST>, C<PUT>, C<DEL>, C<OPTIONS>, and C<PATCH> methods respectively.
+C<POST>, C<QUERY>, C<PUT>, C<DEL>, C<OPTIONS>, and C<PATCH> methods respectively.
 
 Handling visitor actions in the park:
 
@@ -119,6 +131,11 @@ Handling visitor actions in the park:
     post '/buy-ticket' => sub {
         my $ticket = body_parameters->get('ticket');
         return "You bought a $ticket ticket!";
+    };
+
+    query '/search-ticket' => sub {
+        my $ticket = body_parameters->get('ticket');
+        return "You searched for $ticket ticket!";
     };
 
     put '/update-ticket' => sub {
@@ -145,6 +162,8 @@ Handling visitor actions in the park:
 =item GET: Visitors enter the park and see a welcome message.
 
 =item POST: Visitors buy a ticket.
+
+=item QUERY: Visitor search a ticket.
 
 =item PUT: Visitors update their ticket details.
 
