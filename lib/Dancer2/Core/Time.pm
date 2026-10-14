@@ -31,6 +31,16 @@ sub _build_epoch {
     $self->seconds + time;
 }
 
+my @MONTHS = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+my @DAYS   = qw(Sun Mon Tue Wed Thu Fri Sat);
+
+# The English abbreviated month name for a 0-based month number. These names
+# are fixed, unlike strftime's %b, which is locale-dependent and which some
+# platforms cannot render as a name at all.
+sub month_abbrev {
+    return $MONTHS[ $_[0] ];
+}
+
 has gmt_string => (
     is      => 'ro',
     builder => '_build_gmt_string',
@@ -43,13 +53,11 @@ sub _build_gmt_string {
     return $epoch if $epoch !~ /^\d+$/;
 
     my ( $sec, $min, $hour, $mday, $mon, $year, $wday ) = gmtime($epoch);
-    my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-    my @days   = qw(Sun Mon Tue Wed Thu Fri Sat);
 
     return sprintf "%s, %02d-%s-%d %02d:%02d:%02d GMT",
-      $days[$wday],
+      $DAYS[$wday],
       $mday,
-      $months[$mon],
+      month_abbrev($mon),
       ( $year + 1900 ),
       $hour, $min, $sec;
 }
