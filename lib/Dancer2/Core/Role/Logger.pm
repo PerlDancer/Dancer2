@@ -2,6 +2,7 @@ package Dancer2::Core::Role::Logger;
 # ABSTRACT: Role for logger engines
 
 use Dancer2::Core::Types;
+use Dancer2::Core::Time ();
 
 use Moo::Role;
 use POSIX 'strftime';
@@ -123,46 +124,38 @@ sub format_message {
     return $fmt . "\n";
 }
 
-# The two date renderings, behind %t/%u and %T/%U.
+# The rendering behind %t/%u: "dd/Mon/yyyy hh:mm:ss", local time or UTC.
 #
-# These used to be a single strftime format string each. They are built field
-# by field now, so that the numbers come out zero-padded the same way on every
-# platform, and so that the one field strftime cannot be relied on for has a
-# fallback (see _month_name below).
+# This used to be a single strftime format string. %b is what "dd/Mon/yyyy"
+# has always meant here -- the locale's abbreviated month name -- so strftime
+# is still asked for it, and a localised name is what gets logged wherever the
+# platform can give one. Not every platform can, though: on some Windows perls
+# %b comes back as the month *number*, and a September log line rendered
+# "29/9/2026 23:59:25" on the machines in the cpantesters report, where this
+# format promises 29/Sep/2026. Where strftime does not answer with a name, the
+# fixed English abbreviation takes over, so the documented format is produced
+# everywhere without costing anyone the locale-aware behaviour they had.
 #
-# (strftime is still used for the %{...}t block code, where the format is the
-# caller's own and whatever their C library makes of it is what they asked
-# for.)
-
-# %b is what "dd/Mon/yyyy" has always meant here -- the locale's abbreviated
-# month name -- so it is still asked for. Not every platform can answer,
-# though: the MinGW C runtime behind Strawberry Perl gives %b the month
-# *number*, and a September log line came out "29/9/2026 23:59:25" where this
-# format promises 29/Sep/2026. Where the answer is not a name, fall back to
-# the English abbreviation, so the documented format is what every platform
-# produces without costing anyone the locale-aware behaviour they had.
-my @MONTH_NAME = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
-
-sub _month_name {
+# (strftime is still used unchanged for the %{...}t block code, where the
+# format is the caller's own and whatever their C library makes of it is what
+# they asked for.)
+#
+# These are lexical coderefs rather than named subs: Role::Tiny composes every
+# named sub in this package into each logger class, which is not something a
+# private helper should do.
+my $month_name = sub {
     my @time = @_;
     my $name = POSIX::strftime( '%b', @time );
     return $name if defined $name && length $name && $name !~ /\A\d+\z/;
-    return $MONTH_NAME[ $time[4] ];
-}
+    return Dancer2::Core::Time::month_abbrev( $time[4] );
+};
 
-sub _date_slashes {
+my $date_slashes = sub {
     my @time = @_;
     return sprintf '%02d/%s/%04d %02d:%02d:%02d',
-        $time[3], _month_name(@time), $time[5] + 1900,
+        $time[3], $month_name->(@time), $time[5] + 1900,
         $time[2], $time[1], $time[0];
-}
-
-sub _date_dashes {
-    my @time = @_;
-    return sprintf '%04d-%02d-%02d %02d:%02d:%02d',
-        $time[5] + 1900, $time[4] + 1, $time[3],
-        $time[2], $time[1], $time[0];
-}
+};
 
 sub map_chars_to_subs {
     my ( $self, $level, $message, $caller_delta ) = @_;
@@ -170,10 +163,10 @@ sub map_chars_to_subs {
     my $request = $self->request;
     return {
         a => sub { $self->app_name },
-        t => sub { _date_slashes( localtime(time) ) },
-        T => sub { _date_dashes( localtime(time) ) },
-        u => sub { _date_slashes( gmtime(time) ) },
-        U => sub { _date_dashes( gmtime(time) ) },
+        t => sub { $date_slashes->( localtime(time) ) },
+        T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
+        u => sub { $date_slashes->( gmtime(time) ) },
+        U => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", gmtime(time) ) },
         P => sub {$$},
         L => sub {$level},
         m => sub {$message},

@@ -5,6 +5,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request;
 use HTTP::Request::Common;
+use File::Spec;
 use Path::Tiny ();
 
 # Dancer2 serves files from disk by three different code paths, and they do
@@ -375,13 +376,11 @@ subtest 'the ../ escape is refused at any depth (fixed)' => sub {
     # handler's existence check would then answer before its containment
     # check was ever reached and the request would 404: still safe, but for
     # the wrong reason, and this subtest is about the guard rather than about
-    # what a nonsense path happens to do.
-    my $from_root = $ROOT->stringify;
-    $from_root =~ s{\\}{/}g;                  # a request path is always '/'-separated
-    $from_root =~ s{\A[A-Za-z]:/+}{/};         # a volume is not a directory name
-    $from_root =~ s{\A/+}{};
-    $from_root =~ s{/+\z}{};
-    my @dirs = split m{/}, $from_root;
+    # what a nonsense path happens to do. File::Spec knows the volume and root
+    # forms of the platform it is running on, drive letter or UNC alike.
+    my ( undef, $dirs ) = File::Spec->splitpath( "$ROOT", 1 );
+    my @dirs      = grep { length } File::Spec->splitdir($dirs);
+    my $from_root = join '/', @dirs;
 
     # Five more ../ than there are directories between the root and the
     # fixture, so there is always a surplus for the filesystem root to
@@ -403,7 +402,7 @@ subtest 'the ../ escape is refused at any depth (fixed)' => sub {
             if !-r '/etc/passwd';
 
         my $passwd = $test->request( HTTP::Request->new(
-            GET => '/' . ( '../' x 20 ) . 'etc/passwd' ) );
+            GET => '/' . ( '../' x ( scalar(@dirs) + 5 ) ) . 'etc/passwd' ) );
         is( $passwd->code, 403,
             '/etc/passwd is refused, not served, through Dancer2::Handler::File' );
         unlike( $passwd->content, qr/^root:/m,
