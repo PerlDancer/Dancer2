@@ -1,5 +1,31 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * %t and %u in log_format can render the month as a number on some
+      Windows systems, where strftime's %b returns the month as a bare
+      number ("29/9/2026" instead of "29/Sep/2026"). A name is still
+      asked of strftime, so a localised month name keeps working where
+      the platform can give one; only where it answers with a number
+      does the fixed English abbreviation take over
+    * dancer2 gen wrote the generated MANIFEST and MANIFEST.SKIP in text
+      mode on Windows, giving them CRLF line endings; both are now
+      written with LF as everywhere else. ExtUtils::Manifest strips the
+      carriage return when it reads MANIFEST.SKIP, so no existing app
+      mis-packages - it was the generated files' own inconsistent line
+      endings, and the test that reads them raw, that showed it
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
 2.2.2     2026-09-28 19:45:16-04:00 America/New_York
 
     [ SECURITY ]

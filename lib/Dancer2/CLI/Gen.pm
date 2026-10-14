@@ -392,8 +392,13 @@ sub _copy_templates {
 sub _create_manifest {
     my ( $self, $files, $dir ) = @_;
 
+    # MANIFEST is a list of paths, not prose, so it is written raw: without an
+    # explicit layer the handle is in text mode on Windows and every \n becomes
+    # \r\n, leaving the generated file with different line endings to every
+    # other file _copy_templates writes.
     my $manifest_name = path( $dir, 'MANIFEST' );
-    open( my $manifest, '>', $manifest_name ) or die $!;
+    open( my $manifest, '>:raw', $manifest_name ) or die $!;
+
     print $manifest "MANIFEST\n";
 
     foreach my $file( @{ $files } ) {
@@ -411,8 +416,12 @@ sub _create_manifest {
 sub _add_to_manifest_skip {
     my ( $self, $dir, $dist_name ) = @_;
 
+    # As in _create_manifest: this is a line of patterns, not prose, so it is
+    # appended raw, or on Windows the \n would become \r\n and leave a
+    # carriage return on the end of the pattern.
     my $filename = path( $dir, 'MANIFEST.SKIP' );
-    open my $fh, '>>', $filename or die $!;
+    open my $fh, '>>:raw', $filename or die $!;
+
     print {$fh} "^$dist_name-\n";
     close $fh;
 }
