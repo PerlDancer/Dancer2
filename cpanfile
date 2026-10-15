@@ -85,7 +85,6 @@ conflicts 'Module::Pluggable', '== 6.2';
 # 25911c10-4199-11e6-8d7d-86c55bc2a771 and 284ac158-419a-11e6-9a35-e3e15bc2a771).
 requires 'YAML', '1.30';
 
-recommends 'CGI::Deurl::XS';
 recommends 'Class::XSAccessor';
 recommends 'Cpanel::JSON::XS';
 recommends 'HTTP::XSCookies', '0.000015';
@@ -94,9 +93,9 @@ recommends 'MooX::TypeTiny';
 recommends 'Pod::Simple::Search';
 recommends 'Pod::Simple::SimpleTree';
 recommends 'Type::Tiny::XS';
-recommends 'URL::Encode::XS';
 recommends 'YAML::XS';
 recommends 'Unicode::UTF8';
+recommends 'WWW::Form::UrlEncoded::XS';
 
 suggests 'Fcntl';
 suggests 'MIME::Types';

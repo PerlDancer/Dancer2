@@ -1181,13 +1181,7 @@ If another value is given for C<$source>, then an exception is triggered.
 
 =head1 EXTRA SPEED
 
-If L<Dancer2::Core::Request> detects the following modules as installed,
-it will use them to speed things up:
-
-=over 4
-
-=item * L<URL::Encode::XS>
-
-=item * L<CGI::Deurl::XS>
-
-=back
+Query strings and C<application/x-www-form-urlencoded> request bodies are
+parsed by L<WWW::Form::UrlEncoded>, through L<Plack::Request>. Installing
+L<WWW::Form::UrlEncoded::XS> makes that parsing faster; it is picked up
+automatically.
