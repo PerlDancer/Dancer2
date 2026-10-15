@@ -469,10 +469,10 @@ sub _decode_pairs {
     # plain ASCII needs no decoding: skip the method calls, which cost
     # more than the regex check
     return map {
-          !defined        ? $_
-        : ref             ? $self->_decode( $_, $context )
-        : /[\x80-\xFF]/   ? $self->_decode_bytes( $_, $context )
-        :                   $_
+          !defined($_)  ? $_
+        : ref($_)       ? $self->_decode( $_, $context )
+        : /[\x80-\xFF]/ ? $self->_decode_bytes( $_, $context )
+        :                 $_
     } @$pairs;
 }
 
