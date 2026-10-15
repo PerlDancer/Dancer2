@@ -1,5 +1,35 @@
 {{$NEXT}}
 
+    [ SECURITY ]
+    * None
+
+    [ BUG FIXES ]
+    * GH #1855, GH #1806: Parse query strings with Plack's parser for both
+      params() and query_parameters(), whatever is installed. Base64 '=='
+      padding is no longer dropped, and a %00 no longer truncates
+      parameter names or values. (Peter Mottram)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * None
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * GH #1855: CGI::Deurl::XS and URL::Encode::XS are no longer used, and
+      $Dancer2::Core::Request::XS_PARSE_QUERY_STRING and $XS_URL_DECODE are
+      removed. Recommend WWW::Form::UrlEncoded::XS for faster parsing.
+      (Peter Mottram)
+    * GH #1855: Behaviour changes: params('query') in scalar context returns
+      {} rather than undef when there is no query string; params('query')
+      returns the parsed query even when called before the other params
+      have been built, where it used to return undef or an empty list; and
+      an empty pair in a query string ("a=1&", "a&&b=1", "&") gives a ''
+      key, as form bodies already do. (Peter Mottram)
+
 2.2.2     2026-09-28 19:45:16-04:00 America/New_York
 
     [ SECURITY ]

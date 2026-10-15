@@ -7,6 +7,9 @@ use Encode ();
 
 use Dancer2::Core::Request;
 
+use lib 't/lib';
+use QueryStringCases qw< check_query_string_cases >;
+
 # Unit tests: request objects are built straight from a PSGI environment, with
 # no app and no dispatcher, so a failure here names the request layer rather
 # than something further up.
@@ -197,47 +200,49 @@ subtest 'invalid UTF-8 is fatal when strict_utf8 is on' => sub {
         'valid UTF-8 still decodes normally under strict_utf8' );
 };
 
-subtest 'the XS and pure-Perl query parsers agree' => sub {
-    # This distribution must stay usable with no XS modules installed
-    # (CLAUDE.md: "core must stay pure-Perl-loadable"), so both parsers have
-    # to produce the same result. Whichever one is active on this machine,
-    # the other is still exercised here.
-    #
-    # CGI::Deurl::XS is optional. Forcing $XS_PARSE_QUERY_STRING on below
-    # calls CGI::Deurl::XS::parse_query_string() directly, which dies with
-    # "Undefined subroutine" if the module was never loaded - so skip
-    # outright rather than let that take the rest of the file down with it.
-    unless ( eval { require CGI::Deurl::XS; 1 } ) {
-        plan skip_all => 'CGI::Deurl::XS is not installed';
+subtest 'a query string parses the same through params and query_parameters' => sub {
+    # t/unit/core/request-query-pp.t runs the same cases with
+    # WWW::Form::UrlEncoded's pure-Perl backend forced on. Author testing,
+    # which is how CI runs, must cover the XS backend here, or a failed
+    # install would leave both files testing pure Perl.
+    my $xs = $INC{'WWW/Form/UrlEncoded/XS.pm'};
+    if ( $ENV{AUTHOR_TESTING} && !$ENV{WWW_FORM_URLENCODED_PP} ) {
+        ok( $xs, 'WWW::Form::UrlEncoded is using its XS backend' )
+          or diag 'Author tests need WWW::Form::UrlEncoded::XS installed';
+    }
+    else {
+        note $xs
+          ? 'WWW::Form::UrlEncoded is using its XS backend'
+          : 'WWW::Form::UrlEncoded is using its pure-Perl backend';
     }
 
-    my $query = 'a=1&a=2&plus=a+b&utf=%C3%A9&empty=&solo=x';
+    check_query_string_cases();
+};
 
-    my %result;
-    for my $mode ( [ xs => 1 ], [ pp => 0 ] ) {
-        my ( $label, $on ) = @$mode;
+subtest "params('query') is filled before any route has matched" => sub {
+    # _build_params runs only on a route match or a call to params() with
+    # no source, so code that reads params('query') first, such as in a 404
+    # path, gets here with nothing built.
+    my $req = Dancer2::Core::Request->new( env => psgi_env( query => 'a=1&b=2' ) );
 
-        no warnings 'once';
-        local $Dancer2::Core::Request::XS_PARSE_QUERY_STRING = $on;
-        local $Dancer2::Core::Request::XS_URL_DECODE         = $on;
+    is_deeply( scalar $req->params('query'), { a => 1, b => 2 },
+        'in scalar context' );
+    is_deeply( { $req->params('query') }, { a => 1, b => 2 },
+        'and in list context' );
+};
 
-        my $req = Dancer2::Core::Request->new( env => psgi_env( query => $query ) );
-        $result{$label} = $req->params;
-    }
+subtest 'invalid UTF-8 in the query string is reported once, however it is read' => sub {
+    my $req = Dancer2::Core::Request->new( env => psgi_env( query => 'x=%FF%FE' ) );
 
-    is_deeply( $result{pp}, $result{xs},
-        'both parsers produce identical parameters for the same query string' );
+    my @warnings;
+    my @values = do {
+        local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+        ( $req->params->{x}, $req->query_parameters->get('x') );
+    };
 
-    # Spot-check the things a hand-rolled parser gets wrong, so this is not
-    # just "two broken parsers agree".
-    for my $label ( 'xs', 'pp' ) {
-        my $p = $result{$label};
-        is_deeply( $p->{a}, [ '1', '2' ], "$label: repeated name becomes a list" );
-        is( $p->{plus}, 'a b',      "$label: '+' decodes to a space" );
-        is( $p->{utf},  "\x{e9}",   "$label: percent-encoded UTF-8 decodes" );
-        is( $p->{empty}, '',        "$label: a name with no value is the empty string" );
-        is( $p->{solo}, 'x',        "$label: an ordinary pair survives" );
-    }
+    is_deeply( \@values, [ "\xFF\xFE", "\xFF\xFE" ],
+        'both accessors give the bytes unchanged' );
+    is( scalar @warnings, 1, 'and the query string is reported only once' );
 };
 
 subtest 'splat and captures stay out of route_parameters' => sub {
@@ -298,6 +303,8 @@ subtest 'a forwarded request keeps its decoded body parameters' => sub {
         "still decoded, matching the original request" );
 
     is( $clone->params->{keep},  'yes', 'body parameters are in the clone params' );
+    is_deeply( scalar $clone->params('query'), { from => 'query', added => 'new' },
+        "params('query') on the clone has the original and the added parameters" );
     is( $clone->params->{from},  'query', 'so are query parameters' );
     is( $clone->params->{added}, 'new', 'and the parameters added at forward time' );
     is( $clone->query_parameters->get('added'), 'new',
