@@ -12,9 +12,17 @@ package MyTestApp;
 use Dancer2;
 use Scalar::Util qw/refaddr/;
 
+# Keep every with_return seen alive, so a freed one's address cannot be
+# reused by a later request and make two different blocks look the same
+my @seen;
+sub with_return_addr {
+    push @seen, app->with_return;
+    return refaddr $seen[-1];
+}
+
 hook before_template_render => sub {
     my $path = request->path;
-    my $refadd = refaddr(app->with_return);
+    my $refadd = with_return_addr();
     if ( $path =~ m!route_with_renderer_error! ) {
         die $refadd;
     }
@@ -24,7 +32,7 @@ get '/route_with_renderer_error' => sub {
     ## This route first gets called, then template fires the above hook.
     ## This hook errors, causing Dancer2::Core::App, to throw an error
     ## which *also* fires the hook, crashing the server.
-    my $addr = refaddr(app->with_return);
+    my $addr = with_return_addr();
     template \$addr;
 };
 
@@ -32,7 +40,7 @@ get '/normal_route' => sub {
     ## This should issue normally
     # my $addr = refaddr(app->with_return);
     # template \$addr;
-    return refaddr(app->with_return);
+    return with_return_addr();
 };
 
 package main;
