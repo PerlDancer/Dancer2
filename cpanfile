@@ -41,6 +41,7 @@ requires 'Test::More';
 requires 'Types::Standard';
 requires 'Type::Tiny', '1.000006';
 requires 'URI::Escape';
+requires 'WWW::Form::UrlEncoded', '0.23';
 requires 'CLI::Osprey','0.09';
 requires 'File::Which';
 requires 'Sub::Util';

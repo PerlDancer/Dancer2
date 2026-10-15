@@ -11,6 +11,7 @@ use URI;
 use URI::Escape;
 use Safe::Isa;
 use Hash::MultiValue;
+use WWW::Form::UrlEncoded qw< parse_urlencoded_arrayref >;
 use Ref::Util qw< is_ref is_arrayref is_hashref is_coderef >;
 
 use Dancer2::Core::Types;
@@ -50,10 +51,8 @@ eval {
     };
 };
 
-# check presence of XS module to speedup request
-our $XS_URL_DECODE         = eval { require URL::Encode::XS; 1; };
-our $XS_PARSE_QUERY_STRING = eval { require CGI::Deurl::XS;  1; };
-our $XS_HTTP_COOKIES       = eval { require HTTP::XSCookies; 1; };
+# parse cookies with HTTP::XSCookies when it is installed
+our $XS_HTTP_COOKIES = eval { require HTTP::XSCookies; 1; };
 
 our $_id = 0;
 
@@ -117,21 +116,51 @@ sub id { $_id }
 # Private 'read-only' attributes for request params. See the params()
 # method for the public interface.
 #
-# _body_params, _query_params and _route_params have setter methods that
-# decode byte string to characters before setting; If you know you have
-# decoded (character) params, such as output from a deserializer, you can
-# set these directly in the request object hash to avoid the decode op.
+# _body_params is built from body_parameters, which is already decoded, and
+# _query_params from the same decoded pairs as query_parameters;
+# _route_params has a setter that decodes byte strings to characters. If you
+# know you have decoded (character) params, such as output from a
+# deserializer, you can set these directly in the request object hash to
+# avoid the decode op.
 sub _params { $_[0]->{'_params'} ||= $_[0]->_build_params }
 
 sub _has_params { defined $_[0]->{'_params'} }
 
 sub _body_params { $_[0]->{'_body_params'} ||= $_[0]->body_parameters->as_hashref_mixed }
 
-sub _query_params { $_[0]->{'_query_params'} }
+sub _query_params {
+    my $self = shift;
+    $self->{'_query_params'} //= do {
+        # the same shape as Hash::MultiValue::as_hashref_mixed, without
+        # building the object
+        my $pairs = $self->_query_pairs;
+        my %params;
+        for ( my $i = 0; $i < @$pairs; $i += 2 ) {
+            my ( $key, $value ) = @$pairs[ $i, $i + 1 ];
+            if ( !exists $params{$key} ) {
+                $params{$key} = $value;
+            }
+            elsif ( is_arrayref( $params{$key} ) ) {
+                push @{ $params{$key} }, $value;
+            }
+            else {
+                $params{$key} = [ $params{$key}, $value ];
+            }
+        }
+        \%params;
+    };
+}
 
-sub _set_query_params {
-    my ( $self, $params ) = @_;
-    $self->{_query_params} = $self->_decode( $params, 'query parameters' );
+# The query string parsed by WWW::Form::UrlEncoded, as Plack::Request does,
+# and decoded once, as a flat key/value list
+sub _query_pairs {
+    my $self = shift;
+    $self->{'_query_pairs'} //= [
+        $self->_decode_pairs(
+            parse_urlencoded_arrayref( $self->env->{'QUERY_STRING'} ),
+            'query parameters',
+        )
+    ];
 }
 
 sub _route_params { $_[0]->{'_route_params'} ||= {} }
@@ -362,25 +391,8 @@ sub params {
 
 sub query_parameters {
     my $self = shift;
-    $self->{'query_parameters'} ||= do {
-        if ($XS_PARSE_QUERY_STRING) {
-            my $query = $self->_decode(CGI::Deurl::XS::parse_query_string(
-                $self->env->{'QUERY_STRING'}
-            ), 'query parameters');
-
-            Hash::MultiValue->new(
-                map {;
-                    my $key = $_;
-                    is_arrayref( $query->{$key} )
-                    ? ( map +( $key => $_ ), @{ $query->{$key} } )
-                    : ( $key => $query->{$key} )
-                } keys %{$query}
-            );
-        } else {
-            # defer to Plack::Request
-            $self->_decode($self->SUPER::query_parameters, 'query parameters');
-        }
-    };
+    $self->{'query_parameters'} ||=
+      Hash::MultiValue->new( @{ $self->_query_pairs } );
 }
 
 # this will be filled once the route is matched
@@ -438,8 +450,8 @@ sub _decode {
         return $self->_decode_bytes( $h, $context );
     }
     elsif ( ref($h) eq 'Hash::MultiValue' ) {
-        return Hash::MultiValue->from_mixed(
-            $self->_decode( $h->as_hashref_mixed, $context )
+        return Hash::MultiValue->new(
+            $self->_decode_pairs( [ $h->flatten ], $context )
         );
     }
     elsif ( is_hashref($h) ) {
@@ -450,6 +462,18 @@ sub _decode {
     }
 
     return $h;
+}
+
+sub _decode_pairs {
+    my ( $self, $pairs, $context ) = @_;
+    # plain ASCII needs no decoding: skip the method calls, which cost
+    # more than the regex check
+    return map {
+          !defined        ? $_
+        : ref             ? $self->_decode( $_, $context )
+        : /[\x80-\xFF]/   ? $self->_decode_bytes( $_, $context )
+        :                   $_
+    } @$pairs;
 }
 
 sub _decode_bytes {
@@ -511,70 +535,15 @@ sub _build_params {
     # _before_ we get there, so we have to save it first
     my $previous = $self->_has_params ? $self->_params : {};
 
-    # now parse environment params...
-    my $get_params = $self->_parse_get_params();
-
     # and merge everything
     $self->{_params} = {
         map +( is_hashref($_) ? %{$_} : () ),
         $previous,
-        $get_params,
+        $self->_query_params,
         $self->_body_params,
         $self->_route_params,
     };
 
-}
-
-sub _url_decode {
-    my ( $self, $encoded ) = @_;
-    return URL::Encode::XS::url_decode($encoded) if $XS_URL_DECODE;
-    my $clean = $encoded;
-    $clean =~ tr/\+/ /;
-    $clean =~ s/%([a-fA-F0-9]{2})/pack "H2", $1/eg;
-    return $clean;
-}
-
-sub _parse_get_params {
-    my ($self) = @_;
-    return $self->_query_params if defined $self->{_query_params};
-
-    my $query_params = {};
-
-    my $source = $self->env->{QUERY_STRING};
-    return if !defined $source || $source eq '';
-
-    if ($XS_PARSE_QUERY_STRING) {
-        $self->_set_query_params(
-            CGI::Deurl::XS::parse_query_string($source) || {}
-        );
-        return $self->_query_params;
-    }
-
-    foreach my $token ( split /[&;]/, $source ) {
-        my ( $key, $val ) = split( /=/, $token );
-        next unless defined $key;
-        $val = ( defined $val ) ? $val : '';
-        $key = $self->_url_decode($key);
-        $val = $self->_url_decode($val);
-
-        # looking for multi-value params
-        if ( exists $query_params->{$key} ) {
-            my $prev_val = $query_params->{$key};
-            if ( is_arrayref($prev_val) ) {
-                push @{ $query_params->{$key} }, $val;
-            }
-            else {
-                $query_params->{$key} = [ $prev_val, $val ];
-            }
-        }
-
-        # simple value param (first time we see it)
-        else {
-            $query_params->{$key} = $val;
-        }
-    }
-    $self->_set_query_params( $query_params );
-    return $self->_query_params;
 }
 
 sub _build_uploads {
