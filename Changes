@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+    [ BUG FIXES ]
+    * GH #1851: Generate Dockerfile inside the resolved application directory.
+
 2.2.2     2026-09-28 19:45:16-04:00 America/New_York
 
     [ SECURITY ]
