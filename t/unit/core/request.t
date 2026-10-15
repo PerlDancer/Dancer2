@@ -202,10 +202,19 @@ subtest 'invalid UTF-8 is fatal when strict_utf8 is on' => sub {
 
 subtest 'a query string parses the same through params and query_parameters' => sub {
     # t/unit/core/request-query-pp.t runs the same cases with
-    # WWW::Form::UrlEncoded's pure-Perl backend forced on.
-    note $INC{'WWW/Form/UrlEncoded/XS.pm'}
-      ? 'WWW::Form::UrlEncoded is using its XS backend'
-      : 'WWW::Form::UrlEncoded is using its pure-Perl backend';
+    # WWW::Form::UrlEncoded's pure-Perl backend forced on. Author testing,
+    # which is how CI runs, must cover the XS backend here, or a failed
+    # install would leave both files testing pure Perl.
+    my $xs = $INC{'WWW/Form/UrlEncoded/XS.pm'};
+    if ( $ENV{AUTHOR_TESTING} && !$ENV{WWW_FORM_URLENCODED_PP} ) {
+        ok( $xs, 'WWW::Form::UrlEncoded is using its XS backend' )
+          or diag 'Author tests need WWW::Form::UrlEncoded::XS installed';
+    }
+    else {
+        note $xs
+          ? 'WWW::Form::UrlEncoded is using its XS backend'
+          : 'WWW::Form::UrlEncoded is using its pure-Perl backend';
+    }
 
     check_query_string_cases();
 };
