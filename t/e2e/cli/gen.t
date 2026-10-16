@@ -278,7 +278,7 @@ subtest '-c puts Dockerfile inside the application directory' => sub {
             or diag "STDERR:\n$res->{stderr}\nSTDOUT:\n$res->{stdout}";
         ok( $generated->child('Dockerfile')->is_file,
             "Dockerfile is inside $generated" );
-        like( slurp( $generated->child('Dockerfile') ), qr{^WORKDIR /srv/Docker::App$}m,
+        like( slurp( $generated->child('Dockerfile') ), qr{^WORKDIR /srv/Docker::App\r?$}m,
             'the Dockerfile template is rendered for the application' );
         ok( !$work->child('Docker::App')->exists,
             'no directory named after the raw application name is created' );
