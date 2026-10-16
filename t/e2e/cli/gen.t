@@ -258,6 +258,35 @@ subtest 'the application directory is named after the dashed app name (fixed)' =
         'and an explicit -d is honoured verbatim, even with colons in it' );
 };
 
+subtest '-c puts Dockerfile inside the application directory' => sub {
+    # File::Share needs the source module loaded to find this checkout's
+    # Dockerfile template when the command runs outside the repository.
+    local $ENV{'PERL5OPT'} = join ' ', ( $ENV{'PERL5OPT'} || () ), '-MDancer2';
+
+    for my $directory ( undef, 'custom-app' ) {
+        my $cwd = path('.')->absolute;
+        my $work = path( tempdir( CLEANUP => 1 ) );
+        $work->child('out')->mkpath;
+        my @directory = defined $directory ? ( '-d', $directory ) : ();
+
+        chdir $work->stringify or die "cannot chdir to $work: $!";
+        my $res = gen( '-a', 'Docker::App', '-c', '--path', 'out', @directory );
+        chdir $cwd->stringify or die "cannot chdir back to $cwd: $!";
+
+        my $generated = $work->child( 'out', $directory // 'Docker-App' );
+        is( $res->{'status'}, 0, 'generating a Docker application succeeds' )
+            or diag "STDERR:\n$res->{stderr}\nSTDOUT:\n$res->{stdout}";
+        ok( $generated->child('Dockerfile')->is_file,
+            "Dockerfile is inside $generated" );
+        like( slurp( $generated->child('Dockerfile') ), qr{^WORKDIR /srv/Docker::App\r?$}m,
+            'the Dockerfile template is rendered for the application' );
+        ok( !$work->child('Docker::App')->exists,
+            'no directory named after the raw application name is created' );
+        like( slurp( $generated->child('MANIFEST') ), qr/^Dockerfile\r?$/m,
+            'MANIFEST lists Dockerfile relative to the application directory' );
+    }
+};
+
 subtest 'MANIFEST.SKIP gets the relative dashed name (fixed)' => sub {
     # This used to build the appended line from the full filesystem path the
     # app was generated into, so it could never match anything -- MANIFEST.SKIP
