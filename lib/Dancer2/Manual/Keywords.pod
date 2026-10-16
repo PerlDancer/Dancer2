@@ -65,16 +65,6 @@ B<When to use>: Submit forms, upload files, or create resources.
 
 B<Related Keywords>: L</get>, L</put>, L</del>, L</patch>, L</options>, L</any>
 
-=head2 L<query|Dancer2::Manual/query>
-
-Defines a route that responds to HTTP C<QUERY> requests, typically for body-based
-safe search or lookup requests.
-
-B<When to use>: Submit complex search parameters or queries with a request body
-without side effects.
-
-B<Related Keywords>: L</get>, L</post>, L</put>, L</del>, L</patch>, L</options>, L</any>
-
 =head2 L<prefix|Dancer2::Manual/"Organizing routes and growing your app using prefix">
 
 Defines a common path prefix for grouped routes.
@@ -91,6 +81,16 @@ resources.
 B<When to use>: Update existing resources in an idempotent way.
 
 B<Related Keywords>: L</get>, L</post>, L</del>, L</patch>, L</options>, L</any>
+
+=head2 L<query|Dancer2::Manual/query>
+
+Defines a route that responds to HTTP C<QUERY> requests, typically for body-based
+safe search or lookup requests.
+
+B<When to use>: Submit complex search parameters or queries with a request body
+without side effects.
+
+B<Related Keywords>: L</get>, L</post>, L</put>, L</del>, L</patch>, L</options>, L</any>
 
 =head2 L<splat|Dancer2::Manual/"Wildcard Route Parameters">
 

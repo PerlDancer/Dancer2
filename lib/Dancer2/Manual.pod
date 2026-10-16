@@ -163,7 +163,7 @@ Handling visitor actions in the park:
 
 =item POST: Visitors buy a ticket.
 
-=item QUERY: Visitor search a ticket.
+=item QUERY: Visitors search for a ticket.
 
 =item PUT: Visitors update their ticket details.
 

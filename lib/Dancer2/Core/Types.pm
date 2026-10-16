@@ -109,14 +109,14 @@ Currently this only checks for I<\w+>.
 
 An acceptable method supported by Dancer2.
 
-Currently this includes: I<get>, I<head>, I<post>, I<put>, I<delete> and
+Currently this includes: I<get>, I<head>, I<post>, I<query>, I<put>, I<delete> and
 I<options>.
 
 =head2 Dancer2HTTPMethod($value)
 
 An acceptable HTTP method supported by Dancer2.
 
-Current this includes: I<GET>, I<HEAD>, I<POST>, I<PUT>, I<DELETE>
+Current this includes: I<GET>, I<HEAD>, I<POST>, I<QUERY>, I<PUT>, I<DELETE>
 and I<OPTIONS>.
 
 =head1 SEE ALSO
