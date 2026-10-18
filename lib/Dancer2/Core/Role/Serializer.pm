@@ -39,7 +39,8 @@ around serialize => sub {
 
     blessed $self && $self->execute_hook( 'engine.serializer.before', $content );
 
-    $content or return $content;
+    defined $content && length $content
+        or return $content;
 
     my $data;
     eval {

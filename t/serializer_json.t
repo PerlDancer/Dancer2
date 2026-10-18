@@ -73,4 +73,26 @@ for my $test (@tests) {
 }
 
 
+# A false but defined value is still a document to serialize
+{
+    package NonRefApp;
+
+    use Dancer2;
+
+    set engines => { serializer => { JSON => { allow_nonref => 1 } } };
+    set serializer => 'JSON';
+
+    get '/zero' => sub { 0 };
+}
+
+my $nonref_app = NonRefApp->to_app;
+test_psgi $nonref_app, sub {
+    my $cb = shift;
+
+    my $res = $cb->( GET '/zero' );
+    is( $res->content, '0', 'serialized content in response: zero' );
+    is( $res->headers->content_type, 'application/json',
+        'content type in response: zero' );
+};
+
 done_testing();
