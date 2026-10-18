@@ -140,15 +140,21 @@ subtest 'a numeric %b falls back to the English month name' => sub {
     no warnings 'redefine';
     local *POSIX::strftime = sub {'9'};
 
-    like( rendered('%t'), qr{^\d{2}/[A-Z][a-z]{2}/\d{4} },
-        '%t falls back to a month name' );
-    like( rendered('%u'), qr{^\d{2}/[A-Z][a-z]{2}/\d{4} },
-        '%u falls back to a month name' );
+    # Check for this month's name, not just the shape of one: any three
+    # letters would pass a shape check, so an off-by-one in the month index
+    # the fallback is handed would slip through.
+    my @en    = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+    my $local = $en[ (localtime)[4] ];
+    my $utc   = $en[ (gmtime)[4] ];
 
-    # The shape above cannot tell which month came back, so an off-by-one in
-    # the fallback's month index would slip through. Check the mapping itself.
-    is( Dancer2::Core::Time::month_abbrev($_), (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$_],
-        "month_abbrev($_)" ) for 0 .. 11;
+    like( rendered('%t'), qr{^\d{2}/\Q$local\E/\d{4} },
+        '%t falls back to the right month name' );
+    like( rendered('%u'), qr{^\d{2}/\Q$utc\E/\d{4} },
+        '%u falls back to the right month name' );
+
+    # And the table behind it.
+    is( Dancer2::Core::Time::month_abbrev($_), $en[$_], "month_abbrev($_)" )
+        for 0 .. 11;
 };
 
 subtest 'the caller codes substitute from the stack' => sub {
