@@ -250,12 +250,33 @@ subtest 'the application directory is named after the dashed app name (fixed)' =
         'and Makefile.PL cleans the same dashed name',
     );
 
-    # An explicit -d must still be honoured verbatim, colons or not -- the
-    # fallback only kicks in when the option is absent.
-    my $res2 = gen( '-a', 'Other::App', '-d', 'Other::App', '--path', $dir );
-    is( $res2->{'status'}, 0, 'generating with an explicit -d still succeeds' );
-    ok( path( $dir, 'Other::App' )->is_dir,
-        'and an explicit -d is honoured verbatim, even with colons in it' );
+    # An explicit -d must still be honoured verbatim -- the fallback only
+    # kicks in when the option is absent -- so the directory that appears has
+    # to be the one that was asked for, not the dashed name. The name used
+    # here is one Windows can put on disk, so this runs everywhere; the
+    # colon-bearing spelling of the same thing, which is what makes the point
+    # most sharply, is checked below where such a directory can exist at all.
+    my $res2 = gen( '-a', 'Other::App', '-d', 'Other_App', '--path', $dir );
+    is( $res2->{'status'}, 0, 'generating with an explicit -d still succeeds' )
+        or diag "STDERR:\n$res2->{stderr}\nSTDOUT:\n$res2->{stdout}";
+    ok( path( $dir, 'Other_App' )->is_dir,
+        'and an explicit -d is honoured verbatim, not dashed' );
+
+  SKIP: {
+        # ':' is not a legal character in a Windows file name at all - it
+        # introduces an alternate data stream - so no Windows file system can
+        # hold a directory called Other::App, and a generator asked to make
+        # one there can only fail. The dashes this used to be checked through
+        # are checked above instead; this is the original spelling.
+        skip 'Windows cannot put a colon in a directory name', 2
+            if $^O eq 'MSWin32';
+
+        my $res3 = gen( '-a', 'Other::App', '-d', 'Other::App', '--path', $dir );
+        is( $res3->{'status'}, 0, 'a colon-bearing -d still succeeds' )
+            or diag "STDERR:\n$res3->{stderr}\nSTDOUT:\n$res3->{stdout}";
+        ok( path( $dir, 'Other::App' )->is_dir,
+            'and is honoured verbatim, even with colons in it' );
+    }
 };
 
 subtest 'MANIFEST.SKIP gets the relative dashed name (fixed)' => sub {

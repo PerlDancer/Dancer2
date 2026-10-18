@@ -5,6 +5,7 @@ use Test::More;
 use Plack::Test;
 use HTTP::Request;
 use HTTP::Request::Common;
+use File::Spec;
 use Path::Tiny ();
 
 # Dancer2 serves files from disk by three different code paths, and they do
@@ -363,10 +364,30 @@ subtest 'the ../ escape is refused at any depth (fixed)' => sub {
     # More ../ than there are directories: the surplus would otherwise
     # collapse at the filesystem root instead of failing, so this checks the
     # containment guard holds even when an attacker has no knowledge of how
-    # deep public_dir happens to sit. $ROOT->relative('/') then walks back
-    # down to the fixture from /.
+    # deep public_dir happens to sit.
+    #
+    # Walking up to the root and back down to the fixture again has to be
+    # spelled in plain directory names on every platform, so the fixture's
+    # path is taken relative to the root of the filesystem it is on, with no
+    # volume or root component of its own. $ROOT->relative('/') cannot be used
+    # for that: on Windows it hands back the whole path including the drive
+    # letter - 'C:/Users/...' - and a drive letter in the middle of a request
+    # path is not a legal file name at all, so the file could not exist. The
+    # handler's existence check would then answer before its containment
+    # check was ever reached and the request would 404: still safe, but for
+    # the wrong reason, and this subtest is about the guard rather than about
+    # what a nonsense path happens to do. File::Spec knows the volume and root
+    # forms of the platform it is running on, drive letter or UNC alike.
+    my ( undef, $dirs ) = File::Spec->splitpath( "$ROOT", 1 );
+    my @dirs      = grep { length } File::Spec->splitdir($dirs);
+    my $from_root = join '/', @dirs;
+
+    # Five more ../ than there are directories between the root and the
+    # fixture, so there is always a surplus for the filesystem root to
+    # collapse, however deep the temporary directory holding the fixture is.
     my $deep = $test->request( HTTP::Request->new(
-        GET => '/' . ( '../' x 20 ) . $ROOT->relative('/') . '/secret.txt' ) );
+        GET => '/' . ( '../' x ( scalar(@dirs) + 5 ) )
+            . $from_root . '/secret.txt' ) );
     is( $deep->code, 403,
         'surplus ../ segments are refused rather than collapsing at /' );
     unlike( $deep->content, qr/SECRET/,
@@ -381,7 +402,7 @@ subtest 'the ../ escape is refused at any depth (fixed)' => sub {
             if !-r '/etc/passwd';
 
         my $passwd = $test->request( HTTP::Request->new(
-            GET => '/' . ( '../' x 20 ) . 'etc/passwd' ) );
+            GET => '/' . ( '../' x ( scalar(@dirs) + 5 ) ) . 'etc/passwd' ) );
         is( $passwd->code, 403,
             '/etc/passwd is refused, not served, through Dancer2::Handler::File' );
         unlike( $passwd->content, qr/^root:/m,

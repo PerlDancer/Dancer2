@@ -3,6 +3,8 @@ use warnings;
 
 use Test::More;
 
+use POSIX ();
+use Dancer2::Core::Time ();
 use Dancer2::Logger::Capture;
 use Dancer2::Core::Request;
 
@@ -102,14 +104,57 @@ subtest 'the request-derived codes substitute' => sub {
 subtest 'the date codes substitute in their documented formats' => sub {
     # The exact instant is not asserted - only the shape, which is what
     # distinguishes the four codes from each other.
-    like( rendered('%t'), qr{^\d{2}/[A-Z][a-z]{2}/\d{4} \d{2}:\d{2}:\d{2}$},
+    #
+    # The numeric fields are held to their documented shape, since every
+    # locale renders a number as a number. The month name is not: %b is
+    # whatever the platform's locale calls the month, and that varies more
+    # than one might hope - German gives "Mär" (non-ASCII), French "sept."
+    # or "mars" (lower-case, and sometimes punctuated). Pinning it to three
+    # ASCII letters, as this subtest used to, fails the suite on any such
+    # system even when the code is behaving exactly as documented.
+    #
+    # So all it asks of the month is that it contain a name rather than be one
+    # number, which is what keeps the case that actually broke - some Windows
+    # perls, where %b returns the month *number*, giving "29/9/2026" for
+    # September - from passing as though it were fine. It must not require the
+    # name to *start* with a non-digit, or CJK month names such as "10月" would
+    # be rejected although they are perfectly good names.
+    my $MONTH = qr{[^/]*[^\d/][^/]*};
+
+    like( rendered('%t'), qr{^\d{2}/$MONTH/\d{4} \d{2}:\d{2}:\d{2}$},
         '%t is dd/Mon/yyyy hh:mm:ss' );
     like( rendered('%T'), qr{^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$},
         '%T is yyyy-mm-dd hh:mm:ss' );
-    like( rendered('%u'), qr{^\d{2}/[A-Z][a-z]{2}/\d{4} \d{2}:\d{2}:\d{2}$},
+    like( rendered('%u'), qr{^\d{2}/$MONTH/\d{4} \d{2}:\d{2}:\d{2}$},
         '%u is dd/Mon/yyyy hh:mm:ss, in UTC' );
     like( rendered('%U'), qr{^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$},
         '%U is yyyy-mm-dd hh:mm:ss, in UTC' );
+};
+
+subtest 'a numeric %b falls back to the English month name' => sub {
+    # The fallback only runs where strftime's %b is not a name. On Linux and
+    # macOS it always is, so without forcing the broken behaviour here the
+    # fallback would never be exercised, and a mistake in it would pass the
+    # whole suite unnoticed. Pretend, for the duration, that the platform is
+    # one of those where %b answers with the month number.
+    no warnings 'redefine';
+    local *POSIX::strftime = sub {'9'};
+
+    # Check for this month's name, not just the shape of one: any three
+    # letters would pass a shape check, so an off-by-one in the month index
+    # the fallback is handed would slip through.
+    my @en    = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+    my $local = $en[ (localtime)[4] ];
+    my $utc   = $en[ (gmtime)[4] ];
+
+    like( rendered('%t'), qr{^\d{2}/\Q$local\E/\d{4} },
+        '%t falls back to the right month name' );
+    like( rendered('%u'), qr{^\d{2}/\Q$utc\E/\d{4} },
+        '%u falls back to the right month name' );
+
+    # And the table behind it.
+    is( Dancer2::Core::Time::month_abbrev($_), $en[$_], "month_abbrev($_)" )
+        for 0 .. 11;
 };
 
 subtest 'the caller codes substitute from the stack' => sub {

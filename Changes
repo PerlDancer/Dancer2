@@ -7,6 +7,7 @@
     * GH #1794: Add support for HTTP QUERY method. Old style plugins that
       register query will die at load, and apps with their own sub query
       will get a redefine warning. (Mohammad S Anwar)
+    * PR #1845: Fix Windows-only test failures (David Precious)
 
     [ ENHANCEMENTS ]
     * None
@@ -19,7 +20,6 @@
 
     [ MISC ]
     * None
-
 
 2.2.2     2026-09-28 19:45:16-04:00 America/New_York
 
