@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+    [ SECURITY ]
+    * None
+
+    [ BUG FIXES ]
+    * GH #1794: Add support for HTTP QUERY method. Old style plugins that
+      register query will die at load, and apps with their own sub query
+      will get a redefine warning. (Mohammad S Anwar)
+
+    [ ENHANCEMENTS ]
+    * None
+
+    [ DOCUMENTATION ]
+    * PR #1844: Update Patch's name (Nova Patch)
+
+    [ DEPRECATED ]
+    * None
+
+    [ MISC ]
+    * None
+
+
 2.2.2     2026-09-28 19:45:16-04:00 America/New_York
 
     [ SECURITY ]

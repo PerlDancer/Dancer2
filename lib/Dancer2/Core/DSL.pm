@@ -89,6 +89,7 @@ sub dsl_keywords {
         path                 => { is_global => 1 },
         post                 => { is_global => 1 },
         prefix               => { is_global => 1 },
+        query                => { is_global => 1 },
         prepare_app          => {
             is_global => 1, prototype => '&',
         },
@@ -217,6 +218,7 @@ sub get     { shift->_normalize_route( [qw/get head/], @_ ) }
 sub options { shift->_normalize_route( [qw/options /], @_ ) }
 sub patch   { shift->_normalize_route( [qw/patch   /], @_ ) }
 sub post    { shift->_normalize_route( [qw/post    /], @_ ) }
+sub query   { shift->_normalize_route( [qw/query   /], @_ ) }
 sub put     { shift->_normalize_route( [qw/put     /], @_ ) }
 
 sub prepare_app { push @{ shift->app->prep_apps }, @_ }
@@ -230,7 +232,7 @@ sub any {
         s/^del$/delete/ for @{ $_[0] };
     }
     else {
-        unshift @_, [qw/delete get head options patch post put/];
+        unshift @_, [qw/delete get head options patch post put query/];
     }
 
     $self->_normalize_route(@_);
