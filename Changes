@@ -9,6 +9,10 @@
       register query will die at load, and apps with their own sub query
       will get a redefine warning. (Mohammad S Anwar)
     * PR #1845: Fix Windows-only test failures (David Precious)
+    * GH #1861: Fix numbers being serialized to JSON as strings. The UTF-8
+      scan in Dancer2::Serializer::JSON gave numeric values a string form,
+      which JSON::XS and JSON::PP before 2.97 then encoded as quoted strings.
+      (David Precious)
 
     [ ENHANCEMENTS ]
     * None
