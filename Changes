@@ -13,6 +13,10 @@
       scan in Dancer2::Serializer::JSON gave numeric values a string form,
       which JSON::XS and JSON::PP before 2.97 then encoded as quoted strings.
       (David Precious)
+    * GH #1863: Fix the JSON serializer modifying the data it is given.
+      Hash keys needing UTF-8 decoding were deleted from the caller's hash,
+      losing those entries, and arrayrefs were decoded in place.
+      (David Precious)
 
     [ ENHANCEMENTS ]
     * None
