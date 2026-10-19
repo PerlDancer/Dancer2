@@ -126,7 +126,14 @@ sub _ensure_scalar {
     my ( $value, $strict_utf8, $self ) = @_;
 
     return $value if utf8::is_utf8($value);
-    return $value if $value !~ /[\x80-\xFF]/;
+
+    # Probe a throwaway copy, not $value itself. Matching a regex against a
+    # number gives that SV a string form as well as its numeric one, and
+    # backends that decide "number or string?" by looking at the SV's flags
+    # -- JSON::XS, and JSON::PP before 2.97 -- then encode it as a string, so
+    # 42 comes back out as "42". GH #1861.
+    my $probe = $value;
+    return $value if $probe !~ /[\x80-\xFF]/;
     return _decode_utf8($value) if _valid_utf8($value);
 
     _invalid_utf8( $strict_utf8, $self );
