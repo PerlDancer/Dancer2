@@ -2,6 +2,7 @@ package Dancer2::Core::Role::Logger;
 # ABSTRACT: Role for logger engines
 
 use Dancer2::Core::Types;
+use Dancer2::Core::Time ();
 
 use Moo::Role;
 use POSIX 'strftime';
@@ -123,15 +124,48 @@ sub format_message {
     return $fmt . "\n";
 }
 
+# The rendering behind %t/%u: "dd/Mon/yyyy hh:mm:ss", local time or UTC.
+#
+# This used to be a single strftime format string. %b is what "dd/Mon/yyyy"
+# has always meant here -- the locale's abbreviated month name -- so strftime
+# is still asked for it, and a localised name is what gets logged wherever the
+# platform can give one. Not every platform can, though: on some Windows perls
+# %b comes back as the month *number*, and a September log line rendered
+# "29/9/2026 23:59:25" on the machines in the cpantesters report, where this
+# format promises 29/Sep/2026. Where strftime does not answer with a name, the
+# fixed English abbreviation takes over, so the documented format is produced
+# everywhere without costing anyone the locale-aware behaviour they had.
+#
+# (strftime is still used unchanged for the %{...}t block code, where the
+# format is the caller's own and whatever their C library makes of it is what
+# they asked for.)
+#
+# These are lexical coderefs rather than named subs: Role::Tiny composes every
+# named sub in this package into each logger class, which is not something a
+# private helper should do.
+my $month_name = sub {
+    my @time = @_;
+    my $name = POSIX::strftime( '%b', @time );
+    return $name if defined $name && length $name && $name !~ /\A\d+\z/;
+    return Dancer2::Core::Time::month_abbrev( $time[4] );
+};
+
+my $date_slashes = sub {
+    my @time = @_;
+    return sprintf '%02d/%s/%04d %02d:%02d:%02d',
+        $time[3], $month_name->(@time), $time[5] + 1900,
+        $time[2], $time[1], $time[0];
+};
+
 sub map_chars_to_subs {
     my ( $self, $level, $message, $caller_delta ) = @_;
     my @stack = caller($self->caller_stack_size + ($caller_delta // 0));
     my $request = $self->request;
     return {
         a => sub { $self->app_name },
-        t => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", localtime(time) ) },
+        t => sub { $date_slashes->( localtime(time) ) },
         T => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time) ) },
-        u => sub { POSIX::strftime( "%d/%b/%Y %H:%M:%S", gmtime(time) ) },
+        u => sub { $date_slashes->( gmtime(time) ) },
         U => sub { POSIX::strftime( "%Y-%m-%d %H:%M:%S", gmtime(time) ) },
         P => sub {$$},
         L => sub {$level},
