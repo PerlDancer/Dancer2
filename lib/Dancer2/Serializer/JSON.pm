@@ -71,7 +71,20 @@ sub deserialize {
     $options ||= {};
     $options->{utf8} = 1;
     delete $options->{strict_utf8};
-    JSON::MaybeXS->new($options)->decode($entity);
+    my $data;
+    eval {
+        $data = JSON::MaybeXS->new($options)->decode($entity);
+        1;
+    } or do {
+        my $error = $@ || 'Zombie Error';
+        # remove any "at our/source/code.pm line 67." from end of error
+        # and rethrow.
+        # Note that Cpanel::JSON::XS also includes an ' at ' in its error msg
+        # hence the negative lookahead to ensure we only remove the ending.
+        $error =~ s/\s+at\s+(?!.*at\s).*?\s+line\s+\d+.$//s;
+        die $error;
+    };
+    return $data;
 }
 
 my $HAS_UNICODE_UTF8 = eval { require Unicode::UTF8; 1; };
