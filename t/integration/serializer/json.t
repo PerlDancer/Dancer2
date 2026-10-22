@@ -179,18 +179,26 @@ subtest 'an empty serialized body loses the serializer content type' => sub {
 };
 
 subtest 'a malformed body is a 400, not a 500' => sub {
-    my $response = $test->request(
-        raw_request( POST => '/echo', 'application/json', '{"a":' ) );
+    for my $case (
+        [ '{"a":'                  => 'Malformed JSON body' ],
+        [ '{"a":"a"} with garbage' => 'Trailing garbage' ],
+    ) {
 
-    # 400, because the client sent bad input - re-sending will not help.
-    is( $response->code, 400, 'a malformed JSON body is refused as 400' );
+        my $response = $test->request(
+            raw_request( POST => '/echo', 'application/json', $case->[0] ) );
 
-    # The error itself is serialized, so a JSON client can read the failure.
-    is( $response->header('Content-Type'), 'application/json',
-        'and the error is reported in the serializer\'s content type' );
-    my $error = json_body($response);
-    like( $error->{message}, qr/deserialize/i,
-        'the message says deserialization is what failed' );
+        # 400, because the client sent bad input - re-sending will not help.
+        is( $response->code, 400, $case->[1] . ' is refused as 400' );
+
+        # The error itself is serialized, so a JSON client can read the failure.
+        is( $response->header('Content-Type'), 'application/json',
+            'and the error is reported in the serializer\'s content type' );
+        my $error = json_body($response);
+        like( $error->{message}, qr/deserialize/i,
+            'the message says deserialization is what failed' );
+        unlike( $error->{message}, qr{at .*lib/Dancer2/Serializer/JSON.pm line}i,
+            'the message contains no file/line detail' );
+    }
 
     # A valid body on the same route is the control.
     my $ok = $test->request(
