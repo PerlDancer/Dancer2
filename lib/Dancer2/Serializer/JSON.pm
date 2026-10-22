@@ -79,9 +79,8 @@ sub deserialize {
         my $error = $@ || 'Zombie Error';
         # remove any "at our/source/code.pm line 67." from end of error
         # and rethrow.
-        # Note that Cpanel::JSON::XS also includes an ' at ' in its error msg
-        # hence the negative lookahead to ensure we only remove the ending.
-        $error =~ s/\s+at\s+(?!.*at\s).*?\s+line\s+\d+.$//s;
+        # Note the \S+ won't match against the heinous crime using paths with spaces
+        $error =~ s/ at \S+ line \d+\.$//;
         die $error;
     };
     return $data;
