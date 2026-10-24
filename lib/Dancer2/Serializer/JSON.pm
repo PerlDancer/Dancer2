@@ -71,7 +71,19 @@ sub deserialize {
     $options ||= {};
     $options->{utf8} = 1;
     delete $options->{strict_utf8};
-    JSON::MaybeXS->new($options)->decode($entity);
+    my $data;
+    eval {
+        $data = JSON::MaybeXS->new($options)->decode($entity);
+        1;
+    } or do {
+        my $error = $@ || 'Zombie Error';
+        # remove any "at our/source/code.pm line 67." from end of error
+        # and rethrow.
+        # Note the \S+ won't match against the heinous crime using paths with spaces
+        $error =~ s/ at \S+ line \d+\.$//;
+        die $error;
+    };
+    return $data;
 }
 
 my $HAS_UNICODE_UTF8 = eval { require Unicode::UTF8; 1; };
