@@ -1,7 +1,8 @@
 {{$NEXT}}
 
     [ SECURITY ]
-    * None
+    * PR #1866: JSON serializer should not leak file/line detail
+      (Russell @veryrusty Jenkins)
 
     [ BUG FIXES ]
     * GH #1794: Add support for HTTP QUERY method. Old style plugins that
