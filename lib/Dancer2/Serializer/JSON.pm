@@ -106,27 +106,19 @@ sub _ensure_characters {
     return $entity if !defined $entity;
     return _ensure_scalar( $entity, $strict_utf8, $self ) if !ref $entity;
 
+    # Build new containers rather than writing decoded values back into the
+    # caller's. The entity belongs to the application, which may well hold on
+    # to it and serialize it again. GH #1863.
     if ( is_plain_arrayref($entity) ) {
-        for my $i ( 0 .. $#{$entity} ) {
-            $entity->[$i] = _ensure_characters( $entity->[$i], $strict_utf8, $self );
-        }
-        return $entity;
+        return [ map { _ensure_characters( $_, $strict_utf8, $self ) }
+                 @{$entity} ];
     }
 
     if ( is_plain_hashref($entity) ) {
         my %ret;
         for my $key ( keys %{$entity} ) {
-            my $value = $entity->{$key};
-            my $decoded_key = _ensure_scalar( $key, $strict_utf8, $self );
-            my $decoded_value =
-              _ensure_characters( $value, $strict_utf8, $self );
-
-            if ( $decoded_key ne $key ) {
-                delete $entity->{$key};
-                $ret{$decoded_key} = $decoded_value;
-            } else {
-                $ret{$key} = $decoded_value;
-            }
+            $ret{ _ensure_scalar( $key, $strict_utf8, $self ) } =
+              _ensure_characters( $entity->{$key}, $strict_utf8, $self );
         }
         return \%ret;
     }
