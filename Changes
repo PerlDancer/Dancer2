@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2.3.0     2026-10-26 19:55:58-04:00 America/New_York
+
     [ SECURITY ]
     * PR #1866: JSON serializer should not leak file/line detail
       (Russell @veryrusty Jenkins)
