@@ -318,7 +318,8 @@ sub serialize {
     my $serializer = $self->serializer
         or return;
 
-    $content = $serializer->serialize($content)
+    $content = $serializer->serialize($content);
+    defined $content && length $content
         or return;
 
     $self->content_type( $serializer->content_type );
